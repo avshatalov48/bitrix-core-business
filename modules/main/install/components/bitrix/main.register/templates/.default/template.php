@@ -17,6 +17,11 @@
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
+
+if($arResult["SHOW_SMS_FIELD"] == true)
+{
+	CJSCore::Init('phone_auth');
+}
 ?>
 <div class="bx-auth-reg">
 
@@ -37,6 +42,63 @@ elseif($arResult["USE_EMAIL_CONFIRMATION"] === "Y"):
 ?>
 <p><?echo GetMessage("REGISTER_EMAIL_WILL_BE_SENT")?></p>
 <?endif?>
+
+<?if($arResult["SHOW_SMS_FIELD"] == true):?>
+
+<form method="post" action="<?=POST_FORM_ACTION_URI?>" name="regform">
+<?
+if($arResult["BACKURL"] <> ''):
+?>
+	<input type="hidden" name="backurl" value="<?=$arResult["BACKURL"]?>" />
+<?
+endif;
+?>
+<input type="hidden" name="SIGNED_DATA" value="<?=htmlspecialcharsbx($arResult["SIGNED_DATA"])?>" />
+<table>
+	<tbody>
+		<tr>
+			<td><?echo GetMessage("main_register_sms")?><span class="starrequired">*</span></td>
+			<td><input size="30" type="text" name="SMS_CODE" value="<?=htmlspecialcharsbx($arResult["SMS_CODE"])?>" autocomplete="off" /></td>
+		</tr>
+	</tbody>
+	<tfoot>
+		<tr>
+			<td></td>
+			<td><input type="submit" name="code_submit_button" value="<?echo GetMessage("main_register_sms_send")?>" /></td>
+		</tr>
+	</tfoot>
+</table>
+</form>
+
+<script>
+new BX.PhoneAuth({
+	containerId: 'bx_register_resend',
+	errorContainerId: 'bx_register_error',
+	interval: <?=$arResult["PHONE_CODE_RESEND_INTERVAL"]?>,
+	data:
+		<?=CUtil::PhpToJSObject([
+			'signedData' => $arResult["SIGNED_DATA"],
+		])?>,
+	onError:
+		function(response)
+		{
+			var errorDiv = BX('bx_register_error');
+			var errorNode = BX.findChildByClassName(errorDiv, 'errortext');
+			errorNode.innerHTML = '';
+			for(var i = 0; i < response.errors.length; i++)
+			{
+				errorNode.innerHTML = errorNode.innerHTML + BX.util.htmlspecialchars(response.errors[i].message) + '<br>';
+			}
+			errorDiv.style.display = '';
+		}
+});
+</script>
+
+<div id="bx_register_error" style="display:none"><?ShowError("error")?></div>
+
+<div id="bx_register_resend"></div>
+
+<?else:?>
 
 <form method="post" action="<?=POST_FORM_ACTION_URI?>" name="regform" enctype="multipart/form-data">
 <?
@@ -181,7 +243,7 @@ if ($arResult["USE_CAPTCHA"] == "Y")
 		</tr>
 		<tr>
 			<td><?=GetMessage("REGISTER_CAPTCHA_PROMT")?>:<span class="starrequired">*</span></td>
-			<td><input type="text" name="captcha_word" maxlength="50" value="" /></td>
+			<td><input type="text" name="captcha_word" maxlength="50" value="" autocomplete="off" /></td>
 		</tr>
 	<?
 }
@@ -195,9 +257,13 @@ if ($arResult["USE_CAPTCHA"] == "Y")
 		</tr>
 	</tfoot>
 </table>
+</form>
+
 <p><?echo $arResult["GROUP_POLICY"]["PASSWORD_REQUIREMENTS"];?></p>
+
+<?endif //$arResult["SHOW_SMS_FIELD"] == true ?>
+
 <p><span class="starrequired">*</span><?=GetMessage("AUTH_REQ")?></p>
 
-</form>
 <?endif?>
 </div>

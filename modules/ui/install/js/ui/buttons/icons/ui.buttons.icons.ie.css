@@ -1,0 +1,725 @@
+.bx-ie .ui-btn[class*="ui-btn-icon-"]:not(input):empty,
+.bx-ie .ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main:empty,
+.bx-ie .ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main:empty {
+	padding: 0;
+	min-width: 39px;
+}
+.bx-ie .ui-btn-xs.ui-btn[class*="ui-btn-icon-"]:not(input):empty,
+.bx-ie .ui-btn-xs.ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main:empty,
+.bx-ie .ui-btn-xs.ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main:empty {
+	min-width: 26px;
+}
+.bx-ie .ui-btn-sm.ui-btn[class*="ui-btn-icon-"]:not(input):empty,
+.bx-ie .ui-btn-sm.ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main:empty,
+.bx-ie .ui-btn-sm.ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main:empty {
+	min-width: 31px;
+}
+.bx-ie .ui-btn-lg.ui-btn[class*="ui-btn-icon-"]:not(input):empty,
+.bx-ie .ui-btn-lg.ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main:empty,
+.bx-ie .ui-btn-lg.ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main:empty {
+	min-width: 47px;
+}
+
+.bx-ie .ui-btn[class*="ui-btn-icon-"],
+.bx-ie .ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main,
+.bx-ie .ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main {
+	padding-left: 39px;
+}
+
+.bx-ie .ui-btn[class*="ui-btn-icon-"]:after,
+.bx-ie .ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main:after,
+.bx-ie .ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main:after,
+.bx-ie .ui-btn-md.ui-btn[class*="ui-btn-icon-"]:after,
+.bx-ie .ui-btn-md.ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main:after,
+.bx-ie .ui-btn-md.ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main:after { left: 5.5px; }
+
+.bx-ie .ui-btn-lg.ui-btn[class*="ui-btn-icon-"]:after,
+.bx-ie .ui-btn-lg.ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main:after,
+.bx-ie .ui-btn-lg.ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main:after { left: 9.5px; }
+
+.bx-ie .ui-btn-sm.ui-btn[class*="ui-btn-icon-"]:after,
+.bx-ie .ui-btn-sm.ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main:after,
+.bx-ie .ui-btn-sm.ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main:after { left: 1.5px; }
+
+.bx-ie .ui-btn-xs.ui-btn[class*="ui-btn-icon-"]:after,
+.bx-ie .ui-btn-xs.ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main:after,
+.bx-ie .ui-btn-xs.ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main:after { left: 0; }
+
+/*endregion*/
+
+/*region Icons list*/
+/*region ui-btn-icon-add-folder*/
+.bx-ie .ui-btn-icon-add-folder.ui-btn:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-add-folder.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-add-folder .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-add-folder.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-add-folder-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-add-folder.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-add-folder.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-add-folder.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-add-folder-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-business*/
+.bx-ie .ui-btn-icon-business.ui-btn:after,
+.bx-ie .ui-btn-icon-business.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-business.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-business.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-business.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-business .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-business.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-business-process-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-business.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-business.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-business.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-business.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-business.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-business.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-business.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-business.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-business-process-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-business-confirm*/
+.bx-ie .ui-btn-icon-business-confirm.ui-btn:after,
+.bx-ie .ui-btn-icon-business-confirm.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-business-confirm.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-business-confirm.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-business-confirm.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-business-confirm .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business-confirm.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business-confirm.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business-confirm.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-business-confirm.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-business-process-confirm-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-business-confirm.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-business-confirm.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-business-confirm.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-business-confirm.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-business-confirm.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-business-confirm.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-business-confirm.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business-confirm.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business-confirm.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business-confirm.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business-confirm.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-business-confirm.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-business-process-confirm-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-business-warning*/
+.bx-ie .ui-btn-icon-business-warning.ui-btn:after,
+.bx-ie .ui-btn-icon-business-warning.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-business-warning.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-business-warning.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-business-warning.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-business-warning .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business-warning.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business-warning.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business-warning.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-business-warning.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-business-process-warning-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-business-warning.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-business-warning.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-business-warning.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-business-warning.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-business-warning.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-business-warning.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-business-warning.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business-warning.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business-warning.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business-warning.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-business-warning.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-business-warning.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-business-process-warning-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-add*/
+.bx-ie .ui-btn-icon-add.ui-btn:after,
+.bx-ie .ui-btn-icon-add.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-add.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-add.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-add.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-add .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-add.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-plus-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-add.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-add.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-add.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-add.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-add.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-add.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-add.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-add.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-plus-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-setting*/
+.bx-ie .ui-btn-icon-setting.ui-btn:after,
+.bx-ie .ui-btn-icon-setting.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-setting.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-setting.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-setting.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-setting .ui-btn-main:after,
+.bx-ie .ui-btn-icon-setting.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-setting.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-setting.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-setting.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-setting-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-setting.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-setting.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-setting.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-setting.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-setting.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-setting.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-setting.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-setting.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-setting.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-setting.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-setting.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-setting.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-setting-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-unfollow*/
+.bx-ie .ui-btn-icon-unfollow.ui-btn:after,
+.bx-ie .ui-btn-icon-unfollow.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-unfollow.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-unfollow.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-unfollow.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-unfollow .ui-btn-main:after,
+.bx-ie .ui-btn-icon-unfollow.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-unfollow.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-unfollow.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-unfollow.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-unfollow-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-unfollow.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-unfollow.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-unfollow.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-unfollow.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-unfollow.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-unfollow.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-unfollow.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-unfollow.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-unfollow.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-unfollow.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-unfollow.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-unfollow.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-unfollow-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-follow*/
+.bx-ie .ui-btn-icon-follow.ui-btn:after,
+.bx-ie .ui-btn-icon-follow.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-follow.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-follow.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-follow.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-follow .ui-btn-main:after,
+.bx-ie .ui-btn-icon-follow.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-follow.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-follow.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-follow.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-follow-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-follow.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-follow.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-follow.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-follow.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-follow.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-follow.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-follow.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-follow.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-follow.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-follow.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-follow.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-follow.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-follow-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-task*/
+.bx-ie .ui-btn-icon-task.ui-btn:after,
+.bx-ie .ui-btn-icon-task.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-task.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-task.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-task.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-task .ui-btn-main:after,
+.bx-ie .ui-btn-icon-task.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-task.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-task.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-task.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-task-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-task.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-task.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-task.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-task.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-task.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-task.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-task.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-task.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-task.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-task.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-task.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-task.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-task-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-search*/
+.bx-ie .ui-btn-icon-search.ui-btn:after,
+.bx-ie .ui-btn-icon-search.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-search.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-search.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-search.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-search .ui-btn-main:after,
+.bx-ie .ui-btn-icon-search.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-search.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-search.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-search.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-search-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-search.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-search.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-search.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-search.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-search.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-search.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-search.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-search.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-search.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-search.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-search.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-search.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-search-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-list*/
+.bx-ie .ui-btn-icon-list.ui-btn:after,
+.bx-ie .ui-btn-icon-list.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-list.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-list.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-list.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-list .ui-btn-main:after,
+.bx-ie .ui-btn-icon-list.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-list.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-list.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-list.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-list-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-list.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-list.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-list.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-list.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-list.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-list.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-list.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-list.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-list.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-list.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-list.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-list.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-list-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-print*/
+.bx-ie .ui-btn-icon-print.ui-btn:after,
+.bx-ie .ui-btn-icon-print.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-print.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-print.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-print.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-print .ui-btn-main:after,
+.bx-ie .ui-btn-icon-print.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-print.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-print.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-print.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-print-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-print.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-print.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-print.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-print.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-print.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-print.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-print.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-print.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-print.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-print.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-print.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-print.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-print-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-info*/
+.bx-ie .ui-btn-icon-info.ui-btn:after,
+.bx-ie .ui-btn-icon-info.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-info.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-info.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-info.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-info .ui-btn-main:after,
+.bx-ie .ui-btn-icon-info.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-info.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-info.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-info.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-info-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-info.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-info.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-info.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-info.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-info.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-info.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-info.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-info.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-info.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-info.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-info.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-info.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-info-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-camera*/
+.bx-ie .ui-btn-icon-camera.ui-btn:after,
+.bx-ie .ui-btn-icon-camera.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-camera.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-camera.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-camera.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-camera .ui-btn-main:after,
+.bx-ie .ui-btn-icon-camera.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-camera.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-camera.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-camera.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-camera-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-camera.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-camera.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-camera.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-camera.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-camera.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-camera.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-camera.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-camera.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-camera.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-camera.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-camera.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-camera.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-camera-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-phone-up*/
+.bx-ie .ui-btn-icon-phone-up.ui-btn:after,
+.bx-ie .ui-btn-icon-phone-up.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-phone-up.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-phone-up.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-phone-up.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-phone-up .ui-btn-main:after,
+.bx-ie .ui-btn-icon-phone-up.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-phone-up.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-phone-up.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-phone-up.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-phone-up-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-phone-up.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-phone-up.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-phone-up.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-phone-up.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-phone-up.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-phone-up.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-phone-up.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-phone-up.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-phone-up.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-phone-up.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-phone-up.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-phone-up.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-phone-up-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-phone-down*/
+.bx-ie .ui-btn-icon-phone-down.ui-btn:after,
+.bx-ie .ui-btn-icon-phone-down.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-phone-down.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-phone-down.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-phone-down.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-phone-down .ui-btn-main:after,
+.bx-ie .ui-btn-icon-phone-down.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-phone-down.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-phone-down.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-phone-down.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-phone-down-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-phone-down.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-phone-down.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-phone-down.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-phone-down.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-phone-down.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-phone-down.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-phone-down.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-phone-down.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-phone-down.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-phone-down.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-phone-down.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-phone-down.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-phone-down-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-start*/
+.bx-ie .ui-btn-icon-start.ui-btn:after,
+.bx-ie .ui-btn-icon-start.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-start.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-start.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-start.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-start .ui-btn-main:after,
+.bx-ie .ui-btn-icon-start.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-start.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-start.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-start.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-play-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-start.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-start.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-start.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-start.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-start.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-start.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-start.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-start.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-start.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-start.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-start.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-start.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-play-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-stop*/
+.bx-ie .ui-btn-icon-stop.ui-btn:after,
+.bx-ie .ui-btn-icon-stop.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-stop.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-stop.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-stop.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-stop .ui-btn-main:after,
+.bx-ie .ui-btn-icon-stop.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-stop.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-stop.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-stop.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-stop-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-stop.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-stop.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-stop.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-stop.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-stop.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-stop.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-stop.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-stop.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-stop.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-stop.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-stop.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-stop.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-stop-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-back*/
+.bx-ie .ui-btn-icon-back.ui-btn:after,
+.bx-ie .ui-btn-icon-back.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-back.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-back.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-back.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-back .ui-btn-main:after,
+.bx-ie .ui-btn-icon-back.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-back.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-back.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-back.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-back-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-back.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-back.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-back.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-back.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-back.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-back.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-back.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-back.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-back.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-back.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-back.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-back.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-back-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-pause*/
+.bx-ie .ui-btn-icon-pause.ui-btn:after,
+.bx-ie .ui-btn-icon-pause.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-pause.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-pause.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-pause.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-pause .ui-btn-main:after,
+.bx-ie .ui-btn-icon-pause.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-pause.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-pause.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-pause.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-pause-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-pause.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-pause.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-pause.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-pause.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-pause.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-pause.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-pause.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-pause.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-pause.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-pause.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-pause.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-pause.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-pause-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-cloud*/
+.bx-ie .ui-btn-icon-cloud.ui-btn:after,
+.bx-ie .ui-btn-icon-cloud.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-cloud.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-cloud.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-cloud.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-cloud.ui-btn-main:after,
+.bx-ie .ui-btn-icon-cloud.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-cloud.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-cloud.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-cloud.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-cloud-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-cloud.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-cloud.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-cloud.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-cloud.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-cloud.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-cloud.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-cloud.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-cloud.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-cloud.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-cloud.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-cloud.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-cloud.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-cloud-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-download*/
+.bx-ie .ui-btn-icon-download.ui-btn:after,
+.bx-ie .ui-btn-icon-download.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-download.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-download.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-download.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-download.ui-btn-main:after,
+.bx-ie .ui-btn-icon-download.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-download.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-download.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-download.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-download-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-download.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-download.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-download.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-download.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-download.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-download.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-download.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-download.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-download.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-download.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-download.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-download.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-download-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-remove*/
+.bx-ie .ui-btn-icon-remove.ui-btn:after,
+.bx-ie .ui-btn-icon-remove.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-remove.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-remove.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-remove.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-remove.ui-btn-main:after,
+.bx-ie .ui-btn-icon-remove.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-remove.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-remove.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-remove.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-remove-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-remove.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-remove.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-remove.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-remove.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-remove.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-remove.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-remove.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-remove.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-remove.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-remove.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-remove.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-remove.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-remove-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-share*/
+.bx-ie .ui-btn-icon-share.ui-btn:after,
+.bx-ie .ui-btn-icon-share.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-share.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-share.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-share.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-share.ui-btn-main:after,
+.bx-ie .ui-btn-icon-share.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-share.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-share.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-share.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-share-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-share.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-share.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-share.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-share.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-share.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-share.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-share.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-share.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-share.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-share.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-share.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-share.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-share-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-edit*/
+.bx-ie .ui-btn-icon-edit.ui-btn:after,
+.bx-ie .ui-btn-icon-edit.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-edit.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-edit.ui-btn.ui-btn-default:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-edit.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-edit.ui-btn-main:after,
+.bx-ie .ui-btn-icon-edit.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-edit.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-edit.ui-btn-default .ui-btn-main:after,
+.bx-ie .bitrix24-light-theme .ui-btn-icon-edit.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-edit-white.svg?v=1.1); }
+
+.bx-ie .ui-btn-icon-edit.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-edit.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-edit.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-edit.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-edit.ui-btn.ui-btn-light-border:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-edit.ui-btn.ui-btn-themes:after,
+.bx-ie .ui-btn-icon-edit.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-edit.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-edit.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-edit.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-edit.ui-btn-light-border .ui-btn-main:after,
+.bx-ie .bitrix24-dark-theme .ui-btn-icon-edit.ui-btn-themes .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-edit-black.svg?v=1.1); }
+/*endregion*/
+
+/*endregion*/

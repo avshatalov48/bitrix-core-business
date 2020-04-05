@@ -314,10 +314,6 @@ class CAllAgent
 			$errMsg[] = array("id" => "LAST_EXEC", "text" => Loc::getMessage("MAIN_AGENT_ERROR_LAST_EXEC"));
 		}
 
-		if($arFields["MODULE_ID"] <> '')
-			if(!IsModuleInstalled($arFields["MODULE_ID"]))
-				$errMsg[] = array("id" => "MODULE_ID", "text" => Loc::getMessage("MAIN_AGENT_ERROR_MODULE"));
-
 		if(!empty($errMsg))
 		{
 			$e = new CAdminException($errMsg);

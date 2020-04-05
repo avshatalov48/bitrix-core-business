@@ -14,9 +14,11 @@
 /** @var int $intMaxSectionID */
 
 use Bitrix\Main,
+	Bitrix\Main\Loader,
 	Bitrix\Currency,
 	Bitrix\Iblock,
-	Bitrix\Catalog;
+	Bitrix\Catalog,
+	Bitrix\Sale;
 
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/export_yandex.php');
 IncludeModuleLangFile(__FILE__);
@@ -62,14 +64,10 @@ if (!CCatalog::IsUserExists())
 	$USER = new CUser();
 }
 
+$saleIncluded = Loader::includeModule('sale');
+if ($saleIncluded)
+	Sale\DiscountCouponsManager::freezeCouponStorage();
 CCatalogDiscountSave::Disable();
-/** @noinspection PhpDeprecationInspection */
-CCatalogDiscountCoupon::ClearCoupon();
-if ($USER->IsAuthorized())
-{
-	/** @noinspection PhpDeprecationInspection */
-	CCatalogDiscountCoupon::ClearCouponsByManage($USER->GetID());
-}
 
 $arYandexFields = array(
 	'typePrefix', 'vendor', 'vendorCode', 'model',
@@ -356,17 +354,26 @@ function yandex_get_value($arOffer, $param, $PROPERTY, $arProperties, $arUserTyp
 		{
 			if (is_array($description))
 			{
-				foreach ($value as $key => $val)
+				if (!empty($value))
 				{
-					$strProperty .= $strProperty ? "\n" : "";
-					$strProperty .= '<param name="'.yandex_text2xml($description[$key], true).'">'.
-						yandex_text2xml($val, true).'</param>';
+					foreach ($value as $key => $val)
+					{
+						if ($val != '')
+						{
+							$strProperty .= $strProperty ? "\n" : "";
+							$strProperty .= '<param name="'.yandex_text2xml($description[$key], true).'">'.
+								yandex_text2xml($val, true).'</param>';
+						}
+					}
 				}
 			}
 			else
 			{
-				$strProperty .= '<param name="'.yandex_text2xml($iblockProperty['NAME'], true).'">'.
-					yandex_text2xml($value, true).'</param>';
+				if ($value != '')
+				{
+					$strProperty .= '<param name="'.yandex_text2xml($iblockProperty['NAME'], true).'">'.
+						yandex_text2xml($value, true).'</param>';
+				}
 			}
 		}
 		else
@@ -386,6 +393,14 @@ if (!function_exists('yandexPrepareItems'))
 {
 	function yandexPrepareItems(array &$list, array $parents, array $options)
 	{
+		$descrField = 'PREVIEW_TEXT';
+		$descrTypeField = 'PREVIEW_TEXT_TYPE';
+		if (isset($options['DESCRIPTION']))
+		{
+			$descrField = $options['DESCRIPTION'];
+			$descrTypeField = $options['DESCRIPTION'].'_TYPE';
+		}
+
 		foreach (array_keys($list) as $index)
 		{
 			$row = &$list[$index];
@@ -398,7 +413,7 @@ if (!function_exists('yandexPrepareItems'))
 				{
 					if ($field == 'PREVIEW_TEXT' || $field == 'DETAIL_TEXT')
 						continue;
-					if (strncmp($field, 'CATALOG_', 8) == 0)
+					if (\CProductQueryBuilder::isValidField($field))
 						continue;
 					if (is_array($value))
 						continue;
@@ -454,13 +469,13 @@ if (!function_exists('yandexPrepareItems'))
 			}
 
 			$row['DESCRIPTION'] = '';
-			if ($row['PREVIEW_TEXT'] !== null)
+			if ($row[$descrField] !== null)
 			{
 				$row['DESCRIPTION'] = yandex_text2xml(
 					TruncateText(
-						$row['PREVIEW_TEXT_TYPE'] == 'html'
-						? strip_tags(preg_replace_callback("'&[^;]*;'", 'yandex_replace_special', $row['PREVIEW_TEXT']))
-						: preg_replace_callback("'&[^;]*;'", 'yandex_replace_special', $row['PREVIEW_TEXT']),
+						$row[$descrTypeField] == 'html'
+						? strip_tags(preg_replace_callback("'&[^;]*;'", 'yandex_replace_special', $row[$descrField]))
+						: preg_replace_callback("'&[^;]*;'", 'yandex_replace_special', $row[$descrField]),
 						$options['MAX_DESCRIPTION_LENGTH']
 					),
 					true
@@ -539,6 +554,13 @@ if ($parametricFieldsExist)
 	unset($id);
 }
 
+$commonFields = [
+	'DESCRIPTION' => 'PREVIEW_TEXT'
+];
+if (!empty($XML_DATA['COMMON_FIELDS']) && is_array($XML_DATA['COMMON_FIELDS']))
+	$commonFields = array_merge($commonFields, $XML_DATA['COMMON_FIELDS']);
+$descrField = $commonFields['DESCRIPTION'];
+
 $propertyFields = array(
 	'ID', 'PROPERTY_TYPE', 'MULTIPLE', 'USER_TYPE'
 );
@@ -570,6 +592,7 @@ else
 		$arProp['LINK_IBLOCK_ID'] = (int)$arProp['LINK_IBLOCK_ID'];
 		$ar_iblock['PROPERTY'][$arProp['ID']] = $arProp;
 	}
+	unset($arProp, $rsProps);
 }
 
 $SETUP_SERVER_NAME = (isset($SETUP_SERVER_NAME) ? trim($SETUP_SERVER_NAME) : '');
@@ -681,12 +704,14 @@ else
 						$arSelectOfferProps[] = $arProp['ID'];
 				}
 			}
+			unset($arProp, $rsProps);
 			$arOfferIBlock['LID'] = $site['LID'];
 		}
 		else
 		{
 			$arRunErrors[] = GetMessage('YANDEX_ERR_BAD_OFFERS_IBLOCK_ID');
 		}
+		unset($rsOfferIBlocks);
 	}
 	if ($boolOffers)
 	{
@@ -759,6 +784,7 @@ foreach($arProperties as $key => $arProperty)
 		$arProperties[$key]['PROPERTY_TYPE'] = 'USER_TYPE';
 	}
 }
+unset($arUserType, $key, $arProperty);
 
 $bAllSections = false;
 $arSections = array();
@@ -797,6 +823,7 @@ if (empty($arRunErrors))
 			$clearedValues[] = (int)$row['ID'];
 		unset($row, $iterator);
 		$arSections = $clearedValues;
+		unset($clearedValues);
 	}
 
 	if (!$bAllSections && empty($arSections))
@@ -811,19 +838,46 @@ if (!empty($XML_DATA['PRICE']))
 	$XML_DATA['PRICE'] = (int)$XML_DATA['PRICE'];
 	if ($XML_DATA['PRICE'] > 0)
 	{
-		$rsCatalogGroups = CCatalogGroup::GetGroupsList(array('CATALOG_GROUP_ID' => $XML_DATA['PRICE'],'GROUP_ID' => 2));
-		if (!($arCatalogGroup = $rsCatalogGroups->Fetch()))
-		{
+		$priceIterator = Catalog\GroupAccessTable::getList([
+			'select' => ['CATALOG_GROUP_ID'],
+			'filter' => ['=CATALOG_GROUP_ID' => $XML_DATA['PRICE'], '=GROUP_ID' => 2]
+		]);
+		$priceType = $priceIterator->fetch();
+		if (empty($priceType))
 			$arRunErrors[] = GetMessage('YANDEX_ERR_BAD_PRICE_TYPE');
-		}
 		else
-		{
 			$selectedPriceType = $XML_DATA['PRICE'];
-		}
+		unset($priceType, $priceIterator);
 	}
 	else
 	{
 		$arRunErrors[] = GetMessage('YANDEX_ERR_BAD_PRICE_TYPE');
+	}
+}
+$priceTypeList = [];
+if (empty($arRunErrors))
+{
+	if ($selectedPriceType > 0)
+	{
+		$priceTypeList = [$selectedPriceType];
+	}
+	else
+	{
+		$priceTypeList = [];
+		$priceIterator = Catalog\GroupAccessTable::getList([
+			'select' => ['CATALOG_GROUP_ID'],
+			'filter' => ['=GROUP_ID' => 2],
+			'order' => ['CATALOG_GROUP_ID' => 'ASC']
+		]);
+		while ($priceType = $priceIterator->fetch())
+		{
+			$priceTypeId = (int)$priceType['CATALOG_GROUP_ID'];
+			$priceTypeList[$priceTypeId] = $priceTypeId;
+			unset($priceTypeId);
+		}
+		unset($priceType, $priceIterator);
+		if (empty($priceTypeList))
+			$arRunErrors[] = GetMessage('BX_CATALOG_EXPORT_YANDEX_ERR_NO_AVAILABLE_PRICE_TYPES');
 	}
 }
 
@@ -881,6 +935,7 @@ $itemOptions = array(
 	'PROTOCOL' => $usedProtocol,
 	'SITE_NAME' => $site['SERVER_NAME'],
 	'SITE_DIR' => $site['DIR'],
+	'DESCRIPTION' => $descrField,
 	'MAX_DESCRIPTION_LENGTH' => 3000
 );
 
@@ -1113,48 +1168,38 @@ else
 		$arRunErrors[] = str_replace('#FILE#', $itemFileName, GetMessage('YANDEX_ERR_FILE_OPEN_WRITING'));
 	}
 }
+unset($arSections);
 
 if (empty($arRunErrors))
 {
 	//*****************************************//
-	Catalog\Product\Price\Calculation::setConfig(array(
+	$saleDiscountOnly = false;
+	$calculationConfig = [
 		'CURRENCY' => $BASE_CURRENCY,
 		'USE_DISCOUNTS' => true,
 		'RESULT_WITH_VAT' => true,
 		'RESULT_MODE' => Catalog\Product\Price\Calculation::RESULT_MODE_COMPONENT
-	));
-
-	if ($selectedPriceType > 0)
+	];
+	if ($saleIncluded)
 	{
-		$priceTypeList = array($selectedPriceType);
+		$saleDiscountOnly = (string)Main\Config\Option::get('sale', 'use_sale_discount_only') == 'Y';
+		if ($saleDiscountOnly)
+			$calculationConfig['PRECISION'] = (int)Main\Config\Option::get('sale', 'value_precision');
 	}
-	else
-	{
-		$priceTypeList = array();
-		$priceIterator = Catalog\GroupAccessTable::getList(array(
-			'select' => array('CATALOG_GROUP_ID'),
-			'filter' => array('@GROUP_ID' => 2),
-			'order' => array('CATALOG_GROUP_ID' => 'ASC')
-		));
-		while ($priceType = $priceIterator->fetch())
-		{
-			$priceTypeId = (int)$priceType['CATALOG_GROUP_ID'];
-			$priceTypeList[$priceTypeId] = $priceTypeId;
-			unset($priceTypeId);
-		}
-		unset($priceType, $priceIterator);
-	}
+	Catalog\Product\Price\Calculation::setConfig($calculationConfig);
+	unset($calculationConfig);
 
 	$needDiscountCache = \CIBlockPriceTools::SetCatalogDiscountCache($priceTypeList, array(2), $site['LID']);
 
 	$itemFields = array(
 		'ID', 'IBLOCK_ID', 'IBLOCK_SECTION_ID', 'NAME',
-		'PREVIEW_PICTURE', 'PREVIEW_TEXT', 'PREVIEW_TEXT_TYPE', 'DETAIL_PICTURE', 'DETAIL_PAGE_URL',
-		'CATALOG_AVAILABLE', 'CATALOG_TYPE'
+		'PREVIEW_PICTURE', $descrField, $descrField.'_TYPE', 'DETAIL_PICTURE', 'DETAIL_PAGE_URL',
+		'AVAILABLE', 'TYPE', 'VAT_ID', 'VAT_INCLUDED'
 	);
 	$offerFields = array(
 		'ID', 'IBLOCK_ID', 'IBLOCK_SECTION_ID', 'NAME',
-		'PREVIEW_PICTURE', 'PREVIEW_TEXT', 'PREVIEW_TEXT_TYPE', 'DETAIL_PICTURE', 'DETAIL_PAGE_URL'
+		'PREVIEW_PICTURE', $descrField, $descrField.'_TYPE', 'DETAIL_PICTURE', 'DETAIL_PAGE_URL',
+		'AVAILABLE', 'TYPE', 'VAT_ID', 'VAT_INCLUDED'
 	);
 
 	$allowedTypes = array();
@@ -1194,12 +1239,12 @@ if (empty($arRunErrors))
 	$filter['ACTIVE'] = 'Y';
 	$filter['ACTIVE_DATE'] = 'Y';
 	if ($filterAvailable)
-		$filter['CATALOG_AVAILABLE'] = 'Y';
+		$filter['AVAILABLE'] = 'Y';
 	$filter = array_merge($filter, $permissionFilter);
 
 	$offersFilter = array('ACTIVE' => 'Y', 'ACTIVE_DATE' => 'Y');
 	if ($filterAvailable)
-		$offersFilter['CATALOG_AVAILABLE'] = 'Y';
+		$offersFilter['AVAILABLE'] = 'Y';
 	$offersFilter = array_merge($offersFilter, $permissionFilter);
 
 	if (isset($allowedTypes[Catalog\ProductTable::TYPE_SKU]))
@@ -1245,8 +1290,8 @@ if (empty($arRunErrors))
 			$id = (int)$row['ID'];
 			$CUR_ELEMENT_ID = $id;
 
-			$row['CATALOG_TYPE'] = (int)$row['CATALOG_TYPE'];
-			$elementType = $row['CATALOG_TYPE'];
+			$row['TYPE'] = (int)$row['TYPE'];
+			$elementType = $row['TYPE'];
 			if (!isset($allowedTypes[$elementType]))
 				continue;
 
@@ -1372,6 +1417,9 @@ if (empty($arRunErrors))
 						foreach (array_keys($offers[$productId]) as $offerId)
 						{
 							$productOffer = $offers[$productId][$offerId];
+							$productOffer['VAT_ID'] = (int)$productOffer['VAT_ID'];
+							if ($productOffer['VAT_ID'] == 0)
+								$productOffer['VAT_ID'] = $offersCatalog['VAT_ID'];
 
 							$productOffer['PRICES'] = array();
 							if ($needDiscountCache)
@@ -1416,55 +1464,52 @@ if (empty($arRunErrors))
 								);
 							}
 
-							if (!$filterAvailable)
-							{
-								$iterator = Catalog\ProductTable::getList(array(
-									'select' => ($vatExport ? array('ID', 'AVAILABLE', 'VAT_ID', 'VAT_INCLUDED') : array('ID', 'AVAILABLE')),
-									'filter' => array('@ID' => $pageIds)
-								));
-								while ($row = $iterator->fetch())
-								{
-									$id = (int)$row['ID'];
-									$offerLinks[$id]['CATALOG_AVAILABLE'] = $row['AVAILABLE'];
-									if ($vatExport)
-									{
-										$row['VAT_ID'] = (int)$row['VAT_ID'];
-										$offerLinks[$id]['CATALOG_VAT_ID'] = ($row['VAT_ID'] > 0 ? $row['VAT_ID'] : $offersCatalog['VAT_ID']);
-										$offerLinks[$id]['CATALOG_VAT_INCLUDED'] = $row['VAT_INCLUDED'];
-									}
-								}
-								unset($id, $row, $iterator);
-							}
+							// load vat cache
+							$vatList = CCatalogProduct::GetVATDataByIDList($pageIds);
+							unset($vatList);
 
-							$priceFilter = array(
+							$priceFilter = [
 								'@PRODUCT_ID' => $pageIds,
-								'+<=QUANTITY_FROM' => 1,
-								'+>=QUANTITY_TO' => 1,
-							);
+								[
+									'LOGIC' => 'OR',
+									'<=QUANTITY_FROM' => 1,
+									'=QUANTITY_FROM' => null
+								],
+								[
+									'LOGIC' => 'OR',
+									'>=QUANTITY_TO' => 1,
+									'=QUANTITY_TO' => null
+								]
+							];
 							if ($selectedPriceType > 0)
-								$priceFilter['CATALOG_GROUP_ID'] = $selectedPriceType;
+								$priceFilter['=CATALOG_GROUP_ID'] = $selectedPriceType;
 							else
 								$priceFilter['@CATALOG_GROUP_ID'] = $priceTypeList;
 
-							$priceIterator = \CPrice::GetListEx(
-								array(),
-								$priceFilter,
-								false,
-								false,
-								array('ID', 'PRODUCT_ID', 'CATALOG_GROUP_ID', 'PRICE', 'CURRENCY')
-							);
-							while ($price = $priceIterator->Fetch())
+							$iterator = Catalog\PriceTable::getList([
+								'select' => ['ID', 'PRODUCT_ID', 'CATALOG_GROUP_ID', 'PRICE', 'CURRENCY'],
+								'filter' => $priceFilter
+							]);
+
+							while ($price = $iterator->fetch())
 							{
 								$id = (int)$price['PRODUCT_ID'];
 								$priceTypeId = (int)$price['CATALOG_GROUP_ID'];
 								$offerLinks[$id]['PRICES'][$priceTypeId] = $price;
 								unset($priceTypeId, $id);
 							}
-							unset($price, $priceIterator);
+							unset($price, $iterator);
+
+							if ($saleDiscountOnly)
+							{
+								Catalog\Discount\DiscountManager::preloadPriceData(
+									$pageIds,
+									($selectedPriceType > 0 ? [$selectedPriceType] : $priceTypeList)
+								);
+							}
 						}
 						unset($pageIds);
 					}
-
 					unset($parentsUrl, $offerIdsList, $offerLinks);
 				}
 				unset($offers);
@@ -1484,31 +1529,49 @@ if (empty($arRunErrors))
 			{
 				foreach (array_chunk($simpleIdsList, 500) as $pageIds)
 				{
-					$priceFilter = array(
+					// load vat cache
+					$vatList = CCatalogProduct::GetVATDataByIDList($pageIds);
+					unset($vatList);
+
+					$priceFilter = [
 						'@PRODUCT_ID' => $pageIds,
-						'+<=QUANTITY_FROM' => 1,
-						'+>=QUANTITY_TO' => 1,
-					);
+						[
+							'LOGIC' => 'OR',
+							'<=QUANTITY_FROM' => 1,
+							'=QUANTITY_FROM' => null
+						],
+						[
+							'LOGIC' => 'OR',
+							'>=QUANTITY_TO' => 1,
+							'=QUANTITY_TO' => null
+						]
+					];
 					if ($selectedPriceType > 0)
-						$priceFilter['CATALOG_GROUP_ID'] = $selectedPriceType;
+						$priceFilter['=CATALOG_GROUP_ID'] = $selectedPriceType;
 					else
 						$priceFilter['@CATALOG_GROUP_ID'] = $priceTypeList;
 
-					$priceIterator = \CPrice::GetListEx(
-						array(),
-						$priceFilter,
-						false,
-						false,
-						array('ID', 'PRODUCT_ID', 'CATALOG_GROUP_ID', 'PRICE', 'CURRENCY')
-					);
-					while ($price = $priceIterator->Fetch())
+					$iterator = Catalog\PriceTable::getList([
+						'select' => ['ID', 'PRODUCT_ID', 'CATALOG_GROUP_ID', 'PRICE', 'CURRENCY'],
+						'filter' => $priceFilter
+					]);
+
+					while ($price = $iterator->fetch())
 					{
 						$id = (int)$price['PRODUCT_ID'];
 						$priceTypeId = (int)$price['CATALOG_GROUP_ID'];
 						$items[$id]['PRICES'][$priceTypeId] = $price;
 						unset($priceTypeId, $id);
 					}
-					unset($price, $priceIterator);
+					unset($price, $iterator);
+
+					if ($saleDiscountOnly)
+					{
+						Catalog\Discount\DiscountManager::preloadPriceData(
+							$pageIds,
+							($selectedPriceType > 0 ? [$selectedPriceType] : $priceTypeList)
+						);
+					}
 				}
 				unset($pageIds);
 			}
@@ -1541,7 +1604,7 @@ if (empty($arRunErrors))
 				if (!isset($row['CATEGORY_ID']))
 					continue;
 
-				if ($row['CATALOG_TYPE'] == Catalog\ProductTable::TYPE_SKU && !empty($row['OFFERS']))
+				if ($row['TYPE'] == Catalog\ProductTable::TYPE_SKU && !empty($row['OFFERS']))
 				{
 					$minOfferId = null;
 					$minOfferPrice = null;
@@ -1605,7 +1668,7 @@ if (empty($arRunErrors))
 
 					foreach ($row['OFFERS'] as $offer)
 					{
-						$available = ' available="'.($offer['CATALOG_AVAILABLE'] == 'Y' ? 'true' : 'false').'"';
+						$available = ' available="'.($offer['AVAILABLE'] == 'Y' ? 'true' : 'false').'"';
 						$itemsContent .= '<offer id="'.$offer['ID'].'"'.$productFormat.$available.">\n";
 						unset($available);
 
@@ -1622,8 +1685,8 @@ if (empty($arRunErrors))
 						if ($minPrice < $fullPrice)
 							$itemsContent .= "<oldprice>".$fullPrice."</oldprice>\n";
 						$itemsContent .= "<currencyId>".$offer['RESULT_PRICE']['CURRENCY']."</currencyId>\n";
-						if ($vatExport && isset($vatList[$offer['CATALOG_VAT_ID']]))
-							$itemsContent .= "<vat>".$vatList[$offer['CATALOG_VAT_ID']]."</vat>\n";
+						if ($vatExport && isset($vatList[$offer['VAT_ID']]))
+							$itemsContent .= "<vat>".$vatList[$offer['VAT_ID']]."</vat>\n";
 
 						$itemsContent .= "<categoryId>".$row['CATEGORY_ID']."</categoryId>\n";
 
@@ -1766,9 +1829,9 @@ if (empty($arRunErrors))
 				}
 				elseif (isset($simpleIdsList[$id]) && !empty($row['PRICES']))
 				{
-					$row['CATALOG_VAT_ID'] = (int)$row['CATALOG_VAT_ID'];
-					if ($row['CATALOG_VAT_ID'] == 0)
-						$row['CATALOG_VAT_ID'] = $arCatalog['VAT_ID'];
+					$row['VAT_ID'] = (int)$row['VAT_ID'];
+					if ($row['VAT_ID'] == 0)
+						$row['VAT_ID'] = $arCatalog['VAT_ID'];
 
 					$fullPrice = 0;
 					$minPrice = 0;
@@ -1795,7 +1858,7 @@ if (empty($arRunErrors))
 					if ($minPrice <= 0)
 						continue;
 
-					$available = ' available="'.($row['CATALOG_AVAILABLE'] == 'Y' ? 'true' : 'false').'"';
+					$available = ' available="'.($row['AVAILABLE'] == 'Y' ? 'true' : 'false').'"';
 					$itemsContent .= '<offer id="'.$row['ID'].'"'.$productFormat.$available.">\n";
 					unset($available);
 
@@ -1810,8 +1873,8 @@ if (empty($arRunErrors))
 					if ($minPrice < $fullPrice)
 						$itemsContent .= "<oldprice>".$fullPrice."</oldprice>\n";
 					$itemsContent .= "<currencyId>".$minPriceCurrency."</currencyId>\n";
-					if ($vatExport && isset($vatList[$row['CATALOG_VAT_ID']]))
-						$itemsContent .= "<vat>".$vatList[$row['CATALOG_VAT_ID']]."</vat>\n";
+					if ($vatExport && isset($vatList[$row['VAT_ID']]))
+						$itemsContent .= "<vat>".$vatList[$row['VAT_ID']]."</vat>\n";
 
 					$itemsContent .= "<categoryId>".$row['CATEGORY_ID']."</categoryId>\n";
 
@@ -1924,8 +1987,10 @@ if (empty($arRunErrors))
 			\CCatalogDiscount::ClearDiscountCache(array(
 				'PRODUCT' => true,
 				'SECTIONS' => true,
+				'SECTION_CHAINS' => true,
 				'PROPERTIES' => true
 			));
+			\CCatalogProduct::ClearCache();
 		}
 
 		if ($itemsContent !== '')
@@ -2002,6 +2067,8 @@ if (empty($arRunErrors))
 }
 
 CCatalogDiscountSave::Enable();
+if ($saleIncluded)
+	Sale\DiscountCouponsManager::unFreezeCouponStorage();
 
 if (!empty($arRunErrors))
 	$strExportErrorMessage = implode('<br />',$arRunErrors);

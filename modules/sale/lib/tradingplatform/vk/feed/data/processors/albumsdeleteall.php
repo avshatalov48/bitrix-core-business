@@ -28,10 +28,14 @@ class AlbumsDeleteAll extends DataProcessor
 //		delete ALL from mapping
 		$albumsMappedToRemove = array();
 		foreach ($albumsMapped as $albumMapped)
+		{
 			$albumsMappedToRemove[] = array("VALUE_EXTERNAL" => $albumMapped["ALBUM_VK_ID"]);
+		}
 
 		if (!empty($albumsMappedToRemove))
+		{
 			Vk\Map::removeAlbumMapping($albumsMappedToRemove, $this->exportId);
+		}
 
 
 //		formatted data

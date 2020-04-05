@@ -22,7 +22,8 @@ $return = array(
 			'subtype' => 'component',
 			'subtype_params' => array(
 				'required' => 'catalog'
-			)
+			),
+			'namespace' => 'bitrix'
 		),
 	'assets' => array(
 		'css' => array(
@@ -44,6 +45,16 @@ $return = array(
 						'editable' => array(
 							// filter
 							'ELEMENT_ID' => array(
+								'type' => 'url',
+								'entityType' => 'element',
+								'disableCustomURL' => true,
+								'disallowType' => true,
+								'allowedTypes' => array(
+									'catalog'
+								),
+								'allowedCatalogEntityTypes' => array(
+									'element'
+								)
 							),
 							'HIDE_NOT_AVAILABLE' => array(
 							),
@@ -66,6 +77,10 @@ $return = array(
 							'SHOW_DISCOUNT_PERCENT' => array(
 							),
 							'SHOW_OLD_PRICE' => array(
+							),
+							'ADD_TO_BASKET_ACTION' => array(
+							),
+							'ADD_TO_BASKET_ACTION_PRIMARY' => array(
 							),
 							// texts
 							'MESS_BTN_BUY' => array(
@@ -108,7 +123,7 @@ $return = array(
 $params =& $return['nodes']['bitrix:catalog.element']['extra']['editable'];
 
 // vk only for ru
-if (!in_array(Manager::getZone(), array('ru', 'by', 'kz')))
+if (!Manager::availableOnlyForZone('ru'))
 {
 	unset($params['VK_API_ID']);
 }

@@ -69,7 +69,7 @@ final class MailHandler
 		}
 
 		$siteId = \Bitrix\Socialnetwork\Util::getSiteIdByLogId($logEntry["ID"]);
-		$res = \CSite::GetByID($siteId);
+		$res = \CSite::getByID($siteId);
 		$site = $res->fetch();
 
 		$pathToUser = Config\Option::get("main", "TOOLTIP_PATH_TO_USER", false, $siteId);
@@ -182,7 +182,7 @@ final class MailHandler
 							"PATH_TO_USER" => $pathToUser,
 							"NAME_TEMPLATE" => \CSite::getNameFormat(null, $site["ID"]),
 							"SHOW_LOGIN" => "N",
-							"AVATAR_SIZE" => 39,
+							"AVATAR_SIZE" => 100,
 							"PATH_TO_SMILE" => $pathToSmile,
 							"LANGUAGE_ID" => $site["LANGUAGE_ID"],
 							"SITE_ID" => $site["ID"],

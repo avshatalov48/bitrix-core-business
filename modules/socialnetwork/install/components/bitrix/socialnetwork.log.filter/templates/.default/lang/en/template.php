@@ -1,4 +1,8 @@
 <?
+$MESS["SONET_C30_F_VIDEO_TRANSFORM_POPUP_BUTTON_PUBLISH_TITLE"] = "Publish even if still unconverted";
+$MESS["SONET_C30_F_VIDEO_TRANSFORM_POPUP_TITLE"] = "Convert Video";
+$MESS["SONET_C30_F_VIDEO_TRANSFORM_POPUP_TEXT1"] = "Video file attached to the message you posted has been queued for conversion.";
+$MESS["SONET_C30_F_VIDEO_TRANSFORM_POPUP_TEXT2"] = "The #A_START#message#A_END# is now visible to you only. It will be available to the recipients after the file has been converted.";
 $MESS["SONET_C30_T_FILTER_TITLE"] = "Search";
 $MESS["SONET_C30_T_FILTER_CREATED_BY"] = "Author";
 $MESS["SONET_C30_T_FILTER_GROUP"] = "Group";

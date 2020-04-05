@@ -7,6 +7,7 @@ use Bitrix\Main\Error;
 
 use Bitrix\Sender\Preset;
 use Bitrix\Sender\Security;
+use Bitrix\Sender\Integration;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -22,7 +23,7 @@ class SenderRcComponent extends CBitrixComponent
 
 	protected function checkRequiredParams()
 	{
-		return true;
+		return Integration\Bitrix24\Service::isAvailable();
 	}
 
 	protected function initParams()

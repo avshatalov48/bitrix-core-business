@@ -5,7 +5,7 @@
 
                 <div class="landing-block-card js-animation fadeInUp col-md-4 g-mb-30 g-mb-0--md">
                     <article class="text-center g-brd-around g-color-gray g-brd-gray-light-v5 g-pa-10">
-                        <div class="landing-block-card-container g-bg-gray-light-v5 g-pa-30">
+                        <div class="landing-block-card-container g-bg-gray-light-v5 g-pl-30 g-pr-30 g-pt-30 g-pb-30">
                             <h4 class="landing-block-node-title text-uppercase h5 g-color-gray-dark-v3 g-font-weight-500 g-mb-10">Starter</h4>
                             <div class="landing-block-node-subtitle g-font-style-normal">
 								<em>ed feugiat porttitor nunc, non</em>
@@ -36,7 +36,7 @@
 
                 <div class="landing-block-card js-animation fadeInUp col-md-4 g-mb-30 g-mb-0--md">
                     <article class="text-center g-brd-around g-color-gray g-brd-gray-light-v5 g-pa-10 g-mt-minus-20">
-                        <div class="landing-block-card-container g-bg-gray-light-v5 g-py-50 g-px-30">
+                        <div class="landing-block-card-container g-bg-gray-light-v5 g-pt-50 g-pb-50 g-pl-30 g-pr-30">
                             <h4 class="landing-block-node-title text-uppercase h5 g-color-gray-dark-v3 g-font-weight-500 g-mb-10">Advanced</h4>
                             <div class="landing-block-node-subtitle g-font-style-normal">
 								<em>ed feugiat porttitor nunc, non</em>
@@ -67,7 +67,7 @@
 
                 <div class="landing-block-card js-animation fadeInUp col-md-4 g-mb-30 g-mb-0--md">
                     <article class="text-center g-brd-around g-color-gray g-brd-gray-light-v5 g-pa-10">
-                        <div class="landing-block-card-container g-bg-gray-light-v5 g-pa-30">
+                        <div class="landing-block-card-container g-bg-gray-light-v5 g-pl-30 g-pr-30 g-pt-30 g-pb-30">
                             <h4 class="landing-block-node-title text-uppercase h5 g-color-gray-dark-v3 g-font-weight-500 g-mb-10">Professional</h4>
                             <div class="landing-block-node-subtitle g-font-style-normal">
 								<em>ed feugiat porttitor nunc, non</em>

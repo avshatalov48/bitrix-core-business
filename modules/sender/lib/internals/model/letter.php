@@ -122,6 +122,9 @@ class LetterTable extends Entity\DataManager
 			'DAYS_OF_MONTH' => array(
 				'data_type' => 'string',
 			),
+			'MONTHS_OF_YEAR' => array(
+				'data_type' => 'string',
+			),
 			'TIMES_OF_DAY' => array(
 				'data_type' => 'string',
 			),

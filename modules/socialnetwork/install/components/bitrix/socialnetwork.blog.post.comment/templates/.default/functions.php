@@ -206,8 +206,8 @@ function socialnetworkBlogPostCommentWeb(
 	ob_start();
 
 	?><script>
-		top.text<?=$comment["ID"]?> = text<?=$comment["ID"]?> = '<?=CUtil::JSEscape($comment["POST_TEXT"])?>';
-		top.title<?=$comment["ID"]?> = title<?=$comment["ID"]?> = '<?=CUtil::JSEscape($comment["TITLE"])?>';
+		top.text<?=$comment["ID"]?> = text<?=$comment["ID"]?> = '<?=CUtil::JSEscape(\Bitrix\Main\Text\Emoji::decode($comment["POST_TEXT"]))?>';
+		top.title<?=$comment["ID"]?> = title<?=$comment["ID"]?> = '<?=CUtil::JSEscape(\Bitrix\Main\Text\Emoji::decode($comment["TITLE"]))?>';
 		top.arComFiles<?=$comment["ID"]?> = [];<?
 
 		if ($comment["COMMENT_PROPERTIES"]["DATA"])

@@ -38,6 +38,7 @@
 			this.menuId = this.getMenuId();
 			this.menu = this.createMenu();
 			this.menu.popupWindow.show();
+			this.adjustPosition();
 
 			BX.bind(this.dropdown, 'click', BX.delegate(this.showMenu, this));
 		},
@@ -113,6 +114,7 @@
 					'autoHide': true,
 					'offsetTop': -8,
 					'offsetLeft': 40,
+					'maxHeight': 208,
 					'angle': {
 						'position': 'bottom',
 						'offset': 0
@@ -135,6 +137,22 @@
 			{
 				this.menu = this.createMenu();
 				this.menu.popupWindow.show();
+			}
+
+			this.adjustPosition();
+		},
+
+		adjustPosition: function()
+		{
+			if (this.dropdown.dataset.popupPosition === 'fixed')
+			{
+				var container = this.menu.popupWindow.popupContainer;
+
+				container.style.setProperty('top', 'auto');
+				container.style.setProperty('bottom', '45px');
+				container.style.setProperty('left', '0px');
+
+				this.dropdown.appendChild(container);
 			}
 		},
 
@@ -235,6 +253,8 @@
 				value = BX.data(subItem, 'value');
 				dataItem = this.getDataItemByValue(value);
 			}
+
+			event.stopPropagation();
 
 			BX.onCustomEvent(window, 'Dropdown::change', [this.dropdown.id, event, item, dataItem, value]);
 		},

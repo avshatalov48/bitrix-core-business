@@ -6,7 +6,6 @@ use Bitrix\Main\Loader;
 final class RatingVoteList extends Provider
 {
 	const PROVIDER_ID = 'RATING_LIST';
-	const TYPE = 'entry';
 	const CONTENT_TYPE_ID = 'RATING_LIST';
 
 	public static function getId()
@@ -21,7 +20,7 @@ final class RatingVoteList extends Provider
 
 	public function getType()
 	{
-		return static::TYPE;
+		return Provider::TYPE_POST;
 	}
 
 	public function setContentView($params = array())

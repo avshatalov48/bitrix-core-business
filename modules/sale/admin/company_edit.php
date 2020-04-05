@@ -227,7 +227,7 @@ else:
 ?>
 	<tr>
 		<td><?=GetMessage("COMPANY_LOCATION");?></td>
-		<td><?=$path;?></td>
+		<td><?=htmlspecialcharsbx($path);?></td>
 	</tr>
 <?
 endif;

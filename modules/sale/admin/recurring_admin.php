@@ -8,6 +8,8 @@
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
+$publicMode = $adminPage->publicMode;
+
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions == "D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
@@ -29,35 +31,69 @@ IncludeModuleLangFile(__FILE__);
 $sTableID = "tbl_sale_recurring";
 
 $oSort = new CAdminSorting($sTableID, "ID", "asc");
-$lAdmin = new CAdminList($sTableID, $oSort);
+$lAdmin = new CAdminUiList($sTableID, $oSort);
 
-$arFilterFields = array(
-	"filter_user_id",
-	"filter_login",
-	"filter_user",
-	"filter_canceled",
-	"filter_prior_date_from",
-	"filter_prior_date_to",
-	"filter_next_date_from",
-	"filter_next_date_to",
-	"filter_order_id",
-	"filter_success_payment"
+$filterFields = array(
+	array(
+		"id" => "USER_USER",
+		"name" => GetMessage('SRA_USER'),
+		"filterable" => "%",
+		"default" => true
+	),
+	array(
+		"id" => "USER_ID",
+		"name" => GetMessage('SRA_USER_ID'),
+		"type" => "custom_entity",
+		"selector" => array("type" => "user"),
+		"filterable" => ""
+	),
+	array(
+		"id" => "USER_LOGIN",
+		"name" => GetMessage("SRA_USER_LOGIN"),
+		"filterable" => ""
+	),
+	array(
+		"id" => "CANCELED",
+		"name" => GetMessage("SRA_CANCELED"),
+		"type" => "list",
+		"items" => array(
+			"Y" => GetMessage("SRA_YES"),
+			"N" => GetMessage("SRA_NO")
+		),
+		"filterable" => ""
+	),
+	array(
+		"id" => "PRIOR_DATE",
+		"name" => GetMessage("SRA_LAST_UPDATE"),
+		"type" => "date",
+		"filterable" => ""
+	),
+	array(
+		"id" => "NEXT_DATE",
+		"name" => GetMessage("SRA_NEXT_UPDATE"),
+		"type" => "date",
+		"filterable" => ""
+	),
+	array(
+		"id" => "ORDER_ID",
+		"name" => GetMessage("SRA_BASE_ORDER"),
+		"filterable" => ""
+	),
+	array(
+		"id" => "SUCCESS_PAYMENT",
+		"name" => GetMessage("SRA_SUCCESSFULL"),
+		"type" => "list",
+		"items" => array(
+			"Y" => GetMessage("SRA_YES"),
+			"N" => GetMessage("SRA_NO")
+		),
+		"filterable" => ""
+	),
 );
-
-$lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
 
-if (IntVal($filter_user_id) > 0) $arFilter["USER_ID"] = IntVal($filter_user_id);
-if (strlen($filter_login) > 0) $arFilter["USER_LOGIN"] = $filter_login;
-if (strlen($filter_user) > 0) $arFilter["%USER_USER"] = $filter_user;
-if (strlen($filter_canceled) > 0) $arFilter["CANCELED"] = $filter_canceled;
-if (strlen($filter_prior_date_from)>0) $arFilter[">=PRIOR_DATE"] = Trim($filter_prior_date_from);
-if (strlen($filter_prior_date_to)>0) $arFilter["<=PRIOR_DATE"] = Trim($filter_prior_date_to);
-if (strlen($filter_next_date_from)>0) $arFilter[">=NEXT_DATE"] = Trim($filter_next_date_from);
-if (strlen($filter_next_date_to)>0) $arFilter["<=NEXT_DATE"] = Trim($filter_next_date_to);
-if (IntVal($filter_order_id) > 0) $arFilter["ORDER_ID"] = IntVal($filter_order_id);
-if (strlen($filter_success_payment)>0) $arFilter["SUCCESS_PAYMENT"] = Trim($filter_success_payment);
+$lAdmin->AddFilter($filterFields, $arFilter);
 
 if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "U")
 {
@@ -128,6 +164,15 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "U")
 				break;
 		}
 	}
+
+	if ($lAdmin->hasGroupErrors())
+	{
+		$adminSidePanelHelper->sendJsonErrorResponse($lAdmin->getGroupErrors());
+	}
+	else
+	{
+		$adminSidePanelHelper->sendSuccessResponse();
+	}
 }
 
 
@@ -139,10 +184,10 @@ $dbResultList = CSaleRecurring::GetList(
 	array("*")
 );
 
-$dbResultList = new CAdminResult($dbResultList, $sTableID);
+$dbResultList = new CAdminUiResult($dbResultList, $sTableID);
 $dbResultList->NavStart();
 
-$lAdmin->NavText($dbResultList->GetNavPrint(GetMessage("SRA_NAV")));
+$lAdmin->SetNavigationParams($dbResultList, array("BASE_LINK" => "/bitrix/admin/sale_recurring_admin.php"));
 
 $lAdmin->AddHeaders(array(
 	array("id"=>"ID", "content"=>"ID", 	"sort"=>"id", "default"=>true),
@@ -155,16 +200,30 @@ $lAdmin->AddHeaders(array(
 
 $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 
-while ($arRecurring = $dbResultList->NavNext(true, "f_"))
+if ($publicMode)
 {
-	$row =& $lAdmin->AddRow($f_ID, $arRecurring);
+	$pathToUser = COption::GetOptionString("main", "TOOLTIP_PATH_TO_USER", false);
+	$pathToUser = ($pathToUser ? $pathToUser : SITE_DIR."company/personal/user/#user_id#/");
+}
 
-	$row->AddField("ID", $f_ID);
+while ($arRecurring = $dbResultList->NavNext(false))
+{
+	$row =& $lAdmin->AddRow($arRecurring["ID"], $arRecurring);
 
-	$fieldValue  = "[<a href=\"/bitrix/admin/user_edit.php?ID=".$f_USER_ID."&lang=".LANG."\">".$f_USER_ID."</a>] ";
-	$fieldValue .= htmlspecialcharsEx($arRecurring["USER_NAME"].((strlen($arRecurring["USER_NAME"])<=0 || strlen($arRecurring["USER_LAST_NAME"])<=0) ? "" : " ").$arRecurring["USER_LAST_NAME"])."<br>";
+	$row->AddField("ID", $arRecurring["ID"]);
+
+	$urlToUser = "/bitrix/admin/user_edit.php?ID=".$arRecurring["USER_ID"]."&lang=".LANGUAGE_ID;
+	if ($publicMode)
+	{
+		$urlToUser = str_replace(array("#user_id#"), $arRecurring["USER_ID"], $pathToUser);
+	}
+
+	$fieldValue  = "[<a href=\"".$urlToUser."\">".$arRecurring["USER_ID"]."</a>] ";
+	$fieldValue .= htmlspecialcharsEx($arRecurring["USER_NAME"].((strlen($arRecurring["USER_NAME"])<=0 ||
+				strlen($arRecurring["USER_LAST_NAME"])<=0) ? "" : " ").$arRecurring["USER_LAST_NAME"])."<br>";
 	$fieldValue .= htmlspecialcharsEx($arRecurring["USER_LOGIN"])."&nbsp;&nbsp;&nbsp; ";
-	$fieldValue .= "<a href=\"mailto:".htmlspecialcharsbx($arRecurring["USER_EMAIL"])."\">".htmlspecialcharsEx($arRecurring["USER_EMAIL"])."</a>";
+	$fieldValue .= "<a href=\"mailto:".htmlspecialcharsbx($arRecurring["USER_EMAIL"])."\">".
+		htmlspecialcharsEx($arRecurring["USER_EMAIL"])."</a>";
 	$row->AddField("USER_ID", $fieldValue);
 
 	$row->AddField("CANCELED", (($arRecurring["CANCELED"]=="Y") ? GetMessage("SRA_YES") : GetMessage("SRA_NO")));
@@ -178,29 +237,24 @@ while ($arRecurring = $dbResultList->NavNext(true, "f_"))
 	$row->AddField("SUCCESS_PAYMENT", $fieldValue);
 	
 	$arActions = Array();
-	$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("SRA_UPDATE_ALT"), "ACTION"=>$lAdmin->ActionRedirect("sale_recurring_edit.php?ID=".$f_ID."&lang=".LANG.GetFilterParams("filter_").""), "DEFAULT"=>true);
+	$arActions[] = array(
+		"ICON" => "edit",
+		"TEXT" => GetMessage("SRA_UPDATE_ALT"),
+		"ACTION" => $lAdmin->ActionRedirect("sale_recurring_edit.php?ID=".$arRecurring["ID"]."&lang=".LANGUAGE_ID.""),
+		"DEFAULT" => true
+	);
 	if ($saleModulePermissions >= "W")
 	{
-		$arActions[] = array("SEPARATOR" => true);
-		$arActions[] = array("ICON"=>"delete", "TEXT"=>GetMessage("SRA_DELETE_ALT1"), "ACTION"=>"if(confirm('".GetMessage('SRA_DELETE_CONF')."')) ".$lAdmin->ActionDoGroup($f_ID, "delete"));
+		$arActions[] = array(
+			"ICON" => "delete",
+			"TEXT" => GetMessage("SRA_DELETE_ALT1"),
+			"ACTION" => "if(confirm('".GetMessage('SRA_DELETE_CONF')."')) ".
+				$lAdmin->ActionDoGroup($arRecurring["ID"], "delete")
+		);
 	}
 
 	$row->AddActions($arActions);
 }
-
-$lAdmin->AddFooter(
-	array(
-		array(
-			"title" => GetMessage("MAIN_ADMIN_LIST_SELECTED"),
-			"value" => $dbResultList->SelectedRowsCount()
-		),
-		array(
-			"counter" => true,
-			"title" => GetMessage("MAIN_ADMIN_LIST_CHECKED"),
-			"value" => "0"
-		),
-	)
-);
 
 $lAdmin->AddGroupActionTable(
 	array(
@@ -215,109 +269,24 @@ if ($saleModulePermissions >= "W")
 	$aContext = array(
 		array(
 			"TEXT" => GetMessage("SRAN_ADD_NEW"),
-			"LINK" => "sale_recurring_edit.php?lang=".LANG,
+			"LINK" => "sale_recurring_edit.php?lang=".LANGUAGE_ID,
 			"ICON" => "btn_new",
 			"TITLE" => GetMessage("SRAN_ADD_NEW_ALT")
 		),
 	);
+	$lAdmin->setContextSettings(array("pagePath" => "/bitrix/admin/sale_recurring_admin.php"));
 	$lAdmin->AddAdminContextMenu($aContext);
 }
 
 $lAdmin->CheckListMode();
-
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
 $APPLICATION->SetTitle(GetMessage("SRA_TITLE"));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-?>
 
-<form name="find_form" method="GET" action="<?echo $APPLICATION->GetCurPage()?>?">
-<?
-$oFilter = new CAdminFilter(
-	$sTableID."_filter",
-	array(
-		GetMessage("SRA_USER_ID"),
-		GetMessage("SRA_USER_LOGIN"),
-		GetMessage("SRA_CANCELED"),
-		GetMessage("SRA_LAST_UPDATE"),
-		GetMessage("SRA_NEXT_UPDATE"),
-		GetMessage("SRA_BASE_ORDER"),
-		GetMessage("SRA_SUCCESSFULL"),
-	)
-);
-
-$oFilter->Begin();
-?>
-	<tr>
-		<td><?echo GetMessage("SRA_USER")?></td>
-		<td>
-			<input type="text" name="filter_user" size="50" value="<?= htmlspecialcharsbx($filter_user) ?>">&nbsp;<?=ShowFilterLogicHelp()?>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SRA_USER_ID")?></td>
-		<td>
-			<input type="text" name="filter_user_id" size="5" value="<?= htmlspecialcharsbx($filter_user_id) ?>">
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SRA_USER_LOGIN")?></td>
-		<td>
-			<input type="text" name="filter_login" size="50" value="<?= htmlspecialcharsbx($filter_login) ?>">
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SRA_CANCELED")?></td>
-		<td>
-			<select name="filter_canceled">
-				<option value=""><?= htmlspecialcharsex(GetMessage("SRA_ALL")); ?></option>
-				<option value="Y"<?if ($filter_canceled=="Y") echo " selected"?>><?= htmlspecialcharsex(GetMessage("SRA_YES")) ?></option>
-				<option value="N"<?if ($filter_canceled=="N") echo " selected"?>><?= htmlspecialcharsex(GetMessage("SRA_NO")) ?></option>
-			</select>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SRA_LAST_UPDATE")?></td>
-		<td>
-			<?echo CalendarPeriod("filter_prior_date_from", $filter_prior_date_from, "filter_prior_date_to", $filter_prior_date_to, "find_form", "Y")?>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SRA_NEXT_UPDATE")?></td>
-		<td>
-			<?echo CalendarPeriod("filter_next_date_from", $filter_next_date_from, "filter_next_date_to", $filter_next_date_to, "find_form", "Y")?>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SRA_BASE_ORDER")?></td>
-		<td>
-			<input type="text" name="filter_order_id" size="50" value="<?= htmlspecialcharsbx($filter_order_id) ?>">
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SRA_SUCCESSFULL")?></td>
-		<td>
-			<select name="filter_success_payment">
-				<option value=""><?= htmlspecialcharsex(GetMessage("SRA_ALL")); ?></option>
-				<option value="Y"<?if ($filter_success_payment=="Y") echo " selected"?>><?= htmlspecialcharsex(GetMessage("SRA_YES")) ?></option>
-				<option value="N"<?if ($filter_success_payment=="N") echo " selected"?>><?= htmlspecialcharsex(GetMessage("SRA_NO")) ?></option>
-			</select>
-		</td>
-	</tr>
-<?
-$oFilter->Buttons(
-	array(
-		"table_id" => $sTableID,
-		"url" => $APPLICATION->GetCurPage(),
-		"form" => "find_form"
-	)
-);
-$oFilter->End();
-?>
-</form>
-<?
+$lAdmin->DisplayFilter($filterFields);
 $lAdmin->DisplayList();
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

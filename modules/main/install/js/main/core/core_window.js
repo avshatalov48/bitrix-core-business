@@ -1763,7 +1763,8 @@ BX.CDialog.prototype.Show = function(bNotRegister)
 
 		BX.WindowManager.currently_loaded = this;
 
-		this.CreateOverlay(parseInt(BX.style(wait, 'z-index'))-1);
+		var zIndex = (this.PARAMS.zIndex ? this.PARAMS.zIndex : parseInt(BX.style(wait, 'z-index'))-1);
+		this.CreateOverlay(zIndex);
 		this.OVERLAY.style.display = 'block';
 		this.OVERLAY.className = 'bx-core-dialog-overlay';
 
@@ -1824,14 +1825,25 @@ BX.CDialog.prototype.adjustPos = function()
 {
 	if (!this.bExpanded)
 	{
-		var windowSize = BX.GetWindowInnerSize();
-		var windowScroll = BX.GetWindowScrollPos();
+		var currentWindow = window;
+		if (top.BX.SidePanel && top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
+		{
+			currentWindow = top.BX.SidePanel.Instance.getTopSlider().getWindow();
+		}
+		var windowSize = currentWindow.BX.GetWindowInnerSize();
+		var windowScroll = currentWindow.BX.GetWindowScrollPos();
+
+		var style = {
+			left: parseInt(windowScroll.scrollLeft + windowSize.innerWidth / 2 - parseInt(this.DIV.offsetWidth) / 2) + 'px',
+			top: Math.max(parseInt(windowScroll.scrollTop + windowSize.innerHeight / 2 - parseInt(this.DIV.offsetHeight) / 2), 0) + 'px'
+		};
+		if (this.PARAMS.zIndex)
+		{
+			style["z-index"] = this.PARAMS.zIndex;
+		}
 
 		BX.adjust(this.DIV, {
-			style: {
-				left: parseInt(windowScroll.scrollLeft + windowSize.innerWidth / 2 - parseInt(this.DIV.offsetWidth) / 2) + 'px',
-				top: Math.max(parseInt(windowScroll.scrollTop + windowSize.innerHeight / 2 - parseInt(this.DIV.offsetHeight) / 2), 0) + 'px'
-			}
+			style: style
 		});
 	}
 };
@@ -2217,6 +2229,7 @@ BX.COpener = function(arParams)
 	this.ATTACH_MODE = arParams.ATTACH_MODE || 'bottom';
 
 	this.ACTIVE_CLASS = arParams.ACTIVE_CLASS || '';
+	this.PUBLIC_FRAME = arParams.PUBLIC_FRAME || 0;
 	this.LEVEL = arParams.LEVEL || 0;
 
 	this.CLOSE_ON_CLICK = typeof arParams.CLOSE_ON_CLICK != 'undefined' ? !!arParams.CLOSE_ON_CLICK : true;
@@ -2350,6 +2363,7 @@ BX.COpener.prototype.GetMenu = function()
 				SET_ID: this.checkAdminMenu() ? 'bx-admin-prefix' : '',
 				CLOSE_ON_CLICK: !!this.CLOSE_ON_CLICK,
 				ADJUST_ON_CLICK: !!this.ADJUST_ON_CLICK,
+				PUBLIC_FRAME: !!this.PUBLIC_FRAME,
 				LEVEL: this.LEVEL,
 				parent: BX(this.DIV),
 				parent_attach: BX(this.ATTACH)
@@ -2516,6 +2530,7 @@ BX.CMenu = function(arParams)
 	this.PARAMS.ATTACH_MODE = this.PARAMS.ATTACH_MODE || 'bottom';
 	this.PARAMS.CLOSE_ON_CLICK = typeof this.PARAMS.CLOSE_ON_CLICK == 'undefined' ? true : this.PARAMS.CLOSE_ON_CLICK;
 	this.PARAMS.ADJUST_ON_CLICK = typeof this.PARAMS.ADJUST_ON_CLICK == 'undefined' ? true : this.PARAMS.ADJUST_ON_CLICK;
+	this.PARAMS.PUBLIC_FRAME = typeof this.PARAMS.PUBLIC_FRAME == 'undefined' ? false : this.PARAMS.PUBLIC_FRAME;
 	this.PARAMS.LEVEL = this.PARAMS.LEVEL || 0;
 
 	this.DIV.className = 'bx-core-popup-menu bx-core-popup-menu-' + this.PARAMS.ATTACH_MODE + ' bx-core-popup-menu-level' + this.PARAMS.LEVEL + (typeof this.PARAMS.ADDITIONAL_CLASS != 'undefined' ? ' ' + this.PARAMS.ADDITIONAL_CLASS : '');
@@ -2662,6 +2677,16 @@ BX.CMenu.prototype.addItem = function(item)
 			item.ACTION = null;
 		}
 
+		var attrs = {};
+		if (!!item.LINK || BX.browser.IsIE() && !BX.browser.IsDoctype())
+		{
+			attrs.href = item.LINK || 'javascript:void(0)';
+		}
+		if (this.PARAMS.PUBLIC_FRAME)
+		{
+			attrs.target = '_top';
+		}
+
 		item.NODE = BX.create(!!item.LINK || BX.browser.IsIE() && !BX.browser.IsDoctype() ? 'A' : 'SPAN', {
 			props: {
 				className: 'bx-core-popup-menu-item'
@@ -2672,7 +2697,7 @@ BX.CMenu.prototype.addItem = function(item)
 					title: !!BX.message['MENU_ENABLE_TOOLTIP'] || !!item.SHOW_TITLE ? item.TITLE || '' : '',
 				BXMENULEVEL: this.PARAMS.LEVEL
 			},
-			attrs: !!item.LINK || BX.browser.IsIE() && !BX.browser.IsDoctype() ? {href: item.LINK || 'javascript:void(0)'} : {},
+			attrs: attrs,
 			events: {
 				mouseover: function()
 				{

@@ -11,6 +11,8 @@ if(!CModule::IncludeModule("catalog"))
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 }
 
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+
 $strWarning = "";
 $bVarsFromForm = false;
 $IBLOCK_ID = intval($_REQUEST["IBLOCK_ID"]);
@@ -99,7 +101,7 @@ if(
 	{
 		$TextParser = new CBXSanitizer();
 		$TextParser->SetLevel(CBXSanitizer::SECURE_LEVEL_LOW);
-		$TextParser->ApplyHtmlSpecChars(false);
+		$TextParser->ApplyDoubleEncode(false);
 		$props = CIBlockProperty::GetList(array(), array("IBLOCK_ID" => $IBLOCK_ID, "CHECK_PERMISSIONS" => "N"));
 		while($p = $props->Fetch())
 		{
@@ -162,7 +164,10 @@ if(
 			}
 		}
 
-		LocalRedirect("/bitrix/admin/cat_catalog_edit.php?lang=".LANGUAGE_ID."&IBLOCK_ID=".$IBLOCK_ID."&".$tabControl->ActiveTabParam());
+		$redirectUrl = $selfFolderUrl."cat_catalog_edit.php?lang=".LANGUAGE_ID."&IBLOCK_ID=".$IBLOCK_ID."&".$tabControl->ActiveTabParam();
+		$adminSidePanelHelper->reloadPage($redirectUrl, (strlen($_REQUEST["apply"]) > 0 ? "apply" : "save"));
+		$redirectUrl = $adminSidePanelHelper->setDefaultQueryParams($redirectUrl);
+		LocalRedirect($redirectUrl);
 	}
 }
 
@@ -183,9 +188,9 @@ $tabControl->BeginEpilogContent();
 echo bitrix_sessid_post();
 $tabControl->EndEpilogContent();
 
-$tabControl->Begin(array(
-	"FORM_ACTION" => "/bitrix/admin/cat_catalog_edit.php?lang=".LANGUAGE_ID."&IBLOCK_ID=".$IBLOCK_ID,
-));
+$actionUrl = $selfFolderUrl."cat_catalog_edit.php?lang=".LANGUAGE_ID."&IBLOCK_ID=".$IBLOCK_ID."";
+$actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
+$tabControl->Begin(array("FORM_ACTION" => $actionUrl));
 
 $tabControl->BeginNextFormTab();
 $tabControl->AddEditField("NAME", GetMessage("IBLOCK_FIELD_NAME").":", true, array("size" => 50, "maxlength" => 255), $str_NAME);
@@ -362,7 +367,7 @@ $tabControl->BeginCustomField("SECTION_PROPERTY", GetMessage("CAT_CEDIT_SECTION_
 					target_select_id = select_id;
 					target_shadow_id = shadow_id;
 					(new BX.CDialog({
-						'content_url' : '/bitrix/admin/iblock_edit_property.php?lang=<?echo LANGUAGE_ID?>&IBLOCK_ID='+iblock_id+'&ID=n0&bxpublic=Y&from_module=iblock&return_url=section_edit',
+						'content_url' : '<?=$selfFolderUrl?>iblock_edit_property.php?lang=<?echo LANGUAGE_ID?>&IBLOCK_ID='+iblock_id+'&ID=n0&bxpublic=Y&from_module=iblock&return_url=section_edit',
 						'width' : 700,
 						'height' : 400,
 						'buttons': [BX.CDialog.btnSave, BX.CDialog.btnCancel]
@@ -630,7 +635,7 @@ $tabControl->BeginCustomField("SECTION_PROPERTY", GetMessage("CAT_CEDIT_SECTION_
 		?>
 	<?
 $tabControl->EndCustomField("SECTION_PROPERTY", '');
-$tabControl->Buttons(array("disabled"=>false));
+$tabControl->Buttons(array("ajaxMode" => false, "disabled" => false));
 $tabControl->Show();
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 ?>

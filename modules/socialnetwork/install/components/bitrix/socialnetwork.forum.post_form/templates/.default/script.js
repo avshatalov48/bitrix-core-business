@@ -159,7 +159,15 @@
 
 				var post_data = BX.ajax.prepareForm(this.form, {dataType: 'json'}).data;
 
-				this.page_number = (this.page_number||parseInt(BX.message("page_number")));
+				this.page_number = (
+					this.page_number
+					|| (
+						typeof oForum != 'undefined'
+						&& typeof oForum.page_number != 'undefined'
+							? parseInt(oForum.page_number)
+							: 0
+					)
+				);
 				this.page_number = (this.page_number||0);
 				post_data["pageNumber"] = this.page_number;
 				BX.ajax({
@@ -230,7 +238,8 @@
 
 				var node,
 					forumlist = arForumlist[arForumlist.length-1],
-					ob;
+					ob,
+					forumlistEnd;
 
 				if (result.status)
 				{
@@ -275,12 +284,23 @@
 								if (footerActions)
 									BX.remove(footerActions);
 							}
-							forumlist.innerHTML += ob.HTML;
+
+							forumlistEnd = BX.findChild(forumlist, { className: 'forum-block-inner-end'});
+							if (forumlistEnd)
+							{
+								forumlist.insertBefore(BX.create('DIV', { html: ob.HTML }), forumlistEnd);
+							}
+							else
+							{
+								forumlist.innerHTML += ob.HTML;
+							}
 						}
 						this.clearForm();
 					}
 					if (ob && ob.SCRIPT)
+					{
 						setTimeout(function(){ BX.ajax.processScripts(ob.SCRIPT)}, 1000);
+					}
 
 					if (result["messageID"])
 						if ((node = BX('message'+result["messageID"])) && node)

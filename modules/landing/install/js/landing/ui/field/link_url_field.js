@@ -7,6 +7,7 @@
 	var isArray = BX.Landing.Utils.isArray;
 	var isString = BX.Landing.Utils.isString;
 	var isEmpty = BX.Landing.Utils.isEmpty;
+	var isPlainObject = BX.Landing.Utils.isPlainObject;
 	var append = BX.Landing.Utils.append;
 	var remove = BX.Landing.Utils.remove;
 	var data = BX.Landing.Utils.data;
@@ -20,6 +21,7 @@
 	var join = BX.Landing.Utils.join;
 	var fireEvent = BX.Landing.Utils.fireEvent;
 	var hash = BX.Landing.Utils.hash;
+	var encodeDataValue = BX.Landing.Utils.encodeDataValue;
 	var capitalize = BX.Landing.Utils.capitalize;
 	var style = BX.Landing.Utils.style;
 
@@ -30,6 +32,9 @@
 
 	/** @type {string} */
 	var TYPE_BLOCK = "block";
+
+	/** @type {string} */
+	var TYPE_ALIAS = "alias";
 
 	/** @type {string} */
 	var TYPE_PAGE = "landing";
@@ -69,7 +74,8 @@
 	 * 		catalogSection: RegExp,
 	 * 		block: RegExp,
 	 * 		page: RegExp,
-	 * 		system: RegExp
+	 * 		system: RegExp,
+	 * 		alias: RegExp
 	 * 	}}
 	 */
 	var matchers = {
@@ -78,7 +84,8 @@
 		catalogSection: new RegExp("^#catalogSection([0-9]+)"),
 		block: new RegExp("^#block([0-9]+)"),
 		page: new RegExp("^#landing([0-9]+)"),
-		system: new RegExp("^#system_[a-z_-]+")
+		system: new RegExp("^#system_[a-z_-]+"),
+		alias: new RegExp("^#.*")
 	};
 
 
@@ -100,6 +107,7 @@
 		this.disallowType = isBoolean(data.disallowType) ? data.disallowType : false;
 		this.iblocks = isArray(data.iblocks) ? data.iblocks : null;
 		this.allowedCatalogEntityTypes = isArray(data.allowedCatalogEntityTypes) ? data.allowedCatalogEntityTypes : null;
+		this.enableAreas = data.enableAreas;
 
 		this.onListShow = this.onListShow.bind(this, this.requestOptions);
 		this.onSelectButtonClick = this.onSelectButtonClick.bind(this);
@@ -150,6 +158,16 @@
 
 
 		/**
+		 * Sets iblocks list
+		 * @param {{name: string, value: int|string}[]} iblocks
+		 */
+		setIblocks: function(iblocks)
+		{
+			this.iblocks = isArray(iblocks) ? iblocks : null;
+		},
+
+
+		/**
 		 * Makes displayed value placeholder
 		 */
 		makeDisplayedHrefValue: function()
@@ -181,7 +199,8 @@
 			{
 				valuePromise
 					.then(proxy(this.createPlaceholder, this))
-					.then(proxy(this.setValue, this));
+					.then(proxy(this.setValue, this))
+					.catch(function() {});
 				this.disableHrefTypeSwitcher();
 				this.setHrefTypeSwitcherValue(TYPE_HREF_LINK);
 			}
@@ -373,6 +392,11 @@
 				return TYPE_SYSTEM;
 			}
 
+			if (matchers.alias.test(hrefValue))
+			{
+				return TYPE_ALIAS;
+			}
+
 			return TYPE_HREF_LINK;
 		},
 
@@ -495,29 +519,10 @@
 		 */
 		getBlockData: function(block)
 		{
-			if (Cache.has(hash(block)))
-			{
-				return Promise.resolve(Cache.get(hash(block)));
-			}
-
-			var blockId = parseInt(block.replace("#block", ""));
-
 			return BX.Landing.UI.Panel.URLList.getInstance()
-				.getBlocks(null, this.requestOptions)
-				.then(function(blocks) {
-					var blockData = blocks.find(function(block) {
-						return blockId === block.id;
-					});
-
-					var resultData = {
-						type: "block",
-						id: blockData.id,
-						name: blockData.name
-					};
-
-					Cache.set(hash(block), resultData);
-
-					return resultData;
+				.getBlock(block.replace("#block", ""))
+				.then(function(result) {
+					return (result.type = "block"), result;
 				});
 		},
 
@@ -530,12 +535,21 @@
 		{
 			if (Cache.has(hash(page)))
 			{
-				return Promise.resolve(Cache.get(hash(page)))
+				var cacheResult = Cache.get(hash(page));
+
+				if (cacheResult &&
+					typeof cacheResult === "object" &&
+					typeof cacheResult.then === "function")
+				{
+					return cacheResult;
+				}
+
+				return Promise.resolve(cacheResult);
 			}
 
 			var pageId = parseInt(page.replace("#landing", ""));
 
-			return BX.Landing.UI.Panel.URLList.getInstance()
+			var resultPromise = BX.Landing.UI.Panel.URLList.getInstance()
 				.getLanding(pageId, this.requestOptions)
 				.then(function(landing) {
 					landing = landing[0];
@@ -552,6 +566,10 @@
 						return resultData;
 					}
 				});
+
+			Cache.set(hash(page), resultPromise);
+
+			return resultPromise;
 		},
 
 		/**
@@ -563,7 +581,16 @@
 		{
 			if (Cache.has(hash(page)))
 			{
-				return Promise.resolve(Cache.get(hash(page)));
+				var cacheResult = Cache.get(hash(page));
+
+				if (cacheResult &&
+					typeof cacheResult === "object" &&
+					typeof cacheResult.then === "function")
+				{
+					return cacheResult;
+				}
+
+				return Promise.resolve(cacheResult);
 			}
 
 			var systemCode = this.content.replace("#system_", "");
@@ -594,7 +621,16 @@
 		{
 			if (Cache.has(hash(element)))
 			{
-				return Promise.resolve(Cache.get(hash(element)));
+				var cacheResult = Cache.get(hash(element));
+
+				if (cacheResult &&
+					typeof cacheResult === "object" &&
+					typeof cacheResult.then === "function")
+				{
+					return cacheResult;
+				}
+
+				return Promise.resolve(cacheResult);
 			}
 
 			var elementId = element.match(matchers.catalogElement)[1];
@@ -617,7 +653,16 @@
 		{
 			if (Cache.has(hash(section)))
 			{
-				return Promise.resolve(Cache.get(hash(section)));
+				var cacheResult = Cache.get(hash(section));
+
+				if (cacheResult &&
+					typeof cacheResult === "object" &&
+					typeof cacheResult.then === "function")
+				{
+					return cacheResult;
+				}
+
+				return Promise.resolve(cacheResult);
 			}
 
 			var sectionId = section.match(matchers.catalogSection)[1];
@@ -719,6 +764,7 @@
 				return;
 			}
 
+			options.enableAreas = this.enableAreas;
 			void BX.Landing.UI.Panel.URLList.getInstance()
 				.show(type, options)
 				.then(this.onListItemClick);
@@ -768,10 +814,15 @@
 		 */
 		createPlaceholder: function(options)
 		{
+			if (isString(options))
+			{
+				return options;
+			}
+
 			var placeholder = htmlToElement(
-				"<span class=\"landing-ui-field-url-placeholder\" title=\""+options.name+"\">" +
+				"<span class=\"landing-ui-field-url-placeholder\">" +
 					"<span class=\"landing-ui-field-url-placeholder-preview\"></span>" +
-					"<span class=\"landing-ui-field-url-placeholder-text\">" + options.name + "</span>" +
+					"<span class=\"landing-ui-field-url-placeholder-text\">" + encodeDataValue(options.name) + "</span>" +
 					"<span class=\"landing-ui-field-url-placeholder-delete\"></span>" +
 				"</span>"
 			);
@@ -806,16 +857,20 @@
 						value: options.id
 					},
 					"data-placeholder": join("#", options.type, capitalize(options.subType), options.id),
-					"title": title
+					"data-url": join("#", options.type, capitalize(options.subType), options.id)
 				});
+
+				placeholder.setAttribute("title", title);
 
 				return placeholder;
 			}
 
 			attr(placeholder, {
 				"data-placeholder": join("#", options.type, options.id),
-				"title": options.name
+				"data-url": join("#", options.type, options.id)
 			});
+
+			placeholder.setAttribute("title", options.name);
 
 			return placeholder;
 		},
@@ -840,10 +895,19 @@
 		 */
 		onListItemClick: function(item)
 		{
-			this.setValue(this.createPlaceholder(item));
-			this.disableHrefTypeSwitcher();
-			this.setHrefTypeSwitcherValue(TYPE_HREF_LINK);
-			fireEvent(this.layout, "input");
+			var resultPromise = Promise.resolve(item);
+
+			if (item.type === "block")
+			{
+				resultPromise = this.getBlockData("#block" + item.id);
+			}
+
+			resultPromise.then(function(item) {
+				this.setValue(this.createPlaceholder(item));
+				this.disableHrefTypeSwitcher();
+				this.setHrefTypeSwitcherValue(TYPE_HREF_LINK);
+				fireEvent(this.layout, "input");
+			}.bind(this));
 		},
 
 		/**

@@ -89,19 +89,33 @@ BX.BXSF.submitForm = function() {
 	BX.SocialnetworkUICommon.hideError(this.errorBlock);
 	BX.SocialnetworkUICommon.showButtonWait(BX('sonet_group_features_form_button_submit'));
 
+	var actionURL = BX('sonet-features-form').getAttribute('action');
+	if (
+		document.forms['sonet-features-form'].elements.SONET_GROUP_ID
+		&& parseInt(document.forms['sonet-features-form'].elements.SONET_GROUP_ID.value) > 0
+	)
+	{
+		actionURL = BX.util.add_url_param(actionURL, {
+			b24statAction: 'featuresSonetGroup'
+		});
+	}
+
 	BX.ajax.submitAjax(
 		document.forms['sonet-features-form'],
 		{
-			url: BX('sonet-features-form').getAttribute('action'),
+			url: actionURL,
 			method: 'POST',
 			dataType: 'json',
 			onsuccess: BX.delegate(function(responseData) {
 				BX.SocialnetworkUICommon.hideButtonWait(BX('sonet_group_features_form_button_submit'));
+				if (!BX.type.isNotEmptyString(responseData.MESSAGE))
+				{
+					return;
+				}
 
 				if (
-					typeof responseData.MESSAGE != 'undefined'
-					&& responseData.MESSAGE == 'SUCCESS'
-					&& typeof responseData.URL != 'undefined'
+					responseData.MESSAGE == 'SUCCESS'
+					&& BX.type.isNotEmptyString(responseData.URL)
 				)
 				{
 					if (this.iframe)
@@ -111,13 +125,11 @@ BX.BXSF.submitForm = function() {
 					top.location.href = responseData.URL;
 				}
 				else if (
-					typeof responseData.MESSAGE != 'undefined'
-					&& responseData.MESSAGE == 'ERROR'
-					&& typeof responseData.ERROR_MESSAGE != 'undefined'
-					&& responseData.ERROR_MESSAGE.length > 0
+					responseData.MESSAGE == 'ERROR'
+					&& BX.type.isNotEmptyString(responseData.ERROR_MESSAGE)
 				)
 				{
-					BX.SocialnetworkUICommon.showError(responseData["ERROR_MESSAGE"], this.errorBlock);
+					BX.SocialnetworkUICommon.showError(responseData.ERROR_MESSAGE, this.errorBlock);
 				}
 			}, this),
 			onfailure: BX.delegate(function(responseData) {

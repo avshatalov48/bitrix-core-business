@@ -94,10 +94,6 @@ class CHTMLEditor
 									!BXHtmlEditor.editors[id].IsSubmited() &&
 									BXHtmlEditor.editors[id].beforeUnloadHandlerAllowed !== false)
 								{
-									if (typeof(BX.PULL) != 'undefined' && typeof(BX.PULL.tryConnectDelay) == 'function') // TODO change to right code in near future (e.shelenkov)
-									{
-										BX.PULL.tryConnectDelay();
-									}
 									if(typeof(BX.desktopUtils) != 'undefined' && typeof(BX.desktopUtils.isChangedLocationToBx) == 'function' && BX.desktopUtils.isChangedLocationToBx())
 									{
 										return;
@@ -476,6 +472,9 @@ class CHTMLEditor
 			$this->jsConfig["minBodyHeight"] = $arParams["minBodyHeight"];
 		if (isset($arParams["normalBodyWidth"]))
 			$this->jsConfig["normalBodyWidth"] = $arParams["normalBodyWidth"];
+
+		if (isset($arParams['autoLink']))
+			$this->jsConfig['autoLink'] = $arParams['autoLink'];
 
 		return $arParams;
 	}

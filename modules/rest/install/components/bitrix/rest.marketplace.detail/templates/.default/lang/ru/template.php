@@ -8,11 +8,13 @@ $MESS["MARKETPLACE_APP_PRICE"] = "#PRICE#/мес.";
 $MESS["MARKETPLACE_APP_INSTALL_CANCEL"] = "Отмена";
 $MESS["MARKETPLACE_APP_POPUP_LOAD"] = "Загрузка";
 $MESS["MARKETPLACE_APP_FROM"] = "от ";
+$MESS["MARKETPLACE_APP_FROM1"] = "Разработчик: #VENDOR#";
+$MESS["MARKETPLACE_APP_DEVELOPER"] = "Разработчик:";
 $MESS["MARKETPLACE_APP_DELETE"] = "Удалить";
 $MESS["MARKETPLACE_APP_UPDATE_DATE"] = "Обновлено: #DATE#";
-$MESS["MARKETPLACE_APP_PUBLIC_DATE"] = "Опубликовано: #DATE#";
+$MESS["MARKETPLACE_APP_PUBLIC_DATE"] = "Опубликовано: <span>#DATE#</span>";
 $MESS["MARKETPLACE_APP_VERSION"] = "Версия: #VER#";
-$MESS["MARKETPLACE_APP_NUM_INSTALLS"] = "Количество установок: #NUM_INSTALLS#";
+$MESS["MARKETPLACE_APP_NUM_INSTALLS"] = "Установок: <span>#NUM_INSTALLS#</span>";
 $MESS["MARKETPLACE_APP_DESCR_TAB"] = "Описание";
 $MESS["MARKETPLACE_APP_VERSIONS_TAB"] = "Версии";
 $MESS["MARKETPLACE_APP_SUPPORT_TAB"] = "Поддержка";
@@ -41,4 +43,9 @@ $MESS["PAYMENT_MESSAGE_P_Y_N"] = "Приложение заблокирован�
 $MESS["PAYMENT_MESSAGE_P_Y_N_A"] = "Приложение заблокировано в связи с окончанием оплаченного периода использования.";
 $MESS["MARKETPLACE_APP_INSTALL_REQUEST"] = "Ваш запрос на установку приложения отправлен</br>администраторам вашего Битрикс24, спасибо!";
 $MESS["MARKETPLACE_LICENSE_ERROR"] = "Для установки приложения необходимо подтвердить свое согласие с лицензионным соглашением и политикой конфиденциальности";
+$MESS["REST_MP_INSTALL_REQUEST_CONFIRM"] = "Недостаточно прав на установку этого приложения.<br/>Отправить запрос на установку администраторам?";
+$MESS["REST_MP_APP_INSTALL_REQUEST"] = "Отправить";
+$MESS["MARKETPLACE_MORE_BUTTON"] = "Ещё";
+$MESS["MARKETPLACE_HIDDEN_BUY"] = "Содержит встроенные покупки";
+
 ?>

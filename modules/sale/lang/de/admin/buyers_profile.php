@@ -1,4 +1,7 @@
 <?
+$MESS["BUYER_EDIT"] = "Kunden bearbeiten";
+$MESS["BUYER_INFO_EDIT"] = "Kundeninformationen bearbeiten";
+$MESS["BUYER_NO_VALUES"] = "nicht angegeben";
 $MESS["BUYER_CUSTOM_FIELD"] = "Anpassen";
 $MESS["BUYER_CUSTOM_FIELD_TITLE"] = "Formularfelder anpassen";
 $MESS["BUYER_NEW_ORDER"] = "Eine Bestellung erstellen";

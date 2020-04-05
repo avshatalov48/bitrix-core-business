@@ -53,6 +53,7 @@ class SenderContactSetSelectorComponent extends CBitrixComponent
 		$this->arResult['ACTION_URI'] = $this->getPath() . '/ajax.php';
 
 		$list = is_array($this->arParams['ID']) ? $this->arParams['ID'] : [$this->arParams['ID']];
+		TrimArr($list);
 		$tileView = UI\TileView::create();
 		foreach ($list as $id)
 		{

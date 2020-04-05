@@ -1,6 +1,7 @@
 <?
 $MESS["LANDING_CMP_TITLE"] = "Сайты";
 $MESS["LANDING_CMP_MODULE_NOT_INSTALLED"] = "Сервис лендингов в данный момент недоступен.";
+$MESS["LANDING_CMP_MODULE_NOT_INSTALLED_CRM"] = "Не удалось подготовить данные CRM.";
 $MESS["LANDING_CMP_ACCESS_DENIED"] = "Сервис лендингов в данный момент доступен только администраторам портала.";
 $MESS["LANDING_CMP_ACCESS_DENIED2"] = "Недостаточно прав.";
 $MESS["LANDING_CMP_AGREEMENT_NAME"] = "Правила использования Битрикс24.Сайты";

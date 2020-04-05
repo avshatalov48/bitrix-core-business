@@ -156,7 +156,8 @@ $contentClass .= $arResult['POPUP'] == 'Y' ? ' ies-content-hide' : '';
 			currentElements: <?=\Bitrix\Main\Web\Json::encode($arResult['CURRENT_ELEMENTS'])?>,
 			lastElements: <?=\Bitrix\Main\Web\Json::encode($arResult['LAST_ELEMENTS'])?>,
 			inputName: '<?=$arResult['INPUT_NAME']?>',
-			onlyRead: '<?=$arResult['ONLY_READ']?>'
+			onlyRead: '<?=$arResult['ONLY_READ']?>',
+			admin: '<?=$arResult['ADMIN_SECTION']; ?>'
 		});
 		BX.message({
 

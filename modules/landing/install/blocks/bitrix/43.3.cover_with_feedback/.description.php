@@ -85,7 +85,7 @@ return array(
 				'.landing-block-node-bgimg' =>
 					array(
 						'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODEBGIMG'),
-						'type' => 'background-overlay',
+						'type' => array('background-overlay', 'background-attachment')
 					),
 				'.landing-block-node-header' =>
 					array(

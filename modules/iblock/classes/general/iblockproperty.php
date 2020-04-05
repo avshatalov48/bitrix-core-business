@@ -1,4 +1,6 @@
 <?
+use Bitrix\Iblock;
+
 global $IBLOCK_CACHE_PROPERTY;
 $IBLOCK_CACHE_PROPERTY = Array();
 IncludeModuleLangFile(__FILE__);
@@ -153,6 +155,7 @@ class CAllIBlockProperty
 			return false;
 
 		CIBlockSectionPropertyLink::DeleteByProperty($ID);
+		Iblock\PropertyFeatureTable::deleteByProperty($ID);
 
 		$rsProperty = CIBlockProperty::GetByID($ID);
 		$arProperty = $rsProperty->Fetch();
@@ -209,6 +212,8 @@ class CAllIBlockProperty
 
 		$seq = new CIBlockSequence($arProperty["IBLOCK_ID"], $ID);
 		$seq->Drop();
+
+		CIBlock::clearIblockTagCache($arProperty["IBLOCK_ID"]);
 
 		$res = $DB->Query("DELETE FROM b_iblock_property WHERE ID=".$ID, true);
 
@@ -331,12 +336,25 @@ class CAllIBlockProperty
 						CIBlockSectionPropertyLink::Add(0, $ID, $arLink);
 					}
 				}
+
+				if (!empty($arFields['FEATURES']) && is_array($arFields['FEATURES']))
+				{
+					$featureResult = Iblock\Model\PropertyFeature::addFeatures(
+						$ID,
+						$arFields['FEATURES']
+					);
+					//TODO: add error handling
+					unset($featureResult);
+				}
 			}
 		}
 
 		global $BX_IBLOCK_PROP_CACHE;
-		if(array_key_exists("IBLOCK_ID", $arFields))
+		if (isset($arFields["IBLOCK_ID"]))
+		{
 			unset($BX_IBLOCK_PROP_CACHE[$arFields["IBLOCK_ID"]]);
+			CIBlock::clearIblockTagCache($arFields["IBLOCK_ID"]);
+		}
 
 		$arFields["RESULT"] = &$Result;
 
@@ -364,7 +382,7 @@ class CAllIBlockProperty
 			if(strpos("0123456789", substr($arFields["CODE"], 0, 1))!==false)
 				$this->LAST_ERROR .= GetMessage("IBLOCK_PROPERTY_CODE_FIRST_LETTER").": ".$arFields["CODE"]."<br>";
 			if(preg_match("/[^A-Za-z0-9_]/",  $arFields["CODE"]))
-				$this->LAST_ERROR .= GetMessage("IBLOCK_PROPERTY_WRONG_CODE")."<br>";
+				$this->LAST_ERROR .= GetMessage("IBLOCK_PROPERTY_WRONG_CODE").": ".$arFields["CODE"]."<br>";
 		}
 
 		if(!$bFormValidate)
@@ -482,7 +500,7 @@ class CAllIBlockProperty
 				{
 					if (!isset($arFields["USER_TYPE_SETTINGS"]))
 					{
-						$oldData = \Bitrix\Iblock\PropertyTable::getList(array(
+						$oldData = Iblock\PropertyTable::getList(array(
 							'select' => array('ID', 'PROPERTY_TYPE', 'USER_TYPE', 'USER_TYPE_SETTINGS'),
 							'filter' => array('=ID' => $ID)
 						))->fetch();
@@ -557,9 +575,22 @@ class CAllIBlockProperty
 				}
 			}
 
+			if (!empty($arFields['FEATURES']) && is_array($arFields['FEATURES']))
+			{
+				$featureResult = Iblock\Model\PropertyFeature::setFeatures(
+					$ID,
+					$arFields['FEATURES']
+				);
+				//TODO: add error handling
+				unset($featureResult);
+			}
+
 			global $BX_IBLOCK_PROP_CACHE;
-			if(array_key_exists("IBLOCK_ID", $arFields))
+			if (isset($arFields["IBLOCK_ID"]))
+			{
 				unset($BX_IBLOCK_PROP_CACHE[$arFields["IBLOCK_ID"]]);
+				CIBlock::clearIblockTagCache($arFields["IBLOCK_ID"]);
+			}
 
 			$Result = true;
 		}
@@ -579,7 +610,7 @@ class CAllIBlockProperty
 	public static function GetByID($ID, $IBLOCK_ID=false, $IBLOCK_CODE=false)
 	{
 		global $DB;
-		$cond = "";
+
 		if($IBLOCK_CODE && $IBLOCK_ID)
 			$cond = " AND (B.ID = ".(int)$IBLOCK_ID." OR B.CODE = '".$DB->ForSql($IBLOCK_CODE)."') ";
 		elseif($IBLOCK_CODE)

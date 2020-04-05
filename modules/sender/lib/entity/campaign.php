@@ -73,8 +73,10 @@ class Campaign extends Base
 			return self::$defaultId;
 		}
 
+		$site = SiteTable::getRow(['select' => ['ID' => 'LID'], 'filter' => ['=DEF' => 'Y']]);
 		$result = MailingTable::add(array(
-			'NAME' => Loc::getMessage('SENDER_ENTITY_CAMPAIGN_NAME_DEFAULT')
+			'NAME' => Loc::getMessage('SENDER_ENTITY_CAMPAIGN_NAME_DEFAULT'),
+			'SITE_ID' => ($site ? $site['ID'] : SITE_ID)
 		));
 		if ($result->isSuccess())
 		{

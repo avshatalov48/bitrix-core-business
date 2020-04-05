@@ -33,6 +33,8 @@ final class Manager
 	private static $instance;
 	/** @var  BasePreset[] */
 	private $presetList;
+	/** @var $restrictedGroupsMode bool */
+	private $restrictedGroupsMode = false;
 
 	/**
 	 * Returns Singleton of Manager
@@ -95,6 +97,16 @@ final class Manager
 
 	private function __clone()
 	{}
+
+	public function enableRestrictedGroupsMode($state)
+	{
+		$this->restrictedGroupsMode = $state === true;
+	}
+
+	public function isRestrictedGroupsModeEnabled()
+	{
+		return $this->restrictedGroupsMode;
+	}
 
 	public function autoLoad($className)
 	{
@@ -231,7 +243,11 @@ final class Manager
 		{
 			$class = new \ReflectionClass($className);
 
-			return $class->newInstanceArgs(array());
+			/** @var BasePreset $instance */
+			$instance = $class->newInstanceArgs([]);
+			$instance->enableRestrictedGroupsMode($this->isRestrictedGroupsModeEnabled());
+
+			return $instance;
 		}
 		catch (\ReflectionException $exception)
 		{

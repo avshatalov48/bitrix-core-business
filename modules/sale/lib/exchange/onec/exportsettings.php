@@ -29,11 +29,25 @@ class ExportSettings extends SettingsBase
 			self::$currentSettings['payed'][EntityType::PAYMENT_CASH_LESS_NAME] = '';
 			self::$currentSettings['payed'][EntityType::PAYMENT_CARD_TRANSACTION_NAME] = '';
 
+			self::$currentSettings['payed'][EntityType::INVOICE_NAME] = Option::get("sale", "1C_EXPORT_PAYED_ORDERS", "");
+			self::$currentSettings['payed'][EntityType::INVOICE_SHIPMENT_NAME] = '';
+			self::$currentSettings['payed'][EntityType::INVOICE_PAYMENT_CASH_NAME] = '';
+			self::$currentSettings['payed'][EntityType::INVOICE_PAYMENT_CASH_LESS_NAME] = '';
+			self::$currentSettings['payed'][EntityType::INVOICE_PAYMENT_CARD_TRANSACTION_NAME] = '';
+
+
 			self::$currentSettings['allow_delivery'][EntityType::ORDER_NAME] = Option::get("sale", "1C_EXPORT_ALLOW_DELIVERY_ORDERS", "");
 			self::$currentSettings['allow_delivery'][EntityType::SHIPMENT_NAME] = '';
 			self::$currentSettings['allow_delivery'][EntityType::PAYMENT_CASH_NAME] = '';
 			self::$currentSettings['allow_delivery'][EntityType::PAYMENT_CASH_LESS_NAME] = '';
 			self::$currentSettings['allow_delivery'][EntityType::PAYMENT_CARD_TRANSACTION_NAME] = '';
+
+			self::$currentSettings['allow_delivery'][EntityType::INVOICE_NAME] = Option::get("sale", "1C_EXPORT_ALLOW_DELIVERY_ORDERS", "");
+			self::$currentSettings['allow_delivery'][EntityType::INVOICE_SHIPMENT_NAME] = '';
+			self::$currentSettings['allow_delivery'][EntityType::INVOICE_PAYMENT_CASH_NAME] = '';
+			self::$currentSettings['allow_delivery'][EntityType::INVOICE_PAYMENT_CASH_LESS_NAME] = '';
+			self::$currentSettings['allow_delivery'][EntityType::INVOICE_PAYMENT_CARD_TRANSACTION_NAME] = '';
+
 
 			self::$currentSettings['accountNumberPrefix'][EntityType::ORDER_NAME] = Option::get("sale", "1C_SALE_ACCOUNT_NUMBER_SHOP_PREFIX", "");
 			self::$currentSettings['accountNumberPrefix'][EntityType::SHIPMENT_NAME] = '';
@@ -41,17 +55,38 @@ class ExportSettings extends SettingsBase
 			self::$currentSettings['accountNumberPrefix'][EntityType::PAYMENT_CASH_LESS_NAME] = '';
 			self::$currentSettings['accountNumberPrefix'][EntityType::PAYMENT_CARD_TRANSACTION_NAME] = '';
 
+			self::$currentSettings['accountNumberPrefix'][EntityType::INVOICE_NAME] = Option::get("sale", "1C_SALE_ACCOUNT_NUMBER_SHOP_PREFIX", "");
+			self::$currentSettings['accountNumberPrefix'][EntityType::INVOICE_SHIPMENT_NAME] = '';
+			self::$currentSettings['accountNumberPrefix'][EntityType::INVOICE_PAYMENT_CASH_NAME] = '';
+			self::$currentSettings['accountNumberPrefix'][EntityType::INVOICE_PAYMENT_CASH_LESS_NAME] = '';
+			self::$currentSettings['accountNumberPrefix'][EntityType::INVOICE_PAYMENT_CARD_TRANSACTION_NAME] = '';
+
+
 			self::$currentSettings['finalStatus'][EntityType::ORDER_NAME] = Option::get("sale", "1C_EXPORT_FINAL_ORDERS", "");
 			self::$currentSettings['finalStatus'][EntityType::SHIPMENT_NAME] = '';
 			self::$currentSettings['finalStatus'][EntityType::PAYMENT_CASH_NAME] = '';
 			self::$currentSettings['finalStatus'][EntityType::PAYMENT_CASH_LESS_NAME] = '';
 			self::$currentSettings['finalStatus'][EntityType::PAYMENT_CARD_TRANSACTION_NAME] = '';
 
+			self::$currentSettings['finalStatus'][EntityType::INVOICE_NAME] = Option::get("sale", "1C_EXPORT_FINAL_ORDERS", "");
+			self::$currentSettings['finalStatus'][EntityType::INVOICE_SHIPMENT_NAME] = '';
+			self::$currentSettings['finalStatus'][EntityType::INVOICE_PAYMENT_CASH_NAME] = '';
+			self::$currentSettings['finalStatus'][EntityType::INVOICE_PAYMENT_CASH_LESS_NAME] = '';
+			self::$currentSettings['finalStatus'][EntityType::INVOICE_PAYMENT_CARD_TRANSACTION_NAME] = '';
+
+
 			self::$currentSettings['groupPermission'][EntityType::ORDER_NAME] = Option::get("sale", "1C_SALE_GROUP_PERMISSIONS");
 			self::$currentSettings['groupPermission'][EntityType::SHIPMENT_NAME] = '';
 			self::$currentSettings['groupPermission'][EntityType::PAYMENT_CASH_NAME] = '';
 			self::$currentSettings['groupPermission'][EntityType::PAYMENT_CASH_LESS_NAME] = '';
 			self::$currentSettings['groupPermission'][EntityType::PAYMENT_CARD_TRANSACTION_NAME] = '';
+
+			self::$currentSettings['groupPermission'][EntityType::INVOICE_NAME] = Option::get("sale", "1C_SALE_GROUP_PERMISSIONS");
+			self::$currentSettings['groupPermission'][EntityType::INVOICE_SHIPMENT_NAME] = '';
+			self::$currentSettings['groupPermission'][EntityType::INVOICE_PAYMENT_CASH_NAME] = '';
+			self::$currentSettings['groupPermission'][EntityType::INVOICE_PAYMENT_CASH_LESS_NAME] = '';
+			self::$currentSettings['groupPermission'][EntityType::INVOICE_PAYMENT_CARD_TRANSACTION_NAME] = '';
+
 
 			if(!is_array(self::$currentSettings))
 			{

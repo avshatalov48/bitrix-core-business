@@ -3,13 +3,16 @@
 namespace Bitrix\Seo\LeadAds\Services;
 
 use \Bitrix\Seo\LeadAds\Account;
+use \Bitrix\Seo\LeadAds;
 
 
 class AccountFacebook extends Account
 {
-	const TYPE_CODE = 'facebook';
+	const TYPE_CODE = LeadAds\Service::TYPE_FACEBOOK;
 
 	const URL_ACCOUNT_LIST = 'https://www.facebook.com/bookmarks/pages';
+
+	const URL_INFO = 'https://www.facebook.com/business/a/lead-ads';
 
 	protected static $listRowMap = array(
 		'ID' => 'ID',

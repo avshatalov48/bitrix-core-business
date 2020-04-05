@@ -2,6 +2,7 @@
 use \Bitrix\Sale\Internals\PaySystemActionTable;
 use \Bitrix\Sale\Internals\ServiceRestrictionTable;
 use \Bitrix\Sale\Services\PaySystem\Restrictions\Manager;
+use \Bitrix\Sale;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -9,7 +10,6 @@ IncludeModuleLangFile(__FILE__);
 class CAllSalePaySystemAction
 {
 	const GET_PARAM_VALUE = 1;
-	static $relatedData = array();
 
 	function GetByID($id)
 	{
@@ -197,10 +197,12 @@ class CAllSalePaySystemAction
 		);
 	}
 
-	function InitParamArrays($arOrder, $orderID = 0, $psParams = "", $relatedData = array(), $payment = array())
+	function InitParamArrays($arOrder, $orderID = 0, $psParams = "", $relatedData = array(), $payment = array(), $shipment = array(), $registryType = Sale\Registry::REGISTRY_TYPE_ORDER)
 	{
 		if(!is_array($relatedData))
 			$relatedData = array();
+
+		$registry = Sale\Registry::getInstance($registryType);
 
 		$GLOBALS["SALE_INPUT_PARAMS"] = array();
 		$GLOBALS["SALE_CORRESPONDENCE"] = array();
@@ -228,15 +230,22 @@ class CAllSalePaySystemAction
 
 		if (empty($payment) && $orderID > 0)
 		{
-			$payment = \Bitrix\Sale\Internals\PaymentTable::getRow(
+			/** @var Sale\Payment $paymentClassName */
+			$paymentClassName = $registry->getPaymentClassName();
+			$dbRes = $paymentClassName::getList(
 				array(
 					'select' => array('*'),
-					'filter' => array('ORDER_ID' => $orderID, '!PAY_SYSTEM_ID' => \Bitrix\Sale\PaySystem\Manager::getInnerPaySystemId())
+					'filter' => array(
+						'ORDER_ID' => $orderID,
+						'!PAY_SYSTEM_ID' => Sale\PaySystem\Manager::getInnerPaySystemId()
+					)
 				)
 			);
+
+			$payment = $dbRes->fetch();
 		}
 
-		if (count($arOrder) > 0)
+		if (is_array($arOrder) && count($arOrder) > 0)
 			$GLOBALS["SALE_INPUT_PARAMS"]["ORDER"] = $arOrder;
 
 		if (!empty($payment))
@@ -288,15 +297,15 @@ class CAllSalePaySystemAction
 		}
 		else
 		{
-			$dbOrderPropVals = CSaleOrderPropsValue::GetList(
-				array(),
-				array("ORDER_ID" => $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]),
-				false,
-				false,
-				array("ID", "CODE", "VALUE", "ORDER_PROPS_ID", "PROP_TYPE")
+			/** @var Sale\PropertyValue $propertyClassName */
+			$propertyClassName = $registry->getPropertyValueClassName();
+			$dbRes = $propertyClassName::getList(array(
+				'select' => array("ID", "CODE", "VALUE", "ORDER_PROPS_ID", "PROP_TYPE" => 'PROPERTY.TYPE'),
+				'filter' => array("ORDER_ID" => $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]),
+				)
 			);
 
-			while ($arOrderPropVals = $dbOrderPropVals->Fetch())
+			while ($arOrderPropVals = $dbRes->fetch())
 			{
 				$arCurOrderPropsTmp = CSaleOrderProps::GetRealValue(
 					$arOrderPropVals["ORDER_PROPS_ID"],
@@ -317,12 +326,18 @@ class CAllSalePaySystemAction
 		if (count($arCurOrderProps) > 0)
 			$GLOBALS["SALE_INPUT_PARAMS"]["PROPERTY"] = $arCurOrderProps;
 
-		$shipment = \Bitrix\Sale\Internals\ShipmentTable::getRow(
-			array(
-				'select' => array('DELIVERY_ID'),
-				'filter' => array('=ORDER_ID' => $orderID, '=SYSTEM' => 'N')
-			)
-		);
+		if (empty($shipment) && $orderID > 0)
+		{
+			/** @var Sale\Shipment $shipmentClassName */
+			$shipmentClassName  = $registry->getShipmentClassName();
+			$dbRes = $shipmentClassName::getList(
+				array(
+					'select' => array('DELIVERY_ID'),
+					'filter' => array('=ORDER_ID' => $orderID, '=SYSTEM' => 'N')
+				)
+			);
+			$shipment = $dbRes->fetch();
+		}
 
 		if ($shipment)
 		{
@@ -429,102 +444,59 @@ class CAllSalePaySystemAction
 		if (isset($relatedData["TAX_LIST"]) && is_array($relatedData["TAX_LIST"]))
 			$GLOBALS["SALE_INPUT_PARAMS"]["TAX_LIST"] = $relatedData["TAX_LIST"];
 
-		if(isset($relatedData["REQUISITE"]) && is_array($relatedData["REQUISITE"]))
-		{
-			$GLOBALS["SALE_INPUT_PARAMS"]["REQUISITE"] = $relatedData["REQUISITE"];
 
-			self::$relatedData['REQUISITE'] = array(
-				'GET_INSTANCE_VALUE' => function ($providerInstance, $providerValue, $personTypeId)
-				{
-					return $GLOBALS['SALE_INPUT_PARAMS']['REQUISITE'][$providerValue];
-				}
-			);
-		}
-		if(isset($relatedData["BANK_DETAIL"]) && is_array($relatedData["BANK_DETAIL"]))
-		{
-			$GLOBALS["SALE_INPUT_PARAMS"]["BANK_DETAIL"] = $relatedData["BANK_DETAIL"];
-
-			self::$relatedData['BANK_DETAIL'] = array(
-				'GET_INSTANCE_VALUE' => function ($providerInstance, $providerValue, $personTypeId)
-				{
-					return $GLOBALS['SALE_INPUT_PARAMS']['BANK_DETAIL'][$providerValue];
-				}
-			);
-		}
-		if(isset($relatedData["TEMPLATE_PARAMS"]) && is_array($relatedData["TEMPLATE_PARAMS"]))
+		if (isset($relatedData["TEMPLATE_PARAMS"]) && is_array($relatedData["TEMPLATE_PARAMS"]))
 		{
 			$GLOBALS["SALE_CORRESPONDENCE"] = array_merge($GLOBALS["SALE_CORRESPONDENCE"], $relatedData["TEMPLATE_PARAMS"]);
 		}
-		if(isset($relatedData["CRM_COMPANY"]) && is_array($relatedData["CRM_COMPANY"]))
+
+		$redefinedFields = [];
+		if (isset($relatedData["REQUISITE"]) && is_array($relatedData["REQUISITE"]))
+		{
+			$GLOBALS["SALE_INPUT_PARAMS"]["REQUISITE"] = $relatedData["REQUISITE"];
+			$redefinedFields["REQUISITE"] = $relatedData["REQUISITE"];
+		}
+
+		if (isset($relatedData["BANK_DETAIL"]) && is_array($relatedData["BANK_DETAIL"]))
+		{
+			$GLOBALS["SALE_INPUT_PARAMS"]["BANK_DETAIL"] = $relatedData["BANK_DETAIL"];
+			$redefinedFields["BANK_DETAIL"] = $relatedData["BANK_DETAIL"];
+		}
+
+		if (isset($relatedData["CRM_COMPANY"]) && is_array($relatedData["CRM_COMPANY"]))
 		{
 			$GLOBALS["SALE_INPUT_PARAMS"]["CRM_COMPANY"] = $relatedData["CRM_COMPANY"];
-
-			self::$relatedData['CRM_COMPANY'] = array(
-				'GET_INSTANCE_VALUE' => function ($providerInstance, $providerValue, $personTypeId)
-				{
-					return $GLOBALS['SALE_INPUT_PARAMS']['CRM_COMPANY'][$providerValue];
-				}
-			);
+			$redefinedFields["CRM_COMPANY"] = $relatedData["CRM_COMPANY"];
 		}
-		if(isset($relatedData["CRM_CONTACT"]) && is_array($relatedData["CRM_CONTACT"]))
+
+		if (isset($relatedData["CRM_CONTACT"]) && is_array($relatedData["CRM_CONTACT"]))
 		{
 			$GLOBALS["SALE_INPUT_PARAMS"]["CRM_CONTACT"] = $relatedData["CRM_CONTACT"];
-
-			self::$relatedData['CRM_CONTACT'] = array(
-				'GET_INSTANCE_VALUE' => function ($providerInstance, $providerValue, $personTypeId)
-				{
-					return $GLOBALS['SALE_INPUT_PARAMS']['CRM_CONTACT'][$providerValue];
-				}
-			);
+			$redefinedFields["CRM_CONTACT"] = $relatedData["CRM_CONTACT"];
 		}
-		if(isset($relatedData["MC_REQUISITE"]) && is_array($relatedData["MC_REQUISITE"]))
+
+		if (isset($relatedData["MC_REQUISITE"]) && is_array($relatedData["MC_REQUISITE"]))
 		{
 			$GLOBALS["SALE_INPUT_PARAMS"]["MC_REQUISITE"] = $relatedData["MC_REQUISITE"];
-
-			self::$relatedData['MC_REQUISITE'] = array(
-				'GET_INSTANCE_VALUE' => function ($providerInstance, $providerValue, $personTypeId)
-				{
-					return $GLOBALS['SALE_INPUT_PARAMS']['MC_REQUISITE'][$providerValue];
-				}
-			);
+			$redefinedFields["MC_REQUISITE"] = $relatedData["MC_REQUISITE"];
 		}
-		if(isset($relatedData["MC_BANK_DETAIL"]) && is_array($relatedData["MC_BANK_DETAIL"]))
+
+		if (isset($relatedData["MC_BANK_DETAIL"]) && is_array($relatedData["MC_BANK_DETAIL"]))
 		{
 			$GLOBALS["SALE_INPUT_PARAMS"]["MC_BANK_DETAIL"] = $relatedData["MC_BANK_DETAIL"];
-
-			self::$relatedData['MC_BANK_DETAIL'] = array(
-				'GET_INSTANCE_VALUE' => function ($providerInstance, $providerValue, $personTypeId)
-				{
-					return $GLOBALS['SALE_INPUT_PARAMS']['MC_BANK_DETAIL'][$providerValue];
-				}
-			);
+			$redefinedFields["MC_BANK_DETAIL"] = $relatedData["MC_BANK_DETAIL"];
 		}
-		if(isset($relatedData["CRM_MYCOMPANY"]) && is_array($relatedData["CRM_MYCOMPANY"]))
+
+		if (isset($relatedData["CRM_MYCOMPANY"]) && is_array($relatedData["CRM_MYCOMPANY"]))
 		{
 			$GLOBALS["SALE_INPUT_PARAMS"]["CRM_MYCOMPANY"] = $relatedData["CRM_MYCOMPANY"];
-
-			self::$relatedData['CRM_MYCOMPANY'] = array(
-				'GET_INSTANCE_VALUE' => function ($providerInstance, $providerValue, $personTypeId)
-				{
-					return $GLOBALS['SALE_INPUT_PARAMS']['CRM_MYCOMPANY'][$providerValue];
-				}
-			);
+			$redefinedFields["CRM_MYCOMPANY"] = $relatedData["CRM_MYCOMPANY"];
 		}
 
-		if (self::$relatedData)
+		if ($redefinedFields)
 		{
-			$eventManager = \Bitrix\Main\EventManager::getInstance();
-			$event = $eventManager->findEventHandlers('sale', 'OnGetBusinessValueProviders');
-			if (empty($event))
-			{
-				$eventManager->addEventHandler('sale', 'OnGetBusinessValueProviders', array('\CSalePaySystemAction', 'getProviders'));
-			}
+			Sale\BusinessValue::redefineProviderField($redefinedFields);
 		}
-	}
-
-	public static function getProviders()
-	{
-		return self::$relatedData;
 	}
 
 	function IncludePrePaySystem($fileName, $bDoPayAction, &$arPaySysResult, &$strPaySysError, &$strPaySysWarning, $BASE_LANG_CURRENCY = False, $ORDER_PRICE = 0.0, $TAX_PRICE = 0.0, $DISCOUNT_PRICE = 0.0, $DELIVERY_PRICE = 0.0)
@@ -831,7 +803,7 @@ class CAllSalePaySystemAction
 
 	public static function checkRestriction($restriction, $filter)
 	{
-		if (isset($filter['PERSON_TYPE_ID']) && $restriction['CLASS_NAME'] == '\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType')
+		if (isset($filter['PERSON_TYPE_ID']) && $restriction['CLASS_NAME'] == '\\'.\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType::class)
 		{
 			if (is_array($filter['PERSON_TYPE_ID']))
 			{
@@ -1033,7 +1005,7 @@ class CAllSalePaySystemAction
 						'filter' => array(
 							"SERVICE_ID" => $id,
 							"SERVICE_TYPE" => \Bitrix\Sale\Services\PaySystem\Restrictions\Manager::SERVICE_TYPE_PAYMENT,
-							"=CLASS_NAME" => '\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType'
+							"=CLASS_NAME" => '\\'.\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType::class
 						)
 					);
 
@@ -1435,7 +1407,7 @@ class CAllSalePaySystemAction
 					'filter' => array(
 						"SERVICE_ID" => $id,
 						"SERVICE_TYPE" => \Bitrix\Sale\Services\PaySystem\Restrictions\Manager::SERVICE_TYPE_PAYMENT,
-						"=CLASS_NAME" => '\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType'
+						"=CLASS_NAME" => '\\'.\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType::class
 					)
 				);
 

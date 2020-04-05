@@ -9,6 +9,12 @@
 namespace Bitrix\Sale;
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Loader;
+
+if (!Loader::includeModule('sender'))
+{
+	return;
+}
 
 Loc::loadMessages(__FILE__);
 

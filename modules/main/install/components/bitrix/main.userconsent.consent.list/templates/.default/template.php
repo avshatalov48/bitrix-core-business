@@ -1,9 +1,7 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-use Bitrix\Main\Localization\Loc;
-
-/** @var CMain $APPLICATION */
+/** @var \CAllMain $APPLICATION */
 /** @var array $arParams */
 /** @var array $arResult */
 
@@ -23,9 +21,30 @@ foreach ($arResult['ROWS'] as $index => $data)
 
 	if ($data['ORIGIN'] && $data['ORIGIN_PATH'])
 	{
-		$data['ORIGIN'] = '<a href="' . htmlspecialcharsbx($data['ORIGIN_PATH']) . '" target="_blank">'
+		$data['ORIGIN'] = '<a href="' . htmlspecialcharsbx(CUtil::JSEscape($data['ORIGIN_PATH'])) . '" target="_blank">'
 			.  htmlspecialcharsbx($data['ORIGIN'])
 			. '</a>';
+	}
+	else
+	{
+		$data['ORIGIN'] = '';
+		if ($data['ORIGIN_ID'])
+		{
+			$data['ORIGIN'] .= htmlspecialcharsbx($data['ORIGIN_ID']);
+		}
+		if ($data['ORIGINATOR_ID'])
+		{
+			$data['ORIGIN'] .= $data['ORIGIN'] ? '<br>' : '';
+			$data['ORIGIN'] .= '<span style="color: #C3C3C3;">' . htmlspecialcharsbx($data['ORIGINATOR_ID']) . '</span>';
+		}
+	}
+
+	if ($data['URL'])
+	{
+		$styleString = 'max-width: 400px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;';
+		$data['URL'] = '<div style="' . $styleString . '"><a href="' . htmlspecialcharsbx(CUtil::JSEscape($data['URL'])) . '" target="_blank">'
+			.  htmlspecialcharsbx($data['URL'])
+			. '</a></div>';
 	}
 
 	$actions = array();

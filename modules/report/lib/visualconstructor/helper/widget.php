@@ -59,6 +59,10 @@ class Widget
 				$reportDispatcher->setReport($report);
 				$reportDispatcher->setView($view);
 				$data = $reportDispatcher->getReportCompatibleData();
+				if ($data === null)
+				{
+					continue;
+				}
 				if (!$reportDispatcher->getErrors())
 				{
 					if ($view::MAX_RENDER_REPORT_COUNT == 1)

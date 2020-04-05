@@ -14,6 +14,13 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
  * @global CMain $APPLICATION
  * @global CUser $USER
  */
+\Bitrix\Main\UI\Extension::load(array("ui.buttons", "ui.alerts", "ui.viewer"));
+
+if (isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y")
+{
+	$bodyClasses = 'pagetitle-toolbar-field-view no-all-paddings';
+	$APPLICATION->setPageProperty('BodyClass', trim(sprintf('%s %s', $bodyClass, $bodyClasses)));
+}
 
 if (!is_array($arResult["APP"]) || empty($arResult["APP"]))
 {
@@ -33,225 +40,276 @@ if($arResult['CHECK_HASH'])
 	$arParamsApp['INSTALL_HASH'] = $arResult['INSTALL_HASH'];
 }
 ?>
-<div class="mp_dt_title_icon">
-	<span class="mp_sc_ls_img">
-<?
-	if($arResult["APP"]["ICON"]):
-?>
-		<span><img src="<?=$arResult["APP"]["ICON"]?>" alt=""></span>
-<?
-	else:
-?>
-		<span class="mp_empty_icon"></span>
-<?
-	endif;
-?>
-	</span>
-	<span class="mp_sc_ls_shadow">
-<?
-	if ($arResult["APP"]["PROMO"] == "Y"):
-?>
-		<span class="mp_discount_icon"></span>
-<?
-	endif;
-?>
-	</span>
-</div>
-<h2 class="mp_dt_title_section"><?=htmlspecialcharsbx($arResult["APP"]["NAME"]);?></h2>
-<div class="mp_td_owner">
-	<?=GetMessage("MARKETPLACE_APP_FROM")?>
-	<?if ($arResult["APP"]["PARTNER_URL"]):?><a href="<?=htmlspecialcharsbx($arResult["APP"]["PARTNER_URL"])?>" target="_blank"><?endif?>
-	<?=htmlspecialcharsbx($arResult["APP"]["PARTNER_NAME"])?>
-	<?if ($arResult["APP"]["PARTNER_URL"]):?></a><?endif?>
-</div>
-<div style="clear:both"></div>
-<div class="mp_dt_container" id="detail_cont">
-	<div class="mp_dt_left_container">
-<?
-	if (is_array($arResult["APP"]["IMAGES"]) && count($arResult["APP"]["IMAGES"]) > 0):
-?>
-		<div id="detail_img_block">
-			<div class="mp_dt_preview"><img src="<?=$arResult["APP"]["IMAGES"][0]?>" alt="" width="180px" height="180px"></div>
-<?
-		unset($arResult["APP"]["IMAGES"][0]);
-		if(count($arResult["APP"]["IMAGES"]) > 0):
-?>
-			<div class="mp_dt_lc_slider">
-				<div class="mp_dt_lc_slider_container">
-					<ul class="mp_dt_preview_list" >
-<?
-			foreach($arResult["APP"]["IMAGES"] as $src):
-?>
-						<li><a href="<?=$src?>"><img src="<?=$src?>" alt="" width="39px" height="39px"></a></li>
-<?
-			endforeach;
-?>
-					</ul>
-				</div>
-			</div>
-<?
-		endif;
-?>
-		</div>
-<?
-	endif;
-	if(strlen($arResult["APP"]["DATE_UPDATE"]) > 0):
-?>
-		<div class="mp_dt_lc_desc"><?=GetMessage("MARKETPLACE_APP_UPDATE_DATE", array("#DATE#" => htmlspecialcharsbx($arResult["APP"]["DATE_UPDATE"])))?></div>
-<?
-	endif;
-?>
-		<div class="mp_dt_lc_desc"><?=GetMessage("MARKETPLACE_APP_PUBLIC_DATE", array("#DATE#" => htmlspecialcharsbx($arResult["APP"]["DATE_PUBLIC"])))?></div>
-		<div class="mp_dt_lc_desc"><?=GetMessage("MARKETPLACE_APP_VERSION", array("#VER#" => htmlspecialcharsbx($arResult["APP"]["VER"])))?></div>
-		<div class="mp_dt_lc_desc"><?=GetMessage("MARKETPLACE_APP_NUM_INSTALLS", array("#NUM_INSTALLS#" => htmlspecialcharsbx($arResult["APP"]["NUM_INSTALLS"])))?></div>
-	</div>
-	<div class="mp_dt_right_container">
-		<div class="mp_dt_rc_header">
-			<div class="mp_dt_rc_price">
-<?
-	if (is_array($arResult["APP"]["PRICE"]) && !empty($arResult["APP"]["PRICE"])):
-?>
-				<?=GetMessage("MARKETPLACE_APP_PRICE", array("#PRICE#"=>htmlspecialcharsbx($arResult["APP"]["PRICE"][1])))?>
-<?
-	else:
-?>
-				<?=GetMessage("MARKETPLACE_APP_FREE")?>
-<?
-	endif;
-?>
-			</div>
-<?
-	if($arResult["ADMIN"])
-	{
-?>
-			<!-- buttons for installed apps-->
-<?
-		if ($arResult["APP"]["ACTIVE"] == "Y"):
-?>
-			<span id="mp_installed_block">
-					<!-- prolong -->
-<?
-			if (is_array($arResult["APP"]["PRICE"]) && !empty($arResult["APP"]["PRICE"])):
-?>
-				<a href="javascript:void(0)" class="bt_green" onclick="BX.rest.Marketplace.buy(this, <?=CUtil::PhpToJSObject($arResult['BUY'])?>)">
-					<?=($arResult["APP"]["STATUS"] == "P" && $arResult["APP"]["DATE_FINISH"]) ? GetMessage("MARKETPLACE_APP_PROLONG") : GetMessage("MARKETPLACE_APP_BUY")?>
-				</a>
-<?
-			endif;
-?>
-				<!-- delete -->
-				<a href="javascript:void(0)" class="bt_gray" onclick="BX.rest.Marketplace.uninstallConfirm('<?=CUtil::JSEscape($arResult["APP"]["CODE"])?>')"><?=GetMessage("MARKETPLACE_APP_DELETE")?></a>
-				<!-- update -->
-<?
-			if ($arResult["APP"]["UPDATES"]):
-?>
-				<a id="update_btn" href="javascript:void(0)" class="bt_gray" onclick="BX.rest.Marketplace.install(<?=CUtil::PhpToJSObject($arParamsApp)?>)"><?=GetMessage("MARKETPLACE_APP_UPDATE_BUTTON")?></a>
-<?
-			endif;
-?>
-			</span>
-<?
-		endif;
-?>
-			<!-- buttons for uninstalled apps-->
-			<span <?if ($arResult["APP"]["ACTIVE"] == "Y"):?>style="display:none"<?endif?> id="mp_uninstalled_block">
-				<!--paid-->
-<?
-		if (is_array($arResult["APP"]["PRICE"]) && !empty($arResult["APP"]["PRICE"])):
-?>
-				<a href="javascript:void(0)" class="bt_green" onclick="BX.rest.Marketplace.buy(this, <?=CUtil::PhpToJSObject($arResult['BUY'])?>)">
-					<?=($arResult["APP"]["STATUS"] == "P" && $arResult["APP"]["DATE_FINISH"]) ? GetMessage("MARKETPLACE_APP_PROLONG") : GetMessage("MARKETPLACE_APP_BUY")?>
-				</a>
-<?
-			if ($arResult["APP"]["STATUS"] == "P"):
-?>
-				<a href="javascript:void(0)" class="bt_green" onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);"><?=GetMessage("MARKETPLACE_APP_INSTALL")?></a>
-<?
-			else:
-				if ($arResult["APP"]["DEMO"] == "D"):
-?>
-				<a href="javascript:void(0)" class="bt_green" onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);"><?=GetMessage("MARKETPLACE_APP_DEMO")?></a>
-<?
-				elseif ($arResult["APP"]["DEMO"] == "T" && (!isset($arResult["APP"]["IS_TRIALED"]) || $arResult["APP"]["IS_TRIALED"] == "N" || MakeTimeStamp($arResult["APP"]["DATE_FINISH"]) > time())):
-?>
-				<a href="javascript:void(0)" class="bt_green" onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);">
-<?
-				if ($arResult["APP"]["IS_TRIALED"] == "Y"):
-?>
-					<?=GetMessage("MARKETPLACE_APP_TRIAL")?> (<?=$arResult["APP"]["APP_STATUS"]["MESSAGE_REPLACE"]["#DAYS#"]?>)
-<?
-				else:
-?>
-					<?=GetMessage("MARKETPLACE_APP_TRIAL")?> (<?=FormatDate("ddiff", time(), time()+$arResult["APP"]["TRIAL_PERIOD"]*24*60*60)?>)
-<?
-				endif;
-?>
-				</a>
-<?
-			endif;
-		endif;
-?>
-				<!--free-->
-<?
-	else:
-		$arParamsApp["STATUS"] = "F";
-?>
-				<a href="javascript:void(0)" onclick="BX.rest.Marketplace.install(<?=CUtil::PhpToJSObject($arParamsApp)?>);" class="bt_green" ><?=GetMessage("MARKETPLACE_APP_INSTALL")?></a>
-<?
-	endif;
-?>
-			</span>
-<?
-	}
-	else
-	{
-		if ($arResult["APP"]["ACTIVE"] == "Y"):
-?>
-			<a href="javascript:void(0)" style="text-decoration: none;"><?=GetMessage("MARKETPLACE_APP_IS_INSTALLED")?></a>
-<?
-		else:
-?>
-			<a href="javascript:void(0)" class="bt_green js-employee-install-button"><?=GetMessage("MARKETPLACE_APP_INSTALL")?></a>
-<?
-		endif;
-	}
-	//additional info
-	if($arResult["APP"]["ACTIVE"] == "Y" && is_array($arResult["APP"]['APP_STATUS']) && $arResult["APP"]['APP_STATUS']['PAYMENT_NOTIFY'] == 'Y')
-	{
-		if($arResult["ADMIN"])
-		{
-			$arResult["APP"]['APP_STATUS']['MESSAGE_SUFFIX'] .= '_A';
-		}
 
-		echo "<div class='mp_notify_message' style='margin-top:10px'>".GetMessage('PAYMENT_MESSAGE'.$arResult["APP"]['APP_STATUS']['MESSAGE_SUFFIX'], $arResult["APP"]['APP_STATUS']['MESSAGE_REPLACE'])."</div>";
-	}
-?>
-		</div>
-		<div class="mp_dt_rc_content" id="mp_tabs_cont">
-			<ul class="mp_dt_rc_tab_button" id="mp_tabs_block">
-				<li class="active" id="detail_descr_tab" onclick="MpChangeTab(this, 'detail_descr');"><a href="javascript:void(0)"><?=GetMessage("MARKETPLACE_APP_DESCR_TAB")?> <span class="arrow"></span></a></li>
-				<li id="detail_versions_tab" onclick="MpChangeTab(this, 'detail_versions');"><a href="javascript:void(0)"><?=GetMessage("MARKETPLACE_APP_VERSIONS_TAB")?> <span class="arrow"></span></a></li>
-				<li id="detail_support_tab" onclick="MpChangeTab(this, 'detail_support');"><a href="javascript:void(0)"><?=GetMessage("MARKETPLACE_APP_SUPPORT_TAB")?> <span class="arrow"></span></a></li>
-				<li id="detail_install_tab" onclick="MpChangeTab(this, 'detail_install');"><a href="javascript:void(0)"><?=GetMessage("MARKETPLACE_APP_INSTALL_TAB")?> <span class="arrow"></span></a></li>
-			</ul>
-			<div class="mp_dt_rc_tab_container" style="display: block;" id="detail_descr"><?=$arResult["APP"]["DESC"];?></div>
-			<div class="mp_dt_rc_tab_container" style="display: none;" id="detail_versions">
-<?
-	foreach($arResult["APP"]["VERSIONS"] as $number=>$desc):
-?>
-				<p>
-					<b><?=GetMessage("MARKETPLACE_APP_VERSION_MESS")?> <?=$number?></b><br/>
-					<?=$desc?>
-				</p>
-<?
-	endforeach;
-?>
+<div class="mp-detail" id="detail_cont">
+	<div class="mp-detail-main">
+		<div class="mp-detail-main-preview" <?if($arResult["APP"]["ICON"]):?>style="background-image: url('<?=$arResult["APP"]["ICON"]?>')"<?endif;?>></div>
+		<?/*if ($arResult["APP"]["PROMO"] == "Y"):?>
+			<span class="mp_discount_icon"></span>
+		<?endif;*/ ?>
+
+		<div class="mp-detail-main-info">
+			<div class="mp-detail-main-title"><?=htmlspecialcharsbx($arResult["APP"]["NAME"]);?></div>
+
+			<?
+			//additional info
+			if ($arResult["APP"]["ACTIVE"] == "Y" && is_array($arResult["APP"]['APP_STATUS']) && $arResult["APP"]['APP_STATUS']['PAYMENT_NOTIFY'] == 'Y')
+			{
+				if($arResult["ADMIN"])
+				{
+					$arResult["APP"]['APP_STATUS']['MESSAGE_SUFFIX'] .= '_A';
+				}
+				?>
+				<div class='ui-alert ui-alert-warning ui-alert-xs' style='margin-top:10px'>
+					<span class="ui-alert-message">
+						<?=GetMessage('PAYMENT_MESSAGE'.$arResult["APP"]['APP_STATUS']['MESSAGE_SUFFIX'], $arResult["APP"]['APP_STATUS']['MESSAGE_REPLACE'])?>
+					</span>
+				</div>
+				<?
+			}
+			elseif (!empty($arResult["APP"]["SHORT_DESC"]))
+			{
+			?>
+				<div class="mp-detail-main-description" data-role="mp-detail-main-description">
+					<div class="mp-detail-main-description-wrapper" data-role="mp-detail-main-description-wrapper"><?=$arResult["APP"]["SHORT_DESC"];?></div>
+				</div>
+				<!--<div class="mp-detail-main-description-more" data-role="mp-detail-main-description-more">...<?=GetMessage("MARKETPLACE_MORE_BUTTON")?></div>-->
+			<?
+			}
+			?>
+
+			<div class="mp-detail-main-controls">
+				<!--<a class="ui-btn ui-btn-md ui-btn-light-border ui-btn-round">subscription</a>-->
+				<?
+				if($arResult["CAN_INSTALL"])
+				{
+					// buttons for installed apps
+
+					if ($arResult["APP"]["ACTIVE"] == "Y")
+					{
+						?>
+						<span id="mp_installed_block">
+							<!-- prolong -->
+							<?
+							if (is_array($arResult["APP"]["PRICE"]) && !empty($arResult["APP"]["PRICE"])):?>
+								<a href="javascript:void(0)" class="ui-btn ui-btn-md ui-btn-primary ui-btn-round"
+								   onclick="BX.rest.Marketplace.buy(this, <?=CUtil::PhpToJSObject($arResult['BUY'])?>)">
+									<?=($arResult["APP"]["STATUS"] == "P" && $arResult["APP"]["DATE_FINISH"]) ? GetMessage("MARKETPLACE_APP_PROLONG") : GetMessage("MARKETPLACE_APP_BUY")?>
+								</a>
+							<? endif; ?>
+
+							<!-- delete -->
+							<?if($arResult["ADMIN"]):?>
+							<a href="javascript:void(0)" class="ui-btn ui-btn-md ui-btn-round"
+							   onclick="BX.rest.Marketplace.uninstallConfirm('<?=CUtil::JSEscape($arResult["APP"]["CODE"])?>')"><?=GetMessage("MARKETPLACE_APP_DELETE")?></a>
+							<? endif; ?>
+
+							<!-- update -->
+							<?
+							if ($arResult["APP"]["UPDATES"]):?>
+								<a id="update_btn" href="javascript:void(0)" class="ui-btn ui-btn-md ui-btn-primary ui-btn-round"
+								   onclick="BX.rest.Marketplace.install(<?=CUtil::PhpToJSObject($arParamsApp)?>)"><?=GetMessage("MARKETPLACE_APP_UPDATE_BUTTON")?></a>
+							<?endif; ?>
+						</span>
+						<?
+					}
+					?>
+
+					<!-- buttons for uninstalled apps-->
+					<span <?if ($arResult["APP"]["ACTIVE"] == "Y"):?>style="display:none"<?endif?> id="mp_uninstalled_block">
+						<!--paid-->
+						<?
+						if (is_array($arResult["APP"]["PRICE"]) && !empty($arResult["APP"]["PRICE"]))
+						{
+							?>
+							<a href="javascript:void(0)" class="ui-btn ui-btn-md ui-btn-primary ui-btn-round" onclick="BX.rest.Marketplace.buy(this, <?=CUtil::PhpToJSObject($arResult['BUY'])?>)">
+								<?=($arResult["APP"]["STATUS"] == "P" && $arResult["APP"]["DATE_FINISH"]) ? GetMessage("MARKETPLACE_APP_PROLONG") : GetMessage("MARKETPLACE_APP_BUY")?>
+							</a>
+							<?
+							if ($arResult["APP"]["STATUS"] == "P")
+							{
+								?>
+								<a href="javascript:void(0)" class="ui-btn ui-btn-md ui-btn-primary ui-btn-round" onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);"><?=GetMessage("MARKETPLACE_APP_INSTALL")?></a>
+								<?
+							}
+							else
+							{
+								if ($arResult["APP"]["DEMO"] == "D")
+								{
+									?>
+									<a href="javascript:void(0)" class="ui-btn ui-btn-md ui-btn-primary ui-btn-round" onclick="BX.rest.Marketplace.install(<?
+									echo CUtil::PhpToJSObject($arParamsApp) ?>);"><?=GetMessage("MARKETPLACE_APP_DEMO")?>
+									</a>
+									<?
+								}
+								elseif ($arResult["APP"]["DEMO"] == "T" && (!isset($arResult["APP"]["IS_TRIALED"]) || $arResult["APP"]["IS_TRIALED"] == "N" || MakeTimeStamp($arResult["APP"]["DATE_FINISH"]) > time()))
+								{
+									?>
+									<a href="javascript:void(0)" class="ui-btn ui-btn-md ui-btn-primary ui-btn-round" onclick="BX.rest.Marketplace.install(<?
+									echo CUtil::PhpToJSObject($arParamsApp) ?>);">
+										<?if ($arResult["APP"]["IS_TRIALED"] == "Y"):?>
+											<?=GetMessage("MARKETPLACE_APP_TRIAL")?> (<?=$arResult["APP"]["APP_STATUS"]["MESSAGE_REPLACE"]["#DAYS#"]?>)
+										<?else:?>
+											<?=GetMessage("MARKETPLACE_APP_TRIAL")?> (<?=FormatDate("ddiff", time(), time() + $arResult["APP"]["TRIAL_PERIOD"] * 24 * 60 * 60)?>)
+										<?endif; ?>
+									</a>
+									<?
+								}
+							}
+						}
+						else
+						{
+							//free
+							$arParamsApp["STATUS"] = "F";
+							?>
+							<a href="javascript:void(0)"
+							   onclick="BX.rest.Marketplace.install(<?=CUtil::PhpToJSObject($arParamsApp)?>);"
+							   class="ui-btn ui-btn-md ui-btn-primary ui-btn-round"><?=GetMessage("MARKETPLACE_APP_INSTALL")?>
+							</a>
+							<?
+						}
+						?>
+					</span>
+					<?
+				} //--CAN_INSTALL
+				else
+				{
+					if ($arResult["APP"]["ACTIVE"] == "Y"):?>
+						<div class="ui-btn ui-btn-md ui-btn-no-caps ui-btn-link mp-detail-main-controls-price">
+							<?=GetMessage("MARKETPLACE_APP_IS_INSTALLED")?>
+						</div>
+					<?else:?>
+						<a href="javascript:void(0)" class="ui-btn ui-btn-md ui-btn-primary ui-btn-round js-employee-install-button"><?=GetMessage("MARKETPLACE_APP_INSTALL")?></a>
+					<?endif;
+				}
+
+				if ($arResult["APP"]["ACTIVE"] != "Y") //show price only for uninstalled apps
+				{
+				?>
+					<div class="ui-btn ui-btn-md ui-btn-no-caps ui-btn-link mp-detail-main-controls-price">
+						<?if (is_array($arResult["APP"]["PRICE"]) && !empty($arResult["APP"]["PRICE"])):?>
+							<?=GetMessage("MARKETPLACE_APP_PRICE", array("#PRICE#"=>htmlspecialcharsbx($arResult["APP"]["PRICE"][1])))?>
+						<?else:?>
+							<?=GetMessage("MARKETPLACE_APP_FREE")?>
+						<?endif;?>
+					</div>
+				<?
+				}
+				?>
+
+				<?if ($arResult["APP"]["HIDDEN_BUY"] == "Y"):?>
+					<div class="mp-detail-main-controls-btn-free"><?=ToLower(GetMessage("MARKETPLACE_HIDDEN_BUY"))?></div>
+				<?endif?>
 			</div>
-			<div class="mp_dt_rc_tab_container" style="display: none;" id="detail_support"><?=$arResult["APP"]["SUPPORT"];?></div>
-			<div class="mp_dt_rc_tab_container" style="display: none;" id="detail_install"><?=$arResult["APP"]["INSTALL"];?></div>
 		</div>
 	</div>
-	<div style="clear:both"></div>
+
+
+	<div class="mp-detail-info">
+		<!--<div class="mp-detail-info-rating">
+			<div class="mp-detail-info-rating-title">rating:</div>
+			<div class="mp-detail-info-rating-stars">
+				<div class="mp-detail-info-rating-stars-item"></div>
+				<div class="mp-detail-info-rating-stars-item mp-detail-info-rating-stars-item-active"></div>
+				<div class="mp-detail-info-rating-stars-item"></div>
+				<div class="mp-detail-info-rating-stars-item"></div>
+				<div class="mp-detail-info-rating-stars-item"></div>
+			</div>
+		</div>-->
+		<div class="mp-detail-info-owner">
+			<div class="mp-detail-info-owner-title"><?=GetMessage("MARKETPLACE_APP_DEVELOPER")?></div>
+			<div class="mp-detail-info-owner-name">
+				<?if (strlen($arResult["APP"]["PARTNER_URL"]) > 0):?>
+					<a href="<?=htmlspecialcharsbx($arResult["APP"]["PARTNER_URL"])?>" target="_blank"><?=htmlspecialcharsbx($arResult["APP"]["PARTNER_NAME"])?></a>
+				<?else:?>
+					<?=htmlspecialcharsbx($arResult["APP"]["PARTNER_NAME"])?>
+				<?endif?>
+			</div>
+		</div>
+
+		<div class="mp-detail-info-installs">
+			<div class="mp-detail-info-installs-title"><?=GetMessage("MARKETPLACE_APP_NUM_INSTALLS", array("#NUM_INSTALLS#" => htmlspecialcharsbx($arResult["APP"]["NUM_INSTALLS"])))?></div>
+		</div>
+
+		<div class="mp-detail-info-installs">
+			<div class="mp-detail-info-installs-title"><?=GetMessage("MARKETPLACE_APP_VERSION", array("#VER#" => htmlspecialcharsbx($arResult["APP"]["VER"])))?></div>
+		</div>
+
+		<div class="mp-detail-info-installs">
+			<div class="mp-detail-info-installs-title"><?=GetMessage("MARKETPLACE_APP_PUBLIC_DATE", array("#DATE#" => htmlspecialcharsbx($arResult["APP"]["DATE_PUBLIC"])))?></div>
+		</div>
+		
+		<?
+		if(strlen($arResult["APP"]["DATE_UPDATE"]) > 0):?>
+			<div class="mp-detail-info-installs">
+				<div class="mp-detail-info-installs-title"><?=GetMessage("MARKETPLACE_APP_UPDATE_DATE", array("#DATE#" => htmlspecialcharsbx($arResult["APP"]["DATE_UPDATE"])))?></div>
+			</div>
+		<?endif;
+		?>
+		<!--<div class="mp-detail-info-other-apps">
+			<a href="#" target="_blank">other apps of developer</a>
+		</div>-->
+	</div>
+
+	<div class="mp-detail-content">
+		<div class="mp-detail-content-menu">
+			<div class="mp-detail-content-menu-item mp-detail-content-menu-item-active" for="mp-detail-content-wrapper-desc"><?=GetMessage("MARKETPLACE_APP_DESCR_TAB")?></div>
+			<div class="mp-detail-content-menu-item" for="mp-detail-content-wrapper-versions"><?=GetMessage("MARKETPLACE_APP_VERSIONS_TAB")?></div>
+			<div class="mp-detail-content-menu-item " for="mp-detail-content-wrapper-support"><?=GetMessage("MARKETPLACE_APP_SUPPORT_TAB")?></div>
+			<div class="mp-detail-content-menu-item" for="mp-detail-content-wrapper-install"><?=GetMessage("MARKETPLACE_APP_INSTALL_TAB")?></div>
+			<div class="mp-detail-content-menu-border" data-role="mp-detail-content-menu-border"></div>
+		</div>
+		<div class="mp-detail-content-wrapper">
+			<div class="mp-detail-content-wrapper-item mp-detail-content-wrapper-item-active" id="mp-detail-content-wrapper-desc">
+				<?
+				if (isset($arResult["APP"]["DESC_LANDING"]) && !empty($arResult["APP"]["DESC_LANDING"]))
+				{
+				?>
+					<div class="mp-detail-iframe-cont">
+						<iframe src="<?=$arResult["APP"]["DESC_LANDING"];?>" frameborder="no" class="mp-detail-iframe" id="mp-detail-iframe"></iframe>
+					</div>
+				<?
+				}
+				else
+				{
+					?>
+					<?=$arResult["APP"]["DESC"];?>
+					<?
+					if (is_array($arResult["APP"]["IMAGES"]) && count($arResult["APP"]["IMAGES"]) > 0)
+					{
+						?>
+						<div class="mp-detail-image-scroller" data-role="mp-detail-image-scroller">
+							<div class="mp-detail-image-scroller-wrapper">
+								<?foreach ($arResult["APP"]["IMAGES"] as $src):?>
+									<img class="mp-detail-image-scroller-item" src="<?=$src?>" alt="" data-viewer data-viewer-group-by="mp-img" data-actions="[]">
+								<?endforeach; ?>
+							</div>
+						</div>
+						<script>
+							var MarketplaceDetailImageScroller = new BX.Rest.Marketplace.DetailImageScroller({
+								target: document.querySelector('[data-role="mp-detail-image-scroller"]')
+							});
+							MarketplaceDetailImageScroller.init();
+						</script>
+						<?
+					}
+				}
+				?>
+			</div>
+			<div class="mp-detail-content-wrapper-item" id="mp-detail-content-wrapper-versions">
+				<?foreach($arResult["APP"]["VERSIONS"] as $number=>$desc):?>
+					<p class="mp-detail-content-version-title"><?=GetMessage("MARKETPLACE_APP_VERSION_MESS")?> <?=$number?></p>
+					<div class="mp-detail-content-version-desc"><?=$desc?></div>
+				<?endforeach; ?>
+			</div>
+			<div class="mp-detail-content-wrapper-item" id="mp-detail-content-wrapper-support">
+				<?=$arResult["APP"]["SUPPORT"];?>
+			</div>
+			<div class="mp-detail-content-wrapper-item" id="mp-detail-content-wrapper-install">
+				<?=$arResult["APP"]["INSTALL"];?>
+			</div>
+		</div>
+	</div>
 </div>
 
 <?
@@ -266,33 +324,13 @@ $arJSParams = array(
 <script type="text/javascript">
 	BX.message({
 		"MARKETPLACE_APP_INSTALL_REQUEST" : "<?=GetMessageJS("MARKETPLACE_APP_INSTALL_REQUEST")?>",
-		"MARKETPLACE_LICENSE_ERROR" : "<?=GetMessageJS("MARKETPLACE_LICENSE_ERROR")?>"
+		"MARKETPLACE_LICENSE_ERROR" : "<?=GetMessageJS("MARKETPLACE_LICENSE_ERROR")?>",
+		"REST_MP_INSTALL_REQUEST_CONFIRM" : "<?=GetMessageJS("REST_MP_INSTALL_REQUEST_CONFIRM")?>",
+		"REST_MP_APP_INSTALL_REQUEST" : "<?=GetMessageJS("REST_MP_APP_INSTALL_REQUEST")?>"
 	});
-	new BX.Rest.Marketplace.Detail(<?=CUtil::PhpToJSObject($arJSParams)?>);
-
+	BX.Rest.Marketplace.Detail.init(<?=CUtil::PhpToJSObject($arJSParams)?>);
 	BX.viewImageBind('detail_img_block', {resize: 'WH',cycle: true}, {tag:'IMG'});
-
-	function MpChangeTab(element, id)
-	{
-		var tabs = BX.findChildren(BX("mp_tabs_block"), {tagName:"li"}, true);
-		for (var i=0; i<tabs.length; i++)
-		{
-			BX.removeClass(tabs[i], "active");
-		}
-		BX.addClass(element, 'active');
-		var texts = BX.findChildren(BX("mp_tabs_cont"), {className:"mp_dt_rc_tab_container"}, true);
-		for (var i=0; i<texts.length; i++)
-		{
-			texts[i].style.display='none';
-		}
-
-		BX(id).style.display='block';
-	}
-	<?
-	if($arResult['START_INSTALL']):
-	?>
+	<?if($arResult['START_INSTALL']):?>
 		BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);
-	<?
-	endif;
-	?>
+	<?endif;?>
 </script>

@@ -205,7 +205,9 @@ class ShipmentImport extends EntityImport
 
         if(!$this->isLoadedParentEntity() && !empty($fields['ORDER_ID']))
         {
-            $this->setParentEntity(Order::load($fields['ORDER_ID']));
+			$this->setParentEntity(
+				$this->loadParentEntity(['ID'=>$fields['ORDER_ID']])
+			);
         }
 
         if($this->isLoadedParentEntity())
@@ -251,17 +253,28 @@ class ShipmentImport extends EntityImport
         return $allQuantity;
     }
 
+	/**
+	 * @param Sale\BasketBase $basket
+	 * @param array $item
+	 * @return Sale\BasketItem
+	 */
+	protected function getBasketItemByItem(Sale\BasketBase $basket, array $item)
+	{
+		return OrderImport::getBasketItemByItem($basket, $item);
+	}
+
     /**
      * @param Shipment $shipment
-     * @param Basket $basket
+     * @param Sale\BasketBase $basket
      * @param array $params
      * @return Sale\Result
      * @throws Main\ObjectNotFoundException
      */
-    private function fillShipmentItems(Shipment $shipment, Basket $basket, array $params)
+    private function fillShipmentItems(Shipment $shipment, Sale\BasketBase $basket, array $params)
     {
         $result = new Sale\Result();
 
+        /** @var Order $order */
         $order = $basket->getOrder();
 
         $fieldsBasketItems = $params['ITEMS'];
@@ -277,11 +290,11 @@ class ShipmentImport extends EntityImport
 
                 	if($item['TYPE'] == Exchange\ImportBase::ITEM_ITEM)
                     {
-                        if($basketItem = OrderImport::getBasketItemByItem($basket, $item))
+                        if($basketItem = $this->getBasketItemByItem($basket, $item))
                         {
                             $basketItemQuantity = $this->getBasketItemQuantity($order, $basketItem);
 
-                            $shipmentItem = self::getShipmentItem($shipment, $basketItem);
+                            $shipmentItem = static::getShipmentItem($shipment, $basketItem);
 
                             $deltaQuantity = $item['QUANTITY'] - $shipmentItem->getQuantity();
 
@@ -445,7 +458,7 @@ class ShipmentImport extends EntityImport
             if(empty($basketQuantity))
                 continue;
 
-            $shipmentItem = self::getShipmentItem($shipment, $basketItem);
+            $shipmentItem = static::getShipmentItem($shipment, $basketItem);
 
             if($basketQuantity >= $needQuantity)
             {
@@ -499,7 +512,7 @@ class ShipmentImport extends EntityImport
     {
         $result = array();
 
-        $item = self::getFieldsDeliveryService($fields);
+        $item = static::getFieldsDeliveryService($fields);
         if(count($item)>0)
 		{
 			$result = array(
@@ -551,6 +564,15 @@ class ShipmentImport extends EntityImport
 	}
 
 	/**
+	 * @param Sale\BasketItem $basket
+	 * @return array
+	 */
+	protected function getAttributesItem(Sale\BasketItem $basket)
+	{
+		return OrderImport::getAttributesItem($basket);
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function getFieldsItems()
@@ -573,7 +595,7 @@ class ShipmentImport extends EntityImport
 					$itemFields['QUANTITY'] = $shipmentItem->getQuantity();
 
 					$attributes = array();
-					$attributeFields = OrderImport::getAttributesItem($basket);
+					$attributeFields = $this->getAttributesItem($basket);
 					if(count($attributeFields)>0)
 						$attributes['ATTRIBUTES'] = $attributeFields;
 

@@ -177,7 +177,7 @@ class CAllSocNetUser
 		if ($bUseSession && !isset($_SESSION["SONET_ADMIN"]))
 			return false;
 
-		if ($USER->IsAdmin())
+		if ($USER->isAdmin())
 			return true;
 
 		if (is_array($site_id))

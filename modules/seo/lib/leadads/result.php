@@ -2,10 +2,10 @@
 
 namespace Bitrix\Seo\LeadAds;
 
-use Bitrix\Main\Result as BaseResult;
+use Bitrix\Main;
 use Bitrix\Main\Type\DateTime;
 
-class Result extends BaseResult
+class Result extends Main\Result
 {
 	/** @var  string|null $id ID. */
 	protected $id;
@@ -20,6 +20,7 @@ class Result extends BaseResult
 	 * Sets data of the result.
 	 *
 	 * @param array $data Data.
+	 * @return void
 	 */
 	public function setData(array $data)
 	{

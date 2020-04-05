@@ -67,6 +67,16 @@ if(defined("DEMO") && DEMO=="Y")
 		echo GetMessage("expire_mess1");
 	}
 }
+elseif (defined("TIMELIMIT_EDITION") && TIMELIMIT_EDITION == "Y")
+{
+	if (defined("OLDSITEEXPIREDATE") && defined("SITEEXPIREDATE") && OLDSITEEXPIREDATE != SITEEXPIREDATE)
+		die(GetMessage("expire_mess2"));
+
+	if ($SiteExpireDate < time())
+	{
+		echo GetMessage("expire_mess_timelicense1");
+	}
+}
 
 if(COption::GetOptionString("main", "site_stopped", "N")=="Y" && !$USER->CanDoOperation('edit_other_settings'))
 {

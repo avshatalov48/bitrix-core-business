@@ -53,6 +53,7 @@ Class lists extends CModule
 		{
 			RegisterModule("lists");
 			CModule::IncludeModule("lists");
+			RegisterModuleDependences("iblock", "OnAfterIBlockUpdate", "lists", "CLists", "OnAfterIBlockUpdate");
 			RegisterModuleDependences("iblock", "OnIBlockDelete", "lists", "CLists", "OnIBlockDelete");
 			RegisterModuleDependences("iblock", "OnAfterIBlockDelete", "lists", "CLists", "OnAfterIBlockDelete");
 			RegisterModuleDependences("iblock", "CIBlockDocument_OnGetDocumentAdminPage", "lists", "CList", "OnGetDocumentAdminPage");
@@ -74,6 +75,7 @@ Class lists extends CModule
 			RegisterModuleDependences("iblock", "OnAfterIBlockPropertyDelete", "lists", "CLists", "OnAfterIBlockPropertyDelete");
 			RegisterModuleDependences("iblock", "OnBeforeIBlockElementAdd", "lists", "CLists", "OnBeforeIBlockElementAdd");
 			RegisterModuleDependences("iblock", "OnBeforeIBlockElementUpdate", "lists", "CLists", "OnBeforeIBlockElementUpdate");
+			RegisterModuleDependences("main", "OnGetRatingContentOwner", "lists", "\\Bitrix\\Lists\\Integration\\Main\\RatingVote", "onGetRatingContentOwner");
 
 			$eventManager = \Bitrix\Main\EventManager::getInstance();
 			$eventManager->registerEventHandler('socialnetwork', 'onLogIndexGetContent', 'lists', '\Bitrix\Lists\Integration\Socialnetwork\Log', 'onIndexGetContent');
@@ -205,6 +207,7 @@ Class lists extends CModule
 			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/lists/install/db/".strtolower($DB->type)."/uninstall.sql");
 		}
 
+		UnRegisterModuleDependences("iblock", "OnAfterIBlockUpdate", "lists", "CLists", "OnAfterIBlockUpdate");
 		UnRegisterModuleDependences("iblock", "OnIBlockDelete", "lists", "CLists", "OnIBlockDelete");
 		UnRegisterModuleDependences("iblock", "OnAfterIBlockDelete", "lists", "CLists", "OnAfterIBlockDelete");
 		UnRegisterModuleDependences("iblock", "CIBlockDocument_OnGetDocumentAdminPage", "lists", "CList", "OnGetDocumentAdminPage");
@@ -226,6 +229,7 @@ Class lists extends CModule
 		UnRegisterModuleDependences("iblock", "OnAfterIBlockPropertyDelete", "lists", "CLists", "OnAfterIBlockPropertyDelete");
 		UnRegisterModuleDependences("iblock", "OnBeforeIBlockElementAdd", "lists", "CLists", "OnBeforeIBlockElementAdd");
 		UnRegisterModuleDependences("iblock", "OnBeforeIBlockElementUpdate", "lists", "CLists", "OnBeforeIBlockElementUpdate");
+		UnRegisterModuleDependences("main", "OnGetRatingContentOwner", "lists", "\\Bitrix\\Lists\\Integration\\Main\\RatingVote", "onGetRatingContentOwner");
 
 		$eventManager = \Bitrix\Main\EventManager::getInstance();
 		$eventManager->unregisterEventHandler('socialnetwork', 'onLogIndexGetContent', 'lists', '\Bitrix\Lists\Integration\Socialnetwork\Log', 'onIndexGetContent');

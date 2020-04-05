@@ -5,16 +5,28 @@ use Bitrix\Socialservices\Network;
 
 Loc::loadMessages(__FILE__);
 
-if(!defined('B24NETWORK_URL'))
+if(!defined('B24NETWORK_NODE'))
 {
-	$defaultValue = \Bitrix\Main\Config\Option::get('socialservices', 'network_url', 'https://www.bitrix24.net');
-	define('B24NETWORK_URL', $defaultValue);
+	$defaultValue = \Bitrix\Main\Config\Option::get('socialservices', 'network_url', '');
+
+	if(strlen($defaultValue) > 0)
+	{
+		define('B24NETWORK_NODE', $defaultValue);
+	}
+	elseif(defined('B24NETWORK_URL'))
+	{
+		define('B24NETWORK_NODE', B24NETWORK_URL);
+	}
+	else
+	{
+		define('B24NETWORK_NODE', 'https://www.bitrix24.net');
+	}
 }
 
 class CSocServBitrix24Net extends CSocServAuth
 {
 	const ID = "Bitrix24Net";
-	const NETWORK_URL = B24NETWORK_URL;
+	const NETWORK_URL = B24NETWORK_NODE;
 
 	protected $entityOAuth = null;
 
@@ -139,7 +151,7 @@ class CSocServBitrix24Net extends CSocServAuth
 					$arFields = array(
 						'EXTERNAL_AUTH_ID' => self::ID,
 						'XML_ID' => $arB24NetUser["ID"],
-						'LOGIN' => "B24_".$arB24NetUser["ID"],
+						'LOGIN' => isset($arB24NetUser['LOGIN']) ? $arB24NetUser['LOGIN'] : "B24_".$arB24NetUser["ID"],
 						'NAME' => $arB24NetUser["NAME"],
 						'LAST_NAME' => $arB24NetUser["LAST_NAME"],
 						'EMAIL' => $arB24NetUser["EMAIL"],
@@ -302,7 +314,7 @@ class CSocServBitrix24Net extends CSocServAuth
 		if(defined("LICENSE_KEY") && LICENSE_KEY !== "DEMO")
 		{
 			$query = new \Bitrix\Main\Web\HttpClient();
-			$result = $query->get(B24NETWORK_URL.'/client.php?action=register&redirect_uri='.urlencode($domain.'/bitrix/tools/oauth/bitrix24net.php').'&key='.urlencode(LICENSE_KEY));
+			$result = $query->get(static::NETWORK_URL.'/client.php?action=register&redirect_uri='.urlencode($domain.'/bitrix/tools/oauth/bitrix24net.php').'&key='.urlencode(LICENSE_KEY));
 
 			$arResult = null;
 			if($result)
@@ -335,7 +347,7 @@ class CSocServBitrix24Net extends CSocServAuth
 
 class CBitrix24NetOAuthInterface
 {
-	const NET_URL = B24NETWORK_URL;
+	const NET_URL = B24NETWORK_NODE;
 
 	const INVITE_URL = "/invite/";
 	const PASSPORT_URL = "/id/";
@@ -752,6 +764,7 @@ class CBitrix24NetTransport
 	protected function prepareRequest(array $request)
 	{
 		$request["broadcast_last_check"] = Network::getLastBroadcastCheck();
+		$request["user_lang"] = LANGUAGE_ID;
 		$request["auth"] = $this->access_token;
 
 		return $this->convertRequest($request);

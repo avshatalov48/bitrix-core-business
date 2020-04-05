@@ -43,43 +43,66 @@ foreach ($arResult["MESSAGES"] as $res):
 		?><?=($iCount%2 == 1 ? "reviews-post-odd " : "reviews-post-even ")?><?
 		?><?=(($res["APPROVED"] == 'Y') ? "" : "reviews-post-hidden")
 		?>" bx-author-id="<?=$res["AUTHOR_ID"]?>" bx-author-name="<?=$res["AUTHOR_NAME"]?>" id="message<?=$res["ID"]?>">
-		<thead><tr><td>
-		<?
+		<thead><tr><td><?
 		if ($arParams["SHOW_AVATAR"] != "N")
 		{
-			?>
-			<div class="review-avatar"><?
+			?><div class="review-avatar"><?
 				if(is_array($res["AVATAR"]) && array_key_exists("HTML", $res["AVATAR"])): ?><?=$res["AVATAR"]["HTML"]?><?
 				else: ?><img src="/bitrix/components/bitrix/forum.topic.reviews/templates/.default/images/noavatar.gif" border="0" /><? endif;
-			?></div>
-		<?
+			?></div><?
 		}
-		?>
-		<?
 		if ($arParams["SHOW_RATING"] == "Y")
 		{
-			?>
-			<div class="review-rating rating_vote_graphic">
-				<?
-				$arRatingParams = Array(
-						"ENTITY_TYPE_ID" => "FORUM_POST",
-						"ENTITY_ID" => $res["ID"],
-						"OWNER_ID" => $res["AUTHOR_ID"],
-						"PATH_TO_USER_PROFILE" => strlen($arParams["PATH_TO_USER"]) > 0? $arParams["PATH_TO_USER"]: $arParams["~URL_TEMPLATES_PROFILE_VIEW"]
-					);
-				if (!isset($res['RATING']))
-					$res['RATING'] = array(
-							"USER_VOTE" => 0,
-							"USER_HAS_VOTED" => 'N',
-							"TOTAL_VOTES" => 0,
-							"TOTAL_POSITIVE_VOTES" => 0,
-							"TOTAL_NEGATIVE_VOTES" => 0,
-							"TOTAL_VALUE" => 0
-						);
+			?><div class="review-rating rating_vote_graphic<?=($arResult["isIntranetInstalled"] ? ' review-rating-react' : '')?>"><?
 
+				$voteEntityType = "FORUM_POST";
+				$voteEntityId = $res["ID"];
+
+				$voteId = $voteEntityType.'_'.$voteEntityId.'-'.(time()+rand(0, 1000));
+				$emotion = (!empty($res['RATING']["USER_REACTION"]) ? strtoupper($res['RATING']["USER_REACTION"]) : 'LIKE');
+
+				$likeTemplate = (
+					$arResult["isIntranetInstalled"]
+					? 'like_react'
+					: $arParams["RATING_TYPE"]
+				);
+
+				$arRatingParams = Array(
+					"COMMENT" => "Y",
+					"ENTITY_TYPE_ID" => $voteEntityType,
+					"ENTITY_ID" => $voteEntityId,
+					"OWNER_ID" => $res["AUTHOR_ID"],
+					"PATH_TO_USER_PROFILE" => strlen($arParams["PATH_TO_USER"]) > 0? $arParams["PATH_TO_USER"]: $arParams["~URL_TEMPLATES_PROFILE_VIEW"],
+					"VOTE_ID" => $voteId
+				);
+
+				if (!isset($res['RATING']))
+				{
+					$res['RATING'] = array(
+						"USER_VOTE" => 0,
+						"USER_HAS_VOTED" => 'N',
+						"TOTAL_VOTES" => 0,
+						"TOTAL_POSITIVE_VOTES" => 0,
+						"TOTAL_NEGATIVE_VOTES" => 0,
+						"TOTAL_VALUE" => 0
+					);
+				}
+
+				if ($arResult["isIntranetInstalled"])
+				{
+					?><span id="bx-ilike-button-<?=htmlspecialcharsbx($voteId)?>" class="feed-inform-ilike feed-new-like"><?
+						?><span class="bx-ilike-left-wrap<?=(isset($res['RATING']["USER_HAS_VOTED"]) && $res['RATING']["USER_HAS_VOTED"] == "Y" ? ' bx-you-like-button' : '')?>"><a href="#like" class="bx-ilike-text"><?=\CRatingsComponentsMain::getRatingLikeMessage($emotion)?></a></span><?
+					?></span><?
+				}
 
 				$arRatingParams = array_merge($arRatingParams, $res['RATING']);
-				$APPLICATION->IncludeComponent( "bitrix:rating.vote", $arParams["RATING_TYPE"], $arRatingParams, $component, array("HIDE_ICONS" => "Y"));
+				$APPLICATION->IncludeComponent(
+					"bitrix:rating.vote",
+					$likeTemplate,
+					$arRatingParams,
+					$component,
+					array("HIDE_ICONS" => "Y")
+				);
 				?>
 			</div>
 		<?
@@ -147,32 +170,6 @@ foreach ($arResult["MESSAGES"] as $res):
 				<span class="separator"></span>
 				<a rel="nofollow" href="<?=htmlspecialcharsbx($res["URL"]["~DELETE"])?>" class="reviews-button-small" bx-act="del"><?=GetMessage("F_DELETE")?></a>
 <?			}
-			if ($arParams["SHOW_RATING"] == "Y")
-			{
-				?>
-				<span class="rating_vote_text">
-				<span class="separator"></span>
-				<?
-				$arRatingParams = Array(
-						"ENTITY_TYPE_ID" => "FORUM_POST",
-						"ENTITY_ID" => $res["ID"],
-						"OWNER_ID" => $res["AUTHOR_ID"],
-						"PATH_TO_USER_PROFILE" => strlen($arParams["PATH_TO_USER"]) > 0? $arParams["PATH_TO_USER"]: $arParams["~URL_TEMPLATES_PROFILE_VIEW"]
-					);
-				if (!isset($res['RATING']))
-					$res['RATING'] = array(
-							"USER_VOTE" => 0,
-							"USER_HAS_VOTED" => 'N',
-							"TOTAL_VOTES" => 0,
-							"TOTAL_POSITIVE_VOTES" => 0,
-							"TOTAL_NEGATIVE_VOTES" => 0,
-							"TOTAL_VALUE" => 0
-						);
-				$arRatingParams = array_merge($arRatingParams, $res['RATING']);
-				$GLOBALS["APPLICATION"]->IncludeComponent( "bitrix:rating.vote", $arParams["RATING_TYPE"], $arRatingParams, $component, array("HIDE_ICONS" => "Y"));
-				?>
-			</span><?
-			}
 ?>
 		</noindex></div>
 <?

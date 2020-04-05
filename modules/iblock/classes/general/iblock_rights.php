@@ -1,4 +1,7 @@
 <?
+use Bitrix\Main,
+	Bitrix\Iblock;
+
 class CIBlockRights
 {
 	const GROUP_CODE = 1;
@@ -725,6 +728,69 @@ class CIBlockRights
 			return $arResult[$arID];
 		else
 			return array();
+	}
+
+	public static function setGroupRight($groupId, $iblockType, $letter, $iblockId = 0)
+	{
+		$groupId = (int)$groupId;
+		if ($groupId <= 0)
+			return;
+
+		$iblockId = (int)$iblockId;
+		if ($iblockId < 0)
+			return;
+
+		$groupCode = "G".$groupId;
+		$availableLetters = ["E", "R", "S", "T", "U", "W", "X"];
+		if (!in_array($letter, $availableLetters))
+			return;
+		unset($availableLetters);
+
+		$task = Main\TaskTable::getList([
+			"select" => ["ID"],
+			"filter" => ["=LETTER" => $letter, "=MODULE_ID" => "iblock", "=SYS" => "Y"]
+		])->fetch();
+		$rightId = (!empty($task) ? $task["ID"] : null);
+		unset($task);
+
+		$filter = ["=IBLOCK_TYPE_ID" => $iblockType, "=ACTIVE"=>"Y"];
+		if ($iblockId > 0)
+			$filter["=ID"] = $iblockId;
+		$queryObject = Iblock\IblockTable::getList([
+			'select' => ['ID'],
+			'filter' => $filter
+		]);
+		while ($iblock = $queryObject->fetch())
+		{
+			$iblockId = $iblock["ID"];
+
+			$rightsMode = CIBlock::getArrayByID($iblockId, "RIGHTS_MODE");
+			if ($rightsMode == Bitrix\Iblock\IblockTable::RIGHTS_SIMPLE)
+			{
+				$rights = \CIBlock::getGroupPermissions($iblockId);
+				$rights[$groupId] = $letter;
+				\CIBlock::SetPermission($iblockId, $rights);
+				unset($rights);
+			}
+			elseif ($rightsMode == Bitrix\Iblock\IblockTable::RIGHTS_EXTENDED && $rightId !== null)
+			{
+				$rightsObject = new \CIBlockRights($iblockId);
+				$rights = $rightsObject->GetRights();
+				$rights["n0"] = [
+					"GROUP_CODE"  => $groupCode,
+					"DO_INHERIT" => "Y",
+					"IS_INHERITED" => "N",
+					"OVERWRITED" => 0,
+					"TASK_ID" => $rightId,
+					"XML_ID" => null,
+					"ENTITY_TYPE" => "iblock",
+					"ENTITY_ID" => $iblockId
+				];
+				$rightsObject->SetRights($rights);
+				unset($rights, $rightsObject);
+			}
+		}
+		unset($rightsMode, $iblockId, $iblock, $queryObject);
 	}
 }
 

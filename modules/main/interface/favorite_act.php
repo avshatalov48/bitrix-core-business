@@ -30,6 +30,7 @@ if($USER->IsAuthorized() && check_bitrix_sessid())
 							"~DATE_CREATE"	=>	$now,
 							);
 
+			$_REQUEST["addurl"] = CHTTP::urlDeleteParams($_REQUEST["addurl"], array("IFRAME", "IFRAME_TYPE"));
 			if(isset($_REQUEST["menu_id"]))
 			{
 				$arFields["MENU_ID"] = $_REQUEST["menu_id"];

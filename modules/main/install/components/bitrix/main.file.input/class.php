@@ -69,6 +69,7 @@ class MFIComponent extends \CBitrixComponent
 					$file['URL'] = $this->controller->getUrlDownload($file['ID']);
 					$file['URL_DELETE'] = $this->controller->getUrlDelete($file['ID']);
 					$file['FILE_SIZE_FORMATTED'] = CFile::FormatSize($file['FILE_SIZE']);
+					$file["SRC"] = CFile::GetFileSRC($file);
 					$this->arResult['FILES'][$file['ID']] = $file;
 				}
 			}

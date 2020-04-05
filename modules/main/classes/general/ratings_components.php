@@ -148,7 +148,7 @@ class CAllRatingsComponentsMain
 
 	public static function getRatingLikeMessage($emotion)
 	{
-		Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/js/main/rating/config.php');
+		Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/install/js/main/rating/config.php');
 
 		$emotion = strtoupper($emotion);
 

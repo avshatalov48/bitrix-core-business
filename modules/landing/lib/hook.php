@@ -95,7 +95,7 @@ class Hook
 	 * @param int $id Entity id.
 	 * @param string $type Entity type.
 	 * @param array $data Data array (optional).
-	 * @return array
+	 * @return \Bitrix\Landing\Hook\Page[]
 	 */
 	protected static function getList($id, $type, array $data = array())
 	{
@@ -109,7 +109,10 @@ class Hook
 			$classFull = __NAMESPACE__  . $classNamespace . $class;
 			if (class_exists($classFull))
 			{
-				$hooks[$class] = new $classFull(self::$editMode);
+				$hooks[$class] = new $classFull(
+					self::$editMode,
+					!($type == self::ENTITY_TYPE_SITE)
+				);
 				if (!$hooks[$class]->active())
 				{
 					unset($hooks[$class]);
@@ -311,7 +314,11 @@ class Hook
 		{
 			foreach ($dataHook as $code => $row)
 			{
-				if (trim($row['VALUE']) == '')
+				if (
+					is_array($row['VALUE']) && empty($row['VALUE'])
+					||
+					!is_array($row['VALUE']) && trim($row['VALUE']) == ''
+				)
 				{
 					if (isset($row['ID']))
 					{
@@ -328,8 +335,9 @@ class Hook
 					}
 					elseif (isset($row['CHANGED']) && $row['CHANGED'])
 					{
-						unset($row['CHANGED']);
-						HookData::update($row['ID'], $row);
+						$updId = $row['ID'];
+						unset($row['ID'], $row['CHANGED']);
+						HookData::update($updId, $row);
 					}
 				}
 			}
@@ -344,7 +352,18 @@ class Hook
 	 */
 	public static function saveForSite($id, array $data)
 	{
-		self::saveData($id, self::ENTITY_TYPE_SITE, $data);
+		$check = Site::getList([
+			'select' => [
+				'ID'
+			],
+			'filter' => [
+				'ID' => $id
+			]
+		])->fetch();
+		if ($check)
+		{
+			self::saveData($id, self::ENTITY_TYPE_SITE, $data);
+		}
 	}
 
 	/**
@@ -355,7 +374,18 @@ class Hook
 	 */
 	public static function saveForLanding($id, array $data)
 	{
-		self::saveData($id, self::ENTITY_TYPE_LANDING, $data);
+		$check = Landing::getList([
+			'select' => [
+				'ID'
+			],
+			'filter' => [
+				'ID' => $id
+			]
+		])->fetch();
+		if ($check)
+		{
+			self::saveData($id, self::ENTITY_TYPE_LANDING, $data);
+		}
 	}
 
 	/**

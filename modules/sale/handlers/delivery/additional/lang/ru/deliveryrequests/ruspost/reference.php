@@ -281,4 +281,4 @@ $MESS["SALE_DLVRS_ADD_DREQ_REF_MR_05"] = "Судебное";
 $MESS["SALE_DLVRS_ADD_DREQ_REF_MR_06"] = "Президентское";
 $MESS["SALE_DLVRS_ADD_DREQ_REF_MR_07"] = "Кредитное";
 $MESS["SALE_DLVRS_ADD_DREQ_REF_MM"] = "мм";
-
+$MESS["SALE_DLVRS_ADD_DREQ_REF_B1C"] = "Бандероль 1-го класса";

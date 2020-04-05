@@ -6,6 +6,7 @@ use Bitrix\Main\ArgumentOutOfRangeException;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Sale\Exchange\EntityType;
 use Bitrix\Sale\Exchange\IConverter;
+use Bitrix\Sale\Exchange\ImportOneCBase;
 use Bitrix\Sale\Exchange\ISettings;
 
 /**
@@ -22,12 +23,15 @@ abstract class Converter implements IConverter
     /** @var ISettings */
     protected $settings = null;
 
+    protected $entityTypeId;
+    protected $documentTypeId;
+
     /** @var Converter[]|null  */
     private static $instances = null;
 
 	/**
      * @param int $typeId Type ID.
-     * @return IConverter
+     * @return Converter
 	 * @deprecated
      */
     public static function getInstance($typeId)
@@ -37,9 +41,9 @@ abstract class Converter implements IConverter
             $typeId = (int)$typeId;
         }
 
-        if(!EntityType::IsDefined($typeId))
+        if(!DocumentType::IsDefined($typeId))
         {
-            throw new ArgumentOutOfRangeException('Is not defined', EntityType::FIRST, EntityType::LAST);
+            throw new ArgumentOutOfRangeException('Is not defined', DocumentType::FIRST, DocumentType::LAST);
         }
 
         if(self::$instances === null || !isset(self::$instances[$typeId]))
@@ -57,14 +61,6 @@ abstract class Converter implements IConverter
         return self::$instances[$typeId];
     }
 
-    /**
-     * @param ISettings $settings
-     */
-    public function loadSettings(ISettings $settings)
-    {
-        $this->settings = $settings;
-    }
-
 	/**
 	 * @return array
 	 */
@@ -78,12 +74,21 @@ abstract class Converter implements IConverter
         return $this->settings;
     }
 
-	/**
-	 * @return int
-	 */
-	public function getOwnerEntityTypeId()
+    public function getEntityTypeId()
 	{
-		return DocumentType::UNDEFINED;
+		return $this->entityTypeId;
+	}
+
+	public function getDocmentTypeId()
+	{
+		return $this->documentTypeId;
+	}
+
+	public function init(ISettings $settings, $entityTypeId = EntityType::UNDEFINED, $documentTypeId = DocumentType::UNDEFINED)
+	{
+		$this->settings = $settings;
+		$this->entityTypeId = EntityType::isDefined($entityTypeId) ? $entityTypeId:EntityType::UNDEFINED;
+		$this->documentTypeId = DocumentType::isDefined($documentTypeId) ? $documentTypeId:DocumentType::UNDEFINED;
 	}
 
 	/**
@@ -281,5 +286,28 @@ abstract class Converter implements IConverter
 			}
 		}
 		return isset($sites[$lid]) ? $sites[$lid]:'';
+	}
+
+	public function modifyItemIdByItemName($fields)
+	{
+		$result = $fields;
+
+		if(is_array($fields))
+		{
+			foreach($fields as $k=>$items)
+			{
+				foreach($items as $productXML_ID => $item)
+				{
+					if($item['NAME'] == DocumentBase::getLangByCodeField(ImportOneCBase::DELIVERY_SERVICE_XMLID))
+					{
+						unset($result[$k][$productXML_ID]);
+
+						$item['ID'] = ImportOneCBase::DELIVERY_SERVICE_XMLID;
+						$result[$k][ImportOneCBase::DELIVERY_SERVICE_XMLID] = $item;
+					}
+				}
+			}
+		}
+		return $result;
 	}
 }

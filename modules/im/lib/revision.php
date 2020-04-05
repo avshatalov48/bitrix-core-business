@@ -8,7 +8,7 @@ class Revision
 	 *
 	 * @filesource synchronize im/install/js/im/im.js:17
 	 */
-	const WEB = 120;
+	const WEB = 122;
 	/**
 	 * Mobile Api revision
 	 *
@@ -21,7 +21,7 @@ class Revision
 	/**
 	 * Rest Api revision
 	 */
-	const REST = 18;
+	const REST = 21;
 
 	public static function getWeb()
 	{

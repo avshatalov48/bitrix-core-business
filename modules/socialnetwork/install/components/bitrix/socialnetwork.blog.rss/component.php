@@ -17,7 +17,7 @@ $arParams["MESSAGE_COUNT"] = IntVal($arParams["MESSAGE_COUNT"])>0 ? IntVal($arPa
 if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 	$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
 else
-	$arParams["CACHE_TIME"] = 0;	
+	$arParams["CACHE_TIME"] = 0;
 
 if (strtolower($arParams["TYPE"]) == "rss1")
 	$arResult["TYPE"] = "RSS .92";
@@ -61,7 +61,6 @@ $arAvBlog = Array();
 		{
 			$Vars = $cacheSoNet->GetVars();
 			$arAvBlog = $Vars["arAvBlog"];
-			CBitrixComponentTemplate::ApplyCachedData($Vars["templateCachedData"]);	
 			$cacheSoNet->Output();
 		}
 		else
@@ -92,7 +91,9 @@ $arAvBlog = Array();
 				}
 			}
 			if ($arParams["CACHE_TIME"] > 0)
-				$cacheSoNet->EndDataCache(array("templateCachedData" => $this->GetTemplateCachedData(), "arAvBlog" => $arAvBlog));
+				$cacheSoNet->EndDataCache(array(
+					"arAvBlog" => $arAvBlog)
+				);
 		}
 	}
 	

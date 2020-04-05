@@ -158,7 +158,7 @@ function deleteBlogPost(id)
 		}
 		else
 		{
-			BX('blg-post-'+id).parentNode.innerHTML = data;
+			__logDeleteSuccess(BX('blg-post-'+id));
 		}
 	});
 
@@ -197,44 +197,52 @@ function blogShowImagePopup(src)
 
 function __blogPostSetFollow(log_id)
 {
-	var strFollowOld = (BX("log_entry_follow_" + log_id, true).getAttribute("data-follow") == "Y" ? "Y" : "N");
-	var strFollowNew = (strFollowOld == "Y" ? "N" : "Y");	
+	var
+		strFollowOld = (BX("log_entry_follow_" + log_id).getAttribute("data-follow") == "Y" ? "Y" : "N"),
+		strFollowNew = (strFollowOld == "Y" ? "N" : "Y"),
+		followNode = BX("log_entry_follow_" + log_id);
 
-	if (BX("log_entry_follow_" + log_id, true))
+	if (followNode)
 	{
-		BX.findChild(BX("log_entry_follow_" + log_id, true), { tagName: 'a' }).innerHTML = BX.message('sonetBPFollow' + strFollowNew);
-		BX("log_entry_follow_" + log_id, true).setAttribute("data-follow", strFollowNew);
+		BX.findChild(followNode, { tagName: 'a' }).innerHTML = BX.message('sonetBPFollow' + strFollowNew);
+		followNode.setAttribute("data-follow", strFollowNew);
 	}
 
+	var actionUrl = BX.message('sonetBPSetPath');
+	actionUrl = BX.util.add_url_param(actionUrl, {
+		b24statAction: (strFollowNew == 'Y' ? 'setFollow' : 'setUnfollow')
+	});
+
 	BX.ajax({
-		url: BX.message('sonetBPSetPath'),
+		url: actionUrl,
 		method: 'POST',
 		dataType: 'json',
 		data: {
-			"log_id": log_id,
-			"action": "change_follow",
-			"follow": strFollowNew,
-			"sessid": BX.bitrix_sessid(),
-			"site": BX.message('sonetBPSiteId')
+			log_id: log_id,
+			action: "change_follow",
+			follow: strFollowNew,
+			sessid: BX.bitrix_sessid(),
+			site: BX.message('sonetBPSiteId')
 		},
 		onsuccess: function(data) {
 			if (
 				data["SUCCESS"] != "Y"
-				&& BX("log_entry_follow_" + log_id, true)
+				&& followNode
 			)
 			{
-				BX.findChild(BX("log_entry_follow_" + log_id, true), { tagName: 'a' }).innerHTML = BX.message('sonetBPFollow' + strFollowOld);
-				BX("log_entry_follow_" + log_id, true).setAttribute("data-follow", strFollowOld);
+				BX.findChild(followNode, { tagName: 'a' }).innerHTML = BX.message('sonetBPFollow' + strFollowOld);
+				followNode.setAttribute("data-follow", strFollowOld);
 			}
 		},
 		onfailure: function(data) {
-			if (BX("log_entry_follow_" +log_id, true))
+			if (followNode)
 			{
-				BX.findChild(BX("log_entry_follow_" + log_id, true), { tagName: 'a' }).innerHTML = BX.message('sonetBPFollow' + strFollowOld);
-				BX("log_entry_follow_" + log_id, true).setAttribute("data-follow", strFollowOld);
-			}		
+				BX.findChild(followNode, { tagName: 'a' }).innerHTML = BX.message('sonetBPFollow' + strFollowOld);
+				followNode.setAttribute("data-follow", strFollowOld);
+			}
 		}
 	});
+
 	return false;
 }
 
@@ -269,6 +277,14 @@ function __blogPostSetFollow(log_id)
 			voteId = (typeof params.voteId != 'undefined' ? parseInt(params.voteId) : false),
 			postType = (typeof params.postType != 'undefined' ? params.postType : false);
 
+		if (BX.type.isNotEmptyString(urlToHide))
+		{
+			urlToHide = BX.util.remove_url_param(urlToHide, [ 'b24statAction' ]);
+			urlToHide = BX.util.add_url_param(urlToHide, {
+				b24statAction: 'hidePost'
+			});
+		}
+
 		if (isPublicPage)
 		{
 			return false;
@@ -288,7 +304,6 @@ function __blogPostSetFollow(log_id)
 				menuWaiterPopup.show();
 			}
 		}, 300);
-
 
 		BX.ajax({
 			url: '/bitrix/components/bitrix/socialnetwork.blog.post/ajax.php',
@@ -454,8 +469,7 @@ function __blogPostSetFollow(log_id)
 									entityId: parseInt(params.postId)
 								});
 								this.popupWindow.close();
-
-								return BX.PreventDefault(e);
+								return e.preventDefault();
 							}
 						});
 					}
@@ -1016,77 +1030,42 @@ function __blogPostSetFollow(log_id)
 	}
 })(window);
 
-window.BXfpdPostSelectCallback = function(item, type, search)
-{
-	BX.SocNetLogDestination.BXfpSelectCallback({
-		item: item,
-		type: type,
-		bUndeleted: false,
-		containerInput: BX('feed-add-post-destination-item-post'),
-		valueInput: BX('feed-add-post-destination-input-post'),
-		formName: BXSocNetLogDestinationFormNamePost,
-		tagInputName: 'bx-destination-tag-post',
-		tagLink1: BX.message('BX_FPD_LINK_1'),
-		tagLink2: BX.message('BX_FPD_LINK_2')
-	});
-};
-
-window.BXfpdPostClear = function()
-{
-	var elements = BX.findChildren(BX('feed-add-post-destination-item-post'), {className : 'feed-add-post-destination'}, true);
-	if (elements != null)
-	{
-		for (var j = 0; j < elements.length; j++)
-		{
-			BX.remove(elements[j]);
-		}
-	}
-	BX('feed-add-post-destination-input-post').value = '';
-
-	BX.SocNetLogDestination.BXfpSetLinkName({
-		formName: window.BXSocNetLogDestinationFormNamePost,
-		tagInputName: 'bx-destination-tag-post',
-		tagLink1: BX.message('BX_FPD_LINK_1'),
-		tagLink2: BX.message('BX_FPD_LINK_2')
-	});
-};
-
 window.showSharing = function(postId, userId)
 {
-	BXfpdPostClear();
 	BX('sharePostId').value = postId;
 	BX('shareUserId').value = userId;
+	var selectorId = BX('blogShare').getAttribute('bx-selector-id');
 
-	BX.SocNetLogDestination.obItemsSelected[BXSocNetLogDestinationFormNamePost] = {};
-	if(window["postDest"+postId])
+	if (!BX.type.isNotEmptyString(selectorId))
 	{
-		for (var i = 0; i < window["postDest"+postId].length; i++) 
-		{
-			if(BX.SocNetLogDestination.obItemsSelected[BXSocNetLogDestinationFormNamePost])
-			{
-				BX.SocNetLogDestination.obItemsSelected[BXSocNetLogDestinationFormNamePost][window["postDest"+postId][i].id] = window["postDest"+postId][i].type;
-			}
+		return;
+	}
 
-			if(!BX.SocNetLogDestination.obItems[BXSocNetLogDestinationFormNamePost][window["postDest"+postId][i].type][window["postDest"+postId][i].id])
-			{
-				BX.SocNetLogDestination.obItems[BXSocNetLogDestinationFormNamePost][window["postDest"+postId][i].type][window["postDest"+postId][i].id] = {
-					avatar: '', entityId: window["postDest"+postId][i].entityId, id: window["postDest"+postId][i].id, name: window["postDest"+postId][i].name
-				};
-			}
+	var selectorInstance = BX.UI.SelectorManager.instances[selectorId];
+	if (!BX.type.isNotEmptyObject(selectorInstance))
+	{
+		return;
+	}
+
+	var
+		selectedItems = {},
+		undeletableItems = [],
+		val = null
+	;
+	if(window["postDest" + postId])
+	{
+		for (var i = 0; i < window["postDest" + postId].length; i++)
+		{
+			val = window["postDest" + postId][i];
+			selectedItems[val.id] = val.type;
+			undeletableItems.push(val.id);
 		}
 
-		if(BXSocNetLogDestinationFormNamePost)
-			BX.SocNetLogDestination.reInit(BXSocNetLogDestinationFormNamePost);
-
-		var elements = BX.findChildren(BX('feed-add-post-destination-item-post'), {className : 'feed-add-post-destination'}, true);
-		if (elements != null)
-		{
-			for (var j = 0; j < elements.length; j++)
-			{
-				BX.addClass(elements[j], 'feed-add-post-destination-undelete');
-				BX.remove(elements[j].lastChild);
-			}
-		}
+		BX.onCustomEvent("BX.Main.SelectorV2:reInitDialog", [ {
+			selectorId: selectorId,
+			selectedItems: selectedItems,
+			undeletableItems: undeletableItems
+		} ]);
 
 		var destForm = BX('destination-sharing');
 
@@ -1111,7 +1090,6 @@ window.showSharing = function(postId, userId)
 			},
 			complete : function(){
 				destForm.style.cssText = '';
-				BX.SocNetLogDestination.openDialog(BXSocNetLogDestinationFormNamePost);
 			}
 		})).animate();
 	}
@@ -1148,6 +1126,11 @@ window.sharingPost = function()
 	var shareForm = BX('blogShare');
 	var actUrl = socBPDest.shareUrl.replace(/#post_id#/, postId).replace(/#user_id#/, userId);
 
+	actUrl = BX.util.remove_url_param(actUrl, [ 'b24statAction' ]);
+	actUrl = BX.util.add_url_param(actUrl, {
+		b24statAction: "sharePost"
+	});
+
 	if (BX('sharePostSubmitButton'))
 	{
 		BX.addClass(BX('sharePostSubmitButton'), 'ui-btn-clock');
@@ -1182,13 +1165,11 @@ window.sharingPost = function()
 	var newNodes = renderSharingPost(postId);
 
 	BX.ajax({
-		'method': 'POST',
-		'dataType': 'json',
-		'url': actUrl,
-		'data': s,
-//		'async': true,
-//		'processData': false,
-		'onsuccess': function(data)
+		method: 'POST',
+		dataType: 'json',
+		url: actUrl,
+		data: s,
+		onsuccess: function(data)
 		{
 			if (
 				typeof data == 'undefined'

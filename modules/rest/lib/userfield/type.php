@@ -95,6 +95,7 @@ class Type extends TypeBase
 				'',
 				array(
 					'ID' => $currentPlacementHandler['APP_ID'],
+					'PLACEMENT_ID' => $currentPlacementHandler['ID'],
 					'PLACEMENT' => UserFieldType::PLACEMENT_UF_TYPE,
 					'SHOW_LOADER' => 'N',
 					'SET_TITLE' => 'N',
@@ -139,6 +140,12 @@ class Type extends TypeBase
 				}
 
 				BX('uf_rest_value_<?=$arUserField['FIELD_NAME']?>').innerHTML = html;
+
+				var input = BX('uf_rest_value_<?=$arUserField['FIELD_NAME']?>').firstChild;
+				if(input)
+				{
+					BX.fireEvent(input, 'change');
+				}
 <?
 			endif;
 ?>

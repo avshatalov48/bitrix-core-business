@@ -8,7 +8,7 @@ $config = \Bitrix\Main\Web\Json::encode($arResult['CONFIG']);
 ?>
 <label data-bx-user-consent="<?=htmlspecialcharsbx($config)?>" class="main-user-consent-request">
 	<input type="checkbox" value="Y" <?=($arParams['IS_CHECKED'] ? 'checked' : '')?> name="<?=htmlspecialcharsbx($arParams['INPUT_NAME'])?>">
-	<a><?=htmlspecialcharsbx($arResult['INPUT_LABEL'])?></a>
+	<span class="main-user-consent-request-announce"><?=htmlspecialcharsbx($arResult['INPUT_LABEL'])?></span>
 </label>
 <script type="text/html" data-bx-template="main-user-consent-request-loader">
 	<div class="main-user-consent-request-popup">

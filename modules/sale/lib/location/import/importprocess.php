@@ -1690,6 +1690,7 @@ final class ImportProcess extends Location\Util\Process
 			'IX_B_SALE_LOC_NAME_NAME_U' => array('TABLE' => $locationNameTable, 'COLUMNS' => array('NAME_UPPER')),
 			'IX_B_SALE_LOC_NAME_LI_LI' => array('TABLE' => $locationNameTable, 'COLUMNS' => array('LOCATION_ID', 'LANGUAGE_ID')),
 			'IX_B_SALE_LOC_EXT_LID_SID' => array('TABLE' => $locationExternalTable, 'COLUMNS' => array('LOCATION_ID', 'SERVICE_ID')),
+			'IX_SALE_LOCATION_TYPE_MARGIN' => array('TABLE' => $locationTable, 'COLUMNS' => array('TYPE_ID', 'LEFT_MARGIN', 'RIGHT_MARGIN')),
 
 			// legacy
 			'IXS_LOCATION_COUNTRY_ID' => array('TABLE' => $locationTable, 'COLUMNS' => array('COUNTRY_ID')),

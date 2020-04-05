@@ -20,8 +20,11 @@
 			vimeo: "BX.Landing.MediaService.Vimeo",
 			vine: "BX.Landing.MediaService.Vine",
 			instagram: "BX.Landing.MediaService.Instagram",
-			googleMapsSearch: "BX.Landing.MediaService.GoogleMapsSearch",
-			googleMapsPlace: "BX.Landing.MediaService.GoogleMapsPlace"
+			// googleMapsSearch: "BX.Landing.MediaService.GoogleMapsSearch",
+			// googleMapsPlace: "BX.Landing.MediaService.GoogleMapsPlace",
+			facebookVideos: "BX.Landing.MediaService.FacebookVideos",
+			facebookPosts: "BX.Landing.MediaService.FacebookPosts",
+			facebookPages: "BX.Landing.MediaService.FacebookPages"
 		},
 
 

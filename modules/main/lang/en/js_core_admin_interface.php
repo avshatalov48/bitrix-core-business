@@ -1,4 +1,5 @@
 <?
+$MESS["JSADM_SP_ON_CLOSE_BY_ESC"] = "The changes you have made may be lost.";
 $MESS["JSADM_FAV_ADD"] = "Add to favorites";
 $MESS["JSADM_FAV_DEL"] = "Remove from favorites";
 $MESS["JSADM_FAV_ADD_SUC"] = "Link has been added to favorites.";

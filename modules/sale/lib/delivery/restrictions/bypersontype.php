@@ -75,7 +75,6 @@ class ByPersonType extends Base
 	/**
 	 * @param $deliveryId
 	 * @return array
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public static function getParamsStructure($deliveryId = 0)
 	{

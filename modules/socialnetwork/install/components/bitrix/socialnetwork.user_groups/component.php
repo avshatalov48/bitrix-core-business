@@ -201,10 +201,13 @@ if ($arResult["USE_UI_FILTER"])
 			$filtered = true;
 			$arResult["filter_member"] = intval($matches[1]);
 
-			\Bitrix\Main\FinderDestTable::merge(array(
-				"CONTEXT" => "SONET_GROUP_LIST_FILTER_MEMBER",
-				"CODE" => $filterData['MEMBER']
-			));
+			if (SITE_TEMPLATE_ID != 'bitrix24')
+			{
+				\Bitrix\Main\FinderDestTable::merge(array(
+					"CONTEXT" => "SONET_GROUP_LIST_FILTER_MEMBER",
+					"CODE" => $filterData['MEMBER']
+				));
+			}
 		}
 
 		if (
@@ -218,10 +221,13 @@ if ($arResult["USE_UI_FILTER"])
 			$filtered = true;
 			$arResult["filter_owner"] = intval($matches[1]);
 
-			\Bitrix\Main\FinderDestTable::merge(array(
-				"CONTEXT" => "SONET_GROUP_LIST_FILTER_OWNER",
-				"CODE" => $filterData['OWNER']
-			));
+			if (SITE_TEMPLATE_ID != 'bitrix24')
+			{
+				\Bitrix\Main\FinderDestTable::merge(array(
+					"CONTEXT" => "SONET_GROUP_LIST_FILTER_OWNER",
+					"CODE" => $filterData['OWNER']
+				));
+			}
 		}
 
 		if (isset($filterData['EXTRANET']))
@@ -279,6 +285,60 @@ if ($arResult["USE_UI_FILTER"])
 		{
 			$filtered = true;
 			$arGroupFilter["<=PROJECT_DATE_FINISH"] = ConvertTimeStamp(MakeTimeStamp($filterData["PROJECT_DATE_FINISH_to"], CSite::getDateFormat("SHORT")) + 86399, "FULL");
+		}
+
+		$groupPropertiesList = $USER_FIELD_MANAGER->GetUserFields("SONET_GROUP", 0, LANGUAGE_ID);
+		$availableUFTypes = ['date', 'datetime', 'string', 'double', 'boolean', 'crm'];
+
+		foreach($groupPropertiesList as $field => $arUserField)
+		{
+			if (
+				empty($arUserField['SHOW_FILTER'])
+				|| $arUserField['SHOW_FILTER'] == 'N'
+			)
+			{
+				unset($groupPropertiesList[$field]);
+				continue;
+			}
+
+			$type = $arUserField['USER_TYPE_ID'];
+
+			if (!in_array($type, $availableUFTypes))
+			{
+				$type = 'string';
+			}
+			if ($type == 'datetime')
+			{
+				$type = 'date';
+			}
+
+			if ($type == 'double')
+			{
+				$type = 'number';
+			}
+
+			if ($type == 'date')
+			{
+				if (!empty($filterData[$field."_from"]))
+				{
+					$filtered = true;
+					$arGroupFilter[">=".$field] = $filterData[$field."_from"];
+				}
+
+				if (!empty($filterData[$field."_to"]))
+				{
+					$filtered = true;
+					$arGroupFilter["<=".$field] = $filterData[$field."_to"];
+				}
+			}
+			elseif (
+				in_array($type, array('number', 'string', 'boolean'))
+				&& isset($filterData[$field])
+			)
+			{
+				$filtered = true;
+				$arGroupFilter["=".$field] = $filterData[$field];
+			}
 		}
 	}
 	else // main.ui.filter without CLOSED
@@ -836,49 +896,9 @@ if (StrLen($arResult["FatalError"]) <= 0)
 			if (
 				$arParams["USE_KEYWORDS"] == "Y"
 				&& strlen($arResult["~tags"]) > 0 
-				&& CModule::IncludeModule("search")
 			)
 			{
-				$arFilter = array(
-					"SITE_ID" => SITE_ID,
-					"QUERY" => "",
-					array(
-						"=MODULE_ID" => "socialnetwork",
-						"PARAMS" => array(
-							"entity" => "socnet_group",
-						),
-					),
-					"CHECK_DATES" => "Y",
-					"TAGS" => $arResult["~tags"]
-				);
-				$aSort = array("DATE_CHANGE" => "DESC", "CUSTOM_RANK" => "DESC", "RANK" => "DESC");
-
-				$obSearch = new CSearch();
-				$obSearch->Search($arFilter);
-				if ($obSearch->errorno == 0)
-				{
-					$arTagGroups = array();
-					while ($arSearch = $obSearch->Fetch())
-					{
-						if (intval($arSearch["PARAM2"]) > 0)
-						{
-							$arTagGroups[] = $arSearch["PARAM2"];
-						}
-					}
-
-					if (empty($arTagGroups))
-					{
-						$bNoMyGroups = true;
-					}
-
-					if (
-						!empty($arTagGroups)
-						&& !$bNoMyGroups
-					)
-					{
-						$arGroupFilter["ID"] = (!empty($arGroupFilter["ID"]) ? array_intersect($arGroupFilter["ID"], $arTagGroups) : $arTagGroups);
-					}
-				}
+				$arGroupFilter['Bitrix\Socialnetwork\WorkgroupTag:GROUP.NAME'] = ToLower($arResult["~tags"]);
 			}
 
 			if (
@@ -903,7 +923,10 @@ if (StrLen($arResult["FatalError"]) <= 0)
 					$arUserGroupsList = array_unique($arUserGroupsList);
 				}
 
-				if (!empty($arUserGroupFilter2))
+				if (
+					!empty($arUserGroupsList)
+					&& !empty($arUserGroupFilter2)
+				)
 				{
 					$dbUserGroups = UserToGroupTable::getList(array(
 						'filter' => array_merge(array('@GROUP_ID' => $arUserGroupsList), $arUserGroupFilter2),

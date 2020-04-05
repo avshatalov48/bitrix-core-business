@@ -218,6 +218,7 @@
 		this.tpl = options.tpl;
 		this.tplButton = options.tplButton;
 		this.hot = options.hot;
+		this.hint = options.hint;
 		this.layout = {
 			container: null,
 			title: null,
@@ -229,7 +230,7 @@
 
 	GridItem.prototype = {
 
-		setItemWidth: function ()
+		getItemWidth: function ()
 		{
 			return 100 / this.getItemLengthInRow();
 		},
@@ -276,7 +277,7 @@
 				this.tpl,
 				{
 					'name': this.name,
-					'style': 'width: ' + this.setItemWidth() +'%',
+					'style': 'width: ' + this.getItemWidth() +'%',
 					'image-style': this.image ?
 					'background-image: url(' + this.image + '); ' +
 					'background-size: cover;'
@@ -293,6 +294,11 @@
 
 			this.hot ? this.layout.description.classList.add('sender-tpl-item-description-hot') : null;
 			this.description === '' ? this.layout.container.classList.add('sender-tpl-content-without-description') : null;
+
+			if (this.hint)
+			{
+				this.layout.title.appendChild(BX.UI.Hint.createNode(this.hint));
+			}
 
 			if (num > (this.getItemLengthInRow() * 3) - 1)
 			{

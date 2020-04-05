@@ -44,6 +44,8 @@ while ($arAccessibleSite = $dbAccessibleSites->Fetch())
 		$arAccessibleSites[] = $arAccessibleSite["SITE_ID"];
 }
 
+$exportMode = (isset($_REQUEST['mode']) && $_REQUEST['mode'] == 'excel');
+
 $sTableID = "tbl_sale_order_archive";
 $oSort = new CAdminSorting($sTableID, "ID", "desc");
 $lAdmin = new CAdminSaleList($sTableID, $oSort);
@@ -410,6 +412,12 @@ $shipmentStatuses = array();
 $rowsList = array();
 $basketSeparator = '<hr size="1" width="90%">';
 $basketSetSeparator = '<br>&nbsp;-&nbsp;';
+
+if ($exportMode)
+{
+	$basketSeparator = "<br>";
+	$basketSetSeparator = "<br>";
+}
 
 $orderList = array();
 $archivedOrdersId = array();
@@ -1130,6 +1138,43 @@ $oFilter->Begin();
 			<input type="text" name="filter_xml_id" value="<?echo htmlspecialcharsbx($filter_xml_id)?>" size="40">
 		</td>
 	</tr>
+	<script>
+		function exportData(val)
+		{
+			var oForm = document.form_<?= $sTableID ?>;
+			var expType = oForm.action_target.checked;
+
+			var par = "mode=excel";
+			if(!expType)
+			{
+				var num = oForm.elements.length;
+				for (var i = 0; i < num; i++)
+				{
+					if(oForm.elements[i].tagName.toUpperCase() == "INPUT"
+						&& oForm.elements[i].type.toUpperCase() == "CHECKBOX"
+						&& oForm.elements[i].name.toUpperCase() == "ID[]"
+						&& oForm.elements[i].checked == true)
+					{
+						par += "&OID[]=" + oForm.elements[i].value;
+					}
+				}
+			}
+
+			if(expType)
+			{
+				par += "<?= CUtil::JSEscape(GetFilterParams("filter_", false)); ?>";
+			}
+
+			if(par.length > 0)
+			{
+				if (val == "excel")
+				{
+					url = 'sale_order_archive.php';
+					window.open(url + "?EXPORT_FORMAT="+val+"&"+par, "vvvvv");
+				}
+			}
+		}
+	</script>
 <?
 
 $oFilter->Buttons(

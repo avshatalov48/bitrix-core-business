@@ -81,6 +81,11 @@
 		});
 	};
 
+	BX.Landing.Utils.isValidElementId = function(id)
+	{
+		var re = new RegExp('^[A-Za-z]+[\\w\\-\\:\\.]*$');
+		return re.test(id)
+	};
 
 	BX.Landing.Utils.ignorePromiseDecorator = function(fn)
 	{
@@ -288,7 +293,10 @@
 		// https://www.google.com/maps/place/Bitrix24+office/@37.4220041,-122.0833494,17z/data=!4m5!3m4!1s0x0:0x6c296c66619367e0!8m2!3d37.4219998!4d-122.0840572
 		googleMapsPlace: new RegExp("(maps\\.)?google\\.([a-z]{2,3}(\\.[a-z]{2})?)\\/(((maps\\/(place\\/(.*)\\/)?\\@(.*),(\\d+.?\\d+?)z))|(\\?ll=))(.*)?", "i"),
 		headerTag: new RegExp("^H[1-6]$"),
-		russianText: new RegExp("[\u0400-\u04FF]")
+		russianText: new RegExp("[\u0400-\u04FF]"),
+		facebookPages: new RegExp("(?:http:\/\/)?(?:www\.)?facebook\.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[\w\-]*\/)*([\w\-]*)"),
+		facebookPosts: new RegExp("^https:\/\/www\.facebook\.com\/(photo(\.php|s)|permalink\.php|media|questions|notes|[^\/]+\/(activity|posts))[\/?].*$"),
+		facebookVideos: new RegExp("^(?:(?:https?:)?\/\/)?(?:www\.)?facebook\.com\/[a-z0-9\.]+\/videos\/(?:[a-z0-9\.]+\/)?([0-9]+)\/?(?:\\?.*)?$")
 	};
 
 
@@ -1624,6 +1632,27 @@
 	};
 
 	/**
+	 * Changes file path extension
+	 * @param {string} path
+	 * @param {string} newExtension
+	 * @return {*}
+	 */
+	BX.Landing.Utils.changeExtension = function(path, newExtension)
+	{
+		return !!path ? path.replace(/\.[^\.]+$/, "." + newExtension) : path;
+	};
+
+	/**
+	 * @param path
+	 * @return {*}
+	 */
+	BX.Landing.Utils.rename2x = function(path)
+	{
+		path = path.replace(/@2x/, "");
+		return !!path ? path.replace(/\.[^\.]+$/, "@2x." + BX.util.getExtension(path)) : path;
+	};
+
+	/**
 	 * Gets delta from event
 	 * @param event
 	 * @return {{x, y: number}}
@@ -1662,6 +1691,126 @@
 	};
 
 	/**
+	 * Loads file as blob
+	 * @param url
+	 * @return {Promise<Blob, string>}
+	 */
+	BX.Landing.Utils.urlToBlob = function(url)
+	{
+		if (!BX.type.isString(url))
+		{
+			return Promise.resolve(url);
+		}
+
+		return new Promise(function(resolve, reject) {
+			try {
+				var xhr = BX.ajax.xhr();
+				xhr.open("GET", url);
+				xhr.responseType = "blob";
+				xhr.onerror = function()
+				{
+					reject("Network error.")
+				};
+				xhr.onload = function()
+				{
+					if (xhr.status === 200)
+					{
+						resolve(xhr.response);
+					}
+					else
+					{
+						reject("Loading error:" + xhr.statusText);
+					}
+				};
+				xhr.send();
+			}
+			catch(err)
+			{
+				reject(err.message);
+			}
+		});
+	};
+
+	/**
+	 * Makes user friendly file size
+	 * @param {Number} size
+	 * @return {*}
+	 */
+	BX.Landing.Utils.fileSize = function(size)
+	{
+		var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+		var mysize;
+
+		sizes.forEach(function(unit, id) {
+			var s = Math.pow(1024, id);
+			var fixed;
+
+			if (size >= s)
+			{
+				fixed = String((size / s).toFixed(1));
+
+				if (fixed.indexOf('.0') === fixed.length - 2)
+				{
+					fixed = fixed.slice(0, -2);
+				}
+
+				mysize = fixed + ' ' + unit;
+			}
+		});
+
+		if (!mysize)
+		{
+			mysize = '0 ' + sizes[0];
+		}
+
+		return mysize;
+	};
+
+	BX.Landing.Utils.getFileName = function(path)
+	{
+		return path.split('\\').pop().split('/').pop();
+	};
+
+	BX.Landing.Utils.getSelectedElement = function() {
+		var range, sel, container;
+		if (document.selection)
+		{
+			range = document.selection.createRange();
+			return range.parentElement();
+		}
+		else
+		{
+			sel = window.getSelection();
+			if (sel.getRangeAt)
+			{
+				if (sel.rangeCount > 0)
+				{
+					range = sel.getRangeAt(0);
+				}
+			}
+			else
+			{
+				// Old WebKit
+				range = document.createRange();
+				range.setStart(sel.anchorNode, sel.anchorOffset);
+				range.setEnd(sel.focusNode, sel.focusOffset);
+
+				if (range.collapsed !== sel.isCollapsed) {
+					range.setStart(sel.focusNode, sel.focusOffset);
+					range.setEnd(sel.anchorNode, sel.anchorOffset);
+				}
+			}
+
+			if (range)
+			{
+				container = range["endContainer"];
+
+				return container.nodeType === 3 ? container.parentNode : container;
+			}
+		}
+	};
+
+	/**
 	 * Fires custom event
 	 * @param {Object} [target = window]
 	 * @param {string} eventName
@@ -1697,6 +1846,7 @@
 	BX.Landing.Utils.toggleClass = BX.toggleClass;
 	BX.Landing.Utils.hasClass = BX.hasClass;
 	BX.Landing.Utils.debounce = BX.debounce;
+	BX.Landing.Utils.throttle = BX.throttle;
 	BX.Landing.Utils.bind = BX.bind;
 	BX.Landing.Utils.unbind = BX.unbind;
 	BX.Landing.Utils.getClass = BX.getClass;

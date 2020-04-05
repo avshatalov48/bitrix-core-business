@@ -176,5 +176,9 @@ class socialservices extends CModule
 			$APPLICATION->IncludeAdminFile(GetMessage("socialservices_install_title_inst"), $DOCUMENT_ROOT."/bitrix/modules/socialservices/install/unstep2.php");
 		}
 	}
+
+	public function migrateToBox()
+	{
+		COption::RemoveOption($this->MODULE_ID);
+	}
 }
-?>

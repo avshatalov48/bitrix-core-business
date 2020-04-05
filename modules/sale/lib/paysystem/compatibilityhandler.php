@@ -377,6 +377,21 @@ class CompatibilityHandler extends ServiceHandler implements ICheckable
 						'SORT' => $property['SORT'],
 					);
 				}
+				else if ($property['TYPE'] == 'CHECKBOX')
+				{
+					$arPSCorrespondence[$i] = array(
+						'NAME' => $property['NAME'],
+						'INPUT' => array(
+							'TYPE' => 'Y/N'
+						),
+						'SORT' => $property['SORT'],
+					);
+
+					if (isset($property['VALUE']))
+					{
+						$arPSCorrespondence[$i]['VALUE'] = $property['VALUE'];
+					}
+				}
 
 				if (array_key_exists('DESCR', $property))
 					$arPSCorrespondence[$i]['DESCRIPTION'] = $property['DESCR'];

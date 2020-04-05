@@ -204,6 +204,7 @@
 	border-bottom: 1px solid #ebebeb;
 	letter-spacing: -0.31px;
 	font: 400 14px/19px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	z-index: 1;
 }
 
 .calendar-right-block-event-info-title-calendar {
@@ -370,7 +371,7 @@
 	vertical-align: middle;
 	color: #7a828c;
 	padding: 0 0 0 5px;
-	font: 14px/22px "Open Sans Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/22px "OpenSans-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -2045,11 +2046,6 @@ a.calendar-event-block-members-user {
 /*endregion*/
 
 /*region POPUP forms */
-.calendar-add-popup-wrap {
-	padding: 0;
-	width: 350px;
-}
-
 .calendar-add-popup-slider-container {
 	position: relative;
 	overflow: hidden;
@@ -2131,7 +2127,7 @@ a.calendar-event-block-members-user {
 .calendar-field.calendar-field-datetime-menu {
 	box-sizing: border-box;
 	padding-right: 0;
-	min-width: 80px;
+	min-width: 100px;
 }
 
 .calendar-clear-filed,
@@ -4638,6 +4634,7 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 	position: absolute;
 	top: 0;
 	left: 0;
+	right: 0;
 	z-index: 1;
 	height: 32px;
 	background: none;
@@ -5000,7 +4997,7 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 .calendar-list-slider-form-wrap.show {
 	margin-bottom: 15px;
 	padding: 13px 19px 0;
-	max-height: 1000px;
+	max-height: 15000px;
 	opacity: 1;
 }
 
@@ -5830,4 +5827,14 @@ input.calendar-error{
 {
 	max-width: 200px;
 	max-height: 350px;
+}
+
+
+.calendar-center-loader-block {
+	height: 180px;
+	transition: 300ms all ease;
+	position: absolute;
+	top: 20%;
+	left: calc(50% - 90px);
+	z-index: 1000;
 }

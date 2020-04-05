@@ -3,18 +3,19 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 CJSCore::Init(array("popup"));
 \Bitrix\Main\UI\Extension::load("ui.buttons.icons");
 ?>
-<div class="pagetitle-container pagetitle-align-right-container">
-	<div class="visual-constructor-contols">
-		<div id="visualconstrctor_board_configuration_button" class="webform-small-button webform-small-button-transparent webform-cogwheel">
-			<span class="webform-button-icon"></span>
-		</div>
+
+<div class="visual-constructor-contols">
+	<div id="visualconstrctor_board_configuration_button" class="webform-small-button webform-small-button-transparent webform-cogwheel">
+		<span class="webform-button-icon"></span>
+	</div>
+	<?if(!$arResult['IS_FRAME_MODE']):?>
 		<div id="add_report_popup_button" class="ui-btn ui-btn-primary">
 			<?= \Bitrix\Main\Localization\Loc::getMessage('VISUALCONSTUCTOR_ADD_WIDGET_TO_BOARD') ?>
 		</div>
-	</div>
-
-	<div id="add_report_to_board"></div>
+	<?endif;?>
 </div>
+
+<div id="add_report_to_board"></div>
 
 <script>
 	BX.message({
@@ -27,6 +28,7 @@ CJSCore::Init(array("popup"));
 	new BX.Report.VisualConstructor.Board.Controls({
 		reportCategories: <?=CUtil::PhpToJSObject($arResult['REPORTS_CATEGORIES'])?>,
 		boardId: <?=CUtil::PhpToJSObject($arResult['BOARD_ID'])?>,
-		configurationButton: BX('visualconstrctor_board_configuration_button')
+		configurationButton: BX('visualconstrctor_board_configuration_button'),
+		demoToggle: <?=CUtil::PhpToJSObject($arResult['DEMO_TOGGLE'])?>
 	});
 </script>

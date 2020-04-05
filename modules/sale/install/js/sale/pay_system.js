@@ -10,7 +10,7 @@
 
 	BX.Sale.PaySystem = {
 
-		ajaxUrl: "/bitrix/admin/sale_pay_system_ajax.php",
+		ajaxUrl: "sale_pay_system_ajax.php",
 
 		setLHEClass: function (lheDivId)
 		{
@@ -315,18 +315,41 @@
 						}
 
 						var psMode = BX('pay_system_ps_mode');
-						if (result.PAYMENT_MODE)
+						var isOrderHandler = BX('ACTION_FILE').value === 'orderdocument';
+						if (result.PAYMENT_MODE || isOrderHandler)
 						{
 							var tr = BX.create('tr', {props : {'width': '40%'}});
 							tr.setAttribute('valign', 'top');
 
 							var tdTitle = BX.create('td', {props : {'width': '40%'}});
 							BX.addClass(tdTitle, 'adm-detail-content-cell-l');
-							tdTitle.innerHTML = BX.message('SALE_PS_MODE')+':';
+							tdTitle.innerHTML = result.PAYMENT_MODE_TITLE+':';
 
 							var tdContent = BX.create('td', {props : {'width': '60%'}});
 							BX.addClass(tdContent, 'adm-detail-content-cell-r');
-							tdContent.innerHTML = result.PAYMENT_MODE;
+							if (result.PAYMENT_MODE)
+							{
+								tdContent.innerHTML = result.PAYMENT_MODE;
+							}
+							
+							if (isOrderHandler)
+							{
+								var span = BX.create(
+									'span',
+									{
+										text: BX.message('SALE_TEMPLATE_DOCUMENT_ADD'),
+										attrs: {
+											class: 'bx-button-add-template',
+											style: 'margin-left: 5px'
+										}
+									}
+								);
+								BX.bind(span, 'click', function () {
+									BX.SidePanel.Instance.open(result.ORDER_DOC_ADD_LINK, {width: 930, events: {onCloseComplete: function() {BX.Sale.PaySystem.getHandlerOptions(BX("ACTION_FILE"));}}});
+								});
+								
+								tdContent.appendChild(span);
+							}
 
 							tr.appendChild(tdTitle);
 							tr.appendChild(tdContent);
@@ -402,8 +425,7 @@
 					else
 					{
 						BX.debug(result.ERROR);
-					}
-				},
+					}},
 
 				onfailure: function ()
 				{

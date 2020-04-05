@@ -20,39 +20,46 @@
 				 data-form-style-main-font-color-hover="1"
 			>
 			</div>
-			<div class="g-bg-gray-light-v5 g-brd-around g-brd-white rounded-0"
+			<div class="g-bg-gray-light-v5 g-color-gray-dark-v1 g-brd-around g-brd-white rounded-0"
 				 data-form-style-input-bg="1"
 				 data-form-style-input-select-bg="1"
 				 data-form-style-input-border="1"
 				 data-form-style-input-border-radius="1"
+				 data-form-style-main-font-color="1"
 			>
 			</div>
-			<div class="g-brd-around g-brd-gray-light-v2 g-brd-bottom g-bg-black-opacity-0_7"
+			<div class="g-brd-around g-brd-gray-light-v2 g-color-gray-dark-v5 g-bg-black-opacity-0_7"
 				 data-form-style-input-border-color="1"
 				 data-form-style-input-border-hover="1"
+				 data-form-style-icon-font-color="1"
 			>
 			</div>
 
-			<p class="g-color-gray-dark-v5"
-			   data-form-style-main-font-family="1"
-			   data-form-style-main-font-weight="1"
-			   data-form-style-header-text-font-size="1">
-			</p>
 
-			<h3 class="g-font-size-11 g-color-gray-dark-v5"
-				data-form-style-label-font-weight="1"
-				data-form-style-label-font-size="1"
-				data-form-style-second-font-color="1"
+			<!--			for resource booking-->
+			<div class="g-bg-gray-dark-v5"
+				 data-form-style-bg-as-text="1"
 			>
-			</h3>
+			</div>
 
-			<div class="g-font-size-11" data-form-style-main-font-color="1"></div>
+			<div class="g-bg-gray-light-v5"
+				 data-form-style-input-bg-light="1"
+			>
+			</div>
 
-			<p class="g-font-size-8" data-form-style-agreement-label-font-size="1"></p>
+			<div class="g-bg-gray-light-v4"
+				 data-form-style-input-bg-light2="1"
+			>
+			</div>
+
+			<div class="g-bg-primary-opacity-0_4"
+				 data-form-style-main-bg-light="1"
+			>
+			</div>
 		</div>
 
-		<div class="mx-auto">
-			<div class="bitrix24forms g-brd-white-opacity-0_6"
+		<div class="mx-auto"
+			<div class="bitrix24forms g-brd-white-opacity-0_6 u-form-alert-v4"
 				 data-b24form=""
 				 data-b24form-use-style="Y"
 				 data-b24form-show-header="N"

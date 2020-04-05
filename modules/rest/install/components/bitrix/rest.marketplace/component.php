@@ -15,12 +15,12 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
  */
 
 $arDefaultUrlTemplates404 = array(
-	"top" => "",
 	"category" => "category/#category#/",
 	"detail" => "detail/#app#/",
 	"search" => "search/",
 	"buy" => "buy/",
 	"updates" => "updates/",
+	"installed" => "installed/",
 );
 
 $arDefaultVariableAliases404 = array();
@@ -50,7 +50,7 @@ if($arParams["SEF_MODE"] == "Y")
 
 	if(strlen($componentPage) <= 0)
 	{
-		$componentPage = "top";
+		$componentPage = "category";
 	}
 
 	CComponentEngine::InitComponentVariables($componentPage,
@@ -67,6 +67,7 @@ if($arParams["SEF_MODE"] == "Y")
 	$arParams["SEARCH_URL"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["search"], $arVariables);
 	$arParams["BUY_URL"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["buy"], $arVariables);
 	$arParams["UPDATES_URL"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["updates"], $arVariables);
+	$arParams["INSTALLED_URL"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["installed"], $arVariables);
 
 
 	$arParams["CATEGORY_URL_TPL"] = $arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["category"];
@@ -75,7 +76,6 @@ if($arParams["SEF_MODE"] == "Y")
 else
 {
 	$arVariables = array();
-
 	$arVariableAliases = CComponentEngine::MakeComponentVariableAliases($arDefaultVariableAliases, $arParams["VARIABLE_ALIASES"]);
 	CComponentEngine::InitComponentVariables(false, $arComponentVariables, $arVariableAliases, $arVariables);
 
@@ -107,8 +107,6 @@ $arResult = array(
 $arParams["COMPONENT_PAGE"] = $componentPage;
 
 $arResult['SLIDER'] = \CRestUtil::isSlider();
-
-$APPLICATION->SetTitle(GetMessage("MARKETPLACE_TITLE"));
 
 \CJSCore::Init(array('marketplace'));
 

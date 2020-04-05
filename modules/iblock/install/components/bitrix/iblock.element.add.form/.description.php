@@ -10,9 +10,6 @@ $arComponentDescription = array(
 		"CHILD" => array(
 			"ID" => "iblock_element_add",
 			"NAME" => GetMessage("T_IBLOCK_DESC_ELEMENT_ADD"),
-			"CHILD" => array(
-				"ID" => "element_add_cmpx",
-			),
 		),
 	),
 );

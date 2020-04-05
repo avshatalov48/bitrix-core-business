@@ -66,6 +66,7 @@ $MESS["REPORT_CHART_ERR_45"] = "В результате фильтрации и 
 $MESS["REPORT_CHART_ERR_46"] = "Ошибка сортировки консолидированных значений круговой диаграммы";
 $MESS["REPORT_CHART_ERR_47"] = "Нет данных для построения диаграммы";
 $MESS["REPORT_CHART_ERR_48"] = "Не осталось данных после удаления значений с пустыми аргументами";
+$MESS["REPORT_CHART_ERR_49"] = "Ошибка в настройках диаграммы";
 $MESS["CRM_REPORT_LRP_DLG_BTN_START"] = "Выполнить";
 $MESS["CRM_REPORT_LRP_DLG_BTN_STOP"] = "Остановить";
 $MESS["CRM_REPORT_LRP_DLG_BTN_CLOSE"] = "Закрыть";

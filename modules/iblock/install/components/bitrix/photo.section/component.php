@@ -260,35 +260,7 @@ if($this->StartResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 				}
 			}
 
-			$ipropValues = new \Bitrix\Iblock\InheritedProperty\ElementValues($arItem["IBLOCK_ID"], $arItem["ID"]);
-			$arItem["IPROPERTY_VALUES"] = $ipropValues->getValues();
-
-			$arItem["PREVIEW_PICTURE"] = (0 < $arItem["PREVIEW_PICTURE"] ? CFile::GetFileArray($arItem["PREVIEW_PICTURE"]) : false);
-			if ($arItem["PREVIEW_PICTURE"])
-			{
-				$arItem["PREVIEW_PICTURE"]["ALT"] = $arItem["IPROPERTY_VALUES"]["ELEMENT_PREVIEW_PICTURE_FILE_ALT"];
-				if ($arItem["PREVIEW_PICTURE"]["ALT"] == "")
-					$arItem["PREVIEW_PICTURE"]["ALT"] = $arItem["NAME"];
-				$arItem["PREVIEW_PICTURE"]["TITLE"] = $arItem["IPROPERTY_VALUES"]["ELEMENT_PREVIEW_PICTURE_FILE_TITLE"];
-				if ($arItem["PREVIEW_PICTURE"]["TITLE"] == "")
-					$arItem["PREVIEW_PICTURE"]["TITLE"] = $arItem["NAME"];
-			}
-
-			$arItem["DETAIL_PICTURE"] = (0 < $arItem["DETAIL_PICTURE"] ? CFile::GetFileArray($arItem["DETAIL_PICTURE"]) : false);
-			if ($arItem["DETAIL_PICTURE"])
-			{
-				$arItem["DETAIL_PICTURE"]["ALT"] = $arItem["IPROPERTY_VALUES"]["ELEMENT_DETAIL_PICTURE_FILE_ALT"];
-				if ($arItem["DETAIL_PICTURE"]["ALT"] == "")
-					$arItem["DETAIL_PICTURE"]["ALT"] = $arItem["NAME"];
-				$arItem["DETAIL_PICTURE"]["TITLE"] = $arItem["IPROPERTY_VALUES"]["ELEMENT_DETAIL_PICTURE_FILE_TITLE"];
-				if ($arItem["DETAIL_PICTURE"]["TITLE"] == "")
-					$arItem["DETAIL_PICTURE"]["TITLE"] = $arItem["NAME"];
-			}
-
-			if(is_array($arItem["PREVIEW_PICTURE"]))
-				$arItem["PICTURE"] = $arItem["PREVIEW_PICTURE"];
-			elseif(is_array($arItem["DETAIL_PICTURE"]))
-				$arItem["PICTURE"] = $arItem["DETAIL_PICTURE"];
+			\Bitrix\Iblock\InheritedProperty\ElementValues::queue($arItem["IBLOCK_ID"], $arItem["ID"]);
 
 			if ($arParams["SET_LAST_MODIFIED"])
 			{
@@ -302,6 +274,25 @@ if($this->StartResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 
 			$arResult["ITEMS"][]=$arItem;
 		}
+
+		foreach ($arResult["ITEMS"] as &$arItem)
+		{
+			$ipropValues = new \Bitrix\Iblock\InheritedProperty\ElementValues($arItem["IBLOCK_ID"], $arItem["ID"]);
+			$arItem["IPROPERTY_VALUES"] = $ipropValues->getValues();
+
+			\Bitrix\Iblock\Component\Tools::getFieldImageData(
+				$arItem,
+				array('PREVIEW_PICTURE', 'DETAIL_PICTURE'),
+				\Bitrix\Iblock\Component\Tools::IPROPERTY_ENTITY_ELEMENT,
+				'IPROPERTY_VALUES'
+			);
+
+			if(is_array($arItem["PREVIEW_PICTURE"]))
+				$arItem["PICTURE"] = $arItem["PREVIEW_PICTURE"];
+			elseif(is_array($arItem["DETAIL_PICTURE"]))
+				$arItem["PICTURE"] = $arItem["DETAIL_PICTURE"];
+		}
+		unset($arItem);
 
 		$navComponentParameters = array();
 		if ($arParams["PAGER_BASE_LINK_ENABLE"] === "Y")

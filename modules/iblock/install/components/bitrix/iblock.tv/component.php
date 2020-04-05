@@ -279,12 +279,6 @@ if($this->StartResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 		}
 	}
 
-	if(!isset($arResult["SELECTED_ELEMENT"]))
-	{
-		$this->AbortResultCache();
-		return false;
-	}
-
 	if(CIBlock::GetPermission($arParams["IBLOCK_ID"])>='U')
 		$arResult["CAN_EDIT"] = "Y";
 	else
@@ -294,7 +288,10 @@ if($this->StartResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 		"CAN_EDIT", "IBLOCK_TYPE_ID", "RAW_FILES", "IBLOCK_ID"
 	));
 
-	$this->IncludeComponentTemplate();
+	if (isset($arResult["SELECTED_ELEMENT"]))
+	{
+		$this->IncludeComponentTemplate();
+	}
 }
 
 //include js
@@ -304,7 +301,7 @@ $APPLICATION->AddHeadString('<script type="text/javascript" src="/bitrix/compone
 CUtil::InitJSCore();
 
 if(
-	$arResult["IBLOCK_ID"]
+	$arParams["IBLOCK_ID"]
 	&& $USER->IsAuthorized()
 	&& (
 		$APPLICATION->GetShowIncludeAreas()
@@ -316,7 +313,7 @@ if(
 	&& CModule::IncludeModule("iblock")
 )
 {
-	$arButtons = CIBlock::GetPanelButtons($arResult["IBLOCK_ID"], 0, $arParams["SECTION_ID"], array("SECTION_BUTTONS"=>false));
+	$arButtons = CIBlock::GetPanelButtons($arParams["IBLOCK_ID"], 0, $arParams["SECTION_ID"], array("SECTION_BUTTONS"=>false));
 	if($APPLICATION->GetShowIncludeAreas())
 		$this->AddIncludeAreaIcons(CIBlock::GetComponentMenu($APPLICATION->GetPublicShowMode(), $arButtons));
 

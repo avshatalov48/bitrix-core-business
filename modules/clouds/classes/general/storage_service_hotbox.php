@@ -83,6 +83,7 @@ class CCloudStorageService_HotBox extends CCloudStorageService_AmazonS3
 		';
 		return $result;
 	}
+
 	protected function GetRequestHost($bucket)
 	{
 		if(

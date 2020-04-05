@@ -31,9 +31,9 @@ if ($arResult['AVAILABLE'])
 		?><span class="bx-contentview-popup-name-new contentview-name"><?
 			?><?=GetMessage("SCVC_TEMPLATE_POPUP_TITLE")?><?
 		?></span><?
-		?><span class="bx-contentview-popup"><?
+		?><span class="bx-contentview-popup-outer"><span class="bx-contentview-popup"><?
 			?><span class="bx-contentview-wait"></span><?
-		?></span><?
+		?></span></span><?
 	?></span><?
 	?><script>
 	BX.ready(function() {

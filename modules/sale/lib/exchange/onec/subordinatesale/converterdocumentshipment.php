@@ -3,6 +3,9 @@
 namespace Bitrix\Sale\Exchange\OneC\SubordinateSale;
 
 
+use Bitrix\Sale\Exchange\ImportBase;
+use Bitrix\Sale\Exchange\ImportOneCBase;
+
 class ConverterDocumentShipment extends \Bitrix\Sale\Exchange\OneC\ConverterDocumentShipment
 {
 	protected function getFieldsInfo()
@@ -16,15 +19,33 @@ class ConverterDocumentShipment extends \Bitrix\Sale\Exchange\OneC\ConverterDocu
 		return $orderDocumentConverter->externalizeItems($items, $info);
 	}
 
-	public function externalizeStories(array $stories, array $info)
+	protected function getBasePriceDelivery($list = [])
 	{
-		$orderDocumentConverter = new ConverterDocumentOrder();
-		return $orderDocumentConverter->externalizeStories($stories, $info);
-	}
+		if(is_array($list) && count($list)>0)
+		{
+			foreach($list as $item)
+			{
+				$xmlId = key($item);
 
-	public function externalizeTaxes(array $items, array $info)
-	{
-		$orderDocumentConverter = new ConverterDocumentOrder();
-		return $orderDocumentConverter->externalizeTaxes($items, $info);
+				if($xmlId == ImportOneCBase::DELIVERY_SERVICE_XMLID && $item[$xmlId]['TYPE'] == ImportBase::ITEM_SERVICE)
+				{
+					return $item[$xmlId]["PRICE"];
+				}
+			}
+		}
+		return 0;
 	}
+	/*
+		public function externalizeStories(array $stories, array $info)
+		{
+			$orderDocumentConverter = new ConverterDocumentOrder();
+			return $orderDocumentConverter->externalizeStories($stories, $info);
+		}
+
+		public function externalizeTaxes(array $items, array $info)
+		{
+			$orderDocumentConverter = new ConverterDocumentOrder();
+			return $orderDocumentConverter->externalizeTaxes($items, $info);
+		}
+	*/
 }

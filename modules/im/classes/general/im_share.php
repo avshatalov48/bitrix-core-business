@@ -299,10 +299,17 @@ class CIMShare
 				$sonetRights = Array('SG'.$chat['ENTITY_ID']);
 			}
 		}
-		if (empty($sonetRights))
+		if (empty($sonetRights) && $message['CHAT_ID'] != CIMChat::GetGeneralChatId())
 		{
 			$relations = CIMChat::GetRelationById($message['CHAT_ID']);
-			$sonetRights = array_map(function($value){ return "U".$value['USER_ID']; }, $relations);
+			$sonetRights = [];
+			foreach ($relations as $relation)
+			{
+				if (\Bitrix\Im\User::getInstance($relation['USER_ID'])->isActive())
+				{
+					$sonetRights[] = "U".$relation['USER_ID'];
+				}
+			}
 		}
 
 		$postFields = array(

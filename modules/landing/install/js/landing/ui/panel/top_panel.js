@@ -34,6 +34,7 @@
 		this.desktopButton = this.layout.querySelector(".landing-ui-button-desktop");
 		this.tabletButton = this.layout.querySelector(".landing-ui-button-tablet");
 		this.mobileButton = this.layout.querySelector(".landing-ui-button-mobile");
+		this.iframeWrapper = top.document.querySelector(".landing-ui-view-iframe-wrapper");
 		this.iframe = top.document.querySelector(".landing-ui-view");
 
 		this.lastActive = this.desktopButton;
@@ -42,7 +43,6 @@
 		this.onDesktopSizeChange = this.onDesktopSizeChange.bind(this);
 		this.onTabletSizeChange = this.onTabletSizeChange.bind(this);
 		this.onMobileSizeChange = this.onMobileSizeChange.bind(this);
-		this.onFrameTransitionEnd = this.onFrameTransitionEnd.bind(this);
 		this.onIframeClick = this.onIframeClick.bind(this);
 		this.onSiteButtonClick = this.onSiteButtonClick.bind(this);
 		this.onPageButtonClick = this.onPageButtonClick.bind(this);
@@ -54,13 +54,7 @@
 		bind(this.desktopButton, "click", this.onDesktopSizeChange);
 		bind(this.tabletButton, "click", this.onTabletSizeChange);
 		bind(this.mobileButton, "click", this.onMobileSizeChange);
-		bind(this.iframe, "webkitTransitionEnd", this.onFrameTransitionEnd);
-		bind(this.iframe, "transitionend", this.onFrameTransitionEnd);
-		bind(this.iframe, "msTransitionEnd", this.onFrameTransitionEnd);
-		bind(this.iframe, "oTransitionEnd", this.onFrameTransitionEnd);
 		bind(this.iframe.contentDocument, "click", this.onIframeClick);
-		bind(this.siteButton, "click", this.onSiteButtonClick);
-		bind(this.pageButton, "click", this.onPageButtonClick);
 		bind(this.undoButton, "click", this.onUndo);
 		bind(this.redoButton, "click", this.onRedo);
 		bind(top.document, "keydown", this.onKeyDown);
@@ -74,12 +68,12 @@
 
 		if (sitesCount > 1)
 		{
-			this.siteButton.addEventListener("click", this.onSiteButtonClick.bind(this));
+			bind(this.siteButton, "click", this.onSiteButtonClick);
 		}
 
 		if (pagesCount > 1)
 		{
-			this.pageButton.addEventListener("click", this.onPageButtonClick.bind(this));
+			bind(this.pageButton, "click", this.onPageButtonClick);
 		}
 
 		// Force history init
@@ -190,7 +184,7 @@
 			if (this.loader === null)
 			{
 				this.loader = new BX.Loader({size: 22, offset: {top: "3px", left: "1px"}});
-				style(this.loader.layout.querySelector(".main-ui-loader-svg-circle"), {
+				void style(this.loader.layout.querySelector(".main-ui-loader-svg-circle"), {
 					"stroke-width": "4px"
 				})
 			}
@@ -226,30 +220,19 @@
 
 
 		/**
-		 * Handles frame transition end event
-		 */
-		onFrameTransitionEnd: function()
-		{
-			this.iframe.classList.remove("landing-ui-transition");
-		},
-
-
-		/**
 		 * Handles desktop size change event
 		 */
 		onDesktopSizeChange: function()
 		{
-			this.iframe.classList.add("landing-ui-transition");
-			this.iframe.classList.remove("landing-ui-shadow");
 			this.lastActive.classList.remove("active");
 			this.lastActive = this.desktopButton;
 			this.desktopButton.classList.add("active");
 
 			BX.DOM.write(function() {
-				this.iframe.style.width = null;
+				this.iframeWrapper.style.width = null;
 			}.bind(this));
 
-			this.iframe.dataset.postfix = "";
+			this.iframeWrapper.dataset.postfix = "";
 			BX.Landing.Main.getInstance().enableControls();
 		},
 
@@ -259,17 +242,15 @@
 		 */
 		onTabletSizeChange: function()
 		{
-			this.iframe.classList.add("landing-ui-transition");
-			this.iframe.classList.add("landing-ui-shadow");
 			this.lastActive.classList.remove("active");
 			this.lastActive = this.tabletButton;
 			this.tabletButton.classList.add("active");
 
 			BX.DOM.write(function() {
-				this.iframe.style.width = "992px";
+				this.iframeWrapper.style.width = "991px";
 			}.bind(this));
 
-			this.iframe.dataset.postfix = "--md";
+			this.iframeWrapper.dataset.postfix = "--md";
 			BX.Landing.Main.getInstance().disableControls();
 		},
 
@@ -279,17 +260,15 @@
 		 */
 		onMobileSizeChange: function()
 		{
-			this.iframe.classList.add("landing-ui-transition");
-			this.iframe.classList.add("landing-ui-shadow");
 			this.lastActive.classList.remove("active");
 			this.lastActive = this.mobileButton;
 			this.mobileButton.classList.add("active");
 
 			BX.DOM.write(function() {
-				this.iframe.style.width = "375px";
+				this.iframeWrapper.style.width = "375px";
 			}.bind(this));
 
-			this.iframe.dataset.postfix = "--md";
+			this.iframeWrapper.dataset.postfix = "--md";
 			BX.Landing.Main.getInstance().disableControls();
 		},
 
@@ -328,6 +307,11 @@
 
 				BX.Landing.UI.Panel.URLList.getInstance().getSites(options)
 					.then(function(sites) {
+						return new Promise(function(resolve) {
+							setTimeout(resolve.bind(null, sites), 300);
+						});
+					})
+					.then(function(sites) {
 						makeFilterablePopupMenu(this.siteMenu);
 						makeSelectablePopupMenu(this.siteMenu);
 
@@ -354,9 +338,7 @@
 								})()
 							});
 						}, this);
-						requestAnimationFrame(function() {
-							loader.hide();
-						});
+						loader.hide();
 					}.bind(this));
 			}
 
@@ -404,11 +386,16 @@
 				BX.Landing.UI.Panel.URLList.getInstance()
 					.getLandings(options.siteId, options)
 					.then(function(landings) {
+						return new Promise(function(resolve) {
+							setTimeout(resolve.bind(null, landings), 300);
+						});
+					})
+					.then(function(landings) {
 						makeFilterablePopupMenu(this.pageMenu);
 						makeSelectablePopupMenu(this.pageMenu);
 
 						landings.forEach(function(landing) {
-							if (!landing.FOLDER_ID)
+							if (!landing.FOLDER_ID && !landing.IS_AREA)
 							{
 								this.pageMenu.addMenuItem({
 									id: landing.ID,

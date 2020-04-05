@@ -66,7 +66,7 @@ class CAppleMessage extends CPushMessage
 		$sJSONPayload = str_replace(
 			'"' . self::APPLE_RESERVED_NAMESPACE . '":[]',
 			'"' . self::APPLE_RESERVED_NAMESPACE . '":{}',
-			CPushManager::_MakeJson($this->_getPayload(), "", false)
+			json_encode($this->_getPayload(),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE)
 		);
 		$nJSONPayloadLen = CUtil::BinStrlen($sJSONPayload);
 		if ($nJSONPayloadLen > $this->payloadMaxSize)

@@ -11,6 +11,11 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 //one css for all system.auth.* forms
 $APPLICATION->SetAdditionalCSS("/bitrix/css/main/system.auth/flat/style.css");
+
+if($arResult["PHONE_REGISTRATION"])
+{
+	CJSCore::Init('phone_auth');
+}
 ?>
 
 <div class="bx-authform">
@@ -31,6 +36,21 @@ if(!empty($arParams["~AUTH_RESULT"])):
 		<input type="hidden" name="AUTH_FORM" value="Y">
 		<input type="hidden" name="TYPE" value="CHANGE_PWD">
 
+<?if($arResult["PHONE_REGISTRATION"]):?>
+		<div class="bx-authform-formgroup-container">
+			<div class="bx-authform-label-container"><?echo GetMessage("change_pass_phone_number")?></div>
+			<div class="bx-authform-input-container">
+				<input type="text" value="<?=htmlspecialcharsbx($arResult["USER_PHONE_NUMBER"])?>" disabled="disabled" />
+				<input type="hidden" name="USER_PHONE_NUMBER" value="<?=htmlspecialcharsbx($arResult["USER_PHONE_NUMBER"])?>" />
+			</div>
+		</div>
+		<div class="bx-authform-formgroup-container">
+			<div class="bx-authform-label-container"><?echo GetMessage("change_pass_code")?></div>
+			<div class="bx-authform-input-container">
+				<input type="text" name="USER_CHECKWORD" maxlength="255" value="<?=$arResult["USER_CHECKWORD"]?>" autocomplete="off" />
+			</div>
+		</div>
+<?else:?>
 		<div class="bx-authform-formgroup-container">
 			<div class="bx-authform-label-container"><?=GetMessage("AUTH_LOGIN")?></div>
 			<div class="bx-authform-input-container">
@@ -41,9 +61,10 @@ if(!empty($arParams["~AUTH_RESULT"])):
 		<div class="bx-authform-formgroup-container">
 			<div class="bx-authform-label-container"><?=GetMessage("AUTH_CHECKWORD")?></div>
 			<div class="bx-authform-input-container">
-				<input type="text" name="USER_CHECKWORD" maxlength="255" value="<?=$arResult["USER_CHECKWORD"]?>" />
+				<input type="text" name="USER_CHECKWORD" maxlength="255" value="<?=$arResult["USER_CHECKWORD"]?>" autocomplete="off" />
 			</div>
 		</div>
+<?endif?>
 
 		<div class="bx-authform-formgroup-container">
 			<div class="bx-authform-label-container"><?=GetMessage("AUTH_NEW_PASSWORD_REQ")?></div>
@@ -102,6 +123,37 @@ document.getElementById('bx_auth_secure_conf').style.display = '';
 
 </div>
 
+<?if($arResult["PHONE_REGISTRATION"]):?>
+
 <script type="text/javascript">
-document.bform.USER_LOGIN.focus();
+new BX.PhoneAuth({
+	containerId: 'bx_chpass_resend',
+	errorContainerId: 'bx_chpass_error',
+	interval: <?=$arResult["PHONE_CODE_RESEND_INTERVAL"]?>,
+	data:
+		<?=CUtil::PhpToJSObject([
+			'signedData' => $arResult["SIGNED_DATA"]
+		])?>,
+	onError:
+		function(response)
+		{
+			var errorNode = BX('bx_chpass_error');
+			errorNode.innerHTML = '';
+			for(var i = 0; i < response.errors.length; i++)
+			{
+				errorNode.innerHTML = errorNode.innerHTML + BX.util.htmlspecialchars(response.errors[i].message) + '<br />';
+			}
+			errorNode.style.display = '';
+		}
+});
+</script>
+
+<div class="alert alert-danger" id="bx_chpass_error" style="display:none"></div>
+
+<div id="bx_chpass_resend"></div>
+
+<?endif?>
+
+<script type="text/javascript">
+document.bform.USER_CHECKWORD.focus();
 </script>

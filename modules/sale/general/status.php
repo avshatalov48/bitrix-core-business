@@ -140,7 +140,6 @@ class CSaleStatus
 		else
 		{
 			$result = new Compatible\CDBResult();
-			CSaleStatusAdapter::adaptResult($result, $query, $taskIdName);
 			return $query->compatibleExec($result, $arNavStartParams);
 		}
 	}

@@ -2,6 +2,7 @@
 
 namespace Bitrix\Main\UI\Filter;
 
+use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\Date;
@@ -101,9 +102,21 @@ class Field
 	 * @param array $exclude
 	 * @param array $include
 	 * @param boolean $allowYearsSwithcer
+	 * @param array $messages
 	 * @return array
 	 */
-	public static function date($name, $type = DateType::NONE, $values = array(), $label = "", $placeholder = "", $enableTime = false, $exclude = array(), $include = array(), $allowYearsSwithcer = false)
+	public static function date(
+		$name,
+		$type = DateType::NONE,
+		$values = [],
+		$label = "",
+		$placeholder = "",
+		$enableTime = false,
+		$exclude = [],
+		$include = [],
+		$allowYearsSwithcer = false,
+		$messages = []
+	)
 	{
 		if (!is_bool($enableTime))
 		{
@@ -139,14 +152,14 @@ class Field
 		{
 			$months[] = array(
 				"VALUE" => $month,
-				"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_MONTH_".$month)
+				"NAME" => static::getMessage($messages, "MAIN_UI_FILTER_FIELD_MONTH_".$month)
 			);
 
 			if ($currentMonthNumber == $month)
 			{
 				$currentMonthType = array(
 					"VALUE" => $month,
-					"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_MONTH_".$month)
+					"NAME" => static::getMessage($messages, "MAIN_UI_FILTER_FIELD_MONTH_".$month)
 				);
 			}
 		}
@@ -161,14 +174,14 @@ class Field
 		{
 			$quarters[] = array(
 				"VALUE" => $quarter,
-				"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_QUARTER_".$quarter)
+				"NAME" => static::getMessage($messages, "MAIN_UI_FILTER_FIELD_QUARTER_".$quarter)
 			);
 
 			if ($quarterNumber == $quarter)
 			{
 				$currentQuarterType = array(
 					"VALUE" => $quarter,
-					"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_QUARTER_".$quarter)
+					"NAME" => static::getMessage($messages, "MAIN_UI_FILTER_FIELD_QUARTER_".$quarter)
 				);
 			}
 		}
@@ -182,14 +195,14 @@ class Field
 			if (!in_array($subtype, $exclude))
 			{
 				$subtypes[] = array(
-					"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_SUBTYPE_".$subtype),
+					"NAME" => static::getMessage($messages, "MAIN_UI_FILTER_FIELD_SUBTYPE_".$subtype),
 					"VALUE" => $subtype
 				);
 
 				if ($subtype == $type)
 				{
 					$subtypeType = array(
-						"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_SUBTYPE_".$subtype),
+						"NAME" => static::getMessage($messages, "MAIN_UI_FILTER_FIELD_SUBTYPE_".$subtype),
 						"VALUE" => $subtype
 					);
 				}
@@ -203,7 +216,7 @@ class Field
 				if ($item === AdditionalDateType::CUSTOM_DATE)
 				{
 					$subtypes[] = array(
-						"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_SUBTYPE_".$item),
+						"NAME" => static::getMessage($messages, "MAIN_UI_FILTER_FIELD_SUBTYPE_".$item),
 						"VALUE" => AdditionalDateType::CUSTOM_DATE,
 						"DECL" => static::customDate(array("id" => $name, "name" => $label))
 					);
@@ -215,7 +228,7 @@ class Field
 					$item === AdditionalDateType::AFTER_DAYS)
 				{
 					$subtypes[] = array(
-						"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_SUBTYPE_".$item),
+						"NAME" => static::getMessage($messages, "MAIN_UI_FILTER_FIELD_SUBTYPE_".$item),
 						"VALUE" => $item
 					);
 				}
@@ -468,7 +481,7 @@ class Field
 			"DAYS_PLACEHOLDER" => Loc::getMessage("MAIN_UI_FILTER_FIELD_DAYS"),
 			"MONTHS_PLACEHOLDER" => Loc::getMessage("MAIN_UI_FILTER_FIELD_MONTHS"),
 			"YEARS_PLACEHOLDER" => Loc::getMessage("MAIN_UI_FILTER_FIELD_YEARS")
- 		);
+		);
 	}
 
 
@@ -533,5 +546,105 @@ class Field
 		}
 
 		return $days;
+	}
+
+	/**
+	 * Prepares data of user field
+	 * @param string $name
+	 * @param string $value
+	 * @param string $label
+	 * @param string $placeholder
+	 * @return array
+	 */
+	public static function destSelector($name, $label = "", $placeholder = "", $multiple = false, $params = array(), $lightweight = false)
+	{
+		\CJSCore::init(array('socnetlogdest'));
+
+		global $APPLICATION;
+
+		$field = array(
+			"ID" => "field_".$name,
+			"TYPE" => Type::DEST_SELECTOR,
+			"NAME" => $name,
+			"LABEL" => $label,
+			"VALUES" => array(
+				"_label" => "",
+				"_value" => ""
+			),
+			"MULTIPLE" => $multiple,
+			"PLACEHOLDER" => $placeholder
+		);
+
+		if (!$lightweight)
+		{
+			ob_start();
+			$optionsList = array(
+				'multiple' => ($multiple ? 'Y' : 'N'),
+				'eventInit' => 'BX.Filter.DestinationSelector:openInit',
+				'eventOpen' => 'BX.Filter.DestinationSelector:open',
+				'context' => (isset($params['context']) ? $params['context'] : 'FILTER_'.$name),
+				'useSearch' => 'N',
+				'userNameTemplate' => \CUtil::jSEscape(\CSite::getNameFormat()),
+				'useClientDatabase' => 'Y',
+				'allowEmailInvitation' => (isset($params['allowEmailInvitation']) && $params['allowEmailInvitation'] == 'Y' ? 'Y' : 'N'),
+				'enableLast' => 'Y',
+				'enableUsers' => (!isset($params['enableUsers']) || $params['enableUsers'] != 'N' ? 'Y' : 'N'),
+				'enableDepartments' => (!isset($params['enableDepartments']) || $params['enableDepartments'] != 'N' ? 'Y' : 'N'),
+				'enableSonetgroups' => (isset($params['enableSonetgroups']) && $params['enableSonetgroups'] == 'Y' ? 'Y' : 'N'),
+				'departmentSelectDisable' => (isset($params['departmentSelectDisable']) && $params['departmentSelectDisable'] == 'Y' ? 'Y' : 'N'),
+				'allowAddUser' => 'N',
+				'allowAddCrmContact' => 'N',
+				'allowAddSocNetGroup' => 'N',
+				'allowSearchEmailUsers' => (isset($params['allowSearchEmailUsers']) && $params['allowSearchEmailUsers'] == 'Y' ? 'Y' : 'N'),
+				'allowSearchCrmEmailUsers' => 'N',
+				'allowSearchNetworkUsers' => 'N',
+				'allowSonetGroupsAjaxSearchFeatures' => 'N',
+				'useNewCallback' => 'Y',
+				'enableAll' => (isset($params['enableAll']) && $params['enableAll'] == 'Y' ? 'Y' : 'N'),
+				'enableEmpty' => (isset($params['enableEmpty']) && $params['enableEmpty'] == 'Y' ? 'Y' : 'N'),
+				'enableProjects' => (isset($params['enableProjects']) && $params['enableProjects'] == 'Y' ? 'Y' : 'N'),
+				'focusInputOnSelectItem' => 'N',
+				'focusInputOnSwitchTab' => 'N'
+			);
+
+			if (!empty($params['contextCode']))
+			{
+				$optionsList['contextCode'] = $params['contextCode'];
+			}
+
+			$APPLICATION->includeComponent(
+				"bitrix:main.ui.selector",
+				".default",
+				array(
+					'API_VERSION' => (!empty($params['apiVersion']) && intval($params['apiVersion']) >= 2 ? intval($params['apiVersion']) : 2),
+					'ID' => $name,
+					'ITEMS_SELECTED' => array(),
+					'CALLBACK' => array(
+						'select' => 'BX.Filter.DestinationSelectorManager.onSelect.bind(null, \''.(isset($params['isNumeric']) && $params['isNumeric'] == 'Y' ? 'Y' : 'N').'\', \''.(isset($params['prefix']) ? $params['prefix'] : '').'\')',
+						'unSelect' => '',
+						'openDialog' => 'BX.Filter.DestinationSelectorManager.onDialogOpen',
+						'closeDialog' => 'BX.Filter.DestinationSelectorManager.onDialogClose',
+						'openSearch' => ''
+					),
+					'OPTIONS' => $optionsList
+				),
+				false,
+				array("HIDE_ICONS" => "Y")
+			);
+
+			$field["HTML"] = ob_get_clean();
+		}
+
+		return $field;
+	}
+
+	protected static function getMessage($messages, $messageId)
+	{
+		if (is_array($messages) && array_key_exists($messageId, $messages))
+		{
+			return $messages[$messageId];
+		}
+
+		return Loc::getMessage($messageId);
 	}
 }

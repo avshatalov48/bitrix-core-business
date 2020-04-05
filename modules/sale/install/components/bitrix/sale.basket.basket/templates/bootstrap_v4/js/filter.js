@@ -500,8 +500,14 @@
 					if (BX.type.isDomNode(entity))
 					{
 						entity.innerHTML = itemData.NAME.replace(
-							new RegExp('(' + this.currentFilter.query + ')', 'gi'),
-							'<span class="basket-item-highlighted">$1</span>'
+							new RegExp('(.*)(' + this.currentFilter.query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ')(.*)', 'gi'),
+							function (full, match1 , match2, match3)
+							{
+								return BX.util.htmlspecialchars(match1)
+									+ '<span class="basket-item-highlighted">'
+									+ BX.util.htmlspecialchars(match2)
+									+ '</span>' + BX.util.htmlspecialchars(match3);
+							}
 						);
 					}
 					break;

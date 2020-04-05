@@ -12,10 +12,10 @@ class AccountGoogle extends Account
 
 	public function getList()
 	{
-		// fake
-
-		$response = Response::create(static::TYPE_CODE);
-		$response->setData(array(array('ID' => 1)));
+		$response = $this->request->send(array(
+			'methodName' => 'account.list',
+			'parameters' => array()
+		));
 
 		return $response;
 	}

@@ -33,6 +33,7 @@ Loader::registerAutoLoadClasses(
 		__NAMESPACE__.'\Additional\Location' => 'handlers/delivery/additional/location.php',
 		__NAMESPACE__.'\Additional\CacheManager' => 'handlers/delivery/additional/cache.php',
 		__NAMESPACE__.'\Additional\RestClient' => 'handlers/delivery/additional/restclient.php',
+		__NAMESPACE__.'\Additional\RusPost\Helper' => 'handlers/delivery/additional/ruspost/helper.php',
 		__NAMESPACE__.'\Additional\DeliveryRequests\RusPost\Handler' => 'handlers/delivery/additional/deliveryrequests/ruspost/handler.php',
 	)
 );
@@ -167,8 +168,17 @@ class AdditionalHandler extends Base
 		);
 
 		if(!empty($fields['CONFIG']) && is_array($fields['CONFIG']))
+		{
 			foreach($fields['CONFIG'] as $key => $params)
+			{
+				if($this->serviceType == "RUSPOST" && $this->id <= 0 && $key == 'SHIPPING_POINT')
+				{
+					continue;
+				}
+
 				$result['MAIN']['ITEMS'][$key] = $params;
+			}
+		}
 
 		$result['MAIN']['ITEMS']["DEFAULT_VALUES"] = array(
 			"TYPE" => "DELIVERY_SECTION",
@@ -255,10 +265,17 @@ class AdditionalHandler extends Base
 
 		if($res->isSuccess())
 		{
+			$logo = false;
 			$logoId = intval($this->getLogoFileId());
+
+			if($logoId > 0)
+			{
+				$logo = \CFile::GetByID($logoId)->Fetch();
+			}
+
 			$result = $res->getData();
 
-			if($logoId <= 0 && !empty($result['LOGOTIP']['CONTENT']) && !empty($result['LOGOTIP']['NAME']))
+			if(($logoId <= 0 || !$logo) && !empty($result['LOGOTIP']['CONTENT']) && !empty($result['LOGOTIP']['NAME']))
 			{
 				$tmpDir = \CTempFile::GetDirectoryName();
 				CheckDirPath($tmpDir);
@@ -273,7 +290,7 @@ class AdditionalHandler extends Base
 				{
 					$file = \CFile::MakeFileArray($tmpDir."/".$result['LOGOTIP']['NAME']);
 					$file['MODULE_ID'] = "sale";
-					$logoId = intval(\CFile::SaveFile($file, $filePath));
+					$logoId = intval(\CFile::SaveFile($file, "sale/delivery/logotip"));
 					$this->setLogoFileId($logoId);
 				}
 			}
@@ -607,6 +624,15 @@ class AdditionalHandler extends Base
 		Asset::getInstance()->addJs("/bitrix/js/main/core/core.js");
 		Asset::getInstance()->addJs("/bitrix/js/sale/additional_delivery.js");
 		Asset::getInstance()->addString('<link rel="stylesheet" type="text/css" href="/bitrix/css/sale/additional_delivery.css">');
+		Asset::getInstance()->addString('<script language="javascript">
+			if(top.BX)
+			{
+				BX.addCustomEvent(
+					\'onSaleDeliveryRusPostShippingPointSelect\', 
+					BX.Sale.Handler.Delivery.Additional.onRusPostShippingPointsSelect
+				);
+			}
+		</script>');
 		return $result;
 	}
 
@@ -825,7 +851,7 @@ class AdditionalHandler extends Base
 		$weight = 0;
 
 		/** @var \Bitrix\Sale\ShipmentItem $shipmentItem */
-		foreach($shipment->getShipmentItemCollection() as $shipmentItem)
+		foreach($shipment->getShipmentItemCollection()->getShippableItems() as $shipmentItem)
 		{
 			$basketItem = $shipmentItem->getBasketItem();
 
@@ -862,6 +888,9 @@ class AdditionalHandler extends Base
 				if(empty($esList[$esId]['CODE']))
 					continue;
 
+				if($esList[$esId]['CLASS_NAME'] == '\Bitrix\Sale\Delivery\ExtraServices\Checkbox' && $esVal != 'Y')
+					continue;
+
 				$result['EXTRA_SERVICES'][$esList[$esId]['CODE']] = $esVal;
 			}
 		}
@@ -871,6 +900,7 @@ class AdditionalHandler extends Base
 		$result['WEIGHT'] = $weight;
 		$result['PRICE'] = $price;
 		$result['SHIPMENT_ID'] = $shipment->getId();
+		$result['PRICE_DELIVERY'] = $shipment->getField('PRICE_DELIVERY');
 
 		return $result;
 	}
@@ -963,5 +993,19 @@ class AdditionalHandler extends Base
 			$result[$locParent['TYPE_CODE']] = $locParent['LOCATION_NAME'];
 
 		return $result;
+	}
+
+	public function prepareFieldsForSaving(array $fields)
+	{
+		if(isset($fields['CONFIG']['MAIN']['SHIPPING_POINT']['NAME']))
+			$fields['CONFIG']['MAIN']['SHIPPING_POINT']['NAME'] = htmlspecialcharsback($fields['CONFIG']['MAIN']['SHIPPING_POINT']['NAME']);
+
+		if(isset($fields['CONFIG']['MAIN']['SHIPPING_POINT']['VALUE']))
+			$fields['CONFIG']['MAIN']['SHIPPING_POINT']['VALUE'] = htmlspecialcharsback($fields['CONFIG']['MAIN']['SHIPPING_POINT']['VALUE']);
+
+		if(isset($fields['CONFIG']['MAIN']['SHIPPING_POINT']['ADDITIONAL']))
+			$fields['CONFIG']['MAIN']['SHIPPING_POINT']['ADDITIONAL'] = htmlspecialcharsback($fields['CONFIG']['MAIN']['SHIPPING_POINT']['ADDITIONAL']);
+
+		return parent::prepareFieldsForSaving($fields);
 	}
 }

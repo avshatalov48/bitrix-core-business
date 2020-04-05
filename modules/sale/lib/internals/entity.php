@@ -47,19 +47,58 @@ abstract class Entity
 	 */
 	public static function getAllFields()
 	{
-		throw new Main\NotImplementedException();
-	}
-
-	public static function getAllFieldsMap()
-	{
-		static $fieldsMap = null;
-
-		if ($fieldsMap === null)
+		static $mapFields = array();
+		if ($mapFields)
 		{
-			$fieldsMap = array_fill_keys(static::getAllFields(), true);
+			return $mapFields;
 		}
 
-		return $fieldsMap;
+		$fields = static::getFieldsDescription();
+		foreach ($fields as $field)
+		{
+			$mapFields[$field['CODE']] = $field['CODE'];
+		}
+
+		return $mapFields;
+	}
+
+	/**
+	 * @return array
+	 * @throws Main\NotImplementedException
+	 */
+	public static function getFieldsDescription()
+	{
+		$result = [];
+
+		$map = static::getFieldsMap();
+		foreach ($map as $key => $value)
+		{
+			if (is_array($value) && !isset($value['expression']))
+			{
+				$result[$key] = [
+					'CODE' => $key,
+					'TYPE' => $value['data_type']
+				];
+			}
+			elseif ($value instanceof Main\Entity\ScalarField)
+			{
+				$result[$value->getName()] = [
+					'CODE' => $value->getName(),
+					'TYPE' => $value->getDataType(),
+				];
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @throws Main\NotImplementedException
+	 * @return array
+	 */
+	protected static function getFieldsMap()
+	{
+		throw new Main\NotImplementedException();
 	}
 
 	/**
@@ -67,7 +106,7 @@ abstract class Entity
 	 *
 	 * @throws Main\NotImplementedException
 	 */
-	public static function getMeaningfulFields()
+	protected static function getMeaningfulFields()
 	{
 		throw new Main\NotImplementedException();
 	}
@@ -284,7 +323,7 @@ abstract class Entity
 	 */
 	public function setFieldNoDemand($name, $value)
 	{
-		$allFields = static::getAllFieldsMap();
+		$allFields = static::getAllFields();
 		if (!isset($allFields[$name]))
 		{
 			throw new Main\ArgumentOutOfRangeException($name);
@@ -441,7 +480,7 @@ abstract class Entity
 	 */
 	public function initField($name, $value)
 	{
-		$allFields = static::getAllFieldsMap();
+		$allFields = static::getAllFields();
 		if (!isset($allFields[$name]))
 		{
 			throw new Main\ArgumentOutOfRangeException($name);

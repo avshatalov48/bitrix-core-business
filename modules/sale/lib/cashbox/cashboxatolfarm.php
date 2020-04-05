@@ -36,6 +36,24 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 		/** @var Main\Type\DateTime $dateTime */
 		$dateTime = $data['date_create'];
 
+		$result = array(
+			'timestamp' => $dateTime->format('d.m.Y H:i:s'),
+			'external_id' => static::buildUuid(static::UUID_TYPE_CHECK, $data['unique_id']),
+			'service' => array(
+				'inn' => $this->getValueFromSettings('SERVICE', 'INN'),
+				'callback_url' => $this->getCallbackUrl(),
+				'payment_address' => $this->getValueFromSettings('SERVICE', 'P_ADDRESS'),
+			),
+			'receipt' => array(
+				'attributes' => array(
+					'sno' => $this->getValueFromSettings('TAX', 'SNO')
+				),
+				'payments' => array(),
+				'items' => array(),
+				'total' => (float)$data['total_sum']
+			)
+		);
+
 		$phone = \NormalizePhone($data['client_phone']);
 		if (is_string($phone))
 		{
@@ -47,25 +65,24 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 			$phone = '';
 		}
 
-		$result = array(
-			'timestamp' => $dateTime->format('d.m.Y H:i:s'),
-			'external_id' => static::buildUuid(static::UUID_TYPE_CHECK, $data['unique_id']),
-			'service' => array(
-				'inn' => $this->getValueFromSettings('SERVICE', 'INN'),
-				'callback_url' => $this->getCallbackUrl(),
-				'payment_address' => $this->getValueFromSettings('SERVICE', 'P_ADDRESS'),
-			),
-			'receipt' => array(
-				'attributes' => array(
-					'email' => $data['client_email'] ?: '',
-					'phone' => $phone,
-					'sno' => $this->getValueFromSettings('TAX', 'SNO')
-				),
-				'payments' => array(),
-				'items' => array(),
-				'total' => (float)$data['total_sum']
-			)
-		);
+		$email = $data['client_email'] ?: '';
+
+		$clientInfo = $this->getValueFromSettings('CLIENT', 'INFO');
+		if ($clientInfo === 'PHONE')
+		{
+			$result['receipt']['attributes'] = ['phone' => $phone];
+		}
+		elseif ($clientInfo === 'EMAIL')
+		{
+			$result['receipt']['attributes'] = ['email' => $email];
+		}
+		else
+		{
+			$result['receipt']['attributes'] = [
+				'email' => $email,
+				'phone' => $phone,
+			];
+		}
 
 		foreach ($data['payments'] as $payment)
 		{
@@ -456,7 +473,22 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 						'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_ATOL_FARM_SETTINGS_SERVICE_URL_LABEL')
 					),
 				)
-			)
+			),
+			'CLIENT' => [
+				'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_ATOL_FARM_SETTINGS_CLIENT'),
+				'ITEMS' => array(
+					'INFO' => array(
+						'TYPE' => 'ENUM',
+						'VALUE' => 'NONE',
+						'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_ATOL_FARM_SETTINGS_CLIENT_INFO'),
+						'OPTIONS' => array(
+							'NONE' => Localization\Loc::getMessage('SALE_CASHBOX_ATOL_FARM_SETTINGS_CLIENT_NONE'),
+							'PHONE' => Localization\Loc::getMessage('SALE_CASHBOX_ATOL_FARM_SETTINGS_CLIENT_PHONE'),
+							'EMAIL' => Localization\Loc::getMessage('SALE_CASHBOX_ATOL_FARM_SETTINGS_CLIENT_EMAIL'),
+						)
+					),
+				)
+			]
 		);
 
 		$settings['PAYMENT_TYPE'] = array(
@@ -496,7 +528,7 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 			$vatList = $dbRes->fetchAll();
 			if ($vatList)
 			{
-				$defaultVat = array(0 => 'vat0', 10 => 'vat10', 18 => 'vat18');
+				$defaultVat = array(0 => 'vat0', 10 => 'vat10', 18 => 'vat18', 20 => 'vat20');
 				foreach ($vatList as $vat)
 				{
 					$value = '';

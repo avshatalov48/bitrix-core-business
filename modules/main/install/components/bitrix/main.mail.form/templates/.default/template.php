@@ -164,7 +164,30 @@ $renderField = function($htmlFormId, $field, $isExt = false)
 		</table>
 	</div>
 
-	<? $editorHeight = isset($arParams['EDITOR']['height']) && $arParams['EDITOR']['height'] > 0 ? (int) $arParams['EDITOR']['height'] : 200; ?>
+	<? $editorHeight = isset($arParams['EDITOR']['height']) && $arParams['EDITOR']['height'] > 0 ? (int) $arParams['EDITOR']['height'] : 200;
+	$editorValue = '';
+	$fromField = false;
+	foreach($arParams['FIELDS'] as $field)
+	{
+		if($field['type'] === 'from')
+		{
+			$fromField = $field;
+			break;
+		}
+	}
+	if(is_array($fromField) && $fromField['value'])
+	{
+		foreach($fromField['mailboxes'] as $mailbox)
+		{
+			if($mailbox['formated'] == $fromField['value'] && !empty($mailbox['signature']))
+			{
+				$editorValue = '<div id="main-mail-form-signature"><br />--<br />'.$mailbox['signature'].'</div>';
+				break;
+			}
+		}
+	}
+
+	?>
 	<div id="<?=sprintf('%s_%s', $htmlFormId, htmlspecialcharsbx($arParams['EDITOR']['id'])) ?>"
 		class="main-mail-form-editor-wrapper <? if (!empty($arParams['EDITOR']['menu'])): ?> main-mail-form-field-value-menu-ext<? endif ?>"
 		style="min-height: <?=$editorHeight ?>px; ">
@@ -190,7 +213,7 @@ $renderField = function($htmlFormId, $field, $isExt = false)
 				),
 				'TEXT' => array(
 					'INPUT_NAME' => 'dummy_'.$arParams['EDITOR']['name'],
-					'VALUE' => '',
+					'VALUE' => $editorValue,
 					'SHOW' => !empty($arParams['EDITOR_TOOLBAR']) ? 'Y' : 'N',
 				),
 				'PROPERTIES' => array(
@@ -215,6 +238,7 @@ $renderField = function($htmlFormId, $field, $isExt = false)
 					'useFileDialogs' => false,
 					'useLinkStat' => false,
 					'uploadImagesFromClipboard' => false,
+					'autoLink' => false,
 					'controlsMap' => array(
 						array('id' => 'Bold', 'compact' => true, 'sort' => 10),
 						array('id' => 'Italic', 'compact' => true, 'sort' => 20),
@@ -309,10 +333,6 @@ $renderField = function($htmlFormId, $field, $isExt = false)
 </div>
 
 <script type="text/javascript">
-
-BX.message({
-	BXEdBbCode: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_FORM_EDITOR_HTML_MODE_BTN_HINT')) ?>'
-});
 
 BX.ready(function()
 {

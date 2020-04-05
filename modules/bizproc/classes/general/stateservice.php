@@ -211,18 +211,18 @@ class CBPAllStateService
 		$arDocumentId = CBPHelper::ParseDocumentId($documentId);
 
 		$dbResult = $DB->Query(
-			"SELECT COUNT(WS.ID) CNT ".
-			"FROM b_bp_workflow_state WS ".
-			"	INNER JOIN b_bp_workflow_instance WI ON (WS.ID = WI.ID) ".
-			"	INNER JOIN b_bp_workflow_template WT ON (WS.WORKFLOW_TEMPLATE_ID = WT.ID) ".
-			"WHERE WS.DOCUMENT_ID = '".$DB->ForSql($arDocumentId[2])."' ".
-			"	AND WS.ENTITY = '".$DB->ForSql($arDocumentId[1])."' ".
-			"	AND WS.MODULE_ID ".((strlen($arDocumentId[0]) > 0) ? "= '".$DB->ForSql($arDocumentId[0])."'" : "IS NULL").
-			"	AND WT.AUTO_EXECUTE <> ".(int)CBPDocumentEventType::Automation
+			"SELECT COUNT(WI.ID) CNT ".
+			"FROM b_bp_workflow_instance WI ".
+			"WHERE WI.DOCUMENT_ID = '".$DB->ForSql($arDocumentId[2])."' ".
+			"	AND WI.ENTITY = '".$DB->ForSql($arDocumentId[1])."' ".
+			"	AND WI.MODULE_ID ".((strlen($arDocumentId[0]) > 0) ? "= '".$DB->ForSql($arDocumentId[0])."'" : "IS NULL").
+			"	AND WI.STARTED_EVENT_TYPE <> ".(int)CBPDocumentEventType::Automation
 		);
 
 		if ($arResult = $dbResult->Fetch())
-			return intval($arResult["CNT"]);
+		{
+			return (int) $arResult['CNT'];
+		}
 
 		return 0;
 	}
@@ -672,10 +672,9 @@ class CBPAllStateService
 		else
 		{
 			$query =
-				"SELECT WS.MODULE_ID AS MODULE_ID, WS.ENTITY AS ENTITY, COUNT('x') AS CNT ".
-				'FROM b_bp_workflow_state WS '.
-				'	INNER JOIN b_bp_workflow_instance WI ON (WS.ID = WI.ID) '.
-				'WHERE WS.STARTED_BY = '.(int)$userId.' '.
+				"SELECT WI.MODULE_ID AS MODULE_ID, WI.ENTITY AS ENTITY, COUNT('x') AS CNT ".
+				'FROM b_bp_workflow_instance WI '.
+				'WHERE WI.STARTED_BY = '.(int)$userId.' '.
 				'GROUP BY MODULE_ID, ENTITY';
 
 			$iterator = $DB->Query($query, true);

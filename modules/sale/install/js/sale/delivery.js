@@ -10,7 +10,7 @@
 
 	BX.Sale.Delivery = {
 
-		ajaxUrl: "/bitrix/admin/sale_delivery_ajax.php",
+		ajaxUrl: "sale_delivery_ajax.php",
 
 		showGroupsDialog: function(nextUrl, currentGroup)
 		{
@@ -209,10 +209,15 @@
 
 		showRestrictionParamsDialog: function(content, rstrParams)
 		{
-			if(rstrParams.class == '\\Bitrix\\Sale\\Delivery\\Restrictions\\ByLocation')
+			if(rstrParams.class == '\\Bitrix\\Sale\\Delivery\\Restrictions\\ByLocation'
+				|| rstrParams.class == '\\Bitrix\\Sale\\Delivery\\Restrictions\\ExcludeLocation')
+			{
 				var width = 1030;
+			}
 			else
+			{
 				width = 600;
+			}
 
 			var	dialog = new BX.CDialog({
 					'content': '<form id="sale-delivery-restriction-edit-form">'+

@@ -36,7 +36,7 @@ $formParams = Array(
 			: ""
 		),
 	),
-	"BUTTONS_HTML" => Array("VideoMessage" => '<span class="feed-add-post-form-but-cnt feed-add-videomessage" onclick="BX.VideoRecorder.start(\''.$formID.'\');">'.GetMessage('BLOG_VIDEO_RECORD_BUTTON').'</span>'),
+	"BUTTONS_HTML" => Array("VideoMessage" => '<span class="feed-add-post-form-but-cnt feed-add-videomessage" onclick="BX.VideoRecorder.start(\''.$formID.'\', \'comment\');">'.GetMessage('BLOG_VIDEO_RECORD_BUTTON').'</span>'),
 	"TEXT" => Array(
 		"NAME" => "comment",
 		"VALUE" => "",
@@ -82,7 +82,9 @@ $formParams = Array(
 			array('ELEMENT_ID' => 'url_preview_'.$rand)
 		)
 	),
-	"DISABLE_LOCAL_EDIT" => $arParams["bPublicPage"]
+	"DISABLE_LOCAL_EDIT" => $arParams["bPublicPage"],
+	"SELECTOR_VERSION" => $arResult["SELECTOR_VERSION"],
+	"DISABLE_CREATING_FILE_BY_CLOUD" => $arParams["bPublicPage"]
 );
 //===WebDav===
 if(!array_key_exists("USER", $GLOBALS) || !$GLOBALS["USER"]->IsAuthorized())

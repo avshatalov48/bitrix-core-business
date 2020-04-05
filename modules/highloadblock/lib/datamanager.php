@@ -485,7 +485,7 @@ abstract class DataManager extends Entity\DataManager
 		}
 	}
 
-	protected function isNotNull($value)
+	protected static function isNotNull($value)
 	{
 		return !($value === null || $value === false || $value === '');
 	}

@@ -18,6 +18,7 @@ use Bitrix\Sender\Entity\Letter;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\Trigger;
 use Bitrix\Sender\Runtime;
+use Bitrix\Sender\Internals\Model;
 
 Loc::loadMessages(__FILE__);
 
@@ -144,6 +145,9 @@ class MailingChainTable extends Entity\DataManager
 				'data_type' => 'datetime',
 			),
 
+			'MONTHS_OF_YEAR' => array(
+				'data_type' => 'string',
+			),
 			'DAYS_OF_MONTH' => array(
 				'data_type' => 'string',
 			),
@@ -306,7 +310,7 @@ class MailingChainTable extends Entity\DataManager
 			if ($postingAddDb->isSuccess())
 			{
 				$postingId = $postingAddDb->getId();
-				static::update($chainPrimary, array('POSTING_ID' => $postingId));
+				Model\LetterTable::update($mailingChainId, ['POSTING_ID' => $postingId]);
 			}
 		}
 
@@ -553,7 +557,7 @@ class MailingChainTable extends Entity\DataManager
 			" WHERE POSTING_ID=" . intval($mailingChain['POSTING_ID']) .
 			" AND STATUS='" . PostingRecipientTable::SEND_RESULT_ERROR . "'";
 		Application::getConnection()->query($updateSql);
-		PostingTable::update(array('ID' => $mailingChain['POSTING_ID']), array('STATUS' => PostingTable::STATUS_PART));
+		Model\PostingTable::update($mailingChain['POSTING_ID'], ['STATUS' => PostingTable::STATUS_PART]);
 		static::update(array('ID' => $id), array('STATUS' => static::STATUS_SEND));
 	}
 

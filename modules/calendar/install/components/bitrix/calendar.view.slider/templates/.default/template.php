@@ -11,13 +11,23 @@ $event = $arParams['event'];
 $fromTs = CCalendar::Timestamp($event['DATE_FROM']);
 $toTs = CCalendar::Timestamp($event['DATE_TO']);
 $skipTime = $event['DT_SKIP_TIME'] == "Y";
-$arCreator = false;
+$meetingCreator = false;
+
+if (empty($event))
+{
+	?>
+	<div class="ui-alert ui-alert-danger ui-alert-icon-danger ui-alert-text-center">
+		<span class="ui-alert-message"><?= Loc::getMessage('EC_VIEW_SLIDER_EVENT_NOT_FOUND')?></span>
+	</div>
+	<?
+	return;
+}
 
 if ($skipTime)
 {
 	$toTs += CCalendar::DAY_LENGTH;
 }
-if (!$skipTime)
+else
 {
 	$fromTs -= $event['~USER_OFFSET_FROM'];
 	$toTs -= $event['~USER_OFFSET_TO'];
@@ -27,8 +37,8 @@ if (!$skipTime)
 $timezoneHint = '';
 if (
 	!$skipTime &&
-	(intVal($event['~USER_OFFSET_FROM']) !== 0 ||
-		intVal($event['~USER_OFFSET_TO']) !== 0 ||
+	(intval($event['~USER_OFFSET_FROM']) !== 0 ||
+		intval($event['~USER_OFFSET_TO']) !== 0 ||
 		$event['TZ_FROM'] != $event['TZ_TO'] ||
 		$event['TZ_FROM'] !== CCalendar::GetUserTimezoneName($userId))
 )
@@ -41,7 +51,7 @@ if (
 	}
 	else
 	{
-		$timezoneHint = GetMessage('EC_VIEW_DATE_FROM_TO', array('#DATE_FROM#' => $event['DATE_FROM'].' ('.$event['TZ_FROM'].')', '#DATE_TO#' => $event['DATE_TO'].' ('.$event['TZ_TO'].')'));
+		$timezoneHint = Loc::getMessage('EC_VIEW_DATE_FROM_TO', array('#DATE_FROM#' => $event['DATE_FROM'].' ('.$event['TZ_FROM'].')', '#DATE_TO#' => $event['DATE_TO'].' ('.$event['TZ_TO'].')'));
 	}
 }
 // From - to html
@@ -78,65 +88,60 @@ if ($event['EVENT_TYPE'] === '#resourcebooking#')
 }
 
 $codes = array();
+$meetingHost = false;
 if ($event['IS_MEETING'])
 {
-	$attRes = CCalendarEvent::GetAttendees(array($event['PARENT_ID']));
+	$userIndex = CCalendarEvent::getUserIndex();
+	$attendees = ['y' => [], 'n' => [], 'q' => [], 'i' => []];
 
-	if ($attRes && isset($attRes[$event['PARENT_ID']]))
+	if (is_array($event['ATTENDEE_LIST']))
 	{
-		$event['~ATTENDEES'] = $attRes[$event['PARENT_ID']];
-	}
-
-	$attendees = array(
-		'y' => array(),
-		'n' => array(),
-		'q' => array(),
-		'i' => array()
-	);
-
-	if (is_array($event['~ATTENDEES']))
-	{
-		foreach ($event['~ATTENDEES'] as $att)
+		foreach ($event['ATTENDEE_LIST'] as $attendee)
 		{
-			$codes[] = 'U'.intVal($att['USER_ID']);
+			$codes[] = 'U'.intval($attendee['id']);
+			$userDetails = $userIndex[$attendee['id']];
 
-			if ($userId == $att["USER_ID"])
+			if ($userId == $attendee["id"])
 			{
-				$curUserStatus = $att['STATUS'];
+				$curUserStatus = $attendee['status'];
 				$viewComments = true;
 			}
 
-			$att['AVATAR_SRC'] = CCalendar::GetUserAvatarSrc($att);
-			$att['URL'] = CCalendar::GetUserUrl($att["USER_ID"], $arParams["PATH_TO_USER"]);
-
-			$status = (strtolower($att['STATUS']) == 'h' || $att['STATUS'] == '') ? 'y' : $att['STATUS'];
-			$attendees[strtolower($status)][] = $att;
-
-			if ($att['STATUS'] == 'H')
+			$status = (strtolower($attendee['status']) == 'h' || $attendee['status'] == '') ? 'y' : $attendee['status'];
+			$attendees[strtolower($status)][] = $userIndex[$attendee['id']];
+			if ($attendee['status'] == 'H')
 			{
-				$arHost = $att;
-				$arHost['ID'] = $att['USER_ID'];
+				$meetingHost = $userIndex[$attendee['id']];
+				$meetingHost['ID'] = $attendee['id'];
 			}
 		}
 	}
 }
 
-$codes[] = 'U'.intVal($event['CREATED_BY']);
+if ($event['CAL_TYPE'] == 'user')
+{
+	$codes[] = 'U'.intval($event['OWNER_ID']);
+}
+else
+{
+	$codes[] = 'U'.intval($event['CREATED_BY']);
+}
+
 $codes = array_unique($codes);
 
-if (!isset($arHost) || !$arHost)
+if (!isset($meetingHost) || !$meetingHost)
 {
-	$arHost = CCalendar::GetUser($event['CREATED_BY'], true);
-	$arHost['DISPLAY_NAME'] = CCalendar::GetUserName($arHost);
-	$arHost['AVATAR_SRC'] = CCalendar::GetUserAvatarSrc($arHost);
-	$arHost['URL'] = CCalendar::GetUserUrl($arHost["ID"], $arParams["PATH_TO_USER"]);
+	$meetingHost = CCalendar::GetUser($event['CREATED_BY'], true);
+	$meetingHost['DISPLAY_NAME'] = CCalendar::GetUserName($meetingHost);
+	$meetingHost['AVATAR'] = CCalendar::GetUserAvatarSrc($meetingHost);
+	$meetingHost['URL'] = CCalendar::GetUserUrl($meetingHost["ID"], $arParams["PATH_TO_USER"]);
 }
 
 if ($event['IS_MEETING'] && $event['MEETING']['MEETING_CREATOR'] && $event['MEETING']['MEETING_CREATOR'] !== $event['MEETING_HOST'])
 {
-	$arCreator = CCalendar::GetUser($event['MEETING']['MEETING_CREATOR'], true);
-	$arCreator['DISPLAY_NAME'] = CCalendar::GetUserName($arCreator);
-	$arCreator['URL'] = CCalendar::GetUserUrl($arCreator["ID"], $arCreator["PATH_TO_USER"]);
+	$meetingCreator = CCalendar::GetUser($event['MEETING']['MEETING_CREATOR'], true);
+	$meetingCreator['DISPLAY_NAME'] = CCalendar::GetUserName($meetingCreator);
+	$meetingCreator['URL'] = CCalendar::GetUserUrl($meetingCreator["ID"], $meetingCreator["PATH_TO_USER"]);
 }
 
 $arParams['event'] = $event;
@@ -187,9 +192,9 @@ $arParams['UF'] = $UF;
 						<?if ($event['IS_MEETING']):?>
 								<div class="calendar-slider-sidebar-user-container">
 									<div class="calendar-slider-sidebar-user-block-avatar">
-										<a href="<?= $arHost['URL']?>">
+										<a href="<?= $meetingHost['URL']?>">
 											<div class="calendar-slider-sidebar-user-icon-top"></div>
-											<div class="calendar-slider-sidebar-user-block-item"><img src="<?= $arHost['AVATAR_SRC']?>" width="<?= $avatarSize?>" height="<?= $avatarSize?>" /></div>
+											<div class="calendar-slider-sidebar-user-block-item"><img src="<?= $meetingHost['AVATAR']?>" width="<?= $avatarSize?>" height="<?= $avatarSize?>" /></div>
 											<div class="calendar-slider-sidebar-user-icon-bottom"></div>
 										</a>
 									</div>
@@ -199,14 +204,14 @@ $arParams['UF'] = $UF;
 									$att = $attendees['y'][$i];
 									if ($i > 10)
 										break;
-									if ($arHost['ID'] == $att['USER_ID'])
+									if ($meetingHost['ID'] == $att['ID'])
 										continue;
 									?>
 									<div class="calendar-slider-sidebar-user-container">
 										<div class="calendar-slider-sidebar-user-block-avatar">
 											<a href="<?= $att['URL']?>">
 												<div class="calendar-slider-sidebar-user-block-item">
-													<img src="<?= $att['AVATAR_SRC']?>" width="<?= $avatarSize?>" height="<?= $avatarSize?>" />
+													<img src="<?= $att['AVATAR']?>" width="<?= $avatarSize?>" height="<?= $avatarSize?>" />
 												</div>
 												<div class="calendar-slider-sidebar-user-icon-bottom"></div>
 											</a>
@@ -214,26 +219,26 @@ $arParams['UF'] = $UF;
 									</div>
 								<?endfor;?>
 
-								<? if ($arCreator):?>
+								<? if ($meetingCreator):?>
 								<div class="calendar-slider-sidebar-row calendar-slider-sidebar-border-bottom">
 									<div class="calendar-slider-sidebar-string-name"><?= Loc::getMessage('EC_VIEW_CREATED_BY')?>:</div>
 									<div class="calendar-slider-sidebar-string-value">
-										<a href="<?= $arCreator['URL']?>"  class="calendar-slider-sidebar-user-info-name"><?= htmlspecialcharsbx($arCreator['DISPLAY_NAME'])?></a>
+										<a href="<?= $meetingCreator['URL']?>" class="calendar-slider-sidebar-user-info-name"><?= htmlspecialcharsbx($meetingCreator['DISPLAY_NAME'])?></a>
 									</div>
 								</div>
 								<? endif;?>
 						<?else:?>
 							<div class="calendar-slider-sidebar-user-container calendar-slider-sidebar-user-card">
 								<div class="calendar-slider-sidebar-user-block-avatar">
-									<a href="<?= $arHost['URL']?>">
-										<div class="calendar-slider-sidebar-user-block-item"><img src="<?= $arHost['AVATAR_SRC']?>" width="<?= $avatarSize?>" height="<?= $avatarSize?>" /></div>
+									<a href="<?= $meetingHost['URL']?>">
+										<div class="calendar-slider-sidebar-user-block-item"><img src="<?= $meetingHost['AVATAR']?>" width="<?= $avatarSize?>" height="<?= $avatarSize?>" /></div>
 									</a>
 									<div class="calendar-slider-sidebar-user-icon-bottom"></div>
 								</div>
 								<div class="calendar-slider-sidebar-user-info">
-									<a href="<?= $arHost['URL']?>"  class="calendar-slider-sidebar-user-info-name"><?= htmlspecialcharsbx($arHost['DISPLAY_NAME'])?></a>
-									<?if ($arHost['WORK_POSITION']):?>
-										<div class="calendar-slider-sidebar-user-info-status"><?= htmlspecialcharsbx($arHost['WORK_POSITION'])?></div>
+									<a href="<?= $meetingHost['URL']?>" class="calendar-slider-sidebar-user-info-name"><?= htmlspecialcharsbx($meetingHost['DISPLAY_NAME'])?></a>
+									<?if ($meetingHost['WORK_POSITION']):?>
+										<div class="calendar-slider-sidebar-user-info-status"><?= htmlspecialcharsbx($meetingHost['WORK_POSITION'])?></div>
 									<?endif;?>
 								</div>
 							</div>
@@ -302,7 +307,7 @@ $arParams['UF'] = $UF;
 
 				<?if ($event['RRULE']):?>
 				<div class="calendar-slider-sidebar-row calendar-slider-sidebar-border-bottom">
-					<div class="calendar-slider-sidebar-string-name"><?=GetMessage('EC_T_REPEAT')?>:</div>
+					<div class="calendar-slider-sidebar-string-name"><?= Loc::getMessage('EC_T_REPEAT')?>:</div>
 					<div class="calendar-slider-sidebar-string-value"><?= CCalendarEvent::GetRRULEDescription($event, true)?></div>
 				</div>
 				<?endif;?>
@@ -373,12 +378,11 @@ $arParams['UF'] = $UF;
 
 								$updatePlannerParams = CCalendarPlanner::PrepareData(array(
 									'user_id' => CCalendar::GetCurUserId(),
-									'host_id' => $arHost['ID'],
+									'host_id' => $meetingHost['ID'],
 									'entries' => false,
 									'codes' => $codes,
 									'date_from' => $loadedFrom,
 									'date_to' => $loadedTo,
-									'timezone' => $event['TZ_FROM'],
 									'location' => $event['LOCATION'],
 									'roomEventId' => 0
 								));
@@ -423,7 +427,7 @@ $arParams['UF'] = $UF;
 									)
 								);?>
 							</div>
-							<? endif; // (is_array($event['~ATTENDEES']) && count($event['~ATTENDEES']) > 0):?>
+							<? endif;?>
 						</div>
 						<!--endregion-->
 
@@ -477,8 +481,8 @@ $arParams['UF'] = $UF;
 							<div id="<?=$id?>_buttonset" class="calendar-slider-view-buttonset-inner">
 								<input type="hidden" id="<?=$id?>_current_status" value="<?= $curUserStatus?>"/>
 								<span id="<?=$id?>_status_buttonset"></span>
-								<span id="<?=$id?>_but_edit" class="webform-small-button webform-small-button-transparent"><?= Loc::getMessage('EC_VIEW_SLIDER_EDIT')?></span>
-								<span id="<?=$id?>_but_del" class="webform-small-button-link"><?= Loc::getMessage('EC_VIEW_SLIDER_DEL')?></span>
+								<button id="<?=$id?>_but_edit" class="ui-btn ui-btn-light-border"><?= Loc::getMessage('EC_VIEW_SLIDER_EDIT')?></button>
+								<button id="<?=$id?>_but_del" class="ui-btn ui-btn-link"><?= Loc::getMessage('EC_VIEW_SLIDER_DEL')?></button>
 
 						</div>
 					</div>

@@ -49,13 +49,12 @@ class CSiteTemplate
 
 						$arTemplate = array("DESCRIPTION" => "");
 
-						if(file_exists(($fname = $path."/".$file."/lang/".LANGUAGE_ID."/description.php")))
-							__IncludeLang($fname, false, true);
-						elseif(file_exists(($fname = $path."/".$file."/lang/".LangSubst(LANGUAGE_ID)."/description.php")))
-							__IncludeLang($fname, false, true);
-
-						if(file_exists(($fname = $path."/".$file."/description.php")))
+						$fname = $path."/".$file."/description.php";
+						if(file_exists(($fname)))
+						{
+							\Bitrix\Main\Localization\Loc::loadLanguageFile($fname);
 							include($fname);
+						}
 
 						if(!isset($arTemplate["TYPE"])) $arTemplate["TYPE"] = '';
 						if(isset($arFilter["TYPE"]) && !in_array($arTemplate["TYPE"], $arFilter["TYPE"]))

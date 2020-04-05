@@ -30,7 +30,7 @@ if (CPullOptions::CheckNeedRun())
 {
 	CJSCore::Init(array('pull'));
 
-	$arResult = CPullChannel::GetConfig($userId);
+	$arResult = \Bitrix\Pull\Config::get(['USER_ID' => $userId, 'JSON' => true]);
 
 	if (!(isset($arParams['TEMPLATE_HIDE']) && $arParams['TEMPLATE_HIDE'] == 'Y'))
 	{

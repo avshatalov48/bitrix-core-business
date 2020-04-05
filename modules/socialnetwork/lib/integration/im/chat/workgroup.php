@@ -194,9 +194,16 @@ class Workgroup
 			&& isset($params['project'])
 			&& $params['project']
 		);
+		$currentSite = \CSite::getById(SITE_ID);
+		$siteLanguageId = (
+			($siteFields = $currentSite->fetch())
+				? $siteFields['LANGUAGE_ID']
+				: LANGUAGE_ID
+		);
+
 		return Loc::getMessage(($project ? "SOCIALNETWORK_WORKGROUP_CHAT_TITLE_PROJECT" : "SOCIALNETWORK_WORKGROUP_CHAT_TITLE"), array(
 			"#GROUP_NAME#" => $groupName
-		));
+		), $siteLanguageId);
 	}
 
 	public static function setChatManagers($params)

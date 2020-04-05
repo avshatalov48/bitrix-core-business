@@ -1,6 +1,7 @@
 <?php
 $MESS['LANDING_TABLE_FIELD_LID'] = 'Идентификатор лендинга';
 $MESS['LANDING_TABLE_FIELD_CODE'] = 'Код';
+$MESS['LANDING_TABLE_FIELD_ANCHOR'] = 'Якорь';
 $MESS['LANDING_TABLE_FIELD_SORT'] = 'Сортировка';
 $MESS['LANDING_TABLE_FIELD_ACTIVE'] = 'Активность';
 $MESS['LANDING_TABLE_FIELD_PUBLIC'] = 'Публичность';

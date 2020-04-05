@@ -30,4 +30,6 @@ $MESS["SENDER_LETTER_STAT_STATS_CLICK_MAP"] = "Карта кликов";
 $MESS["SENDER_LETTER_STAT_STATS_READ_BY_TIME"] = "Время прочтения";
 $MESS["SENDER_LETTER_STAT_STATS_POSTINGS_ALL"] = "все выпуски";
 $MESS["SENDER_LETTER_STAT_STATS_READ_BY_TIME_CHART_BALLOON"] = "В %time% было прочитано писем: %cnt%";
+$MESS["SENDER_LETTER_STAT_RESEND"] = "Отправить повторно";
+$MESS["SENDER_LETTER_STAT_RESEND_HINT"] = "Повторно отправить получателям, письма которым не были отправлены из-за ошибки. Те, кто уже получил письмо, второе не получат.";
 ?>

@@ -13,6 +13,8 @@ use Bitrix\Sender\Entity;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\Security;
 
+use Bitrix\Fileman;
+
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -49,8 +51,10 @@ class SenderTemplateEditComponent extends CBitrixComponent
 
 	protected function preparePost()
 	{
+		$content = $this->request->getPostList()->getRaw('CONTENT');
+		$content = Security\Sanitizer::sanitizeHtml($content, $this->entityTemplate->get('CONTENT'));
 		$data = Array(
-			"CONTENT"	=> Security\Sanitizer::cleanHtml($this->request->getPostList()->getRaw('CONTENT')),
+			"CONTENT"	=> $content,
 			"NAME"	=> $this->request->get('NAME'),
 		);
 
@@ -96,6 +100,13 @@ class SenderTemplateEditComponent extends CBitrixComponent
 		$this->entityTemplate = new Entity\Template($this->arParams['ID']);
 		$this->arResult['ROW'] = $this->entityTemplate->getData();
 
+		$content = $this->arResult['ROW']['CONTENT'];
+		Loader::includeModule('fileman');
+		if (Fileman\Block\Editor::isContentSupported($content))
+		{
+			$content = Fileman\Block\Editor::getHtmlForEditor($content);
+			$this->arResult['ROW']['CONTENT'] = $content;
+		}
 
 		if (!$this->arResult['ROW']['TYPE'])
 		{

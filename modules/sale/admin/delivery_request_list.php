@@ -15,7 +15,7 @@ Loc::loadMessages(__FILE__);
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 
-if($saleModulePermissions < "U" || !$USER->CanDoOperation('view_other_settings'))
+if($saleModulePermissions < "U")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 $sTableID = "tbl_delivery_request_batch";
@@ -79,7 +79,7 @@ if(!empty($find_delivery_id) && is_array($find_delivery_id)) $filter["=DELIVERY_
 if(strlen(trim($find_external_id)) > 0) $filter["=EXTERNAL_ID"] = trim($find_external_id);
 if(strval(trim($find_external_date_insert_from)) != '')
 {
-	$filter[">=DATE_INSERT"] = trim($find_external_date_insert_from);
+	$filter[">=DATE"] = trim($find_external_date_insert_from);
 }
 
 if(strval(trim($find_external_date_insert_to)) != '')
@@ -94,7 +94,7 @@ if(strval(trim($find_external_date_insert_to)) != '')
 		}
 
 		$find_external_date_insert_to = date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL", SITE_ID)), mktime($arDate["HH"], $arDate["MI"], $arDate["SS"], $arDate["MM"], $arDate["DD"], $arDate["YYYY"]));
-		$filter["<=DATE_INSERT"] = $find_external_date_insert_to;
+		$filter["<=DATE"] = $find_external_date_insert_to;
 	}
 	else
 	{
@@ -129,7 +129,7 @@ $backUrl = urlencode($APPLICATION->GetCurPageParam());
 
 $aHeaders = array(
 	array("id"=>"ID", "content"=>Loc::getMessage('SALE_DELIVERY_REQ_LIST_F_ID'), "sort"=>"ID", "default"=>true),
-	array("id"=>"DATE_INSERT", "content"=>Loc::getMessage('SALE_DELIVERY_REQ_LIST_F_DATE_INSERT'), "sort"=>"DATE_INSERT", "default"=>false),
+	array("id"=>"DATE", "content"=>Loc::getMessage('SALE_DELIVERY_REQ_LIST_F_DATE_INSERT'), "sort"=>"DATE", "default"=>false),
 	array("id"=>"DELIVERY_ID", "content"=>Loc::getMessage('SALE_DELIVERY_REQ_LIST_F_DELIVERY_ID'), "default"=>true),
 //	array("id"=>"STATUS", "content"=>Loc::getMessage('SALE_DELIVERY_REQ_LIST_F_STATUS'), "default"=>true),
 	array("id"=>"EXTERNAL_ID", "content"=>Loc::getMessage('SALE_DELIVERY_REQ_LIST_F_EXTERNAL_ID'), "default"=>true),
@@ -161,7 +161,7 @@ while($fields = $resRequestList->fetch())
 {
 	$row =&$lAdmin->AddRow($fields['ID'], $fields);
 	$row->AddViewField("ID", $fields['ID']);
-	$row->AddViewField("DATE_INSERT", $fields['DATE_INSERT']);
+	$row->AddViewField("DATE", $fields['DATE']);
 
 	if($delivery = \Bitrix\Sale\Delivery\Services\Manager::getObjectById($fields['DELIVERY_ID']))
 		$deliveryServiceName = $delivery->getNameWithParent().' ['.$fields['DELIVERY_ID'].']';

@@ -101,11 +101,21 @@ $showWait = "BX.addClass(this,'adm-nav-page-active');setTimeout(BX.delegate(func
 <?endif;?>
 
 <?if (!isset($_REQUEST['admin_history'])):?>
-<script type="text/javascript">
-	top.BX.adminHistory.put(
-		'<?=CUtil::JSEscape($component->replaceUrlTemplate(($arResult["ALL_RECORDS"]? "all" : $arResult["CURRENT_PAGE"]), $arResult["PAGE_SIZE"]))?>',
-		top.BX.proxy(top.<?=$navFunction?>,	parent.<?=$arParams["TABLE_ID"]?>),
-		['mode', 'table_id']
-	);
-</script>
+	<? if (isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y"): ?>
+		<script type="text/javascript">
+			BX.adminHistory.put(
+				'<?=CUtil::JSEscape($component->replaceUrlTemplate(($arResult["ALL_RECORDS"]? "all" : $arResult["CURRENT_PAGE"]), $arResult["PAGE_SIZE"]))?>',
+				BX.proxy((<?=$navFunction?>)?<?=$navFunction?>:<?=$navFunction?>,parent.<?=$arParams["TABLE_ID"]?>),
+				['mode', 'table_id']
+			);
+		</script>
+	<? else: ?>
+		<script type="text/javascript">
+			top.BX.adminHistory.put(
+				'<?=CUtil::JSEscape($component->replaceUrlTemplate(($arResult["ALL_RECORDS"]? "all" : $arResult["CURRENT_PAGE"]), $arResult["PAGE_SIZE"]))?>',
+				top.BX.proxy((top.<?=$navFunction?>)?top.<?=$navFunction?>:<?=$navFunction?>,parent.<?=$arParams["TABLE_ID"]?>),
+				['mode', 'table_id']
+			);
+		</script>
+	<? endif; ?>
 <?endif;?>

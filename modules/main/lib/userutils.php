@@ -17,7 +17,7 @@ class UserUtils
 	{
 		$result = array();
 
-		if (UserTable::getEntity()->fullTextIndexEnabled('SEARCH_USER_CONTENT'))
+		if (UserIndexTable::getEntity()->fullTextIndexEnabled('SEARCH_USER_CONTENT'))
 		{
 			$find = '';
 			$findDepartmentOnly = false;
@@ -26,13 +26,13 @@ class UserUtils
 			{
 				$find = trim($fields['FIND']);
 
-				if (\Bitrix\Main\Search\Content::isIntegerToken($find))
+				if (Search\Content::isIntegerToken($find))
 				{
-					$find = \Bitrix\Main\Search\Content::prepareIntegerToken($find);
+					$find = Search\Content::prepareIntegerToken($find);
 				}
 				else
 				{
-					$find = \Bitrix\Main\Search\Content::prepareStringToken($find);
+					$find = Search\Content::prepareStringToken($find);
 				}
 			}
 			else
@@ -42,13 +42,13 @@ class UserUtils
 				{
 					if (isset($validFields[$key]) && $validFields[$key])
 					{
-						if (\Bitrix\Main\Search\Content::isIntegerToken($value))
+						if (Search\Content::isIntegerToken($value))
 						{
-							$find .= ' '.\Bitrix\Main\Search\Content::prepareIntegerToken($value);
+							$find .= ' '.Search\Content::prepareIntegerToken($value);
 						}
 						else
 						{
-							$find .= ' '.\Bitrix\Main\Search\Content::prepareStringToken($value);
+							$find .= ' '.Search\Content::prepareStringToken($value);
 						}
 						$find = trim($find);
 					}
@@ -60,19 +60,19 @@ class UserUtils
 					{
 						$findDepartmentOnly = true;
 					}
-					if (\Bitrix\Main\Search\Content::isIntegerToken($fields['UF_DEPARTMENT_NAME']))
+					if (Search\Content::isIntegerToken($fields['UF_DEPARTMENT_NAME']))
 					{
-						$find .= ' '.\Bitrix\Main\Search\Content::prepareIntegerToken($fields['UF_DEPARTMENT_NAME']);
+						$find .= ' '.Search\Content::prepareIntegerToken($fields['UF_DEPARTMENT_NAME']);
 					}
 					else
 					{
-						$find .= ' '.\Bitrix\Main\Search\Content::prepareStringToken($fields['UF_DEPARTMENT_NAME']);
+						$find .= ' '.Search\Content::prepareStringToken($fields['UF_DEPARTMENT_NAME']);
 					}
 					$find = trim($find);
 				}
 			}
 
-			if (\Bitrix\Main\Search\Content::canUseFulltextSearch($find, \Bitrix\Main\Search\Content::TYPE_MIXED))
+			if (Search\Content::canUseFulltextSearch($find, Search\Content::TYPE_MIXED))
 			{
 				$fiendField = $findDepartmentOnly? '*INDEX.SEARCH_DEPARTMENT_CONTENT': '*INDEX.SEARCH_USER_CONTENT';
 				$result[$fiendField] = $find;
@@ -148,20 +148,20 @@ class UserUtils
 	{
 		$result = array();
 
-		if (UserTable::getEntity()->fullTextIndexEnabled('SEARCH_ADMIN_CONTENT'))
+		if (UserIndexTable::getEntity()->fullTextIndexEnabled('SEARCH_ADMIN_CONTENT'))
 		{
 			$find = '';
 			if (array_key_exists('FIND', $fields))
 			{
 				$find = trim($fields['FIND']);
 
-				if (\Bitrix\Main\Search\Content::isIntegerToken($find))
+				if (Search\Content::isIntegerToken($find))
 				{
-					$find = \Bitrix\Main\Search\Content::prepareIntegerToken($find);
+					$find = Search\Content::prepareIntegerToken($find);
 				}
 				else
 				{
-					$find = \Bitrix\Main\Search\Content::prepareStringToken($find);
+					$find = Search\Content::prepareStringToken($find);
 				}
 			}
 			else
@@ -171,20 +171,20 @@ class UserUtils
 				{
 					if (isset($validFields[$key]) && $validFields[$key])
 					{
-						if (\Bitrix\Main\Search\Content::isIntegerToken($value))
+						if (Search\Content::isIntegerToken($value))
 						{
-							$find .= ' '.\Bitrix\Main\Search\Content::prepareIntegerToken($value);
+							$find .= ' '.Search\Content::prepareIntegerToken($value);
 						}
 						else
 						{
-							$find .= ' '.\Bitrix\Main\Search\Content::prepareStringToken($value);
+							$find .= ' '.Search\Content::prepareStringToken($value);
 						}
 						$find = trim($find);
 					}
 				}
 			}
 
-			if (\Bitrix\Main\Search\Content::canUseFulltextSearch($find, \Bitrix\Main\Search\Content::TYPE_MIXED))
+			if (Search\Content::canUseFulltextSearch($find, Search\Content::TYPE_MIXED))
 			{
 				$result['*INDEX.SEARCH_ADMIN_CONTENT'] = $find;
 			}
@@ -281,7 +281,7 @@ class UserUtils
 	public static function getDepartmentNames($departmentIds)
 	{
 		$result = Array();
-		if (!\Bitrix\Main\ModuleManager::isModuleInstalled('intranet'))
+		if (!ModuleManager::isModuleInstalled('intranet'))
 		{
 			return $result;
 		}
@@ -289,17 +289,17 @@ class UserUtils
 		$cacheTtl = 2592000;
 		$cacheName = 'iblock_structure';
 		$cachePath = '/bx/user/company/structure';
-		$iblockStructureId = \Bitrix\Main\Config\Option::get('intranet', 'iblock_structure', 0);
+		$iblockStructureId = Config\Option::get('intranet', 'iblock_structure', 0);
 
-		$taggedCache = \Bitrix\Main\Application::getInstance()->getTaggedCache();
+		$taggedCache = Application::getInstance()->getTaggedCache();
 
 		$companyStructure = Array();
-		$cache = \Bitrix\Main\Data\Cache::createInstance();
+		$cache = Data\Cache::createInstance();
 		if ($cache->initCache($cacheTtl, $cacheName, $cachePath) && false)
 		{
 			$companyStructure = $cache->getVars();
 		}
-		else if ($iblockStructureId <= 0 || !\Bitrix\Main\Loader::includeModule('iblock'))
+		else if ($iblockStructureId <= 0 || !Loader::includeModule('iblock'))
 		{
 			return $result;
 		}

@@ -44,6 +44,7 @@ if ($request->isAjaxRequest() && ($request->get('action') === 'showMore' || $req
 
 	list(, $itemsContainer) = explode('<!-- items-container -->', $content);
 	list(, $paginationContainer) = explode('<!-- pagination-container -->', $content);
+	list(, $epilogue) = explode('<!-- component-end -->', $content);
 
 	if ($arParams['AJAX_MODE'] === 'Y')
 	{
@@ -52,6 +53,7 @@ if ($request->isAjaxRequest() && ($request->get('action') === 'showMore' || $req
 
 	$component::sendJsonAnswer(array(
 		'items' => $itemsContainer,
-		'pagination' => $paginationContainer
+		'pagination' => $paginationContainer,
+		'epilogue' => $epilogue,
 	));
 }

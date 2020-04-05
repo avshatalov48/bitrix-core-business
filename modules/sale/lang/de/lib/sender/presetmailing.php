@@ -149,7 +149,7 @@ $MESS["PRESET_DONT_BUY_LETTER_3_MESSAGE_360"] = "Wir haben uns jetzt schon ein J
 ";
 $MESS["PRESET_DONT_AUTH_NAME"] = "Scherz-Mailing";
 $MESS["PRESET_DONT_AUTH_DESC_USER"] = "Das ist ein automatisches Trigger-Mailing";
-$MESS["PRESET_DONT_AUTH_DESC"] = "Das ist ein Scherz-Mailing, welches quasi von einem Mail-Bot versendet wird. Das Bot versucht, den Kunden zurückzugewinnen.";
+$MESS["PRESET_DONT_AUTH_DESC"] = "Das ist ein Scherz-Mailing, welches quasi von einem Mail-Bot versendet wird. Der Bot versucht, den Kunden zurückzugewinnen.";
 $MESS["PRESET_DONT_AUTH_LETTER_1_SUBJECT"] = "Hilfe!";
 $MESS["PRESET_DONT_AUTH_LETTER_1_MESSAGE"] = "Lieber Herr/liebe Frau!
 <br>Ich bin ein Mail-Bot XX, die Administratoren des Onlineshops haben mir gedroht, mich zu verschrotten, wenn Sie die Website nicht mehr besuchen.

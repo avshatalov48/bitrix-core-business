@@ -7,6 +7,10 @@ use Bitrix\Sale\Cashbox;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+$listUrl = $selfFolderUrl."sale_cashbox_list.php?lang=" . $lang;
+$listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
+
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions < "W")
 	$APPLICATION->AuthForm(GetMessage("SALE_ACCESS_DENIED"));
@@ -35,6 +39,8 @@ if ($server->getRequestMethod() == "POST"
 	&& check_bitrix_sessid()
 )
 {
+	$adminSidePanelHelper->decodeUriComponent($request);
+
 	$cashbox = array(
 		'NAME' => $request->get('NAME'),
 		'HANDLER' => $request->getPost('HANDLER'),
@@ -63,8 +69,14 @@ if ($server->getRequestMethod() == "POST"
 		}
 	}
 
+	if ($errorMessage)
+	{
+		$adminSidePanelHelper->sendJsonErrorResponse($errorMessage);
+	}
+	
 	if (class_exists($handler))
 	{
+
 		$cashbox['SETTINGS'] = $handler::extractSettingsFromRequest($request);
 
 		$result = $handler::validateFields($cashbox);
@@ -110,15 +122,33 @@ if ($server->getRequestMethod() == "POST"
 
 		if ($result->isSuccess())
 		{
-			if (strlen($request->getPost("apply")) == 0)
-				LocalRedirect("/bitrix/admin/sale_cashbox_list.php?lang=".$lang."&".GetFilterParams("filter_", false));
+			if ($adminSidePanelHelper->isAjaxRequest())
+			{
+				$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $id));
+			}
 			else
-				LocalRedirect("/bitrix/admin/sale_cashbox_edit.php?lang=".$lang."&ID=".$id."&".GetFilterParams("filter_", false));
+			{
+				if (strlen($request->getPost("apply")) == 0)
+				{
+					$adminSidePanelHelper->localRedirect($listUrl);
+					LocalRedirect($listUrl);
+				}
+				else
+				{
+					$applyUrl = $selfFolderUrl."sale_cashbox_edit.php?lang=".$lang."&ID=".$id;
+					$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
+					LocalRedirect($applyUrl);
+				}
+			}
 		}
 		else
 		{
 			$errorMessage .= implode("\n", $result->getErrorMessages());
 		}
+	}
+	else
+	{
+		$adminSidePanelHelper->sendJsonErrorResponse($errorMessage);
 	}
 }
 
@@ -186,7 +216,7 @@ if ($id > 0)
 $aMenu = array(
 	array(
 		"TEXT" => Loc::getMessage("SALE_CASHBOX_2FLIST"),
-		"LINK" => "/bitrix/admin/sale_cashbox_list.php?lang=".$context->getLanguage().GetFilterParams("filter_"),
+		"LINK" => $listUrl,
 		"ICON" => "btn_list"
 	)
 );
@@ -195,9 +225,16 @@ if ($id > 0 && $saleModulePermissions >= "W")
 {
 	$aMenu[] = array("SEPARATOR" => "Y");
 
+	$deleteUrl = $selfFolderUrl."sale_cashbox_list.php?action=delete&ID[]=".$id."&lang=".$context->getLanguage()."&".bitrix_sessid_get()."#tb";
+	$buttonAction = "LINK";
+	if ($adminSidePanelHelper->isPublicFrame())
+	{
+		$deleteUrl = $adminSidePanelHelper->editUrlToPublicPage($deleteUrl);
+		$buttonAction = "ONCLICK";
+	}
 	$aMenu[] = array(
 			"TEXT" => Loc::getMessage("SALE_DELETE_CASHBOX"),
-			"LINK" => "javascript:if(confirm('".Loc::getMessage("SPSN_DELETE_CASHBOX_CONFIRM")."')) window.location='/bitrix/admin/sale_cashbox_list.php?action=delete&ID[]=".$id."&lang=".$context->getLanguage()."&".bitrix_sessid_get()."#tb';",
+			$buttonAction => "javascript:if(confirm('".Loc::getMessage("SPSN_DELETE_CASHBOX_CONFIRM")."')) top.window.location.href='".$deleteUrl."';",
 			"WARNING" => "Y",
 			"ICON" => "btn_delete"
 		);
@@ -227,7 +264,9 @@ echo bitrix_sessid_post();
 
 <?
 $tabControl->EndEpilogContent();
-$tabControl->Begin(array("FORM_ACTION" => $APPLICATION->GetCurPage()."?ID=".$id."&lang=".$lang));
+$actionUrl = $APPLICATION->GetCurPage()."?ID=".$id."&lang=".$lang;
+$actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
+$tabControl->Begin(array("FORM_ACTION" => $actionUrl));
 $tabControl->BeginNextFormTab();
 if ($id > 0)
 	$tabControl->AddViewField("ID", "ID:", $id);
@@ -405,12 +444,7 @@ $tabControl->BeginCustomField('OFD_SETTINGS', GetMessage("CASHBOX_OFD_SETTINGS")
 	<tbody id="sale-cashbox-ofd-settings-container"><?=$cashboxOfdSettings?></tbody>
 <?$tabControl->EndCustomField('OFD_SETTINGS');
 
-$tabControl->Buttons(
-	array(
-		"disabled" => ($saleModulePermissions < "W"),
-		"back_url" => "/bitrix/admin/sale_cashbox_list.php?lang=".$context->getLanguage().GetFilterParams("filter_")
-	)
-);
+$tabControl->Buttons(array("disabled" => ($saleModulePermissions < "W"), "back_url" => $listUrl));
 
 $tabControl->Show();
 ?>

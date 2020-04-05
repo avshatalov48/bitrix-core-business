@@ -36,9 +36,9 @@ else
 	$arParams["MENU_THEME"] = "blue";
 }
 
-if(!function_exists("FillAllPicturesAndDescriptions"))
+if(!function_exists("FillAllPicturesAndDescriptionsVertical"))
 {
-	function FillAllPicturesAndDescriptions(&$arAllItems, $arMenuItemsIDs)
+	function FillAllPicturesAndDescriptionsVertical(&$arAllItems, $arMenuItemsIDs)
 	{
 		//find picture or description for the first level, if it hasn't
 		foreach ($arMenuItemsIDs as $itemIdLevel_1=>$arLevels2)
@@ -81,6 +81,11 @@ if(!function_exists("FillAllPicturesAndDescriptions"))
 				}
 			}
 		}
+
+		$pictureLevel_1 = "";
+		$descriptionLevel_1 = "";
+		$pictureLevel_2 = "";
+		$descriptionLevel_2 = "";
 
 		foreach($arAllItems as $itemID=>$arItem)
 		{
@@ -206,7 +211,7 @@ foreach($arResult as $key=>$arItem)
 	}
 }
 
-FillAllPicturesAndDescriptions($arAllItems, $arMenuItemsIDs);
+FillAllPicturesAndDescriptionsVertical($arAllItems, $arMenuItemsIDs);
 
 $arMenuStructure = array();
 foreach ($arMenuItemsIDs as $itemIdLevel_1=>$arLevels2)

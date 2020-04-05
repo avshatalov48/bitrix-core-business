@@ -90,7 +90,7 @@ if ((($res = CCheckListResult::GetList(Array(),Array("REPORT"=>"N"))->Fetch()) |
 				$arResult = Array(
 					"STATUS"=>$arPointFields["STATUS"],
 					"IS_REQUIRE"=>$arPoints[$arTestID]["REQUIRE"],
-					"COMMENTS_COUNT" =>count($arPointFields["COMMENTS"]),
+					"COMMENTS_COUNT" => (is_array($arPointFields["COMMENTS"])? count($arPointFields["COMMENTS"]) : 0),
 				);
 			}
 			else
@@ -248,7 +248,7 @@ if ((($res = CCheckListResult::GetList(Array(),Array("REPORT"=>"N"))->Fetch()) |
 			"STATUS" => $arFields["STATE"]["STATUS"],
 			"IS_REQUIRE" => ($arFields["REQUIRE"])?$arFields["REQUIRE"]:"N",
 			"AUTO" => $arFields["AUTO"],
-			"COMMENTS_COUNT" => count($arFields["STATE"]["COMMENTS"]),
+			"COMMENTS_COUNT" => (is_array($arFields["STATE"]["COMMENTS"])? count($arFields["STATE"]["COMMENTS"]) : 0),
 		);
 
 		if ($arFields["AUTO"] == "Y")
@@ -338,10 +338,8 @@ if ((($res = CCheckListResult::GetList(Array(),Array("REPORT"=>"N"))->Fetch()) |
 					<span class="checklist-testlist-level3-cont">
 						<span class="checklist-testlist-level3-cont-nom"><?=$num++.". ";?></span>
 						<span class="checklist-testlist-level3-cont-right">
-							<span class="checklist-testlist-level3-cont-border" onclick='ShowPopupWindow("<?=$pkey;?>","<?=addslashes($pFields["NAME"]);?>");'>							<?=$pFields["NAME"];?>
-							</span>
-							<span id="comments_<?=$pkey;?>" onclick='ShowPopupWindow("<?=$pkey;?>","<?=addslashes($pFields["NAME"]);?>");' class="checklist-testlist-comments" ><?=count($pFields["STATE"]["COMMENTS"]);?></span>
-
+							<span class="checklist-testlist-level3-cont-border" onclick="ShowPopupWindow('<?=$pkey;?>', '<?=addslashes($pFields["NAME"]);?>');"><?=$pFields["NAME"];?></span>
+							<span id="comments_<?=$pkey;?>" onclick="ShowPopupWindow('<?=$pkey;?>','<?=addslashes($pFields["NAME"]);?>');" class="checklist-testlist-comments" ><?=(is_array($pFields["STATE"]["COMMENTS"])? count($pFields["STATE"]["COMMENTS"]) : 0);?></span>
 						</span>
 					</span>
 					<span id="mark_<?=$pkey;?>"></span>
@@ -358,8 +356,8 @@ if ((($res = CCheckListResult::GetList(Array(),Array("REPORT"=>"N"))->Fetch()) |
 									<span class="checklist-testlist-level3-cont">
 										<span class="checklist-testlist-level3-cont-nom"><?=$num++.". ";?></span>
 										<span class="checklist-testlist-level3-cont-right">
-											<span class="checklist-testlist-level3-cont-border" onclick='ShowPopupWindow("<?=$pkey;?>","<?=addslashes($pFields["NAME"]);?>");'><?=$pFields["NAME"];?></span>
-											<span id="comments_<?=$pkey;?>" class="checklist-testlist-comments" onclick='ShowPopupWindow("<?=$pkey;?>","<?=addslashes($pFields["NAME"]);?>");'><?=count($pFields["STATE"]["COMMENTS"]);?></span>
+											<span class="checklist-testlist-level3-cont-border" onclick="ShowPopupWindow('<?=$pkey;?>','<?=addslashes($pFields["NAME"]);?>');"><?=$pFields["NAME"];?></span>
+											<span id="comments_<?=$pkey;?>" class="checklist-testlist-comments" onclick="ShowPopupWindow('<?=$pkey;?>','<?=addslashes($pFields["NAME"]);?>');"><?=(is_array($pFields["STATE"]["COMMENTS"])? count($pFields["STATE"]["COMMENTS"]) : 0);?></span>
 										</span>
 									</span>
 									<span id="mark_<?=$pkey;?>"></span>
@@ -404,7 +402,7 @@ if ((($res = CCheckListResult::GetList(Array(),Array("REPORT"=>"N"))->Fetch()) |
 		var arFailedCount = <?=$arStat["FAILED"];?>;
 		var CanClose = "<?=$arCanClose;?>";
 		var arAutoCheck = new Array('<?=implode("','",$arAutoCheck["ID"]);?>');
-		var arAutoCheckName = new Array('<?=implode("','",$arAutoCheck["NAME"]);?>');
+		var arAutoCheckName = new Array('<?=implode("','", array_map('CUtil::JSEscape', $arAutoCheck["NAME"]));?>');
 		var arTestResult = {"total":0,"success":0,"failed":0};
 		var start = "<?=$isFisrtTime;?>";
 		var showHiddenReports = "<?=$showHiddenReports?>";
@@ -784,11 +782,6 @@ if ((($res = CCheckListResult::GetList(Array(),Array("REPORT"=>"N"))->Fetch()) |
 			BX.ajax.post("/bitrix/admin/checklist.php"+"?lang=<?=LANG;?>&bxpublic=Y&<?=bitrix_sessid_get()?>",data,callback);
 		}
 
-		/*function SaveReport()
-		{
-			window.location = 'checklist.php?lang=<?=LANG?>&ACTION=ADDREPORT&<?=bitrix_sessid_get()?>';
-		}*/
-
 		function checkError()
 		{
 			var error_message = "";
@@ -806,7 +799,7 @@ if ((($res = CCheckListResult::GetList(Array(),Array("REPORT"=>"N"))->Fetch()) |
 
 		function SaveReport()
 		{
-		if (!checkError())
+			if (!checkError())
 			{
 				BX('about_tester').submit();
 			}

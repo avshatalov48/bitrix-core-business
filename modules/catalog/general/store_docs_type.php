@@ -1,4 +1,7 @@
 <?
+use Bitrix\Main,
+	Bitrix\Catalog;
+
 IncludeModuleLangFile(__DIR__.'\\store_docs.php');
 
 abstract class CCatalogDocsTypes
@@ -28,7 +31,9 @@ abstract class CCatalogDocsTypes
 	 */
 	protected function distributeElementsToStores($arFields, $userId)
 	{
-		global $DB, $APPLICATION;
+		global $APPLICATION;
+
+		$connection = Main\Application::getConnection();
 
 		$arErrorElement = array();
 		if (isset($arFields["ELEMENTS"]) && is_array($arFields["ELEMENTS"]))
@@ -36,7 +41,7 @@ abstract class CCatalogDocsTypes
 			foreach ($arFields["ELEMENTS"] as $elementId => $arElements)
 			{
 				$arErrorElement = self::checkTotalAmount($elementId, $arElements['ELEMENT_NAME']);
-				while (list($key, $arElement) = each($arElements["POSITIONS"]))
+				foreach ($arElements["POSITIONS"] as $arElement)
 				{
 					if (is_array($arElement))
 					{
@@ -83,48 +88,72 @@ abstract class CCatalogDocsTypes
 									unset($arElements["BARCODES"][$key]);
 							}
 						}
-						$dbAmount = $DB->Query("SELECT SUM(SP.AMOUNT) as SUM, CP.QUANTITY_RESERVED as RESERVED FROM b_catalog_store_product SP INNER JOIN b_catalog_product CP ON SP.PRODUCT_ID = CP.ID INNER JOIN b_catalog_store CS ON SP.STORE_ID = CS.ID WHERE SP.PRODUCT_ID = ".$arElement["PRODUCT_ID"]."  AND CS.ACTIVE = 'Y' GROUP BY QUANTITY_RESERVED ", true);
-						if ($arAmount = $dbAmount->Fetch())
-						{
-							$arFields = array();
-							if (isset($arElement["PURCHASING_INFO"]))
-								$arFields = $arElement["PURCHASING_INFO"];
-							if(!empty($arElements["SUBSCRIBE"]))
-								$arFields["SUBSCRIBE"] = $arElements["SUBSCRIBE"];
-							$arFields["QUANTITY"] = doubleval($arAmount["SUM"] - $arAmount["RESERVED"]);
 
-							if (!CCatalogProduct::Update($arElement["PRODUCT_ID"], $arFields))
-							{
-								$APPLICATION->ThrowException(GetMessage("CAT_DOC_PURCHASING_INFO_ERROR"));
-								return false;
-							}
-							if (isset($arElements['OLD_QUANTITY']) && self::isNeedClearPublicCache(
-									$arElements['OLD_QUANTITY'],
-									$arFields['QUANTITY'],
-									$arElements['QUANTITY_TRACE'],
-									$arElements['CAN_BUY_ZERO']
-								))
-							{
-								$productInfo = array(
-									'CAN_BUY_ZERO' => $arElements['CAN_BUY_ZERO'],
-									'NEGATIVE_AMOUNT_TRACE' => $arElements['NEGATIVE_AMOUNT_TRACE'],
-									'QUANTITY_TRACE' => $arElements['QUANTITY_TRACE'],
-									'OLD_QUANTITY' => $arElements['OLD_QUANTITY'],
-									'QUANTITY' => $arFields['QUANTITY'],
-									'DELTA' => $arFields['QUANTITY'] - $arElements['OLD_QUANTITY'],
-									'IBLOCK_ID' => $arElements['IBLOCK_ID']
-								);
-								self::clearPublicCache($arElement["PRODUCT_ID"], $productInfo);
-							}
-						}
-						else
-						{
+						//TODO: replace to group operations
+						$iterator = Catalog\Model\Product::getList([
+							'select' => ['ID', 'QUANTITY_RESERVED', 'IBLOCK_ID' => 'IBLOCK_ELEMENT.IBLOCK_ID'],
+							'filter' => ['=ID' => $arElement["PRODUCT_ID"]]
+						]);
+						$product = $iterator->fetch();
+						unset($iterator);
+						if (empty($product))
 							return false;
+						if ($product['IBLOCK_ID'] === null)
+							return false;
+						$product['ID'] = (int)$product['ID'];
+						$product['IBLOCK_ID'] = (int)$product['IBLOCK_ID'];
+						$product['QUANTITY_RESERVED'] = (float)$product['QUANTITY_RESERVED'];
+
+						$query = 'select SUM(CSP.AMOUNT) as PRODUCT_QUANTITY, CSP.PRODUCT_ID '.
+							'from b_catalog_store_product CSP inner join b_catalog_store CS on CS.ID = CSP.STORE_ID '.
+							'where CSP.PRODUCT_ID = '.$product['ID'].' and CS.ACTIVE = "Y"';
+						$iterator = $connection->query($query);
+						$row = $iterator->fetch();
+						unset($iterator);
+
+						$arFields = [];
+						if (isset($arElement["PURCHASING_INFO"]))
+							$arFields = $arElement["PURCHASING_INFO"];
+
+						if (!empty($row))
+							$arFields['QUANTITY'] = (float)$row['PRODUCT_QUANTITY'] - $product['QUANTITY_RESERVED'];
+						else
+							$arFields['QUANTITY'] = -$product['QUANTITY_RESERVED'];
+						unset($row);
+
+						if (!CCatalogProduct::Update($arElement["PRODUCT_ID"], $arFields))
+						{
+							$APPLICATION->ThrowException(GetMessage("CAT_DOC_PURCHASING_INFO_ERROR"));
+							return false;
+						}
+						if (
+							isset($arElements['OLD_QUANTITY'])
+							&& self::isNeedClearPublicCache(
+								$arElements['OLD_QUANTITY'],
+								$arFields['QUANTITY'],
+								$arElements['QUANTITY_TRACE'],
+								$arElements['CAN_BUY_ZERO']
+							)
+						)
+						{
+							$productInfo = array(
+								'CAN_BUY_ZERO' => $arElements['CAN_BUY_ZERO'],
+								'NEGATIVE_AMOUNT_TRACE' => $arElements['NEGATIVE_AMOUNT_TRACE'],
+								'QUANTITY_TRACE' => $arElements['QUANTITY_TRACE'],
+								'OLD_QUANTITY' => $arElements['OLD_QUANTITY'],
+								'QUANTITY' => $arFields['QUANTITY'],
+								'DELTA' => $arFields['QUANTITY'] - $arElements['OLD_QUANTITY'],
+								'IBLOCK_ID' => $arElements['IBLOCK_ID']
+							);
+							self::clearPublicCache($arElement["PRODUCT_ID"], $productInfo);
 						}
 					}
 				}
 			}
 		}
+
+		unset($connection);
+
 		if(!empty($arErrorElement))
 			return $arErrorElement;
 		return true;

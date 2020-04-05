@@ -30,7 +30,7 @@ class Search
 		);
 	}
 
-	protected static function searchNetworkUsers($params = array())
+	public static function searchNetworkUsers($params = array())
 	{
 		$searchResult = array();
 
@@ -68,7 +68,7 @@ class Search
 		return $searchResult;
 	}
 
-	protected static function searchUsers($params = array(), &$searchModified)
+	public static function searchUsers($params = array(), &$searchModified)
 	{
 		$search = $params['search'];
 		$nameTemplate = $params['nameTemplate'];

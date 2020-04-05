@@ -1,5 +1,6 @@
 <?
 use Bitrix\Main\Loader,
+	Bitrix\Iblock,
 	Bitrix\Catalog,
 	Bitrix\Currency;
 
@@ -9,6 +10,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 if (!Loader::includeModule('catalog'))
 	return;
+
+$usePropertyFeatures = Iblock\Model\PropertyFeature::isEnabledFeatures();
 
 $iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
 
@@ -356,28 +359,34 @@ foreach ($catalogs as $catalog)
 		);
 	}
 
-	$arComponentParameters["PARAMETERS"]['PROPERTY_CODE_' . $iblock['ID']] = array(
-		"PARENT" => $groupId,
-		"NAME" => GetMessage("CVP_PROPERTY_DISPLAY"),
-		"TYPE" => "LIST",
-		"MULTIPLE" => "Y",
-		"VALUES" => $allProperties,
-		"ADDITIONAL_VALUES" => "Y",
-		"DEFAULT" => "",
-		"HIDDEN" => (!$catalog['VISIBLE'] ? 'Y' : 'N')
-	);
+	if (!$usePropertyFeatures)
+	{
+		$arComponentParameters["PARAMETERS"]['PROPERTY_CODE_'.$iblock['ID']] = array(
+			"PARENT" => $groupId,
+			"NAME" => GetMessage("CVP_PROPERTY_DISPLAY"),
+			"TYPE" => "LIST",
+			"MULTIPLE" => "Y",
+			"VALUES" => $allProperties,
+			"ADDITIONAL_VALUES" => "Y",
+			"DEFAULT" => "",
+			"HIDDEN" => (!$catalog['VISIBLE'] ? 'Y' : 'N')
+		);
+	}
 
 	// 3. Cart properties
-	$arComponentParameters["PARAMETERS"]['CART_PROPERTIES_' . $iblock['ID']] = array(
-		"PARENT" => $groupId,
-		"NAME" => GetMessage("CVP_PROPERTY_ADD_TO_BASKET"),
-		"TYPE" => "LIST",
-		"MULTIPLE" => "Y",
-		"VALUES" => $treeProperties,
-		"ADDITIONAL_VALUES" => "Y",
-		"HIDDEN" => ((isset($arCurrentValues['ADD_PROPERTIES_TO_BASKET']) && $arCurrentValues['ADD_PROPERTIES_TO_BASKET'] == 'N') ||
+	if (!$usePropertyFeatures)
+	{
+		$arComponentParameters["PARAMETERS"]['CART_PROPERTIES_'.$iblock['ID']] = array(
+			"PARENT" => $groupId,
+			"NAME" => GetMessage("CVP_PROPERTY_ADD_TO_BASKET"),
+			"TYPE" => "LIST",
+			"MULTIPLE" => "Y",
+			"VALUES" => $treeProperties,
+			"ADDITIONAL_VALUES" => "Y",
+			"HIDDEN" => ((isset($arCurrentValues['ADD_PROPERTIES_TO_BASKET']) && $arCurrentValues['ADD_PROPERTIES_TO_BASKET'] == 'N') ||
 			!$catalog['VISIBLE'] ? 'Y' : 'N')
-	);
+		);
+	}
 
 	// 2. Additional Image
 	$arComponentParameters["PARAMETERS"]['ADDITIONAL_PICT_PROP_' . $iblock['ID']] = array(
@@ -393,16 +402,19 @@ foreach ($catalogs as $catalog)
 
 	if ((int)$catalog['SKU_PROPERTY_ID'] > 0)
 	{
-		$arComponentParameters["PARAMETERS"]['OFFER_TREE_PROPS_' . $iblock['ID']] = array(
-			"PARENT" => $groupId,
-			"NAME" => GetMessage("CVP_PROPERTY_GROUP"),
-			"TYPE" => "LIST",
-			"MULTIPLE" => "Y",
-			"VALUES" => array_merge($defaultListValues, $treeProperties),
-			"ADDITIONAL_VALUES" => "N",
-			"DEFAULT" => "-",
-			"HIDDEN" => (!$catalog['VISIBLE'] ? 'Y' : 'N')
-		);
+		if (!$usePropertyFeatures)
+		{
+			$arComponentParameters["PARAMETERS"]['OFFER_TREE_PROPS_'.$iblock['ID']] = array(
+				"PARENT" => $groupId,
+				"NAME" => GetMessage("CVP_PROPERTY_GROUP"),
+				"TYPE" => "LIST",
+				"MULTIPLE" => "Y",
+				"VALUES" => array_merge($defaultListValues, $treeProperties),
+				"ADDITIONAL_VALUES" => "N",
+				"DEFAULT" => "-",
+				"HIDDEN" => (!$catalog['VISIBLE'] ? 'Y' : 'N')
+			);
+		}
 	}
 	else
 	{

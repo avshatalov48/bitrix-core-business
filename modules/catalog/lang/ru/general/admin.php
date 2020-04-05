@@ -1,4 +1,5 @@
 <?
+$MESS["CAT_MENU_ROOT_TITLE"] = "Товарный каталог";
 $MESS["CAT_MENU_ROOT"] = "Каталог товаров";
 $MESS["CAT_MENU_ROOT_MULTI"] = "Каталоги товаров";
 $MESS["CAT_MENU_PRODUCT_LIST"] = "Список товаров";
@@ -36,6 +37,7 @@ $MESS["SETUP_LOAD_DATA"] = "Импорт данных";
 $MESS["SETUP_LOAD_DATA_ALT"] = "Настройка импорта данных в каталог";
 $MESS["CM_SUBSCRIPTION_PRODUCT"] = "Подписка на товары";
 $MESS["CAT_MENU_CATALOG_MARKETPLACE_ADD"] = "Установить из Маркетплейс";
+$MESS["CAT_MENU_CATALOG_MARKETPLACE_CATALOG_TOOLS"] = "Установить инструменты из Маркетплейс";
 $MESS["SALE_MENU_MARKETPLACE_MARKETING_ADD"] = "Установить из Маркетплейс";
 $MESS["SALE_MENU_MARKETPLACE_SETTINGS_ADD"] = "Установить из Маркетплейс импорт/экспорт";
 ?>

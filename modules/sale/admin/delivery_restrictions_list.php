@@ -62,7 +62,7 @@ namespace Bitrix\Sale\Delivery\AdminPage\DeliveryRestrictions
 		if(empty($record['CLASS_NAME']) || !class_exists($record['CLASS_NAME']))
 			continue;
 
-		if(!is_subclass_of($record['CLASS_NAME'], 'Bitrix\Sale\Delivery\Restrictions\Base'))
+		if(!is_subclass_of($record['CLASS_NAME'], 'Bitrix\Sale\Services\Base\Restriction'))
 			continue;
 
 		if(strlen($record['CLASS_NAME']) > 0)

@@ -101,7 +101,7 @@ CModule::AddAutoloadClasses(
 	)
 );
 
-$jsCoreRel = array('im_common', 'im_phone_call_view', 'clipboard', 'sidepanel');
+$jsCoreRel = array('im_common', 'im_phone_call_view', 'clipboard', 'sidepanel', 'ui.notification', 'ui.alerts');
 $jsCoreRelMobile = array('im_common', 'uploader');
 if (IsModuleInstalled('voximplant'))
 {
@@ -115,6 +115,7 @@ if (IsModuleInstalled('disk'))
 if (IsModuleInstalled('pull'))
 {
 	$jsCoreRel[] = 'webrtc';
+	$jsCoreRel[] = 'webrtc_adapter';
 }
 if (IsModuleInstalled('pull') || IsModuleInstalled('disk'))
 {
@@ -124,67 +125,102 @@ if (IsModuleInstalled('pull') || IsModuleInstalled('disk'))
 $jsCoreRelPage = $jsCoreRel;
 $jsCoreRelPage[] = 'im_window';
 
+$jsIm = [
+	'/bitrix/js/im/im.js',
+	'/bitrix/js/im/v1/call/simple_vad.js',
+	'/bitrix/js/im/v1/call/controller.js',
+	'/bitrix/js/im/v1/call/engine.js',
+	'/bitrix/js/im/v1/call/hardware_dialog.js',
+	'/bitrix/js/im/v1/call/abstract_call.js',
+	'/bitrix/js/im/v1/call/plain_call.js',
+	'/bitrix/js/im/v1/call/voximplant_call.js',
+	'/bitrix/js/im/v1/call/util.js',
+	'/bitrix/js/im/v1/call/view.js',
+	'/bitrix/js/im/v1/call/notification.js',
+	'/bitrix/js/im/v1/call/invite_popup.js',
+	'/bitrix/js/im/v1/call/floating_video.js',
+];
+
 CJSCore::RegisterExt('im_common', array(
 	'js' => '/bitrix/js/im/common.js',
 	'css' => '/bitrix/js/im/css/common.css',
-	'lang' => '/bitrix/modules/im/lang/'.LANGUAGE_ID.'/js_common.php',
-	'rel' => array('ls', 'ajax', 'date', 'fx', 'user', 'restclient', 'phone_number', 'loader')
+	'lang' => '/bitrix/modules/im/js_common.php',
+	'rel' => array('ls', 'ajax', 'date', 'fx', 'user', 'rest.client', 'phone_number', 'loader', 'ui.viewer')
 ));
 
 CJSCore::RegisterExt('im_phone_call_view', array(
 	'js' => '/bitrix/js/im/phone_call_view.js',
 	'css' => array('/bitrix/js/im/css/phone_call_view.css', '/bitrix/components/bitrix/crm.card.show/templates/.default/style.css'),
-	'lang' => '/bitrix/modules/im/lang/'.LANGUAGE_ID.'/js_phone_call_view.php',
-	'rel' => array('applayout', 'crm_form_loader')
+	'lang' => '/bitrix/modules/im/js_phone_call_view.php',
+	'rel' => array('applayout', 'crm_form_loader', 'phone_number')
 ));
 
 CJSCore::RegisterExt('im_web', array(
-	'js' => '/bitrix/js/im/im.js',
-	'css' => '/bitrix/js/im/css/im.css',
+	'js' => $jsIm,
+	'css' => array(
+		'/bitrix/js/im/css/im.css',
+		'/bitrix/js/im/css/call/view.css'
+	),
 	'lang' => '/bitrix/modules/im/lang/'.LANGUAGE_ID.'/js_im.php',
+	'oninit' => function()
+	{
+		return array(
+			'lang_additional' => array(
+				'turn_server' => COption::GetOptionString('im', 'turn_server'),
+				'turn_server_firefox' => COption::GetOptionString('im', 'turn_server_firefox'),
+				'turn_server_login' => COption::GetOptionString('im', 'turn_server_login'),
+				'turn_server_password' => COption::GetOptionString('im', 'turn_server_password'),
+				'call_server_enabled' => \Bitrix\Im\Call\Call::isCallServerEnabled() ? 'Y' : 'N',
+			)
+		);
+	},
 	'rel' => $jsCoreRel
 ));
 
 CJSCore::RegisterExt('im_page', array(
-	'js' => '/bitrix/js/im/im.js',
-	'css' => '/bitrix/js/im/css/im.css',
-	'lang' => '/bitrix/modules/im/lang/'.LANGUAGE_ID.'/js_im.php',
+	'js' => $jsIm,
+	'css' => array(
+		'/bitrix/js/im/css/im.css',
+		'/bitrix/js/im/css/call/view.css'
+	),
+	'lang' => '/bitrix/modules/im/js_im.php',
+	'oninit' => function()
+	{
+		return array(
+			'lang_additional' => array(
+				'turn_server' => COption::GetOptionString('im', 'turn_server'),
+				'turn_server_firefox' => COption::GetOptionString('im', 'turn_server_firefox'),
+				'turn_server_login' => COption::GetOptionString('im', 'turn_server_login'),
+				'turn_server_password' => COption::GetOptionString('im', 'turn_server_password'),
+				'call_server_enabled' => \Bitrix\Im\Call\Call::isCallServerEnabled() ? 'Y' : 'N',
+			)
+		);
+	},
 	'rel' => $jsCoreRelPage
 ));
 
 CJSCore::RegisterExt('im_mobile', array(
 	'js' => '/bitrix/js/im/mobile.js',
-	'lang' => '/bitrix/modules/im/lang/'.LANGUAGE_ID.'/js_mobile.php',
+	'lang' => '/bitrix/modules/im/js_mobile.php',
 	'rel' => $jsCoreRelMobile
 ));
 
 CJSCore::RegisterExt('im_mobile_dialog', array(
 	'js' => '/bitrix/js/im/mobile_dialog.js',
-	'lang' => '/bitrix/modules/im/lang/'.LANGUAGE_ID.'/js_mobile.php',
+	'lang' => '/bitrix/modules/im/js_mobile.php',
 	'rel' => $jsCoreRelMobile
 ));
 
 CJSCore::RegisterExt('im_window', array(
 	'js' => '/bitrix/js/im/window.js',
 	'css' => '/bitrix/js/im/css/window.css',
-	'lang' => '/bitrix/modules/im/lang/'.LANGUAGE_ID.'/js_window.php',
+	'lang' => '/bitrix/modules/im/js_window.php',
 	'rel' => Array('popup', 'fx', 'json', 'translit'),
-));
-
-CJSCore::RegisterExt('meetecho_janus', array(
-	'js' => '/bitrix/js/im/webrtc/janus.js'
-));
-
-CJSCore::RegisterExt('im_call', array(
-	'js' => '/bitrix/js/im/call.js',
-	'css' => '/bitrix/js/im/css/call.css',
-	'lang' => '/bitrix/modules/im/lang/'.LANGUAGE_ID.'/js_call.php',
-	'rel' => Array('webrtc_adapter', 'meetecho_janus')
 ));
 
 CJSCore::RegisterExt('im_desktop', array(
 	'js' => '/bitrix/js/im/desktop.js',
-	'lang' => '/bitrix/modules/im/lang/'.LANGUAGE_ID.'/js_desktop.php',
+	'lang' => '/bitrix/modules/im/js_desktop.php',
 	'rel' => array('im_page', 'im_call'),
 ));
 
@@ -193,6 +229,6 @@ CJSCore::RegisterExt('im_timecontrol', array(
 	'rel' => array('timecontrol'),
 ));
 
-$GLOBALS["APPLICATION"]->AddJSKernelInfo('im', array('/bitrix/js/im/common.js', '/bitrix/js/im/window.js', '/bitrix/js/im/im.js'));
-$GLOBALS["APPLICATION"]->AddCSSKernelInfo('im', array('/bitrix/js/im/css/common.css', '/bitrix/js/im/css/window.css', '/bitrix/js/im/css/im.css'));
+$GLOBALS["APPLICATION"]->AddJSKernelInfo('im', array_merge(['/bitrix/js/im/common.js', '/bitrix/js/im/window.js'], $jsIm));
+$GLOBALS["APPLICATION"]->AddCSSKernelInfo('im', array('/bitrix/js/im/css/common.css', '/bitrix/js/im/css/window.css', '/bitrix/js/im/css/im.css', '/bitrix/js/im/css/call/view.css'));
 ?>

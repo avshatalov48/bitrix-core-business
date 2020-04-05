@@ -20,6 +20,9 @@ if (!Loader::includeModule('iblock'))
 
 $catalogIncluded = Loader::includeModule('catalog');
 CBitrixComponent::includeComponentClass($componentName);
+
+$usePropertyFeatures = Iblock\Model\PropertyFeature::isEnabledFeatures();
+
 $iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
 
 $arIBlockType = CIBlockParameters::GetIBlockTypes();
@@ -624,6 +627,14 @@ if (isset($arCurrentValues['COMPATIBLE_MODE']) && $arCurrentValues['COMPATIBLE_M
 	unset($arComponentParameters['PARAMETERS']['OFFERS_LIMIT']);
 }
 
+if ($usePropertyFeatures)
+{
+	unset($arComponentParameters['PARAMETERS']['PROPERTY_CODE']);
+	unset($arComponentParameters['PARAMETERS']['OFFERS_PROPERTY_CODE']);
+	if (isset($arComponentParameters['PARAMETERS']['PRODUCT_PROPERTIES']))
+		unset($arComponentParameters['PARAMETERS']['PRODUCT_PROPERTIES']);
+}
+
 // hack for correct sort
 if (isset($templateProperties['PROPERTY_CODE_MOBILE']))
 {
@@ -720,7 +731,8 @@ if ($catalogIncluded)
 if (empty($offers))
 {
 	unset($arComponentParameters['PARAMETERS']['OFFERS_FIELD_CODE']);
-	unset($arComponentParameters['PARAMETERS']['OFFERS_PROPERTY_CODE']);
+	if (isset($arComponentParameters['PARAMETERS']['OFFERS_PROPERTY_CODE']))
+		unset($arComponentParameters['PARAMETERS']['OFFERS_PROPERTY_CODE']);
 	unset($arComponentParameters['PARAMETERS']['OFFERS_SORT_FIELD']);
 	unset($arComponentParameters['PARAMETERS']['OFFERS_SORT_ORDER']);
 	unset($arComponentParameters['PARAMETERS']['OFFERS_SORT_FIELD2']);
@@ -728,14 +740,17 @@ if (empty($offers))
 }
 else
 {
-	$arComponentParameters['PARAMETERS']['OFFERS_CART_PROPERTIES'] = array(
-		'PARENT' => 'BASKET',
-		'NAME' => GetMessage('CP_BCS_OFFERS_CART_PROPERTIES'),
-		'TYPE' => 'LIST',
-		'MULTIPLE' => 'Y',
-		'VALUES' => $arProperty_OffersWithoutFile,
-		'HIDDEN' => (isset($arCurrentValues['ADD_PROPERTIES_TO_BASKET']) && $arCurrentValues['ADD_PROPERTIES_TO_BASKET'] === 'N' ? 'Y' : 'N')
-	);
+	if (!$usePropertyFeatures)
+	{
+		$arComponentParameters['PARAMETERS']['OFFERS_CART_PROPERTIES'] = array(
+			'PARENT' => 'BASKET',
+			'NAME' => GetMessage('CP_BCS_OFFERS_CART_PROPERTIES'),
+			'TYPE' => 'LIST',
+			'MULTIPLE' => 'Y',
+			'VALUES' => $arProperty_OffersWithoutFile,
+			'HIDDEN' => (isset($arCurrentValues['ADD_PROPERTIES_TO_BASKET']) && $arCurrentValues['ADD_PROPERTIES_TO_BASKET'] === 'N' ? 'Y' : 'N')
+		);
+	}
 }
 
 $arComponentParameters['PARAMETERS']['DISPLAY_COMPARE'] = array(

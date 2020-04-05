@@ -69,20 +69,6 @@ include("util_profile.php");
 					$component
 				);?>
 			</td>
-			<td class="bx-disk-table-sidebar-cell" style="">
-				<div id="bx_disk_empty_select_section" class="bx-disk-sidebar-section">
-					<div class="bx-disk-info-panel">
-						<div class="bx-disk-info-panel-relative tac">
-							<div class="bx-disk-info-panel-icon-empty"><br></div>
-							<div class="bx-disk-info-panel-empty-text">
-								<?= Loc::getMessage('DISK_VIEW_SMALL_DETAIL_SIDEBAR') ?>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<div id="disk_info_panel"></div>
-			</td>
 		</tr>
 	</table>
 </div>

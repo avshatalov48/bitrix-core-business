@@ -11,6 +11,9 @@ class SaleBasketLineComponent extends CBitrixComponent
 
 	protected $currentFuser = null;
 
+	/** @var Sale\Basket\Storage $basketStorage */
+	protected $basketStorage;	// temporary unused
+
 	public function onPrepareComponentParams($arParams)
 	{
 		// common
@@ -102,6 +105,10 @@ class SaleBasketLineComponent extends CBitrixComponent
 		if ($arParams['POSITION_HORIZONTAL'] != 'left' && $arParams['POSITION_HORIZONTAL'] != 'hcenter')
 			$arParams['POSITION_HORIZONTAL'] = 'right';
 
+		$arParams['MAX_IMAGE_SIZE'] = (isset($arParams['MAX_IMAGE_SIZE']) ? (int)$arParams['MAX_IMAGE_SIZE'] : 70);
+		if ($arParams['MAX_IMAGE_SIZE'] <= 0)
+			$arParams['MAX_IMAGE_SIZE'] = 70;
+
 		// ajax
 
 		if ($arParams['AJAX'] != 'Y')
@@ -114,7 +121,7 @@ class SaleBasketLineComponent extends CBitrixComponent
 	{
 		$fUserID = (int)$this->currentFuser;
 		return ($fUserID > 0)
-			? array("FUSER_ID" => $fUserID, "LID" => SITE_ID, "ORDER_ID" => "NULL")
+			? array("=FUSER_ID" => $fUserID, "=LID" => SITE_ID, "ORDER_ID" => null)
 			: null; // no basket for current user
 	}
 
@@ -205,14 +212,14 @@ class SaleBasketLineComponent extends CBitrixComponent
 		{
 			if($this->arParams["SHOW_TOTAL_PRICE"] == "Y")
 			{
-				$this->arResult["TOTAL_PRICE"] = \Bitrix\Sale\BasketComponentHelper::getFUserBasketPrice($this->currentFuser, SITE_ID);
+				$this->arResult["TOTAL_PRICE"] = \Bitrix\Sale\BasketComponentHelper::getFUserBasketPrice($this->getFuserId(), $this->getSiteId());
 			}
 
-			$this->arResult["NUM_PRODUCTS"] = \Bitrix\Sale\BasketComponentHelper::getFUserBasketQuantity($this->currentFuser, SITE_ID);
+			$this->arResult["NUM_PRODUCTS"] = \Bitrix\Sale\BasketComponentHelper::getFUserBasketQuantity($this->getFuserId(), $this->getSiteId());
 		}
 
 		if($this->arParams["SHOW_TOTAL_PRICE"] == "Y")
-			$this->arResult["TOTAL_PRICE"] = CCurrencyLang::CurrencyFormat($this->arResult["TOTAL_PRICE"], CSaleLang::GetLangCurrency(SITE_ID), true);
+			$this->arResult["TOTAL_PRICE"] = CCurrencyLang::CurrencyFormat($this->arResult["TOTAL_PRICE"], CSaleLang::GetLangCurrency($this->getSiteId()), true);
 
 		$productS = BasketNumberWordEndings($this->arResult["NUM_PRODUCTS"]);
 		$this->arResult["PRODUCT(S)"] = GetMessage("TSB1_PRODUCT") . $productS;
@@ -236,173 +243,175 @@ class SaleBasketLineComponent extends CBitrixComponent
 		return ++self::$nextNumber;
 	}
 
-	private function calculateOrder($arBasketItems)
-	{
-		$totalPrice = 0;
-		$totalWeight = 0;
-
-		foreach ($arBasketItems as $arItem)
-		{
-			$totalPrice += $arItem["PRICE"] * $arItem["QUANTITY"];
-			$totalWeight += $arItem["WEIGHT"] * $arItem["QUANTITY"];
-		}
-
-		$arOrder = array(
-			'SITE_ID' => SITE_ID,
-			'ORDER_PRICE' => $totalPrice,
-			'ORDER_WEIGHT' => $totalWeight,
-			'BASKET_ITEMS' => $arBasketItems
-		);
-
-		if (is_object($GLOBALS["USER"]))
-		{
-			$arOrder['USER_ID'] = $GLOBALS["USER"]->GetID();
-			$arErrors = array();
-			CSaleDiscount::DoProcessOrder($arOrder, array(), $arErrors);
-		}
-
-		return $arOrder;
-	}
-
 	private function getProducts()
 	{
-		if (!($arFilter = $this->getUserFilter()))
-			return array();
+		$result = [
+			'NUM_PRODUCTS' => 0,
+			'TOTAL_PRICE' => 0,
+			'CATEGORIES' => [
+				'READY' => []
+			]
+		];
 
-		if ($this->arParams['SHOW_NOTAVAIL'] == 'N')
-			$arFilter['CAN_BUY'] = 'Y';
-		if ($this->arParams['SHOW_DELAY'] == 'N')
-			$arFilter['DELAY'] = 'N';
+		$currentFuser = (int)$this->getFuserId();
+		if ($currentFuser <= 0)
+			return $result;
 
-		$dbItems = CSaleBasket::GetList(
-			array("NAME" => "ASC", "ID" => "ASC"),
-			$arFilter,
-			false,
-			false,
-			array(
-				"ID", "NAME", "CALLBACK_FUNC", "MODULE", "PRODUCT_ID", "QUANTITY", "DELAY", "CAN_BUY",
-				"PRICE", "WEIGHT", "DETAIL_PAGE_URL", "CURRENCY", "VAT_RATE", "CATALOG_XML_ID", "MEASURE_NAME",
-				"PRODUCT_XML_ID", "SUBSCRIBE", "DISCOUNT_PRICE", "PRODUCT_PROVIDER_CLASS", "TYPE", "SET_PARENT_ID", "BASE_PRICE",
-				"PRODUCT_PRICE_ID", 'CUSTOM_PRICE'
-			)
-		);
+		$fullBasket = Sale\Basket::loadItemsForFUser($currentFuser, $this->getSiteId());
+		if ($fullBasket->isEmpty())
+			return $result;
 
-		$arBasketItems = array();
-		$arElementId = array();
-		$arSku2Parent = array();
+		$basketItemList = [];
 
-		while ($arItem = $dbItems->GetNext(true, false))
+		/** @var Sale\Basket $basketClone */
+		$basketClone = $fullBasket->createClone();
+		$orderableBasket = $basketClone->getOrderableItems();
+		unset($basketClone);
+		if (!$orderableBasket->isEmpty())
 		{
-			if (CSaleBasketHelper::isSetItem($arItem))
-				continue;
-
-			if (!isset($arItem['BASE_PRICE']) || (float)$arItem['BASE_PRICE'] <= 0)
-				$arItem['BASE_PRICE'] = $arItem['PRICE'] + $arItem['DISCOUNT_PRICE'];
-			$arItem["PRICE_FMT"] = CCurrencyLang::CurrencyFormat($arItem["PRICE"], $arItem["CURRENCY"], true);
-			$arItem["FULL_PRICE"] = CCurrencyLang::CurrencyFormat($arItem["BASE_PRICE"], $arItem["CURRENCY"], true);
-			$arItem['QUANTITY'] += 0; // remove excessive zeros after period
-			if (!$arItem['MEASURE_NAME'])
-				$arItem['MEASURE_NAME'] = GetMessage('TSB1_MEASURE_NAME');
-
-			if ($this->arParams['SHOW_IMAGE'] == 'Y' && $this->bUseCatalog && $arItem["MODULE"] == 'catalog')
+			$onlySaleDiscounts = (string)Main\Config\Option::get('sale', 'use_sale_discount_only') == 'Y';
+			if (!$onlySaleDiscounts)
 			{
-				$arElementId[] = $arItem["PRODUCT_ID"];
-				$arParent = CCatalogSku::GetProductInfo($arItem["PRODUCT_ID"]);
-				if ($arParent)
-				{
-					$arElementId[] = $arParent["ID"];
-					$arSku2Parent[$arItem["PRODUCT_ID"]] = $arParent["ID"];
-				}
+				$orderableBasket->refresh(Sale\Basket\RefreshFactory::create(Sale\Basket\RefreshFactory::TYPE_FULL));
 			}
-
-			$arBasketItems[] = $arItem;
-		}
-
-		$arResult = array(
-			'CATEGORIES' => array(),
-			'TOTAL_PRICE' => 0
-		);
-
-		if ($arBasketItems)
-		{
-			if ($this->arParams['SHOW_IMAGE'] == 'Y')
-				$this->setImgSrc($arBasketItems, $arElementId, $arSku2Parent);
-
-			$arResult["CATEGORIES"] = array(
-				"READY" => array(),
-				"DELAY" => array(),
-				"SUBSCRIBE" => array(),
-				"NOTAVAIL" => array()
+			$discounts = Sale\Discount::buildFromBasket(
+				$orderableBasket,
+				new Sale\Discount\Context\Fuser($this->getFuserId())
 			);
-
-			// fill item arrays for templates
-			foreach ($arBasketItems as $arItem)
+			$discountResult = $discounts->calculate();
+			if ($discountResult->isSuccess())
 			{
-				if ($arItem["CAN_BUY"] == "Y")
+				$showPrices = $discounts->getShowPrices();
+				if (!empty($showPrices['BASKET']))
 				{
-					if ($arItem["DELAY"] == "Y")
-						$arResult["CATEGORIES"]["DELAY"][] = $arItem;
-					else
-						$arResult["CATEGORIES"]["READY"][] = $arItem;
-				}
-				else
-				{
-					if ($arItem["SUBSCRIBE"] == "Y")
-						$arResult["CATEGORIES"]["SUBSCRIBE"][] = $arItem;
-					else
-						$arResult["CATEGORIES"]["NOTAVAIL"][] = $arItem;
-				}
-			}
-
-			if ($this->arParams['SHOW_PRICE'] == 'Y' ||
-				$this->arParams['SHOW_SUMMARY'] == 'Y' ||
-				$this->arParams['SHOW_TOTAL_PRICE'] == 'Y')
-			{
-				$arOrder = $this->calculateOrder($arResult["CATEGORIES"]["READY"]);
-				$arResult["CATEGORIES"]["READY"] = $arOrder['BASKET_ITEMS'];
-
-				if (!empty($arResult["CATEGORIES"]["DELAY"]) && is_array($arResult["CATEGORIES"]["DELAY"]))
-				{
-					Sale\DiscountCouponsManager::freezeCouponStorage();
-					$orderDelay = $this->calculateOrder($arResult["CATEGORIES"]["DELAY"]);
-					Sale\DiscountCouponsManager::unFreezeCouponStorage();
-					$arResult["CATEGORIES"]["DELAY"] = $orderDelay['BASKET_ITEMS'];
-				}
-
-				foreach ($arResult["CATEGORIES"]["READY"] as &$arItem)
-				{
-					$arItem["SUM"] = CCurrencyLang::CurrencyFormat($arItem["PRICE"] * $arItem["QUANTITY"], $arItem["CURRENCY"], true);
-					$arItem["PRICE_FMT"] = CCurrencyLang::CurrencyFormat($arItem["PRICE"], $arItem["CURRENCY"], true);
-					$arItem["FULL_PRICE"] = CCurrencyLang::CurrencyFormat($arItem["BASE_PRICE"], $arItem["CURRENCY"], true);
-				}
-				unset($arItem);
-
-				if (!empty($arResult["CATEGORIES"]["DELAY"]) && is_array($arResult["CATEGORIES"]["DELAY"]))
-				{
-					foreach ($arResult["CATEGORIES"]["DELAY"] as &$arItem)
+					foreach ($showPrices['BASKET'] as $basketCode => $data)
 					{
-						$arItem["SUM"] = CCurrencyLang::CurrencyFormat($arItem["PRICE"] * $arItem["QUANTITY"], $arItem["CURRENCY"], true);
-						$arItem["PRICE_FMT"] = CCurrencyLang::CurrencyFormat($arItem["PRICE"], $arItem["CURRENCY"], true);
-						$arItem["FULL_PRICE"] = CCurrencyLang::CurrencyFormat($arItem["BASE_PRICE"], $arItem["CURRENCY"], true);
+						$basketItem = $orderableBasket->getItemByBasketCode($basketCode);
+						if ($basketItem instanceof Sale\BasketItemBase)
+						{
+							$basketItem->setFieldNoDemand('BASE_PRICE', $data['SHOW_BASE_PRICE']);
+							$basketItem->setFieldNoDemand('PRICE', $data['SHOW_PRICE']);
+							$basketItem->setFieldNoDemand('DISCOUNT_PRICE', $data['SHOW_DISCOUNT']);
+						}
 					}
-					unset($arItem);
+					unset($basketItem, $basketCode, $data);
 				}
-
-				$arResult["TOTAL_PRICE"] = $arOrder['ORDER_PRICE'];
+				unset($showPrices);
 			}
+			unset($discountResult);
+
+			$result['TOTAL_PRICE'] = $orderableBasket->getPrice();
+			$result['NUM_PRODUCTS'] = $orderableBasket->count();
+
+			/** @var Sale\BasketItem $basketItem */
+			foreach ($orderableBasket as $basketItem)
+			{
+				$basketItemList[] = $this->getItemData($basketItem);
+			}
+			unset($item, $basketItem);
+		}
+		unset($orderableBasket);
+
+		/** @var Sale\BasketItem $basketItem */
+		foreach ($fullBasket as $basketItem)
+		{
+			$skip = false;
+			if ($basketItem->canBuy())
+			{
+				if (
+					!$basketItem->isDelay()
+					|| ($basketItem->isDelay() && $this->arParams['SHOW_DELAY'] == 'N')
+				)
+					$skip = true;
+			}
+			else
+			{
+				if ($this->arParams['SHOW_NOTAVAIL'] == 'N')
+					$skip = true;
+			}
+			if ($skip)
+				continue;
+			$item = $this->getItemData($basketItem);
+			$basketItemList[] = $item;
+		}
+		unset($basketItem, $fullBasket);
+
+		if (empty($basketItemList))
+			return $result;
+
+		$this->loadProductPictures($basketItemList);
+
+		if ($this->arParams['SHOW_DELAY'] != 'N')
+			$result['CATEGORIES']['DELAY'] = [];
+		if ($this->arParams['SHOW_NOTAVAIL'] != 'N')
+		{
+			$result['CATEGORIES']['SUBSCRIBE'] = [];
+			$result['CATEGORIES']['NOTAVAIL'] = [];
 		}
 
-		return array(
-			'NUM_PRODUCTS' => count($arResult["CATEGORIES"]["READY"]),
-			'TOTAL_PRICE'  => $arResult["TOTAL_PRICE"],
-			'CATEGORIES'   => $arResult["CATEGORIES"],
-		);
+		foreach ($basketItemList as $item)
+		{
+			if ($item['CAN_BUY'] == 'Y')
+			{
+				if ($item['DELAY'] == 'Y')
+					$result['CATEGORIES']['DELAY'][] = $item;
+				else
+					$result['CATEGORIES']['READY'][] = $item;
+			}
+			else
+			{
+				if ($item['SUBSCRIBE'] == 'Y')
+					$result['CATEGORIES']['SUBSCRIBE'][] = $item;
+				else
+					$result['CATEGORIES']['NOTAVAIL'][] = $item;
+			}
+		}
+		unset($basketItemList, $item);
+
+		foreach (array_keys($result['CATEGORIES']) as $index)
+		{
+			if (empty($result['CATEGORIES'][$index]))
+				unset($result['CATEGORIES'][$index]);
+		}
+		unset($index);
+
+		return $result;
+	}
+
+	protected function loadProductPictures(array &$basketItemList)
+	{
+		if ($this->arParams['SHOW_IMAGE'] == 'Y' && $this->bUseCatalog)
+		{
+			$elementIdList = array();
+			$productMap = array();
+			foreach ($basketItemList as $item)
+			{
+				if ((string)$item['MODULE'] !== 'catalog')
+					continue;
+				$elementIdList[$item['PRODUCT_ID']] = $item['PRODUCT_ID'];
+			}
+			unset($item);
+			if (!empty($elementIdList))
+			{
+				$productList = \CCatalogSku::getProductList($elementIdList);
+				if (!empty($productList))
+				{
+					foreach ($productList as $offerId => $data)
+						$productMap[$offerId] = $data['ID'];
+					unset($offerId, $data);
+				}
+				unset($productList);
+			}
+			$this->setImgSrc($basketItemList, $elementIdList, $productMap);
+			unset($productMap, $elementIdList);
+		}
 	}
 
 	private function setImgSrc(&$arBasketItems, $arElementId, $arSku2Parent)
 	{
-		$arImgFields = array ("PREVIEW_PICTURE", "DETAIL_PICTURE");
-		$arProductData = getProductProps($arElementId, array_merge(array("ID"), $arImgFields));
+		//TODO: need refactoring
+		$arImgFields = array ("PREVIEW_PICTURE", "DETAIL_PICTURE", "PROPERTY_MORE_PHOTO");
+		$arProductData = getProductProps(array_merge($arElementId, $arSku2Parent), array_merge(array("ID"), $arImgFields));
 
 		foreach ($arBasketItems as &$arItem)
 		{
@@ -440,7 +449,7 @@ class SaleBasketLineComponent extends CBitrixComponent
 			{
 				$arFileTmp = CFile::ResizeImageGet(
 					$arImage,
-					array("width" => "70", "height" =>"70"),
+					array("width" => $this->arParams['MAX_IMAGE_SIZE'], "height" => $this->arParams['MAX_IMAGE_SIZE']),
 					BX_RESIZE_IMAGE_PROPORTIONAL,
 					true
 				);
@@ -509,6 +518,7 @@ class SaleBasketLineComponent extends CBitrixComponent
 
 		/** @var \Bitrix\Sale\Basket $basketOrderable */
 		$basketOrderable = $basket->getOrderableItems();
+		/** @var \Bitrix\Sale\BasketItem $basketItem */
 		foreach ($basketOrderable as $basketItem)
 		{
 			if (intval($basketItem->getField('ORDER_ID')) > 0)
@@ -525,9 +535,79 @@ class SaleBasketLineComponent extends CBitrixComponent
 		return $basketQuantity;
 	}
 
+	protected function getFuserId()
+	{
+		if ($this->currentFuser === null)
+			$this->loadCurrentFuser();
+
+		return $this->currentFuser;
+	}
+
 	protected function loadCurrentFuser()
 	{
 		$this->currentFuser = Sale\Fuser::getId(true);
+	}
+
+	protected function getBasketStorage()
+	{
+		if (!isset($this->basketStorage))
+		{
+			$this->basketStorage = Sale\Basket\Storage::getInstance($this->currentFuser, $this->getSiteId());
+		}
+
+		return $this->basketStorage;
+	}
+
+	private function makeCompatibleArray(&$array)
+	{
+		if (empty($array) || !is_array($array))
+			return;
+
+		$arr = array();
+		foreach ($array as $key => $value)
+		{
+			if (is_array($value) || preg_match("/[;&<>\"]/", $value))
+			{
+				$arr[$key] = htmlspecialcharsEx($value);
+			}
+			else
+			{
+				$arr[$key] = $value;
+			}
+
+			$arr['~'.$key] = $value;
+		}
+
+		$array = $arr;
+	}
+
+	private function getItemData(Sale\BasketItem $item)
+	{
+		$result = $item->getFieldValues();
+		$this->makeCompatibleArray($result);
+		$result['PRODUCT_ID'] = (int)$result['PRODUCT_ID'];
+		$result['QUANTITY'] = $item->getQuantity();
+		$result['MEASURE_NAME'] = (string)$result['MEASURE_NAME'];
+		if ($result['MEASURE_NAME'] == '')
+			$result['MEASURE_NAME'] = GetMessage('TSB1_MEASURE_NAME');
+		$result['PRICE'] = Sale\PriceMaths::roundPrecision($result['PRICE']);
+		$result['BASE_PRICE'] = Sale\PriceMaths::roundPrecision($result['BASE_PRICE']);
+		$result['DISCOUNT_PRICE'] = Sale\PriceMaths::roundPrecision($result['DISCOUNT_PRICE']);
+		$result['SUM_VALUE'] = $result['PRICE'] * $result['QUANTITY'];
+
+		$result['SUM'] = \CCurrencyLang::CurrencyFormat($result['SUM_VALUE'], $result['CURRENCY'], true);
+		$result['PRICE_FMT'] = \CCurrencyLang::CurrencyFormat($result['PRICE'], $result['CURRENCY'], true);
+		$result['FULL_PRICE'] = \CCurrencyLang::CurrencyFormat($result['BASE_PRICE'], $result['CURRENCY'], true);
+
+		// unused fields from \CSaleDiscount::DoProcessOrder - compatibility
+		$result['PRICE_FORMATED'] = $result['PRICE_FMT'];
+		$result['DISCOUNT_PRICE_PERCENT'] = Sale\Discount::calculateDiscountPercent(
+			$result['BASE_PRICE'],
+			$result['DISCOUNT_PRICE']
+		);
+		$result['DISCOUNT_PRICE_PERCENT_FORMATED'] = $result['DISCOUNT_PRICE_PERCENT'].'%';
+
+		return $result;
 	}
 }
 

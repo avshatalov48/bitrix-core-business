@@ -9,6 +9,7 @@ $arChildParams = array(
 	"PATH_TO_PAYMENT" => $arParams["PATH_TO_PAYMENT"],
 	"SAVE_IN_SESSION" => $arParams["SAVE_IN_SESSION"],
 	"ORDERS_PER_PAGE" => $arParams["ORDERS_PER_PAGE"],
+	"PATH_TO_CATALOG" => $arParams["PATH_TO_CATALOG"],
 	"SET_TITLE" =>$arParams["SET_TITLE"],
 	"ID" => $arResult["VARIABLES"]["ID"],
 	"NAV_TEMPLATE" => $arParams["NAV_TEMPLATE"],
@@ -20,6 +21,7 @@ $arChildParams = array(
 	"CACHE_TIME" => $arParams["CACHE_TIME"],
 	"CACHE_GROUPS" => $arParams["CACHE_GROUPS"],
 	"DEFAULT_SORT" => $arParams["ORDER_DEFAULT_SORT"],
+	"DISALLOW_CANCEL" => $arParams["DISALLOW_CANCEL"],
 	"RESTRICT_CHANGE_PAYSYSTEM" => $arParams["RESTRICT_CHANGE_PAYSYSTEM"],
 	"REFRESH_PRICES" => $arParams["REFRESH_PRICES"]
 );

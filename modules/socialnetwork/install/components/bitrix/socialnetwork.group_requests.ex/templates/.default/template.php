@@ -11,6 +11,7 @@ use Bitrix\Main\UI;
 
 UI\Extension::load("ui.buttons");
 UI\Extension::load("ui.alerts");
+UI\Extension::load("ui.tooltip");
 UI\Extension::load("socialnetwork.common");
 
 if ($arResult["NEED_AUTH"] == "Y")
@@ -100,7 +101,7 @@ else
 									<div class="invite-active-block">
 										<span class="invite-list-img-image" style="<?=(is_array($arRequest["USER_PERSONAL_PHOTO_IMG"]) && strlen($arRequest["USER_PERSONAL_PHOTO_IMG"]["src"]) > 0 ? "background: url('".$arRequest["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span>
 										<div class="sonet-group-request-user-box">
-											<a class="invite-user-link" href="<?=($arRequest["SHOW_PROFILE_LINK"] ? htmlspecialcharsback($arRequest["USER_PROFILE_URL"]) : '')?>" bx-user-id="<?=$arRequest["USER_ID"]?>" id="anchor_<?=$tooltip_id?>"><?=$arRequest["USER_NAME_FORMATTED"]?></a>
+											<a class="invite-user-link" href="<?=($arRequest["SHOW_PROFILE_LINK"] ? htmlspecialcharsback($arRequest["USER_PROFILE_URL"]) : '')?>" bx-tooltip-user-id="<?=$arRequest["USER_ID"]?>" id="anchor_<?=$tooltip_id?>"><?=$arRequest["USER_NAME_FORMATTED"]?></a>
 											<div class="sonet-group-request-desc"><?=$arRequest["USER_WORK_POSITION"]?></div>
 										</div>
 									</div>
@@ -193,7 +194,7 @@ else
 									<div class="invite-active-block">
 										<span class="invite-list-img-image" style="<?=(is_array($arRequest["USER_PERSONAL_PHOTO_IMG"]) && strlen($arRequest["USER_PERSONAL_PHOTO_IMG"]["src"]) > 0 ? "background: url('".$arRequest["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span>
 										<div class="sonet-group-request-user-box">
-											<a class="invite-user-link" href="<?=($arRequest["SHOW_PROFILE_LINK"] ? htmlspecialcharsback($arRequest["USER_PROFILE_URL"]) : '')?>" bx-user-id="<?=$arRequest["USER_ID"]?>" id="anchor_<?=$tooltip_id?>"><?=$arRequest["USER_NAME_FORMATTED"]?></a>
+											<a class="invite-user-link" href="<?=($arRequest["SHOW_PROFILE_LINK"] ? htmlspecialcharsback($arRequest["USER_PROFILE_URL"]) : '')?>" bx-tooltip-user-id="<?=$arRequest["USER_ID"]?>" id="anchor_<?=$tooltip_id?>"><?=$arRequest["USER_NAME_FORMATTED"]?></a>
 											<div class="sonet-group-request-desc"><?=$arRequest["USER_WORK_POSITION"]?></div>
 										</div>
 									</div>

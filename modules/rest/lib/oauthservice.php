@@ -116,8 +116,9 @@ class OAuthService
 	public static function getRedirectUri()
 	{
 		$request = Context::getCurrent()->getRequest();
+		$server = Context::getCurrent()->getServer();
 
-		$host = defined('BX24_HOST_NAME') ? BX24_HOST_NAME : $request->getHttpHost();
+		$host = defined('BX24_HOST_NAME') ? BX24_HOST_NAME : $server->getHttpHost();
 
 		return ($request->isHttps() ? 'https' : 'http').'://'.preg_replace("/:(443|80)$/", "", $host);
 	}

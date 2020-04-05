@@ -70,48 +70,69 @@
 	/**
 	 * For edit title.
 	 */
-	BX.Landing.EditTitleForm = function (node, additionalWidth, isEventTargetNode)
+	BX.Landing.EditTitleForm = function (node, additionalWidth, isEventTargetNode, display)
 	{
 		this.btn = node.querySelector('.ui-title-input-btn-js');
 		this.label = node.querySelector('.ui-editable-field-label-js');
 		this.input = node.querySelector('.ui-editable-field-input-js');
 		this.additionalWidth = additionalWidth || 0;
+		this.input.IsWidthSet = false;
+		this.display = display;
 
 		this.hideInput = this.hideInput.bind(this);
 		this.showInput = this.showInput.bind(this);
 
-		if(isEventTargetNode)
+		if(isEventTargetNode) {
 			BX.bind(node, 'click', this.showInput);
-		else
+		} else {
 			BX.bind(this.btn, 'click', this.showInput);
+		}
+
+		this.input.setAttribute("data-height", this.label.offsetHeight);
 	};
+
 	BX.Landing.EditTitleForm.prototype =
 	{
 		showInput : function (event)
 		{
 			event.stopPropagation();
 
-			this.input.style.width = this.label.offsetWidth + this.additionalWidth + 17 + 'px';
+			if(!this.input.IsWidthSet) {
+				this.input.style.width = this.label.offsetWidth + this.additionalWidth + 17 + 'px';
+			}
+
 			if(this.input.tagName === 'TEXTAREA')
 			{
-				this.input.style.height = this.label.offsetHeight + 'px';
+				this.input.style.height = this.input.getAttribute("data-height") + 'px';
 			}
 			this.label.style.display = 'none';
 			this.btn.style.display = 'none';
 			this.input.style.display = 'block';
+
 			this.input.focus();
+
+			this.input.IsWidthSet = true;
 
 			BX.bind(document, 'click', this.hideInput);
 		},
 		hideInput : function (event)
 		{
-			if(event.target == this.input)
+			if(event.target === this.input)
 				return;
 
 			this.label.textContent = this.input.value;
-			this.label.style.display = 'inline-block';
+
+			if (this.display) {
+				this.label.style.display = 'inline-block';
+			} else {
+				this.label.style.display = 'inline';
+			}
+
 			this.input.style.display = 'none';
-			this.btn.style.display = 'block';
+			this.btn.style.display = 'inline-block';
+
+			this.input.IsWidthSet = false;
+			this.input.setAttribute("data-height", this.label.offsetHeight);
 
 			BX.unbind(document, 'click', this.hideInput);
 		}
@@ -285,6 +306,8 @@
 	 */
 	BX.Landing.DomainNamePopup = function(params)
 	{
+		var isAvailableDomain = null;
+		var isDeletedDomain = null;
 		var messages = params.messages || {};
 		var dialog = new BX.Landing.EditDomainForm(BX('ui-editable-domain'), {
 			messages: {
@@ -295,35 +318,39 @@
 		});
 		BX.addCustomEvent(dialog.popup.popup, 'onPopupShow', function(obj)
 		{
-			var inp = obj.contentContainer.querySelector('#landing-form-domain-name-field');
+			var domainInput = obj.contentContainer.querySelectorAll('.ui-domainname');
 			var textNode1 = obj.contentContainer.querySelector('#landing-form-domain-name-text');
 			var textNode2 = obj.contentContainer.querySelector('#landing-form-domain-any-name-text');
-			var instSimple = obj.contentContainer.querySelector('#landing-form-domain-instr');
-			var instAny = obj.contentContainer.querySelector('#landing-form-domain-any-instr');
+			var domainRadioBtn = obj.contentContainer.querySelectorAll('.ui-radio');
+			var saveBtn = BX('action_dialog_confirm');
 
-			// keyup domain name
-			BX.bind(inp, 'keyup', BX.debounce(function()
-			{
-				var domainName = inp.value;
+			var onKeyUp = function(event) {
+				handlerDomainName(event.target.value, event.target);
+			};
+
+			var handlerDomainName = function(value, target) {
+
+				var domainName = value;
+				var postfix = BX.data(target, 'postfix');
+
 
 				// fill instruction
 				var fillInstruction = function(domainName)
 				{
-					var domainParts = inp.value.split('.');
+					var domainParts = domainName.split('.');
+					var domainRe = /^(com|net|org)\.[a-z]{2}$/;
 
 					textNode2.parentNode.style.display = 'none';
-					instSimple.style.display = 'none';
-					instAny.style.display = 'none';
 
 					textNode1.textContent = domainName ? domainName : 'landing.mydomain';
 
 					if (
 						(domainParts.length === 2) ||
-						(domainParts.length === 3 && domainParts[0] === 'www')
+						(domainParts.length === 3 && domainParts[0] === 'www') ||
+						(domainParts.length === 3 && (domainParts[1] + '.' + domainParts[2]).match(domainRe))
 					)
 					{
-						instAny.style.display = 'block';
-						textNode2.parentNode.style.display = 'block';
+						textNode2.parentNode.style.display = 'table-row';
 						if ((domainParts.length === 3 && domainParts[0] === 'www'))
 						{
 							textNode2.textContent = domainParts[1] + '.' + domainParts[2];
@@ -335,44 +362,174 @@
 							textNode2.textContent = domainName;
 						}
 					}
-					else
-					{
-						instSimple.style.display = 'block';
-					}
 
-					textNode1.textContent = BX.util.trim(textNode1.textContent);
-					textNode2.textContent = BX.util.trim(textNode2.textContent);
+					textNode1.textContent = BX.util.trim(textNode1.textContent) + '.';
+					textNode2.textContent = BX.util.trim(textNode2.textContent) + '.';
 				};
 
-				if (domainName.match(/[^a-z0-9\.\-]+/i) === null)
-				{
-					fillInstruction(domainName);
-				}
-				else
-				{
-					BX.ajax({
-						url: '/bitrix/tools/landing/ajax.php?action=Domain::punycode',
-						method: 'POST',
+
+				BX.ajax({
+					url: '/bitrix/tools/landing/ajax.php?action=Domain::check',
+					method: 'POST',
+					data: {
 						data: {
-							data: {
-								domain: domainName
-							},
-							sessid: BX.message('bitrix_sessid')
+							domain: domainName + postfix,
+							filter: {
+								'!ID': params.domainId
+							}
 						},
-						dataType: 'json',
-						onsuccess: function (data) {
-							if (typeof data.result !== 'undefined')
-							{
-								if (data.result !== false)
-								{
-									fillInstruction(data.result);
+						sessid: BX.message('bitrix_sessid')
+					},
+					dataType: 'json',
+					onsuccess: function (data) {
+						// fill instructions for custom domain
+						if (
+							//postfix === '' &&
+							data.result &&
+							data.result.domain
+						)
+						{
+							fillInstruction(data.result.domain);
+						}
+						isAvailableDomain = data.result.available;
+						isDeletedDomain = data.result.deleted;
+
+						for (var i = 0, c = domainRadioBtn.length; i < c; i++)
+						{
+							if(domainRadioBtn[i].checked) {
+
+								var currentInput = domainRadioBtn[i].nextElementSibling.querySelector(".ui-domainname");
+								var domainStatus = domainRadioBtn[i].nextElementSibling.querySelector(".landing-site-name-status");
+
+								var maxlength = currentInput.getAttribute('maxlength');
+								var currentLength = data.result.domain.length;
+
+								// check available symbols for subdomain
+								if(domainRadioBtn[i].getAttribute('id') === "landing-domain-name-1"){
+									var domain = currentInput.value;
+
+									if(!(domain === "") && !(/^[\w_\-]+$/.test(domain))) {
+										addDisableClass(currentInput);
+										domainStatus.textContent = BX.message('LANDING_DOMAIN_INCORRECT');
+
+										return;
+
+									} else {
+										removeDisableClass(currentInput);
+										domainStatus.textContent = "";
+									}
+								}
+
+								//check max length and availability domain name
+								if(currentLength >= maxlength && maxlength !== null) {
+									addDisableClass(currentInput);
+									domainStatus.textContent = BX.message('LANDING_DOMAIN_LIMIT_LENGTH');
+								} else {
+									saveBtn.classList.remove('btn-disabled');
+
+									if(currentInput.classList.contains("ui-domainname-unavailable")) {
+										currentInput.classList.remove('ui-domainname-unavailable');
+										domainStatus.textContent = '';
+									}
+
+									highlight(isAvailableDomain, isDeletedDomain, currentInput, domainStatus);
+
 								}
 							}
 						}
-					});
+
+					}
+				});
+
+			};
+			// keyup domain name
+			for (var i = 0, c = domainInput.length; i < c; i++) {
+
+				var inp = domainInput[i];
+				inp.addEventListener('keyup', BX.debounce(onKeyUp.bind(this), 300));
+
+				inp.addEventListener('focus', function(event){
+					event.target.parentNode.previousElementSibling.checked = true;
+					var targetStatus = event.target.parentNode.querySelector(".landing-site-name-status");
+					runDomainCheck(event.target, targetStatus);
+				});
+
+			}
+
+
+
+			for (var a = 0, b = domainRadioBtn.length; a < b; a++) {
+				domainRadioBtn[a].addEventListener('click', function(event){
+					var targetInput = event.target.nextElementSibling.querySelector(".ui-domainname");
+					var targetStatus = event.target.nextElementSibling.querySelector(".landing-site-name-status");
+					runDomainCheck(targetInput, targetStatus);
+
+				});
+			}
+
+			var runDomainCheck = function(targetInput, targetStatus)
+			{
+				findUnselectedItem();
+
+				isAvailableDomain = null;
+				isDeletedDomain = null;
+				handlerDomainName(targetInput.value, targetInput);
+
+				if(isAvailableDomain !== null && isDeletedDomain !== null) {
+					highlight(isAvailableDomain, isDeletedDomain, targetInput, targetStatus);
 				}
 
-			}, 200));
+			};
+
+			var highlight = function(isAvailableDomain, isDeletedDomain, item, status)
+			{
+				if(isAvailableDomain) {
+					item.classList.add("ui-domainname-available");
+					removeDisableClass(item);
+					status.textContent = "";
+
+				} else {
+					if(isDeletedDomain) {
+						status.textContent = BX.message('LANDING_DOMAIN_EXIST2');
+					} else {
+						status.textContent = BX.message('LANDING_DOMAIN_EXIST');
+					}
+					addDisableClass(item);
+					item.classList.remove("ui-domainname-available");
+				}
+
+			};
+
+			var findUnselectedItem = function()
+			{
+
+				for (var i = 0, c = domainRadioBtn.length; i < c; i++) {
+					if(!(domainRadioBtn[i].checked)) {
+						var uncheckedInput = domainRadioBtn[i].nextElementSibling.querySelector(".ui-domainname");
+						var uncheckedStatus = domainRadioBtn[i].nextElementSibling.querySelector(".landing-site-name-status");
+						resetHighlight(uncheckedInput, uncheckedStatus);
+					}
+				}
+			};
+
+			var resetHighlight = function(item, status)
+			{
+				item.classList.remove('ui-domainname-available');
+				item.classList.remove('ui-domainname-unavailable');
+				status.textContent = "";
+			};
+
+			var addDisableClass = function(item)
+			{
+				item.classList.add("ui-domainname-unavailable");
+				saveBtn.classList.add('btn-disabled');
+			};
+
+			var removeDisableClass = function(item)
+			{
+				item.classList.remove("ui-domainname-unavailable");
+				saveBtn.classList.remove('btn-disabled');
+			};
 
 			BX.fireEvent(inp, 'keyup');
 
@@ -457,6 +614,43 @@
 			{
 				select.value = ''
 			}
+		});
+	};
+
+	/**
+	 * Custom 503.
+	 */
+	BX.Landing.Custom503 = function()
+	{
+		var select = BX('landing-form-503-select');
+		BX.bind(select, 'change', function ()
+		{
+			if(this.value === '')
+			{
+				this.parentNode.style.height = getComputedStyle(this.parentNode).height;
+				BX('checkbox-503-use').checked = false;
+			}
+		});
+		BX.bind(BX('checkbox-503-use'), 'change', function ()
+		{
+			if(!this.checked)
+			{
+				select.value = ''
+			}
+		});
+	};
+
+	/**
+	 * Copyright on/off.
+	 */
+	BX.Landing.Copyright = function()
+	{
+		BX.bind(BX('checkbox-copyright'), 'change', function ()
+		{
+			var formAction = BX('landing-site-set-form').getAttribute('action');
+			formAction = formAction.replace(/&feature_copyright=[YN]/, '');
+			formAction += '&feature_copyright=' + (this.checked ? 'Y' : 'N');
+			BX('landing-site-set-form').setAttribute('action', formAction)
 		});
 	};
 
@@ -567,6 +761,7 @@
 					disableCustomURL: true,
 					disableBlocks: true,
 					disallowType: true,
+					enableAreas: true,
 					allowedTypes: [
 						BX.Landing.UI.Field.LinkURL.TYPE_PAGE
 					],
@@ -664,5 +859,41 @@
 			}
 		}
 	};
+
+	/**
+	 * Change save button.
+	 */
+
+	BX.Landing.SaveBtn = function(saveBtn)
+	{
+		saveBtn.addEventListener('click', changeSaveBtn.bind(this));
+
+		function changeSaveBtn() {
+			saveBtn.classList.add('ui-btn-clock');
+			saveBtn.style.cursor = "default";
+			saveBtn.style.pointerEvents = "none";
+		}
+	};
+
+	/**
+	 * Change iblock select.
+	 */
+
+	BX.Landing.IblockSelect = function()
+	{
+		this.section = BX("row_section_id");
+		this.init(this.section);
+	};
+
+	BX.Landing.IblockSelect.prototype = {
+
+		init: function(section) {
+			if(!BX("settings_iblock_id").value) {
+				section.classList.add("landing-form-field-section-hidden");
+			} else {
+				section.classList.remove("landing-form-field-section-hidden");
+			}
+		}
+	}
 
 })();

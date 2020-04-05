@@ -68,6 +68,22 @@ abstract class EntityImport extends Exchange\ImportBase
         return $order instanceof Order;
     }
 
+	/**
+	 * @param array $fields
+	 * @return Order
+	 */
+	protected function loadParentEntity(array $fields)
+	{
+		$entity = null;
+
+		if(!empty($fields['ID']))
+		{
+			/** @var Order $entity */
+			$entity = Order::load($fields['ID']);
+		}
+		return $entity;
+	}
+
     /**
      * @param Sale\Internals\Entity $entity
      * @throws Main\NotImplementedException
@@ -122,7 +138,7 @@ abstract class EntityImport extends Exchange\ImportBase
     }
 
     /**
-     * @return Exchange\ICollisionOrder[]|Exchange\ICollisionShipment[]|Exchange\ICollisionPayment[]|Exchange\ICollisionProfile[]
+     * @return Exchange\ICollision[]
      */
     public function getCollisions()
     {
@@ -160,14 +176,24 @@ abstract class EntityImport extends Exchange\ImportBase
             $collisionEntity = $collision->getEntity();
             if(!empty($collisionEntity))
             {
-                EntityMarker::addMarker($parentEntity, $collisionEntity, $result);
+                $this->addMarker($parentEntity, $collisionEntity, $result);
             }
             else
             {
-                EntityMarker::addMarker($parentEntity, $entity, $result);
+				$this->addMarker($parentEntity, $entity, $result);
             }
         }
     }
+
+	/**
+	 * @param $order
+	 * @param $entity
+	 * @param $result
+	 */
+	protected function addMarker($order, $entity, $result)
+	{
+		EntityMarker::addMarker($order, $entity, $result);
+	}
 
 	/**
 	 * @return bool

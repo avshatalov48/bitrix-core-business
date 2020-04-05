@@ -49,9 +49,9 @@ class Product extends DataSource implements \Iterator
 //		get items only from sections, that was checked to export. And get them iblocksIds
 		$sectionsList = new Vk\SectionsList($this->exportId);
 		$sectionsToExport = $sectionsList->getSectionsToProductExport();
-		if($this->vk->getRichLog($this->exportId) && !empty($sectionsToExport))
+		$logger = new Vk\Logger($this->exportId);
+		if(!empty($sectionsToExport))
 		{
-			$logger = new Vk\Logger($this->exportId);
 			$logger->addLog('Sections to export', $sectionsToExport);
 		}
 		$iblockIds = $sectionsList->getMappedIblocks();
@@ -59,7 +59,6 @@ class Product extends DataSource implements \Iterator
 //		if not products to export - ERROR
 		if (empty($sectionsToExport))
 		{
-			$logger = new Vk\Logger($this->exportId);
 			$logger->addError('EMPTY_SECTIONS_LIST');
 		}
 

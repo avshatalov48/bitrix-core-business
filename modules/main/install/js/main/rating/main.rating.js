@@ -1,3 +1,6 @@
+/**
+* @bxjs_lang_path config.php
+*/
 (function() {
 
 var BX = window.BX;
@@ -20,6 +23,16 @@ BXRL.render = {
 	blockShowPopup: false,
 	blockShowPopupTimeout: false,
 	afterClickBlockShowPopup: false,
+	touchStartPosition: null,
+	touchCurrentPosition: {
+		x: null,
+		y: null
+	},
+	currentReactionNodeHover: null,
+	touchMoveDeltaY: null,
+	touchScrollTop: 0,
+	hasMobileTouchMoved: null,
+	mobileOverlay: null,
 
 	getTopUsersText: function(params)
 	{
@@ -36,7 +49,11 @@ BXRL.render = {
 			return '';
 		}
 
-		var result = BX.message('RATING_LIKE_TOP_TEXT_' + (you ? 'YOU_' : '') + (topList.length) + (more > 0 ? '_MORE' : ''));
+		var result = BX.message('RATING_LIKE_TOP_TEXT2_' + (you ? 'YOU_' : '') + (topList.length) + (more > 0 ? '_MORE' : '')).
+			replace("#OVERFLOW_START#", BXRL.manager.mobile ? '<span class="feed-post-emoji-text-item-overflow">' : '').
+			replace("#OVERFLOW_END#", BXRL.manager.mobile ? '</span>' : '').
+			replace("#MORE_START#", BXRL.manager.mobile ? '<span class="feed-post-emoji-text-item-more">' : '&nbsp;').
+			replace("#MORE_END#", BXRL.manager.mobile ? '</span>' : '');
 
 		for(var i in topList)
 		{
@@ -267,7 +284,33 @@ BXRL.render = {
 					{
 						topPanel.classList.remove('feed-post-emoji-container-nonempty');
 					}
+
+					if (BXRL.manager.mobile)
+					{
+						var commentNode = BX.findParent(topPanel, { className: 'post-comment-block'});
+						if (commentNode)
+						{
+							if (elementsNew.length > 0)
+							{
+								commentNode.classList.add('comment-block-rating-nonempty');
+							}
+							else
+							{
+								commentNode.classList.remove('comment-block-rating-nonempty');
+							}
+						}
+					}
 				}
+
+				var reactionEvents = (
+					BXRL.manager.mobile
+					? {}
+					: {
+						click: BXRL.render.resultReactionClick,
+						mouseenter: BXRL.render.resultReactionMouseEnter,
+						mouseleave: BXRL.render.resultReactionMouseLeave
+					}
+				);
 
 				for(i = 0; i < elementsNew.length; i++)
 				{
@@ -284,11 +327,7 @@ BXRL.render = {
 								'data-like-id': likeId,
 								title: BX.message('RATING_LIKE_EMOTION_' + elementsNew[i].reaction.toUpperCase() + '_CALC')
 							},
-							events: {
-								click: BXRL.render.resultReactionClick,
-								mouseenter: BXRL.render.resultReactionMouseEnter,
-								mouseleave: BXRL.render.resultReactionMouseLeave
-							}
+							events: reactionEvents
 						}));
 					}
 					else
@@ -304,11 +343,7 @@ BXRL.render = {
 								'data-like-id': likeId,
 								title: BX.message('RATING_LIKE_EMOTION_' + elementsNew[i].reaction.toUpperCase() + '_CALC')
 							},
-							events: {
-								click: BXRL.render.resultReactionClick,
-								mouseenter: BXRL.render.resultReactionMouseEnter,
-								mouseleave: BXRL.render.resultReactionMouseLeave
-							}
+							events: reactionEvents
 						}));
 					}
 				}
@@ -323,11 +358,6 @@ BXRL.render = {
 			if (BX.util.in_array(action, ['add', 'change']))
 			{
 				BX(buttonText).innerHTML = BX.message('RATING_LIKE_EMOTION_' + userReaction.toUpperCase() + '_CALC');
-/*
-				BXRL.render.animateReactionText({
-					rating: rating
-				});
-*/
 			}
 			else
 			{
@@ -336,75 +366,15 @@ BXRL.render = {
 		}
 	},
 
-	animateReactionText: function(params)
-	{
-		var rating = params.rating;
-		var buttonText = (BX(rating.buttonText) ? BX(rating.buttonText) : false);
-
-		likeNode = buttonText.cloneNode(true);
-		likeNode.id = 'like_anim'; // to not dublicate original id
-
-		BX.removeClass(likeNode, 'bx-ilike-button-hover');
-		BX.addClass(likeNode, 'bx-like-anim');
-
-		BX.adjust(buttonText.parentNode, { style: { position: 'relative' } });
-
-		var type = 'normal';
-		if (BX.findParent(buttonText, { 'className': 'feed-com-informers-bottom' }))
-		{
-			type = 'comment';
-		}
-		else if (BX.findParent(buttonText, { 'className': 'feed-post-informers' }))
-		{
-			type = 'post';
-		}
-
-		BX.adjust(likeNode, {
-			style: {
-				position: 'absolute',
-				whiteSpace: 'nowrap',
-				top: (type == 'comment' ? '-3px' : '')
-			}
-		});
-
-		BX.adjust(buttonText, { style: { visibility: 'hidden' } });
-		BX.prepend(likeNode, buttonText.parentNode);
-
-		new BX.easing({
-			duration: 140,
-			start: { scale: 100 },
-			finish: { scale: 115 },
-			transition : BX.easing.transitions.quad,
-			step: function(state) {
-				likeNode.style.transform = "scale(" + state.scale / 100 + ")";
-			},
-			complete: function() {
-
-				new BX.easing({
-					duration: 140,
-					start: { scale: 115 },
-					finish: { scale: 100 },
-					transition : BX.easing.transitions.quad,
-					step: function(state) {
-						likeNode.style.transform = "scale(" + state.scale / 100 + ")";
-					},
-					complete: function() {
-						likeNode.parentNode.removeChild(likeNode);
-
-						BX.adjust(buttonText.parentNode, { style: { position: 'static' } });
-						BX.adjust(buttonText, { style: { visibility: 'visible' } });
-					}
-				}).animate();
-			}
-		}).animate();
-	},
-
 	reactionsPopup: null,
 	reactionsPopupAnimation: null,
 	reactionsPopupAnimation2: null,
 	reactionsPopupLikeId: null,
 	reactionsPopupMouseOutHandler: null,
 	reactionsPopupOpacityState: 0,
+	reactionsPopupTouchStartIn: null,
+	reactionsPopupPositionY: null,
+	blockTouchEndByScroll: false,
 
 	showReactionsPopup: function(params)
 	{
@@ -443,7 +413,7 @@ BXRL.render = {
 
 			BXRL.render.reactionsPopup = BX.create('div', {
 				props: {
-					className: 'feed-post-emoji-popup-container'
+					className: 'feed-post-emoji-popup-container' + (BXRL.manager.mobile ? ' feed-post-emoji-popup-container-mobile' : '')
 				},
 				children: [
 					BX.create('div', {
@@ -455,37 +425,42 @@ BXRL.render = {
 				]
 			});
 
-			BX.adjust(BXRL.render.reactionsPopup, {
-				events: {
-					click: function(e) {
-						var reactionNode = false;
-						if (e.target.classList.contains('feed-post-emoji-icon-item'))
-						{
-							reactionNode = e.target;
-						}
-						else
-						{
-							reactionNode = BX.findParent(e.target, {className: 'feed-post-emoji-icon-item'}, BXRL.render.reactionsPopup);
-						}
-
-						if (reactionNode)
-						{
-							RatingLike.ClickVote(
-								BXRL.render.reactionsPopupLikeId,
-								reactionNode.getAttribute('data-reaction'),
-								true
-							);
-						}
-						e.preventDefault();
-					}
+			BX.bind(BXRL.render.reactionsPopup, (BXRL.manager.mobile ? 'touchend' : 'click'), function(e)
+			{
+				var reactionNode = false;
+				if (e.target.classList.contains('feed-post-emoji-icon-item'))
+				{
+					reactionNode = e.target;
 				}
+				else
+				{
+					reactionNode = BX.findParent(e.target, {className: 'feed-post-emoji-icon-item'}, BXRL.render.reactionsPopup);
+				}
+
+				if (reactionNode)
+				{
+					RatingLike.ClickVote(
+						BXRL.render.reactionsPopupLikeId,
+						reactionNode.getAttribute('data-reaction'),
+						true
+					);
+				}
+				e.preventDefault();
 			});
+
 
 			BX.append(BXRL.render.reactionsPopup, document.body);
 		}
 		else if (BXRL.render.reactionsPopup.classList.contains('feed-post-emoji-popup-invisible'))
 		{
 			BXRL.render.reactionsPopup.classList.remove('feed-post-emoji-popup-invisible');
+		}
+		else if (
+			BXRL.manager.mobile
+			&& BXRL.render.reactionsPopup.classList.contains('feed-post-emoji-popup-invisible-final-mobile')
+		)
+		{
+			BXRL.render.reactionsPopup.classList.remove('feed-post-emoji-popup-invisible-final-mobile');
 		}
 		else
 		{
@@ -518,9 +493,15 @@ BXRL.render = {
 
 		var bindElementPosition = BX.pos(bindElement);
 
-		if (BX.findParent(bindElement, { className: 'iframe-comments-cont'}))
+		if (
+			BX.findParent(bindElement, { className: 'feed-com-informers-bottom'})
+			&& (
+				BX.findParent(bindElement, { className: 'iframe-comments-cont'})
+				|| BX.findParent(bindElement, { className: 'task-iframe-popup'})
+			)
+		)
 		{
-			bindElementPosition.left =+ 100;
+			bindElementPosition.left += 100;
 		}
 
 		var inverted = ((bindElementPosition.top - BX.GetWindowSize().scrollTop) < 80);
@@ -536,47 +517,65 @@ BXRL.render = {
 
 		var deltaY = (inverted ? 15 : -50);
 
-		BXRL.render.reactionsPopupAnimation = new BX.easing({
-			duration: 300,
-			start: {
-				width: 100,
-				left: (bindElementPosition.left + (bindElementPosition.width / 2) - 50),
-				top: ((inverted ? bindElementPosition.top - 30 : bindElementPosition.top + 30 ) + deltaY),
-				borderRadius: 0,
-				opacity: 0
-			},
-			finish: {
-				width: 271,
-				left: (bindElementPosition.left + (bindElementPosition.width / 2) - 133),
-				top: (bindElementPosition.top + deltaY),
-				borderRadius: 50,
-				opacity: 100
-			},
-			transition : BX.easing.makeEaseInOut(BX.easing.transitions.cubic),
-			step: function(state) {
-				BXRL.render.reactionsPopup.style.width = state.width + 'px';
-				BXRL.render.reactionsPopup.style.left = state.left + 'px';
-				BXRL.render.reactionsPopup.style.top = state.top + 'px';
-				BXRL.render.reactionsPopup.style.borderRadius = state.borderRadius + 'px';
-				BXRL.render.reactionsPopup.style.opacity = state.opacity/100;
-				BXRL.render.reactionsPopupOpacityState = state.opacity;
-			},
-			complete: function() {
-				BXRL.render.reactionsPopup.style.opacity = '';
-				BXRL.render.reactionsPopup.classList.add('feed-post-emoji-popup-active-final');
-				BXRL[likeId].box.classList.add('feed-post-emoji-control-active');
-			}
-		});
-		BXRL.render.reactionsPopupAnimation.animate();
+		if (BXRL.manager.mobile)
+		{
+			BXRL.render.touchMoveDeltaY = (inverted ? 60 : -50);
+			BX.adjust(BXRL.render.reactionsPopup, { style: {
+				left: '12px',
+				top: ((inverted ? (bindElementPosition.top - 23) : (bindElementPosition.top - 28)) + deltaY) + 'px',
+				width: '320px',
+				borderRadius: '68px'
+			} });
 
-		setTimeout(function() {
-				var reactions = BX.findChildren(
-					BXRL.render.reactionsPopup,
-					{ className: 'feed-post-emoji-icon-item' },
-					true
-				);
-				BXRL.render.reactionsPopupAnimation2 = new BX.easing({
-					duration: 140,
+			BXRL.render.reactionsPopup.classList.remove('feed-post-emoji-popup-invisible-final');
+			BXRL.render.reactionsPopup.classList.add('feed-post-emoji-popup-active-final');
+			BXRL.render.reactionsPopup.classList.add('feed-post-emoji-popup-active-final-item');
+			BXRL[likeId].box.classList.add('feed-post-emoji-control-active');
+			BXRL.render.reactionsPopupMobileDisableScroll();
+		}
+		else
+		{
+			BXRL.render.reactionsPopupAnimation = new BX.easing({
+				duration: 300,
+				start: {
+					width: 100,
+					left: (bindElementPosition.left + (bindElementPosition.width / 2) - 50),
+					top: ((inverted ? bindElementPosition.top - 30 : bindElementPosition.top + 30 ) + deltaY),
+					borderRadius: 0,
+					opacity: 0
+				},
+				finish: {
+					width: 271,
+					left: (bindElementPosition.left + (bindElementPosition.width / 2) - 133),
+					top: (bindElementPosition.top + deltaY),
+					borderRadius: 50,
+					opacity: 100
+				},
+				transition : BX.easing.makeEaseInOut(BX.easing.transitions.cubic),
+				step: function(state) {
+					BXRL.render.reactionsPopup.style.width = state.width + 'px';
+					BXRL.render.reactionsPopup.style.left = state.left + 'px';
+					BXRL.render.reactionsPopup.style.top = state.top + 'px';
+					BXRL.render.reactionsPopup.style.borderRadius = state.borderRadius + 'px';
+					BXRL.render.reactionsPopup.style.opacity = state.opacity/100;
+					BXRL.render.reactionsPopupOpacityState = state.opacity;
+				},
+				complete: function() {
+					BXRL.render.reactionsPopup.style.opacity = '';
+					BXRL.render.reactionsPopup.classList.add('feed-post-emoji-popup-active-final');
+					BXRL[likeId].box.classList.add('feed-post-emoji-control-active');
+				}
+			});
+			BXRL.render.reactionsPopupAnimation.animate();
+
+			setTimeout(function() {
+					var reactions = BX.findChildren(
+						BXRL.render.reactionsPopup,
+						{ className: 'feed-post-emoji-icon-item' },
+						true
+					);
+					BXRL.render.reactionsPopupAnimation2 = new BX.easing({
+						duration: 140,
 						start: {
 							opacity: 0
 						},
@@ -600,19 +599,242 @@ BXRL.render = {
 							reactions[3].style.opacity = '';
 							reactions[4].style.opacity = '';
 							reactions[5].style.opacity = '';
-					}
-				});
-				BXRL.render.reactionsPopupAnimation2.animate();
-			},
-			100
-		);
+						}
+					});
+					BXRL.render.reactionsPopupAnimation2.animate();
+				},
+				100
+			);
+		}
 
 		if (!BXRL.render.reactionsPopup.classList.contains('feed-post-emoji-popup-active'))
 		{
 			BXRL.render.reactionsPopup.classList.add('feed-post-emoji-popup-active');
 		}
 
-		BX.bind(document, 'mousemove', BXRL.render.reactionsPopupMouseOutHandler);
+		if (!BXRL.manager.mobile)
+		{
+			BX.bind(document, 'mousemove', BXRL.render.reactionsPopupMouseOutHandler);
+		}
+		else
+		{
+			var elements = BX.findChildren(
+				BXRL.render.reactionsPopup,
+				{ className: 'feed-post-emoji-icon-item' },
+				true
+			);
+
+			BXRL.render.touchScrollTop = BX.GetWindowSize().scrollTop;
+			BXRL.render.hasMobileTouchMoved = null;
+
+			window.addEventListener("touchend", BXRL.render.reactionsPopupMobileTouchEndHandler);
+			window.addEventListener("touchmove", BXRL.render.reactionsPopupMobileTouchMoveHandler);
+		}
+	},
+
+	reactionsPopupMobileTouchEndHandler: function(e)
+	{
+		var coords = {
+			x: e.changedTouches[0].pageX, // e.touches[0].clientX + window.pageXOffset
+			y: e.changedTouches[0].pageY // e.touches[0].clientY + window.pageYOffset
+		};
+
+		if (BXRL.render.hasMobileTouchMoved === true)
+		{
+			var
+				userReaction = null,
+				reactionNode = BXRL.render.reactionsPopupMobileGetHoverNode(coords.x, coords.y);
+
+			if (
+				reactionNode
+				&& (userReaction = reactionNode.getAttribute('data-reaction'))
+			)
+			{
+				RatingLike.ClickVote(
+					BXRL.render.reactionsPopupLikeId,
+					userReaction,
+					true
+				);
+			}
+			BXRL.render.reactionsPopupMobileHide();
+		}
+		else // show reactions popup and handle clicks
+		{
+			window.addEventListener("touchend", BXRL.render.reactionsPopupMobileHide);
+		}
+
+		window.removeEventListener("touchend", BXRL.render.reactionsPopupMobileTouchEndHandler);
+		window.removeEventListener("touchmove", BXRL.render.reactionsPopupMobileTouchMoveHandler);
+
+		BXRL.render.touchStartPosition = null;
+		e.preventDefault();
+	},
+
+	reactionsPopupMobileHide: function()
+	{
+		window.removeEventListener("touchend", BXRL.render.reactionsPopupMobileHide);
+		if (BXRL.render.reactionsPopupLikeId)
+		{
+			BXRL.render.hideReactionsPopup({
+				likeId: BXRL.render.reactionsPopupLikeId
+			});
+		}
+	},
+
+	reactionsPopupMobileCheckTouchMove: function()
+	{
+		if (BXRL.render.touchStartPosition === null)
+		{
+			return true;
+		}
+		else
+		{
+			if (
+				Math.abs(BXRL.render.touchCurrentPosition.x - BXRL.render.touchStartPosition.x) > 5
+				|| Math.abs(BXRL.render.touchCurrentPosition.y - BXRL.render.touchStartPosition.y) > 5
+			)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	},
+
+	reactionsPopupMobileTouchMoveHandler: function(e)
+	{
+		var coords = {
+			x: e.touches[0].pageX, // e.touches[0].clientX + window.pageXOffset
+			y: e.touches[0].pageY // e.touches[0].clientY + window.pageYOffset
+		};
+
+
+		BXRL.render.touchCurrentPosition = {
+			x: coords.x,
+			y: coords.y
+		};
+
+		if (BXRL.render.touchStartPosition === null)
+		{
+			BXRL.render.touchStartPosition = {
+				x: coords.x,
+				y: coords.y
+			};
+		}
+		else
+		{
+			if (BXRL.render.hasMobileTouchMoved !== true)
+			{
+				BXRL.render.hasMobileTouchMoved = !BXRL.render.reactionsPopupMobileCheckTouchMove();
+			}
+		}
+
+		if (BXRL.render.hasMobileTouchMoved === true)
+		{
+			var reactionNode = BXRL.render.reactionsPopupMobileGetHoverNode(coords.x, coords.y);
+			if (reactionNode)
+			{
+				if (
+					BXRL.render.currentReactionNodeHover
+					&& BXRL.render.currentReactionNodeHover != reactionNode
+				)
+				{
+					BXRL.render.reactionsPopupMobileRemoveHover(BXRL.render.currentReactionNodeHover);
+				}
+				BXRL.render.reactionsPopupMobileAddHover(reactionNode);
+				BXRL.render.currentReactionNodeHover = reactionNode;
+			}
+			else if (BXRL.render.currentReactionNodeHover)
+			{
+				BXRL.render.reactionsPopupMobileRemoveHover(BXRL.render.currentReactionNodeHover);
+			}
+		}
+		else
+		{
+			if (BXRL.render.currentReactionNodeHover)
+			{
+				BXRL.render.reactionsPopupMobileRemoveHover(BXRL.render.currentReactionNodeHover);
+			}
+		}
+	},
+
+	reactionsPopupMobileGetHoverNode: function(x, y)
+	{
+		var
+			reactionNode = null,
+			userReaction = null,
+			result = null;
+
+		if (
+			(
+				(reactionNode = document.elementFromPoint(x, (y + BXRL.render.touchMoveDeltaY - BXRL.render.touchScrollTop)))
+				&& (userReaction = reactionNode.getAttribute('data-reaction'))
+				&& BX.type.isNotEmptyString(userReaction)
+			) // icon above/below a finger
+			|| (
+				(reactionNode = document.elementFromPoint(x, (y - BXRL.render.touchScrollTop)))
+				&& (userReaction = reactionNode.getAttribute('data-reaction'))
+				&& BX.type.isNotEmptyString(userReaction)
+			) // icon is under a finger
+		)
+		{
+			result = reactionNode;
+		}
+
+		return result;
+	},
+
+	reactionsPopupMobileAddHover: function(reactionNode)
+	{
+		if (reactionNode)
+		{
+			reactionNode.classList.add('feed-post-emoji-icon-item-hover');
+		}
+	},
+
+	reactionsPopupMobileRemoveHover: function(reactionNode)
+	{
+		if (reactionNode)
+		{
+			reactionNode.classList.remove('feed-post-emoji-icon-item-hover');
+		}
+	},
+
+	reactionsPopupMobileDisableScroll: function()
+	{
+		document.addEventListener('touchmove', BXRL.render.touchMoveScrollListener, { passive: false });
+		BX.onCustomEvent("onPullDownDisable", {});
+
+		if (BXRL.render.mobileOverlay === null)
+		{
+			BXRL.render.mobileOverlay = BX.create('DIV', {
+				props: {
+					className: 'feed-post-emoji-popup-mobile-overlay'
+				}
+			});
+			setTimeout(function() {
+				if (BXRL.render.mobileOverlay !== null)
+				{
+					BX.append(BXRL.render.mobileOverlay, document.body);
+				}
+			}, 1000); // to avoid blink
+		}
+	},
+
+	reactionsPopupMobileEnableScroll: function()
+	{
+		document.removeEventListener('touchmove', BXRL.render.touchMoveScrollListener, { passive: false });
+		BX.onCustomEvent("onPullDownEnable", {});
+
+		if (BXRL.render.mobileOverlay !== null)
+		{
+			BX.cleanNode(BXRL.render.mobileOverlay, true);
+			BXRL.render.mobileOverlay = null;
+		}
+	},
+
+	touchMoveScrollListener: function(e) {
+		e.preventDefault();
 	},
 
 	hideReactionsPopup: function(params)
@@ -622,50 +844,77 @@ BXRL.render = {
 
 		if (BXRL.render.reactionsPopup)
 		{
-			if (BXRL.render.reactionsPopupAnimation)
+			if (BXRL.manager.mobile)
 			{
-				BXRL.render.reactionsPopupAnimation.stop();
+				BXRL.render.reactionsPopup.classList.add('feed-post-emoji-popup-invisible-final');
+				BXRL.render.reactionsPopup.classList.add('feed-post-emoji-popup-invisible-final-mobile');
+				BXRL.render.reactionsPopup.classList.remove('feed-post-emoji-popup-active');
+				BXRL.render.reactionsPopup.classList.remove('feed-post-emoji-popup-active-final');
+				BXRL.render.reactionsPopup.classList.remove('feed-post-emoji-popup-active-final-item');
+				BXRL.render.reactionsPopupMobileEnableScroll();
 			}
-			if (BXRL.render.reactionsPopupAnimation2)
+			else
 			{
-				BXRL.render.reactionsPopupAnimation2.stop();
-			}
-
-			BXRL.render.reactionsPopup.classList.add('feed-post-emoji-popup-invisible');
-
-			BXRL.render.reactionsPopupAnimation4 = new BX.easing({
-				duration: 500,
-				start: {
-					opacity: BXRL.render.reactionsPopupOpacityState
-				},
-				finish: {
-					opacity: 0
-				},
-				transition : BX.easing.transitions.linear,
-				step: function(state) {
-					BXRL.render.reactionsPopup.style.opacity = state.opacity/100;
-					BXRL.render.reactionsPopupOpacityState = state.opacity;
-				},
-				complete: function() {
-					BXRL.render.reactionsPopup.style.opacity = '';
-					BXRL.render.reactionsPopup.classList.add('feed-post-emoji-popup-invisible-final');
-
-					BXRL.render.reactionsPopup.classList.remove('feed-post-emoji-popup-active');
-					BXRL.render.reactionsPopup.classList.remove('feed-post-emoji-popup-active-final');
-					BXRL.render.reactionsPopup.classList.remove('feed-post-emoji-popup-active-final-item');
+				if (BXRL.render.reactionsPopupAnimation)
+				{
+					BXRL.render.reactionsPopupAnimation.stop();
 				}
-			});
-			BXRL.render.reactionsPopupAnimation4.animate();
+				if (BXRL.render.reactionsPopupAnimation2)
+				{
+					BXRL.render.reactionsPopupAnimation2.stop();
+				}
 
-			BXRL[likeId].box.classList.remove('feed-post-emoji-control-active');
+				BXRL.render.reactionsPopup.classList.add('feed-post-emoji-popup-invisible');
+
+				BXRL.render.reactionsPopupAnimation4 = new BX.easing({
+					duration: 500,
+					start: {
+						opacity: BXRL.render.reactionsPopupOpacityState
+					},
+					finish: {
+						opacity: 0
+					},
+					transition : BX.easing.transitions.linear,
+					step: function(state) {
+						BXRL.render.reactionsPopup.style.opacity = state.opacity/100;
+						BXRL.render.reactionsPopupOpacityState = state.opacity;
+					},
+					complete: function() {
+						BXRL.render.reactionsPopup.style.opacity = '';
+						BXRL.render.reactionsPopup.classList.add('feed-post-emoji-popup-invisible-final');
+						BXRL.render.reactionsPopup.classList.remove('feed-post-emoji-popup-active');
+						BXRL.render.reactionsPopup.classList.remove('feed-post-emoji-popup-active-final');
+						BXRL.render.reactionsPopup.classList.remove('feed-post-emoji-popup-active-final-item');
+					}
+				});
+				BXRL.render.reactionsPopupAnimation4.animate();
+			}
+
+			BXRL.render.reactionsPopupLikeId = null;
+
+			if (likeId)
+			{
+				BXRL[likeId].box.classList.remove('feed-post-emoji-control-active');
+			}
 		}
 
-		BXRL.render.bindReactionsPopup({
-			likeId: likeId
-		});
+		BXRL.render.reactionsPopupMobileRemoveHover(BXRL.render.currentReactionNodeHover);
+
+		if (likeId)
+		{
+			BXRL.render.bindReactionsPopup({
+				likeId: likeId
+			});
+		}
 	},
 
 	bindReactionsPopup: function(params) {
+
+		if (BXRL.manager.mobile)
+		{
+			return false;
+		}
+
 		var
 			likeId = (BX.type.isNotEmptyString(params.likeId) ? params.likeId : false);
 
@@ -689,6 +938,11 @@ BXRL.render = {
 
 			if (!BXRL.render.blockShowPopup)
 			{
+				if (BXRL.manager.mobile)
+				{
+					app.exec("callVibration");
+				}
+
 				BXRL.render.showReactionsPopup({
 					bindElement: BXRL[this.likeId].box,
 					likeId: this.likeId
@@ -829,7 +1083,15 @@ BXRL.render = {
 				cry: 4,
 				angry: 5
 			};
-			return sample[a.reaction] > sample[b.reaction];
+			if (sample[a.reaction] < sample[b.reaction])
+			{
+				return -1;
+			}
+			if (sample[a.reaction] > sample[b.reaction])
+			{
+				return 1;
+			}
+			return 0;
 		});
 
 		for(var ind = 0; ind < reactionsList.length; ind++)
@@ -1090,11 +1352,18 @@ BXRL.render = {
 			likeId = e.currentTarget.getAttribute('data-like-id'),
 			reaction = e.currentTarget.getAttribute('data-reaction');
 
+		if (!BX.type.isNotEmptyString(reaction))
+		{
+			reaction = '';
+		}
+
 		RatingLike.onResultClick({
 			likeId: likeId,
 			event: e,
 			reaction: reaction
 		});
+
+		e.stopPropagation();
 	},
 
 	resultReactionMouseEnter: function (e) {
@@ -1120,33 +1389,115 @@ BXRL.render = {
 			likeId: likeId,
 			reaction: reaction
 		});
+	},
+
+	openMobileReactionsPage: function (params) {
+		BXMobileApp.PageManager.loadPageBlank({
+			url: BX.message('SITE_DIR') + 'mobile/like/result.php',
+			title: BX.message("RATING_LIKE_RESULTS"),
+			backdrop:{
+				mediumPositionPercent:65
+			},
+			cache: true,
+			data: {
+				entityTypeId: params.entityTypeId,
+				entityId: params.entityId
+			}
+		});
+	},
+
+	onRatingLike: function(eventData)
+	{
+		for(var i in BXRL)
+		{
+			if (!BXRL.hasOwnProperty(i))
+			{
+				continue;
+			}
+
+			if (
+				BXRL[i].entityTypeId == eventData.entityTypeId
+				&& BXRL[i].entityId == eventData.entityId
+			)
+			{
+				var voteAction = (BX.type.isNotEmptyString(eventData.voteAction) ? eventData.voteAction.toUpperCase() : 'ADD');
+				voteAction = (voteAction == 'PLUS' ? 'ADD' : voteAction);
+
+				if (
+					eventData.userId == BX.message('USER_ID')
+					&& BXRL[i].button
+				)
+				{
+					if (voteAction == 'CANCEL')
+					{
+						BX.removeClass(BXRL[i].button, 'bx-you-like-button');
+					}
+					else
+					{
+						BX.addClass(BXRL[i].button, 'bx-you-like-button');
+					}
+				}
+
+				RatingLike.Draw(i, {
+					TYPE: voteAction,
+					USER_ID: eventData.userId,
+					ENTITY_TYPE_ID: eventData.entityTypeId,
+					ENTITY_ID: eventData.entityId,
+					USER_DATA: eventData.userData,
+					REACTION: eventData.voteReaction,
+					REACTION_OLD: eventData.voteReactionOld,
+					TOTAL_POSITIVE_VOTES: eventData.itemsAll
+				});
+			}
+		}
+
 	}
 };
 
 BXRL.manager = {
 
+	mobile: false,
 	inited: false,
 	displayHeight: 0,
+	startScrollTop: 0,
 	entityList: [],
 	ratingNodeList: {},
 	delayedList: {},
 
-	init: function()
+	init: function(params)
 	{
+		if (typeof params == 'undefined')
+		{
+			params = {};
+		}
+
 		if (this.inited)
 		{
 			return;
 		}
 
+		this.mobile = (typeof params.mobile != 'undefined' && !!params.mobile);
+
 		this.inited = true;
 
 		this.setDisplayHeight();
 
-		window.addEventListener("scroll",  BX.throttle(function() {
-			this.getInViewScope();
-		}, 80, this), { passive: true });
+		if (!this.mobile)
+		{
+			window.addEventListener("scroll",  BX.throttle(function() {
+				this.getInViewScope();
+			}, 80, this), { passive: true });
 
-		window.addEventListener("resize",  BX.delegate(this.setDisplayHeight, this));
+			window.addEventListener("resize",  BX.delegate(this.setDisplayHeight, this));
+		}
+
+		BX.addCustomEvent('onBeforeMobileLivefeedRefresh', BXRL.render.reactionsPopupMobileHide);
+
+		if (this.mobile)
+		{
+			// new one
+			BXMobileApp.addCustomEvent("onRatingLike", BXRL.render.onRatingLike);
+		}
 	},
 
 	addEntity: function(entityId, ratingObject)

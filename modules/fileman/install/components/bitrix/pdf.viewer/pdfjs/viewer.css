@@ -440,7 +440,6 @@
 	height: 100%;
 	position: relative;
 	background-color: #404040;
-	background-image: url(/bitrix/components/bitrix/pdf.viewer/pdfjs/images/texture.png);
 }
 
 .sidebarContainer {
@@ -551,7 +550,6 @@ html[dir='rtl'] .viewerContainer {
 	width: 200px;
 	height: 32px;
 	background-color: #424242; /* fallback */
-	background-image: url(images/texture.png),
 	linear-gradient(hsla(0,0%,30%,.99), hsla(0,0%,25%,.95));
 }
 html[dir='ltr'] .toolbarSidebar {
@@ -571,7 +569,6 @@ html[dir='rtl'] .toolbarSidebar {
 	position: relative;
 	height: 32px;
 	background-color: #474747; /* fallback */
-	background-image: url(images/texture.png),
 	linear-gradient(hsla(0,0%,32%,.99), hsla(0,0%,27%,.95));
 }
 html[dir='ltr'] .toolbarContainer, .findbar, .secondaryToolbar {
@@ -1693,9 +1690,7 @@ html[dir='rtl'] .outlineItemToggler::before {
 	color: hsl(0,0%,85%);
 	font-size: 12px;
 	line-height: 14px;
-	background-color: #474747; /* fallback */
-	background-image: url(images/texture.png),
-	linear-gradient(hsla(0,0%,32%,.99), hsla(0,0%,27%,.95));
+	background-color: #404040; /* fallback */
 	box-shadow: inset 1px 0 0 hsla(0,0%,100%,.08),
 	inset 0 1px 1px hsla(0,0%,0%,.15),
 	inset 0 -1px 0 hsla(0,0%,100%,.05),

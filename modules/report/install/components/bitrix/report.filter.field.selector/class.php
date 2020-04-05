@@ -38,7 +38,7 @@ class CReportComponent extends \CBitrixComponent
 		if (isset($this->moduleIncluded[$moduleName]))
 			return $this->moduleIncluded[$moduleName];
 
-		$this->moduleIncluded[$moduleName] = CModule::IncludeModule($moduleName);
+		$this->moduleIncluded[$moduleName] = Bitrix\Main\Loader::includeModule($moduleName);
 
 		return $this->moduleIncluded[$moduleName];
 	}
@@ -53,17 +53,30 @@ class CReportComponent extends \CBitrixComponent
 					&& is_callable(array($ufInfo['USER_TYPE']['CLASS_NAME'], 'getlist')))
 				{
 					$enum = array();
-					$rsEnum = call_user_func_array(
-						array($ufInfo['USER_TYPE']['CLASS_NAME'], 'getlist'),
-						array($ufInfo)
-					);
-					while($arEnum = $rsEnum->GetNext())
-						$enum[$arEnum['ID']] = $arEnum['VALUE'];
+					if ($ufInfo['USER_TYPE_ID'] !== 'enumeration')    // lazy load for enumerations
+					{
+						$rsEnum = call_user_func_array(
+							array($ufInfo['USER_TYPE']['CLASS_NAME'], 'getlist'),
+							array($ufInfo)
+						);
+						while($arEnum = $rsEnum->GetNext())
+						{
+							$enum[$arEnum['ID']] = $arEnum['VALUE'];
+						}
+						unset($rsEnum, $arEnum);
+					}
 					$ufInfo['USER_TYPE']['FIELDS'] = $enum;
 				}
 
 				switch ($ufInfo['USER_TYPE_ID'])
 				{
+					case 'enumeration':
+						$selectorItem = $this->prepareEnumerationSelectorItem($ufInfo);
+						if ($selectorItem)
+						{
+							$this->selectorItems[] = $selectorItem;
+						}
+						break;
 					case 'crm':
 						if($this->ensureModuleIncluded('crm'))
 						{
@@ -96,6 +109,16 @@ class CReportComponent extends \CBitrixComponent
 								$this->selectorItems[] = $selectorItem;
 						}
 						break;
+					case 'money':
+						if($this->ensureModuleIncluded('currency'))
+						{
+							$selectorItem = $this->prepareMoneySelectorItem($ufInfo);
+							if ($selectorItem)
+							{
+								$this->selectorItems[] = $selectorItem;
+							}
+						}
+						break;
 				}
 			}
 		}
@@ -104,7 +127,33 @@ class CReportComponent extends \CBitrixComponent
 
 		return !empty($this->arResult['SELECTOR_ITEMS']);
 	}
-	
+
+	private function prepareBaseListSelectorItem($ufInfo)
+	{
+		$selectorItem = array();
+
+		$selectorItem['USER_TYPE_ID'] = $ufInfo['USER_TYPE_ID'];
+		$selectorItem['ENTITY_ID'] = $ufInfo['ENTITY_ID'];
+		$selectorItem['FIELD_NAME'] = $ufInfo['FIELD_NAME'];
+
+		$isMultiple = (isset($ufInfo['MULTIPLE']) && $ufInfo['MULTIPLE'] === 'Y');
+		$selectorItem['LIST_HEIGHT'] =
+			isset($ufInfo['SETTINGS']['LIST_HEIGHT']) ? intval($ufInfo['SETTINGS']['LIST_HEIGHT']) : 5;
+		if (!$isMultiple && $selectorItem['LIST_HEIGHT'] < 3)
+			$selectorItem['LIST_HEIGHT'] = 5;
+		else if ($selectorItem['LIST_HEIGHT'] <= 0)
+			$selectorItem['LIST_HEIGHT'] = 1;
+		$selectorItem['ITEMS'] = array();
+		$enum = is_array($ufInfo['USER_TYPE']['FIELDS']) ? $ufInfo['USER_TYPE']['FIELDS'] : array();
+		$selectorItem['ITEMS'][] = array('id' => '', 'title' => GetMessage('REPORT_IGNORE_FILTER_VALUE'));
+		foreach ($enum as $k => $v)
+			$selectorItem['ITEMS'][] = array('id' => $k, 'title' => $v);
+
+		$result = $selectorItem;
+
+		return $result;
+	}
+
 	protected function prepareCrmSelectorItem($ufInfo)
 	{
 		/** @global CUser $USER */
@@ -113,8 +162,10 @@ class CReportComponent extends \CBitrixComponent
 		$result = false;
 		$selectorItem = array();
 		
-		if(!CModule::IncludeModule('crm'))
+		if(!Bitrix\Main\Loader::includeModule('crm'))
+		{
 			return $result;
+		}
 
 		$CCrmPerms = new CCrmPerms($USER->GetID());
 		$nPermittedEntityTypes = 0;
@@ -177,7 +228,7 @@ class CReportComponent extends \CBitrixComponent
 						$arImg =  CFile::ResizeImageGet($arFile, array('width' => 25, 'height' => 25), BX_RESIZE_IMAGE_EXACT);
 						if(is_array($arImg) && isset($arImg['src']))
 						{
-							$strImg = CHTTP::URN2URI($arImg['src'], '', true);
+							$strImg = CHTTP::URN2URI($arImg['src'], '');
 						}
 					}
 				}
@@ -218,7 +269,7 @@ class CReportComponent extends \CBitrixComponent
 						$arImg =  CFile::ResizeImageGet($arFile, array('width' => 25, 'height' => 25), BX_RESIZE_IMAGE_EXACT);
 						if(is_array($arImg) && isset($arImg['src']))
 						{
-							$strImg = CHTTP::URN2URI($arImg['src'], '', true);
+							$strImg = CHTTP::URN2URI($arImg['src'], '');
 						}
 					}
 
@@ -366,87 +417,71 @@ class CReportComponent extends \CBitrixComponent
 		return $result;
 	}
 
+	protected function prepareEnumerationSelectorItem($ufInfo)
+	{
+		return $this->prepareBaseListSelectorItem($ufInfo);
+	}
+
 	protected function prepareCrmStatusSelectorItem($ufInfo)
 	{
-		$result = false;
-		$selectorItem = array();
-
-		$selectorItem['USER_TYPE_ID'] = $ufInfo['USER_TYPE_ID'];
-		$selectorItem['ENTITY_ID'] = $ufInfo['ENTITY_ID'];
-		$selectorItem['FIELD_NAME'] = $ufInfo['FIELD_NAME'];
-
-		$isMultiple = (isset($ufInfo['MULTIPLE']) && $ufInfo['MULTIPLE'] === 'Y');
-		$selectorItem['LIST_HEIGHT'] =
-			isset($ufInfo['SETTINGS']['LIST_HEIGHT']) ? intval($ufInfo['SETTINGS']['LIST_HEIGHT']) : 5;
-		if (!$isMultiple && $selectorItem['LIST_HEIGHT'] < 3)
-			$selectorItem['LIST_HEIGHT'] = 5;
-		else if ($selectorItem['LIST_HEIGHT'] <= 0)
-			$selectorItem['LIST_HEIGHT'] = 1;
-		$selectorItem['ITEMS'] = array();
-		$enum = is_array($ufInfo['USER_TYPE']['FIELDS']) ? $ufInfo['USER_TYPE']['FIELDS'] : array();
-		$selectorItem['ITEMS'][] = array('id' => '', 'title' => GetMessage('REPORT_IGNORE_FILTER_VALUE'));
-		foreach ($enum as $k => $v)
-			$selectorItem['ITEMS'][] = array('id' => $k, 'title' => $v);
-
-		$result = $selectorItem;
-
-		return $result;
-
+		return $this->prepareBaseListSelectorItem($ufInfo);
 	}
 
 	protected function prepareIblockElementSelectorItem($ufInfo)
 	{
-		$result = false;
-		$selectorItem = array();
-
-		$selectorItem['USER_TYPE_ID'] = $ufInfo['USER_TYPE_ID'];
-		$selectorItem['ENTITY_ID'] = $ufInfo['ENTITY_ID'];
-		$selectorItem['FIELD_NAME'] = $ufInfo['FIELD_NAME'];
-
-		$isMultiple = (isset($ufInfo['MULTIPLE']) && $ufInfo['MULTIPLE'] === 'Y');
-		$selectorItem['LIST_HEIGHT'] =
-			isset($ufInfo['SETTINGS']['LIST_HEIGHT']) ? intval($ufInfo['SETTINGS']['LIST_HEIGHT']) : 5;
-		if (!$isMultiple && $selectorItem['LIST_HEIGHT'] < 3)
-			$selectorItem['LIST_HEIGHT'] = 5;
-		else if ($selectorItem['LIST_HEIGHT'] <= 0)
-			$selectorItem['LIST_HEIGHT'] = 1;
-		$selectorItem['ITEMS'] = array();
-		$enum = is_array($ufInfo['USER_TYPE']['FIELDS']) ? $ufInfo['USER_TYPE']['FIELDS'] : array();
-		$selectorItem['ITEMS'][] = array('id' => '', 'title' => GetMessage('REPORT_IGNORE_FILTER_VALUE'));
-		foreach ($enum as $k => $v)
-			$selectorItem['ITEMS'][] = array('id' => $k, 'title' => $v);
-
-		$result = $selectorItem;
-
-		return $result;
-
+		return $this->prepareBaseListSelectorItem($ufInfo);
 	}
 
 	protected function prepareIblockSectionSelectorItem($ufInfo)
 	{
+		return $this->prepareBaseListSelectorItem($ufInfo);
+	}
+
+	protected function prepareMoneySelectorItem($ufInfo)
+	{
 		$result = false;
-		$selectorItem = array();
 
-		$selectorItem['USER_TYPE_ID'] = $ufInfo['USER_TYPE_ID'];
-		$selectorItem['ENTITY_ID'] = $ufInfo['ENTITY_ID'];
-		$selectorItem['FIELD_NAME'] = $ufInfo['FIELD_NAME'];
+		if (!Bitrix\Main\Loader::includeModule('currency'))
+		{
+			return $result;
+		}
 
-		$isMultiple = (isset($ufInfo['MULTIPLE']) && $ufInfo['MULTIPLE'] === 'Y');
-		$selectorItem['LIST_HEIGHT'] =
-			isset($ufInfo['SETTINGS']['LIST_HEIGHT']) ? intval($ufInfo['SETTINGS']['LIST_HEIGHT']) : 5;
-		if (!$isMultiple && $selectorItem['LIST_HEIGHT'] < 3)
-			$selectorItem['LIST_HEIGHT'] = 5;
-		else if ($selectorItem['LIST_HEIGHT'] <= 0)
-			$selectorItem['LIST_HEIGHT'] = 1;
-		$selectorItem['ITEMS'] = array();
-		$enum = is_array($ufInfo['USER_TYPE']['FIELDS']) ? $ufInfo['USER_TYPE']['FIELDS'] : array();
-		$selectorItem['ITEMS'][] = array('id' => '', 'title' => GetMessage('REPORT_IGNORE_FILTER_VALUE'));
-		foreach ($enum as $k => $v)
-			$selectorItem['ITEMS'][] = array('id' => $k, 'title' => $v);
+		$currencyListSrc = Bitrix\Currency\Helpers\Editor::getListCurrency();
+		if (!is_array($currencyListSrc))
+		{
+			$currencyListSrc = [];
+		}
+		$currencyList = [['id' => '', 'title' => Loc::getMessage('REPORT_IGNORE_FILTER_VALUE')]];
 
-		$result = $selectorItem;
+		$defaultCurrency = '';
+		$defaultCurrencyIndex = 0;
+		$index = 0;
+		foreach($currencyListSrc as $currency => $currencyInfo)
+		{
+			$value = ['id' => $currency, 'title' => $currencyInfo['NAME']];
+			$currencyList[] = $value;
+
+			if($defaultCurrency === '' || $currencyInfo['BASE'] === 'Y')
+			{
+				$defaultCurrency = $value["id"];
+				$defaultCurrencyIndex = $index;
+			}
+
+			$index++;
+		}
+		unset($currencyListSrc, $index, $currency, $currencyInfo, $value);
+
+		$result = [];
+
+		$result['USER_TYPE_ID'] = $ufInfo['USER_TYPE_ID'];
+		$result['ENTITY_ID'] = $ufInfo['ENTITY_ID'];
+		$result['FIELD_NAME'] = $ufInfo['FIELD_NAME'];
+
+		$result['CURRENCY_LIST'] = $currencyList;
+		$result['DEFAULT_CURRENCY_VALUE'] = $defaultCurrency;
+		$result['DEFAULT_CURRENCY_INDEX'] = $defaultCurrencyIndex;
+		$result['DEFAULT_NUMBER_VALUE'] = '';
 
 		return $result;
-
 	}
 }

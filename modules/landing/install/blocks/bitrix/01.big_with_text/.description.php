@@ -7,53 +7,44 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 
 return array(
-	'block' =>
-		array(
-			'name' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_NAME'),
-			'section' => array('cover'),
+	'block' => array(
+		'name' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_NAME'),
+		'section' => array('cover'),
+	),
+	'cards' => array(
+		'.landing-block-card-img' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_CARDS_LANDINGBLOCKNODEIMG'),
+			'label' => array('.landing-block-card-img')
+			//					'allowInlineEdit' => false,
 		),
-	'cards' =>
-		array(
-			'.landing-block-card-img' =>
-				array(
-					'name' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_CARDS_LANDINGBLOCKNODEIMG'),
-					'label' => array('.landing-block-card-img')
-//					'allowInlineEdit' => false,
-				),
+	),
+	'nodes' => array(
+		'.landing-block-node-small-title' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_NODES_LANDINGBLOCKNODESMALLTITLE'),
+			'type' => 'text',
 		),
-	'nodes' =>
-		array(
-			'.landing-block-node-small-title' =>
-				array(
-					'name' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_NODES_LANDINGBLOCKNODESMALLTITLE'),
-					'type' => 'text',
-				),
-			'.landing-block-node-title' =>
-				array(
-					'name' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_NODES_LANDINGBLOCKNODETITLE'),
-					'type' => 'text',
-				),
-			'.landing-block-node-text' =>
-				array(
-					'name' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_NODES_LANDINGBLOCKNODETEXT'),
-					'type' => 'text',
-				),
-			'.landing-block-node-button' =>
-				array(
-					'name' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_NODES_LANDINGBLOCKNODEBUTTON'),
-					'type' => 'link',
-				),
-			'.landing-block-card-img' =>
-				array(
-					'name' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_CARDS_LANDINGBLOCKNODEIMG'),
-					'type' => 'img',
-					'dimensions' => array('width' => 1600, 'height' => 1075),
-					'allowInlineEdit' => false
-				),
+		'.landing-block-node-title' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_NODES_LANDINGBLOCKNODETITLE'),
+			'type' => 'text',
 		),
+		'.landing-block-node-text' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_NODES_LANDINGBLOCKNODETEXT'),
+			'type' => 'text',
+		),
+		'.landing-block-node-button' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_NODES_LANDINGBLOCKNODEBUTTON'),
+			'type' => 'link',
+		),
+		'.landing-block-card-img' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_CARDS_LANDINGBLOCKNODEIMG'),
+			'type' => 'img',
+			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'allowInlineEdit' => false,
+		),
+	),
 	'style' => array(
 		'block' => array(
-			'type' => array('block-default-wo-background'),
+			'type' => array('display'),
 		),
 		'nodes' => array(
 			'.landing-block-node-text-container' => array(
@@ -76,9 +67,13 @@ return array(
 				'title' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_NODES_LANDINGBLOCKNODEBUTTON'),
 				'type' => 'button',
 			),
+			'.landing-block-card-img' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_CARDS_LANDINGBLOCKNODEIMG'),
+				'type' => 'height-vh',
+			),
 		),
 	),
 	'assets' => array(
 		'ext' => array('landing_carousel'),
-	)
+	),
 );

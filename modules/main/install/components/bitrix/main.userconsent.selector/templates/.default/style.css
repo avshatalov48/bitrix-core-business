@@ -65,9 +65,7 @@
 .main-user-consent-selector-footer {
 	padding: 0 0 0 20px;
 }
-.main-user-consent-selector-footer a{
-	text-transform: lowercase;
-}
+
 .main-user-consent-selector-alert {
 	margin: 0 0 16px 0;
 	padding: 14px 20px;

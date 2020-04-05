@@ -11,7 +11,6 @@ return array(
 		array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.4'),
 			'section' => array('forms'),
-			'type' => 'store',
 			'subtype' => 'form',
 		),
 	'nodes' => array(
@@ -19,6 +18,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.4_NODE_BGIMG'),
 			'type' => 'img',
 			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'allowInlineEdit' => false,
 		),
 	),
 	'style' => array(

@@ -696,7 +696,7 @@ $containerName = 'catalog-products-viewed-container';
 		RELATIVE_QUANTITY_MANY: '<?=CUtil::JSEscape($arParams['MESS_RELATIVE_QUANTITY_MANY'])?>',
 		RELATIVE_QUANTITY_FEW: '<?=CUtil::JSEscape($arParams['MESS_RELATIVE_QUANTITY_FEW'])?>',
 		BTN_MESSAGE_COMPARE_REDIRECT: '<?=GetMessageJS('CT_CPV_CATALOG_BTN_MESSAGE_COMPARE_REDIRECT')?>',
-		SITE_ID: '<?=SITE_ID?>'
+		SITE_ID: '<?=CUtil::JSEscape($component->getSiteId())?>'
 	});
 	var <?=$obName?> = new JCCatalogProductsViewedComponent({
 		initiallyShowHeader: '<?=!empty($arResult['ITEM_ROWS'])?>',

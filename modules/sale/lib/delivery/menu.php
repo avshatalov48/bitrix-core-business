@@ -22,7 +22,7 @@ class Menu
 			"url" => "sale_delivery_service_list.php?lang=".LANGUAGE_ID."&filter_group=0",
 			"page_icon" => "sale_page_icon",
 			//"icon" => "sale_section_icon",
-			"items_id" => "menu_sale_delivery_tree",
+			"items_id" => "sale_delivery_service_list",
 			"more_url" => array(
 				"sale_delivery_service_edit.php?lang=".LANGUAGE_ID."&PARENT_ID=0",
 				"sale_delivery_service_edit.php?lang=".LANGUAGE_ID,
@@ -40,7 +40,7 @@ class Menu
 
 		if(!empty($children))
 		{
-			$result["items"] = $children;
+			$result["items"] = array_values($children);
 			$result["dynamic"] = true;
 		}
 
@@ -98,13 +98,14 @@ class Menu
 			$item = array(
 				"text" => htmlspecialcharsbx($service["NAME"]),
 				"title" => htmlspecialcharsbx($service["DESCRIPTION"]),
-				"url" => "sale_delivery_service_list.php?lang=".LANGUAGE_ID."&filter_group=".$serviceId.'&set_filter=y',
+				"url" => "sale_delivery_service_list.php?lang=".LANGUAGE_ID."&filter_group=".$serviceId."&PARENT_ID=".$serviceId."&apply_filter=y",
 				"page_icon" => "sale_page_icon",
 				//"icon" => $canHasChildren ? "sale_section_icon" : "",
 				"can_has_children" => $canHasChildren,
 				"more_url" => array(
 					"sale_delivery_service_edit.php?lang=".LANGUAGE_ID."&PARENT_ID=".$serviceId
-				)
+				),
+				"items_id" => "sale_delivery_service_list_".$serviceId,
 			);
 
 			if($canHasChildren && !empty($children))

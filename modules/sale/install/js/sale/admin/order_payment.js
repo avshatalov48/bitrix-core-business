@@ -1014,7 +1014,7 @@ BX.Sale.Admin.OrderPayment.prototype.showCreateCheckWindow = function(paymentId)
 				BX.bind(BX('checkTypeSelect'), 'change', function ()
 				{
 					var option = this.value;
-					var disabled = option.indexOf('advance') !== -1;
+					var disabled = option.indexOf('advance') !== -1 || option.indexOf('creditpayment') !== -1;
 
 					var parent = BX.findParent(this, {tag : 'tr'});
 					var tr = parent.nextElementSibling;

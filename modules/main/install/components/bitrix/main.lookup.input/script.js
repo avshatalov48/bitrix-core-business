@@ -158,6 +158,9 @@ function JCMainLookupSelector(arParams)
 				obSearchResult.BX_ROW_DATA = DATA[i];
 				obSearchResult.onclick = _this.__search_result_click;
 				obSearchResult.onmouseover = _this.__search_result_over;
+				BX.bind(obSearchResult, "mousedown", function(event) {
+					event.stopPropagation();
+				});
 			}
 
 			_this.SEARCH.style.display = 'block';
@@ -520,6 +523,9 @@ function JCMainLookupSelectorText(arParams)
 	this.previousCurrentIndex = -1;
 
 	this.timerId = null;
+
+	this.isMainUiFilter = (this.arParams['MAIN_UI_FILTER'] === 'Y');
+	this.isMultiple = (this.arParams['MULTIPLE'] === 'Y');
 
 	this.TEXT = document.getElementById(this.arParams.ID);
 	this.TEXT.bx_last_position = 0;
@@ -1074,10 +1080,21 @@ JCMainLookupSelectorText.prototype.AddTokenData = function(data, bSelect)
 	else
 	{
 		str = jsUtils.trim(data.NAME + ' [' + data.ID + ']');
-		if(this.TEXT.value.indexOf(str) < 0)
+		if (this.isMultiple && this.isMainUiFilter)
 		{
-			this.TEXT.value = str;
-			this.SetTokenData(str, data, bSelect);
+			if(this.TEXT.value.indexOf(str) < 0)
+			{
+				this.TEXT.value += str + "\u00A0";
+				this.SetTokenData(str, data, bSelect);
+			}
+		}
+		else
+		{
+			if(this.TEXT.value.indexOf(str) < 0)
+			{
+				this.TEXT.value = str;
+				this.SetTokenData(str, data, bSelect);
+			}
 		}
 	}
 

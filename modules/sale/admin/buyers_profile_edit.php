@@ -8,6 +8,8 @@ global $APPLICATION;
 
 IncludeModuleLangFile(__FILE__);
 
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions == "D")
 	$APPLICATION->AuthForm(GetMessage("BUYER_PE_ACCESS_DENIED"));
@@ -41,6 +43,7 @@ else
 /*****************************************************************************/
 if ($_SERVER['REQUEST_METHOD'] == "POST" && $saleModulePermissions >= "U" && check_bitrix_sessid() && !empty($arProfile))
 {
+	$adminSidePanelHelper->decodeUriComponent();
 	$CODE_PROFILE_NAME = trim($_REQUEST["CODE_PROFILE_NAME"]);
 	if (strlen($CODE_PROFILE_NAME) > 0)
 		$profileName = $CODE_PROFILE_NAME;
@@ -134,12 +137,32 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $saleModulePermissions >= "U" && che
 	}
 
 	if (count($arErrors) <= 0)
+	{
 		CSaleOrderUserProps::DoSaveUserProfile($USER_ID, $ID, $profileName, $PERSON_TYPE, $arOrderPropsValues, $arErrors);
+	}
+	else
+	{
+		$adminSidePanelHelper->sendJsonErrorResponse(implode("; ", $arErrors));
+	}
+
+	if ($adminSidePanelHelper->isAjaxRequest())
+	{
+		$adminSidePanelHelper->sendSuccessResponse("base");
+	}
 
 	if (isset($_REQUEST["save"]) && strlen($_REQUEST["save"]) > 0 && empty($arErrors))
-		LocalRedirect("/bitrix/admin/sale_buyers_profile.php?lang=".LANGUAGE_ID."&USER_ID=".$USER_ID);
+	{
+		$saveUrl = $selfFolderUrl."sale_buyers_profile.php?lang=".LANGUAGE_ID."&USER_ID=".$USER_ID;
+		$saveUrl = $adminSidePanelHelper->editUrlToPublicPage($saveUrl);
+		$adminSidePanelHelper->localRedirect($saveUrl);
+		LocalRedirect($saveUrl);
+	}
 	elseif (isset($_REQUEST["apply"]) && strlen($_REQUEST["apply"]) > 0 && empty($arErrors))
-		LocalRedirect("/bitrix/admin/sale_buyers_profile_edit.php?id=".$ID."&lang=".LANGUAGE_ID);
+	{
+		$applyUrl = $selfFolderUrl."sale_buyers_profile_edit.php?id=".$ID."&lang=".LANGUAGE_ID;
+		$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
+		LocalRedirect($applyUrl);
+	}
 }
 
 
@@ -178,10 +201,12 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 
 $link = urlencode($APPLICATION->GetCurPage())."?mode=settings";
 $aMenu = array();
+$profileUrl = $selfFolderUrl."sale_buyers_profile.php?USER_ID=".$USER_ID."&lang=".LANGUAGE_ID;
+$profileUrl = $adminSidePanelHelper->editUrlToPublicPage($profileUrl);
 $aMenu = array(
 	array(
 		"TEXT" => GetMessage("BUYER_PE_LIST_PROFILE"),
-		"LINK" => "/bitrix/admin/sale_buyers_profile.php?USER_ID=".$USER_ID."&lang=".LANGUAGE_ID
+		"LINK" => $profileUrl
 	)
 );
 
@@ -201,9 +226,9 @@ $urlForm = "";
 if ($ID > 0)
 	$urlForm = "&id=".$ID;
 
-$tabControl->Begin(array(
-		"FORM_ACTION" => $APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID.$urlForm
-));
+$actionUrl = $APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID.$urlForm;
+$actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
+$tabControl->Begin(array("FORM_ACTION" => $actionUrl));
 
 //TAB EDIT PROFILE
 $tabControl->BeginNextFormTab();
@@ -216,7 +241,7 @@ if(!empty($arProfile) && !empty($arUser))
 
 	$arFilterProps = array("PERSON_TYPE_ID" => $PERSON_TYPE, "ACTIVE" => "Y", "USER_PROPS" => "Y");
 
-	$tabControl->AddViewField("CODE_USER", GetMessage("BUYER_PE_USER").":", "[<a href=\"/bitrix/admin/user_edit.php?ID=".$arUser["ID"]."&lang=".LANGUAGE_ID."\">".$arUser["ID"]."</a>] (".htmlspecialcharsEx($arUser["LOGIN"]).") ".htmlspecialcharsEx($userFIO));
+	$tabControl->AddViewField("CODE_USER", GetMessage("BUYER_PE_USER").":", "[<a href=\"".$selfFolderUrl."user_edit.php?ID=".$arUser["ID"]."&lang=".LANGUAGE_ID."\">".$arUser["ID"]."</a>] (".htmlspecialcharsEx($arUser["LOGIN"]).") ".htmlspecialcharsEx($userFIO));
 	$tabControl->AddEditField("CODE_PROFILE_NAME", GetMessage("BUYER_PE_PROFILE_NAME").":", false, array("size"=>30, "maxlength"=>255), htmlspecialcharsEx($profileName));
 
 	$propertyGroupID = "";
@@ -494,7 +519,9 @@ if(!empty($arProfile) && !empty($arUser))
 		}
 	}
 
-	$tabControl->Buttons(array("back_url"=>"/bitrix/admin/sale_buyers_profile.php?lang=".LANGUAGE_ID."&USER_ID=".$USER_ID));
+	$backUrl = $selfFolderUrl."sale_buyers_profile.php?lang=".LANGUAGE_ID."&USER_ID=".$USER_ID;
+	$backUrl = $adminSidePanelHelper->editUrlToPublicPage($backUrl);
+	$tabControl->Buttons(array("back_url"=>$backUrl));
 	$tabControl->Show();
 }
 

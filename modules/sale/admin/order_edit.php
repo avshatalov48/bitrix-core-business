@@ -198,6 +198,20 @@ if (($isSavingOperation || $isNeedFieldsRestore || $isRefreshDataAndSaveOperatio
 			$res = $discount->calculate();
 			if(!$res->isSuccess())
 				$result->addErrors($res->getErrors());
+			else
+			{
+				$discountData = $res->getData();
+				if (!empty($discountData) && is_array($discountData))
+				{
+					$t = $order->applyDiscount($discountData);
+					if (!$t->isSuccess())
+					{
+						$result->addErrors($t->getErrors());
+					}
+					unset($t);
+				}
+				unset($discountData);
+			}
 
 			if ($isRefreshDataAndSaveOperation && !$order->isCanceled() && !$order->isPaid())
 			{
@@ -406,14 +420,14 @@ if (!$disabledRefresh)
 	$actionMenu[] = array(
 		"TEXT" => Loc::getMessage("SOE_ORDER_REFRESH"),
 		"TITLE"=> Loc::getMessage("SOE_ORDER_REFRESH_TITLE"),
-		"LINK" => "javascript:if(confirm('".GetMessageJS("SOE_ORDER_REFRESH_CONFIRM")."')) BX.Sale.Admin.OrderEditPage.onRefreshOrderDataAndSave();"
+		"ONCLICK" => "if(confirm('".GetMessageJS("SOE_ORDER_REFRESH_CONFIRM")."')) BX.Sale.Admin.OrderEditPage.onRefreshOrderDataAndSave();"
 	);
 }
 
 $actionMenu[] = array(
 	"TEXT" => Loc::getMessage("NEWO_ORDER_DELETE"),
 	"TITLE"=> Loc::getMessage("NEWO_ORDER_DELETE_TITLE"),
-	"LINK" => "javascript:if(confirm('".GetMessageJS("NEWO_CONFIRM_DEL_MESSAGE")."')) window.location='sale_order.php?ID=".$ID."&action=delete&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."'"
+	"ONCLICK" => "if(confirm('".GetMessageJS("NEWO_CONFIRM_DEL_MESSAGE")."')) window.location='sale_order.php?ID=".$ID."&action=delete&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."'"
 );
 
 if(!empty($actionMenu))
@@ -504,7 +518,7 @@ $aTabs = array(
 	array("DIV" => "tab_analysis", "TAB" => Loc::getMessage("SALE_TAB_ANALYSIS"), "TITLE" => Loc::getMessage("SALE_TAB_ANALYSIS"))
 );
 
-?><form method="POST" action="<?=$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ID=".$ID."&".$urlForm?>" name="sale_order_edit_form" id="sale_order_edit_form" enctype="multipart/form-data"><?
+?><form method="POST" action="<?=$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ID=".$ID?>" name="sale_order_edit_form" id="sale_order_edit_form" enctype="multipart/form-data"><?
 
 $tabControl = new CAdminTabControlDrag($formId, $aTabs, $moduleId, false, true);
 $tabControl->AddTabs($customTabber);
@@ -547,8 +561,8 @@ $tabControl->BeginNextTab();
 		<?
 		foreach ($blocksOrder as $blockCode)
 		{
-			echo '<a id="'.$blockCode.'" class="adm-sale-fastnav-anchor"></a>';
 			$tabControl->DraggableBlockBegin($fastNavItems[$blockCode], $blockCode);
+			echo '<a id="'.$blockCode.'" class="adm-sale-fastnav-anchor"></a>';
 
 			switch ($blockCode)
 			{

@@ -110,7 +110,7 @@
 
 .sender-letter-time-popup-date-box {
 	margin: 18px 0 0 0;
-	padding: 0 0 27px 0;
+	padding: 0 0 18px 0;
 	border-bottom: 1px solid rgba(82,92,105,.10);
 }
 
@@ -161,4 +161,20 @@
 
 .sender-letter-time-popup-button {
 	margin: 12px 0 18px 0;
+}
+
+.sender-letter-time-schedule-addit {
+	margin: 18px 0 0 0;
+	padding: 18px 0 0 0;
+	border-top: 1px solid rgba(82,92,105,.10);
+}
+.sender-letter-time-schedule-addit-btn {
+	cursor: pointer;
+}
+.sender-letter-time-schedule-addit-caption {
+	padding: 0 0 9px 0;
+	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+.sender-letter-time-schedule-addit-section {
+	padding: 0 0 9px 0;
 }

@@ -388,7 +388,8 @@
 							pulltext: "Pull to refresh",
 							downtext: "Release to refresh",
 							loadtext: "Loading...",
-							timeout: "60"
+							timeout: "60",
+							backgroundColor: ''
 						},
 						setParams: function (params)
 						{
@@ -398,6 +399,7 @@
 							this.params.callback = (params.callback ? params.callback : this.params.callback);
 							this.params.enable = (typeof params.enabled == "boolean" ? params.enabled : this.params.enable);
 							this.params.timeout = (params.timeout ? params.timeout : this.params.timeout);
+							this.params.backgroundColor = (params.backgroundColor ? params.backgroundColor : this.params.backgroundColor);
 							app.pullDown(this.params);
 						},
 						setEnabled: function (enabled)
@@ -873,19 +875,22 @@
 				return false;
 			},
 			postToComponent: function (eventName, params, code)
-            {
-                if(app.enableInVersion(25))
-                {
-                    if (typeof(params) == "object")
-                        params = JSON.stringify(params);
-                    app.exec("fireEvent", {
-                        eventName: eventName,
-                        params: params,
-                        componentCode:code
-                    }, false);
+			{
+				if(app.enableInVersion(25))
+				{
+					if (typeof(params) == "object")
+					{
+						params = JSON.stringify(params);
+					}
 
-                    return true;
-                }
+					app.exec("fireEvent", {
+						eventName: eventName,
+						params: params,
+						componentCode:code
+					}, false);
+
+					return true;
+				}
 
 				return false;
             },

@@ -64,9 +64,13 @@ BX.namespace('BX.Sale.PersonalOrderComponent');
 					);
 					event.preventDefault();
 				}, this));
-				
+
+				var isChangingLoaded = false;
 				BX.bindDelegate(wrapper, 'click', { 'class': 'sale-order-list-change-payment' }, BX.proxy(function(event)
 				{
+					if (isChangingLoaded)
+						return;
+					isChangingLoaded = true;
 					event.preventDefault();
 
 					var block = wrapper.getElementsByClassName('sale-order-list-inner-row-body')[0];
@@ -103,6 +107,7 @@ BX.namespace('BX.Sale.PersonalOrderComponent');
 							},this),
 							onfailure: BX.proxy(function()
 							{
+								isChangingLoaded = false;
 								return this;
 							}, this)
 						}, this

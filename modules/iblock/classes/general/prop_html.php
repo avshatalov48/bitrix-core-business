@@ -24,6 +24,7 @@ class CIBlockPropertyHTML
 			"GetLength" =>array(__CLASS__, "GetLength"),
 			"PrepareSettings" =>array(__CLASS__, "PrepareSettings"),
 			"GetSettingsHTML" =>array(__CLASS__, "GetSettingsHTML"),
+			"GetUIFilterProperty" => array(__CLASS__, "GetUIFilterProperty")
 		);
 	}
 
@@ -321,6 +322,18 @@ class CIBlockPropertyHTML
 			<td><input type="text" size="5" name="'.$strHTMLControlName["NAME"].'[height]" value="'.$height.'">px</td>
 		</tr>
 		';
+	}
+
+	/**
+	 * @param array $property
+	 * @param array $strHTMLControlName
+	 * @param array &$fields
+	 * @return void
+	 */
+	public static function GetUIFilterProperty($property, $strHTMLControlName, &$fields)
+	{
+		$fields["type"] = "string";
+		$fields["filterable"] = "?";
 	}
 
 	protected static function getValueFromString($value, $getFull = false)

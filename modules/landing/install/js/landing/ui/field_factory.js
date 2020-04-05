@@ -4,6 +4,7 @@
 	BX.namespace("BX.Landing.UI.Factory");
 
 	var isFunction = BX.Landing.Utils.isFunction;
+	var assign = BX.Landing.Utils.assign;
 
 
 	BX.Landing.UI.Factory.FieldFactory = function(params)
@@ -26,10 +27,30 @@
 					selector: this.selector,
 					content: options.value,
 					placeholder: options.placeholder,
+					description: options.description,
 					textOnly: true,
+					onInput: options.onInput,
 					onChange: this.onChangeHandler,
 					onValueChange: this.onValueChangeHandler,
 					attribute: options.attribute
+				});
+			}
+
+			if (options.type === "date")
+			{
+				return new BX.Landing.UI.Field.Date({
+					title: options.name,
+					selector: this.selector,
+					content: options.value,
+					placeholder: options.placeholder,
+					description: options.description,
+					textOnly: true,
+					onInput: options.onInput,
+					onChange: this.onChangeHandler,
+					onValueChange: this.onValueChangeHandler,
+					attribute: options.attribute,
+					time: options.time,
+					format: options.format
 				});
 			}
 
@@ -105,18 +126,17 @@
 
 			if (options.type === "url")
 			{
-				return new BX.Landing.UI.Field.LinkURL({
+				options = assign({}, options, {
 					title: options.name,
-					selector: this.selector,
 					content: options.value,
+					selector: this.selector,
 					onChange: this.onChangeHandler,
 					onValueChange: this.onValueChangeHandler,
-					attribute: options.attribute,
 					options: this.linkOptions,
-					disableBlocks: options.disableBlocks,
-					disableCustomURL: options.disableCustomURL,
 					textOnly: true
 				});
+
+				return new BX.Landing.UI.Field.LinkURL(options);
 			}
 
 			if (options.type === "slider" || options.type === "range-slider")

@@ -17,14 +17,18 @@ class CBPPropertyVariableCondition
 	public function Evaluate(CBPActivity $ownerActivity)
 	{
 		if ($this->condition == null || !is_array($this->condition) || count($this->condition) <= 0)
+		{
 			return true;
+		}
 
 		if (!is_array($this->condition[0]))
+		{
 			$this->condition = array($this->condition);
+		}
 
 		$rootActivity = $ownerActivity->GetRootActivity();
 
-		$result = array(0 => true);
+		$result = [0 => true];
 		$i = 0;
 		foreach ($this->condition as $cond)
 		{
@@ -56,19 +60,40 @@ class CBPPropertyVariableCondition
 		return sizeof($result) > 0 ? true : false;
 	}
 
-	private function CheckCondition($field, $operation, $value, $type = null, $rootActivity = null, $property = null)
+	/**
+	 * @param $field
+	 * @param $operation
+	 * @param $value
+	 * @param null $baseType
+	 * @param CBPActivity $rootActivity
+	 * @param null $property
+	 * @return bool
+	 */
+	private function CheckCondition($field, $operation, $value, $baseType, $rootActivity, $property = null)
 	{
-		$result = false;
+		if ($operation === 'empty')
+		{
+			return CBPHelper::isEmptyValue($field);
+		}
+		elseif ($operation === '!empty')
+		{
+			return !CBPHelper::isEmptyValue($field);
+		}
 
-		$value = $rootActivity->ParseValue($value, is_array($property) ? $property['Type'] : $type);
-		if ($type == "user")
+		$result = false;
+		$type = is_array($property) ? $property['Type'] : $baseType;
+
+		$value = $rootActivity->ParseValue($value, $type);
+		if ($baseType == "user")
 		{
 			$field = CBPHelper::ExtractUsersFromUserGroups($field, $rootActivity);
 			$value = CBPHelper::ExtractUsersFromUserGroups($value, $rootActivity);
 		}
 
 		if (!is_array($field))
+		{
 			$field = array($field);
+		}
 
 		if ($operation == "in")
 		{
@@ -110,19 +135,28 @@ class CBPPropertyVariableCondition
 		}
 
 		if (!is_array($value))
+		{
 			$value = array($value);
+		}
 
 		if (CBPHelper::IsAssociativeArray($field))
+		{
 			$field = array_keys($field);
+		}
+
 		if (CBPHelper::IsAssociativeArray($value))
+		{
 			$value = array_keys($value);
+		}
 
 		$i = 0;
 		$fieldCount = count($field);
 		$valueCount = count($value);
 
 		if (($fieldCount == 0) && ($valueCount == 0))
+		{
 			return in_array($operation, array("=", ">=", "<="));
+		}
 
 		$iMax = max($fieldCount, $valueCount);
 		while ($i < $iMax)
@@ -130,7 +164,7 @@ class CBPPropertyVariableCondition
 			$f1 = ($fieldCount > $i) ? $field[$i] : $field[$fieldCount - 1];
 			$v1 = ($valueCount > $i) ? $value[$i] : $value[$valueCount - 1];
 
-			if ($type == "datetime" || $type == "date")
+			if ($baseType == "datetime" || $baseType == "date")
 			{
 				if (($f1Tmp = MakeTimeStamp($f1, FORMAT_DATETIME)) === false)
 				{
@@ -159,35 +193,51 @@ class CBPPropertyVariableCondition
 				$v1 = $v1Tmp;
 			}
 
-			if ($type === 'bool')
+			if ($baseType === 'bool')
 			{
 				$f1 = CBPHelper::getBool($f1);
 				$v1 = CBPHelper::getBool($v1);
 			}
 
+			/** @var \Bitrix\Bizproc\BaseType\Base $classType */
+			$classType = \Bitrix\Bizproc\BaseType\Base::class;
+			if ($type)
+			{
+				$fieldType = $rootActivity->workflow
+					->GetService('DocumentService')
+					->getFieldTypeObject($rootActivity->GetDocumentType(), ['Type' => $type]);
+				if ($fieldType)
+				{
+					$classType = $fieldType->getTypeClass();
+				}
+			}
+			$compareResult = $classType::compareValues($f1, $v1);
+
 			switch ($operation)
 			{
 				case ">":
-					$result = ($f1 > $v1);
+					$result = ($compareResult === 1);
 					break;
 				case ">=":
-					$result = ($f1 >= $v1);
+					$result = ($compareResult >= 0);
 					break;
 				case "<":
-					$result = ($f1 < $v1);
+					$result = ($compareResult === -1);
 					break;
 				case "<=":
-					$result = ($f1 <= $v1);
+					$result = ($compareResult <= 0);
 					break;
 				case "!=":
-					$result = ($f1 != $v1);
+					$result = ($compareResult !== 0);
 					break;
 				default:
-					$result = ($f1 == $v1);
+					$result = ($compareResult === 0);
 			}
 
 			if (!$result)
+			{
 				break;
+			}
 
 			$i++;
 		}
@@ -198,7 +248,9 @@ class CBPPropertyVariableCondition
 	public static function GetPropertiesDialog($documentType, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $defaultValue, $arCurrentValues = null, $formName = "")
 	{
 		if (count($arWorkflowParameters) <= 0 && count($arWorkflowVariables) <= 0)
+		{
 			return null;
+		}
 
 		$runtime = CBPRuntime::GetRuntime();
 		$documentService = $runtime->GetService("DocumentService");
@@ -206,7 +258,7 @@ class CBPPropertyVariableCondition
 
 		if (!is_array($arCurrentValues))
 		{
-			$arCurrentValues = array();
+			$arCurrentValues = [];
 			if (is_array($defaultValue))
 			{
 				$i = 0;
@@ -221,27 +273,6 @@ class CBPPropertyVariableCondition
 					$arCurrentValues["variable_condition_value_".$i] = $value[2];
 					$arCurrentValues["variable_condition_joiner_".$i] = $value[3];
 
-					//if (array_key_exists($value[0], $arWorkflowParameters))
-					//{
-					//	if ($arFieldTypes[$arWorkflowParameters[$value[0]]["Type"]]["BaseType"] == "user" && $arWorkflowParameters[$value[0]]["Type"] != "S:employee")
-					//	{
-					//		if (!is_array($arCurrentValues["variable_condition_value_".$i]))
-					//			$arCurrentValues["variable_condition_value_".$i] = array($arCurrentValues["variable_condition_value_".$i]);
-					//
-					//		$arCurrentValues["variable_condition_value_".$i] = CBPHelper::UsersArrayToString($arCurrentValues["variable_condition_value_".$i], $arWorkflowTemplate, $documentType);
-					//	}
-					//}
-					//elseif (array_key_exists($value[0], $arWorkflowVariables))
-					//{
-					//	if ($arFieldTypes[$arWorkflowVariables[$value[0]]["Type"]]["BaseType"] == "user" && $arWorkflowParameters[$value[0]]["Type"] != "S:employee")
-					//	{
-					//		if (!is_array($arCurrentValues["variable_condition_value_".$i]))
-					//			$arCurrentValues["variable_condition_value_".$i] = array($arCurrentValues["variable_condition_value_".$i]);
-					//
-					//		$arCurrentValues["variable_condition_value_".$i] = CBPHelper::UsersArrayToString($arCurrentValues["variable_condition_value_".$i], $arWorkflowTemplate, $documentType);
-					//	}
-					//}
-
 					$i++;
 				}
 			}
@@ -252,22 +283,26 @@ class CBPPropertyVariableCondition
 			foreach ($arVariableConditionCount as $i)
 			{
 				if (intval($i)."!" != $i."!")
+				{
 					continue;
+				}
 
 				$i = intval($i);
 
 				if (!array_key_exists("variable_condition_field_".$i, $arCurrentValues) || strlen($arCurrentValues["variable_condition_field_".$i]) <= 0)
+				{
 					continue;
+				}
 
 				$n = $arCurrentValues["variable_condition_field_".$i];
 
-				$arErrors = array();
+				$errors = [];
 				$arCurrentValues["variable_condition_value_".$i] = $documentService->GetFieldInputValue(
 					$documentType,
 					array_key_exists($n, $arWorkflowParameters) ? $arWorkflowParameters[$n] : $arWorkflowVariables[$n],
 					"variable_condition_value_".$i,
 					$arCurrentValues,
-					$arErrors
+					$errors
 				);
 			}
 		}
@@ -288,13 +323,13 @@ class CBPPropertyVariableCondition
 		);
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues, &$arErrors)
+	public static function GetPropertiesDialogValues($documentType, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues, &$errors)
 	{
-		$arErrors = array();
+		$errors = [];
 
 		if (!array_key_exists("variable_condition_count", $arCurrentValues) || strlen($arCurrentValues["variable_condition_count"]) <= 0)
 		{
-			$arErrors[] = array(
+			$errors[] = array(
 				"code" => "",
 				"message" => GetMessage("BPPVC_EMPTY_CONDITION"),
 			);
@@ -303,44 +338,36 @@ class CBPPropertyVariableCondition
 
 		$runtime = CBPRuntime::GetRuntime();
 		$documentService = $runtime->GetService("DocumentService");
-		$arFieldTypes = $documentService->GetDocumentFieldTypes($documentType);
 
-		$arResult = array();
+		$result = [];
 
 		$arVariableConditionCount = explode(",", $arCurrentValues["variable_condition_count"]);
 		foreach ($arVariableConditionCount as $i)
 		{
 			if (intval($i)."!" != $i."!")
+			{
 				continue;
+			}
 
 			$i = intval($i);
 
 			if (!array_key_exists("variable_condition_field_".$i, $arCurrentValues) || strlen($arCurrentValues["variable_condition_field_".$i]) <= 0)
+			{
 				continue;
+			}
 
 			$n = $arCurrentValues["variable_condition_field_".$i];
 
-			$arErrors = array();
+			$errors = [];
 			$arCurrentValues["variable_condition_value_".$i] = $documentService->GetFieldInputValue(
 				$documentType,
 				array_key_exists($n, $arWorkflowParameters) ? $arWorkflowParameters[$n] : $arWorkflowVariables[$n],
 				"variable_condition_value_".$i,
 				$arCurrentValues,
-				$arErrors
+				$errors
 			);
 
-			/*if (array_key_exists($arCurrentValues["variable_condition_field_".$i], $arWorkflowParameters))
-			{
-				if ($arFieldTypes[$arWorkflowParameters[$arCurrentValues["variable_condition_field_".$i]]["Type"]]["BaseType"] == "user")
-					$arCurrentValues["variable_condition_value_".$i] = CBPHelper::UsersStringToArray($arCurrentValues["variable_condition_value_".$i], $documentType, $ae);
-			}
-			elseif (array_key_exists($arCurrentValues["variable_condition_field_".$i], $arWorkflowVariables))
-			{
-				if ($arFieldTypes[$arWorkflowVariables[$arCurrentValues["variable_condition_field_".$i]]["Type"]]["BaseType"] == "user")
-					$arCurrentValues["variable_condition_value_".$i] = CBPHelper::UsersStringToArray($arCurrentValues["variable_condition_value_".$i], $documentType, $ae);
-			}*/
-
-			$arResult[] = array(
+			$result[] = array(
 				$arCurrentValues["variable_condition_field_".$i],
 				htmlspecialcharsback($arCurrentValues["variable_condition_condition_".$i]),
 				$arCurrentValues["variable_condition_value_".$i],
@@ -348,17 +375,16 @@ class CBPPropertyVariableCondition
 			);
 		}
 
-		if (count($arResult) <= 0)
+		if (count($result) <= 0)
 		{
-			$arErrors[] = array(
+			$errors[] = array(
 				"code" => "",
 				"message" => GetMessage("BPPVC_EMPTY_CONDITION"),
 			);
 			return null;
 		}
 
-		return $arResult;
+		return $result;
 	}
 
 }
-?>

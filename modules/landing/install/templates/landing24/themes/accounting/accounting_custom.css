@@ -1,26 +1,7 @@
-/*
-For colors, than white in dark themes and vice versa
-Use color from standart H
-*/
-h2.g-theme-light-color-dark, h4.g-theme-light-color-dark {color: #000;}
-
-
 /* Fix for complex button with icon. Need no bg color */
 .u-btn-inset > .u-btn-darkgray {
 	background-color: transparent;
 }
-
-/* for overwrite P color */
-.g-color-primary,
-.g-color-primary *,
-.g-color-primary p {
-	color: #a5c33c;
-}
-
-
-
-
-
 
 
 
@@ -28,24 +9,8 @@ h2.g-theme-light-color-dark, h4.g-theme-light-color-dark {color: #000;}
 THEMES CUSTOM COLORS
 *********** */
 
-.landing-block-node-menu-list.navbar-nav .nav-item .nav-link:hover, .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link {
-	color: #a5c33c !important;
-}
-
-.g-bg-white .landing-block-node-menu-list.navbar-nav .nav-item .nav-link-color-hover:hover {
-	background-color: #a5c33c !important;
-}
-
-.g-bg-white .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link-color-hover {
-	background-color: #a5c33c !important;
-}
-
 .g-py-120 .mb-5 {
 	color: #292b2c;
-}
-
-.g-color-primary--hover:hover * {
-	color: #a5c33c !important;
 }
 
 .u-btn-inset::before {
@@ -68,11 +33,6 @@ THEMES CUSTOM COLORS
 }
 
 
-
-/* RESTAURANT */
-.u-theme-restaurant-shadow-v1 {
-	box-shadow: inset 2px 2px 2px #95b036;
-}
 
 /* BUTTON HOVERS */
 

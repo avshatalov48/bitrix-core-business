@@ -63,6 +63,9 @@ class StatusTable extends Main\Entity\DataManager
 				'title'         => Loc::getMessage('B_SALE_STATUS_COLOR'),
 			)),
 
+			new Main\Entity\StringField('XML_ID', array(
+				'title' => Loc::getMessage('B_SALE_STATUS_XML_ID'),
+			)),
 		);
 	}
 
@@ -110,5 +113,13 @@ class StatusTable extends Main\Entity\DataManager
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function generateXmlId()
+	{
+		return uniqid('bx_');
 	}
 }

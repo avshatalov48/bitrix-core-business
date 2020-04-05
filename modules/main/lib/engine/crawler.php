@@ -53,33 +53,38 @@ final class Crawler
 		$actions = array();
 		foreach ($this->getFilesUnderNamespace($namespace) as $className)
 		{
-			$reflectionClass = new \ReflectionClass($className);
-			if ($reflectionClass->isAbstract())
+			try
 			{
-				continue;
+				$reflectionClass = new \ReflectionClass($className);
+				if ($reflectionClass->isAbstract())
+				{
+					continue;
+				}
+
+				$classNamespace = strtolower(trim($reflectionClass->getNamespaceName(), '\\'));
+				$namespace = strtolower(trim($namespace, '\\'));
+
+				if (strpos($classNamespace, $namespace) === false)
+				{
+					continue;
+				}
+
+				if (!$reflectionClass->isSubclassOf(Controller::className()))
+				{
+					continue;
+				}
+
+				$controllerName = strtr($reflectionClass->getName(), '\\', '.');
+				$controllerName = strtolower($controllerName);
+
+				$controller = $this->constructController($reflectionClass);
+				foreach ($controller->listNameActions() as $actionName)
+				{
+					$actions[] = $controllerName . '.' . strtolower($actionName);
+				}
 			}
-
-			$classNamespace = strtolower(trim($reflectionClass->getNamespaceName(), '\\'));
-			$namespace = strtolower(trim($namespace, '\\'));
-
-			if (strpos($classNamespace, $namespace) === false)
-			{
-				continue;
-			}
-
-			if (!$reflectionClass->isSubclassOf(Controller::className()))
-			{
-				continue;
-			}
-
-			$controllerName = strtr($reflectionClass->getName(), '\\', '.');
-			$controllerName = strtolower($controllerName);
-
-			$controller = $this->constructController($reflectionClass);
-			foreach ($controller->listNameActions() as $actionName)
-			{
-				$actions[] = $controllerName . '.' . strtolower($actionName);
-			}
+			catch (\ReflectionException $exception)
+			{}
 		}
 
 		return $actions;

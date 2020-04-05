@@ -6,5 +6,5 @@ $MESS["REST_HOOK_HEADER_COMMENT"] = "Comment";
 $MESS["REST_HOOK_HEADER_DATE_CREATE"] = "Created on";
 $MESS["REST_HOOK_HEADER_DATE_LOGIN"] = "Last visit";
 $MESS["REST_HOOK_HEADER_LAST_IP"] = "Last IP";
-$MESS["REST_AP_LIST_TITLE"] = "Inbound web hooks";
+$MESS["REST_AP_LIST_TITLE"] = "Inbound webhooks";
 ?>

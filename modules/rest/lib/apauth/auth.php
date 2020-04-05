@@ -28,7 +28,7 @@ class Auth
 
 	public static function onRestCheckAuth(array $query, $scope, &$res)
 	{
-		$auth = null;
+		$auth = array();
 		foreach(static::$authQueryParams as $key)
 		{
 			if(array_key_exists($key, $query))

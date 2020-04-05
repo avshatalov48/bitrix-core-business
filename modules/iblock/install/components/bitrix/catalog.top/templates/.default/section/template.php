@@ -671,7 +671,7 @@ $containerName = 'catalog-top-container';
 		RELATIVE_QUANTITY_FEW: '<?=CUtil::JSEscape($arParams['MESS_RELATIVE_QUANTITY_FEW'])?>'
 	});
 	var <?=$obName?> = new JCCatalogTopComponent({
-		siteId: '<?=CUtil::JSEscape(SITE_ID)?>',
+		siteId: '<?=CUtil::JSEscape($component->getSiteId())?>',
 		componentPath: '<?=CUtil::JSEscape($componentPath)?>',
 		deferredLoad: false, // enable it for deferred load
 		initiallyShowHeader: '<?=!empty($arResult['ITEM_ROWS'])?>',

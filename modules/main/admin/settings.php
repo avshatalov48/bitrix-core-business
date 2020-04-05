@@ -48,7 +48,13 @@ foreach($adminPage->aModules as $module)
 		$arModules[$module]["SORT"] = $info->MODULE_SORT;
 	}
 }
-uasort($arModules, create_function('$a, $b', 'if($a["SORT"] == $b["SORT"]) return strcasecmp($a["NAME"], $b["NAME"]); return ($a["SORT"] < $b["SORT"])? -1 : 1;'));
+\Bitrix\Main\Type\Collection::sortByColumn(
+	$arModules,
+	['SORT' => SORT_ASC, 'NAME' => SORT_STRING],
+	'',
+	null,
+	true
+);
 
 $mid = $_REQUEST["mid"];
 if($mid == "" || !isset($arModules[$mid]) || !file_exists($arModules[$mid]["PAGE"]))
@@ -128,15 +134,15 @@ function __AdmSettingsSaveOption($module_id, $arOption)
 	}
 	else
 	{
-		$val = $_REQUEST[$name];
-		//disabled
 		if(!isset($_REQUEST[$name]))
 		{
-			if($arOption[3][0] == 'checkbox')
-				$val = 'N';
-			else
+			if($arOption[3][0] <> 'checkbox' && $arOption[3][0] <> "multiselectbox")
+			{
 				return false;
+			}
 		}
+
+		$val = $_REQUEST[$name];
 
 		if($arOption[3][0] == "checkbox" && $val != "Y")
 			$val = "N";
@@ -152,6 +158,11 @@ function __AdmSettingsSaveOption($module_id, $arOption)
 function __AdmSettingsDrawRow($module_id, $Option)
 {
 	$arControllerOption = CControllerClient::GetInstalledOptions($module_id);
+	if($Option === null)
+	{
+		return;
+	}
+
 	if(!is_array($Option)):
 	?>
 		<tr class="heading">
@@ -264,12 +275,20 @@ function renderLable($Option, array $listSite, $siteValue = "")
 	?>
 	<?if ($isChoiceSites): ?>
 	<script type="text/javascript">
-		//TODO It is possible to modify the functions if necessary to clone different elements
 		function changeSite(el, fieldName)
 		{
 			var tr = jsUtils.FindParentObject(el, "tr");
-			var sel = jsUtils.FindChildObject(tr.cells[1], "select");
-			sel.name = fieldName+"_"+el.value;
+			var sel = null, tagNames = ["select", "input", "textarea"];
+			for (var i = 0; i < tagNames.length; i++)
+			{
+				sel = jsUtils.FindChildObject(tr.cells[1], tagNames[i]);
+				if (sel)
+				{
+					sel.name = fieldName+"_"+el.value;
+					break;
+				}
+
+			}
 		}
 		function addSiteSelector(a)
 		{

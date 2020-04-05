@@ -12,4 +12,7 @@ $MESS["AUTH_EMAIL_WILL_BE_SENT"] = "На указанный в форме e-mail
 $MESS["AUTH_EMAIL_SENT"] = "На указанный в форме e-mail было выслано письмо с информацией о подтверждении регистрации.";
 $MESS["AUTH_EMAIL"] = "E-Mail";
 $MESS["AUTH_SECURE_NOTE"] = "Перед отправкой формы пароль будет зашифрован в браузере. Это позволит избежать передачи пароля в открытом виде.";
+$MESS["main_register_sms_code"] = "Код подтверждения из СМС";
+$MESS["main_register_sms_send"] = "Отправить";
+$MESS["main_register_phone_number"] = "Номер телефона";
 ?>

@@ -36,7 +36,4 @@
 			</a>
 		</li>
 	</ul>
-
-<!--	dbg-->
-<!--	FB, VK, instagram, twitter, youtube, skype, google+, vine, Linkedin", pinterest, dribble-->
 </section>

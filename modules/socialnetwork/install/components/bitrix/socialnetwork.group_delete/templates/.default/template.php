@@ -34,6 +34,7 @@ else
 			BX.ready(function() {
 				BX.BXSGD.init({
 					groupId: <?=intval($arResult["Group"]["ID"])?>,
+					groupType: '<?=CUtil::JSEscape($arResult["groupTypeCode"])?>',
 					errorBlockName: 'sonet_group_delete_error_block'
 				});
 			});

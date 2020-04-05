@@ -51,6 +51,7 @@ $MESS["IBLOCK_XML2_BX_LIST_TYPE"] = "БитриксТипСписка";
 $MESS["IBLOCK_XML2_BX_FILE_EXT"] = "БитриксТипыФайлов";
 $MESS["IBLOCK_XML2_BX_FILTER"] = "БитриксФильтрРазрешен";
 $MESS["IBLOCK_XML2_BX_IS_REQUIRED"] = "БитриксОбязательное";
+$MESS["IBLOCK_XML2_BX_PROPERTY_FEATURE_LIST"] = "БитриксРасширенныеПараметры";
 $MESS["IBLOCK_XML2_CURRENCY"] = "Валюта";
 $MESS["IBLOCK_XML2_VALUES_TYPES"] = "ТипыЗначений";
 $MESS["IBLOCK_XML2_VALUES_TYPE"] = "ТипЗначений";
@@ -193,4 +194,5 @@ $MESS["IBLOCK_XML2_HBLOCK_NAME_IS_INVALID"] = "Название справочн
 $MESS["IBLOCK_XML2_MODULE_CATALOG_IS_ABSENT"] = "Отсутствует модуль \"Торговый каталог\". Импорт торговых предложений и цен невозможен.";
 $MESS["IBLOCK_XML2_LINK"] = "Ссылка";
 $MESS["IBLOCK_XML2_FULL_DESCRIPTION"] = "ПолноеОписание";
+$MESS["IBLOCK_XML2_TEMPORARY_TABLE_EXIST_ERROR"] = "Временная таблица не существует";
 ?>

@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Landing\Hook\Page;
 
+use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Hook;
 use \Bitrix\Landing\Field;
 use \Bitrix\Main\Localization\Loc;
@@ -39,6 +40,8 @@ class Settings extends \Bitrix\Landing\Hook\Page
 		'PRICE_VAT_INCLUDE' => 'Y',
 		'SHOW_OLD_PRICE' => 'Y',
 		'SHOW_DISCOUNT_PERCENT' => 'Y',
+		'USE_PRICE_COUNT' => 'N',
+		'SHOW_PRICE_COUNT' => 1,
 		'USE_ENHANCED_ECOMMERCE' => 'Y',
 		'DATA_LAYER_NAME' => 'dataLayer',
 		'BRAND_PROPERTY' => 'BRAND_REF'
@@ -61,7 +64,7 @@ class Settings extends \Bitrix\Landing\Hook\Page
 		{
 			$codes = array(
 				'' => array(
-					'IBLOCK_ID'//, 'SECTION_ID'
+					'IBLOCK_ID', 'SECTION_ID'
 				),
 				'VIEW' => array(
 					'HIDE_NOT_AVAILABLE', 'HIDE_NOT_AVAILABLE_OFFERS', 'PRODUCT_SUBSCRIPTION',
@@ -80,7 +83,7 @@ class Settings extends \Bitrix\Landing\Hook\Page
 		{
 			$codes = array(
 				'' => array(
-					'IBLOCK_ID'//, 'SECTION_ID'
+					'IBLOCK_ID', 'SECTION_ID'
 				)
 			);
 		}
@@ -213,23 +216,50 @@ class Settings extends \Bitrix\Landing\Hook\Page
 		$fields = array();
 
 		// set iblock_id to the map
-		if (!\Bitrix\Landing\Manager::isB24())
+		if (!Manager::isB24())
 		{
 			$catalogs = array(
 				'' => ''
 			);
-			if (Loader::includeModule('catalog'))
+			$allowedCatalogs = array();
+			$catalogIncluded = Loader::includeModule('catalog');
+
+			if ($catalogIncluded)
 			{
-				$res = \CCatalog::getList();
+				$iterator = \Bitrix\Catalog\CatalogIblockTable::getList(array(
+					'select' => array(
+						'IBLOCK_ID', 'PRODUCT_IBLOCK_ID'
+					)
+				));
+				while ($row = $iterator->fetch())
+				{
+					$row['IBLOCK_ID'] = (int)$row['IBLOCK_ID'];
+					$row['PRODUCT_IBLOCK_ID'] = (int)$row['PRODUCT_IBLOCK_ID'];
+					if ($row['PRODUCT_IBLOCK_ID'] > 0)
+						$allowedCatalogs[$row['PRODUCT_IBLOCK_ID']] = true;
+					else
+						$allowedCatalogs[$row['IBLOCK_ID']] = true;
+				}
+				unset($row, $iterator);
 			}
-			elseif (Loader::includeModule('iblock'))
+			if (Loader::includeModule('iblock'))
 			{
-				$res = \CIblock::getList();
+				$res = \CIblock::getList(
+					[],
+					[
+						'SITE_ID' => Manager::getMainSiteId()
+					]
+				);
 			}
 			if (isset($res))
 			{
 				while ($row = $res->fetch())
 				{
+					$row['ID'] = (int)$row['ID'];
+					if ($catalogIncluded && !isset($allowedCatalogs[$row['ID']]))
+					{
+						continue;
+					}
 					$catalogs[$row['ID']] = '[' . $row['ID'] . '] ' . $row['NAME'];
 				}
 			}
@@ -241,6 +271,7 @@ class Settings extends \Bitrix\Landing\Hook\Page
 					'VALUES' => $catalogs
 				)
 			);
+			unset($allowedCatalogs);
 		}
 
 		foreach (self::getComponentsParams() as $code => $params)
@@ -254,6 +285,10 @@ class Settings extends \Bitrix\Landing\Hook\Page
 				);
 			}
 		}
+
+		$fields['AGREEMENT_ID'] = self::getFieldByType(
+			null, 'AGREEMENT_ID'
+		);
 
 		return $fields;
 	}
@@ -318,9 +353,22 @@ class Settings extends \Bitrix\Landing\Hook\Page
 		}
 
 		// additional
-		$settings[$id]['IBLOCK_ID'] = isset($hooks['SETTINGS']['IBLOCK_ID'])
-								? $hooks['SETTINGS']['IBLOCK_ID']
-								: 0;
+		if (!Manager::isB24())
+		{
+			$settings[$id]['IBLOCK_ID'] = isset($hooks['SETTINGS']['IBLOCK_ID'])
+				? $hooks['SETTINGS']['IBLOCK_ID']
+				: 0;
+		}
+		else
+		{
+			$settings[$id]['IBLOCK_ID'] = \Bitrix\Main\Config\Option::get(
+				'crm', 'default_product_catalog_id'
+			);
+		}
+		if (isset($hooks['SETTINGS']['AGREEMENT_ID']))
+		{
+			$settings[$id]['AGREEMENT_ID'] = $hooks['SETTINGS']['AGREEMENT_ID'];
+		}
 
 		return $settings[$id];
 	}

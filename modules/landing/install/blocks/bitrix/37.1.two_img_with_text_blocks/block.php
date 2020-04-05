@@ -5,8 +5,8 @@
 				<!-- Article -->
 				<article class="row align-items-stretch text-center g-color-gray-dark-v5 g-bg-black mx-0">
 					<!--Article Content-->
-					<div class="landing-block-node-block col-sm-6 u-ns-bg-v1-bottom u-ns-bg-bottom u-ns-bg-v1-right--md g-bg-black g-px-30 g-py-45">
-						<h3 class="landing-block-node-title js-animation flipInX text-uppercase g-font-size-20 g-color-white g-mb-25">Became
+					<div class="landing-block-node-block col-sm-6 u-ns-bg-v1-bottom u-ns-bg-bottom u-ns-bg-v1-right--md g-bg-black g-pl-30 g-pr-30 g-pb-45 g-pt-45">
+						<h3 class="landing-block-node-title js-animation flipInX text-uppercase g-font-size-20 g-color-white g-mb-25">Become
 							a
 							<span style="font-weight: bold;" class="landing-block-node-title-add d-block g-color-primary">Volunteer</span></h3>
 						<div class="landing-block-node-text js-animation fadeIn g-mb-25"><p>Praesent pulvinar gravida efficitur. Aenean
@@ -36,9 +36,9 @@
 					<!-- End Article Image -->
 
 					<!--Article Content-->
-					<div class="landing-block-node-block col-sm-6 u-ns-bg-v1-top u-ns-bg-v1-left--md g-bg-black g-px-30 g-py-45">
+					<div class="landing-block-node-block col-sm-6 u-ns-bg-v1-top u-ns-bg-v1-left--md g-bg-black g-pl-30 g-pr-30 g-pb-45 g-pt-45">
 						<h3 class="landing-block-node-title js-animation flipInX text-uppercase g-font-size-20 g-color-white g-mb-25">Make a
-							<span style="font-weight: bold;" class="landing-block-node-title-add d-block g-color-primary">Dontation</span></h3>
+							<span style="font-weight: bold;" class="landing-block-node-title-add d-block g-color-primary">Donation</span></h3>
 						<div class="landing-block-node-text js-animation fadeIn g-mb-25"><p>Praesent pulvinar gravida efficitur. Aenean
 								bibendum purus eu nisi pulvinar
 								venenatis vitae non velit.</p></div>

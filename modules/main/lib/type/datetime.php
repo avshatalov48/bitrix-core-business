@@ -3,7 +3,6 @@ namespace Bitrix\Main\Type;
 
 use Bitrix\Main;
 use Bitrix\Main\Context;
-use Bitrix\Main\DB;
 
 class DateTime extends Date
 {
@@ -214,7 +213,7 @@ class DateTime extends Date
 	{
 		/** @var DateTime $d */
 		$d = new static();
-		$d->value = $datetime;
+		$d->value = clone $datetime;
 		return $d;
 	}
 

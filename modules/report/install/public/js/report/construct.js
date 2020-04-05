@@ -672,7 +672,7 @@ function rebuildSortSelect()
 				yColumnIndex++;
 			}
 
-			var notSortedTypes = ["file", "employee", "crm_status", "iblock_section", "iblock_element", "crm"];
+			var notSortedTypes = ["file", "employee", "crm_status", "iblock_section", "iblock_element", "crm", "money"];
 			if ((columnInfo.calc_enabled && columnInfo.calc == 'GROUP_CONCAT')
 				|| (columnInfo.isuf && (columnInfo.ismultiple || notSortedTypes.indexOf(columnInfo.column_type) >= 0)))
 			{
@@ -1482,6 +1482,12 @@ function addFilterAndor(afterElem, sumColumnsCount)
 	var fcContainer = afterElem ? afterElem.parentNode : BX('reports-filter-columns-container'); // filter columns container
 	var level = fcContainer.getAttribute('level') - 0 + 1;
 
+	if (BX.type.isDomNode(afterElem) && afterElem.tagName === "SPAN" && BX.hasClass(afterElem, "report-filter-stub"))
+	{
+		BX.remove(afterElem);
+		afterElem = null;
+	}
+
 	if (level > 4) {
 		alert('too much');
 		return false;
@@ -1678,7 +1684,6 @@ function restoreSubFilter(parent, filter)
 						}
 					}
 				}
-
 			}
 
 			// fill changeable flag
@@ -1689,6 +1694,11 @@ function restoreSubFilter(parent, filter)
 		}
 		else if (subFilter.type == 'filter')
 		{
+			if (lastElem === null)
+			{
+				lastElem = BX.create("SPAN", {attrs: {className: "report-filter-stub"}});
+				container.appendChild(lastElem);
+			}
 			newCol = addFilterAndor(lastElem);
 			restoreSubFilter(newCol, filters[subFilter.name]);
 			lastElem = newCol;
@@ -2016,19 +2026,9 @@ function fillFilterColumnEvent(e, popupElem)
 
 	var cpControl = null;
 	var tipicalControl = true;
-	if (isUF && fieldType === 'enum')
-	{
-		cpControl = BX.clone(
-			BX.findChild(
-				BX('report-filter-value-control-examples-ufenums'),
-				{attr:{name:'report-filter-value-control-' + ufId + '_' + ufName}}
-			),
-			true
-		);
-	}
-	else if (isUF
-			&& (fieldType === "crm" || fieldType === "crm_status"
-				|| fieldType === "iblock_element" || fieldType === "iblock_section"))
+	if (isUF
+		&& (fieldType === 'enum' || fieldType === "crm" || fieldType === "crm_status"
+			|| fieldType === "iblock_element" || fieldType === "iblock_section" || fieldType === "money"))
 	{
 		var filterFieldSelector = null;
 		if (BX.Report && BX.Report.FilterFieldSelectorManager)

@@ -133,7 +133,7 @@ $containerId = 'bx-sender-campaign-edit';
 							<tr>
 								<td></td>
 								<td>
-									<div id="ENDPOINT_START_SETTINGS" class="sender-mailing-container" style="<?=((!empty($arResult['TRIGGERS']['EXISTS']['START']['FORM']) || $triggerListExists['START']['IS_CLOSED_TRIGGER'] == 'Y') ? '' : 'display: none;')?>">
+									<div id="ENDPOINT_START_SETTINGS" class="sender-mailing-container" style="<?=((!empty($arResult['TRIGGERS']['EXISTS']['START']['FORM']) || $arResult['TRIGGERS']['EXISTS']['START']['IS_CLOSED_TRIGGER'] == 'Y') ? '' : 'display: none;')?>">
 										<div id="ENDPOINT_START_CLOSED_FORM" style="<?=($arResult['TRIGGERS']['EXISTS']['START']['IS_CLOSED_TRIGGER'] == 'Y' ? '' : 'display:none;')?>">
 											<?=Loc::getMessage('SENDER_CAMPAIGN_EDIT_TMPL_RUN_TIME')?>
 											<select id="ENDPOINT_START_CLOSED_TRIGGER_TIME" name="ENDPOINT[START][CLOSED_TRIGGER_TIME]">
@@ -160,10 +160,10 @@ $containerId = 'bx-sender-campaign-edit';
 												<?=Loc::getMessage('SENDER_CAMPAIGN_EDIT_TMPL_RUN_FOR_OLD_DATA_STATE')?>
 											</span>
 											<?else:?>
-												<input class="adm-designed-checkbox" type="checkbox" id="ENDPOINT_START_RUN_FOR_OLD_DATA" name="ENDPOINT[START][RUN_FOR_OLD_DATA]" value="Y" <?=($triggerListExists['START']['RUN_FOR_OLD_DATA']=='Y' ? 'checked' : '')?>>
+												<input class="adm-designed-checkbox" type="checkbox" id="ENDPOINT_START_RUN_FOR_OLD_DATA" name="ENDPOINT[START][RUN_FOR_OLD_DATA]" value="Y" <?=($arResult['TRIGGERS']['EXISTS']['START']['RUN_FOR_OLD_DATA']=='Y' ? 'checked' : '')?>>
 												<label for="ENDPOINT_START_RUN_FOR_OLD_DATA" class="adm-designed-checkbox-label"></label>
 											<?endif;?>
-											<span style="cursor: pointer;" class="hidden-when-show-template-list-info" onclick="ShowPersonalizeDescDialog(this);">&nbsp;</span>
+											<span data-hint="<?=Loc::getMessage('SENDER_CAMPAIGN_EDIT_TMPL_RUN_FOR_OLD_DATA_HINT')?>">
 										</div>
 										<br>
 										<br>
@@ -214,7 +214,7 @@ $containerId = 'bx-sender-campaign-edit';
 							<tr>
 								<td></td>
 								<td>
-									<div id="ENDPOINT_END_SETTINGS" class="sender-mailing-container" style="<?=((!empty($arResult['TRIGGERS']['EXISTS']['END']['FORM']) || $triggerListExists['END']['IS_CLOSED_TRIGGER'] == 'Y') ? '' : 'display: none;')?>">
+									<div id="ENDPOINT_END_SETTINGS" class="sender-mailing-container" style="<?=((!empty($arResult['TRIGGERS']['EXISTS']['END']['FORM']) || $arResult['TRIGGERS']['EXISTS']['END']['IS_CLOSED_TRIGGER'] == 'Y') ? '' : 'display: none;')?>">
 										<div id="ENDPOINT_END_CLOSED_FORM" style="<?=($arResult['TRIGGERS']['EXISTS']['END']['IS_CLOSED_TRIGGER'] == 'Y' ? '' : 'display:none;')?>">
 											<?=GetMessage('SENDER_CAMPAIGN_EDIT_TMPL_RUN_TIME')?>
 											<select id="ENDPOINT_END_CLOSED_TRIGGER_TIME" name="ENDPOINT[END][CLOSED_TRIGGER_TIME]">

@@ -745,6 +745,11 @@ for ($i = 0, $max = count($arBasketIDs); $i < $max; $i++)
 	$arBasketOrder[] = $arBasketTmp;
 }
 
+if ($arOrder['DELIVERY_VAT_RATE'] > 0)
+{
+	$bUseVat = true;
+}
+
 if (is_array($arBasketOrder) && !empty($arBasketOrder))
 {
 	$arBasketOrder = getMeasures($arBasketOrder);
@@ -912,7 +917,15 @@ text-align:center;line-height:normal'>&nbsp;</p>
 border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
 padding:0cm 2.0pt 0cm 2.0pt;height:9.0pt'>
 <p class=Normal align=center style='margin:0cm;margin-bottom:.0001pt;
-text-align:center;line-height:normal'><?=CCurrencyLang::CurrencyFormat($item_price*$arQuantities[$mi], $arOrder["CURRENCY"], false); $total_price += ($item_price)*$arQuantities[$mi];?></p>
+text-align:center;line-height:normal'>
+	<?
+		echo CCurrencyLang::CurrencyFormat($item_price*$arQuantities[$mi], $arOrder["CURRENCY"], false);
+		if (empty($arBasket['SET_PARENT_ID']))
+		{
+			$total_price += ($item_price*$arQuantities[$mi]);
+		}
+	?>
+</p>
 <p class=Normal align=center style='margin:0cm;margin-bottom:.0001pt;
 text-align:center;line-height:normal'>&nbsp;</p>
 </td>
@@ -928,7 +941,15 @@ text-align:center;line-height:normal'>&nbsp;</p>
 border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
 padding:0cm 2.0pt 0cm 2.0pt;height:9.0pt'>
 <p class=Normal align=center style='margin:0cm;margin-bottom:.0001pt;
-text-align:center;line-height:normal'><?=CCurrencyLang::CurrencyFormat($nds_val*$arQuantities[$mi], $arOrder["CURRENCY"], false); $total_nds += $nds_val*$arQuantities[$mi];?></p>
+text-align:center;line-height:normal'>
+	<?
+		echo CCurrencyLang::CurrencyFormat($nds_val*$arQuantities[$mi], $arOrder["CURRENCY"], false);
+		if (empty($arBasket['SET_PARENT_ID']))
+		{
+			$total_nds += $nds_val*$arQuantities[$mi];
+		}
+	?>
+</p>
 <p class=Normal align=center style='margin:0cm;margin-bottom:.0001pt;
 text-align:center;line-height:normal'>&nbsp;</p>
 </td>
@@ -938,7 +959,15 @@ text-align:center;line-height:normal'>&nbsp;</p>
 border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
 padding:0cm 2.0pt 0cm 2.0pt;height:9.0pt'>
 <p class=Normal align=center style='margin:0cm;margin-bottom:.0001pt;
-text-align:center;line-height:normal'><?=CCurrencyLang::CurrencyFormat($arQuantities[$mi]*($item_price)+$nds_val*$arQuantities[$mi], $arOrder["CURRENCY"], false); $total_sum += ($item_price)*$arQuantities[$mi]+$nds_val*$arQuantities[$mi]?></p>
+text-align:center;line-height:normal'>
+	<?
+		echo CCurrencyLang::CurrencyFormat($arQuantities[$mi]*($item_price)+$nds_val*$arQuantities[$mi], $arOrder["CURRENCY"], false);
+		if (empty($arBasket['SET_PARENT_ID']))
+		{
+			$total_sum += $item_price*$arQuantities[$mi]+$nds_val*$arQuantities[$mi];
+		}
+	?>
+</p>
 <p class=Normal align=center style='margin:0cm;margin-bottom:.0001pt;
 text-align:center;line-height:normal'>&nbsp;</p>
 </td>

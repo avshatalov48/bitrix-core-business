@@ -504,7 +504,13 @@ class CRatings extends CAllRatings
 
 				$authorityRatingId	 = CRatings::GetAuthorityRating();
 				$arAuthorityUserProp = CRatings::GetRatingUserPropEx($authorityRatingId, $userId);
-				if ($arAuthorityUserProp['VOTE_WEIGHT'] <= 0)
+				if (
+					$arAuthorityUserProp['VOTE_WEIGHT'] < 0
+					|| (
+						$arAuthorityUserProp['VOTE_WEIGHT'] == 0
+						&& !IsModuleInstalled('intranet')
+					)
+				)
 				{
 					$arInfo = $cacheAllowVote[$userId] = array(
 						'RESULT' => false,
@@ -671,6 +677,8 @@ class CRatings extends CAllRatings
 	{
 		global $DB, $USER;
 
+		$externalAuthTypes = array_diff(\Bitrix\Main\UserTable::getExternalUserTypes(), array('email'));
+
 		return "
 			SELECT
 				U.ID,
@@ -686,12 +694,12 @@ class CRatings extends CAllRatings
 				b_rating_vote RV LEFT JOIN b_rating_vote RV0 ON RV0.USER_ID = ".intval($USER->GetId())." and RV0.OWNER_ID = RV.USER_ID,
 				b_user U
 			WHERE
-				(CASE WHEN U.EXTERNAL_AUTH_ID IN ('".join("', '", \Bitrix\Main\UserTable::getExternalUserTypes())."') THEN 'Y' ELSE 'N' END) = 'N'
+				(CASE WHEN U.EXTERNAL_AUTH_ID IN ('".join("', '", $externalAuthTypes)."') THEN 'Y' ELSE 'N' END) = 'N'
 				AND RV.ENTITY_TYPE_ID = '".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."'
 				and RV.ENTITY_ID =  ".intval($arParam['ENTITY_ID'])."
-				and RV.USER_ID = U.ID
-				".($bplus? " and RV.VALUE > 0 ": " and RV.VALUE < 0 ")."
-				".self::getReactionFilterSQL($arParam, $bplus)."
+				and RV.USER_ID = U.ID ".
+//				($bplus? " and RV.VALUE > 0 ": " and RV.VALUE < 0 "). // ticket 103248
+				self::getReactionFilterSQL($arParam, $bplus)."
 			GROUP BY RV.USER_ID
 			ORDER BY ".($bIntranetInstalled? "RV.VALUE DESC, RANK DESC, RV.ID DESC": "RANK DESC, RV.VALUE DESC, RV.ID DESC");
 	}
@@ -699,6 +707,8 @@ class CRatings extends CAllRatings
 	public static function GetRatingVoteListSQLExtended($arParam, $bplus, $bIntranetInstalled)
 	{
 		global $DB, $USER;
+
+		$externalAuthTypes = array_diff(\Bitrix\Main\UserTable::getExternalUserTypes(), array('email'));
 
 		return "
 			SELECT
@@ -710,12 +720,12 @@ class CRatings extends CAllRatings
 				b_rating_vote RV LEFT JOIN b_rating_vote RV0 ON RV0.USER_ID = ".intval($USER->GetId())." and RV0.OWNER_ID = RV.USER_ID,
 				b_user U
 			WHERE
-				(CASE WHEN U.EXTERNAL_AUTH_ID IN ('".join("', '", \Bitrix\Main\UserTable::getExternalUserTypes())."') THEN 'Y' ELSE 'N' END) = 'N'
+				(CASE WHEN U.EXTERNAL_AUTH_ID IN ('".join("', '", $externalAuthTypes)."') THEN 'Y' ELSE 'N' END) = 'N'
 				AND RV.ENTITY_TYPE_ID = '".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."'
 				and RV.ENTITY_ID =  ".intval($arParam['ENTITY_ID'])."
-				and RV.USER_ID = U.ID
-				".($bplus? " and RV.VALUE > 0 ": " and RV.VALUE < 0 ")."
-				".self::getReactionFilterSQL($arParam, $bplus)."
+				and RV.USER_ID = U.ID ".
+//				($bplus? " and RV.VALUE > 0 ": " and RV.VALUE < 0 "). // ticket 103248
+				self::getReactionFilterSQL($arParam, $bplus)."
 			GROUP BY RV.USER_ID
 			ORDER BY ".($bIntranetInstalled? "RV.VALUE DESC, RANK DESC, RV.ID DESC": "RANK DESC, RV.VALUE DESC, RV.ID DESC");
 	}

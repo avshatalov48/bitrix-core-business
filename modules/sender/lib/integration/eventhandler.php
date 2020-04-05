@@ -8,15 +8,19 @@
 
 namespace Bitrix\Sender\Integration;
 
+use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Entity as MainEntity;
 
+use Bitrix\Sender\ContactTable;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\Entity;
 use Bitrix\Sender\Dispatch;
-use Bitrix\Sender\Internals\Model\LetterTable;
+use Bitrix\Sender\Templates;
+use Bitrix\Sender\Internals\Model;
+use Bitrix\Sender\PostingRecipientTable;
 
 Loc::loadMessages(__FILE__);
 
@@ -65,6 +69,7 @@ class EventHandler
 	 *
 	 * @param array $eventData Event.
 	 * @param Entity\Letter $letter Letter.
+	 * @return void
 	 */
 	public static function onAfterPostingSendRecipient(array $eventData, Entity\Letter $letter)
 	{
@@ -73,7 +78,7 @@ class EventHandler
 			Crm\EventHandler::onAfterPostingSendRecipient($eventData, $letter);
 		}
 
-		if (Bitrix24\Service::isCloud() && $eventData['SEND_RESULT'])
+		if (Bitrix24\Service::isCloud() && $eventData['SEND_RESULT'] && $letter->getMessage()->getCode() === Message\iBase::CODE_MAIL)
 		{
 			Bitrix24\Limitation\DailyLimit::increment();
 		}
@@ -87,10 +92,80 @@ class EventHandler
 	 */
 	public static function onAfterPostingRecipientUnsubscribe(array $eventData)
 	{
-		if (Bitrix24\Service::isCloud())
+		if (Bitrix24\Service::isCloud() && is_array($eventData))
 		{
 			Bitrix24\Limitation\Rating::regulate();
 		}
+	}
+
+	/**
+	 * Handler of event sender/onConstantList.
+	 *
+	 * @param string $className Class name.
+	 * @return array
+	 */
+	public static function onConstantList($className)
+	{
+		// sale
+		if (Loader::includeModule('sale') && !Bitrix24\Service::isCloud())
+		{
+			if (Templates\Category::class === $className)
+			{
+				return Sale\Preset\TriggerCampaign::getTemplateCategories();
+			}
+		}
+
+		return [];
+	}
+
+	/**
+	 * Handler of event sender/onTemplateList.
+	 *
+	 * @param string $messageType Message type.
+	 * @return array
+	 */
+	public static function onTemplateList($messageType)
+	{
+		$list = [
+			Message\iBase::CODE_MAIL => []
+		];
+
+		// sale
+		if (Loader::includeModule('sale') && !Bitrix24\Service::isCloud())
+		{
+			foreach (Sale\Preset\TriggerCampaign::getAll() as $item)
+			{
+				foreach ($item['CHAIN'] as $letter)
+				{
+					$list[Message\iBase::CODE_MAIL][] = array(
+						'ID' => $letter['TEMPLATE_ID'],
+						'TYPE' => $letter['TEMPLATE_TYPE'],
+						'CATEGORY' => strtoupper($item['CODE']),
+						'MESSAGE_CODE' => Message\iBase::CODE_MAIL,
+						'VERSION' => 2,
+						'IS_TRIGGER' => true,
+						'HOT' => false,
+						'ICON' => false,
+
+						'NAME' => $letter['SUBJECT'],
+						'DESC' => '',
+						'FIELDS' => array(
+							'SUBJECT' => array(
+								'CODE' => 'SUBJECT',
+								'VALUE' => $letter['SUBJECT'],
+							),
+							'MESSAGE' => array(
+								'CODE' => 'MESSAGE',
+								'VALUE' => $letter['MESSAGE'],
+								'ON_DEMAND' => true
+							),
+						),
+					);
+				}
+			}
+		}
+
+		return isset($list[$messageType]) ? $list[$messageType] : [];
 	}
 
 	/**
@@ -112,6 +187,22 @@ class EventHandler
 			$data['CONNECTOR'][] = 'Bitrix\Sender\Integration\Crm\Connectors\Lead';
 			$data['CONNECTOR'][] = 'Bitrix\Sender\Integration\Crm\Connectors\Client';
 		}
+
+		return $data;
+	}
+
+	/**
+	 * Handler of event sender/onTriggerList.
+	 *
+	 * @param array $data Data.
+	 * @return array
+	 */
+	public static function onTriggerList(array $data = [])
+	{
+		$data['TRIGGER'] = [
+			'Bitrix\Sender\Integration\Main\Triggers\UserAuth',
+			'Bitrix\Sender\Integration\Main\Triggers\UserDontAuth',
+		];
 
 		return $data;
 	}
@@ -175,6 +266,25 @@ class EventHandler
 			$list[] = 'Bitrix\Sender\Integration\Crm\ReturnCustomer\MessageLead';
 			$list[] = 'Bitrix\Sender\Integration\Crm\ReturnCustomer\MessageDeal';
 		}
+
+		return $list;
+	}
+
+	/**
+	 * Handler of event sender/OnPresetMailingList.
+	 *
+	 * @return array
+	 */
+	public static function onSenderTriggerCampaignPreset()
+	{
+		$list = [];
+
+		// sale
+		if (Loader::includeModule('sale') && !Bitrix24\Service::isCloud())
+		{
+			$list = array_merge($list, Sale\Preset\TriggerCampaign::getAll());
+		}
+
 
 		return $list;
 	}
@@ -244,7 +354,7 @@ class EventHandler
 
 		if (Bitrix24\Service::isCloud() && isset($data['fields']['STATUS']))
 		{
-			$oldRow = LetterTable::getRowById($data['primary']['ID']);
+			$oldRow = Model\LetterTable::getRowById($data['primary']['ID']);
 			if ($oldRow['MESSAGE_CODE'] !== Message\iBase::CODE_MAIL)
 			{
 				return;
@@ -258,6 +368,71 @@ class EventHandler
 						Bitrix24\Limitation\Rating::getNotifyText('blocked')
 					)
 				);
+			}
+		}
+	}
+
+	/**
+	 * Handler of event main/onMailEventMailChangeStatus.
+	 *
+	 * @param Main\Mail\Callback\Result $result Callback result instance.
+	 * @return void
+	 */
+	public static function onMailEventMailChangeStatus($result)
+	{
+		if (!$result->isBelongTo('sender', 'rcpt'))
+		{
+			return;
+		}
+
+		// return if status already updated
+		$row = PostingRecipientTable::getRow([
+			'select' => [
+				'STATUS', 'POSTING_ID', 'CONTACT_ID',
+				'CONTACT_IS_SEND_SUCCESS' => 'CONTACT.IS_SEND_SUCCESS'
+			],
+			'filter' => ['=ID' => $result->getEntityId()]
+		]);
+		if (!$row)
+		{
+			return;
+		}
+
+		if (!$result->isError())
+		{
+			// update contact send_success flag
+			if ($row['CONTACT_IS_SEND_SUCCESS'] !== 'Y')
+			{
+				ContactTable::update($row['CONTACT_ID'], ['IS_SEND_SUCCESS' => 'Y']);
+			}
+		}
+		elseif ($result->isPermanentError())
+		{
+			// return if status already updated
+			if ($row['STATUS'] === PostingRecipientTable::SEND_RESULT_ERROR)
+			{
+				return;
+			}
+
+			// update recipient status
+			Model\Posting\RecipientTable::update(
+				$result->getEntityId(),
+				['STATUS' => PostingRecipientTable::SEND_RESULT_ERROR]
+			);
+
+			// update posting counters
+			Model\PostingTable::update(
+				$row['POSTING_ID'],
+				[
+					'COUNT_SEND_ERROR' => new Main\DB\SqlExpression('?# + 1', 'COUNT_SEND_ERROR'),
+					'COUNT_SEND_SUCCESS' => new Main\DB\SqlExpression('?# - 1', 'COUNT_SEND_SUCCESS')
+				]
+			);
+
+			// update daily limit counters
+			if (Bitrix24\Service::isCloud())
+			{
+				Bitrix24\Limitation\DailyLimit::incrementError();
 			}
 		}
 	}

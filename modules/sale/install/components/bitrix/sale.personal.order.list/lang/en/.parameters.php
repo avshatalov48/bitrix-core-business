@@ -1,4 +1,5 @@
 <?
+$MESS["SPOL_DISALLOW_CANCEL"] = "Don't allow order cancellation";
 $MESS["SPOL_DESC_YES"] = "Yes";
 $MESS["SPOL_DESC_NO"] = "No";
 $MESS["SPOL_PATH_TO_DETAIL"] = "Order details page";

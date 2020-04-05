@@ -29,12 +29,12 @@ class CacheEngineNone
 		return true;
 	}
 
-	public function read(&$arAllVars, $baseDir, $initDir, $filename, $TTL)
+	public function read(&$allVars, $baseDir, $initDir, $filename, $TTL)
 	{
 		return false;
 	}
 
-	public function write($arAllVars, $baseDir, $initDir, $filename, $TTL)
+	public function write($allVars, $baseDir, $initDir, $filename, $TTL)
 	{
 	}
 

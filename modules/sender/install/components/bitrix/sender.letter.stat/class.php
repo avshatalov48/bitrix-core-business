@@ -72,7 +72,6 @@ class SenderLetterStatComponent extends CBitrixComponent
 			return false;
 		}
 
-		$this->arResult['ACTION_URL'] = $this->getPath() . '/ajax.php';
 		$this->arResult['MAILING_COUNTERS'] = array();
 
 		$letter = new Entity\Letter($this->arParams['CHAIN_ID']);
@@ -112,7 +111,7 @@ class SenderLetterStatComponent extends CBitrixComponent
 		));
 
 		$uri = new \Bitrix\Main\Web\Uri(str_replace('#id#', $this->arParams['CHAIN_ID'], $this->arParams['PATH_TO_RECIPIENT']));
-		$uri->addParams(['apply_filter' => 'Y']);
+		$uri->addParams(['apply_filter' => 'Y'])->deleteParams(['clear_filter']);
 		$readUri = clone $uri; $clickUri = clone $uri; $unsubUri = clone $uri;
 		$sentErrorUri = clone $uri; $sentSuccessUri = clone $uri;
 		$this->arResult['URLS'] = [
@@ -121,8 +120,12 @@ class SenderLetterStatComponent extends CBitrixComponent
 			'UNSUB' => $unsubUri->addParams(['IS_UNSUB' => 'Y'])->getLocator(),
 			'SENT_ERROR' => $sentErrorUri->addParams(['STATUS' => PostingRecipientTable::SEND_RESULT_ERROR])->getLocator(),
 			'SENT_SUCCESS' => $sentSuccessUri->addParams(['STATUS' => PostingRecipientTable::SEND_RESULT_SUCCESS])->getLocator(),
-			'SEND_ALL' => $uri->getLocator(),
+			'SEND_ALL' => $uri->addParams(['STATUS' => ''])->getLocator(),
 		];
+
+		$this->arResult['ACTION_URI'] = $this->getPath() . '/ajax.php';
+		$this->arResult['CAN_RESEND_ERRORS'] = Security\Access::current()->canModifyLetters()
+			&& $letter->getState()->canSendErrors();
 
 		return $this->errors->isEmpty();
 	}

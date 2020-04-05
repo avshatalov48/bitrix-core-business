@@ -1640,6 +1640,12 @@ if (IsModuleInstalled("search"))
 		"NAME" => GetMessage("SONET_SEARCH_PAGE_RESULT_COUNT"),
 		"TYPE" => "STRING",
 		"DEFAULT" => 10);
+	$arComponentParameters["PARAMETERS"]["SHOW_SEARCH_TAGS_CLOUD"] = Array(
+		"PARENT" => "SEARCH_SETTINGS",
+		"NAME" => GetMessage("SONET_SHOW_SEARCH_TAGS_CLOUD"),
+		"TYPE" => "CHECKBOX",
+		"MULTIPLE" => "N",
+		"DEFAULT" => "N");
 	$arComponentParameters["PARAMETERS"]["SEARCH_TAGS_PAGE_ELEMENTS"] = Array(
 		"PARENT" => "SEARCH_SETTINGS",
 		"NAME" => GetMessage("SONET_SEARCH_TAGS_PAGE_ELEMENTS"),

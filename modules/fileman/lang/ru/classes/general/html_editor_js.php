@@ -280,6 +280,7 @@ $MESS["BXEdSup"] = "Верхний индекс";
 $MESS["BXEdAddListItem"] = "Добавить пункт";
 $MESS["BXEdSettingsCleanSpans"] = "Очищать теги &lt;span&gt; без атрибутов";
 $MESS["BXEdBbCode"] = "Режим BB-Code";
+$MESS["BXEdHtmlCode"] = "HTML-режим";
 $MESS["BXEdDelFromText"] = "Удалить из текста";
 $MESS["BXEdColorpickerDialog"] = "Цвет фона и текста";
 $MESS["BXEdBgColor"] = "Цвет фона";

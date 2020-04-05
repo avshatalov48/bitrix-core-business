@@ -4,7 +4,6 @@
 		this.calendar = params.calendar;
 		this.id = this.calendar.id + '_settings_slider';
 		this.uid = this.id + '_' + Math.round(Math.random() * 1000000);
-		this.button = params.button;
 		this.zIndex = params.zIndex || 3100;
 		this.sliderId = "calendar:settings-slider";
 
@@ -14,7 +13,6 @@
 
 		this.SLIDER_WIDTH = 500;
 		this.SLIDER_DURATION = 80;
-		BX.bind(this.button, 'click', BX.delegate(this.show, this));
 	}
 
 	SettingsSlider.prototype = {
@@ -23,11 +21,13 @@
 			BX.SidePanel.Instance.open(this.sliderId, {
 				contentCallback: BX.delegate(this.create, this),
 				width: this.SLIDER_WIDTH,
-				animationDuration: this.SLIDER_DURATION
+				animationDuration: this.SLIDER_DURATION,
+				events: {
+					onClose: BX.proxy(this.hide, this),
+					onCloseComplete: BX.proxy(this.destroy, this)
+				}
 			});
 
-			BX.addCustomEvent("SidePanel.Slider:onClose", BX.proxy(this.hide, this));
-			BX.addCustomEvent("SidePanel.Slider:onCloseComplete", BX.proxy(this.destroy, this));
 			this.calendar.disableKeyHandler();
 		},
 
@@ -177,11 +177,11 @@
 			}
 			if(this.DOM.showTasks)
 			{
-				this.DOM.showTasks.checked = this.calendar.util.getUserOption('showTasks') == 'Y';
+				this.DOM.showTasks.checked = this.calendar.util.getUserOption('showTasks') === 'Y';
 			}
 			if(this.DOM.showCompletedTasks)
 			{
-				this.DOM.showCompletedTasks.checked = this.calendar.util.getUserOption('showCompletedTasks') == 'Y';
+				this.DOM.showCompletedTasks.checked = this.calendar.util.getUserOption('showCompletedTasks') === 'Y';
 			}
 			if (this.DOM.denyBusyInvitation)
 			{
@@ -491,6 +491,7 @@
 			BX.addCustomEvent(this.accessPopupMenu.popupWindow, 'onPopupClose', function()
 			{
 				BX.PopupMenu.destroy(menuId);
+				_this.accessPopupMenu = null;
 			});
 		}
 	};

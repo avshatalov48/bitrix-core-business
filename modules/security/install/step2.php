@@ -1,16 +1,27 @@
 <?
-if(!check_bitrix_sessid()) return;
+if(!check_bitrix_sessid())
+	return;
 IncludeModuleLangFile(__FILE__);
 
-if($ex = $APPLICATION->GetException())
-	echo CAdminMessage::ShowMessage(Array(
+$ex = $APPLICATION->GetException();
+if ($ex)
+{
+	$msg = new CAdminMessage(array(
 		"TYPE" => "ERROR",
 		"MESSAGE" => GetMessage("MOD_INST_ERR"),
 		"DETAILS" => $ex->GetString(),
 		"HTML" => true,
 	));
+}
 else
-	echo CAdminMessage::ShowNote(GetMessage("MOD_INST_OK"));
+{
+	$msg = new CAdminMessage(array(
+		"TYPE" => "OK",
+		"MESSAGE" => GetMessage("MOD_INST_OK"),
+	));
+}
+$msg->Show();
+
 ?>
 <form action="<?echo $APPLICATION->GetCurPage()?>">
 	<input type="hidden" name="lang" value="<?echo LANG?>">

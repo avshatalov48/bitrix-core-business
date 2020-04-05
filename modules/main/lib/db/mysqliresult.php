@@ -6,7 +6,7 @@ class MysqliResult extends Result
 	/** @var \mysqli_result */
 	protected $resource;
 
-	/** @var \Bitrix\Main\Entity\ScalarField[]  */
+	/** @var \Bitrix\Main\ORM\Fields\ScalarField[]  */
 	private $resultFields = null;
 
 	/**
@@ -32,7 +32,7 @@ class MysqliResult extends Result
 	/**
 	 * Returns an array of fields according to columns in the result.
 	 *
-	 * @return \Bitrix\Main\Entity\ScalarField[]
+	 * @return \Bitrix\Main\ORM\Fields\ScalarField[]
 	 */
 	public function getFields()
 	{

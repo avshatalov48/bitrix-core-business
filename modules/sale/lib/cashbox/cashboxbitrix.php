@@ -5,7 +5,7 @@ namespace Bitrix\Sale\Cashbox;
 use Bitrix\Main;
 use Bitrix\Catalog;
 use Bitrix\Main\Localization;
-use Bitrix\Sale\Cashbox\Internals\CashboxTable;
+use Bitrix\Sale\Cashbox\Internals;
 use Bitrix\Sale\PriceMaths;
 
 Localization\Loc::loadMessages(__FILE__);
@@ -38,9 +38,13 @@ class CashboxBitrix extends Cashbox
 
 		$typeMap = $this->getCheckTypeMap();
 		if (isset($typeMap[$data['type']]))
+		{
 			$result['type'] = $typeMap[$data['type']];
+		}
 		else
+		{
 			return array();
+		}
 
 		$result['uuid'] = static::buildUuid(static::UUID_TYPE_CHECK, $data['unique_id']);
 		$result['zn'] = $this->getField('NUMBER_KKM');
@@ -53,7 +57,7 @@ class CashboxBitrix extends Cashbox
 
 			$value = array(
 				'name' => $item['name'],
-				'price' => $item['base_price'],
+				'price' => (float)$item['base_price'],
 				'quantity' => $item['quantity'],
 				'VAT' => (int)$vat
 			);
@@ -103,6 +107,136 @@ class CashboxBitrix extends Cashbox
 	}
 
 	/**
+	 * @param array $cashbox
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\ObjectException
+	 * @throws \Exception
+	 */
+	public static function saveCashbox(array $cashbox)
+	{
+		if (isset($cashbox['ID']) && (int)$cashbox['ID'] > 0)
+		{
+			if ($cashbox['ENABLED'] !== $cashbox['PRESENTLY_ENABLED'])
+			{
+				Manager::update($cashbox['ID'], array('ENABLED' => $cashbox['PRESENTLY_ENABLED']));
+
+				if ($cashbox['PRESENTLY_ENABLED'] === 'N')
+				{
+					static::showAlarmMessage($cashbox['ID']);
+				}
+			}
+
+			$fields = array('DATE_LAST_CHECK' => new Main\Type\DateTime());
+			if (isset($cashbox['SETTINGS']))
+			{
+				$fields['SETTINGS'] = $cashbox['SETTINGS'];
+			}
+
+			if (isset($cashbox['HANDLER']))
+			{
+				$fields['HANDLER'] = $cashbox['HANDLER'];
+			}
+
+			Manager::update($cashbox['ID'], $fields);
+		}
+		else
+		{
+			$result = Manager::add(
+				array(
+					'ACTIVE' => 'N',
+					'DATE_CREATE' => new Main\Type\DateTime(),
+					'NAME' => static::getName(),
+					'NUMBER_KKM' => $cashbox['NUMBER_KKM'],
+					'HANDLER' => $cashbox['HANDLER'],
+					'ENABLED' => $cashbox['PRESENTLY_ENABLED'],
+					'DATE_LAST_CHECK' => new Main\Type\DateTime(),
+					'EMAIL' => self::getCashboxDefaultEmail(),
+				)
+			);
+
+			if ($result->isSuccess())
+			{
+				if ($cashbox['PRESENTLY_ENABLED'] === 'N')
+				{
+					static::showAlarmMessage($result->getId());
+				}
+
+				Internals\CashboxZReportTable::add(array(
+					'STATUS' => 'Y',
+					'CASHBOX_ID' => $result->getId(),
+					'DATE_CREATE' => new Main\Type\DateTime(),
+					'DATE_PRINT_START' => new Main\Type\DateTime(),
+					'LINK_PARAMS' => '',
+					'CASH_SUM' => $cashbox['CACHE'],
+					'CASHLESS_SUM' => $cashbox['INCOME'] - $cashbox['CACHE'],
+					'CUMULATIVE_SUM' => $cashbox['NZ_SUM'],
+					'RETURNED_SUM' => 0,
+					'CURRENCY' => 'RUB',
+					'DATE_PRINT_END' => new Main\Type\DateTime()
+				));
+			}
+		}
+	}
+
+	/**
+	 * @return string
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	private static function getCashboxDefaultEmail()
+	{
+		$email = Main\Config\Option::get('main', 'email_from');
+		if (!$email)
+		{
+			$dbRes = Main\UserGroupTable::getList([
+				'select' => ['EMAIL' => 'USER.EMAIL'],
+				'filter' => [
+					'=GROUP_ID' => 1
+				],
+				'order' => [
+					'USER.ID' => 'ASC'
+				]
+			]);
+
+			$data = $dbRes->fetch();
+			if ($data)
+			{
+				$email = $data['EMAIL'];
+			}
+		}
+
+		return $email;
+	}
+
+	/**
+	 * @param $cashboxId
+	 */
+	protected static function showAlarmMessage($cashboxId)
+	{
+		$tag = "CASHBOX_STATUS_ERROR";
+
+		$dbRes = \CAdminNotify::GetList([], ["TAG" => $tag]);
+
+		if ($res = $dbRes->Fetch())
+		{
+			return;
+		}
+
+		\CAdminNotify::Add([
+			"MESSAGE" => Localization\Loc::getMessage('SALE_CASHBOX_ACCESS_UNAVAILABLE', ['#CASHBOX_ID#' => $cashboxId]),
+			"TAG" => $tag,
+			"MODULE_ID" => "SALE",
+			"ENABLE_CLOSE" => "Y",
+			"NOTIFY_TYPE" => \CAdminNotify::TYPE_ERROR
+		]);
+	}
+
+
+	/**
 	 * @param array $data
 	 * @return array
 	 */
@@ -114,13 +248,17 @@ class CashboxBitrix extends Cashbox
 		{
 			$factoryNum = array();
 			foreach ($data['kkm'] as $kkm)
+			{
 				$factoryNum[] = $kkm['zn'];
+			}
 
 			$cashboxList = Manager::getListFromCache();
 			foreach ($cashboxList as $item)
 			{
 				if (in_array($item['NUMBER_KKM'], $factoryNum))
+				{
 					$result[$item['NUMBER_KKM']] = $item;
+				}
 			}
 
 			foreach ($data['kkm'] as $kkm)
@@ -288,7 +426,7 @@ class CashboxBitrix extends Cashbox
 	/**
 	 * @return array
 	 */
-	private function getCheckTypeMap()
+	protected function getCheckTypeMap()
 	{
 		return array(
 			SellCheck::getType() => 1,
@@ -382,16 +520,12 @@ class CashboxBitrix extends Cashbox
 					'ITEMS' => array()
 				);
 
-				$systemPaymentType = array(
-					Check::PAYMENT_TYPE_CASH,
-					Check::PAYMENT_TYPE_CASHLESS,
-				);
-				foreach ($systemPaymentType as $type)
+				foreach ($defaultSettings['PAYMENT_TYPE'] as $type => $value)
 				{
 					$settings['PAYMENT_TYPE']['ITEMS'][$type] = array(
 						'TYPE' => 'STRING',
 						'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_BITRIX_SETTINGS_P_TYPE_LABEL_'.ToUpper($type)),
-						'VALUE' => $defaultSettings['PAYMENT_TYPE'][$type]
+						'VALUE' => $value
 					);
 				}
 			}
@@ -404,7 +538,7 @@ class CashboxBitrix extends Cashbox
 					'NOT_VAT' => array(
 						'TYPE' => 'STRING',
 						'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_BITRIX_SETTINGS_VAT_LABEL_NOT_VAT'),
-						'VALUE' => 4
+						'VALUE' => $defaultSettings['VAT']['NOT_VAT']
 					)
 				)
 			);
@@ -502,7 +636,7 @@ class CashboxBitrix extends Cashbox
 	{
 		$generalRequiredFields = parent::getGeneralRequiredFields();
 
-		$map = CashboxTable::getMap();
+		$map = Internals\CashboxTable::getMap();
 		$generalRequiredFields['KKM_ID'] = $map['KKM_ID']['title'];
 		$generalRequiredFields['NUMBER_KKM'] = $map['NUMBER_KKM']['title'];
 

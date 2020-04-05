@@ -1,6 +1,7 @@
 .landing-ui-field {
 	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	margin-bottom: 17px;
+	font-weight: normal;
 }
 
 .landing-ui-field-header {
@@ -38,10 +39,8 @@
 
 .landing-ui-field-input:empty::before {
 	display: inline-block;
-	position: absolute;
 	content: attr(data-placeholder);
 	color: #e0e0e0;
-	z-index: 301;
 }
 
 .landing-ui-field-description {
@@ -49,6 +48,20 @@
 	font-size: 12px;
 	line-height: 16px;
 	margin-bottom: 16px;
+	padding: 2px;
+}
+
+.landing-ui-field-description.landing-ui-error {
+	padding: 2px 2px 2px 16px;
+	margin: 4px 1px;
+}
+
+.landing-ui-field-description.landing-ui-error .fa.fa-info-circle {
+	margin-left: -14px;
+}
+
+.landing-ui-field-description + .landing-ui-field-description.landing-ui-error {
+	margin-top: -10px!important;
 }
 
 .landing-ui-field[data-compact="true"] + .landing-ui-field:not([data-compact="true"]) {
@@ -58,3 +71,4 @@
 .landing-ui-field:not([data-compact="true"]) + .landing-ui-field[data-compact="true"] {
 	margin-top: -10px;
 }
+

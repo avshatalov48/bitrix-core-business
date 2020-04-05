@@ -5,31 +5,18 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 Loader::includeModule('sale');
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+$publicMode = (defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1);
+if ($publicMode)
+{
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");
+}
+
 IncludeModuleLangFile(__FILE__);
 ClearVars("u_");
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
-
-$arStatusList = False;
-$arFilter = array("LID" => LANG, "ID" => "N");
-$arGroupByTmpSt = false;
-if ($saleModulePermissions < "W")
-{
-	$arFilter["GROUP_ID"] = $GLOBALS["USER"]->GetUserGroupArray();
-	$arFilter["PERM_UPDATE"] = "Y";
-	$arGroupByTmpSt = array("ID", "NAME", "MAX" => "PERM_UPDATE");
-}
-$dbStatusList = CSaleStatus::GetList(
-		array(),
-		$arFilter,
-		$arGroupByTmpSt,
-		false,
-		array("ID", "NAME")
-		);
-$arStatusList = $dbStatusList->Fetch();
-
-$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
-if ($saleModulePermissions == "D" OR ($saleModulePermissions < "W" AND $arStatusList["PERM_UPDATE"] != "Y"))
+if ($saleModulePermissions == "D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 if(!CBXFeatures::IsFeatureEnabled('SaleAccounts'))
@@ -69,7 +56,13 @@ if(isset($_REQUEST["reorder"]) && IntVal($_REQUEST["reorder"]) > 0)
 	while ($arBasket = $dbBasketList->fetch())
 		$urlProduct .= "&product[".$arBasket["PRODUCT_ID"]."]=".$arBasket["QUANTITY"];
 
-	LocalRedirect("/bitrix/admin/sale_order_create.php?USER_ID=".CUtil::JSEscape($ID)."&lang=".LANG."&SITE_ID=".CUtil::JSEscape($lid).CUtil::JSEscape($urlProduct));
+	$addOrderUrl = $selfFolderUrl."sale_order_create.php?USER_ID=".CUtil::JSEscape($ID)."&SITE_ID=".CUtil::JSEscape($lid)."&lang=".LANGUAGE_ID.CUtil::JSEscape($urlProduct);
+	if ($adminSidePanelHelper->isPublicSidePanel())
+	{
+		$addOrderUrl = "/shop/orders/details/0/?USER_ID=".CUtil::JSEscape($ID)."&SITE_ID=".CUtil::JSEscape($lid)."&lang=".LANGUAGE_ID.CUtil::JSEscape($urlProduct);
+	}
+
+	LocalRedirect($addOrderUrl);
 }
 
 //USER INFO
@@ -96,13 +89,43 @@ $userAdres = "";
 $strUserGroup = "";
 if(!empty($arUser))
 {
+	$userGroupList = [];
+
+	if ($adminSidePanelHelper->isPublicSidePanel())
+	{
+		if (\Bitrix\Main\Loader::includeModule('crm'))
+		{
+			$userGroupList = \Bitrix\Crm\Order\BuyerGroup::getPublicList();
+		}
+	}
+	else
+	{
+		$dbGroups = CGroup::GetList(($b = 'c_sort'), ($o = 'asc'), array('ANONYMOUS' => 'N'));
+		while ($arGroup = $dbGroups->Fetch())
+		{
+			$userGroupList[] = $arGroup;
+		}
+	}
+
+	$userGroupListIds = array_column($userGroupList, 'ID', 'ID');
+
 	//user group
 	$arUserGroups = CUser::GetUserGroup($ID);
-	$dbGroups = CGroup::GetList(($b = "c_sort"), ($o = "asc"), array("ANONYMOUS" => "N"));
-	while ($arGroups = $dbGroups->Fetch())
+
+	if (!empty($arUserGroups))
 	{
-		if (in_array($arGroups["ID"], $arUserGroups))
-			$strUserGroup .= htmlspecialcharsbx($arGroups["NAME"])."<br>";
+		foreach ($userGroupList as $userGroup)
+		{
+			if (in_array($userGroup['ID'], $arUserGroups))
+			{
+				$strUserGroup .= htmlspecialcharsbx($userGroup['NAME']).'<br>';
+			}
+		}		
+	}
+
+	if (empty($strUserGroup))
+	{
+		$strUserGroup = GetMessage('BUYER_NO_VALUES');
 	}
 
 	//user adres
@@ -361,10 +384,20 @@ if (isset($_REQUEST['apply']) && isset($_REQUEST['action']) && $saleModulePermis
 
 						if (strlen($basketError) <= 0)
 						{
-							echo "<script language=\"JavaScript\">";
-							echo "window.parent.location.href = '/bitrix/admin/sale_order_create.php?USER_ID=".CUtil::JSEscape($ID)."&lang=".LANG."&SITE_ID=".CUtil::JSEscape($LID).CUtil::JSEscape($urlProduct)."';";
-							echo "</script>";
-							exit;
+							if ($adminSidePanelHelper->isPublicSidePanel())
+							{
+								echo "<script language=\"JavaScript\">";
+								echo "top.window.parent.location.href = '/shop/orders/details/0/?USER_ID=".CUtil::JSEscape($ID)."&lang=".LANG."&SITE_ID=".CUtil::JSEscape($LID).CUtil::JSEscape($urlProduct)."';";
+								echo "</script>";
+								exit;
+							}
+							else
+							{
+								echo "<script language=\"JavaScript\">";
+								echo "window.parent.location.href = '".$selfFolderUrl."sale_order_create.php?USER_ID=".CUtil::JSEscape($ID)."&lang=".LANG."&SITE_ID=".CUtil::JSEscape($LID).CUtil::JSEscape($urlProduct)."';";
+								echo "</script>";
+								exit;
+							}
 						}
 					}
 					else
@@ -424,6 +457,7 @@ if (isset($_REQUEST['apply']) && isset($_REQUEST['action']) && $saleModulePermis
 	}
 }
 
+$_REQUEST['admin_history'] = 'Y';
 $pageTitle = "";
 if(!empty($arUser))
 	$pageTitle = " \"(".htmlspecialcharsBack($u_LOGIN).") ".htmlspecialcharsBack($userFIO)."\"";
@@ -454,7 +488,7 @@ if(!empty($arUser))
 	$lAdmin_tab1->NavText($dbOrderList->GetNavPrint(GetMessage('BUYER_ORDER_LIST')));
 
 	$mainOrderHeader = array(
-		array("id"=>"ID", "content"=>ID, "sort"=>"", "default"=>true),
+		array("id"=>"ID", "content"=>'ID', "sort"=>"", "default"=>true),
 		array("id"=>"STATUS_ID","content"=>GetMessage("BUYER_LAST_H_STATUS"), "sort"=>"", "default"=>true),
 		array("id"=>"PAYED", "content"=>GetMessage("BUYER_LAST_H_PAYED"), "sort"=>"", "default"=>true),
 		array("id"=>"CANCELED", "content"=>GetMessage("BUYER_LAST_H_CANCEL"), "sort"=>"", "default"=>true),
@@ -470,7 +504,12 @@ if(!empty($arUser))
 	while ($arOrderMain = $dbOrderList->Fetch())
 	{
 		$row =& $lAdmin_tab1->AddRow($arOrderMain["ID"], $arOrderMain, '', '');
-		$orderLink = "<a href=\"sale_order_view.php?ID=".$arOrderMain["ID"]."&lang=".LANG."\">".$arOrderMain["ID"]."</a>";
+		$orderLinkUrl = "sale_order_view.php?ID=".$arOrderMain["ID"]."&lang=".LANG;
+		if ($adminSidePanelHelper->isPublicSidePanel())
+		{
+			$orderLinkUrl = "/shop/orders/details/".$arOrderMain["ID"]."/";
+		}
+		$orderLink = "<a href=\"".$orderLinkUrl."\">".$arOrderMain["ID"]."</a>";
 		$row->AddField("ID", $orderLink);
 
 		$basketCount = 0;
@@ -546,8 +585,10 @@ if(!empty($arUser))
 
 	while ($arProfList = $dbProfileList->GetNext())
 	{
-		$row =& $lAdmin_tab2->AddRow($arProfList["ID"], $arProfList, "sale_buyers_profile_edit.php?id=".$arProfList["ID"]."&lang=".LANG, GetMessage("BUYER_P_PROFILE_EDIT"));
-		$row->AddField("NAME", "[".$arProfList["ID"]."] <a href=\"/bitrix/admin/sale_buyers_profile_edit.php?id=".$arProfList["ID"]."&lang=".LANG."\">".$arProfList["NAME"]."</a>");
+		$row =& $lAdmin_tab2->AddRow($arProfList["ID"], $arProfList, $selfFolderUrl."sale_buyers_profile_edit.php?id=".$arProfList["ID"]."&lang=".LANG, GetMessage("BUYER_P_PROFILE_EDIT"));
+		$profileEditUrl = $selfFolderUrl."sale_buyers_profile_edit.php?id=".$arProfList["ID"]."&lang=".LANGUAGE_ID;
+		$profileEditUrl = $adminSidePanelHelper->editUrlToPublicPage($profileEditUrl);
+		$row->AddField("NAME", "[".$arProfList["ID"]."] <a target=\"_top\" href=\"".$profileEditUrl."\">".$arProfList["NAME"]."</a>");
 		$row->AddField("PERSON_TYPE_ID", htmlspecialcharsbx($arPErsonTypes[$arProfList["PERSON_TYPE_ID"]]["NAME"]));
 
 		if (count($arSites) > 1)
@@ -569,9 +610,12 @@ if(!empty($arUser))
 		"filter_order_lid",
 		"filter_order_status",
 		"filter_order_payed",
+		"filter_order_delivery",
 		"filter_order_price",
 		"filter_date_order_from",
 		"filter_date_order_to",
+		"filter_order_date_up_from",
+		"filter_order_date_up_to",
 		"filter_summa_to",
 		"filter_summa_from",
 		"filter_order_prod_name",
@@ -783,10 +827,15 @@ if(!empty($arUser))
 	{
 		$row =& $lAdmin_tab3->AddRow($arOrder["ID"], $arOrder, "sale_order_view.php?ID=".$arOrder["ID"]."&lang=".LANG, GetMessage("BUYERS_ORDER_EDIT"));
 
-		$orderLink = "<a href=\"sale_order_view.php?ID=".$arOrder["ID"]."&lang=".LANG."\">".$arOrder["ID"]."</a>";
+		$orderLinkUrl = "sale_order_view.php?ID=".$arOrder["ID"]."&lang=".LANG;
+		if ($adminSidePanelHelper->isPublicSidePanel())
+		{
+			$orderLinkUrl = "/shop/orders/details/".$arOrder["ID"]."/";
+		}
+		$orderLink = "<a href=\"".$orderLinkUrl."\">".$arOrder["ID"]."</a>";
 		$row->AddField("ID", $orderLink);
 
-		$status_id = "<a title=\"".GetMessage('BUYERS_ORDER_DETAIL_PAGE')."\" href=\"/bitrix/admin/sale_order_view.php?ID=".$arOrder["ID"]."&lang=".LANG."\">".GetMessage('BUYERS_PREF').$arOrder["ID"]."</a>";
+		$status_id = "<a title=\"".GetMessage('BUYERS_ORDER_DETAIL_PAGE')."\" href=\"".$orderLink."\">".GetMessage('BUYERS_PREF').$arOrder["ID"]."</a>";
 		$status_id .= "<input type=\"hidden\" name=\"table_id\" value=\"".$sTableID_tab3."\">";
 		$row->AddField("STATUS_ID", $status_id);
 
@@ -802,7 +851,12 @@ if(!empty($arUser))
 			if (strval($payed) != "")
 				$payed .= "<hr>";
 
-			$payed .= "[<a href='/bitrix/admin/sale_order_payment_edit.php?order_id=".$arOrder['ID']."&payment_id=".$payment["ID"]."&lang=".LANGUAGE_ID."'>".$payment["ID"]."</a>], ".
+			$paymentLinkUrl = $selfFolderUrl."sale_order_payment_edit.php?order_id=".$arOrder['ID']."&payment_id=".$payment["ID"]."&lang=".LANGUAGE_ID;
+			if ($adminSidePanelHelper->isPublicSidePanel())
+			{
+				$paymentLinkUrl = "/shop/orders/payment/details/".$payment["ID"]."/";
+			}
+			$payed .= "[<a target='_top' href='".$paymentLinkUrl."'>".$payment["ID"]."</a>], ".
 				htmlspecialcharsbx($payment["PAY_SYSTEM_NAME"]).", ".
 				($payment["PAID"] == "Y" ? \Bitrix\Main\Localization\Loc::getMessage("SOB_PAYMENTS_PAID") :  \Bitrix\Main\Localization\Loc::getMessage("SOB_PAYMENTS_UNPAID")).", ".
 				(strlen($payment["PS_STATUS"]) > 0 ? \Bitrix\Main\Localization\Loc::getMessage("SOB_PAYMENTS_STATUS").": ".htmlspecialcharsbx($payment["PS_STATUS"]).", " : "").
@@ -836,13 +890,18 @@ if(!empty($arUser))
 
 		while($shipment = $res->fetch())
 		{
-			$shipment["ID_LINKED"] = '[<a href="/bitrix/admin/sale_order_shipment_edit.php?order_id='.$arOrder['ID'].'&shipment_id='.$shipment["ID"].'&lang='.LANGUAGE_ID.'">'.$shipment["ID"].'</a>]';
+			$shipmentLinkUrl = $selfFolderUrl."sale_order_shipment_edit.php?order_id=".$arOrder["ID"]."&shipment_id=".$shipment["ID"]."&lang=".LANGUAGE_ID;
+			if ($adminSidePanelHelper->isPublicSidePanel())
+			{
+				$shipmentLinkUrl = "/shop/orders/shipment/details/".$shipment["ID"]."/";
+			}
+			$shipment["ID_LINKED"] = '[<a target="_top" href="'.$shipmentLinkUrl.'">'.$shipment["ID"].'</a>]';
 
 
 			if (strval($allowDelivery) != "")
 				$allowDelivery .= "<hr>";
 
-			$allowDelivery .= "[<a href='/bitrix/admin/sale_order_shipment_edit.php?order_id=".$arOrder['ID']."&shipment_id=".$shipment["ID"]."&lang=".LANGUAGE_ID."'>".$shipment["ID"]."</a>], ".
+			$allowDelivery .= "[<a href='".$shipmentLinkUrl."'>".$shipment["ID"]."</a>], ".
 				htmlspecialcharsbx($shipment["DELIVERY_NAME"]).", ".
 				'<span>'.htmlspecialcharsEx(SaleFormatCurrency($shipment["PRICE_DELIVERY"], $shipment["CURRENCY"]))."</span>, ".
 				($shipment["ALLOW_DELIVERY"] == "Y" ? \Bitrix\Main\Localization\Loc::getMessage("SOB_SHIPMENTS_ALLOW_DELIVERY") : \Bitrix\Main\Localization\Loc::getMessage("SOB_SHIPMENTS_NOT_ALLOW_DELIVERY")).", ".
@@ -885,7 +944,15 @@ if(!empty($arUser))
 				$hidden = "style=\"display:none\"";
 			}
 
-			$orderProduct .= "<div ".$class." ".$hidden."><a href=\"".htmlspecialcharsbx($arBasketOrder["DETAIL_PAGE_URL"])."\">".htmlspecialcharsbx($arBasketOrder["NAME"])."</a> - ".$arBasketOrder["QUANTITY"]." ".$measure."<br />";
+			$elementQueryObject = CIBlockElement::getList(array(), array(
+				"ID" => $arBasketOrder["PRODUCT_ID"]), false, false, array("IBLOCK_ID", "IBLOCK_TYPE_ID"));
+			if ($elementData = $elementQueryObject->fetch())
+			{
+				$orderProductUrl = $selfFolderUrl."cat_product_edit.php?IBLOCK_ID=".$elementData["IBLOCK_ID"].
+					"&type=".$elementData["IBLOCK_TYPE_ID"]."&ID=".$arBasketOrder["PRODUCT_ID"]."&lang=".LANGUAGE_ID."&WF=Y";
+			}
+			$orderProductUrl = $adminSidePanelHelper->editUrlToPublicPage($orderProductUrl);
+			$orderProduct .= "<div ".$class." ".$hidden."><a target=\"_top\" href=\"".htmlspecialcharsbx($orderProductUrl)."\">".htmlspecialcharsbx($arBasketOrder["NAME"])."</a> - ".$arBasketOrder["QUANTITY"]." ".$measure."<br />";
 
 			$dbProp = CSaleBasket::GetPropsList(Array("SORT" => "ASC", "ID" => "ASC"), Array("BASKET_ID" => $arBasketOrder["ID"], "!CODE" => array("CATALOG.XML_ID", "PRODUCT.XML_ID")));
 			while($arProp = $dbProp -> GetNext())
@@ -908,8 +975,24 @@ if(!empty($arUser))
 			$row->AddField("LID", "[".$arOrder["LID"]."] ".htmlspecialcharsbx($arSites[$arOrder["LID"]]["NAME"])."");
 
 		$arActions = array();
-		$arActions[] = array("ICON"=>"view", "TEXT"=>GetMessage("BUYERS_ORDER_EDIT"),"ACTION"=>$lAdmin_tab3->ActionRedirect("sale_order_view.php?ID=".$arOrder["ID"]."&lang=".LANG), "DEFAULT"=>true);
-		$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("BUYER_PD_REORDER"),"ACTION"=>$lAdmin_tab3->ActionRedirect("/bitrix/admin/sale_buyers_profile.php?USER_ID=".$ID."&lang=".LANG."&reorder=".$arOrder["ID"]."&lid=".$arOrder["LID"]));
+		$viewOrderAction = $lAdmin_tab3->ActionRedirect("sale_order_view.php?ID=".$arOrder["ID"]."&lang=".LANGUAGE_ID);
+		if ($adminSidePanelHelper->isPublicSidePanel())
+		{
+			$viewOrderAction = "top.BX.adminSidePanel.onOpenPage('/shop/orders/details/".$arOrder["ID"]."/?lang=".LANGUAGE_ID."');";
+		}
+		$arActions[] = array(
+			"ICON" => "view",
+			"TEXT" => GetMessage("BUYERS_ORDER_EDIT"),
+			"ACTION" => $viewOrderAction,
+			"DEFAULT" => true
+		);
+		$reorderUrl = $selfFolderUrl."sale_buyers_profile.php?USER_ID=".$ID."&lang=".LANGUAGE_ID."&reorder=".$arOrder["ID"]."&lid=".$arOrder["LID"];
+		$reorderUrl = $adminSidePanelHelper->setDefaultQueryParams($reorderUrl);
+		$arActions[] = array(
+			"ICON" => "edit",
+			"TEXT" => GetMessage("BUYER_PD_REORDER"),
+			"LINK" => $reorderUrl
+		);
 
 		$row->AddActions($arActions);
 	}
@@ -1011,7 +1094,17 @@ if(!empty($arUser))
 	{
 		$row =& $lAdmin_tab4->AddRow($arBasket["PRODUCT_ID"], $arBasket, '', '');
 
-		$name = "<a href=\"".$arBasket["DETAIL_PAGE_URL"]."\">".$arBasket["NAME"]."</a>
+		$orderProductUrl = $arBasket["DETAIL_PAGE_URL"];
+		$elementQueryObject = CIBlockElement::getList(array(), array(
+			"ID" => $arBasket["PRODUCT_ID"]), false, false, array("IBLOCK_ID", "IBLOCK_TYPE_ID"));
+		if ($elementData = $elementQueryObject->fetch())
+		{
+			$orderProductUrl = $selfFolderUrl."cat_product_edit.php?IBLOCK_ID=".$elementData["IBLOCK_ID"].
+				"&type=".$elementData["IBLOCK_TYPE_ID"]."&ID=".$arBasket["PRODUCT_ID"]."&lang=".LANGUAGE_ID."&WF=Y";
+		}
+		$orderProductUrl = $adminSidePanelHelper->editUrlToPublicPage($orderProductUrl);
+
+		$name = "<a target='_top' href=\"".$orderProductUrl."\">".$arBasket["NAME"]."</a>
 			<input type=\"hidden\" value=\"".$arBasket["PRODUCT_ID"]."\" name=\"PRODUCT_ID[".$arBasket["LID"]."][]\" />";
 		$name .= "<input type=\"hidden\" name=\"table_id\" value=\"".$sTableID_tab4."\">";
 
@@ -1230,7 +1323,17 @@ if(!empty($arUser))
 	{
 		$row =& $lAdmin_tab5->AddRow($arViews["PRODUCT_ID"], $arViews, '', '');
 
-		$name = "[".$arViews["PRODUCT_ID"]."] <a href=\"".$arViews["DETAIL_PAGE_URL"]."\">".htmlspecialcharsEx($arViews["NAME"])."</a>";
+		$orderProductUrl = $arViews["DETAIL_PAGE_URL"];
+		$elementQueryObject = CIBlockElement::getList(array(), array(
+			"ID" => $arViews["PRODUCT_ID"]), false, false, array("IBLOCK_ID", "IBLOCK_TYPE_ID"));
+		if ($elementData = $elementQueryObject->fetch())
+		{
+			$orderProductUrl = $selfFolderUrl."cat_product_edit.php?IBLOCK_ID=".$elementData["IBLOCK_ID"].
+				"&type=".$elementData["IBLOCK_TYPE_ID"]."&ID=".$arViews["PRODUCT_ID"]."&lang=".LANGUAGE_ID."&WF=Y";
+		}
+		$orderProductUrl = $adminSidePanelHelper->editUrlToPublicPage($orderProductUrl);
+
+		$name = "[".$arViews["PRODUCT_ID"]."] <a target='_top' href=\"".$orderProductUrl."\">".htmlspecialcharsEx($arViews["NAME"])."</a>";
 		if (floatVal($arViews["PRICE"]) <= 0)
 			$name .= "<div class=\"dont_can_buy\">(".GetMessage('BUYER_DONT_CAN_BUY').")</div>";
 		$name .= "<input type=\"hidden\" name=\"table_id\" value=\"".$sTableID_tab5."\">";
@@ -1252,7 +1355,16 @@ if(!empty($arUser))
 					{
 						foreach ($arSetData["ITEMS"] as $setItem)
 						{
-							$name .= "<br/>[".$setItem["ITEM_ID"]."] <a style=\"font-style: italic\" href=".$setItem["DETAIL_PAGE_URL"].">".$setItem["NAME"]."</a>";
+							$orderProductUrl = $setItem["DETAIL_PAGE_URL"];
+							$elementQueryObject = CIBlockElement::getList(array(), array(
+								"ID" => $arViews["PRODUCT_ID"]), false, false, array("IBLOCK_ID", "IBLOCK_TYPE_ID"));
+							if ($elementData = $elementQueryObject->fetch())
+							{
+								$orderProductUrl = $selfFolderUrl."cat_product_edit.php?IBLOCK_ID=".$elementData["IBLOCK_ID"].
+									"&type=".$elementData["IBLOCK_TYPE_ID"]."&ID=".$arViews["PRODUCT_ID"]."&lang=".LANGUAGE_ID."&WF=Y";
+							}
+							$orderProductUrl = $adminSidePanelHelper->editUrlToPublicPage($orderProductUrl);
+							$name .= "<br/>[".$setItem["ITEM_ID"]."] <a style=\"font-style: italic\" target='_top' href=".$orderProductUrl.">".$setItem["NAME"]."</a>";
 						}
 					}
 					$name .= "</div>";
@@ -1286,11 +1398,18 @@ if(!empty($arUser))
 				"PRODUCT_PRICE_FROM" => GetMessage('BUYERS_FROM')
 			);
 
-		if (count($arResult["SKU_ELEMENTS"]) > 0):
+		if (!empty($arResult["SKU_ELEMENTS"])):
 			$linkOrder = "showOfferPopup(".CUtil::PhpToJsObject($arResult['SKU_ELEMENTS']).", ".CUtil::PhpToJsObject($arResult['SKU_PROPERTIES']).", 'order', ".CUtil::PhpToJsObject($arResult["POPUP_MESSAGE"]).");";
 			$linkBasket = "showOfferPopup(".CUtil::PhpToJsObject($arResult['SKU_ELEMENTS']).", ".CUtil::PhpToJsObject($arResult['SKU_PROPERTIES']).", 'basket', ".CUtil::PhpToJsObject($arResult["POPUP_MESSAGE"]).");";
 		else:
-			$linkOrder = 'BX.adminPanel.Redirect([], \'/bitrix/admin/sale_order_create.php?USER_ID='.$ID.'&lang='.LANG.'&SITE_ID='.$arViews["SITE_ID"].'&product['.$arViews["PRODUCT_ID"].']=1\', event);';
+			if ($adminSidePanelHelper->isPublicSidePanel())
+			{
+				$linkOrder = "top.BX.adminSidePanel.onOpenPage('/shop/orders/details/0/?lang=".LANGUAGE_ID."&USER_ID=".$ID."&SITE_ID=".$arViews["SITE_ID"]."&product[".$arViews["PRODUCT_ID"]."]=1');";
+			}
+			else
+			{
+				$linkOrder = 'BX.adminPanel.Redirect([], \''.$selfFolderUrl.'sale_order_create.php?USER_ID='.$ID.'&lang='.LANG.'&SITE_ID='.$arViews["SITE_ID"].'&product['.$arViews["PRODUCT_ID"].']=1\', event);';
+			}
 			$linkBasket = 'fAddToBasketViewed('.$arViews["PRODUCT_ID"].', \''.$arViews["SITE_ID"].'\')';
 		endif;
 
@@ -1473,16 +1592,16 @@ if(!empty($arUser))
 			if(defined('CATALOG_PRODUCT'))
 			{
 				$editUrl = CIBlock::getAdminElementEditLink($subscribe['IBLOCK_ID'], $subscribe['ITEM_ID'], array(
-					'find_section_section' => -1, 'WF' => 'Y',
+					'find_section_section' => -1, 'WF' => 'Y', 'replace_script_name' => true,
 					'return_url' => $APPLICATION->getCurPageParam()));
 			}
 			else
 			{
 				$editUrl = CIBlock::getAdminElementEditLink($subscribe['IBLOCK_ID'], $subscribe['ITEM_ID'], array(
-					'find_section_section' => -1, 'WF' => 'Y'));
+					'find_section_section' => -1, 'WF' => 'Y', 'replace_script_name' => true));
 			}
 			$row->addField('PRODUCT_NAME',
-				'<a href="'.$editUrl.'" target="_blank">'.htmlspecialcharsbx($subscribe['PRODUCT_NAME']).'</a>');
+				'<a href="'.$selfFolderUrl.$editUrl.'" target="_top">'.htmlspecialcharsbx($subscribe['PRODUCT_NAME']).'</a>');
 
 			$actions = array();
 			$actionUrl .= '&itemId='.$subscribe['ITEM_ID'];
@@ -1516,8 +1635,12 @@ if(!empty($arUser))
 				{
 					foreach($listUserData[$user['ID']] as $subscribeId)
 					{
-						$userString='<a href="/bitrix/admin/user_edit.php?ID='.$user['ID'].'&lang='.LANGUAGE_ID.'" target="_blank">'.
-							CUser::formatName(CSite::getNameFormat(false), $user, true, true).'</a>';
+						$userString = '<a href="'.$selfFolderUrl.'user_edit.php?ID='.$user["ID"]."&lang=".LANGUAGE_ID.
+							'" target="_blank">'.CUser::formatName(CSite::getNameFormat(false), $user, true, true).'</a>';
+						if ($adminSidePanelHelper->isPublicSidePanel())
+						{
+							$userString = CUser::formatName(CSite::getNameFormat(false), $user, true, true);
+						}
 						$rowList[$subscribeId]->addField('USER_ID', $userString);
 					}
 				}
@@ -1569,27 +1692,72 @@ if(!empty($arUser))
 	{
 		foreach ($arSitesShop as $key => $val)
 		{
+			$actionSiteShop = "window.location = 'sale_order_create.php?lang=".LANGUAGE_ID."&USER_ID=".$ID."&SITE_ID=".$val["ID"]."';";
+			if ($adminSidePanelHelper->isPublicSidePanel())
+			{
+				$actionSiteShop = "top.BX.adminSidePanel.onOpenPage('/shop/orders/details/0/?lang=".LANGUAGE_ID."&USER_ID=".$ID."&SITE_ID=".$val["ID"]."');";
+			}
 			$arSiteMenu[] = array(
 				"TEXT" => $val["NAME"]." (".$val["ID"].")",
-				"ACTION" => "window.location = 'sale_order_create.php?lang=".LANGUAGE_ID."&USER_ID=".$ID."&SITE_ID=".$val["ID"]."';"
+				"ACTION" => $actionSiteShop
 			);
 		}
 	}
 
+	$orderAddLinkUrl = $selfFolderUrl."sale_order_create.php?lang=".LANGUAGE_ID.$siteLID;
+	if ($adminSidePanelHelper->isPublicSidePanel())
+	{
+		$orderAddLinkUrl = "/shop/orders/details/0/?lang=".LANGUAGE_ID.$siteLID;
+	}
+
+	$listUrl = $selfFolderUrl."sale_buyers.php?lang=".LANGUAGE_ID;
+	if ($adminSidePanelHelper->isPublicSidePanel())
+	{
+		$listUrl = $selfFolderUrl."menu_sale_buyers/";
+	}
+	$addButton = array(
+		"TEXT"=>GetMessage("BUYER_NEW_ORDER"),
+		"LINK" => $orderAddLinkUrl,
+		"TITLE"=>GetMessage("BUYER_NEW_ORDER"),
+		"ICON" => "btn_new",
+		"MENU" => $arSiteMenu,
+		"PUBLIC" => ($adminSidePanelHelper->isPublicSidePanel() ? true : false),
+	);
+	if ($adminSidePanelHelper->isPublicSidePanel())
+	{
+		$addButton = array(
+			"TEXT"=>GetMessage("BUYER_NEW_ORDER"),
+			"ONCLICK" => "top.BX.adminSidePanel.onOpenPage('/shop/orders/details/0/?lang=".LANGUAGE_ID.$siteLID."');",
+			"TITLE"=>GetMessage("BUYER_NEW_ORDER"),
+			"ICON" => "btn_new",
+			"MENU" => $arSiteMenu,
+			"PUBLIC" => ($adminSidePanelHelper->isPublicSidePanel() ? true : false),
+		);
+
+	}
 	$arMenu = array(
 		array(
 			"TEXT"=>GetMessage("BUYER_LIST"),
-			"LINK" => "/bitrix/admin/sale_buyers.php?lang=".LANGUAGE_ID.GetFilterParams("filter_"),
+			"LINK" => $listUrl,
 			"ICON" => "btn_list",
 		),
-		array(
-			"TEXT"=>GetMessage("BUYER_NEW_ORDER"),
-			"LINK" => "/bitrix/admin/sale_order_create.php?lang=".LANGUAGE_ID.$siteLID,
-			"TITLE"=>GetMessage("BUYER_NEW_ORDER"),
-			"ICON" => "btn_new",
-			"MENU" => $arSiteMenu
-		),
+		$addButton
 	);
+
+	if (
+		$adminSidePanelHelper->isPublicSidePanel()
+		&& empty($arUser['UF_DEPARTMENT'])
+		&& isset($arUser['EXTERNAL_AUTH_ID'])
+		&& $arUser['EXTERNAL_AUTH_ID'] === 'shop'
+	)
+	{
+		$arMenu[] = [
+			"TEXT"=>GetMessage("BUYER_EDIT"),
+			"LINK" => '/shop/buyer/'.$u_ID.'/edit/',
+			"TITLE"=>GetMessage("BUYER_EDIT"),
+			"PUBLIC" => true,
+		];
+	}
 
 	$context = new CAdminContextMenu($arMenu);
 	$context->Show();
@@ -1601,6 +1769,12 @@ if(!empty($arUser))
 			"TAB" => GetMessage("BUYER_INFO"),
 			"ICON"=>"",
 			"TITLE"=>GetMessage("BUYER_INFO_DESC"),
+		),
+		array(
+			"DIV" => "tab-order",
+			"TAB" => GetMessage("BUYER_G_STATISTIC"),
+			"ICON"=>"",
+			"TITLE"=>GetMessage("BUYER_G_STATISTIC"),
 		),
 		array(
 			"DIV" => "tab2",
@@ -1653,7 +1827,15 @@ if(!empty($arUser))
 				<tr>
 					<td class="adm-detail-content-cell-l" width="40%"><?=GetMessage("BUYER_FILED_LOGIN")?>:</td>
 					<td class="adm-detail-content-cell-r">
-						<div><a href="/bitrix/admin/user_edit.php?ID=<?=$u_ID?>&lang=<?=LANG?>"><?=$u_LOGIN?></a></div>
+						<? if ($adminSidePanelHelper->isPublicSidePanel()): ?>
+							<div><?=$u_LOGIN?></div>
+						<? else: ?>
+							<div>
+								<a href="<?=$selfFolderUrl."user_edit.php?ID=".$u_ID."&lang=".LANG ?>" target="_top">
+									<?=$u_LOGIN?>
+								</a>
+							</div>
+						<? endif; ?>
 					</td>
 				</tr>
 				<?if(strlen($userFIO) > 0):?>
@@ -1699,7 +1881,7 @@ if(!empty($arUser))
 					</td>
 				</tr>
 				<tr>
-					<td class="adm-detail-content-cell-l" valign="top"><?=GetMessage("BUYER_FILED_GROUP")?>:</td>
+					<td class="adm-detail-content-cell-l" valign="top"><?=GetMessage("BUYER_FILED_GROUP1")?>:</td>
 					<td class="adm-detail-content-cell-r">
 						<div><?=$strUserGroup?></div>
 					</td>
@@ -1712,7 +1894,26 @@ if(!empty($arUser))
 					</td>
 				</tr>
 				<?endif;?>
+				</table>
+			</td>
+		</tr>
+		<script>
+			BX.addCustomEvent('SidePanel.Slider:onMessage', function(event){
+				if (event.getEventId() === 'OrderBuyerEdit::onSave')
+				{
+					var topSlider = window.top.BX.SidePanel.Instance.getTopSlider();
+					var prevSlider = window.top.BX.SidePanel.Instance.getPreviousSlider(topSlider);
 
+					prevSlider.iframe.contentWindow.location.reload(true);
+				}
+			});
+		</script>
+		<?$tabControl->EndTab();?>
+
+		<?$tabControl->BeginNextTab();?>
+		<tr>
+			<td colspan="2">
+			<table border="0" cellspacing="0" cellpadding="0" width="100%" class="adm-detail-content-table edit-table">
 				<?
 				$arStatOrder = array();
 				$arStatOrder["PAYED"] = array();
@@ -1783,9 +1984,9 @@ if(!empty($arUser))
 				<tr class="heading">
 					<td colspan="2"><?=GetMessage("BUYER_G_LAST_ORDER")?></td>
 				</tr>
-				</table>
+			</table>
 
-				<?$lAdmin_tab1->DisplayList();?>
+			<?$lAdmin_tab1->DisplayList();?>
 			</td>
 		</tr>
 		<?$tabControl->EndTab();?>
@@ -2083,8 +2284,8 @@ if(!empty($arUser))
 
 						function fAddToBasketViewed(product_id, lid)
 						{
-							t_stat_list_tab5.GetAdminList('/bitrix/admin/sale_buyers_profile.php?USER_ID=<?=$ID?>&lang=<?=LANGUAGE_ID?>&action=viewed_apply&viewed_id='+product_id+'&viewed_lid='+lid);
-							t_stat_list_tab4.GetAdminList('/bitrix/admin/sale_buyers_profile.php?USER_ID=<?=$ID?>&lang=<?=LANGUAGE_ID?>');
+							t_stat_list_tab5.GetAdminList('<?=$selfFolderUrl?>sale_buyers_profile.php?USER_ID=<?=$ID?>&lang=<?=LANGUAGE_ID?>&action=viewed_apply&viewed_id='+product_id+'&viewed_lid='+lid);
+							t_stat_list_tab4.GetAdminList('<?=$selfFolderUrl?>sale_buyers_profile.php?USER_ID=<?=$ID?>&lang=<?=LANGUAGE_ID?>');
 						}
 
 						function showOfferPopup(arSKU, arProperties, type, message)
@@ -2219,7 +2420,11 @@ if(!empty($arUser))
 										else
 										{
 											BX('sku_to_basket_apply').value = "N";
-											BX('viewed_url_action').value = '/bitrix/admin/sale_order_create.php?USER_ID='+arSKU[i]["USER_ID"]+'&lang=<?=LANG?>&SITE_ID='+arSKU[i]["LID"]+'&product['+arSKU[i]["ID"]+']=1';
+											<? if ($adminSidePanelHelper->isPublicSidePanel()):?>
+												BX('viewed_url_action').value = '/shop/orders/details/0/?USER_ID='+arSKU[i]["USER_ID"]+'&lang=<?=LANG?>&SITE_ID='+arSKU[i]["LID"]+'&product['+arSKU[i]["ID"]+']=1';
+											<? else: ?>
+												BX('viewed_url_action').value = '<?=$selfFolderUrl?>sale_order_create.php?USER_ID='+arSKU[i]["USER_ID"]+'&lang=<?=LANG?>&SITE_ID='+arSKU[i]["LID"]+'&product['+arSKU[i]["ID"]+']=1';
+											<? endif; ?>
 											btnText = BX.message('PRODUCT_ADD_TO_ORDER');
 										}
 

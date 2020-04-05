@@ -334,24 +334,42 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $STEP > 1 && check_bitrix_sessid())
 				$arResSections = array();
 				if($bNeedGroups)
 				{
-					$rsSections = CIBlockElement::GetElementGroups($arElement["ID"], true);
-					while($arSection = $rsSections->Fetch())
+					if($arElement["IBLOCK_SECTION_ID"] > 0)
 					{
+						
 						$arPath = array();
-						$rsPath = CIBlockSection::GetNavChain($IBLOCK_ID, $arSection["ID"], array("NAME"));
+						$rsPath = CIBlockSection::GetNavChain($IBLOCK_ID, $arElement["IBLOCK_SECTION_ID"], array("NAME"));
 						while($arPathSection = $rsPath->Fetch())
 						{
 							$arPath[] = $arPathSection["NAME"];
 						}
-						$arResSections[] = $arPath;
+						$arResSections[$arElement["IBLOCK_SECTION_ID"]] = $arPath;
 					}
-					if(count($arResSections) <= 0)
-						$arResSections[] = array();
+
+					$arSections = array();
+					$rsSections = CIBlockElement::GetElementGroups($arElement["ID"], true, array("ID"));
+					while($arSection = $rsSections->Fetch())
+					{
+						$arSections[] = intval($arSection["ID"]);
+					}
+					sort($arSections);
+
+					foreach ($arSections as $sectionId)
+					{
+						if (!isset($arResSections[$sectionId]))
+						{
+							$arPath = array();
+							$rsPath = CIBlockSection::GetNavChain($IBLOCK_ID, $sectionId, array("NAME"));
+							while($arPathSection = $rsPath->Fetch())
+							{
+								$arPath[] = $arPathSection["NAME"];
+							}
+							$arResSections[$sectionId] = $arPath;
+						}
+					}
 				}
-				else
-				{
-					$arResSections[] = array();
-				}
+				if (empty($arResSections))
+					$arResSections[] = [];
 
 				$arResFields = array();
 				foreach($arResSections as $arPath)

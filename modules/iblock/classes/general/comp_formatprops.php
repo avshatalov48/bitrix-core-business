@@ -1,15 +1,21 @@
 <?
+use Bitrix\Main\ModuleManager;
+
 IncludeModuleLangFile(__FILE__);
 
 class CIBlockFormatProperties
 {
+	private static $b24Installed = null;
+	private static $statisticInstalled = null;
+
 	public static function GetDisplayValue($arItem, $arProperty, $event1)
 	{
-		static $installedStatictic = null;
-		if (null === $installedStatictic)
-		{
-			$installedStatictic = \Bitrix\Main\ModuleManager::isModuleInstalled('statistic');
-		}
+		if (self::$b24Installed === null)
+			self::$b24Installed = ModuleManager::isModuleInstalled('bitrix24');
+		if (self::$statisticInstalled === null)
+			self::$statisticInstalled = ModuleManager::isModuleInstalled('statistic');
+
+		/** @var array $arUserTypeFormat */
 		$arUserTypeFormat = false;
 		if(isset($arProperty["USER_TYPE"]) && !empty($arProperty["USER_TYPE"]))
 		{
@@ -72,7 +78,10 @@ class CIBlockFormatProperties
 					}
 					if(is_array($CACHE["E"][$val]))
 					{
-						$arDisplayValue[]='<a href="'.$CACHE["E"][$val]["DETAIL_PAGE_URL"].'">'.$CACHE["E"][$val]["NAME"].'</a>';
+						if (self::$b24Installed)
+							$arDisplayValue[] = $CACHE["E"][$val]["NAME"];
+						else
+							$arDisplayValue[]='<a href="'.$CACHE["E"][$val]["DETAIL_PAGE_URL"].'">'.$CACHE["E"][$val]["NAME"].'</a>';
 						$arLinkElements[$val] = $CACHE["E"][$val];
 					}
 				}
@@ -97,7 +106,10 @@ class CIBlockFormatProperties
 					}
 					if(is_array($CACHE["G"][$val]))
 					{
-						$arDisplayValue[]='<a href="'.$CACHE["G"][$val]["SECTION_PAGE_URL"].'">'.$CACHE["G"][$val]["NAME"].'</a>';
+						if (self::$b24Installed)
+							$arDisplayValue[] = $CACHE["G"][$val]["NAME"];
+						else
+							$arDisplayValue[]='<a href="'.$CACHE["G"][$val]["SECTION_PAGE_URL"].'">'.$CACHE["G"][$val]["NAME"].'</a>';
 						$arLinkSections[$val] = $CACHE["G"][$val];
 					}
 				}
@@ -111,7 +123,7 @@ class CIBlockFormatProperties
 				if($arFile = CFile::GetFileArray($val))
 				{
 					$arFiles[] = $arFile;
-					if($installedStatictic)
+					if(self::$statisticInstalled)
 						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx("/bitrix/redirect.php?event1=".urlencode($event1)."&event2=".urlencode($arFile["SRC"])."&event3=".urlencode($arFile["ORIGINAL_NAME"])."&goto=".urlencode($arFile["SRC"])).'">'.GetMessage('IBLOCK_DOWNLOAD').'</a>';
 					else
 						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx($arFile["SRC"]).'">'.GetMessage('IBLOCK_DOWNLOAD').'</a>';
@@ -122,14 +134,14 @@ class CIBlockFormatProperties
 				$trimmed = trim($val);
 				if (strpos($trimmed, "http") === 0)
 				{
-					if($installedStatictic)
+					if(self::$statisticInstalled)
 						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx("/bitrix/redirect.php?event1=".urlencode($event1)."&event2=".urlencode($trimmed)."&event3=".urlencode($arItem["NAME"])."&goto=".urlencode($trimmed)).'">'.$trimmed.'</a>';
 					else
 						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx($trimmed).'">'.$trimmed.'</a>';
 				}
 				elseif (strpos($trimmed, "www") === 0)
 				{
-					if($installedStatictic)
+					if(self::$statisticInstalled)
 						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx("/bitrix/redirect.php?event1=".urlencode($event1)."&event2=".urlencode("http://".$trimmed)."&event3=".urlencode($arItem["NAME"])."&goto=".urlencode("http://".$trimmed)).'">'.$trimmed.'</a>';
 					else
 						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx("http://".$trimmed).'">'.$trimmed.'</a>';

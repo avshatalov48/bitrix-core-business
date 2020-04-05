@@ -69,6 +69,11 @@ class PostFiles
 		$newFiles = array_merge($newFiles, $this->getPosted());
 		foreach($newFiles as $file)
 		{
+			if (!is_array($file))
+			{
+				continue;
+			}
+
 			$fileId = self::saveFile($file);
 			if ($fileId)
 			{
@@ -201,6 +206,12 @@ class PostFiles
 				{
 					$absPath = $io->CombinePath(\CTempFile::GetAbsoluteRoot(), $filePath);
 					$isCheckedSuccess = true;
+				}
+
+				$absPath = realpath(str_replace("\\", "/", $absPath));
+				if (strpos($absPath, realpath(\CTempFile::GetAbsoluteRoot())) !== 0)
+				{
+					continue;
 				}
 
 				if (!$isCheckedSuccess && $io->ValidatePathString($absPath) && $io->FileExists($absPath))

@@ -1,5 +1,5 @@
     <section class="landing-block container-fluid px-0 g-theme-business-bg-blue-dark-v1">
-        <div class="row no-gutters align-items-start">
+        <div class="landing-block-inner-container row no-gutters align-items-start">
 
             <div class="landing-block-card js-animation fadeIn col-md-6 col-lg-6 g-flex-centered">
                 <div class="landing-block-node-card-container text-center g-pa-30 w-100">

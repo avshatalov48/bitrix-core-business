@@ -11,6 +11,7 @@ class Element
 	protected $iblockId = 0;
 	protected $elementId = 0;
 	protected static $catalog = null;
+	protected static $filterPropertyID = array();
 	protected $skuIblockId = 0;
 	protected $skuPropertyId = 0;
 	protected $elementPropertyValues = array();
@@ -100,7 +101,31 @@ class Element
 	 */
 	protected function loadElementProperties($iblockId, array $elementFilter)
 	{
-		$elementList = \CIBlockElement::getPropertyValues($iblockId, $elementFilter);
+		if (!isset(self::$filterPropertyID[$iblockId]))
+		{
+			self::$filterPropertyID[$iblockId] = [];
+			$properties = \Bitrix\Iblock\SectionPropertyTable::getList(array(
+				"select" => array("PROPERTY_ID"),
+				"filter" => array(
+					"=IBLOCK_ID" => array($this->iblockId, $this->skuIblockId),
+					"=SMART_FILTER" => "Y",
+				),
+			));
+			while ($property = $properties->fetch())
+			{
+				self::$filterPropertyID[$iblockId][] = $property['PROPERTY_ID'];
+			}
+			unset($property);
+			unset($properties);
+		}
+
+		$elementList = \CIBlockElement::getPropertyValues(
+			$iblockId,
+			$elementFilter,
+			false,
+			array('ID' => self::$filterPropertyID[$iblockId])
+		);
+
 		while ($element = $elementList->fetch())
 		{
 			foreach ($element as $propertyId => $value)

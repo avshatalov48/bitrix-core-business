@@ -532,7 +532,7 @@ class CIBlockSectionPropertyLink
 		{
 			$TextParser = new CBXSanitizer();
 			$TextParser->SetLevel(CBXSanitizer::SECURE_LEVEL_LOW);
-			$TextParser->ApplyHtmlSpecChars(false);
+			$TextParser->ApplyDoubleEncode(false);
 		}
 		$cleanHint = trim($filterHint);
 		if ($cleanHint)
@@ -544,4 +544,3 @@ class CIBlockSectionPropertyLink
 		return $cleanHint;
 	}
 }
-?>

@@ -17,6 +17,7 @@ $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_5"] = "Installieren Sie den Treiber
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_6"] = "Aktualisieren Sie BSM auf Version 17.xx";
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_7"] = "BSM auf Version 17.xx aktualisieren";
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_8"] = "Aktivieren Sie den Punkt \"Drucken von Kassenzetteln aktivieren\" <a class=\"adm-cashbox-list-load-link\" href=\"/bitrix/admin/sale_pay_system.php?lang=en\" target=\"_blank\">in den Optionen des Zahlungssystems</a>, wenn Kassenzettel erforderlich sind.";
+$MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_8_PUBLIC"] = "Aktivieren Sie den Punkt \"Drucken von Kassenzetteln aktivieren\" <a class=\"adm-cashbox-list-load-link\" href=\"#URL#\" target=\"_blank\">in den Optionen des Zahlungssystems</a>, wenn Kassenzettel erforderlich sind.";
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_5_HELP_DRIVER_1"] = "Treiber des Kassenapparats zum Drucken von Kassenzetteln";
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_5_HELP_DRIVER_1_DESC"] = "Dieser Treiber erfordert Aktivierung eines virtuellen COM-Ports. Treiber-Paket enthält eine Testanwendung (fptr_t.exe im Verzeichnis nt-x86-mingw), wobei Ports getestet und angezeigt werden sollen.";
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_5_HELP_DRIVER_2"] = "Treiber des Kassenapparats, um Daten an OFD zu senden";
@@ -27,4 +28,5 @@ $MESS["SALE_CASHBOX_CONNECT_TO_ESHOP"] = "Verbinden Sie den Cash-Register mit Ih
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_APP_STEP_1"] = "Geben Sie diese URL in den APP-Einstellungen an:";
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_APP_STEP_2"] = "Starten Sie unsere Desktop Anwendung zum Cash-Register";
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_APP_STEP_3"] = "Um den Cash-Register zu konfigurieren und zu aktivieren, wechseln Sie zum <a href=\"/bitrix/admin/sale_cashbox_list.php?lang=ru\">Listenformular</a>";
+$MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_APP_STEP_3_PUBLIC"] = "Um den Cash-Register zu konfigurieren und zu aktivieren, wechseln Sie zum <a href=\"#URL#\">Listenformular</a>";
 ?>

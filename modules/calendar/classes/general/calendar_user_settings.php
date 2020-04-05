@@ -42,7 +42,9 @@ class CCalendarUserSettings
 	public static function Get($userId = false)
 	{
 		if (!$userId)
+		{
 			$userId = CCalendar::GetUserId();
+		}
 
 		$resSettings = self::$settings;
 

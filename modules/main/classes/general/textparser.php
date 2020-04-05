@@ -34,7 +34,9 @@ class CTextParser
 		"CODE" => "Y",
 		"FONT" => "Y",
 		"LIST" => "Y",
+		"EMOJI" => "Y",
 		"SMILES" => "Y",
+		"CLEAR_SMILES" => "N",
 		"NL2BR" => "N",
 		"VIDEO" => "Y",
 		"TABLE" => "Y",
@@ -404,7 +406,10 @@ class CTextParser
 		foreach(GetModuleEvents("main", "TextParserBeforeTags", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array(&$text, &$this));
 
-		if ($this->allow["SMILES"]=="Y")
+		if (
+			$this->allow["SMILES"] == "Y"
+			|| $this->allow["CLEAR_SMILES"] == "Y"
+		)
 		{
 			if (strpos($text, "<nosmile>") !== false)
 			{
@@ -433,6 +438,12 @@ class CTextParser
 		}
 
 		$text = $this->post_convert_anchor_tag($text);
+
+
+		if ($this->allow["EMOJI"] != "N")
+		{
+			$text = \Bitrix\Main\Text\Emoji::decode($text);
+		}
 
 		$res = array_merge(
 			array(
@@ -1009,7 +1020,7 @@ class CTextParser
 				}
 				else
 				{
-					?><iframe src="<?=$pathEncoded?>" allowfullscreen="" frameborder="0" height="<?=intval($arParams["HEIGHT"])?>" width="<?=intval($arParams["WIDTH"])?>"></iframe><?
+					?><iframe src="<?=$pathEncoded?>" allowfullscreen="" frameborder="0" height="<?=intval($arParams["HEIGHT"])?>" width="<?=intval($arParams["WIDTH"])?>" style="max-width: 100%;"></iframe><?
 				}
 			}
 		}
@@ -1040,15 +1051,25 @@ class CTextParser
 		$replacement = reset(array_intersect_key($this->smileReplaces, $matches));
 		if (!empty($replacement))
 		{
-			return $this->convert_emoticon(
-				$replacement["code"],
-				$replacement["image"],
-				$replacement["description"],
-				$replacement["width"],
-				$replacement["height"],
-				$replacement["descriptionDecode"],
-				$replacement["imageDefinition"]
-			);
+			if ($this->allow['CLEAR_SMILES'] == 'Y')
+			{
+				return $this->convert_emoticon(
+					$replacement["code"],
+					''
+				);
+			}
+			else
+			{
+				return $this->convert_emoticon(
+					$replacement["code"],
+					$replacement["image"],
+					$replacement["description"],
+					$replacement["width"],
+					$replacement["height"],
+					$replacement["descriptionDecode"],
+					$replacement["imageDefinition"]
+				);
+			}
 		}
 		return $matches[0];
 	}
@@ -1179,9 +1200,9 @@ class CTextParser
 			$strPar .= " height=\"".$height."\"";
 
 		$serverName = htmlspecialcharsbx($this->serverName);
-		$image = '<img src="'.$serverName.$url.'" border="0"'.$strPar.' data-bx-image="'.$serverName.$url.'" />';
+		$image = '<img src="'.$serverName.$url.'" border="0"'.$strPar.' data-bx-image="'.$serverName.$url.'" data-bx-onload="Y" />';
 		if($this->serverName == '' || preg_match("/^(http|https|ftp)\\:\\/\\//i".BX_UTF_PCRE_MODIFIER, $url))
-			$image = '<img src="'.$url.'" border="0"'.$strPar.' data-bx-image="'.$url.'" />';
+			$image = '<img src="'.$url.'" border="0"'.$strPar.' data-bx-image="'.$url.'" data-bx-onload="Y" />';
 		return $this->defended_tags($image, 'replace');
 	}
 
@@ -1351,12 +1372,26 @@ class CTextParser
 					$classAdditional = '';
 			}
 
-			$res = $this->render_user(array(
+			$renderParams = array(
 				'CLASS_ADDITIONAL' => $classAdditional,
 				'PATH_TO_USER' => $pathToUser,
 				'USER_ID' => $userId,
 				'USER_NAME' => $userName
-			));
+			);
+
+			if (
+				$type == 'email'
+				&& !empty($this->pathToUserEntityType)
+				&& !empty($this->pathToUserEntityId)
+			)
+			{
+				$renderParams['TOOLTIP_PARAMS'] = \Bitrix\Main\Web\Json::encode(array(
+					'entityType' => $this->pathToUserEntityType,
+					'entityId' => intval($this->pathToUserEntityId)
+				));
+			}
+
+			$res = $this->render_user($renderParams);
 		}
 
 		return $this->defended_tags($res, "replace");
@@ -1371,7 +1406,7 @@ class CTextParser
 
 		$res = (
 			!$this->bPublic
-				? '<a class="blog-p-user-name'.$classAdditional.'" href="'.CComponentEngine::MakePathFromTemplate($pathToUser, array("user_id" => $userId)).'" bx-tooltip-user-id="'.(!$this->bMobile ? $userId : '').'">'.$userName.'</a>'
+				? '<a class="blog-p-user-name'.$classAdditional.'" href="'.CComponentEngine::MakePathFromTemplate($pathToUser, array("user_id" => $userId)).'" bx-tooltip-user-id="'.(!$this->bMobile ? $userId : '').'"'.(!empty($fields['TOOLTIP_PARAMS']) ? ' bx-tooltip-params="'.htmlspecialcharsbx($fields['TOOLTIP_PARAMS']).'"' : '').'>'.$userName.'</a>'
 				: $userName
 		);
 

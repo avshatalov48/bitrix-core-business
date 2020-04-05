@@ -365,6 +365,15 @@ class Bot
 			unset($update['GROUP_ID']);
 			unset($update['UF_DEPARTMENT']);
 
+			if (isset($update['NAME']) && strlen(trim($update['NAME'])) <= 0)
+			{
+				unset($update['NAME']);
+			}
+			if (isset($update['WORK_POSITION']) && strlen(trim($update['WORK_POSITION'])) <= 0)
+			{
+				$update['WORK_POSITION'] = Loc::getMessage('BOT_DEFAULT_WORK_POSITION');
+			}
+
 			$user = new \CUser;
 			$user->Update($botId, $update);
 		}
@@ -810,6 +819,11 @@ class Bot
 				{
 					$ar['URL_PREVIEW'] = 'N';
 				}
+				if (isset($messageFields['SKIP_CONNECTOR']) && $messageFields['SKIP_CONNECTOR'] == 'Y')
+				{
+					$ar['SKIP_CONNECTOR'] = 'Y';
+					$ar['SILENT_CONNECTOR'] = 'Y';
+				}
 				$ar['SKIP_COMMAND'] = 'Y';
 				$id = \CIMChat::AddMessage($ar);
 			}
@@ -849,6 +863,11 @@ class Bot
 			if (isset($messageFields['URL_PREVIEW']) && $messageFields['URL_PREVIEW'] == 'N')
 			{
 				$ar['URL_PREVIEW'] = 'N';
+			}
+			if (isset($messageFields['SKIP_CONNECTOR']) && $messageFields['SKIP_CONNECTOR'] == 'Y')
+			{
+				$ar['SKIP_CONNECTOR'] = 'Y';
+				$ar['SILENT_CONNECTOR'] = 'Y';
 			}
 			$ar['SKIP_COMMAND'] = 'Y';
 			$id = \CIMMessage::Add($ar);

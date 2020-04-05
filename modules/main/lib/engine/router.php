@@ -17,6 +17,7 @@ final class Router
 	const COMPONENT_MODE_AJAX  = 'ajax';
 	const COMPONENT_MODE_CLASS = 'class';
 
+	protected $vendor = Resolver::DEFAULT_VENDOR;
 	protected $module = 'main';
 	protected $action = 'index';
 	protected $component;
@@ -41,11 +42,46 @@ final class Router
 		$this->action = $this->request->get('action');
 		if ($this->action && is_string($this->action) && !$this->component)
 		{
-			$actionParts = explode('.', $this->action);
+			list($this->vendor, $this->action) = $this->resolveVendor($this->action);
+			list($module, $this->action) = $this->resolveModuleAndAction($this->action);
 
-			$this->module = array_shift($actionParts);
-			$this->action = implode('.', $actionParts);
+			$this->module = $this->refineModuleName($this->vendor, $module);
 		}
+	}
+
+	private function resolveModuleAndAction($action)
+	{
+		$actionParts = explode('.', $action);
+		$module = array_shift($actionParts);
+		$action = implode('.', $actionParts);
+
+		return [
+			$module, $action
+		];
+	}
+
+	private function resolveVendor($action)
+	{
+		list($vendor, $action) = explode(':', $action) + [null, null];
+		if (!$action)
+		{
+			$action = $vendor;
+			$vendor = Resolver::DEFAULT_VENDOR;
+		}
+
+		return [
+			$vendor, $action
+		];
+	}
+
+	protected function refineModuleName($vendor, $module)
+	{
+		if ($vendor === Resolver::DEFAULT_VENDOR)
+		{
+			return $module;
+		}
+
+		return $vendor . '.' . $module;
 	}
 
 	/**
@@ -103,7 +139,7 @@ final class Router
 		}
 
 		$this->includeModule($this->module);
-		$controllerAndAction = Resolver::getControllerAndAction($this->module, $this->action);
+		$controllerAndAction = Resolver::getControllerAndAction($this->vendor, $this->module, $this->action);
 		if ($controllerAndAction)
 		{
 			return $controllerAndAction;
@@ -131,8 +167,13 @@ final class Router
 		{
 			$ajaxClass = $this->includeComponentAjaxClass($this->component);
 
+			/** @var Controller $controller */
 			/** @see \Bitrix\Main\Engine\Controller::__construct */
-			return array(new $ajaxClass, $this->action);
+			$controller = new $ajaxClass();
+			$controller->setScope(Controller::SCOPE_AJAX);
+			$controller->setCurrentUser(CurrentUser::get());
+
+			return array($controller, $this->action);
 		}
 		else
 		{
@@ -140,7 +181,7 @@ final class Router
 			throw new SystemException("Unknown ajax mode ({$modeAsString}) to work {$this->component}");
 		}
 	}
-	
+
 	private function includeModule($module)
 	{
 		if (!Configuration::getInstance($module)->get('controllers'))
@@ -210,4 +251,44 @@ final class Router
 
 		return $this;
 	}
-}	
+
+	/**
+	 * @return string
+	 */
+	public function getVendor()
+	{
+		return $this->vendor;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getModule()
+	{
+		return $this->module;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAction()
+	{
+		return $this->action;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getComponent()
+	{
+		return $this->component;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getMode()
+	{
+		return $this->mode;
+	}
+}

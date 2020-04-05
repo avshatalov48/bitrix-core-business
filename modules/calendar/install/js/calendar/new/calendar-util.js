@@ -686,15 +686,15 @@
 			if (!this.reminderList)
 			{
 				this.reminderList = [
-					{value: 0, label: BX.message("EC_REMIND_0"), shortLabel: BX.message("EC_REMIND_SHORT_0")},
-					{value: 5, label: BX.message("EC_REMIND_5"), shortLabel: BX.message("EC_REMIND_SHORT_5")},
-					{value: 10, label: BX.message("EC_REMIND_10"), shortLabel: BX.message("EC_REMIND_SHORT_10")},
-					{value: 15, label: BX.message("EC_REMIND_15"), shortLabel: BX.message("EC_REMIND_SHORT_15")},
-					{value: 30, label: BX.message("EC_REMIND_30"), shortLabel: BX.message("EC_REMIND_SHORT_30")},
-					{value: 60, label: BX.message("EC_REMIND_60"), shortLabel: BX.message("EC_REMIND_SHORT_60")},
-					{value: 120, label: BX.message("EC_REMIND_120"), shortLabel: BX.message("EC_REMIND_SHORT_120")},
-					{value: 1440, label: BX.message("EC_REMIND_1440"), shortLabel: BX.message("EC_REMIND_SHORT_1440")},
-					{value: 2880, label: BX.message("EC_REMIND_2880"), shortLabel: BX.message("EC_REMIND_SHORT_2880")}
+					{value: 0, label: BX.message("EC_REMIND1_0"), shortLabel: BX.message("EC_REMIND1_SHORT_0")},
+					{value: 5, label: BX.message("EC_REMIND1_5"), shortLabel: BX.message("EC_REMIND1_SHORT_5")},
+					{value: 10, label: BX.message("EC_REMIND1_10"), shortLabel: BX.message("EC_REMIND1_SHORT_10")},
+					{value: 15, label: BX.message("EC_REMIND1_15"), shortLabel: BX.message("EC_REMIND1_SHORT_15")},
+					{value: 30, label: BX.message("EC_REMIND1_30"), shortLabel: BX.message("EC_REMIND1_SHORT_30")},
+					{value: 60, label: BX.message("EC_REMIND1_60"), shortLabel: BX.message("EC_REMIND1_SHORT_60")},
+					{value: 120, label: BX.message("EC_REMIND1_120"), shortLabel: BX.message("EC_REMIND1_SHORT_120")},
+					{value: 1440, label: BX.message("EC_REMIND1_1440"), shortLabel: BX.message("EC_REMIND1_SHORT_1440")},
+					{value: 2880, label: BX.message("EC_REMIND1_2880"), shortLabel: BX.message("EC_REMIND1_SHORT_2880")}
 				];
 			}
 
@@ -1032,7 +1032,7 @@
 		{
 			if (BX.util.in_array(min, [0,5,10,15,30,60,120,1440,2880]))
 			{
-				return BX.message('EC_REMIND_SHORT_' + min);
+				return BX.message('EC_REMIND1_SHORT_' + min);
 			}
 			return '';
 		},
@@ -1149,6 +1149,16 @@
 		getAvilableViews: function()
 		{
 			return this.config.avilableViews || ['day','week','month','list'];
+		},
+
+		getCustumViews: function()
+		{
+			var customViews = [];
+			if (this.config.placementParams && this.config.placementParams.gridPlacementList)
+			{
+				customViews = this.config.placementParams.gridPlacementList;
+			}
+			return customViews;
 		},
 
 		isMeetingsEnabled: function()

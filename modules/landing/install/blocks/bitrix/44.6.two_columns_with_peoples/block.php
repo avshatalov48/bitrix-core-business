@@ -5,9 +5,10 @@
 				<!-- Article -->
 				<article class="text-center">
 					<!-- Article Image -->
-					<img class="landing-block-node-card-photo g-max-width-200 g-rounded-50x g-mb-20"
-						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/300x300/img1.jpg"
-						 alt="">
+					<div class="g-height-200 d-flex align-items-center justify-content-center">
+						<img class="landing-block-node-card-photo g-max-width-200 g-rounded-50x g-mb-20 g-max-height-200" src="https://cdn.bitrix24.site/bitrix/images/landing/business/300x300/img1.jpg"
+							 alt="">
+					</div>
 					<!-- End Article Image -->
 
 					<!-- Article Title -->
@@ -27,38 +28,6 @@
 						</p>
 					</div>
 
-					<!--				<ul class="text-center list-inline mb-0">-->
-					<!--					<li class="list-inline-item g-mx-4">-->
-					<!--						<a class="u-icon-v3 g-width-35 g-height-35 g-font-size-default g-color-gray-light-v2 g-color-white--hover g-theme-bg-gray-light-v5 g-bg-primary--hover g-rounded-50x g-transition-0_2 g-transition--ease-in"-->
-					<!--						   href="#">-->
-					<!--							<i class="fa fa-twitter"></i>-->
-					<!--						</a>-->
-					<!--					</li>-->
-					<!--					<li class="list-inline-item g-mx-4">-->
-					<!--						<a class="u-icon-v3 g-width-35 g-height-35 g-font-size-default g-color-gray-light-v2 g-color-white--hover g-theme-bg-gray-light-v5 g-bg-primary--hover g-rounded-50x g-transition-0_2 g-transition--ease-in"-->
-					<!--						   href="#">-->
-					<!--							<i class="fa fa-pinterest-p"></i>-->
-					<!--						</a>-->
-					<!--					</li>-->
-					<!--					<li class="list-inline-item g-mx-4">-->
-					<!--						<a class="u-icon-v3 g-width-35 g-height-35 g-font-size-default g-color-gray-light-v2 g-color-white--hover g-theme-bg-gray-light-v5 g-bg-primary--hover g-rounded-50x g-transition-0_2 g-transition--ease-in"-->
-					<!--						   href="#">-->
-					<!--							<i class="fa fa-facebook"></i>-->
-					<!--						</a>-->
-					<!--					</li>-->
-					<!--					<li class="list-inline-item g-mx-4">-->
-					<!--						<a class="u-icon-v3 g-width-35 g-height-35 g-font-size-default g-color-gray-light-v2 g-color-white--hover g-theme-bg-gray-light-v5 g-bg-primary--hover g-rounded-50x g-transition-0_2 g-transition--ease-in"-->
-					<!--						   href="#">-->
-					<!--							<i class="fa fa-instagram"></i>-->
-					<!--						</a>-->
-					<!--					</li>-->
-					<!--					<li class="list-inline-item g-mx-4">-->
-					<!--						<a class="u-icon-v3 g-width-35 g-height-35 g-font-size-default g-color-gray-light-v2 g-color-white--hover g-theme-bg-gray-light-v5 g-bg-primary--hover g-rounded-50x g-transition-0_2 g-transition--ease-in"-->
-					<!--						   href="#">-->
-					<!--							<i class="fa fa-linkedin"></i>-->
-					<!--						</a>-->
-					<!--					</li>-->
-					<!--				</ul>-->
 					<!-- End Article Body -->
 				</article>
 				<!-- End Article -->
@@ -68,9 +37,11 @@
 				<!-- Article -->
 				<article class="text-center">
 					<!-- Article Image -->
-					<img class="landing-block-node-card-photo g-max-width-200 g-rounded-50x g-mb-20"
-						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/300x300/img2.jpg"
-						 alt="">
+					<div class="g-height-200 d-flex align-items-center justify-content-center">
+						<img class="landing-block-node-card-photo g-max-width-200 g-rounded-50x g-mb-20 g-max-height-200"
+							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/300x300/img2.jpg"
+							 alt="">
+					</div>
 					<!-- End Article Image -->
 
 					<!-- Article Title -->
@@ -90,38 +61,6 @@
 						</p>
 					</div>
 
-					<!--				<ul class="text-center list-inline mb-0">-->
-					<!--					<li class="list-inline-item g-mx-4">-->
-					<!--						<a class="u-icon-v3 g-width-35 g-height-35 g-font-size-default g-color-gray-light-v2 g-color-white--hover g-theme-bg-gray-light-v5 g-bg-primary--hover g-rounded-50x g-transition-0_2 g-transition--ease-in"-->
-					<!--						   href="#">-->
-					<!--							<i class="fa fa-twitter"></i>-->
-					<!--						</a>-->
-					<!--					</li>-->
-					<!--					<li class="list-inline-item g-mx-4">-->
-					<!--						<a class="u-icon-v3 g-width-35 g-height-35 g-font-size-default g-color-gray-light-v2 g-color-white--hover g-theme-bg-gray-light-v5 g-bg-primary--hover g-rounded-50x g-transition-0_2 g-transition--ease-in"-->
-					<!--						   href="#">-->
-					<!--							<i class="fa fa-pinterest-p"></i>-->
-					<!--						</a>-->
-					<!--					</li>-->
-					<!--					<li class="list-inline-item g-mx-4">-->
-					<!--						<a class="u-icon-v3 g-width-35 g-height-35 g-font-size-default g-color-gray-light-v2 g-color-white--hover g-theme-bg-gray-light-v5 g-bg-primary--hover g-rounded-50x g-transition-0_2 g-transition--ease-in"-->
-					<!--						   href="#">-->
-					<!--							<i class="fa fa-facebook"></i>-->
-					<!--						</a>-->
-					<!--					</li>-->
-					<!--					<li class="list-inline-item g-mx-4">-->
-					<!--						<a class="u-icon-v3 g-width-35 g-height-35 g-font-size-default g-color-gray-light-v2 g-color-white--hover g-theme-bg-gray-light-v5 g-bg-primary--hover g-rounded-50x g-transition-0_2 g-transition--ease-in"-->
-					<!--						   href="#">-->
-					<!--							<i class="fa fa-instagram"></i>-->
-					<!--						</a>-->
-					<!--					</li>-->
-					<!--					<li class="list-inline-item g-mx-4">-->
-					<!--						<a class="u-icon-v3 g-width-35 g-height-35 g-font-size-default g-color-gray-light-v2 g-color-white--hover g-theme-bg-gray-light-v5 g-bg-primary--hover g-rounded-50x g-transition-0_2 g-transition--ease-in"-->
-					<!--						   href="#">-->
-					<!--							<i class="fa fa-linkedin"></i>-->
-					<!--						</a>-->
-					<!--					</li>-->
-					<!--				</ul>-->
 					<!-- End Article Body -->
 				</article>
 				<!-- End Article -->

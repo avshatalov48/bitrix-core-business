@@ -229,7 +229,7 @@ class CacheEngineXCache
 	/**
 	 * Reads cache from the xcache. Returns true if key value exists, not expired, and successfully read.
 	 *
-	 * @param mixed &$arAllVars Cached result.
+	 * @param mixed &$allVars Cached result.
 	 * @param string $baseDir Base cache directory (usually /bitrix/cache).
 	 * @param string $initDir Directory within base.
 	 * @param string $filename File name.
@@ -237,7 +237,7 @@ class CacheEngineXCache
 	 *
 	 * @return boolean
 	 */
-	public function read(&$arAllVars, $baseDir, $initDir, $filename, $TTL)
+	public function read(&$allVars, $baseDir, $initDir, $filename, $TTL)
 	{
 		$baseDirVersion = xcache_get($this->sid.$baseDir);
 		if ($baseDirVersion === null)
@@ -255,9 +255,9 @@ class CacheEngineXCache
 		}
 
 		$key = $baseDirVersion."|".$initDirVersion."|".$filename;
-		$arAllVars = xcache_get($key);
+		$allVars = xcache_get($key);
 
-		if ($arAllVars === null)
+		if ($allVars === null)
 		{
 			return false;
 		}
@@ -271,8 +271,8 @@ class CacheEngineXCache
 				}
 			}
 
-			$this->read = strlen($arAllVars);
-			$arAllVars = unserialize($arAllVars);
+			$this->read = strlen($allVars);
+			$allVars = unserialize($allVars);
 		}
 
 		return true;
@@ -281,7 +281,7 @@ class CacheEngineXCache
 	/**
 	 * Puts cache into the xcache.
 	 *
-	 * @param mixed $arAllVars Cached result.
+	 * @param mixed $allVars Cached result.
 	 * @param string $baseDir Base cache directory (usually /bitrix/cache).
 	 * @param string $initDir Directory within base.
 	 * @param string $filename File name.
@@ -289,7 +289,7 @@ class CacheEngineXCache
 	 *
 	 * @return void
 	 */
-	public function write($arAllVars, $baseDir, $initDir, $filename, $TTL)
+	public function write($allVars, $baseDir, $initDir, $filename, $TTL)
 	{
 		$baseDirVersion = xcache_get($this->sid.$baseDir);
 		if ($baseDirVersion === null)
@@ -314,11 +314,11 @@ class CacheEngineXCache
 			$initDirVersion = "";
 		}
 
-		$arAllVars = serialize($arAllVars);
-		$this->written = strlen($arAllVars);
+		$allVars = serialize($allVars);
+		$this->written = strlen($allVars);
 
 		$key = $baseDirVersion."|".$initDirVersion."|".$filename;
-		xcache_set($key, $arAllVars, intval($TTL) * $this->ttlMultiplier);
+		xcache_set($key, $allVars, intval($TTL) * $this->ttlMultiplier);
 
 		if ($this->useLock)
 		{
@@ -338,4 +338,4 @@ class CacheEngineXCache
 	{
 		return false;
 	}
-} 
+}

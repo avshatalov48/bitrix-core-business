@@ -16,24 +16,6 @@ use Bitrix\Main\Localization\Loc;
 
 $arResult["PATH_TO_FOLDER_LIST"] = CComponentEngine::MakePathFromTemplate($arResult['PATH_TO_GROUP_DISK'], array('group_id' => $arResult['VARIABLES']['group_id']));
 $arResult["PATH_TO_DISK_TASK"] = CComponentEngine::MakePathFromTemplate($arResult['PATH_TO_GROUP_DISK_TASK'], array('group_id' => $arResult['VARIABLES']['group_id']));
-$arButtons = array();
-$arButtons[] = array(
-	"TEXT"  => Loc::getMessage("DISK_BIZPROC_BACK_TEXT"),
-	"TITLE" => Loc::getMessage("DISK_BIZPROC_BACK_TITLE"),
-	"LINK"  => CComponentEngine::MakePathFromTemplate($arResult["PATH_TO_FOLDER_LIST"], array("PATH" => "")),
-	"ICON"  => "back");
-
-$APPLICATION->includeComponent(
-	'bitrix:disk.interface.toolbar',
-	'',
-	array(
-		'TOOLBAR_ID' => 'bp_toolbar',
-		'CLASS_NAME' => 'bx-filepage',
-		'BUTTONS'    => $arButtons,
-	),
-	$component,
-	array('HIDE_ICONS' => 'Y')
-);
 ?>
 <div class="bx-disk-bizproc-section">
 <?

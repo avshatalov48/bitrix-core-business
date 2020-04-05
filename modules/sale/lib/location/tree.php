@@ -1084,7 +1084,15 @@ abstract class Tree extends Entity\DataManager
 		// left margin MAY be equal to zero, right margin MAY NOT
 		if(!is_numeric($node['LEFT_MARGIN']) || (int) $node['LEFT_MARGIN'] < 0 || !intval($node['RIGHT_MARGIN']) || !intval($node['ID']))
 		{
-			throw new Tree\NodeIncorrectException(false, array('INFO' => array('ID' => $node['ID'])));
+			throw new Tree\NodeIncorrectException(
+				false,
+				array(
+					'INFO' => array(
+						'ID' => $node['ID'],
+						'CODE' => $node['CODE'],
+						'LEFT_MARGIN' => $node['LEFT_MARGIN'],
+						'RIGHT_MARGIN' => $node['RIGHT_MARGIN']
+			)));
 		}
 	}
 

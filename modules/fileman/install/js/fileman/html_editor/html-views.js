@@ -1711,7 +1711,9 @@ var focusWithoutScrolling = function(element)
 			}
 
 			if (this.editor.iframeView.pasteHandlerTimeout)
+			{
 				clearTimeout(this.editor.iframeView.pasteHandlerTimeout);
+			}
 
 			this.pasteHandlerTimeout = setTimeout(function()
 			{

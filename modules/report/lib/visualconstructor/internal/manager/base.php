@@ -105,7 +105,7 @@ abstract class Base implements IErrorable
 		{
 			$this->collect();
 			$results = $this->getEvent()->getResults();
-
+			static::$result[$class] = array();
 			foreach ($results as $result)
 			{
 				$params = $result->getParameters();

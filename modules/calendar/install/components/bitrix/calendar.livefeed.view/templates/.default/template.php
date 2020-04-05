@@ -111,26 +111,26 @@ $event = $arResult['EVENT'];
 					$cnt = 0;
 					$bShowAll = count($event['ACCEPTED_ATTENDEES']) <= $arParams['ATTENDEES_SHOWN_COUNT_MAX'];
 					$popupContent = '';
-					foreach($event['ACCEPTED_ATTENDEES'] as $att)
+					foreach($event['ACCEPTED_ATTENDEES'] as $attendee)
 					{
 						$cnt++;
 						if (!$bShowAll && $cnt > $arParams['ATTENDEES_SHOWN_COUNT'])
 						{
 							// Put to popup
-							$popupContent .= '<a href="'.$att['URL'].'" target="_blank" class="bxcal-att-popup-img bxcal-att-popup-att-full">'.
+							$popupContent .= '<a href="'.$attendee['URL'].'" target="_blank" class="bxcal-att-popup-img bxcal-att-popup-att-full">'.
 								'<span class="bxcal-att-popup-avatar">'.
-									($att['AVATAR_SRC'] ? '<img src="'.$att['AVATAR_SRC'].'" width="'.$arParams['AVATAR_SIZE'].'" height="'.$arParams['AVATAR_SIZE'].'" class="bxcal-att-popup-img-not-empty" />' : '').
+									($attendee['AVATAR'] ? '<img src="'.$attendee['AVATAR'].'" width="'.$arParams['AVATAR_SIZE'].'" height="'.$arParams['AVATAR_SIZE'].'" class="bxcal-att-popup-img-not-empty" />' : '').
 								'</span>'.
-								'<span class="bxcal-att-popup-name">'.htmlspecialcharsbx($att['DISPLAY_NAME']).'</span>'.
+								'<span class="bxcal-att-popup-name">'.htmlspecialcharsbx($attendee['DISPLAY_NAME']).'</span>'.
 							'</a>';
 						}
 						else // Display avatar
 						{
-							?><a title="<?= htmlspecialcharsbx($att['DISPLAY_NAME'])?>" href="<?= $att['URL']?>" target="_blank" class="bxcal-att-popup-img"><?
+							?><a title="<?= htmlspecialcharsbx($attendee['DISPLAY_NAME'])?>" href="<?= $attendee['URL']?>" target="_blank" class="bxcal-att-popup-img"><?
 								?><span class="bxcal-att-popup-avatar"><?
-									if ($att['AVATAR_SRC'])
+									if ($attendee['AVATAR'])
 									{
-										?><img src="<?= $att['AVATAR_SRC']?>" width="<?= $arParams['AVATAR_SIZE']?>" height="<?= $arParams['AVATAR_SIZE']?>" class="bxcal-att-popup-img-not-empty" /><?
+										?><img src="<?= $attendee['AVATAR']?>" width="<?= $arParams['AVATAR_SIZE']?>" height="<?= $arParams['AVATAR_SIZE']?>" class="bxcal-att-popup-img-not-empty" /><?
 									}
 								?></span><?
 							?></a><?
@@ -155,26 +155,26 @@ $event = $arResult['EVENT'];
 						$cnt = 0;
 						$bShowAll = count($event['DECLINED_ATTENDEES']) <= $arParams['ATTENDEES_SHOWN_COUNT_MAX'];
 						$popupContent = '';
-						foreach($event['DECLINED_ATTENDEES'] as $att)
+						foreach($event['DECLINED_ATTENDEES'] as $attendee)
 						{
 							$cnt++;
 							if (!$bShowAll && $cnt > $arParams['ATTENDEES_SHOWN_COUNT'])
 							{
 								// Put to popup
-								$popupContent .= '<a href="'.$att['URL'].'" target="_blank" class="bxcal-att-popup-img bxcal-att-popup-att-full">'.
+								$popupContent .= '<a href="'.$attendee['URL'].'" target="_blank" class="bxcal-att-popup-img bxcal-att-popup-att-full">'.
 									'<span class="bxcal-att-popup-avatar">'.
-										($att['AVATAR_SRC'] ? ('<img src="'.$att['AVATAR_SRC'].'" width="'.$arParams['AVATAR_SIZE'].'" height="'.$arParams['AVATAR_SIZE'].'" class="bxcal-att-popup-img-not-empty" />') : '').
+										($attendee['AVATAR'] ? ('<img src="'.$attendee['AVATAR'].'" width="'.$arParams['AVATAR_SIZE'].'" height="'.$arParams['AVATAR_SIZE'].'" class="bxcal-att-popup-img-not-empty" />') : '').
 									'</span>'.
-									'<span class="bxcal-att-popup-name">'.htmlspecialcharsbx($att['DISPLAY_NAME']).'</span>'.
+									'<span class="bxcal-att-popup-name">'.htmlspecialcharsbx($attendee['DISPLAY_NAME']).'</span>'.
 								'</a>';
 							}
 							else // Display avatar
 							{
-								?><a title="<?= htmlspecialcharsbx($att['DISPLAY_NAME'])?>" href="<?= $att['URL']?>" target="_blank" class="bxcal-att-popup-img"><?
+								?><a title="<?= htmlspecialcharsbx($attendee['DISPLAY_NAME'])?>" href="<?= $attendee['URL']?>" target="_blank" class="bxcal-att-popup-img"><?
 									?><span class="bxcal-att-popup-avatar"><?
-										if($att['AVATAR_SRC'])
+										if($attendee['AVATAR'])
 										{
-											?><img src="<?= $att['AVATAR_SRC']?>" width="<?= $arParams['AVATAR_SIZE']?>" height="<?= $arParams['AVATAR_SIZE']?>" class="bxcal-att-popup-img-not-empty" /><?
+											?><img src="<?= $attendee['AVATAR']?>" width="<?= $arParams['AVATAR_SIZE']?>" height="<?= $arParams['AVATAR_SIZE']?>" class="bxcal-att-popup-img-not-empty" /><?
 										}
 									?></span><?
 								?></a><?

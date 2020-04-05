@@ -6,7 +6,9 @@ $MESS["REST_SCOPE_ENTITY"] = "Хранилище данных";
 $MESS["REST_SCOPE_IM"] = "Чат и уведомления";
 $MESS["REST_SCOPE_TASK"] = "Задачи";
 $MESS["REST_SCOPE_USER"] = "Пользователи";
+$MESS["REST_SCOPE_USERCONSENT"] = "Соглашения";
 $MESS["REST_SCOPE_DEPARTMENT"] = "Структура компании";
+$MESS["REST_SCOPE_CONTACT_CENTER"] = "Контакт-центр";
 $MESS["REST_SCOPE_LOG"] = "Живая лента";
 $MESS["REST_SCOPE_CALENDAR"] = "Календарь";
 $MESS["REST_SCOPE_SONET_GROUP"] = "Рабочие группы";
@@ -27,4 +29,7 @@ $MESS["REST_SCOPE_PAY_SYSTEM"] = "Платежные системы";
 $MESS["REST_SCOPE_LANDING"] = "Сайты";
 $MESS["REST_SCOPE_FACEID"] = "Распознавание лиц";
 $MESS["REST_SCOPE_FORUM"] = "Форум";
+$MESS["REST_SCOPE_DOCUMENTGENERATOR"] = "Генератор документов";
+$MESS["REST_SCOPE_RATING"] = "Рейтинги";
+$MESS["REST_SCOPE_SMILE"] = "Смайлы";
 ?>

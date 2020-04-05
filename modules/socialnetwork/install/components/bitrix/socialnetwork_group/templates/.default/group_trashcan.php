@@ -14,9 +14,10 @@
 
 <?
 $APPLICATION->IncludeComponent(
-	'bitrix:disk.trashcan',
+	'bitrix:disk.folder.list',
 	'',
 	array_merge($arResult, array(
+		'TRASH_MODE' => true,
 		'PATH_TO_TRASHCAN_LIST' => CComponentEngine::MakePathFromTemplate($arResult['PATH_TO_GROUP_TRASHCAN'], array('group_id' => $arResult['VARIABLES']['group_id'])),
 		'PATH_TO_TRASHCAN_FILE_VIEW' => CComponentEngine::MakePathFromTemplate($arResult['PATH_TO_GROUP_TRASHCAN_FILE_VIEW'], array('group_id' => $arResult['VARIABLES']['group_id'])),
 		'PATH_TO_FOLDER_LIST' => CComponentEngine::MakePathFromTemplate($arResult['PATH_TO_GROUP_DISK'], array('group_id' => $arResult['VARIABLES']['group_id'])),

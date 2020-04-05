@@ -1,0 +1,17 @@
+
+.mail-msg-sidepanel-header-ext {
+	float: right;
+	white-space: nowrap;
+	padding-left: 20px;
+	height: 74px;
+	display: flex;
+	align-items: center;
+}
+
+.mail-msg-sidepanel-title {
+	padding: 24px 0;
+	font: 26px/26px 'OpenSans-Light', Helvetica, Arial, sans-serif;
+	white-space: nowrap;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+}

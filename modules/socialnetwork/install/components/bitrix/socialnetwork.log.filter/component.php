@@ -444,16 +444,18 @@ $arResult["Filter"] = array(
 		'id' => 'CREATED_BY_ID',
 		'name' => Loc::getMessage('SONET_C30_FILTER_CREATED_BY'),
 		'default' => true,
-		'type' => 'custom_entity',
-		'selector' =>
-			array (
-				'TYPE' => 'user',
-				'DATA' =>
-					array (
-						'ID' => 'created_by',
-						'FIELD_ID' => 'CREATED_BY_ID',
-					),
-			),
+		'type' => 'dest_selector',
+		'params' => array (
+			'apiVersion' => '3',
+			'context' => 'FEED_FILTER_CREATED_BY',
+			'multiple' => 'N',
+			'contextCode' => 'U',
+			'enableAll' => 'N',
+			'enableSonetgroups' => 'N',
+			'allowEmailInvitation' => 'N',
+			'allowSearchEmailUsers' => 'N',
+			'departmentSelectDisable' => 'Y',
+		),
 	)
 );
 
@@ -466,16 +468,17 @@ if (
 		'id' => 'TO',
 		'name' => Loc::getMessage('SONET_C30_FILTER_TO'),
 		'default' => true,
-		'type' => 'custom_entity',
-		'selector' =>
-			array (
-				'TYPE' => 'destination',
-				'DATA' =>
-					array (
-						'ID' => 'to',
-						'FIELD_ID' => 'TO',
-					),
-			),
+		'type' => 'dest_selector',
+		'params' => array (
+			'apiVersion' => '3',
+			'context' => 'FEED_FILTER_TO',
+			'multiple' => 'N',
+			'enableAll' => 'Y',
+			'enableSonetgroups' => 'Y',
+			'departmentSelectDisable' => 'N',
+			'allowEmailInvitation' => (ModuleManager::isModuleInstalled('mail') && ModuleManager::isModuleInstalled('intranet') ? 'Y' : 'N'),
+			'allowSearchEmailUsers' => ($arResult["bExtranetUser"] ? 'N' : 'Y')
+		)
 	);
 }
 

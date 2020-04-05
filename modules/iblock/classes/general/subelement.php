@@ -262,33 +262,44 @@ class CAdminSubList extends CAdminList
 		if (isset($_REQUEST['showallcol']) && $_REQUEST['showallcol'])
 			$_SESSION['SHALL'] = ($_REQUEST['showallcol'] == 'Y');
 
+		$hiddenColumns = (!empty($this->arHideHeaders) ? array_fill_keys($this->arHideHeaders, true) : array());
+
 		$aOptions = CUserOptions::GetOption("list", $this->table_id, array());
 
 		$aColsTmp = explode(",", $aOptions["columns"]);
 		$aCols = array();
+		$userColumns = array();
+
 		foreach($aColsTmp as $col)
 		{
 			$col = trim($col);
-			if ('' != $col && !in_array($col, $this->arHideHeaders))
+			if ($col != '' && !isset($hiddenColumns[$col]))
+			{
 				$aCols[] = $col;
+				$userColumns[$col] = true;
+			}
 		}
 
 		$bEmptyCols = empty($aCols);
+		$userVisibleColumns = array();
 		foreach ($aParams as $param)
 		{
 			$param["__sort"] = -1;
-			if (!in_array($param["id"], $this->arHideHeaders))
+			if (!isset($hiddenColumns[$param["id"]]))
 			{
 				$this->aHeaders[$param["id"]] = $param;
 				if (
 					(isset($_SESSION['SHALL']) && $_SESSION['SHALL'])
-					|| ($bEmptyCols && $param["default"] == true) || in_array($param["id"], $aCols)
+					|| ($bEmptyCols && $param["default"] == true)
+					|| isset($userColumns[$param["id"]])
 				)
 				{
 					$this->arVisibleColumns[] = $param["id"];
+					$userVisibleColumns[$param["id"]] = true;
 				}
 			}
 		}
+		unset($userColumns);
 
 		$aAllCols = null;
 		if (isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "subsettings")
@@ -304,9 +315,10 @@ class CAdminSubList extends CAdminList
 
 		foreach($this->aHeaders as $id=>$arHeader)
 		{
-			if (in_array($id, $this->arVisibleColumns) && !in_array($id, $this->arHideHeaders))
+			if (isset($userVisibleColumns[$id]) && !isset($hiddenColumns[$id]))
 				$this->aVisibleHeaders[$id] = $arHeader;
 		}
+		unset($userVisibleColumns, $hiddenColumns);
 
 		if (isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "subsettings")
 			$this->ShowSettings($aAllCols, $aCols, $aOptions);
@@ -415,7 +427,7 @@ class CAdminSubList extends CAdminList
 		{
 			if($this->bEditMode && in_array($id, $this->arEditedRows))
 				$row->bEditMode = true;
-			elseif(in_array($id, $this->arUpdateErrorIDs))
+			elseif(!empty($this->arUpdateErrorIDs) && in_array($id, $this->arUpdateErrorIDs))
 				$row->bEditMode = true;
 		}
 
@@ -877,10 +889,13 @@ class CAdminSubListRow extends CAdminListRow
 						break;
 					}
 			}
+
+			$sDefAction = htmlspecialcharsbx($sDefAction);
+			$sDefTitle = htmlspecialcharsbx($sDefTitle);
 		}
 
 		$sMenuItems = '';
-		if (!empty($this->aActions))
+		if(!empty($this->aActions))
 			$sMenuItems = htmlspecialcharsbx(CAdminPopup::PhpToJavaScript($this->aActions));
 
 ?>
@@ -911,11 +926,8 @@ class CAdminSubListRow extends CAdminListRow
 		reset($this->pList->aVisibleHeaders);
 
 		$bVarsFromForm = ($this->bEditMode && is_array($this->pList->arUpdateErrorIDs) && in_array($this->id, $this->pList->arUpdateErrorIDs));
-		foreach($this->aHeaders as $id=>$header_props)
+		foreach($this->pList->aVisibleHeaders as $id=>$header_props)
 		{
-			if(!in_array($id, $this->pList->arVisibleColumns))
-				continue;
-
 			$field = $this->aFields[$id];
 			if($this->bEditMode && isset($field["edit"]))
 			{
@@ -927,9 +939,9 @@ class CAdminSubListRow extends CAdminListRow
 				$val_old = $this->arRes[$id];
 
 				echo '<td class="adm-list-table-cell',
-				(isset($header_props['align']) && $header_props['align']? ' align-'.$header_props['align']: ''),
-				(isset($header_props['valign']) && $header_props['valign']? ' valign-'.$header_props['valign']: ''),
-				($id === $last_id? ' adm-list-table-cell-last': ''),
+					(isset($header_props['align']) && $header_props['align']? ' align-'.$header_props['align']: ''),
+					(isset($header_props['valign']) && $header_props['valign']? ' valign-'.$header_props['valign']: ''),
+					($id === $last_id? ' adm-list-table-cell-last': ''),
 				'">';
 
 				if(is_array($val_old))
@@ -945,12 +957,12 @@ class CAdminSubListRow extends CAdminListRow
 				{
 					case "checkbox":
 						echo '<input type="hidden" name="FIELDS['.htmlspecialcharsbx($this->id).']['.htmlspecialcharsbx($id).']" value="N">';
-						echo '<input type="checkbox" name="FIELDS['.htmlspecialcharsbx($this->id).']['.htmlspecialcharsbx($id).']" value="Y"'.($val=='Y'?' checked':'').'>';
+						echo '<input type="checkbox" name="FIELDS['.htmlspecialcharsbx($this->id).']['.htmlspecialcharsbx($id).']" value="Y"'.($val=='Y' || $val === true?' checked':'').'>';
 						break;
 					case "select":
 						echo '<select name="FIELDS['.htmlspecialcharsbx($this->id).']['.htmlspecialcharsbx($id).']"'.$this->__AttrGen($field["edit"]["attributes"]).'>';
 						foreach($field["edit"]["values"] as $k=>$v)
-							echo '<option value="'.htmlspecialcharsbx($k).'" '.($k==$val?' selected':'').'>'.htmlspecialcharsex($v).'</option>';
+							echo '<option value="'.htmlspecialcharsbx($k).'" '.($k==$val?' selected':'').'>'.htmlspecialcharsbx($v).'</option>';
 						echo '</select>';
 						break;
 					case "input":
@@ -962,7 +974,12 @@ class CAdminSubListRow extends CAdminListRow
 						if(!$field["edit"]["attributes"]["size"])
 							$field["edit"]["attributes"]["size"] = "10";
 						echo '<span style="white-space:nowrap;"><input type="text" '.$this->__AttrGen($field["edit"]["attributes"]).' name="FIELDS['.htmlspecialcharsbx($this->id).']['.htmlspecialcharsbx($id).']" value="'.htmlspecialcharsbx($val).'">';
-						echo CAdminCalendar::Calendar('FIELDS['.htmlspecialcharsbx($this->id).']['.htmlspecialcharsbx($id).']').'</span>';
+						echo CAdminCalendar::Calendar(
+								'FIELDS['.htmlspecialcharsbx($this->id).']['.htmlspecialcharsbx($id).']',
+								'',
+								'',
+								$field['edit']['useTime']
+							).'</span>';
 						break;
 					case "file":
 						echo CFileInput::Show(
@@ -979,16 +996,17 @@ class CAdminSubListRow extends CAdminListRow
 			}
 			else
 			{
-				if(!is_array($this->arRes[$id]))
+				if(is_string($this->arRes[$id]))
 					$val = trim($this->arRes[$id]);
 				else
 					$val = $this->arRes[$id];
-								if(isset($field["view"]))
+
+				if(isset($field["view"]))
 				{
 					switch($field["view"]["type"])
 					{
 						case "checkbox":
-							if($val=='Y')
+							if($val == 'Y' || $val === true)
 								$val = htmlspecialcharsex(GetMessage("admin_lib_list_yes"));
 							else
 								$val = htmlspecialcharsex(GetMessage("admin_lib_list_no"));
@@ -996,6 +1014,8 @@ class CAdminSubListRow extends CAdminListRow
 						case "select":
 							if($field["edit"]["values"][$val])
 								$val = htmlspecialcharsex($field["edit"]["values"][$val]);
+							else
+								$val = htmlspecialcharsex($val);
 							break;
 						case "file":
 							if ($val > 0)
@@ -1032,7 +1052,9 @@ class CAdminSubListRow extends CAdminListRow
 				echo '</td>';
 			}
 		}
-		echo '</tr>';
+?>
+</tr>
+<?
 	}
 
 	function AddFieldNames($strFieldName,$strFieldType = 'HIDDEN')
@@ -1067,7 +1089,7 @@ class CAdminSubContextMenu extends CAdminContextMenu
 
 		foreach(GetModuleEvents("main", "OnAdminSubContextMenuShow", true) as $arEvent)
 		{
-			ExecuteModuleEventEx($arEvent, array(&$this->items));
+			ExecuteModuleEventEx($arEvent, array(&$this->items, &$this->additional_items));
 		}
 
 		$bFirst = true;
@@ -1097,7 +1119,7 @@ class CAdminSubContextMenu extends CAdminContextMenu
 
 		if (!((defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1)))
 		{
-			if (count($this->additional_items) > 0)
+			if (!empty($this->additional_items))
 			{
 				if($bFirst)
 				{
@@ -1486,7 +1508,7 @@ class CAdminSubForm extends CAdminForm
 			"}";
 		}
 
-		echo 'var '.$this->name.' = new BX.adminSubTabControl("'.$this->name.'", "'.$this->unique_name.'", ['.$s.'], "'.$this->GetListUrl(true).'",'.$this->GetListPostParams(true,true).');';
+		echo 'var '.$this->name.' = new BX.adminSubTabControl("'.$this->name.'", "'.$this->unique_name.'", ['.$s.'], "'.CUtil::JSEscape($this->GetListUrl(true)).'",'.$this->GetListPostParams(true,true).');';
 
 		if (!$this->bPublicMode)
 		{
@@ -1533,11 +1555,18 @@ echo '
 		$reload = ($reload !== false);
 		$closeWait = ($closeWait !== false);
 		$result = '<script type="text/javascript">';
+		$result .= '
+			var currentWindow = top.window;
+			if (top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
+			{
+				currentWindow = top.BX.SidePanel.Instance.getTopSlider().getWindow();
+			}
+		';
 		if ($closeWait)
-			$result .= 'top.BX.closeWait(); ';
-		$result .= 'top.BX.WindowManager.Get().AllowClose(); top.BX.WindowManager.Get().Close();';
+			$result .= 'currentWindow.BX.closeWait(); ';
+		$result .= 'currentWindow.BX.WindowManager.Get().AllowClose(); currentWindow.BX.WindowManager.Get().Close();';
 		if ($reload)
-			$result .= ' if (!!top.ReloadSubList) { top.ReloadSubList(); }';
+			$result .= ' if (!!currentWindow.ReloadSubList) { currentWindow.ReloadSubList(); }';
 		$result .= '</script>';
 		echo $result;
 		die();
@@ -1564,7 +1593,9 @@ class CAdminSubResult extends CAdminResult
 
 	function NavStart($nPageSize=20, $bShowAll=true, $iNumPage=false)
 	{
-		$nSize = CAdminSubResult::GetNavSize($this->table_id, $nPageSize, $this->list_url.('' != $this->list_url_params ? '?'.$this->list_url_params : ''));
+		$navResult = new CAdminSubResult(null, '', '');
+		$nSize = $navResult->GetNavSize($this->table_id, $nPageSize, $this->list_url.('' != $this->list_url_params ? '?'.$this->list_url_params : ''));
+		unset($navResult);
 
 		if(!is_array($nPageSize))
 			$nPageSize = array();

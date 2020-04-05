@@ -1,4 +1,7 @@
 <?php
+
+use Bitrix\Main\Type\Collection;
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -36,6 +39,7 @@ class CAdminList
 	var $bShowActions;
 	var $onLoadScript;
 	var $arEditedRows;
+	var $isPublicMode = false;
 
 	private $filter;
 
@@ -47,12 +51,14 @@ class CAdminList
 	{
 		$this->table_id = $table_id;
 		$this->sort = $sort;
+
+		$this->isPublicMode = (defined("PUBLIC_MODE") && PUBLIC_MODE == 1);
 	}
 
 	/**
 	 * @deprecated
-	 * @param $table_id
-	 * @param bool $sort
+	 * @param string $table_id
+	 * @param CAdminSorting|bool $sort
 	 */
 	public function CAdminList($table_id, $sort = false)
 	{
@@ -74,14 +80,19 @@ class CAdminList
 
 		$aColsTmp = explode(",", $aOptions["columns"]);
 		$aCols = array();
+		$userColumns = array();
 		foreach ($aColsTmp as $col)
 		{
 			$col = trim($col);
 			if ($col <> "")
+			{
 				$aCols[] = $col;
+				$userColumns[$col] = true;
+			}
 		}
 
 		$bEmptyCols = empty($aCols);
+		$userVisibleColumns = array();
 		foreach ($aParams as $param)
 		{
 			$param["__sort"] = -1;
@@ -89,12 +100,14 @@ class CAdminList
 			if (
 				(isset($_SESSION['SHALL']) && $_SESSION['SHALL'])
 				|| ($bEmptyCols && $param["default"] == true)
-				|| in_array($param["id"], $aCols)
+				|| isset($userColumns[$param["id"]])
 			)
 			{
 				$this->arVisibleColumns[] = $param["id"];
+				$userVisibleColumns[$param["id"]] = true;
 			}
 		}
+		unset($userColumns);
 
 		$aAllCols = null;
 		if (isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "settings")
@@ -106,14 +119,15 @@ class CAdminList
 				if (isset($this->aHeaders[$col]))
 					$this->aHeaders[$col]["__sort"] = $i;
 
-			uasort($this->aHeaders, create_function('$a, $b', 'if($a["__sort"] == $b["__sort"]) return 0; return ($a["__sort"] < $b["__sort"])? -1 : 1;'));
+			Collection::sortByColumn($this->aHeaders, ['__sort' => SORT_ASC], '', null, true);
 		}
 
 		foreach($this->aHeaders as $id=>$arHeader)
 		{
-			if(in_array($id, $this->arVisibleColumns))
+			if (isset($userVisibleColumns[$id]))
 				$this->aVisibleHeaders[$id] = $arHeader;
 		}
+		unset($userVisibleColumns);
 
 		if (isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "settings")
 			$this->ShowSettings($aAllCols, $aCols, $aOptions);
@@ -291,6 +305,15 @@ class CAdminList
 
 	public function ActionRedirect($url)
 	{
+		if ($this->isPublicMode)
+		{
+			$selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
+			if (strpos($url, $selfFolderUrl) === false)
+			{
+				$url = $selfFolderUrl.$url;
+			}
+		}
+
 		if(strpos($url, "lang=")===false)
 		{
 			if(strpos($url, "?")===false)
@@ -434,7 +457,7 @@ class CAdminList
 		{
 			if($this->bEditMode && in_array($id, $this->arEditedRows))
 				$row->bEditMode = true;
-			elseif(in_array($id, $this->arUpdateErrorIDs))
+			elseif(!empty($this->arUpdateErrorIDs) && in_array($id, $this->arUpdateErrorIDs))
 				$row->bEditMode = true;
 		}
 
@@ -908,7 +931,7 @@ BX.adminChain.addItems("<?=$tbl?>_navchain_div");
 
 	public function EndEpilogContent()
 	{
-		$this->sEpilogContent = ob_get_contents();
+		$this->sEpilogContent .= ob_get_contents();
 		ob_end_clean();
 	}
 
@@ -1019,15 +1042,26 @@ class CAdminListRow
 	var $link;
 	var $title;
 	var $pList;
+	var $isPublicMode = false;
 
+	/**
+	* CAdminListRow constructor.
+	* @param array &$aHeaders
+	* @param string $table_id
+	*/
 	public function __construct(&$aHeaders, $table_id)
 	{
 		$this->aHeaders = $aHeaders;
 		$this->aHeadersID = array_keys($aHeaders);
 		$this->table_id = $table_id;
+
+		$this->isPublicMode = (defined("PUBLIC_MODE") && PUBLIC_MODE == 1);
 	}
 
-	/** @deprecated */
+	/** @deprecated
+	* @param array &$aHeaders
+	* @param string $table_id
+	*/
 	public function CAdminListRow(&$aHeaders, $table_id)
 	{
 		self::__construct($aHeaders, $table_id);
@@ -1039,15 +1073,16 @@ class CAdminListRow
 		$this->aFeatures = $aFeatures;
 	}
 
-	function AddField($id, $text, $edit=false)
+	function AddField($id, $text, $edit=false, $isHtml = true)
 	{
 		$this->aFields[$id] = array();
-		if($edit !== false)
+		if ($edit !== false)
 		{
-			$this->aFields[$id]["edit"] = Array("type"=>"input", "value"=>$edit);
+			$this->aFields[$id]["edit"] = array("type" => "input", "value" => $edit);
 			$this->pList->bCanBeEdited = true;
 		}
-		$this->aFields[$id]["view"] = Array("type"=>"html", "value"=>$text);
+		$type = $isHtml ? "html" : "text";
+		$this->aFields[$id]["view"] = array("type" => $type, "value" => $text);
 	}
 
 	/**
@@ -1165,7 +1200,8 @@ class CAdminListRow
 
 	function AddActions($aActions)
 	{
-		$this->aActions = $aActions;
+		if (is_array($aActions))
+			$this->aActions = $aActions;
 	}
 
 	function __AttrGen($attr)
@@ -1185,29 +1221,29 @@ class CAdminListRow
 	function Display()
 	{
 		$sDefAction = $sDefTitle = "";
+
 		if(!$this->bEditMode)
 		{
 			if(!empty($this->link))
 			{
-				$sDefAction = "BX.adminPanel.Redirect([], '".CUtil::JSEscape($this->link)."', event);";
+				$sDefAction = $this->getActionLink($this->link);
 				$sDefTitle = $this->title;
 			}
 			else
 			{
-				$this->aActions = array_values($this->aActions);
 				foreach($this->aActions as $action)
 				{
 					if($action["DEFAULT"] == true)
 					{
-						$sDefAction = ($action["ACTION"]? $action["ACTION"] : "BX.adminPanel.Redirect([], '".CUtil::JSEscape($action["LINK"])."', event)");
+						$sDefAction = $this->getActionsItemLink($action);
 						$sDefTitle = (!empty($action["TITLE"])? $action["TITLE"] : $action["TEXT"]);
 						break;
 					}
 				}
 			}
 
-			$sDefAction = htmlspecialcharsbx($sDefAction, ENT_COMPAT, false);
-			$sDefTitle = htmlspecialcharsbx($sDefTitle, ENT_COMPAT, false);
+			$sDefAction = htmlspecialcharsbx($sDefAction);
+			$sDefTitle = htmlspecialcharsbx($sDefTitle);
 		}
 
 		$sMenuItems = "";
@@ -1272,7 +1308,7 @@ class CAdminListRow
 				{
 					case "checkbox":
 						echo '<input type="hidden" name="FIELDS['.htmlspecialcharsbx($this->id).']['.htmlspecialcharsbx($id).']" value="N">';
-						echo '<input type="checkbox" name="FIELDS['.htmlspecialcharsbx($this->id).']['.htmlspecialcharsbx($id).']" value="Y"'.($val=='Y'?' checked':'').'>';
+						echo '<input type="checkbox" name="FIELDS['.htmlspecialcharsbx($this->id).']['.htmlspecialcharsbx($id).']" value="Y"'.($val=='Y' || $val === true?' checked':'').'>';
 						break;
 					case "select":
 						echo '<select name="FIELDS['.htmlspecialcharsbx($this->id).']['.htmlspecialcharsbx($id).']"'.$this->__AttrGen($field["edit"]["attributes"]).'>';
@@ -1311,7 +1347,7 @@ class CAdminListRow
 			}
 			else
 			{
-				if(!is_array($this->arRes[$id]))
+				if(is_string($this->arRes[$id]))
 					$val = trim($this->arRes[$id]);
 				else
 					$val = $this->arRes[$id];
@@ -1321,7 +1357,7 @@ class CAdminListRow
 					switch($field["view"]["type"])
 					{
 						case "checkbox":
-							if($val=='Y')
+							if($val == 'Y' || $val === true)
 								$val = htmlspecialcharsex(GetMessage("admin_lib_list_yes"));
 							else
 								$val = htmlspecialcharsex(GetMessage("admin_lib_list_no"));
@@ -1370,5 +1406,29 @@ class CAdminListRow
 ?>
 </tr>
 <?
+	}
+
+	/**
+	 * @param string $url
+	 * @return string
+	 */
+	protected function getActionLink($url)
+	{
+		global $adminSidePanelHelper;
+		if (is_object($adminSidePanelHelper) && $adminSidePanelHelper->isPublicSidePanel())
+			return "BX.adminSidePanel.onOpenPage('".CUtil::JSEscape($url)."');";
+		return "BX.adminPanel.Redirect([], '".CUtil::JSEscape($url)."', event);";
+	}
+
+	/**
+	* @param array $item
+	* @return bool
+	*/
+	protected function getActionsItemLink(array $item)
+	{
+		return (!empty($item["ACTION"])
+			? $item["ACTION"]
+			: $this->getActionLink($item["LINK"])
+		);
 	}
 }

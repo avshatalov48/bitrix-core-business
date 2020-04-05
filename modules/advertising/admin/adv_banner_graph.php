@@ -232,7 +232,8 @@ else :
 		if ($isAdmin)
 			echo "&nbsp;&nbsp;[<a href='/bitrix/admin/settings.php?lang=".LANGUAGE_ID."&mid=advertising' title='".GetMessage("AD_SET_EDIT")."'>".GetMessage("AD_EDIT")."</a>]";
 	echo EndNote()
-	?>	
+	?>
+	<? if($banner_ref):?>
 	<div class="graph">
 	<table border="0" cellspacing="2" cellpadding="10" class="graph">
 		<tr>
@@ -309,6 +310,7 @@ else :
 		</tr>
 	</table>
 	</div>
+	<? endif;?>
 	<? $lAdmin->EndPrologContent();
 /***************************************************************************
 								HTML форма

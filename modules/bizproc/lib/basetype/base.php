@@ -147,7 +147,7 @@ class Base
 	 */
 	protected static function formatValuePrintable(FieldType $fieldType, $value)
 	{
-		return static::convertValueSingle($fieldType, $value, '\Bitrix\Bizproc\BaseType\StringType');
+		return static::convertValueSingle($fieldType, $value, StringType::class);
 	}
 
 	/**
@@ -172,6 +172,7 @@ class Base
 	 * @param mixed $value Field value.
 	 * @param string $toTypeClass Type class name.
 	 * @return bool|int|float|string
+	 * @throws Main\ArgumentException
 	 */
 	public static function convertValueSingle(FieldType $fieldType, $value, $toTypeClass)
 	{
@@ -286,15 +287,15 @@ class Base
 		$index = isset($field['Index']) ? $field['Index'] : null;
 		if ($index !== null)
 		{
-			$prefix = strpos($index, 'n') === 0 ? '' : 'n';
-			$name .= '['.$prefix.$index.']';
+			//new multiple name style
+			$name .= '[]';
 		}
 		return $name;
 	}
 
 	protected static function generateControlClassName(FieldType $fieldType, array $field)
 	{
-		$prefix = isset($field['ClassNamePrefix']) ? (string)$field['ClassNamePrefix'] : 'bizproc-type-control';
+		$prefix = 'bizproc-type-control';
 		$classes = array($prefix);
 		$classes[] = $prefix.'-'.static::getType();
 
@@ -334,6 +335,30 @@ class Base
 	}
 
 	/**
+	 * @param FieldType $fieldType
+	 * @param array $field
+	 * @param array $controls
+	 * @return string
+	 */
+	protected static function renderPublicMultipleWrapper(FieldType $fieldType, array $field, array $controls)
+	{
+		$messageAdd = Loc::getMessage('BPDT_BASE_ADD');
+
+		$name = Main\Text\HtmlFilter::encode(\CUtil::JSEscape(static::generateControlName($field)));
+		$property = Main\Text\HtmlFilter::encode(Main\Web\Json::encode($fieldType->getProperty()));
+
+		$renderResult = implode('', $controls) . <<<HTML
+				<div>
+					<a onclick="BX.Bizproc.FieldType.cloneControl({$property}, '{$name}', this.parentNode); return false;"
+						class="bizproc-type-control-clone-btn">
+						{$messageAdd}
+					</a>
+				</div>
+HTML;
+		return $renderResult;
+	}
+
+	/**
 	 * Low-level control rendering method
 	 * @param FieldType $fieldType
 	 * @param array $field
@@ -347,6 +372,16 @@ class Base
 		$name = static::generateControlName($field);
 		$controlId = static::generateControlId($field);
 		$className = static::generateControlClassName($fieldType, $field);
+
+		if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
+		{
+			return '<input type="text" class="'.htmlspecialcharsbx($className)
+				.'" name="'.htmlspecialcharsbx($name).'" value="'.htmlspecialcharsbx((string) $value)
+				.'" placeholder="'.htmlspecialcharsbx($fieldType->getDescription()).'" value="'.htmlspecialcharsbx((string) $value).'"'
+				.($allowSelection ? ' data-role="inline-selector-target"' : '')
+				.'/>';
+		}
+
 		// example: control rendering
 		return '<input type="text" class="'.htmlspecialcharsbx($className).'" size="40" id="'.htmlspecialcharsbx($controlId).'" name="'
 			.htmlspecialcharsbx($name).'" value="'.htmlspecialcharsbx((string) $value).'"/>';
@@ -359,7 +394,9 @@ class Base
 	public static function canRenderControl($renderMode)
 	{
 		if ($renderMode & FieldType::RENDER_MODE_MOBILE)
+		{
 			return false;
+		}
 
 		return true;
 	}
@@ -376,7 +413,7 @@ class Base
 	{
 		$value = static::toSingleValue($fieldType, $value);
 		$selectorValue = null;
-		if (\CBPActivity::isExpression($value))
+		if ($allowSelection && \CBPActivity::isExpression($value))
 		{
 			$selectorValue = $value;
 			$value = null;
@@ -418,7 +455,7 @@ class Base
 		if (empty($typeValue))
 			$typeValue[] = null;
 
-		$controls = array();
+		$controls = [];
 
 		foreach ($typeValue as $k => $v)
 		{
@@ -433,7 +470,14 @@ class Base
 			);
 		}
 
-		$renderResult = static::wrapCloneableControls($controls, static::generateControlName($field));
+		if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
+		{
+			$renderResult = static::renderPublicMultipleWrapper($fieldType, $field, $controls);
+		}
+		else
+		{
+			$renderResult = static::wrapCloneableControls($controls, static::generateControlName($field));
+		}
 
 		if ($allowSelection)
 		{
@@ -470,7 +514,7 @@ class Base
 	protected static function renderControlSelectorButton($controlId, FieldType $fieldType, $selectorMode = '')
 	{
 		$baseType = $fieldType ? $fieldType->getBaseType() : null;
-		$selectorProps = \Bitrix\Main\Web\Json::encode(array(
+		$selectorProps = Main\Web\Json::encode(array(
 			'controlId' => $controlId,
 			'baseType' => $baseType,
 			'type' => $fieldType ? $fieldType->getType() : null,
@@ -481,7 +525,7 @@ class Base
 		return '<input type="button" value="..." onclick="BPAShowSelector(\''
 			.\CUtil::jsEscape(htmlspecialcharsbx($controlId)).'\', \''.\CUtil::jsEscape(htmlspecialcharsbx($baseType)).'\', '
 			.($selectorMode ? '\''.\CUtil::jsEscape(htmlspecialcharsbx($selectorMode)).'\'' : 'null').', null, '
-			.htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($fieldType ? $fieldType->getDocumentType() : null)).');"'
+			.htmlspecialcharsbx(Main\Web\Json::encode($fieldType ? $fieldType->getDocumentType() : null)).');"'
 			.' data-role="bp-selector-button" data-bp-selector-props="'.htmlspecialcharsbx($selectorProps).'">';
 	}
 
@@ -602,5 +646,25 @@ class Base
 		{
 			static::clearValueSingle($fieldType, $v);
 		}
+	}
+
+	/**
+	 * @param mixed $valueA First value.
+	 * @param mixed $valueB Second value.
+	 * @return int Returns 1, -1 or 0
+	 */
+	public static function compareValues($valueA, $valueB)
+	{
+		if ($valueA > $valueB)
+		{
+			return 1;
+		}
+
+		if ($valueA < $valueB)
+		{
+			return -1;
+		}
+
+		return 0;
 	}
 }

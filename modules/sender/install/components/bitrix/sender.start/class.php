@@ -29,7 +29,8 @@ class SenderStartComponent extends CBitrixComponent
 			$this->errors->setError(new Error('Module `sender` is not installed.'));
 			return false;
 		}
-		return true;
+
+		return Integration\Bitrix24\Service::isAvailable();
 	}
 
 	protected function initParams()
@@ -68,6 +69,11 @@ class SenderStartComponent extends CBitrixComponent
 		foreach ($messages as $message)
 		{
 			$message = new Message\Adapter($message);
+			if ($message->isHidden())
+			{
+				continue;
+			}
+
 			if ($message->isAds())
 			{
 				$pathToAdd = $pathToAdsAdd;

@@ -20,6 +20,113 @@ class MailboxTable extends Entity\DataManager
 		return 'b_mail_mailbox';
 	}
 
+	public static function getUserMailbox($mailboxId, $userId = null)
+	{
+		$mailboxes = static::getUserMailboxes($userId);
+
+		return array_key_exists($mailboxId, $mailboxes) ? $mailboxes[$mailboxId] : false;
+	}
+
+	public static function getUserMailboxes($userId = null)
+	{
+		global $USER;
+
+		if (!($userId > 0 || is_object($USER) && $USER->isAuthorized()))
+		{
+			return false;
+		}
+
+		if (!($userId > 0))
+		{
+			$userId = $USER->getId();
+		}
+
+		static $mailboxes = array();
+		static $userMailboxes = array();
+
+		if (!array_key_exists($userId, $userMailboxes))
+		{
+			$userMailboxes[$userId] = array();
+
+			(new \CAccess)->updateCodes(array('USER_ID' => $userId));
+
+			$accessSubquery = new Entity\Query(Internals\MailboxAccessTable::getEntity());
+			$accessSubquery->registerRuntimeField(
+				new Entity\ReferenceField(
+					'USER_ACCESS',
+					'Bitrix\Main\UserAccess',
+					array(
+						'=this.ACCESS_CODE' => 'ref.ACCESS_CODE',
+					),
+					array(
+						'join_type' => 'INNER',
+					)
+				)
+			);
+			$accessSubquery->addFilter('=MAILBOX_ID', new \Bitrix\Main\DB\SqlExpression('%s'));
+			$accessSubquery->addFilter('=USER_ACCESS.USER_ID', $userId);
+
+			$res = static::getList(array(
+				'runtime' => array(
+					new Entity\ExpressionField(
+						'IS_OWNED',
+						sprintf('IF(%%s=%u, 1, 0)', $userId),
+						'USER_ID'
+					),
+					new Entity\ExpressionField(
+						'IS_ACCESS',
+						sprintf('EXISTS(%s)', $accessSubquery->getQuery()),
+						'ID'
+					),
+				),
+				'filter' => array(
+					array(
+						'LOGIC' => 'OR',
+						'=USER_ID' => $userId,
+						'==IS_ACCESS' => true,
+					),
+					'=ACTIVE' => 'Y',
+					'=SERVER_TYPE' => 'imap',
+				),
+				'order' => array(
+					'IS_OWNED' => 'DESC',
+					'ID' => 'DESC',
+				),
+			));
+
+			while ($mailbox = $res->fetch())
+			{
+				static::normalizeEmail($mailbox);
+
+				$mailboxes[$mailbox['ID']] = $mailbox;
+				$userMailboxes[$userId][] = $mailbox['ID'];
+			}
+		}
+
+		$result = array();
+		foreach ($userMailboxes[$userId] as $mailboxId)
+		{
+			$result[$mailboxId] = $mailboxes[$mailboxId];
+		}
+
+		return $result;
+	}
+
+	public static function normalizeEmail(&$mailbox)
+	{
+		foreach (array($mailbox['EMAIL'], $mailbox['NAME'], $mailbox['LOGIN']) as $item)
+		{
+			$address = new \Bitrix\Main\Mail\Address($item);
+			if ($address->validate())
+			{
+				$mailbox['EMAIL'] = $address->getEmail();
+				break;
+			}
+		}
+
+		return $mailbox;
+	}
+
 	public static function getMap()
 	{
 		return array(
@@ -41,6 +148,12 @@ class MailboxTable extends Entity\DataManager
 			),
 			'SERVICE_ID' => array(
 				'data_type' => 'integer',
+			),
+			'EMAIL' => array(
+				'data_type' => 'string',
+			),
+			'USERNAME' => array(
+				'data_type' => 'string',
 			),
 			'NAME' => array(
 				'data_type' => 'string',
@@ -122,7 +235,37 @@ class MailboxTable extends Entity\DataManager
 			),
 			'OPTIONS' => array(
 				'data_type'  => 'text',
-				'serialized' => true,
+				'save_data_modification' => function()
+				{
+					return array(
+						function ($options)
+						{
+							if (!empty($options['imap']['dirsMd5']) && is_array($options['imap']['dirsMd5']))
+							{
+								unset($options['imap']['dirsMd5']);
+							}
+							return serialize($options);
+						}
+					);
+				},
+				'fetch_data_modification' => function()
+				{
+					return array(
+						function ($values)
+						{
+							$values = unserialize($values);
+							if (!empty($values['imap']['dirs']) && is_array($values['imap']['dirs']))
+							{
+								foreach ($values['imap']['dirs'] as $name => $dir)
+								{
+									$values['imap']['dirsMd5'][$name] = md5($name);
+								}
+							}
+
+							return $values;
+						}
+					);
+				}
 			),
 			'SITE' => array(
 				'data_type' => 'Bitrix\Main\Site',

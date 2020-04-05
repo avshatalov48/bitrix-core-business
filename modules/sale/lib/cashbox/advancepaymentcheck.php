@@ -52,6 +52,7 @@ class AdvancePaymentCheck extends Check
 				'PRICE' => $result['TOTAL_SUM'],
 				'SUM' => $result['TOTAL_SUM'],
 				'BASE_PRICE' => $result['TOTAL_SUM'],
+				'PAYMENT_OBJECT' => static::PAYMENT_OBJECT_PAYMENT,
 			)
 		);
 

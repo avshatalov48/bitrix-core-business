@@ -29,6 +29,7 @@
 		this.node.classList.add("landing-card");
 		this.label = label;
 		this.preset = null;
+		this.sortIndex = -1;
 
 		if (isPlainObject(this.manifest.presets) && !isEmpty(this.manifest.presets))
 		{

@@ -3,6 +3,7 @@ namespace Bitrix\Landing\Hook\Page;
 
 use \Bitrix\Landing\Field;
 use \Bitrix\Main\Localization\Loc;
+use \Bitrix\Landing\Manager;
 
 Loc::loadMessages(__FILE__);
 
@@ -40,8 +41,7 @@ class YaCounter extends \Bitrix\Landing\Hook\Page
 	 */
 	public function enabledInEditMode()
 	{
-		$request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
-		return $request->get('landing_mode') == 'preview';
+		return false;
 	}
 
 	/**
@@ -54,37 +54,27 @@ class YaCounter extends \Bitrix\Landing\Hook\Page
 		$counter = \CUtil::jsEscape($counter);
 		if ($counter)
 		{
-			\Bitrix\Main\Page\Asset::getInstance()->addString(
+			Manager::setPageView('AfterHeadOpen',
 '<!-- Yandex.Metrika counter -->
 <script type="text/javascript" data-skip-moving="true">
-    (function (d, w, c) {
-        (w[c] = w[c] || []).push(function() {
-            try {
-                w.yaCounter' . $counter . ' = new Ya.Metrika({
-                    id:' . $counter . ',
-                    clickmap:true,
-                    trackLinks:true,
-                    accurateTrackBounce:true,
-                    webvisor:true,
-                    trackHash:true
-                });
-            } catch(e) { }
-        });
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-        var n = d.getElementsByTagName("script")[0],
-            s = d.createElement("script"),
-            f = function () { n.parentNode.insertBefore(s, n); };
-        s.type = "text/javascript";
-        s.async = true;
-        s.src = "https://mc.yandex.ru/metrika/watch.js";
-
-        if (w.opera == "[object Opera]") {
-            d.addEventListener("DOMContentLoaded", f, false);
-        } else { f(); }
-    })(document, window, "yandex_metrika_callbacks");
+   ym(' . $counter . ', "init", {
+        id:' . $counter . ',
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true,
+		trackHash:true
+   });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/' . $counter . '" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->'
+			);
+			Manager::setPageView(
+				'AfterBodyOpen',
+				'<noscript><div><img src="https://mc.yandex.ru/watch/' . $counter . '" style="position:absolute; left:-9999px;" alt="" /></div></noscript>'
 			);
 		}
 	}

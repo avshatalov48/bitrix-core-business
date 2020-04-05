@@ -436,4 +436,7 @@ $MESS["FD_YEARS_SHORT_MOD_OTHER"] = "#VALUE#л";
 $MESS["CAL_BUTTON"] = "Выбрать";
 $MESS["CAL_TIME_SET"] = "Установить время";
 $MESS["CAL_TIME"] = "Время";
+$MESS["expire_mess_timelicense1"] = "<font class=\"tablebodytext\"><font color=\"#FF0000\">Срок действия текущей лицензии закончился. Через две недели этот сайт полностью прекратит свою работу. Срочно свяжитесь с <a href=\"http://www.1c-bitrix.ru/\">отделом по работе с ключевыми клиентами компании 1С-Битрикс</a> для приобретения лицензии на следующий год.</font></font>";
+$MESS["YEAR_PATTERN"] = "";
+$MESS["DOM_PATTERN"] = "";
 ?>

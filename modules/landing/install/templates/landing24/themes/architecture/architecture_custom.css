@@ -1,59 +1,7 @@
-/*
-For colors, than white in dark themes and vice versa
-Use color from standart H
-*/
-h2.g-theme-light-color-dark, h4.g-theme-light-color-dark {color: #000;}
-
 
 /* Fix for complex button with icon. Need no bg color */
 .u-btn-inset > .u-btn-darkgray {
 	background-color: transparent;
-}
-
-/* for overwrite P color */
-.g-color-primary,
-.g-color-primary *,
-.g-color-primary p {
-	color: #c94645;
-}
-
-
-
-
-
-
-
-
-/* ***********
-THEMES CUSTOM COLORS
-*********** */
-
-.g-bg-gray-dark-v3 .g-mb-30 {
-	color: #aaaabd;
-}
-
-.landing-block-node-menu-list.navbar-nav .nav-item .nav-link:hover, .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link {
-	color: #c94645 !important;
-}
-
-.g-bg-white.js-header-change-moment .navbar-nav .nav-item .g-color-white.nav-link:hover {
-	color: #c94645 !important;
-}
-
-.g-bg-white.js-header-change-moment .navbar-nav .nav-item.active .g-color-white.nav-link {
-	color: #c94645 !important;
-}
-
-.g-bg-white .landing-block-node-menu-list.navbar-nav .nav-item .nav-link-color-hover:hover {
-	background-color: #c94645 !important;
-}
-
-.g-bg-white .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link-color-hover {
-	background-color: #c94645 !important;
-}
-
-.g-color-primary--hover:hover * {
-	color: #c94645 !important;
 }
 
 .u-btn-inset::before {
@@ -73,15 +21,6 @@ THEMES CUSTOM COLORS
 
 .landing-b24button-use-style .b24-widget-button-social-item {
 	background-color: #c94645 !important;
-}
-
-.dark-theme.g-bg-white .hamburger-inner, .dark-theme.g-bg-white .hamburger-inner::after, .dark-theme.g-bg-white .hamburger-inner::before {
-	background-color: #000;
-}
-
-/* RESTAURANT */
-.u-theme-restaurant-shadow-v1 {
-	box-shadow: inset 2px 2px 2px #bd3837;
 }
 
 /* BUTTON HOVERS */

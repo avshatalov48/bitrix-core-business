@@ -9,6 +9,7 @@ namespace Bitrix\Main;
 
 use Bitrix\Main\Config;
 use Bitrix\Main\Type;
+use Bitrix\Main\Web\HttpHeaders;
 
 /**
  * Class HttpRequest extends Request. Contains http specific request data.
@@ -43,7 +44,7 @@ class HttpRequest extends Request
 	protected $cookiesRaw;
 
 	/**
-	 * @var Type\ParameterDictionary
+	 * @var HttpHeaders
 	 */
 	protected $headers;
 
@@ -66,7 +67,18 @@ class HttpRequest extends Request
 		$this->files = new Type\ParameterDictionary($files);
 		$this->cookiesRaw = new Type\ParameterDictionary($cookies);
 		$this->cookies = new Type\ParameterDictionary($this->prepareCookie($cookies));
-		$this->headers = new Type\ParameterDictionary($this->fetchHeaders($server));
+		$this->headers = $this->buildHttpHeaders($server);
+	}
+
+	private function buildHttpHeaders(Server $server)
+	{
+		$headers = new HttpHeaders();
+		foreach ($this->fetchHeaders($server) as $headerName => $value)
+		{
+			$headers->add($headerName, $value);
+		}
+
+		return $headers;
 	}
 
 	/**
@@ -80,7 +92,7 @@ class HttpRequest extends Request
 			"get" => $this->queryString->values,
 			"post" => $this->postData->values,
 			"files" => $this->files->values,
-			"headers" => $this->headers->values,
+			"headers" => $this->headers,
 			"cookie" => $this->cookiesRaw->values
 		));
 
@@ -90,8 +102,8 @@ class HttpRequest extends Request
 			$this->postData->setValuesNoDemand($filteredValues['post']);
 		if (isset($filteredValues['files']))
 			$this->files->setValuesNoDemand($filteredValues['files']);
-		if (isset($filteredValues['headers']))
-			$this->headers->setValuesNoDemand($this->normalizeHeaders($filteredValues['headers']));
+		if (isset($filteredValues['headers']) && ($this->headers instanceof HttpHeaders))
+			$this->headers = $filteredValues['headers'];
 		if (isset($filteredValues['cookie']))
 		{
 			$this->cookiesRaw->setValuesNoDemand($filteredValues['cookie']);
@@ -174,13 +186,13 @@ class HttpRequest extends Request
 	 */
 	public function getHeader($name)
 	{
-		return $this->headers->get(strtolower($name));
+		return $this->headers->get($name);
 	}
 
 	/**
 	 * Returns the list of headers of the current request.
 	 *
-	 * @return Type\ParameterDictionary
+	 * @return HttpHeaders
 	 */
 	public function getHeaders()
 	{
@@ -231,6 +243,16 @@ class HttpRequest extends Request
 	public function getRequestMethod()
 	{
 		return $this->server->getRequestMethod();
+	}
+
+	/**
+	 * Returns server port.
+	 *
+	 * @return string | null
+	 */
+	public function getServerPort()
+	{
+		return $this->server->getServerPort();
 	}
 
 	public function isPost()

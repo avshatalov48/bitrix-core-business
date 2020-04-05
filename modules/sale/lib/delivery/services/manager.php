@@ -5,6 +5,7 @@ use Bitrix\Main\Config\Option;
 
 use Bitrix\Main\Error;
 use Bitrix\Main\Event;
+use Bitrix\Main\ORM\Data\AddResult;
 use Bitrix\Sale\Internals\Pool;
 use Bitrix\Sale\Result;
 use Bitrix\Main\IO\File;
@@ -45,7 +46,6 @@ class Manager
 	 * @param int $deliveryId
 	 * @return array Service fields
 	 * @throws SystemException
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public static function getById($deliveryId)
 	{
@@ -540,12 +540,23 @@ class Manager
 
 		self::$handlers = array_keys($result);
 
-		foreach(self::$handlers as $handler)
+		/**
+		 * @var \Bitrix\Sale\Delivery\Services\Base $handler
+		 */
+		foreach(self::$handlers as $idx => $handler)
 		{
+			if(!$handler::isHandlerCompatible())
+			{
+				unset(self::$handlers[$idx]);
+				continue;
+			}
+
 			$profiles = $handler::getChildrenClassNames();
 
 			if(!empty($profiles))
+			{
 				self::$handlers = array_merge(self::$handlers, $profiles);
+			}
 		}
 
 		return true;
@@ -637,7 +648,6 @@ class Manager
 	 * @param string $name Group name
 	 * @return int Group id
 	 * @throws SystemException
-	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Exception
 	 */
 	public static function getGroupId($name)
@@ -704,7 +714,7 @@ class Manager
 	/**
 	 * Adds delivery service
 	 * @param array $fields
-	 * @return \Bitrix\Main\Entity\AddResult
+	 * @return AddResult
 	 * @throws SystemException
 	 * @throws \Exception
 	 */
@@ -726,6 +736,14 @@ class Manager
 	}
 
 	/**
+	 * @return string
+	 */
+	public static function generateXmlId()
+	{
+		return uniqid('bx_');
+	}
+
+	/**
 	 * Updates delivery service
 	 * @param int $id
 	 * @param array $fields
@@ -736,6 +754,7 @@ class Manager
 	public static function update($id, array $fields)
 	{
 		self::initHandlers();
+
 		$res = \Bitrix\Sale\Delivery\Services\Table::update($id, $fields);
 
 		if($res->isSuccess())
@@ -898,7 +917,6 @@ class Manager
 	/**
 	 * @param string $code
 	 * @return int Service id
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public static function getIdByCode($code)
 	{
@@ -1003,7 +1021,6 @@ class Manager
 	 * Returns is delivery service is already used in shipments
 	 * @param $deliveryId
 	 * @return bool
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	protected static function isDeliveryInShipments($deliveryId)
 	{
@@ -1070,13 +1087,12 @@ class Manager
 	protected static function deleteRelatedEntities($deliveryId)
 	{
 		$con = \Bitrix\Main\Application::getConnection();
-		$sqlHelper = $con->getSqlHelper();
-		$id = $sqlHelper->forSql($deliveryId);
+		$deliveryId = (int)$deliveryId;
 
-		$con->queryExecute("DELETE FROM b_sale_service_rstr WHERE SERVICE_ID=".$id);
-		$con->queryExecute("DELETE FROM b_sale_delivery2location WHERE DELIVERY_ID=".$id);
-		$con->queryExecute("DELETE FROM b_sale_delivery2paysystem WHERE DELIVERY_ID=".$id);
-		$con->queryExecute("DELETE FROM b_sale_delivery_es WHERE DELIVERY_ID=".$id);
+		$con->queryExecute("DELETE FROM b_sale_service_rstr WHERE SERVICE_ID=".$deliveryId);
+		$con->queryExecute("DELETE FROM b_sale_delivery2location WHERE DELIVERY_ID=".$deliveryId);
+		$con->queryExecute("DELETE FROM b_sale_delivery2paysystem WHERE DELIVERY_ID=".$deliveryId);
+		$con->queryExecute("DELETE FROM b_sale_delivery_es WHERE DELIVERY_ID=".$deliveryId);
 
 		$dbRes = Table::getList(array(
 			'filter' => array(
@@ -1201,8 +1217,8 @@ class Manager
 
 		$restriction = new $className;
 
-		if(!($restriction instanceof Restrictions\Base))
-			throw new SystemException('Object must be the instance of Bitrix\Sale\Delivery\Restrictions\Base');
+		if(!is_subclass_of($className, 'Bitrix\Sale\Services\Base\Restriction'))
+			throw new SystemException('Object must be the instance of Bitrix\Sale\Services\Base\Restriction');
 
 		$cache[$className] = $restriction;
 		return  $restriction;

@@ -9,7 +9,7 @@ BX.Lists.CatalogProcessesClass = (function ()
 
 	CatalogProcessesClass.prototype.installProcesses = function (selector)
 	{
-		BX.addClass(selector, 'webform-small-button-wait');
+		BX.addClass(selector, 'ui-btn-clock');
 		selector.setAttribute('onclick','');
 		var selectedProcesses = BX.findChildrenByClassName(
 			BX('bx-lists-lcp-total-div'), 'bx-lists-lcp-table-tr-mousedown');
@@ -59,7 +59,7 @@ BX.Lists.CatalogProcessesClass = (function ()
 						message: result.errors.pop().message
 					});
 				}
-				BX.removeClass(selector, 'webform-small-button-wait');
+				BX.removeClass(selector, 'ui-btn-clock');
 				selector.setAttribute('onclick',
 					'BX.Lists["CatalogProcessesClass_'+this.randomString+'"].installProcesses(this);');
 			}, this)

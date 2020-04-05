@@ -1,6 +1,6 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css');?>
-<div id="blog-posts-content">
+<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+$APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css');
+?><div id="blog-posts-content">
 <?
 if(!empty($arResult["OK_MESSAGE"]))
 {
@@ -89,6 +89,7 @@ if(count($arResult["POST"])>0)
 						"ADIT_MENU"				=> $CurPost["ADIT_MENU"],
 						"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
 						"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
+						"SELECTOR_VERSION"		=> 2
 					),
 				$component 
 			);

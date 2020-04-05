@@ -122,10 +122,10 @@ class IblockMoneyProperty
 		$currentValue = $explode[0] ? $explode[0] : '';
 		$currentCurrency = $explode[1] ? $explode[1] : '';
 
-		if(!$currentCurrency)
+		if (!$currentCurrency)
 			return intval($currentValue) ? $currentValue : '';
 
-		if(CurrencyManager::isCurrencyExist($currentCurrency))
+		if (CurrencyManager::isCurrencyExist($currentCurrency))
 		{
 			if(!empty($controlSettings['MODE']))
 			{
@@ -139,6 +139,9 @@ class IblockMoneyProperty
 						return $currentValue;
 				}
 			}
+
+			list($currentValue, $currentCurrency, $decimalsValue) = self::getSeparatedValues($value['VALUE']);
+			$currentValue = $currentValue.'.'.$decimalsValue;
 
 			return \CCurrencyLang::CurrencyFormat($currentValue, $currentCurrency, true);
 		}
@@ -248,6 +251,18 @@ class IblockMoneyProperty
 	public static function convertFromDB($property, $value)
 	{
 		return $value;
+	}
+
+	private static function getSeparatedValues($value)
+	{
+		$explode = is_string($value) ? explode(self::SEPARATOR, $value) : array();
+		$currentValue = $explode[0] ? $explode[0] : '';
+		$currentCurrency = $explode[1] ? $explode[1] : '';
+		$format = \CCurrencyLang::GetFormatDescription($currentCurrency);
+		$explode = explode($format['DEC_POINT'], $currentValue);
+		$currentValue = $explode[0] ? $explode[0] : '';
+		$decimalsValue = $explode[1] ? $explode[1] : '';
+		return array($currentValue, $currentCurrency, $decimalsValue);
 	}
 
 	/**

@@ -33,4 +33,6 @@ $MESS["CP_SBB_TPL_LABEL_PROP_MOBILE"] = "Product tag properties for mobile devic
 $MESS["CP_SBB_TPL_LABEL_PROP_POSITION"] = "Product tag position";
 $MESS["CP_SBB_TPL_SHOW_DISCOUNT_PERCENT"] = "Show discount percent beside the image";
 $MESS["CP_SBB_TPL_DISCOUNT_PERCENT_POSITION"] = "Discount percent position";
+$MESS["CP_SBB_EMPTY_BASKET_HINT_PATH"] = "Continue Shopping page";
+$MESS["EMPTY_BASKET_HINT_PATH_TIP"] = "The \"Continue Shopping\" link is shown if the shopping cart is empty.<br>The text will be hidden if the link is empty.";
 ?>

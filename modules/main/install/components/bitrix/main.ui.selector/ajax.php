@@ -1,23 +1,77 @@
 <?
-define('STOP_STATISTICS', true);
-define('NO_AGENT_CHECK', true);
-define('DisableEventsCheck', true);
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-if(isset($_POST['site']) && (string) $_POST['site'] != '')
+use Bitrix\Main\Event;
+use Bitrix\Main\EventResult;
+
+class CMainUISelectorComponentAjaxController extends \Bitrix\Main\Engine\Controller
 {
-	$siteId = substr(trim((string) $_POST['site']), 0, 2);
-	if(preg_match('#^[a-zA-Z0-9]{2}$#', $siteId))
+	public function getTreeItemRelationAction($entityType = false, $categoryId = false)
 	{
-		define('SITE_ID', $siteId);
+		$result = array();
+
+		$event = new Event("main", "OnUISelectorActionProcessAjax", array(
+			'action' => 'getTreeItemRelation',
+			'requestFields' => array(
+				'options' => array(
+					'entityType' => $entityType,
+					'categoryId' => $categoryId
+				),
+			)
+		));
+		$event->send();
+		$eventResultList = $event->getResults();
+
+		if (is_array($eventResultList) && !empty($eventResultList))
+		{
+			foreach ($eventResultList as $eventResult)
+			{
+				if ($eventResult->getType() == EventResult::SUCCESS)
+				{
+					$resultParams = $eventResult->getParameters();
+					$result = $resultParams['result'];
+					break;
+				}
+			}
+		}
+
+		return $result;
 	}
+
+	public function getDataAction(array $options = array(), array $entityTypes = array(), array $selectedItems = array())
+	{
+		return \Bitrix\Main\UI\Selector\Entities::getData($options, $entityTypes, $selectedItems);
+	}
+
+	public function doSearchAction($searchString = '', $searchStringConverted = '', $currentTimestamp = 0, array $options = array(), array $entityTypes = array(), array $additionalData = array())
+	{
+		$result = \Bitrix\Main\UI\Selector\Entities::search($options, $entityTypes, array(
+			'searchString' => $searchString,
+			'searchStringConverted' => $searchStringConverted,
+			'additionalData' => $additionalData
+		));
+		$result['currentTimestamp'] = $currentTimestamp;
+
+		return $result;
+	}
+
+	public function loadAllAction($entityType)
+	{
+		return \Bitrix\Main\UI\Selector\Entities::loadAll($entityType);
+	}
+
+	public function saveDestinationAction($context, $itemId)
+	{
+		if (
+			!empty($context)
+			&& !empty($itemId)
+		)
+		{
+			\Bitrix\Main\FinderDestTable::merge(array(
+				"CONTEXT" => $context,
+				"CODE" => $itemId
+			));
+		}
+	}
+
 }
-
-require_once($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/main/include/prolog_before.php');
-require_once(dirname(__FILE__).'/class.php');
-
-CMainUiSelector::executeComponentAjax();
-CMainUiSelector::doFinalActions();
-
-define('PUBLIC_AJAX_MODE', true);
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
-?>

@@ -3,6 +3,7 @@ $MESS ['TYPES_FOLDER'] = "Для папки или файла";
 $MESS ['TYPES_UGROUPS'] = "Для групп пользователей";
 $MESS ['TYPES_PERIOD'] = "Период времени";
 $MESS ['TYPES_URL'] = "Параметр в URL";
+$MESS ['TYPES_NO_ACCESS'] = "Пользователь не имеет доступ";
 $MESS ['TYPES_PHP'] = "Выражение PHP";
 $MESS ['TYPES_EMPTY'] = "[без условия]";
 $MESS ['TYPES_FALSE'] = "[выключено]";

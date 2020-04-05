@@ -157,6 +157,13 @@ StateActivity = function()
 		c.style.background = 'url(/bitrix/images/bizproc/stat_br.gif)';
 	};
 
+	ob.reDraw = function()
+	{
+		var parentNode = ob.main.parentNode;
+		parentNode.removeChild(ob.main);
+		ob.Draw(parentNode);
+	};
+
 	ob.OnRemoveClick = function ()
 	{
 		ob.parentActivity.RemoveChild(ob);
@@ -390,6 +397,11 @@ __StateActivityAdd = function (type, id)
 				case "finish":
 					act.AddFinilize();
 					break;
+			}
+
+			if (BX.type.isFunction(act.reDraw))
+			{
+				act.reDraw();
 			}
 			break;
 		}

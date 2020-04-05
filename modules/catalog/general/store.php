@@ -1,5 +1,7 @@
 <?php
-use Bitrix\Catalog;
+use Bitrix\Main,
+	Bitrix\Catalog,
+	Bitrix\Iblock;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -140,31 +142,154 @@ class CAllCatalogStore
 		return false;
 	}
 
-	public static function recalculateStoreBalances($id)
+	/**
+	 * Recalculate quantity for store.
+	 *
+	 * @param int $storeId		Store id.
+	 * @return bool
+	 * @throws Main\ArgumentException
+	 * @throws Main\Db\SqlQueryException
+	 */
+	public static function recalculateStoreBalances($storeId)
 	{
-		global $DB;
-		$arFields = array();
-		if(COption::GetOptionString('catalog','default_use_store_control','N') != 'Y')
-		{
+		$storeId = (int)$storeId;
+		if ($storeId <= 0)
+			return false;
+
+		if (!Catalog\Config\State::isUsedInventoryManagement())
 			return true;
-		}
-		$dbStoreProduct = CCatalogStoreProduct::GetList(array(), array("STORE_ID" => $id, "!AMOUNT" => 0), false, false, array("PRODUCT_ID", "AMOUNT"));
-		while($arStoreProduct = $dbStoreProduct->Fetch())
+
+		$iterator = Catalog\StoreTable::getList([
+			'select' => ['ID'],
+			'filter' => ['=ID' => $storeId]
+		]);
+		$row = $iterator->fetch();
+		unset($iterator);
+		if (empty($row))
+			return false;
+		unset($row);
+
+		$errors = [];
+
+		$connection = Main\Application::getConnection();
+
+		Iblock\PropertyIndex\Manager::enableDeferredIndexing();
+		Catalog\Product\Sku::enableDeferredCalculation();
+
+		$iblockIds = [];
+
+		$startId = 0;
+		do
 		{
-			$dbAmount = $DB->Query("select SUM(SP.AMOUNT) as SUM, CP.QUANTITY_RESERVED as RESERVED, CS.ACTIVE FROM b_catalog_store_product SP inner join b_catalog_product CP on SP.PRODUCT_ID = CP.ID inner join b_catalog_store CS on SP.STORE_ID = CS.ID where SP.PRODUCT_ID = ".$arStoreProduct['PRODUCT_ID']." and CS.ACTIVE = 'Y' group by QUANTITY_RESERVED, ACTIVE", true);
-			if($arAmount = $dbAmount->Fetch())
+			$found = false;
+			$productIds = [];
+
+			$iterator = Catalog\StoreProductTable::getList([
+				'select' => ['ID', 'PRODUCT_ID'],
+				'filter' => ['>ID' => $startId, '=STORE_ID' => $storeId, '!=AMOUNT' => 0],
+				'order' => ['ID' => 'ASC'],
+				'limit' => 200
+			]);
+			while ($row = $iterator->fetch())
 			{
-				$arFields["QUANTITY"] = doubleval($arAmount["SUM"] - $arAmount["RESERVED"]);
+				$found = true;
+				$startId = (int)$row['ID'];
+				$productIds[] = (int)$row['PRODUCT_ID'];
 			}
-			else
+			unset($row, $iterator);
+			if (!empty($productIds))
+				Main\Type\Collection::normalizeArrayValuesByInt($productIds, true);
+
+			if (!empty($productIds))
 			{
-				if($arReservAmount = CCatalogProduct::GetByID($arStoreProduct['PRODUCT_ID']))
+				$products = [];
+				$iterator = Catalog\Model\Product::getList([
+					'select' => ['ID', 'QUANTITY_RESERVED', 'IBLOCK_ID' => 'IBLOCK_ELEMENT.IBLOCK_ID'],
+					'filter' => ['@ID' => $productIds],
+					'order' => ['ID' => 'ASC']
+				]);
+				while ($row = $iterator->fetch())
 				{
-					$arFields["QUANTITY"] = doubleval(0 - $arReservAmount["QUANTITY_RESERVED"]);
+					if ($row['IBLOCK_ID'] === null)
+						continue;
+					$rowId = (int)$row['ID'];
+					$iblock = (int)$row['IBLOCK_ID'];
+					$iblockIds[$iblock] = $iblock;
+					$products[$rowId] = [
+						'QUANTITY_RESERVED' => (float)$row['QUANTITY_RESERVED'],
+						'IBLOCK_ID' => $iblock
+					];
 				}
+				unset($row, $iterator);
+
+				if (!empty($products))
+				{
+					$query = 'select SUM(CSP.AMOUNT) as PRODUCT_QUANTITY, CSP.PRODUCT_ID '.
+						'from b_catalog_store_product CSP inner join b_catalog_store CS on CS.ID = CSP.STORE_ID '.
+						'where CSP.PRODUCT_ID in ('.implode(',', array_keys($products)).') and CS.ACTIVE = "Y" '.
+						'group by CSP.PRODUCT_ID';
+					$iterator = $connection->query($query);
+					while ($row = $iterator->fetch())
+					{
+						$rowId = (int)$row['PRODUCT_ID'];
+						$data = [
+							'fields' => [
+								'QUANTITY' => (float)$row['PRODUCT_QUANTITY'] - $products[$rowId]['QUANTITY_RESERVED']
+							],
+							'external_fields' => [
+								'IBLOCK_ID' => $products[$rowId]['IBLOCK_ID']
+							]
+						];
+						$resultInternal = Catalog\Model\Product::update($rowId, $data);
+						if (!$resultInternal->isSuccess())
+							$errors[$rowId] = $resultInternal->getErrorMessages();
+
+						unset($products[$rowId]);
+					}
+					unset($row, $iterator, $query);
+				}
+
+				if (!empty($products))
+				{
+					foreach ($products as $rowId => $rowData)
+					{
+						$data = [
+							'fields' => [
+								'QUANTITY' => -$products[$rowId]['QUANTITY_RESERVED']
+							],
+							'external_fields' => [
+								'IBLOCK_ID' => $products[$rowId]['IBLOCK_ID']
+							]
+						];
+						$resultInternal = Catalog\Model\Product::update($rowId, $data);
+						if (!$resultInternal->isSuccess())
+							$errors[$rowId] = $resultInternal->getErrorMessages();
+
+						unset($products[$rowId]);
+					}
+					unset($rowId, $rowData);
+				}
+				unset($products);
 			}
-			CCatalogProduct::Update($arStoreProduct["PRODUCT_ID"], $arFields);
+			unset($productIds);
 		}
-		return true;
+		while ($found);
+
+		unset($connection);
+
+		Catalog\Product\Sku::disableDeferredCalculation();
+		Catalog\Product\Sku::calculate();
+
+		Iblock\PropertyIndex\Manager::disableDeferredIndexing();
+		if (!empty($iblockIds))
+		{
+			foreach ($iblockIds as $iblock)
+				Iblock\PropertyIndex\Manager::runDeferredIndexing($iblock);
+		}
+		unset($iblockIds);
+
+		Catalog\Model\Product::clearCache();
+
+		return empty($errors);
 	}
 }

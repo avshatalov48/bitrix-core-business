@@ -19,6 +19,14 @@ abstract class Node
 	abstract public static function saveNode(\Bitrix\Landing\Block &$block, $selector, array $data);
 
 	/**
+	 * Get data for this node.
+	 * @param \Bitrix\Landing\Block &$block Block instance.
+	 * @param string $selector Selector.
+	 * @return array
+	 */
+	abstract public static function getNode(\Bitrix\Landing\Block &$block, $selector);
+
+	/**
 	 * Prepare item-node of manifest.
 	 * @param \Bitrix\Landing\Block $block Block instance.
 	 * @param array $manifest Manifest of current node.

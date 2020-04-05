@@ -70,7 +70,7 @@ namespace Bitrix\Sale\Cashbox\AdminPage\Settings
 							$value++;
 						}
 
-						$result .= '<td width="45%" class="'.$itemClassName.'">'.$item['LABEL'].':</td><td width="55%" valign="top" class="adm-detail-content-cell-r">'.Input\Manager::getEditHtml('SETTINGS['.$group.']['.$code.']', $item, $value).'</td></tr>';
+						$result .= '<td width="45%" class="'.$itemClassName.'">'.htmlspecialcharsbx($item['LABEL']).':</td><td width="55%" valign="top" class="adm-detail-content-cell-r">'.Input\Manager::getEditHtml('SETTINGS['.$group.']['.$code.']', $item, $value).'</td></tr>';
 					}
 				}
 			}

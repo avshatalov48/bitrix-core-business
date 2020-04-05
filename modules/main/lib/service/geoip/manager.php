@@ -30,9 +30,6 @@ final class Manager
 	/** @var bool */
 	private static $logErrors = false;
 
-	/** @var bool */
-	private static $useCookie = false;
-
 	/**
 	 * Constant for parameters who information not available.
 	 */
@@ -40,6 +37,8 @@ final class Manager
 
 	const COOKIE_NAME = 'BX_GEO_IP';
 	const COOKIE_EXPIRED = 86400; //day
+
+	const STORE_VAR_NAME = 'BX_GEO_IP';
 
 	/**
 	 * Get the two letter country code.
@@ -193,8 +192,7 @@ final class Manager
 		if(strlen($ip) <= 0)
 			$ip = self::getRealIp();
 
-		if(self::$useCookie && !isset(self::$data[$ip]))
-			self::$data[$ip] = self::getCookie($ip);
+		self::$data[$ip] = self::getFromStore($ip);
 
 		if(isset(self::$data[$ip]) && is_array(self::$data[$ip]))
 		{
@@ -268,10 +266,7 @@ final class Manager
 				$geoData->handlerClass = get_class($handler);
 				$result = $dataResult;
 				self::$data[$ip][$geoData->handlerClass] = $result->getGeoData();
-
-				if(self::$useCookie)
-					self::setCookie($ip, self::$data[$ip]);
-
+				self::saveToStore($ip, self::$data[$ip]);
 				break;
 			}
 		}
@@ -283,35 +278,19 @@ final class Manager
 	 * @param $ip
 	 * @return bool| Result[]
 	 */
-	private static function getCookie($ip)
+	private static function getFromStore($ip)
 	{
-		$name = self::getCookieName($ip);
-		$cookieData = Application::getInstance()->getContext()->getRequest()->getCookieRaw($name);
+		$name = self::getStoreVarName();
 
-		if(!$cookieData)
-			return false;
-
-		if(function_exists('gzuncompress'))
-			$cookieData = @\gzuncompress($cookieData);
-
-		if(!$cookieData)
-			return false;
-
-		try
+		if(!isset($_SESSION[$name][$ip]) || !is_array($_SESSION[$name][$ip]))
 		{
-			$cookieData = Json::decode($cookieData);
-		}
-		catch(\Exception $e)
-		{
-			$cookieData = false;
+			return false;
 		}
 
-		if(!is_array($cookieData))
-			return false;
-
+		$storedData = $_SESSION[$name][$ip];
 		$result = array();
 
-		foreach($cookieData as $class => $data)
+		foreach($storedData as $class => $data)
 		{
 			$tmpData = new Data();
 
@@ -328,42 +307,35 @@ final class Manager
 	/**
 	 * @param string $ip
 	 * @param Data[] $geoData
-	 * @return bool
 	 */
-	private static function setCookie($ip, $geoData)
+	private static function saveToStore($ip, $geoData)
 	{
-		$cookieData = array();
+		$storedData = array();
 
 		foreach($geoData as $class => $data)
 		{
-			$cookieData[$class] = array();
+			$storedData[$class] = array();
 			$values = get_object_vars($data);
 
 			foreach($values as $attr => $value)
 				if($value !== self::INFO_NOT_AVAILABLE)
-					$cookieData[$class][$attr] = $value;
+					$storedData[$class][$attr] = $value;
 		}
 
-		$cookieData = Json::encode($cookieData);
+		if(!is_array($_SESSION[self::getStoreVarName()]))
+		{
+			$_SESSION[self::getStoreVarName()] = [];
+		}
 
-		if(function_exists('gzcompress'))
-			$cookieData = \gzcompress($cookieData, 9);
-
-		return setcookie(
-			self::getCookieName($ip),
-			$cookieData,
-			time()+self::COOKIE_EXPIRED,
-			'/'
-		);
+		$_SESSION[self::getStoreVarName()][$ip] = $storedData;
 	}
 
 	/**
-	 * @param string $ip
 	 * @return string
 	 */
-	private static function getCookieName($ip)
+	private static function getStoreVarName()
 	{
-		return self::COOKIE_NAME.'_'.str_replace('.', '_',$ip);
+		return self::STORE_VAR_NAME;
 	}
 
 	/**
@@ -442,7 +414,7 @@ final class Manager
 
 				foreach($customClasses as $class => $file)
 				{
-					if(!File::isFileExists($file))
+					if(!File::isFileExists(\Bitrix\Main\Application::getDocumentRoot().'/'.$file))
 					{
 						continue;
 					}
@@ -543,15 +515,6 @@ final class Manager
 	}
 
 	/**
-	 * Turn on / off storing geolocation info in cookie for performance purposes.
-	 * @param bool $isUse
-	 */
-	public static function useCookieToStoreInfo($isUse)
-	{
-		self::$useCookie = $isUse;
-	}
-
-	/**
 	 * @param Base $handler
 	 * @return string Config HTML for admin interface form.
 	 */
@@ -615,5 +578,14 @@ final class Manager
 				$result->$attr = $value;
 
 		return $result;
+	}
+
+	/**
+	 * @param bool $isUse
+	 * @deprecated
+	 */
+	public static function useCookieToStoreInfo($isUse)
+	{
+		return;
 	}
 }

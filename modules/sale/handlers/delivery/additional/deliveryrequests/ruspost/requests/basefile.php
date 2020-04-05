@@ -120,7 +120,24 @@ abstract class BaseFile extends Base
 
 			if(strlen($fileName) > 0)
 			{
-				$result->setFileName($headers->getFilename());
+				$ext = '';
+				$contentType = $headers->getContentType();
+
+				if($contentType == 'application/zip')
+				{
+					$ext = 'zip';
+				}
+				elseif($contentType == 'application/pdf')
+				{
+					$ext = 'pdf';
+				}
+
+				if(strlen($ext) > 0)
+				{
+					$fileName .= '.'.$ext;
+				}
+
+				$result->setFileName($fileName);
 				$result->setFileContent($httpRes);
 			}
 		}

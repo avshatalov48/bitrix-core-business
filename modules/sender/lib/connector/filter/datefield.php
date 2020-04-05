@@ -7,8 +7,10 @@
  */
 namespace Bitrix\Sender\Connector\Filter;
 
+use Bitrix\Main\Type\Date;
 use Bitrix\Main\UI\Filter\Options as FilterOptions;
 use Bitrix\Main\UI\Filter\AdditionalDateType;
+use Bitrix\Main\UserFieldTable;
 
 /**
  * Class DateField
@@ -28,17 +30,18 @@ class DateField extends AbstractField
 			$filterFields
 		);
 
+		$allowYearName = $this->getAllowYearName();
+		if (!isset($result[$allowYearName]) && isset($filterFields[$allowYearName]))
+		{
+			$result[$allowYearName] = $filterFields[$allowYearName];
+		}
+
 		if (!empty($result))
 		{
 			return $result;
 		}
 
-		if (empty($this->data['include']))
-		{
-			return [];
-		}
-
-		if (!in_array(AdditionalDateType::CUSTOM_DATE, $this->data['include']))
+		if (!$this->isCustomDate())
 		{
 			return [];
 		}
@@ -72,11 +75,25 @@ class DateField extends AbstractField
 
 		if ($from)
 		{
-			$filter[">=$filterKey"] = $from;
+			if ($this->isAllowYears())
+			{
+				$filter[">=$filterKey"] = $from;
+			}
+			else
+			{
+				$filter[] = $this->getFilterYearLess('FROM', $from, ">=");
+			}
 		}
 		if ($to)
 		{
-			$filter["<=$filterKey"] = $to;
+			if ($this->isAllowYears())
+			{
+				$filter["<=$filterKey"] = $to;
+			}
+			else
+			{
+				$filter[] = $this->getFilterYearLess('TO', $to, "<=", $from);
+			}
 		}
 		if ($this->getDays())
 		{
@@ -228,5 +245,87 @@ class DateField extends AbstractField
 		{
 			return isset($calcData[$name . '_to']) ? $calcData[$name . '_to'] : $defaultValue;
 		}
+	}
+
+	private function isCustomDate()
+	{
+		return isset($this->data['include']) && in_array(AdditionalDateType::CUSTOM_DATE, $this->data['include']);
+	}
+
+	private function isAllowYears()
+	{
+		if (!isset($this->data['allow_years_switcher']) || !$this->data['allow_years_switcher'])
+		{
+			return true;
+		}
+
+		return !empty($this->data['value'][$this->getAllowYearName()]);
+	}
+
+	private function getAllowYearName()
+	{
+		return $this->getId() . '_allow_year';
+	}
+
+	private function getFilterYearLess($tag, $value, $operation =  "=", $fromValue = null)
+	{
+		$addOneYear = '';
+		$date = new Date($value);
+		if ($fromValue)
+		{
+			$dateFrom = new Date($fromValue);
+			if ($dateFrom->getTimestamp() > $date->getTimestamp())
+			{
+				$addOneYear = '+ 1';
+			}
+		}
+
+		$fieldId = $this->getId();
+		$expressionFieldName = $fieldId . "_YEAR_LESS_" . $tag;
+		$filterKey = $this->getFilterKey();
+
+		// hack for multiple user field of `date` type.
+		$uf = explode('.', $filterKey);
+		foreach ($uf as $item)
+		{
+			if (strpos($item, 'UF_') !== 0)
+			{
+				continue;
+			}
+
+			$userField = UserFieldTable::getRow([
+				'select' => ['USER_TYPE_ID', 'MULTIPLE'],
+				'filter' => ['=FIELD_NAME' => $item]
+			]);
+			if (!$userField || $userField['USER_TYPE_ID'] != 'date')
+			{
+				continue;
+			}
+			if ($userField['MULTIPLE'] != 'Y')
+			{
+				continue;
+			}
+
+			$filterKey .= '_SINGLE'; // Magic ORM postfix
+		}
+		// end hack
+
+		return (new RuntimeFilter())
+			->setFilter(
+				"=$expressionFieldName",
+				1
+			)
+			->addRuntime([
+				'name' => $expressionFieldName,
+				'expression' => "
+					case when %s $operation concat(YEAR(%s) $addOneYear, '-{$date->format('m')}-{$date->format('d')}')
+					then 1 else 0 end
+				",
+				'buildFrom' => [
+					$filterKey,
+					$filterKey
+				],
+				'parameters' => []
+			]);
 	}
 }

@@ -9,6 +9,7 @@
 namespace Bitrix\Sale\Location\Admin;
 
 use Bitrix\Main;
+use Bitrix\Main\Grid\Context;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Location;
 
@@ -25,7 +26,7 @@ final class LocationHelper extends NameHelper
 	const MENU_ITEMS_QUERY_STRING_TAG = 'menu_sale_location_tree';
 	const MENU_ITEMS_QUERY_STRING_DELIMITER = ':';
 
-	const URL_PARAM_PARENT_ID = 'find_PARENT_ID';
+	const URL_PARAM_PARENT_ID = 'PARENT_ID';
 	const URL_PARAM_ID = 'id';
 
 	#####################################
@@ -160,13 +161,20 @@ final class LocationHelper extends NameHelper
 
 		if(is_array($data['NAME']) && !empty($data['NAME']))
 		{
+			$hasValidName = false;
+
 			foreach($data['NAME'] as $lang => $fields)
 			{
-				if(isset($fields['NAME']) && strlen($fields['NAME']) <= 0)
+				if(!empty($fields['NAME']))
 				{
-					$errors[] = Loc::getMessage('SALE_LOCATION_ADMIN_LOCATION_HELPER_ENTITY_NAME_EMPTY_ERROR');
+					$hasValidName = true;
 					break;
 				}
+			}
+
+			if(!$hasValidName)
+			{
+				$errors[] = Loc::getMessage('SALE_LOCATION_ADMIN_LOCATION_HELPER_ENTITY_NAME_EMPTY_ERROR');
 			}
 		}
 
@@ -203,10 +211,10 @@ final class LocationHelper extends NameHelper
 		{
 			if(!isset($parameters['filter']['=PARENT_ID'])) // value has not came from filter
 			{
-				if(isset($_REQUEST['find_PARENT_ID']))
-					$parameters['filter']['=PARENT_ID'] = intval($_REQUEST['find_PARENT_ID']);
-				//else
-				//	$parameters['filter']['=PARENT_ID'] = 0;
+				if (isset($_REQUEST['PARENT_ID']) && !Context::isInternalRequest())
+					$parameters['filter']['=PARENT_ID'] = intval($_REQUEST['PARENT_ID']);
+				else
+					$parameters['filter']['=PARENT_ID'] = 0;
 			}
 		}
 
@@ -375,8 +383,8 @@ final class LocationHelper extends NameHelper
 				if(intval($_REQUEST['id']))
 					$id = intval($_REQUEST['id']);
 				*/
-				if(intval($_REQUEST['find_PARENT_ID']))
-					$id = intval($_REQUEST['find_PARENT_ID']);
+				if(intval($_REQUEST['PARENT_ID']))
+					$id = intval($_REQUEST['PARENT_ID']);
 				elseif(intval($_REQUEST['parent_id']))
 					$id = intval($_REQUEST['parent_id']);
 			}
@@ -537,7 +545,7 @@ final class LocationHelper extends NameHelper
 					$node = array(
 						"text" => ($queryParams['SHOW_CHECKBOX'] ? '<input type="checkbox" value="'.intval($id).'" />&nbsp;' : '').$item['NAME'],
 						"fav_id" => intval($id), // allows javascript to know what item it is
-						"url" => static::getListUrl(intval($id)),
+						"url" => \CHTTP::urlAddParams(static::getListUrl(intval($id)), ["apply_filter" => "y"]),
 						"module_id" => "sale",
 						"items_id" => self::packItemsQueryString(array('ID' => $id, 'LIMIT' => $limit, 'SHOW_CHECKBOX' => $queryParams['SHOW_CHECKBOX'])),
 						//"skip_chain" => true, // uncomment, if you dont want this menu item figure in breadcrumbs
@@ -609,9 +617,6 @@ final class LocationHelper extends NameHelper
 	public static function getLocationsByZip($zip, $parameters = array())
 	{
 		$zip = trim($zip);
-
-		if(!strlen($zip) || !preg_match('#^\d+$#', $zip))
-			throw new Main\SystemException('Empty or incorrect zip code passed');
 
 		if(!is_array($parameters))
 			$parameters = array();

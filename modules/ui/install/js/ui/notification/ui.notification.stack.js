@@ -379,6 +379,11 @@ BX.UI.Notification.Stack.prototype =
 	 */
 	getBalloonType: function(className)
 	{
+		if (BX.type.isFunction(className))
+		{
+			return className;
+		}
+
 		var classFn = BX.getClass(className);
 
 		if (BX.type.isFunction(classFn))
@@ -391,7 +396,7 @@ BX.UI.Notification.Stack.prototype =
 
 	setBalloonType: function(balloonType)
 	{
-		if (balloonType instanceof BX.UI.Notification.Balloon)
+		if (BX.type.isFunction(balloonType))
 		{
 			this.balloonType = balloonType;
 		}

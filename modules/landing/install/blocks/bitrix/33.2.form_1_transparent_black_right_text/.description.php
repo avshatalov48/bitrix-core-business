@@ -16,14 +16,19 @@ return array(
 	'cards' => array(
 		'.landing-block-node-card-contact' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_CARD_CONTACT'),
-			'label' => array('.landing-block-node-contact-text', '.landing-block-node-contact-link')
+			'label' => array('.landing-block-node-contact-text', '.landing-block-node-contact-link', '.landing-block-card-linkcontact-link'),
+			'presets' => include __DIR__ . '/presets.php',
 		),
+	),
+	'groups' => array(
+		'contact' => Loc::getMessage('LANDING_BLOCK_FORM_33.1_NODE_CARD_CONTACT'),
 	),
 	'nodes' => array(
 		'.landing-block-node-bgimg' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_BGIMG'),
 			'type' => 'img',
 			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'allowInlineEdit' => false,
 		),
 		'.landing-block-node-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_TEXT'),
@@ -49,6 +54,10 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_CONTACT_LINK'),
 			'type' => 'link',
 		),
+		'.landing-block-card-linkcontact-link' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_CONTACT_LINK'),
+			'type' => 'link',
+		),
 	),
 	'style' => array(
 		'block' => array(
@@ -58,6 +67,10 @@ return array(
 			'.landing-block-node-main-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_TITLE'),
 				'type' => array('typo','animation'),
+			),
+			'.landing-block-card-contact-icon-container' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.1_NODE_CONTACT_ICON'),
+				'type' => 'color',
 			),
 			'.landing-block-node-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_SUBTITLE'),
@@ -78,6 +91,14 @@ return array(
 			'.landing-block-node-form' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_FORM'),
 				'type' => 'animation',
+			),
+			'.landing-block-card-linkcontact-link' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_CONTACT_LINK'),
+				'type' => 'typo',
+			),
+			'.landing-block-node-bgimg' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_BGIMG'),
+				'type' => 'background-attachment',
 			),
 		),
 	),

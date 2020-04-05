@@ -368,11 +368,10 @@ class Yandex extends Engine\YandexBase implements IEngine
 	 * Add site to webmaster. After adding you need verify rights at this site.
 	 *
 	 * @param $domain
-	 * @param string $dir
 	 * @return array
 	 * @throws YandexException
 	 */
-	public function addSite($domain, $dir = '/')
+	public function addSite($domain)
 	{
 		$domain = ToLower($domain);
 		$queryDomain = Context::getCurrent()->getRequest()->isHttps() ? 'https://' . $domain : $domain;

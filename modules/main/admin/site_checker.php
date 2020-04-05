@@ -572,7 +572,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 			html = '<div style="font-size:1.2em;padding:20px">';
 			html += (r = obTestResult[id]) ? '<div style="border:1px solid #ccc;padding:10px;"><b><?=GetMessageJS("MAIN_SC_TEST_RESULT")?></b> ' + r + '</div><br>' : '';
 			html += (h = obHelp[id]) ? h : obHelp['notopic'];
-			html += '<br><br><?=CUtil::JSEscape(GetMessage('SC_READ_MORE_ANC'))?>'.replace('#LINK#', '/bitrix/admin/site_checker.php?lang=<?=LANGUAGE_ID?>&read_log=Y&anchor=' + id + '#' + id);
+			html += '<br><br><?=GetMessageJS('SC_READ_MORE_ANC')?>'.replace('#LINK#', '/bitrix/admin/site_checker.php?lang=<?=LANGUAGE_ID?>&read_log=Y&anchor=' + id + '#' + id);
 			html += '</div>';
 
 			var d = new BX.CAdminDialog({
@@ -627,7 +627,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 			catch(e)
 			{
 				console.log(e);
-				alert('<?=GetMessage("SC_TEST_FAIL")?>');
+				alert('<?=GetMessageJS("SC_TEST_FAIL")?>');
 			}
 		}
 
@@ -678,7 +678,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 			{
 				console.log(e);
 				strNextRequest = '';
-				strResult = '<span class="sc_error"><?=GetMessage("SC_TEST_FAIL")?></span>';
+				strResult = '<span class="sc_error"><?=GetMessageJS("SC_TEST_FAIL")?></span>';
 			}
 
 			if (document.getElementById('test_start').disabled) // Stop was not pressed
@@ -974,9 +974,9 @@ $tabControl->BeginNextTab();
 
 	</td>
 	</tr>
-<?flush();
-
-$tabControl->BeginNextTab();?>
+<?
+$tabControl->BeginNextTab();
+?>
 	<tr>
 		<td colspan="2"><?echo GetMessage("SC_SUBTITLE_DISK_DESC");?></td>
 	</tr>
@@ -1041,8 +1041,6 @@ $tabControl->BeginNextTab();?>
 		</td>
 	</tr>
 <?
-flush();
-
 $tabControl->BeginNextTab();
 
 if(!isset($strTicketError))

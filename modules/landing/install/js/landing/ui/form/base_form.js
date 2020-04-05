@@ -116,11 +116,14 @@
 			}, this)
 		},
 
-		clone: function()
+		clone: function(data)
 		{
-			var instance = new this.constructor(clone(this.data));
+			var instance = new this.constructor(clone(data || this.data));
 
 			this.fields.forEach(function(field) {
+				var newFieldData = clone(field.data);
+				delete newFieldData.content;
+				newFieldData.selector = instance.selector;
 				instance.addField(field.clone());
 			});
 

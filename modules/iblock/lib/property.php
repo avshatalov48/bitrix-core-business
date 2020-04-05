@@ -1,8 +1,8 @@
 <?php
 namespace Bitrix\Iblock;
 
-use Bitrix\Main;
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM,
+	Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
@@ -44,7 +44,7 @@ Loc::loadMessages(__FILE__);
  * @package Bitrix\Iblock
  **/
 
-class PropertyTable extends Main\Entity\DataManager
+class PropertyTable extends ORM\Data\DataManager
 {
 	const CHECKBOX = 'C';
 	const LISTBOX = 'L';
@@ -76,38 +76,38 @@ class PropertyTable extends Main\Entity\DataManager
 	public static function getMap()
 	{
 		return array(
-			'ID' => new Main\Entity\IntegerField('ID', array(
+			'ID' => new ORM\Fields\IntegerField('ID', array(
 				'primary' => true,
 				'autocomplete' => true,
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_ID_FIELD'),
 			)),
-			'TIMESTAMP_X' => new Main\Entity\DatetimeField('TIMESTAMP_X', array(
+			'TIMESTAMP_X' => new ORM\Fields\DatetimeField('TIMESTAMP_X', array(
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_TIMESTAMP_X_FIELD'),
 			)),
-			'IBLOCK_ID' => new Main\Entity\IntegerField('IBLOCK_ID', array(
+			'IBLOCK_ID' => new ORM\Fields\IntegerField('IBLOCK_ID', array(
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_IBLOCK_ID_FIELD'),
 			)),
-			'NAME' => new Main\Entity\StringField('NAME', array(
+			'NAME' => new ORM\Fields\StringField('NAME', array(
 				'validation' => array(__CLASS__, 'validateName'),
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_NAME_FIELD'),
 			)),
-			'ACTIVE' => new Main\Entity\BooleanField('ACTIVE', array(
+			'ACTIVE' => new ORM\Fields\BooleanField('ACTIVE', array(
 				'values' => array('N','Y'),
 				'default_value' => 'Y',
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_ACTIVE_FIELD'),
 			)),
-			'SORT' => new Main\Entity\IntegerField('SORT', array(
+			'SORT' => new ORM\Fields\IntegerField('SORT', array(
 				'default_value' => 500,
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_SORT_FIELD'),
 			)),
-			'CODE' => new Main\Entity\StringField('CODE', array(
+			'CODE' => new ORM\Fields\StringField('CODE', array(
 				'validation' => array(__CLASS__, 'validateCode'),
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_CODE_FIELD'),
 			)),
-			'DEFAULT_VALUE' => new Main\Entity\TextField('DEFAULT_VALUE', array(
+			'DEFAULT_VALUE' => new ORM\Fields\TextField('DEFAULT_VALUE', array(
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_DEFAULT_VALUE_FIELD'),
 			)),
-			'PROPERTY_TYPE' => new Main\Entity\EnumField('PROPERTY_TYPE', array(
+			'PROPERTY_TYPE' => new ORM\Fields\EnumField('PROPERTY_TYPE', array(
 				'values' => array(
 					self::TYPE_STRING,
 					self::TYPE_NUMBER,
@@ -119,85 +119,88 @@ class PropertyTable extends Main\Entity\DataManager
 				'default_value' => self::TYPE_STRING,
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_PROPERTY_TYPE_FIELD'),
 			)),
-			'ROW_COUNT' => new Main\Entity\IntegerField('ROW_COUNT', array(
+			'ROW_COUNT' => new ORM\Fields\IntegerField('ROW_COUNT', array(
 				'default_value' => 1,
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_ROW_COUNT_FIELD'),
 			)),
-			'COL_COUNT' => new Main\Entity\IntegerField('COL_COUNT', array(
+			'COL_COUNT' => new ORM\Fields\IntegerField('COL_COUNT', array(
 				'default_value' => 30,
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_COL_COUNT_FIELD'),
 			)),
-			'LIST_TYPE' => new Main\Entity\EnumField('LIST_TYPE', array(
+			'LIST_TYPE' => new ORM\Fields\EnumField('LIST_TYPE', array(
 				'values' => array(self::LISTBOX, self::CHECKBOX),
 				'default_value' => self::LISTBOX,
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_LIST_TYPE_FIELD'),
 			)),
-			'MULTIPLE' => new Main\Entity\BooleanField('MULTIPLE', array(
+			'MULTIPLE' => new ORM\Fields\BooleanField('MULTIPLE', array(
 				'values' => array('N','Y'),
 				'default_value' => 'N',
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_MULTIPLE_FIELD'),
 			)),
-			'XML_ID' => new Main\Entity\StringField('XML_ID', array(
+			'XML_ID' => new ORM\Fields\StringField('XML_ID', array(
 				'validation' => array(__CLASS__, 'validateXmlId'),
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_XML_ID_FIELD'),
 			)),
-			'FILE_TYPE' => new Main\Entity\StringField('FILE_TYPE', array(
+			'FILE_TYPE' => new ORM\Fields\StringField('FILE_TYPE', array(
 				'validation' => array(__CLASS__, 'validateFileType'),
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_FILE_TYPE_FIELD'),
 			)),
-			'MULTIPLE_CNT' => new Main\Entity\IntegerField('MULTIPLE_CNT', array(
+			'MULTIPLE_CNT' => new ORM\Fields\IntegerField('MULTIPLE_CNT', array(
 				'default_value' => self::DEFAULT_MULTIPLE_CNT,
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_MULTIPLE_CNT_FIELD'),
 			)),
-			'TMP_ID' => new Main\Entity\StringField('TMP_ID', array(
+			'TMP_ID' => new ORM\Fields\StringField('TMP_ID', array(
 				'validation' => array(__CLASS__, 'validateTmpId'),
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_TMP_ID_FIELD'),
 			)),
-			'LINK_IBLOCK_ID' => new Main\Entity\IntegerField('LINK_IBLOCK_ID', array(
+			'LINK_IBLOCK_ID' => new ORM\Fields\IntegerField('LINK_IBLOCK_ID', array(
 				'default_value' => 0,
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_LINK_IBLOCK_ID_FIELD'),
 			)),
-			'WITH_DESCRIPTION' => new Main\Entity\BooleanField('WITH_DESCRIPTION', array(
+			'WITH_DESCRIPTION' => new ORM\Fields\BooleanField('WITH_DESCRIPTION', array(
 				'values' => array('N','Y'),
 				'default_value' => 'N',
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_WITH_DESCRIPTION_FIELD'),
 			)),
-			'SEARCHABLE' => new Main\Entity\BooleanField('SEARCHABLE', array(
+			'SEARCHABLE' => new ORM\Fields\BooleanField('SEARCHABLE', array(
 				'values' => array('N','Y'),
 				'default_value' => 'N',
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_SEARCHABLE_FIELD'),
 			)),
-			'FILTRABLE' => new Main\Entity\BooleanField('FILTRABLE', array(
+			'FILTRABLE' => new ORM\Fields\BooleanField('FILTRABLE', array(
 				'values' => array('N','Y'),
 				'default_value' => 'N',
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_FILTRABLE_FIELD'),
 			)),
-			'IS_REQUIRED' => new Main\Entity\BooleanField('IS_REQUIRED', array(
+			'IS_REQUIRED' => new ORM\Fields\BooleanField('IS_REQUIRED', array(
 				'values' => array('N','Y'),
 				'default_value' => 'N',
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_IS_REQUIRED_FIELD'),
 			)),
-			'VERSION' => new Main\Entity\EnumField('VERSION', array(
+			'VERSION' => new ORM\Fields\EnumField('VERSION', array(
 				'values' => array(1, 2),
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_VERSION_FIELD'),
 			)),
-			'USER_TYPE' => new Main\Entity\StringField('USER_TYPE', array(
+			'USER_TYPE' => new ORM\Fields\StringField('USER_TYPE', array(
 				'validation' => array(__CLASS__, 'validateUserType'),
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_USER_TYPE_FIELD'),
 			)),
-			'USER_TYPE_SETTINGS' => new Main\Entity\TextField('USER_TYPE_SETTINGS', array(
-				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_USER_TYPE_SETTINGS_FIELD'),
+			'USER_TYPE_SETTINGS_LIST' => new ORM\Fields\TextField('USER_TYPE_SETTINGS_LIST', array(
+				'serialized' => true,
+				'column_name' => 'USER_TYPE_SETTINGS',
+				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_USER_TYPE_SETTINGS_FIELD')
 			)),
-			'HINT' => new Main\Entity\StringField('HINT', array(
+			'USER_TYPE_SETTINGS' => new ORM\Fields\TextField('USER_TYPE_SETTINGS', array()),
+			'HINT' => new ORM\Fields\StringField('HINT', array(
 				'validation' => array(__CLASS__, 'validateHint'),
 				'title' => Loc::getMessage('IBLOCK_PROPERTY_ENTITY_HINT_FIELD'),
 			)),
-			'LINK_IBLOCK' => new Main\Entity\ReferenceField(
+			'LINK_IBLOCK' => new ORM\Fields\Relations\Reference(
 				'LINK_IBLOCK',
 				'\Bitrix\Iblock\Iblock',
 				array('=this.LINK_IBLOCK_ID' => 'ref.ID')
 			),
-			'IBLOCK' => new Main\Entity\ReferenceField(
+			'IBLOCK' => new ORM\Fields\Relations\Reference(
 				'IBLOCK',
 				'\Bitrix\Iblock\Iblock',
 				array('=this.IBLOCK_ID' => 'ref.ID')
@@ -213,7 +216,7 @@ class PropertyTable extends Main\Entity\DataManager
 	public static function validateName()
 	{
 		return array(
-			new Main\Entity\Validator\Length(null, 255),
+			new ORM\Fields\Validators\LengthValidator(null, 255),
 		);
 	}
 
@@ -225,7 +228,7 @@ class PropertyTable extends Main\Entity\DataManager
 	public static function validateCode()
 	{
 		return array(
-			new Main\Entity\Validator\Length(null, 50),
+			new ORM\Fields\Validators\LengthValidator(null, 50),
 		);
 	}
 
@@ -237,7 +240,7 @@ class PropertyTable extends Main\Entity\DataManager
 	public static function validateXmlId()
 	{
 		return array(
-			new Main\Entity\Validator\Length(null, 100),
+			new ORM\Fields\Validators\LengthValidator(null, 100),
 		);
 	}
 
@@ -249,7 +252,7 @@ class PropertyTable extends Main\Entity\DataManager
 	public static function validateFileType()
 	{
 		return array(
-			new Main\Entity\Validator\Length(null, 200),
+			new ORM\Fields\Validators\LengthValidator(null, 200),
 		);
 	}
 
@@ -261,7 +264,7 @@ class PropertyTable extends Main\Entity\DataManager
 	public static function validateTmpId()
 	{
 		return array(
-			new Main\Entity\Validator\Length(null, 40),
+			new ORM\Fields\Validators\LengthValidator(null, 40),
 		);
 	}
 
@@ -273,7 +276,7 @@ class PropertyTable extends Main\Entity\DataManager
 	public static function validateUserType()
 	{
 		return array(
-			new Main\Entity\Validator\Length(null, 255),
+			new ORM\Fields\Validators\LengthValidator(null, 255),
 		);
 	}
 
@@ -285,7 +288,71 @@ class PropertyTable extends Main\Entity\DataManager
 	public static function validateHint()
 	{
 		return array(
-			new Main\Entity\Validator\Length(null, 255),
+			new ORM\Fields\Validators\LengthValidator(null, 255),
 		);
+	}
+
+	/**
+	 * Default onBeforeAdd handler. Absolutely necessary.
+	 *
+	 * @param ORM\Event $event		Event object.
+	 * @return ORM\EventResult
+	 */
+	public static function onBeforeAdd(ORM\Event $event)
+	{
+		$result = new ORM\EventResult;
+		$fields = $event->getParameter('fields');
+
+		$modifyFieldList = [];
+		self::copyOldFields($modifyFieldList, $fields);
+		$result->unsetField('USER_TYPE_SETTINGS');
+
+		if (!empty($modifyFieldList))
+			$result->modifyFields($modifyFieldList);
+		unset($modifyFieldList);
+		unset($fields);
+
+		return $result;
+	}
+
+	/**
+	 * Default onBeforeUpdate handler. Absolutely necessary.
+	 *
+	 * @param ORM\Event $event		Event object.
+	 * @return ORM\EventResult
+	 */
+	public static function onBeforeUpdate(ORM\Event $event)
+	{
+		$result = new ORM\EventResult;
+		$fields = $event->getParameter('fields');
+
+		$modifyFieldList = [];
+		self::copyOldFields($modifyFieldList, $fields);
+		$result->unsetField('USER_TYPE_SETTINGS');
+
+		if (!empty($modifyFieldList))
+			$result->modifyFields($modifyFieldList);
+		unset($modifyFieldList);
+		unset($fields);
+
+		return $result;
+	}
+
+	/**
+	 * Remove values from old fields (for compatibility with old api).
+	 *
+	 * @param array &$result			Modified data for add/update property.
+	 * @param array $data				Current data for add/update property.
+	 * @return void
+	 */
+	private static function copyOldFields(&$result, $data)
+	{
+		if (!isset($data['USER_TYPE_SETTINGS_LIST']) && isset($data['USER_TYPE_SETTINGS']))
+		{
+			$result['USER_TYPE_SETTINGS_LIST'] = (is_array($data['USER_TYPE_SETTINGS'])
+				? $data['USER_TYPE_SETTINGS']
+				: unserialize($data['USER_TYPE_SETTINGS'])
+			);
+		}
 	}
 }

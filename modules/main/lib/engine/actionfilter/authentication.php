@@ -4,6 +4,7 @@
 namespace Bitrix\Main\Engine\ActionFilter;
 
 
+use Bitrix\Main\Context;
 use Bitrix\Main\Error;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
@@ -30,7 +31,8 @@ final class Authentication extends Base
 
 		if (!($USER instanceof \CAllUser) || !$USER->getId())
 		{
-			if ($this->enableRedirect)
+			$isAjax = $this->getAction()->getController()->getRequest()->getHeader('BX-Ajax');
+			if ($this->enableRedirect && !$isAjax)
 			{
 				LocalRedirect(
 					SITE_DIR .
@@ -41,6 +43,7 @@ final class Authentication extends Base
 				return new EventResult(EventResult::ERROR, null, null, $this);
 			}
 
+			Context::getCurrent()->getResponse()->setStatus(401);
 			$this->errorCollection[] = new Error(Loc::getMessage("MAIN_ENGINE_FILTER_AUTHENTICATION_ERROR"), self::ERROR_INVALID_AUTHENTICATION);
 
 			return new EventResult(EventResult::ERROR, null, null, $this);

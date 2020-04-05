@@ -442,16 +442,6 @@ input[type=number].main-ui-number-input::-webkit-outer-spin-button {
 	outline: none;
 }
 
-
-.main-ui-control.main-ui-custom.main-ui-custom-style {
-	line-height: 36px;
-}
-
-.main-ui-control.main-ui-custom.main-ui-custom-style * {
-	display: inline-block;
-	line-height: normal;
-}
-
 .main-ui-item-icon-block .main-ui-item-icon.main-ui-search,
 .main-ui-item-icon-block  .main-ui-item-icon.main-ui-delete {
 	-webkit-transition: all 150ms;

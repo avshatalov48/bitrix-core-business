@@ -195,7 +195,7 @@ if ($arResult["EVENT"])
 						<span class="event-list-item-createdby">
 							<a href="<?=CComponentEngine::MakePathFromTemplate($arParams["USER_PATH"], array("user_id" => $arEvent["user"]["id"], "SITE_ID" => SITE_DIR))?>"><?=$arEvent["user"]["name"];?></a>
 						</span>
-						<span class="event-list-item-title"><?=htmlspecialcharsbx($arEvent["pageURL"])?></span>
+						<span class="event-list-item-title"><?=$arEvent["pageURL"]?></span>
 					</div>
 					<div class="event-list-item-content">
 						<div class=" event-list-message-show">

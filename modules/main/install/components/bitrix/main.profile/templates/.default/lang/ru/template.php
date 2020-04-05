@@ -80,4 +80,7 @@ $MESS["main_profile_time_zones_zones"] = "Часовой пояс:";
 $MESS["AUTH_SECURE_NOTE"] = "Перед отправкой формы пароль будет зашифрован в браузере. Это позволит избежать передачи пароля в открытом виде.";
 $MESS["AUTH_NONSECURE_NOTE"] = "Пароль будет отправлен в открытом виде. Включите JavaScript в браузере, чтобы зашифровать пароль перед отправкой.";
 $MESS["main_profile_title"] = "Обращение:";
+$MESS["main_profile_code"] = "Код подтверждения из СМС:";
+$MESS["main_profile_send"] = "Отправить";
+$MESS["main_profile_phone_number"] = "Номер телефона для регистрации:";
 ?>

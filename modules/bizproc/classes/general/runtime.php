@@ -1,11 +1,21 @@
 <?
 IncludeModuleLangFile(__FILE__);
 
+use \Bitrix\Main;
+use \Bitrix\Bizproc;
 use \Bitrix\Bizproc\RestActivityTable;
 
-/**
-* Workflow runtime.
-*/
+ /**
+ * Workflow runtime.
+ *
+ * @method \CBPSchedulerService getSchedulerService()
+ * @method \CBPStateService getStateService()
+ * @method \CBPTrackingService getTrackingService()
+ * @method \CBPTaskService getTaskService()
+ * @method \CBPHistoryService getHistoryService()
+ * @method \CBPDocumentService getDocumentService()
+ * @method Bizproc\Service\Analytics getAnalyticsService()
+ */
 class CBPRuntime
 {
 	const EXCEPTION_CODE_INSTANCE_NOT_FOUND = 404;
@@ -14,23 +24,17 @@ class CBPRuntime
 	const REST_ACTIVITY_PREFIX = 'rest_';
 
 	private $isStarted = false;
+	/** @var CBPRuntime $instance*/
 	private static $instance;
-	private static $featuresCache = array();
+	private static $featuresCache = [];
 
-	private $arServices = array(
-		"SchedulerService" => null,
-		"StateService" => null,
-		"TrackingService" => null,
-		"TaskService" => null,
-		"HistoryService" => null,
-		"DocumentService" => null,
-	);
-	private $arWorkflows = array();
+	private $arServices = [];
+	private $arWorkflows = [];
 
-	private $arLoadedActivities = array();
+	private $arLoadedActivities = [];
 
-	private $arActivityFolders = array();
-	private $workflowChains = array();
+	private $arActivityFolders = [];
+	private $workflowChains = [];
 
 	/*********************  SINGLETON PATTERN  **************************************************/
 
@@ -49,10 +53,12 @@ class CBPRuntime
 			"TaskService" => null,
 			"HistoryService" => null,
 			"DocumentService" => null,
+			"AnalyticsService" => null,
 		);
 		$this->arLoadedActivities = array();
 		$this->arActivityFolders = array(
 			$_SERVER["DOCUMENT_ROOT"]."/local/activities",
+			$_SERVER["DOCUMENT_ROOT"]."/local/activities/custom",
 			$_SERVER["DOCUMENT_ROOT"].BX_ROOT."/activities/custom",
 			$_SERVER["DOCUMENT_ROOT"].BX_ROOT."/activities/bitrix",
 			$_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/bizproc/activities",
@@ -72,16 +78,22 @@ class CBPRuntime
 	}
 
 	/**
-	* Static method returns runtime object. Singleton pattern.
-	*
-	* @return CBPRuntime
-	*/
-	public static function GetRuntime()
+	 * Static method returns runtime object. Singleton pattern.
+	 *
+	 * @param bool $autoStart Starts runtime.
+	 * @return CBPRuntime
+	 */
+	public static function GetRuntime($autoStart = false)
 	{
 		if (!isset(self::$instance))
 		{
 			$c = __CLASS__;
 			self::$instance = new $c;
+		}
+
+		if ($autoStart)
+		{
+			self::$instance->StartRuntime();
 		}
 
 		return self::$instance;
@@ -90,6 +102,16 @@ class CBPRuntime
 	public function __clone()
 	{
 		trigger_error('Clone in not allowed.', E_USER_ERROR);
+	}
+
+	public function __call($name, $arguments)
+	{
+		if (preg_match('|^get([a-z]+)service$|i', $name, $matches))
+		{
+			return $this->GetService($matches[1]. 'Service');
+		}
+
+		throw new Main\SystemException("Unknown method `{$name}`");
 	}
 
 	/**
@@ -124,21 +146,39 @@ class CBPRuntime
 		if ($this->isStarted)
 			return;
 
-		if ($this->arServices["SchedulerService"] == null)
+		if (!$this->arServices["SchedulerService"])
+		{
 			$this->arServices["SchedulerService"] = new CBPSchedulerService();
-		if ($this->arServices["StateService"] == null)
+		}
+		if (!$this->arServices["StateService"])
+		{
 			$this->arServices["StateService"] = new CBPStateService();
-		if ($this->arServices["TrackingService"] == null)
+		}
+		if (!$this->arServices["TrackingService"])
+		{
 			$this->arServices["TrackingService"] = new CBPTrackingService();
-		if ($this->arServices["TaskService"] == null)
+		}
+		if (!$this->arServices["TaskService"])
+		{
 			$this->arServices["TaskService"] = new CBPTaskService();
-		if ($this->arServices["HistoryService"] == null)
+		}
+		if (!$this->arServices["HistoryService"])
+		{
 			$this->arServices["HistoryService"] = new CBPHistoryService();
-		if ($this->arServices["DocumentService"] == null)
+		}
+		if (!$this->arServices["DocumentService"])
+		{
 			$this->arServices["DocumentService"] = new CBPDocumentService();
+		}
+		if (!$this->arServices["AnalyticsService"])
+		{
+			$this->arServices["AnalyticsService"] = new Bizproc\Service\Analytics();
+		}
 
 		foreach ($this->arServices as $serviceId => $service)
-			$service->Start($this);
+		{
+			$service->start($this);
+		}
 
 		$this->isStarted = true;
 	}
@@ -157,7 +197,9 @@ class CBPRuntime
 			$workflow->OnRuntimeStopped();
 
 		foreach ($this->arServices as $serviceId => $service)
-			$service->Stop();
+		{
+			$service->stop();
+		}
 
 		$this->isStarted = false;
 	}
@@ -168,7 +210,7 @@ class CBPRuntime
 	 * Creates new workflow instance from the specified template.
 	 *
 	 * @param int $workflowTemplateId - ID of the workflow template
-	 * @param string $documentId - ID of the document
+	 * @param array $documentId - ID of the document
 	 * @param mixed $workflowParameters - Optional parameters of the created workflow instance
 	 * @param array|null $parentWorkflow - Parent Workflow information.
 	 * @return CBPWorkflow
@@ -218,15 +260,19 @@ class CBPRuntime
 		//	throw new Exception("RootActivityIsNotAIBPRootActivity");
 
 		foreach(GetModuleEvents("bizproc", "OnCreateWorkflow", true)  as $arEvent)
-			ExecuteModuleEventEx($arEvent, array($workflowTemplateId, $documentId, &$workflowParameters));
+		{
+			ExecuteModuleEventEx($arEvent, [$workflowTemplateId, $documentId, &$workflowParameters, $workflowId]);
+		}
 
 		$workflow->Initialize($rootActivity, $arDocumentId, $workflowParameters, $workflowVariablesTypes, $workflowParametersTypes, $workflowTemplateId);
 
 		$starterUserId = 0;
 		if (isset($workflowParameters[CBPDocument::PARAM_TAGRET_USER]))
+		{
 			$starterUserId = intval(substr($workflowParameters[CBPDocument::PARAM_TAGRET_USER], strlen("user_")));
+		}
 
-		$this->arServices["StateService"]->AddWorkflow($workflowId, $workflowTemplateId, $arDocumentId, $starterUserId);
+		$this->GetService("StateService")->AddWorkflow($workflowId, $workflowTemplateId, $arDocumentId, $starterUserId);
 
 		$this->arWorkflows[$workflowId] = $workflow;
 		return $workflow;
@@ -266,7 +312,11 @@ class CBPRuntime
 
 	public function onWorkflowStatusChanged($workflowId, $status)
 	{
-		if ($status === \CBPWorkflowStatus::Completed || $status === \CBPWorkflowStatus::Terminated)
+		if (
+			$status === \CBPWorkflowStatus::Completed ||
+			$status === \CBPWorkflowStatus::Terminated ||
+			$status === \CBPWorkflowStatus::Suspended
+		)
 		{
 			unset($this->arWorkflows[$workflowId]);
 		}
@@ -278,12 +328,14 @@ class CBPRuntime
 	* Returns service instance by its code.
 	* 
 	* @param mixed $name - Service code.
-	* @return mixed|CBPSchedulerService|CBPStateService|CBPTrackingService|CBPTaskService|CBPHistoryService|CBPDocumentService - Service instance or null if service is not found.
+	* @return mixed|CBPSchedulerService|CBPStateService|CBPTrackingService|CBPTaskService|CBPHistoryService|CBPDocumentService|Bizproc\Service\Analytics - Service instance or null if service is not found.
 	*/
 	public function GetService($name)
 	{
 		if (array_key_exists($name, $this->arServices))
+		{
 			return $this->arServices[$name];
+		}
 
 		return null;
 	}
@@ -447,6 +499,7 @@ class CBPRuntime
 
 	private function LoadActivityLocalization($path, $file, $lang = false)
 	{
+		/*
 		global $MESS;
 
 		if ($lang === false)
@@ -460,6 +513,8 @@ class CBPRuntime
 			include($p);
 		elseif (file_exists($pe) && is_file($pe))
 			include($pe);
+		*/
+		\Bitrix\Main\Localization\Loc::loadLanguageFile($path. '/'. $file);
 	}
 
 	public function GetResourceFilePath($activityPath, $filePath)

@@ -3,10 +3,12 @@
 function CalendarPlanner(params, initialUpdateParams)
 {
 	if (!params)
+	{
 		params = {};
+	}
 	this.config = params;
 	this.id = params.id;
-	this.userId = params.userId;
+	this.userId = params.userId || BX.message('USER_ID');
 	this.shown = false;
 	this.built = false;
 	this.dayLength = 86400000;
@@ -17,6 +19,7 @@ function CalendarPlanner(params, initialUpdateParams)
 	this.expandTimelineDelay = 600;
 	this.limitScaleSizeMode = false;
 	this.globalAnimation = true;
+	this.checkTimeCache = {};
 
 	this.DATE_FORMAT = BX.date.convertBitrixFormat(BX.message("FORMAT_DATE"));
 	this.DATETIME_FORMAT = BX.date.convertBitrixFormat(BX.message("FORMAT_DATETIME"));
@@ -265,7 +268,7 @@ CalendarPlanner.prototype =
 		this.maxTimelineSize = parseInt(params.maxTimelineSize) || this.maxTimelineSize || 20;
 
 		this.minEntryRows = parseInt(params.minEntryRows) || this.minEntryRows || 3;
-		this.maxEntryRows = parseInt(params.maxEntryRows) || this.maxEntryRows || 10;
+		this.maxEntryRows = parseInt(params.maxEntryRows) || this.maxEntryRows || 30;
 
 		this.width = parseInt(params.width) || this.width || 700;
 		this.height = parseInt(params.height) || this.height || 84;
@@ -290,10 +293,10 @@ CalendarPlanner.prototype =
 		this.showEntiesHeader = params.showEntiesHeader === undefined ? true : !!params.showEntiesHeader;
 		this.showEntryName = params.showEntryName === undefined ? true : !!params.showEntryName;
 
-		if (this.scaleType == '1day' && this.timelineCellWidth < 90)
+		if (this.scaleType == '1day' && this.timelineCellWidth < 100)
 		{
 			this.timelineCellWidthOrig = this.timelineCellWidth;
-			this.timelineCellWidth = 90;
+			this.timelineCellWidth = 100;
 		}
 		else if(this.timelineCellWidthOrig && this.scaleType != '1day')
 		{
@@ -662,6 +665,7 @@ CalendarPlanner.prototype =
 		if (!params || typeof params != 'object')
 			params = {};
 
+
 		this.BuildTimeline();
 		this.ClearAccessibilityData();
 		this.UpdateData({accessibility: this.accessibility, entries: this.entries});
@@ -672,6 +676,7 @@ CalendarPlanner.prototype =
 		{
 			this.UpdateSelector(params.selectorParams || false);
 		}
+		this.clearCacheTime();
 	},
 
 	GetScaleData: function()
@@ -733,7 +738,7 @@ CalendarPlanner.prototype =
 		this.accessibility = params.accessibility;
 		this.entries = params.entries;
 
-		var i, k, entry, acc;
+		var i, k, entry, acc, userId = this.userId;
 		// Compact mode
 		if (this.compactMode)
 		{
@@ -768,20 +773,21 @@ CalendarPlanner.prototype =
 			// Enties without accessibilitity data should be in the end of the array
 			// But first in the list will be meeting room
 			// And second (or first) will be owner-host of the event
+
 			if (params.entries && params.entries.length)
 			{
-				//params.entries.sort(function(a, b)
-				//{
-				//	if (a.type == 'room' || (a.status == 'h' && b.type !== 'room'))
-				//		return -1;
-				//	if (b.type == 'room' || (b.status == 'h' && a.type !== 'room'))
-				//		return 1;
-				//
-				//	var
-				//		l1 = params.accessibility[a.id] ? params.accessibility[a.id].length : 0,
-				//		l2 = params.accessibility[b.id] ? params.accessibility[b.id].length : 0;
-				//	return l2 - l1;
-				//});
+				params.entries.sort(function(a, b)
+				{
+					if (b.status === 'h' || b.id == userId && a.status !== 'h')
+					{
+						return 1;
+					}
+					if (a.status === 'h' || a.id == userId && b.status !== 'h')
+					{
+						return  -1;
+					}
+					return 0;
+				});
 
 				if (this.selectedEntriesWrap)
 				{
@@ -1064,11 +1070,14 @@ CalendarPlanner.prototype =
 
 			if (entry.avatar)
 			{
-				entry.rowWrap.id = 'anchor_pl_' + entry.id;
 				entry.rowWrap.appendChild(BX.create("img", {
 					props: {
 						className: 'calendar-planner-user-image-icon',
 						src: entry.avatar
+					},
+					attrs: {
+						'bx-tooltip-user-id': entry.id,
+						'bx-tooltip-classname': 'calendar-planner-user-tooltip'
 					}
 				}));
 			}
@@ -1079,9 +1088,11 @@ CalendarPlanner.prototype =
 					BX.create("span", {props: {className: 'calendar-planner-user-name'}})).appendChild(
 					BX.create("span", {
 							props: {
-								//id: 'anchor_pl_' + entry.id,
-								//href: entry.url ? entry.url : '#',
 								className: 'calendar-planner-entry-name'
+							},
+							attrs: {
+								'bx-tooltip-user-id': entry.id,
+								'bx-tooltip-classname': 'calendar-planner-user-tooltip'
 							},
 							style: {
 								width: (this.entriesListWidth - 42) + 'px'
@@ -1089,8 +1100,6 @@ CalendarPlanner.prototype =
 							text: entry.name
 					}));
 			}
-
-			BX.tooltip(entry.id, "anchor_pl_" + entry.id, "", null, null, {zIndex: 10000});
 		}
 		else if (entry.id && entry.type == 'room')
 		{
@@ -1219,6 +1228,8 @@ CalendarPlanner.prototype =
 
 			BX.addClass(entry.selectorControlWrap, 'active');
 			entry.selected = true;
+
+			this.clearCacheTime();
 		}
 	},
 
@@ -1240,6 +1251,7 @@ CalendarPlanner.prototype =
 				BX.removeClass(entry.selectorControlWrap, 'active');
 			}
 			entry.selected = false;
+			this.clearCacheTime();
 		}
 	},
 
@@ -1480,7 +1492,7 @@ CalendarPlanner.prototype =
 			}
 		}
 
-		this.CheckSelectorStatus(this.selectorRoundedPos);
+		this.CheckSelectorStatus(this.selectorRoundedPos, true);
 	},
 
 	EndMovingSelector: function()
@@ -1608,7 +1620,7 @@ CalendarPlanner.prototype =
 			}
 		}
 
-		this.CheckSelectorStatus(this.selectorStartLeft);
+		this.CheckSelectorStatus(this.selectorStartLeft, true);
 	},
 
 	EndResizeSelector: function()
@@ -1634,8 +1646,10 @@ CalendarPlanner.prototype =
 		this.selectorIsResized = false;
 	},
 
-	CheckSelectorStatus: function(selectorPos)
+	CheckSelectorStatus: function(selectorPos, checkPosition)
 	{
+		checkPosition = checkPosition === true;
+
 		if (this.config.useSolidBlueSelector)
 		{
 			BX.removeClass(this.selector.wrap, 'calendar-planner-timeline-selector-warning');
@@ -1650,12 +1664,35 @@ CalendarPlanner.prototype =
 			}
 
 			var
-				i,periodIsFree, fromDateI, toDateI,
-				selectorWidth = parseInt(this.selector.wrap.style.width),
-				fromPos = parseInt(selectorPos),
-				toPos = fromPos + selectorWidth,
-				fromDate = this.GetDateByPos(fromPos),
-				toDate = this.GetDateByPos(toPos, true);
+				fromDate,toDate,
+				i,periodIsFree, fromDateI, toDateI;
+
+			if (checkPosition || !this.currentSelectorDateFrom)
+			{
+				var
+					selectorWidth = parseInt(this.selector.wrap.style.width),
+					fromPos = parseInt(selectorPos),
+					toPos = fromPos + selectorWidth;
+
+				if (!fromPos && !toPos && !selectorWidth && this.selector.lastFromDate)
+				{
+					fromDate = this.selector.lastFromDate;
+					toDate = this.selector.lastToDate;
+				}
+				else
+				{
+					fromDate = this.GetDateByPos(fromPos);
+					toDate = this.GetDateByPos(toPos, true);
+					this.selector.lastFromDate = fromDate;
+					this.selector.lastToDate = toDate;
+				}
+			}
+			else
+			{
+				fromDate = this.currentSelectorDateFrom;
+				toDate = this.currentSelectorDateTo;
+				//this.currentSelectorFullDay = fullDay;
+			}
 
 			if (fromDate && toDate)
 			{
@@ -1675,7 +1712,9 @@ CalendarPlanner.prototype =
 
 						periodIsFree = this.checkTimePeriod(fromDateI, toDateI) === true;
 						if (!periodIsFree)
+						{
 							break;
+						}
 					}
 				}
 
@@ -1846,6 +1885,11 @@ CalendarPlanner.prototype =
 
 		if (fromX != toX)
 		{
+			if (this.animation)
+			{
+				this.animation.stop();
+			}
+
 			this.animation = new BX.easing({
 				duration: 300,
 				start: {left: fromX},
@@ -1860,8 +1904,9 @@ CalendarPlanner.prototype =
 				complete: BX.proxy(function ()
 				{
 					this.animation = null;
-					var fromPos = parseInt(this.selector.wrap.style.left);
-					var checkedPos = this.CheckSelectorPosition(fromPos);
+					var
+						fromPos = parseInt(this.selector.wrap.style.left),
+						checkedPos = this.CheckSelectorPosition(fromPos);
 
 					if (checkedPos !== fromPos)
 					{
@@ -1882,7 +1927,7 @@ CalendarPlanner.prototype =
 						this.ShowSelector({
 							dateFrom: this.currentSelectorDateFrom,
 							dateTo: this.currentSelectorDateTo,
-							animation: true,
+							animation: false,
 							focus: focus === true
 						});
 					},this), 200);
@@ -2329,10 +2374,10 @@ CalendarPlanner.prototype =
 		this.scaleType = scaleType;
 		this.scaleSize = this.GetScaleSize(scaleType);
 
-		if (this.scaleType == '1day' && this.timelineCellWidth < 90)
+		if (this.scaleType == '1day' && this.timelineCellWidth < 100)
 		{
 			this.timelineCellWidthOrig = this.timelineCellWidth;
-			this.timelineCellWidth = 90;
+			this.timelineCellWidth = 100;
 		}
 		else if(this.timelineCellWidthOrig && this.scaleType != '1day')
 		{
@@ -2613,11 +2658,7 @@ CalendarPlanner.prototype =
 
 	ResizePlannerWidth: function(width, animation)
 	{
-		if (animation)
-		{
-
-		}
-		else
+		if (!animation && this.outerWrap && this.mainContWrap)
 		{
 			this.outerWrap.style.width = width + 'px';
 			var entriesListWidth = this.compactMode ? 0 : this.entriesListWidth;
@@ -3176,6 +3217,7 @@ CalendarPlanner.prototype =
 			result = true, entry,
 			fromTimestamp = fromDate.getTime(),
 			toTimestamp = toDate.getTime(),
+			cacheKey = fromTimestamp + '_' + toTimestamp,
 			accuracy = 60 * 1000, // 1min
 			item, i;
 
@@ -3184,7 +3226,7 @@ CalendarPlanner.prototype =
 			for (i = 0; i < data.length; i++)
 			{
 				item = data[i];
-				if (item.type && item.type == 'hr')
+				if (item.type && item.type === 'hr')
 					continue;
 
 				if ((item.fromTimestamp + accuracy) <= toTimestamp && ((item.toTimestampReal || item.toTimestamp) - accuracy) >= fromTimestamp)
@@ -3201,62 +3243,75 @@ CalendarPlanner.prototype =
 				selectorAccuracy = this.selectorAccuracy * 1000,
 				entryId;
 
-			for (entryId in this.accessibility)
+			if (this.checkTimeCache[cacheKey] !== undefined)
 			{
-				if (this.accessibility.hasOwnProperty(entryId))
+				result = this.checkTimeCache[cacheKey];
+			}
+			else
+			{
+				for (entryId in this.accessibility)
 				{
-					if (this.selectMode)
+					if (this.accessibility.hasOwnProperty(entryId))
 					{
-						entry = this.entries.find(function(el){return el.id == entryId;});
-						if (entry && !entry.selected)
+						if (this.selectMode)
 						{
-							continue;
-						}
-					}
-
-					entriesAccessibleIndex[entryId] = true;
-					if (BX.type.isArray(this.accessibility[entryId]))
-					{
-						for (i = 0; i < this.accessibility[entryId].length; i++)
-						{
-							item = this.accessibility[entryId][i];
-							if (item.type && item.type == 'hr')
+							entry = this.entries.find(function(el){return el.id == entryId;});
+							if (entry && !entry.selected)
 							{
 								continue;
 							}
+						}
 
-
-							if ((item.fromTimestamp + selectorAccuracy) <= toTimestamp && ((item.toTimestampReal || item.toTimestamp) - selectorAccuracy) >= fromTimestamp)
+						entriesAccessibleIndex[entryId] = true;
+						if (BX.type.isArray(this.accessibility[entryId]))
+						{
+							for (i = 0; i < this.accessibility[entryId].length; i++)
 							{
-								entriesAccessibleIndex[entryId] = false;
-								result = item;
-								break;
+								item = this.accessibility[entryId][i];
+								if (item.type && item.type === 'hr')
+								{
+									continue;
+								}
+
+								if ((item.fromTimestamp + selectorAccuracy) <= toTimestamp && ((item.toTimestampReal || item.toTimestamp) - selectorAccuracy) >= fromTimestamp)
+								{
+									entriesAccessibleIndex[entryId] = false;
+									result = item;
+									break;
+								}
 							}
 						}
 					}
 				}
-			}
 
-			for (i = 0; i < this.entries.length; i++)
-			{
-				if (entriesAccessibleIndex[this.entries[i].id] !== undefined)
+				for (i = 0; i < this.entries.length; i++)
 				{
-					this.entries[i].currentStatus = !!entriesAccessibleIndex[this.entries[i].id];
+					if (entriesAccessibleIndex[this.entries[i].id] !== undefined)
+					{
+						this.entries[i].currentStatus = !!entriesAccessibleIndex[this.entries[i].id];
+					}
+					else
+					{
+						this.entries[i].currentStatus = true;
+					}
 				}
-				else
-				{
-					this.entries[i].currentStatus = true;
-				}
+
+				this.checkTimeCache[cacheKey] = result;
 			}
 		}
 
 		return result;
 	},
 
+	clearCacheTime: function()
+	{
+		this.checkTimeCache = {};
+	},
+
 	checkEntryTimePeriod: function(entry, fromDate, toDate)
 	{
 		var data = [], i;
-		if (BX.type.isArray(this.accessibility[entry.id]))
+		if (entry && entry.id && BX.type.isArray(this.accessibility[entry.id]))
 		{
 			for (i = 0; i < this.accessibility[entry.id].length; i++)
 			{

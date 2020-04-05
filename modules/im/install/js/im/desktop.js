@@ -132,8 +132,6 @@
 				this.setIconStatus('offline');
 				this.login(function(){
 					console.log('DESKTOP LOGIN: success after PullError');
-					BX.PULL.setPrivateVar('_pullTryConnect', true);
-					BX.PULL.updateState('13', true);
 				});
 			}
 			else if (error == 'RECONNECT')
@@ -216,8 +214,7 @@
 	{
 		this.setWindowMinSize({ Width: 864, Height: 493 });
 		this.setWindowSize({ Width: 864, Height: 493 });
-		this.setWindowResizable(false);
-		this.setWindowTitle(BX.message('BXD_DEFAULT_TITLE').replace('#VERSION#', this.getApiVersion(true)))
+		this.setWindowTitle(BX.message('BXD_DEFAULT_TITLE').replace('#VERSION#', this.getApiVersion(true)));
 
 		var updateContent = BX.create("div", { props : { className : "bx-desktop-update-box" }, children : [
 			BX.create("div", { props : { className : "bx-desktop-update-box-text" }, html: BX.message('BXD_NEED_UPDATE')}),
@@ -446,6 +443,10 @@
 			}
 			mainWindow.BXDesktopWindow.DispatchCustomEvent(eventName, objEventParams);
 		}
+		if(typeof(windowTarget) === "object" && windowTarget.hasOwnProperty("BXDesktopWindow"))
+		{
+			windowTarget.BXDesktopWindow.DispatchCustomEvent(eventName, objEventParams);
+		}
 		else
 		{
 			if (windowTarget = this.findWindow(windowTarget))
@@ -471,7 +472,7 @@
 		{
 			for (var i = 0; i < mainWindow.BXWindows.length; i++)
 			{
-				if (mainWindow.BXWindows[i].name === name)
+				if (mainWindow.BXWindows[i] && mainWindow.BXWindows[i].name === name)
 					return mainWindow.BXWindows[i].BXDesktopWindow;
 			}
 		}
@@ -781,13 +782,8 @@
 
 			if (expandToWholeWord)
 			{
-				if (resultText && resultText.indexOf(" ") > -1)
+				if (!(resultText && resultText.indexOf(" ") > -1))
 				{
-					resultText = "";
-				}
-				else
-				{
-					//var wordStartPosition = element.value.substr(0, selectionStart).lastIndexOf(" ")+1;
 					var wordStartPosition = element.value.substr(0, selectionStart).search(/([-'`~!@#$%^&*()_|+=?;:'",.<>\{\}\[\]\\\/\x20])(?!.*[-'`~!@#$%^&*()_|+=?;:'",.<>\{\}\[\]\\\/\x20])/)+1;
 					var wordEndPosition = element.value.substr(wordStartPosition).search(/[-'`~!@#$%^&*()_|+=?;:'",.<>\{\}\[\]\\\/\x20]/);
 					wordEndPosition = (wordEndPosition > 0? wordEndPosition: element.value.length);
@@ -1014,6 +1010,15 @@
 		if (!this.ready()) return false;
 
 		BXDesktopWindow.SetProperty("position", params);
+
+		return true;
+	}
+
+	Desktop.prototype.setWindowName = function (name)
+	{
+		if (!this.ready()) return false;
+
+		BXDesktopWindow.SetProperty("windowName", name.toString());
 
 		return true;
 	}

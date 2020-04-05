@@ -150,6 +150,14 @@
 	margin-top: 15px;
 }
 
+table.bx-edit-table {
+	table-layout: fixed;
+}
+
+.bp-task-block a {
+	word-wrap: break-word;
+}
+
 .bp-task-block-title {
 	font-weight: bold;
 	display: block;

@@ -6,6 +6,11 @@ use Bitrix\Main\Loader;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
+
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+$listUrl = $selfFolderUrl."cat_extra.php?lang=".LANGUAGE_ID;
+$listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
+
 if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_price')))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 Loader::includeModule('catalog');
@@ -33,6 +38,8 @@ $ID = (isset($_REQUEST['ID']) ? (int)$_REQUEST['ID'] : 0);
 
 if ($_SERVER['REQUEST_METHOD'] == "POST" && strlen($Update) > 0 && !$bReadOnly && check_bitrix_sessid())
 {
+	$adminSidePanelHelper->decodeUriComponent();
+
 	$arFields = array(
 		"NAME" => $NAME,
 		"PERCENTAGE" => $PERCENTAGE,
@@ -63,13 +70,28 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && strlen($Update) > 0 && !$bReadOnly &
 
 	if (strlen($errorMessage) <= 0)
 	{
-		if (empty($apply))
-			LocalRedirect("/bitrix/admin/cat_extra.php?lang=".LANGUAGE_ID);
+		if ($adminSidePanelHelper->isAjaxRequest())
+		{
+			$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
+		}
 		else
-			LocalRedirect("/bitrix/admin/cat_extra_edit.php?lang=".LANGUAGE_ID."&ID=".$ID);
+		{
+			if (empty($apply))
+			{
+				$adminSidePanelHelper->localRedirect($listUrl);
+				LocalRedirect($listUrl);
+			}
+			else
+			{
+				$applyUrl = $selfFolderUrl."cat_extra_edit.php?lang=".$lang."&ID=".$ID;
+				$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
+				LocalRedirect($applyUrl);
+			}
+		}
 	}
 	else
 	{
+		$adminSidePanelHelper->sendJsonErrorResponse($errorMessage);
 		$bVarsFromForm = true;
 	}
 }
@@ -108,32 +130,40 @@ $aMenu = array(
 	array(
 		"TEXT" => GetMessage("CEEN_2FLIST"),
 		"ICON" => "btn_list",
-		"LINK" => "/bitrix/admin/cat_extra.php?lang=".LANGUAGE_ID
+		"LINK" => $listUrl
 	)
 );
 
 if ($ID > 0 && !$bReadOnly)
 {
 	$aMenu[] = array("SEPARATOR" => "Y");
-
+	$addUrl = $selfFolderUrl."cat_extra_edit.php?lang=".LANGUAGE_ID;
+	$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
 	$aMenu[] = array(
 		"TEXT" => GetMessage("CEEN_NEW_DISCOUNT"),
 		"ICON" => "btn_new",
-		"LINK" => "/bitrix/admin/cat_extra_edit.php?lang=".LANGUAGE_ID
+		"LINK" => $addUrl
 	);
-
+	$deleteUrl = $selfFolderUrl."cat_extra.php?ID=".$ID."&action=delete&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."#tb";
+	$buttonAction = "LINK";
+	if ($adminSidePanelHelper->isPublicFrame())
+	{
+		$deleteUrl = $adminSidePanelHelper->editUrlToPublicPage($deleteUrl);
+		$buttonAction = "ONCLICK";
+	}
 	$aMenu[] = array(
 		"TEXT" => GetMessage("CEEN_DELETE_DISCOUNT"),
 		"ICON" => "btn_delete",
-		"LINK" => "javascript:if(confirm('".GetMessageJS("CEEN_DELETE_DISCOUNT_CONFIRM")."')) window.location='/bitrix/admin/cat_extra.php?ID=".$ID."&action=delete&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."#tb';",
+		$buttonAction => "javascript:if(confirm('".GetMessageJS("CEEN_DELETE_DISCOUNT_CONFIRM")."')) top.window.location.href='".$deleteUrl."';",
 		"WARNING" => "Y"
 	);
 }
 $context = new CAdminContextMenu($aMenu);
 $context->Show();
-
+$actionUrl = $APPLICATION->GetCurPage();
+$actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
 CAdminMessage::ShowMessage($errorMessage);?>
-<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>" name="form1">
+<form method="POST" action="<?=$actionUrl?>" name="form1">
 <?echo GetFilterHiddens("filter_");?>
 <input type="hidden" name="Update" value="Y">
 <input type="hidden" name="lang" value="<?echo LANGUAGE_ID ?>">
@@ -165,7 +195,7 @@ $tabControl->BeginNextTab();
 	<tr class="adm-detail-required-field">
 		<td width="40%"><?echo GetMessage("CEEN_PERCENTAGE")?>:</td>
 		<td width="60%">
-			<input type="text" name="PERCENTAGE" size="10" maxlength="20" value="<? echo ('' != $str_PERCENTAGE ? roundEx($str_PERCENTAGE, CATALOG_VALUE_PRECISION) : ''); ?>" />%
+			<input type="text" name="PERCENTAGE" size="10" maxlength="20" value="<?=htmlspecialcharsbx($str_PERCENTAGE); ?>" />%
 		</td>
 	</tr>
 	<?
@@ -183,14 +213,7 @@ $tabControl->BeginNextTab();
 	}
 
 $tabControl->EndTab();
-
-$tabControl->Buttons(
-	array(
-		"disabled" => $bReadOnly,
-		"back_url" => "/bitrix/admin/cat_extra.php?lang=".LANGUAGE_ID
-	)
-);
-
+$tabControl->Buttons(array("disabled" => $bReadOnly, "back_url" => $listUrl));
 $tabControl->End();
 ?>
 </form>

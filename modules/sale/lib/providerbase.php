@@ -1311,11 +1311,6 @@ abstract class ProviderBase
 					$productData['QUANTITY'] = $productData['AVAILABLE_QUANTITY'];
 				}
 
-				if (!isset($productData['ACTIVE']))
-				{
-					$productData['ACTIVE'] = 'Y';
-				}
-
 				$resultList[$basketCode] = $productData;
 			}
 		}

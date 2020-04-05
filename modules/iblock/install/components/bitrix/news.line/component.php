@@ -74,6 +74,7 @@ if($this->startResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 	$arFilter = array (
 		"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
 		"IBLOCK_ID"=> $arParams["IBLOCKS"],
+		"IBLOCK_LID" => SITE_ID,
 		"ACTIVE" => "Y",
 		"ACTIVE_DATE" => "Y",
 		"CHECK_PERMISSIONS" => "Y",
@@ -105,19 +106,25 @@ if($this->startResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 		else
 			$arItem["DISPLAY_ACTIVE_FROM"] = "";
 
-		$ipropValues = new \Bitrix\Iblock\InheritedProperty\ElementValues($arItem["IBLOCK_ID"], $arItem["ID"]);
-		$arItem["IPROPERTY_VALUES"] = $ipropValues->getValues();
+		Iblock\InheritedProperty\ElementValues::queue($arItem["IBLOCK_ID"], $arItem["ID"]);
 
+		$arResult["ITEMS"][]=$arItem;
+		$arResult["LAST_ITEM_IBLOCK_ID"]=$arItem["IBLOCK_ID"];
+	}
+
+	foreach ($arResult["ITEMS"] as &$arItem)
+	{
+		$ipropValues = new Iblock\InheritedProperty\ElementValues($arItem["IBLOCK_ID"], $arItem["ID"]);
+		$arItem["IPROPERTY_VALUES"] = $ipropValues->getValues();
 		Iblock\Component\Tools::getFieldImageData(
 			$arItem,
 			array('PREVIEW_PICTURE', 'DETAIL_PICTURE'),
 			Iblock\Component\Tools::IPROPERTY_ENTITY_ELEMENT,
 			'IPROPERTY_VALUES'
 		);
-
-		$arResult["ITEMS"][]=$arItem;
-		$arResult["LAST_ITEM_IBLOCK_ID"]=$arItem["IBLOCK_ID"];
 	}
+	unset($arItem);
+
 	$this->setResultCacheKeys(array(
 		"LAST_ITEM_IBLOCK_ID",
 	));

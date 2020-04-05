@@ -1,13 +1,8 @@
 <?
-##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2002-2006 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
-##############################################
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/include.php");
+
+\Bitrix\Main\Loader::includeModule('sale');
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions < "W")
@@ -100,7 +95,19 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 
 				$DB->StartTransaction();
 
-				if (!CSaleOrderProps::Delete($ID))
+				if (CSaleOrderProps::Delete($ID))
+				{
+					if (\Bitrix\Main\Loader::includeModule('crm'))
+					{
+						$property = \Bitrix\Crm\Order\Matcher\Internals\OrderPropsMatchTable::getByPropertyId($ID);
+
+						if (!empty($property))
+						{
+							\Bitrix\Crm\Order\Matcher\Internals\OrderPropsMatchTable::delete($property['ID']);
+						}
+					}
+				}
+				else
 				{
 					$DB->Rollback();
 
@@ -117,10 +124,10 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 	}
 }
 
-$dbResultList = CSaleOrderProps::GetList(
-	array($by => $order),
-	$arFilter
-);
+$dbResultList = \Bitrix\Sale\Property::getList([
+	'filter' => $arFilter,
+	'order' => [$by => $order]
+]);
 
 $dbResultList = new CAdminResult($dbResultList, $sTableID);
 $dbResultList->NavStart();
@@ -135,7 +142,7 @@ $lAdmin->AddHeaders(array(
 	array("id"=>"ACTIVE", "content"=>GetMessage("SALE_FIELD_ACTIVE"),  "sort"=>"ACTIVE", "default"=>true),
 	array("id"=>"SORT", "content"=>GetMessage('SALE_FIELD_SORT'),	"sort"=>"SORT", "default"=>true),
 	array("id"=>"TYPE", "content"=>GetMessage("SALE_FIELD_TYPE"),  "sort"=>"TYPE", "default"=>true),
-	array("id"=>"REQUIED", "content"=>GetMessage("SALE_REQUIED"),  "sort"=>"REQUIED", "default"=>true),
+	array("id"=>"REQUIRED", "content"=>GetMessage("SALE_REQUIED"),  "sort"=>"REQUIRED", "default"=>true),
 	array("id"=>"MULTIPLE", "content"=>GetMessage("SALE_MULTIPLE"),  "sort"=>"MULTIPLE", "default"=>true),
 	array("id"=>"PROPS_GROUP_ID", "content"=>GetMessage("SALE_GROUP"),  "sort"=>"PROPS_GROUP_ID", "default"=>true),
 	array("id"=>"USER_PROPS", "content"=>GetMessage("SALE_USER"),  "sort"=>"USER_PROPS", "default"=>true),
@@ -170,7 +177,7 @@ while ($arOrderProp = $dbResultList->NavNext(true, "f_"))
 	$row->AddInputField("CODE");
 	$row->AddField('TYPE', "[$f_TYPE] ".$inputTypes[$f_TYPE]['NAME']);
 	$row->AddCheckField("ACTIVE");
-	$row->AddCheckField("REQUIED");
+	$row->AddCheckField("REQUIRED");
 	$row->AddCheckField("MULTIPLE");
 	$row->AddCheckField("UTIL");
 	$row->AddCheckField("USER_PROPS");

@@ -1,4 +1,6 @@
 <?
+$MESS["MAIN_USER_EDIT_HISTORY"] = "History";
+$MESS["MAIN_USER_EDIT_HISTORY_TITLE"] = "User profile update log";
 $MESS["ACCOUNT_INSERT"] = "The administrator has registered you on the site";
 $MESS["ACCOUNT_UPDATE"] = "The administrator has updated your personal information.";
 $MESS["EDIT_USER_TITLE"] = "User # #ID#";

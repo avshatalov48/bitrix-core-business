@@ -7,6 +7,14 @@
 .main-ui-filter-popup-field-list div[data-name="BX_PRESET_ID"] {
 	display: none;
 }
+.main-ui-filter-search .main-ui-filter-search-square .main-ui-square-item {
+	max-width: 250px;
+}
+.main-ui-filter-add-container {
+	display: none;
+}
+
+
 
 
 .bx-sender-segment-edit-wrapper {

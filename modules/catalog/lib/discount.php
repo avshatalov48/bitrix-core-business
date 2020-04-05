@@ -43,6 +43,7 @@ Loc::loadMessages(__FILE__);
  * <li> NOTES string(255) optional
  * <li> CONDITIONS string optional
  * <li> UNPACK string optional
+ * <li> USE_COUPONS bool optional default 'N'
  * <li> CREATED_BY_USER reference to {@link \Bitrix\Main\UserTable}
  * <li> MODIFIED_BY_USER reference to {@link \Bitrix\Main\UserTable}
  * <li> RESTRICTION reference to {@link \Bitrix\Catalog\DiscountRestriction}
@@ -163,7 +164,10 @@ class DiscountTable extends Main\Entity\DataManager
 			)),
 			'TIMESTAMP_X' => new Main\Entity\DatetimeField('TIMESTAMP_X', array(
 				'required' => true,
-				'default_value' => function(){ return new Main\Type\DateTime(); },
+				'default_value' => function()
+					{
+						return new Main\Type\DateTime();
+					},
 				'title' => Loc::getMessage('DISCOUNT_ENTITY_TIMESTAMP_X_FIELD')
 			)),
 			'COUNT_PERIOD' => new Main\Entity\EnumField('COUNT_PERIOD', array(
@@ -224,6 +228,11 @@ class DiscountTable extends Main\Entity\DataManager
 				'title' => Loc::getMessage('DISCOUNT_ENTITY_CONDITIONS_LIST_FIELD')
 			)),
 			'UNPACK' => new Main\Entity\TextField('UNPACK', array()),
+			'USE_COUPONS' => new Main\Entity\BooleanField('USE_COUPONS', array(
+				'values' => array('N', 'Y'),
+				'default_value' => 'N',
+				'title' => Loc::getMessage('DISCOUNT_ENTITY_USE_COUPONS_FIELD')
+			)),
 			'SALE_ID' => new Main\Entity\IntegerField('SALE_ID'),
 			'CREATED_BY_USER' => new Main\Entity\ReferenceField(
 				'CREATED_BY_USER',
@@ -410,5 +419,32 @@ class DiscountTable extends Main\Entity\DataManager
 				$discount['CURRENCY'] = $currency;
 				break;
 		}
+	}
+
+	/**
+	 * Set exist coupons flag for discount list.
+	 *
+	 * @param array|int $discountList		Discount ids for update.
+	 * @param string $use					Value for update use coupons.
+	 * @return void
+	 */
+	public static function setUseCoupons($discountList, $use)
+	{
+		if (!is_array($discountList))
+			$discountList = array($discountList);
+		$use = (string)$use;
+		if ($use !== 'Y' && $use !== 'N')
+			return;
+		Main\Type\Collection::normalizeArrayValuesByInt($discountList);
+		if (empty($discountList))
+			return;
+		$conn = Main\Application::getConnection();
+		$helper = $conn->getSqlHelper();
+		$conn->queryExecute(
+			'update '.$helper->quote(self::getTableName()).
+			' set '.$helper->quote('USE_COUPONS').' = \''.$use.'\' where '.
+			$helper->quote('ID').' in ('.implode(',', $discountList).')'
+		);
+		unset($helper, $conn);
 	}
 }

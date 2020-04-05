@@ -21,6 +21,7 @@ class CIBlockPropertySequence
 			"GetAdminFilterHTML" => array(__CLASS__, "GetPublicFilterHTML"),
 			"GetPublicFilterHTML" => array(__CLASS__, "GetPublicFilterHTML"),
 			"AddFilterFields" => array(__CLASS__, "AddFilterFields"),
+			"GetUIFilterProperty" => array(__CLASS__, "GetUIFilterProperty")
 		);
 	}
 
@@ -28,7 +29,18 @@ class CIBlockPropertySequence
 	{
 		$from_name = $strHTMLControlName["VALUE"].'_from';
 		$from = isset($_REQUEST[$from_name])? $_REQUEST[$from_name]: "";
-		if($from)
+		if (isset($strHTMLControlName["FILTER_ID"]))
+		{
+			$filterOption = new \Bitrix\Main\UI\Filter\Options($strHTMLControlName["FILTER_ID"]);
+			$filterData = $filterOption->getFilter();
+			$from = (!empty($filterData[$from_name]) ? $filterData[$from_name] : "");
+			if ($from)
+			{
+				$arFilter[">=PROPERTY_".$arProperty["ID"]] = $from;
+				$filtered = true;
+			}
+		}
+		elseif ($from)
 		{
 			$arFilter[">=PROPERTY_".$arProperty["ID"]] = $from;
 			$filtered = true;
@@ -36,7 +48,18 @@ class CIBlockPropertySequence
 
 		$to_name = $strHTMLControlName["VALUE"].'_to';
 		$to = isset($_REQUEST[$to_name])? $_REQUEST[$to_name]: "";
-		if($to)
+		if (isset($strHTMLControlName["FILTER_ID"]))
+		{
+			$filterOption = new \Bitrix\Main\UI\Filter\Options($strHTMLControlName["FILTER_ID"]);
+			$filterData = $filterOption->getFilter();
+			$to = (!empty($filterData[$to_name]) ? $filterData[$to_name] : "");
+			if ($to)
+			{
+				$arFilter["<=PROPERTY_".$arProperty["ID"]] = $to;
+				$filtered = true;
+			}
+		}
+		elseif ($to)
 		{
 			$arFilter["<=PROPERTY_".$arProperty["ID"]] = $to;
 			$filtered = true;
@@ -139,5 +162,17 @@ class CIBlockPropertySequence
 			</tr>
 			';
 		}
+	}
+
+	/**
+	 * @param array $property
+	 * @param array $control
+	 * @param array &$fields
+	 * @return void
+	 */
+	public static function GetUIFilterProperty($property, $control, &$fields)
+	{
+		$fields["type"] = "number";
+		$fields["filterable"] = "";
 	}
 }

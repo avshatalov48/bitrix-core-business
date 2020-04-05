@@ -1,4 +1,5 @@
 <?
+$MESS["CATALOG_QUANTITY"] = "Quantity";
 $MESS["CT_BCE_QUANTITY"] = "Quantity";
 $MESS["CT_BCE_CATALOG_BUY"] = "Buy";
 $MESS["CT_BCE_CATALOG_ADD"] = "Add to cart";

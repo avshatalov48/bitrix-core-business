@@ -300,7 +300,7 @@ class CAllSocNetFeaturesPerms
 			if (StrLen($errorMessage) <= 0)
 				$errorMessage = GetMessage("SONET_GF_ERROR_SET").".";
 
-			$GLOBALS["APPLICATION"]->ThrowException($errorMessage, "ERROR_SET_RECORD");
+			$APPLICATION->ThrowException($errorMessage, "ERROR_SET_RECORD");
 			return false;
 		}
 		else
@@ -392,9 +392,11 @@ class CAllSocNetFeaturesPerms
 	/***************************************/
 	public static function CurrentUserCanPerformOperation($type, $id, $feature, $operation, $site_id = SITE_ID)
 	{
+		global $USER;
+
 		$userID = 0;
-		if (is_object($GLOBALS["USER"]) && $GLOBALS["USER"]->IsAuthorized())
-			$userID = IntVal($GLOBALS["USER"]->GetID());
+		if (is_object($USER) && $USER->IsAuthorized())
+			$userID = IntVal($USER->GetID());
 
 		$bCurrentUserIsAdmin = CSocNetUser::IsCurrentUserModuleAdmin($site_id);
 
@@ -403,7 +405,7 @@ class CAllSocNetFeaturesPerms
 
 	public static function CanPerformOperation($userID, $type, $id, $feature, $operation, $bCurrentUserIsAdmin = false)
 	{
-		global $arSocNetAllowedEntityTypes;
+		global $APPLICATION, $arSocNetAllowedEntityTypes;
 
 		$arSocNetFeaturesSettings = CSocNetAllowed::GetAllowedFeatures();
 
@@ -411,14 +413,14 @@ class CAllSocNetFeaturesPerms
 
 		if ((is_array($id) && count($id) <= 0) || (!is_array($id) && $id <= 0))
 		{
-			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SONET_GF_EMPTY_ENTITY_ID"), "ERROR_EMPTY_ENTITY_ID");
+			$APPLICATION->ThrowException(GetMessage("SONET_GF_EMPTY_ENTITY_ID"), "ERROR_EMPTY_ENTITY_ID");
 			return false;
 		}
 
 		$type = Trim($type);
 		if ((StrLen($type) <= 0) || !in_array($type, $arSocNetAllowedEntityTypes))
 		{
-			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SONET_GF_ERROR_NO_ENTITY_TYPE"), "ERROR_EMPTY_TYPE");
+			$APPLICATION->ThrowException(GetMessage("SONET_GF_ERROR_NO_ENTITY_TYPE"), "ERROR_EMPTY_TYPE");
 			return false;
 		}
 

@@ -71,7 +71,6 @@ class Dashboard extends Model
 		);
 	}
 
-
 	/**
 	 * Return board with fully loaded rows and widgets by board key and user id.
 	 *

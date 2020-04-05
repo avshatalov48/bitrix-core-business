@@ -3,6 +3,10 @@
 
 	BX.namespace("BX.Landing.Block.Node");
 
+	var encodeDataValue = BX.Landing.Utils.encodeDataValue;
+	var decodeDataValue = BX.Landing.Utils.decodeDataValue;
+	var data = BX.Landing.Utils.data;
+	var attr = BX.Landing.Utils.attr;
 
 	/**
 	 * @extends {BX.Landing.Block.Node.Img}
@@ -13,6 +17,12 @@
 	{
 		BX.Landing.Block.Node.Img.apply(this, arguments);
 	};
+
+	function getPseudoUrl(node)
+	{
+		var url = data(node.node, "data-pseudo-url");
+		return !!url ? url : "";
+	}
 
 	/**
 	 * Gets icon class list
@@ -64,10 +74,16 @@
 		{
 			if (!this.field)
 			{
+				var value = this.getValue();
+				value.url = decodeDataValue(value.url);
+
+				var disableLink = !!this.node.closest("a");
+
 				this.field = new BX.Landing.UI.Field.Icon({
 					selector: this.selector,
 					title: this.manifest.name,
-					content: this.getValue(),
+					disableLink: disableLink,
+					content: value,
 					dimensions: !!this.manifest.dimensions ? this.manifest.dimensions : {}
 				});
 			}
@@ -91,13 +107,17 @@
 			this.lastValue = this.lastValue || this.getValue();
 			this.preventSave(preventSave);
 			setIconValue(this, value);
+			if (value.url)
+			{
+				attr(this.node, "data-pseudo-url", value.url);
+			}
 			this.onChange();
 
 			if (!preventHistory)
 			{
 				BX.Landing.History.getInstance().push(
 					new BX.Landing.History.Entry({
-						block: top.BX.Landing.Block.storage.getByChildNode(this.node).id,
+						block: this.getBlock().id,
 						selector: this.selector,
 						command: "editIcon",
 						undo: this.lastValue,
@@ -121,7 +141,8 @@
 				src: "",
 				id: -1,
 				alt: "",
-				classList: getIconClassList(this)
+				classList: getIconClassList(this),
+				url: encodeDataValue(getPseudoUrl(this))
 			};
 		}
 	};

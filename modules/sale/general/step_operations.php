@@ -57,7 +57,7 @@ class CSaleBasketDiscountConvert extends CCatalogStepOperations
 		{
 			$found = true;
 
-			$migrateResult = Sale\OrderDiscountManager::migrateOrderDiscounts($order);
+			$migrateResult = Sale\Discount\Migration\OrderDiscountMigrator::processing($order);
 			$this->lastID = $order['ID'];
 			$this->allOperationCounter++;
 			if (!$migrateResult->isSuccess())

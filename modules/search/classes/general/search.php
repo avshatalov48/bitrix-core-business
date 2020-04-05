@@ -169,7 +169,8 @@ class CAllSearch extends CDBResult
 		}
 		elseif (
 			BX_SEARCH_VERSION > 1
-			&& count($this->Query->m_stemmed_words_id)
+			&& !empty($this->Query->m_stemmed_words_id)
+			&& is_array($this->Query->m_stemmed_words_id)
 			&& array_sum($this->Query->m_stemmed_words_id) === 0
 		)
 		{
@@ -2530,12 +2531,13 @@ class CAllSearch extends CDBResult
 	{
 		$DB = CDatabase::GetModuleConnection('search');
 		$bIncSites = false;
+		$op = (strpos($ITEM_ID, '%') !== false? '%=': '=');
 
 		if ($PARAM1 !== false && $PARAM2 !== false)
 		{
 			$strSqlWhere = CSearch::__PrepareFilter(array(
 				"MODULE_ID" => $MODULE_ID,
-				"ITEM_ID" => $ITEM_ID,
+				$op."ITEM_ID" => $ITEM_ID,
 				array(
 					"=PARAM1" => $PARAM1,
 					"PARAM2" => $PARAM2,
@@ -2547,7 +2549,7 @@ class CAllSearch extends CDBResult
 		{
 			$strSqlWhere = CSearch::__PrepareFilter(array(
 				"MODULE_ID" => $MODULE_ID,
-				"ITEM_ID" => $ITEM_ID,
+				$op."ITEM_ID" => $ITEM_ID,
 				"PARAM1" => $PARAM1,
 				"PARAM2" => $PARAM2,
 				"SITE_ID" => $SITE_ID,

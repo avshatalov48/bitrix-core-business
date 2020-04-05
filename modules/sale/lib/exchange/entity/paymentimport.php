@@ -159,10 +159,12 @@ class PaymentImport extends EntityImport
             throw new Main\ArgumentException('ORDER_ID is not defined');
         }
 
-        if(!$this->isLoadedParentEntity() && !empty($fields['ORDER_ID']))
-        {
-            $this->setParentEntity(Order::load($fields['ORDER_ID']));
-        }
+		if(!$this->isLoadedParentEntity() && !empty($fields['ORDER_ID']))
+		{
+			$this->setParentEntity(
+				$this->loadParentEntity(['ID'=>$fields['ORDER_ID']])
+			);
+		}
 
         if($this->isLoadedParentEntity())
         {
@@ -214,7 +216,7 @@ class PaymentImport extends EntityImport
         $paySystem = $payment->getPaySystem();
         $type = $paySystem->getField('IS_CASH');
 
-        return self::resolveEntityTypeIdByCodeType($type);
+        return static::resolveEntityTypeIdByCodeType($type);
     }
 
 	/**

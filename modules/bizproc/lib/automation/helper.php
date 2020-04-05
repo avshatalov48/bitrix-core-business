@@ -13,7 +13,7 @@ class Helper
 	protected static $maps;
 	protected static $documentFields;
 
-	public static function prepareUserSelectorEntities(array $documentType, $users)
+	public static function prepareUserSelectorEntities(array $documentType, $users, $config = [])
 	{
 		$result = [];
 		$users = (array)$users;
@@ -32,36 +32,73 @@ class Helper
 					$result[] = array(
 						'id'         => 'U'.$user,
 						'entityId'   => $user,
-						'name'       => htmlspecialcharsBx(self::getFormattedUserName($user))
+						'name'       => htmlspecialcharsBx(self::getFormattedUserName($user)),
+						'entityType' => 'users'
 					);
 				}
 			}
-			elseif ($user === 'author' && isset($documentUserFields['ASSIGNED_BY_ID']))
+			elseif ($user === 'author' &&
+				(
+					isset($documentUserFields['ASSIGNED_BY_ID']) ||
+					isset($documentUserFields['RESPONSIBLE_ID'])
+				)
+			)
 			{
+				$responsibleKey = isset($documentUserFields['ASSIGNED_BY_ID']) ? 'ASSIGNED_BY_ID' : 'RESPONSIBLE_ID';
+
 				$result[] = array(
-					'id'         => 'BPR_'.$documentUserFields['ASSIGNED_BY_ID']['Id'],
-					'entityId'   => $documentUserFields['ASSIGNED_BY_ID']['Expression'],
-					'name'       => htmlspecialcharsBx($documentUserFields['ASSIGNED_BY_ID']['Name']),
-					'avatar' => '',
-					'desc' => '&nbsp;'
+					'id'         => $documentUserFields[$responsibleKey]['Expression'],
+					'entityId'   => $documentUserFields[$responsibleKey]['Expression'],
+					'name'       => htmlspecialcharsBx($documentUserFields[$responsibleKey]['Name']),
+					'entityType' => 'bpuserroles'
 				);
 			}
 			else
 			{
+				$found = false;
 				foreach ($documentUserFields as $field)
 				{
-					if ($user !== $field['Expression'])
-						continue;
+					if ($user === $field['Expression'] || $user === $field['SystemExpression'])
+					{
+						$result[] = array(
+							'id'       => $field['Expression'],
+							'entityId' => $field['Expression'],
+							'name'     => htmlspecialcharsBx($field['Name']),
+							'entityType' => 'bpuserroles'
+						);
+						$found = true;
+					}
+				}
 
-					$result[] = array(
-						'id'         => 'BPR_'.$field['Id'],
-						'entityId'   => $field['Expression'],
-						'name'       => htmlspecialcharsBx($field['Name']),
-						'avatar' => '',
-						'desc' => '&nbsp;'
-					);
+				if (!$found && isset($config['additionalFields']))
+				{
+					foreach ($config['additionalFields'] as $field)
+					{
+						if ($user === $field['entityId'])
+						{
+							$result[] = array(
+								'id'       => $field['id'],
+								'entityId' => $field['entityId'],
+								'name'     => htmlspecialcharsBx($field['name']),
+								'entityType' => 'bpuserroles'
+							);
+						}
+					}
 				}
 			}
+		}
+		return $result;
+	}
+
+	public static function getResponsibleUserExpression(array $documentType)
+	{
+		$documentUserFields = static::getDocumentFields($documentType, 'user');
+		$result = null;
+
+		if (isset($documentUserFields['ASSIGNED_BY_ID']) || isset($documentUserFields['RESPONSIBLE_ID']))
+		{
+			$responsibleKey = isset($documentUserFields['ASSIGNED_BY_ID']) ? 'ASSIGNED_BY_ID' : 'RESPONSIBLE_ID';
+			$result = '{=Document:'.$responsibleKey.'}';
 		}
 		return $result;
 	}
@@ -137,16 +174,95 @@ class Helper
 	public static function convertExpressions($source, array $documentType)
 	{
 		$source = (string)$source;
-		list($simple, $original) = static::getExpressionsMap($documentType);
-		$source = str_replace($original, $simple, $source);
+		list($ids, $names) = static::getFieldsMap($documentType);
+
+		$converter = function ($matches) use ($ids, $names)
+		{
+			$mods = [];
+			if ($matches['mod1'])
+			{
+				$mods[] = $matches['mod1'];
+			}
+			if ($matches['mod2'])
+			{
+				$mods[] = $matches['mod2'];
+			}
+
+			if ($matches['object'] === 'Document')
+			{
+				$key = array_search($matches['field'], $ids);
+				if ($key !== false)
+				{
+					$fieldName = $names[$key];
+					return '{{'.$fieldName. ($mods? ' > '.implode(',', $mods) : '').'}}';
+				}
+			}
+			elseif (preg_match('/^A[_0-9]+$/', $matches['object']))
+			{
+				return '{{~'.$matches['object'].':'.$matches['field']. ($mods? ' > '.implode(',', $mods) : '').'}}';
+			}
+
+			return $matches[0];
+		};
+
+		$source = preg_replace_callback(
+			\CBPActivity::ValueInlinePattern,
+			$converter,
+			$source
+		);
+
 		return $source;
 	}
 
 	public static function unConvertExpressions($source, array $documentType)
 	{
 		$source = (string)$source;
-		list($simple, $original) = static::getExpressionsMap($documentType);
-		$source = str_replace($simple, $original, $source);
+		list($ids, $names) = static::getFieldsMap($documentType);
+
+		$converter = function ($matches) use ($ids, $names)
+		{
+			$matches['mixed'] = htmlspecialcharsback($matches['mixed']);
+
+			if (strpos($matches['mixed'], '~') === 0)
+			{
+				$len = strpos($matches['mixed'], '#');
+				$expression = ($len === false)
+					? substr($matches['mixed'], 1)
+					: substr($matches['mixed'], 1,$len - 1)
+				;
+				return '{='.trim($expression).'}';
+			}
+
+			$pairs = explode('>', $matches['mixed']);
+			$fieldName = $fieldId = '';
+
+			while (($pair = array_shift($pairs)) !== null)
+			{
+				$fieldName .= $fieldName? '>'.$pair : $pair;
+
+				$key = array_search(trim($fieldName), $names);
+				if ($key !== false)
+				{
+					$fieldId = $ids[$key];
+					break;
+				}
+			}
+
+			if ($fieldId)
+			{
+				$mods = isset($pairs[0]) ? trim($pairs[0]) : '';
+				return '{=Document:'.$fieldId.($mods? ' > '.$mods : '').'}';
+			}
+
+			return $matches[0];
+		};
+
+		$source = preg_replace_callback(
+			'/\{\{(?<mixed>[^=].*?)\}\}/is',
+			$converter,
+			$source
+		);
+
 		return $source;
 	}
 
@@ -161,11 +277,7 @@ class Helper
 		$key = implode('@', $documentType);
 		if (!isset(static::$documentFields[$key]))
 		{
-			$runtime = \CBPRuntime::GetRuntime();
-			$runtime->StartRuntime();
-
-			/** @var \CBPDocumentService $documentService */
-			$documentService = $runtime->GetService('DocumentService');
+			$documentService = \CBPRuntime::GetRuntime(true)->getDocumentService();
 			static::$documentFields[$key] = $documentService->GetDocumentFields($documentType);
 		}
 
@@ -181,16 +293,22 @@ class Helper
 					$field['Type'] = $field['BaseType'] = 'bool';
 				}
 
-				if ($field['BaseType'] === 'string' && $field['Type'] !== 'string')
-					continue; // Skip none-printable user fields
+				if ($field['Type'] === 'UF:date')
+				{
+					//Mark as bizproc date type
+					$field['Type'] = $field['BaseType'] = 'date';
+				}
 
 				if ($typeFilter !== null && $field['Type'] !== $typeFilter)
 					continue;
+
+				$field['Name'] = trim($field['Name']);
 
 				$resultFields[$id] = array(
 					'Id' => $id,
 					'Name' => $field['Name'],
 					'Type' => $field['Type'],
+					'BaseType' => $field['BaseType'],
 					'Expression' => '{{'.$field['Name'].'}}',
 					'SystemExpression' => '{=Document:'.$id.'}',
 					'Options' => $field['Options']
@@ -200,22 +318,21 @@ class Helper
 		return $resultFields;
 	}
 
-	protected static function getExpressionsMap(array $documentType)
+	protected static function getFieldsMap(array $documentType)
 	{
 		$key = implode('@', $documentType);
 		if (!isset(static::$maps[$key]))
 		{
-			$simple = array();
-			$original = array();
+			$id = $name = [];
 
 			$fields = static::getDocumentFields($documentType);
 			foreach ($fields as $field)
 			{
-				$simple[] = $field['Expression'];
-				$original[] = $field['SystemExpression'];
+				$id[] = $field['Id'];
+				$name[] = $field['Name'];
 			}
 
-			static::$maps[$key] = array($simple, $original);
+			static::$maps[$key] = [$id, $name];
 		}
 		return static::$maps[$key];
 	}

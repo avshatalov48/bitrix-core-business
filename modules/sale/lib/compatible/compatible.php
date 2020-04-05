@@ -405,7 +405,7 @@ class OrderQuery extends AliasedQuery
 
 	public static function explodeFilterKey($key)
 	{
-		preg_match('/^([!+]{0,1})([<=>@%~]{0,2})(.*)$/', $key, $matches);
+		preg_match('/^([!+*]{0,1})([<=>@%~]{0,2})(.*)$/', $key, $matches);
 
 		return array(
 			'modifier' => $matches[1], // can be ""
@@ -427,14 +427,17 @@ class OrderQuery extends AliasedQuery
 		switch ($operator)
 		{
 			case  '':
-			case '@': $operator = '='; break;
+			case '@': $operator = ($modifier === '*' ? '' : '=');
+				break;
 
-			case '~': $operator =  ''; break;
+			case '~': $operator =  '';
+				break;
 			// default: with no changes
 		}
 
 		switch ($modifier)
 		{
+			case '*':
 			case '' : return $this->addFilter($modifier.$operator.$name, $value);
 
 			case '!': return $operator == '=' && $value
@@ -570,6 +573,11 @@ class OrderQuery extends AliasedQuery
 		return $names;
 	}
 
+	protected function prepareCompatibleRows(array $rows)
+	{
+		return $rows;
+	}
+
 	public function compatibleExec(CDBResult $result, $navStart)
 	{
 		if ($this->aggregated)
@@ -591,9 +599,79 @@ class OrderQuery extends AliasedQuery
 		}
 
 		$rows = $this->exec()->fetchAll();
+		$rows = $this->prepareCompatibleRows($rows);
 		$result->InitFromArray($rows);
 
 		return $result;
+	}
+}
+
+class OrderPropertyValuesQuery extends OrderQuery
+{
+	/**
+	 * @param array $rows
+	 * @return array
+	 */
+	protected function prepareCompatibleRows(array $rows)
+	{
+		$locationIds = [];
+		foreach ($rows as $key => $row)
+		{
+			if ($row['TYPE'] === 'LOCATION' && !empty($row['VALUE']))
+			{
+				if (is_array($row['VALUE']))
+				{
+					$locationIds = array_merge($locationIds, $row['VALUE']);
+				}
+				else
+				{
+					$locationIds[] = $row['VALUE'];
+				}
+			}
+		}
+
+		if (!empty($locationIds))
+		{
+			$locationMap = [];
+			$locationRaw = \Bitrix\Sale\Location\LocationTable::getList([
+				'filter' => ['=CODE' => $locationIds],
+				'select' => ['ID', 'CODE']
+			]);
+			while ($location = $locationRaw->fetch())
+			{
+				$locationMap[$location['CODE']] = $location['ID'];
+			}
+		}
+
+		foreach ($rows as &$row)
+		{
+			if (isset($row['VALUE']))
+			{
+				if ($row['TYPE'] === 'LOCATION' && !empty($row['VALUE']))
+				{
+					if (is_array($row['VALUE']))
+					{
+						foreach ($row['VALUE'] as &$valueItem)
+						{
+							$valueItem = $locationMap[$valueItem];
+						}
+					}
+					else
+					{
+						$row['VALUE'] = $locationMap[$row['VALUE']];
+					}
+				}
+
+				$row['PROXY_VALUE'] = $row['VALUE'];
+				if (is_array($row['VALUE']))
+				{
+					$row['PROXY_VALUE'] = serialize($row['VALUE']);
+				}
+				unset($row['VALUE']);
+			}
+		}
+
+		return $rows;
 	}
 }
 

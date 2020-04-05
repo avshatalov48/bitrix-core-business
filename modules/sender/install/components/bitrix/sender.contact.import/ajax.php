@@ -12,7 +12,6 @@ use Bitrix\Main\Text\Encoding as TextEncoding;
 use Bitrix\Main\Type\DateTime;
 
 use Bitrix\Sender\Internals\QueryController as Controller;
-use Bitrix\Sender\Internals\CommonAjax;
 use Bitrix\Sender\Internals\SqlBatch;
 use Bitrix\Sender\Recipient;
 use Bitrix\Sender\ListTable;
@@ -35,7 +34,7 @@ $actions[] = Controller\Action::create('importList')->setHandler(
 		$content = $response->initContentJson();
 
 		$listId = (int) $request->get('listId');
-		$listName = trim($request->get('listName'));
+		$listName = TextEncoding::convertEncodingToCurrent(trim($request->get('listName')));
 		$isBlacklist = $request->get('blacklist') === 'Y';
 		$list = $request->get('list');
 		$list = is_array($list) ? $list : array();

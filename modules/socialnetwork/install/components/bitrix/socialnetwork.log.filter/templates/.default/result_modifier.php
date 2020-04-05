@@ -18,12 +18,10 @@ elseif ($USER->IsAuthorized())
 	$arResult["SHOW_EXPERT_MODE_POPUP"] = CUserOptions::getOption("socialnetwork", "~log_expertmode_popup_show", "N");
 }
 
+$arResult["SHOW_VIDEO_TRANSFORM_POPUP"] = CUserOptions::getOption("socialnetwork", "~log_videotransform_popup_show", "N");
 $arResult["ajaxControllerURL"] = $this->GetFolder()."/ajax.php";
 
-if (
-	SITE_TEMPLATE_ID === 'bitrix24'
-	|| $arResult["MODE"] == "AJAX"
-)
+if ($arResult["MODE"] == "AJAX")
 {
 	CJSCore::Init(array('socnetlogdest'));
 
@@ -253,4 +251,6 @@ if (SITE_TEMPLATE_ID === 'bitrix24')
 	$arResult["ftMinTokenSize"] = (isset($config["ft_min_token_size"]) ? $config["ft_min_token_size"] : CSQLWhere::FT_MIN_TOKEN_SIZE);
 }
 
+$arResult["VIDEO_TRANSFORM_POST_URL"] = CUserOptions::getOption("socialnetwork", "~log_videotransform_post_url", "#");
+$arResult["VIDEO_TRANSFORM_POST_ID"] = CUserOptions::getOption("socialnetwork", "~log_videotransform_post_id", 0);
 ?>

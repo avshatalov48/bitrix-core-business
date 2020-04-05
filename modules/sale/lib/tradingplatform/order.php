@@ -73,7 +73,11 @@ class OrderTable extends Entity\DataManager
 				'data_type' => '\Bitrix\Sale\TradingPlatform',
 				'reference' => array('=this.TRADING_PLATFORM_ID' => 'ref.ID'),
 				'title' => Loc::getMessage('TRADING_PLATFORM_ORDER_ENTITY_TRADING_PLATFORM_FIELD'),
-			));
+			),
+			'XML_ID' => array(
+				'data_type' => 'string',
+				'title' => 'XML_ID',
+			),);
 	}
 	public static function validateExternalOrderId()
 	{

@@ -10,9 +10,6 @@ window.JCCatalogCompareList = function (params)
 	this.obCompare = null;
 	this.obAdminPanel = null;
 	this.visual = params.VISUAL;
-	this.visual.LIST = this.visual.ID + '_tbl';
-	this.visual.ROW = this.visual.ID + '_row_';
-	this.visual.COUNT = this.visual.ID + '_count';
 	this.ajax = params.AJAX;
 	this.position = params.POSITION;
 
@@ -22,14 +19,14 @@ window.JCCatalogCompareList = function (params)
 window.JCCatalogCompareList.prototype.init = function()
 {
 	this.obCompare = BX(this.visual.ID);
-	if (!!this.obCompare)
+	if (BX.type.isElementNode(this.obCompare))
 	{
 		BX.addCustomEvent(window, "OnCompareChange", BX.proxy(this.reload, this));
 		BX.bindDelegate(this.obCompare, 'click', {tagName : 'a'}, BX.proxy(this.deleteCompare, this));
 		if (this.position.fixed && this.position.align.vertical === 'top')
 		{
 			this.obAdminPanel = BX('bx-panel');
-			if (!!this.obAdminPanel)
+			if (BX.type.isElementNode(this.obAdminPanel))
 			{
 				this.setVerticalAlign();
 				BX.addCustomEvent(window, 'onTopPanelCollapse', BX.proxy(this.setVerticalAlign, this));
@@ -50,9 +47,15 @@ window.JCCatalogCompareList.prototype.reload = function()
 
 window.JCCatalogCompareList.prototype.reloadResult = function(result)
 {
+	var mode = 'none';
 	BX.closeWait();
 	this.obCompare.innerHTML = result;
-	BX.style(this.obCompare, 'display', 'block');
+	if (BX.type.isNotEmptyString(result))
+	{
+		if (result.indexOf('<table') >= 0)
+			mode = 'block';
+	}
+	BX.style(this.obCompare, 'display', mode);
 };
 
 window.JCCatalogCompareList.prototype.deleteCompare = function()
@@ -81,42 +84,42 @@ window.JCCatalogCompareList.prototype.deleteCompareResult = function(result)
 {
 	var tbl,
 		i,
-		deleteID,
 		cnt,
 		newCount;
 
 	BX.closeWait();
-	if (typeof result === 'object')
+	if (BX.type.isPlainObject(result))
 	{
-		if (!!result.STATUS && result.STATUS === 'OK' && !!result.ID)
+		if (BX.type.isNotEmptyString(result.STATUS) && result.STATUS === 'OK' && !!result.ID)
 		{
 			BX.onCustomEvent('onCatalogDeleteCompare', [result.ID]);
 
-			tbl = BX(this.visual.LIST);
-			if (tbl)
+			tbl = this.obCompare.querySelector('table[data-block="item-list"]');
+			if (BX.type.isElementNode(tbl))
 			{
 				if (tbl.rows.length > 1)
 				{
-					deleteID = this.visual.ROW + result.ID;
 					for (i = 0; i < tbl.rows.length; i++)
 					{
-						if (tbl.rows[i].id === deleteID)
+						if (
+							tbl.rows[i].hasAttribute('data-row-id')
+							&& tbl.rows[i].getAttribute('data-row-id') === ('row' + result.ID)
+						)
 						{
 							tbl.deleteRow(i);
 						}
 					}
-					tbl = null;
 					if (BX.type.isNotEmptyString(result.COUNT) || BX.type.isNumber(result.COUNT))
 					{
 						newCount = parseInt(result.COUNT, 10);
 						if (!isNaN(newCount))
 						{
-							cnt = BX(this.visual.COUNT);
-							if (!!cnt)
+							cnt = this.obCompare.querySelector('span[data-block="count"]');
+							if (BX.type.isElementNode(cnt))
 							{
 								cnt.innerHTML = newCount.toString();
-								cnt = null;
 							}
+							cnt = null;
 							BX.style(this.obCompare, 'display', (newCount > 0 ? 'block' : 'none'));
 						}
 					}
@@ -126,6 +129,7 @@ window.JCCatalogCompareList.prototype.deleteCompareResult = function(result)
 					this.reload();
 				}
 			}
+			tbl = null;
 		}
 	}
 };
@@ -133,7 +137,7 @@ window.JCCatalogCompareList.prototype.deleteCompareResult = function(result)
 window.JCCatalogCompareList.prototype.setVerticalAlign = function()
 {
 	var topSize;
-	if (!!this.obCompare && !!this.obAdminPanel)
+	if (BX.type.isElementNode(this.obCompare) && BX.type.isElementNode(this.obAdminPanel))
 	{
 		topSize = parseInt(this.obAdminPanel.offsetHeight, 10);
 		if (isNaN(topSize))

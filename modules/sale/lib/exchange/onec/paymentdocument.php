@@ -1,8 +1,6 @@
 <?php
 namespace Bitrix\Sale\Exchange\OneC;
 
-use Bitrix\Sale\Exchange;
-
 class PaymentDocument extends DocumentBase
 {
 	protected static $FIELD_INFOS = null;
@@ -337,9 +335,9 @@ class PaymentCashDocument extends PaymentDocument
     /**
      * @return int
      */
-    public function getOwnerEntityTypeId()
+    public function getTypeId()
     {
-        return Exchange\EntityType::PAYMENT_CASH;
+        return DocumentType::PAYMENT_CASH;
     }
 }
 
@@ -348,9 +346,9 @@ class PaymentCashLessDocument extends PaymentDocument
     /**
      * @return int
      */
-    public function getOwnerEntityTypeId()
+    public function getTypeId()
     {
-        return Exchange\EntityType::PAYMENT_CASH_LESS;
+        return DocumentType::PAYMENT_CASH_LESS;
     }
 }
 
@@ -360,9 +358,9 @@ class PaymentCardDocument extends PaymentDocument
     /**
      * @return int
      */
-    public function getOwnerEntityTypeId()
+    public function getTypeId()
     {
-        return Exchange\EntityType::PAYMENT_CARD_TRANSACTION;
+        return DocumentType::PAYMENT_CARD_TRANSACTION;
     }
 
 }

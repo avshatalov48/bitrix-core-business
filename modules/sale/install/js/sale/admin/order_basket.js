@@ -327,7 +327,7 @@ BX.Sale.Admin.OrderBasket.prototype.productSet = function(product, isReplaceExis
 	//sets
 	if(product.SET_ITEMS && product.SET_ITEMS.length)
 	{
-		for(var i = product.SET_ITEMS.length-1; i>=0; i--)
+		for(var i = 0, l = product.SET_ITEMS.length - 1; i <= l; i++)
 		{
 			product.SET_ITEMS[i].BASKET_CODE = "set_" + product.BASKET_CODE + "_"+product.SET_ITEMS[i].OFFER_ID;
 			this.productSet(product.SET_ITEMS[i], true);
@@ -728,7 +728,7 @@ BX.Sale.Admin.OrderBasket.prototype.createProductCell = function(basketCode, pro
 		tdClass = "",
 		_this = this,
 		isSetItem = (BX.type.isNotEmptyString(product.IS_SET_ITEM) && product.IS_SET_ITEM === 'Y'),
-		isProductActive = (BX.type.isNotEmptyString(product.PRODUCT_ACTIVE) && product.PRODUCT_ACTIVE === 'Y');
+		isProductEnabled = (BX.type.isNotEmptyString(product.CAN_BUY) && product.CAN_BUY === 'Y');
 
 	switch(fieldId)
 	{
@@ -753,8 +753,8 @@ BX.Sale.Admin.OrderBasket.prototype.createProductCell = function(basketCode, pro
 				var bundleShow = BX.create('a',{
 					props:{
 						href:"javascript:void(0);",
-						className: "dashed-link show-set-link" + (!isProductActive ? ' product-unactive' : ''),
-						title: (!isProductActive ? BX.message('SALE_ORDER_BASKET_PRODUCT_UNACTIVE') : '')
+						className: "dashed-link show-set-link" + (!isProductEnabled ? ' product-unavailable' : ''),
+						title: (!isProductEnabled ? BX.message('SALE_ORDER_BASKET_PRODUCT_UNAVAILABLE') : '')
 					},
 					html: BX.message("SALE_ORDER_BASKET_EXPAND")
 				});
@@ -780,8 +780,8 @@ BX.Sale.Admin.OrderBasket.prototype.createProductCell = function(basketCode, pro
 						props:{
 							href:product.EDIT_PAGE_URL,
 							target:"_blank",
-							className: (!isProductActive ? 'product-unactive' : ''),
-							title: (!isProductActive ? BX.message('SALE_ORDER_BASKET_PRODUCT_UNACTIVE') : '')
+							className: (!isProductEnabled ? 'product-unavailable' : ''),
+							title: (!isProductEnabled ? BX.message('SALE_ORDER_BASKET_PRODUCT_UNAVAILABLE') : '')
 						},
 						html: BX.util.htmlspecialchars(fieldValue)
 					});
@@ -1527,7 +1527,8 @@ BX.Sale.Admin.OrderBasketEdit.prototype.createSkuSelector = function(basketCode,
 			continue;
 
 		var html,
-			itemId = this.iblocksSkuParams[product.OFFERS_IBLOCK_ID][skuId]["VALUES"][item]["ID"];
+			itemId = this.iblocksSkuParams[product.OFFERS_IBLOCK_ID][skuId]["VALUES"][item]["ID"],
+			name = BX.util.htmlspecialchars(this.iblocksSkuParams[product.OFFERS_IBLOCK_ID][skuId]["VALUES"][item]["NAME"]);
 
 		if(this.iblocksSkuParams[product.OFFERS_IBLOCK_ID][skuId]["VALUES"][item]["PICT"])
 		{
@@ -1536,12 +1537,13 @@ BX.Sale.Admin.OrderBasketEdit.prototype.createSkuSelector = function(basketCode,
 		else
 		{
 			styleType = 'size';
-			html = BX.util.htmlspecialchars(this.iblocksSkuParams[product.OFFERS_IBLOCK_ID][skuId]["VALUES"][item]["NAME"]);
+			html = name;
 		}
 
 		var span = BX.create('span',{
 				props: {
-					className: 'cnt'
+					className: 'cnt',
+					title: name
 				},
 				html: html
 			}),
@@ -2981,7 +2983,7 @@ BX.Sale.Admin.OrderBasketProductEditDialog = function(basketObj)
 	{
 		var	basketCode = getBasketCode(),
 			dialogField,
-			product = basket.products[basketCode] ? basket.products[basketCode] : {MODULE: "", OFFER_ID: 1, BASKET_CODE: basketCode},
+			product = basket.products[basketCode] ? basket.products[basketCode] : {MODULE: "", OFFER_ID: Math.random()*(1000000 - 1) + 1, BASKET_CODE: basketCode},
 			customedPrice = false;
 
 		for(var i in usedBasketFields)
@@ -3026,10 +3028,12 @@ BX.Sale.Admin.OrderBasketProductEditDialog = function(basketObj)
 			product.BASKET_CODE = basketCode;
 
 		if(isNewProduct)
+		{
 			product.OFFER_ID = parseInt(product.OFFER_ID) + basketCode;
+			product.PRODUCT_ID = parseInt(product.OFFER_ID) + basketCode;
+		}
 
 		product = setProps(product);
-
 		basket.productSet(product, !isNewProduct);
 
 		BX.Sale.Admin.OrderAjaxer.sendRequest(

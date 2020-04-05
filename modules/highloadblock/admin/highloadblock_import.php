@@ -472,7 +472,13 @@ if ($request->get('start') == 'Y' && $server->getRequestMethod() == 'POST')
 					}
 					if ($class === null)
 					{
-						if ($entity = HL\HighloadBlockTable::compileEntity($hlsOriginal[$NS['object']]))
+						if (
+							$entity = HL\HighloadBlockTable::compileEntity(
+								isset($hlsOriginal[$NS['object']])
+									? $hlsOriginal[$NS['object']]
+									: $hls[$NS['object']]
+							)
+						)
 						{
 							$class = $entity->getDataClass();
 						}

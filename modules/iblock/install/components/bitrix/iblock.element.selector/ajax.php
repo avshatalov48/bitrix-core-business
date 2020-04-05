@@ -24,12 +24,23 @@ switch($_REQUEST['mode'])
 		CUtil::JSPostUnescape();
 		$APPLICATION->RestartBuffer();
 
+		$minPermission = 'R';
+		if (isset($_REQUEST['admin']) && is_string($_REQUEST['admin']))
+		{
+			if ($_REQUEST['admin'] == 'Y')
+				$minPermission = 'S';
+		}
+
 		$searchString = trim($_REQUEST['string']);
 		$filter = array(
-			'IBLOCK_ID' => intval($_REQUEST['iblockId']),
 			'CHECK_PERMISSIONS' => 'Y',
-			'MIN_PERMISSION' => 'R'
+			'MIN_PERMISSION' => $minPermission
 		);
+		$iblockId = 0;
+		if (isset($_REQUEST['iblockId']) && is_string($_REQUEST['iblockId']))
+			$iblockId = (int)$_REQUEST['iblockId'];
+		if ($iblockId > 0)
+			$filter['IBLOCK_ID'] = $iblockId;
 		if(is_numeric($searchString))
 		{
 			$filter['=ID'] = intval($searchString);
@@ -39,12 +50,12 @@ switch($_REQUEST['mode'])
 			$filter['?NAME'] = $searchString;
 		}
 
-		$queryObject = CIBlockElement::getList(array('NAME' => 'ASC'), $filter, false, false, array('ID', 'NAME'));
+		$queryObject = CIBlockElement::GetList(array('NAME' => 'ASC'), $filter, false, false, array('ID', 'IBLOCK_ID', 'NAME'));
 		while($element = $queryObject->fetch())
 		{
 			$elements[] = array(
 				'ID' => $element['ID'],
-				'NAME' => $element['NAME']
+				'NAME' => '['.$element['ID'].'] '.$element['NAME']
 			);
 		}
 

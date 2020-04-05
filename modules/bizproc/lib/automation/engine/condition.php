@@ -2,9 +2,7 @@
 namespace Bitrix\Bizproc\Automation\Engine;
 
 use Bitrix\Bizproc\Automation\Target\BaseTarget;
-use Bitrix\Main\Localization\Loc;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Bizproc\FieldType;
 
 class Condition
 {
@@ -32,7 +30,7 @@ class Condition
 	}
 
 	/**
-	 * @param string $field
+	 * @param string $field The field name.
 	 * @return Condition
 	 */
 	public function setField($field)
@@ -50,7 +48,7 @@ class Condition
 	}
 
 	/**
-	 * @param string $operator
+	 * @param string $operator Operator like `=`, `<`, `>` etc.
 	 * @return Condition
 	 */
 	public function setOperator($operator)
@@ -68,7 +66,7 @@ class Condition
 	}
 
 	/**
-	 * @param mixed $value
+	 * @param mixed $value Target condition value.
 	 * @return Condition
 	 */
 	public function setValue($value)
@@ -85,10 +83,27 @@ class Condition
 		return $this->value;
 	}
 
-	public function check($needle, $fieldType, BaseTarget $target)
+	/**
+	 * @param mixed $needle The field value to check.
+	 * @param string $fieldType Type of the field.
+	 * @param BaseTarget $target Automation target.
+	 * @param null|FieldType $fieldTypeObject
+	 * @return bool
+	 */
+	public function check($needle, $fieldType, BaseTarget $target, FieldType $fieldTypeObject = null)
 	{
-		$result = false;
 		$operator = $this->getOperator();
+
+		if ($operator === 'empty')
+		{
+			return \CBPHelper::isEmptyValue($needle);
+		}
+		elseif ($operator === '!empty')
+		{
+			return !\CBPHelper::isEmptyValue($needle);
+		}
+
+		$result = false;
 		$value = $this->getValue();
 
 		$documentId = $target->getDocumentType();
@@ -96,12 +111,12 @@ class Condition
 
 		if ($fieldType === 'user')
 		{
-			$needle = \CBPHelper::ExtractUsers($needle, $documentId);
-			$value = \CBPHelper::ExtractUsers($value, $documentId);
+			$needle = \CBPHelper::extractUsers($needle, $documentId);
+			$value = \CBPHelper::extractUsers($value, $documentId);
 		}
 		elseif ($fieldType === 'select')
 		{
-			if (is_array($needle) && \CBPHelper::IsAssociativeArray($needle))
+			if (is_array($needle) && \CBPHelper::isAssociativeArray($needle))
 			{
 				$needle = array_keys($needle);
 			}
@@ -173,11 +188,11 @@ class Condition
 			$value = array($value);
 		}
 
-		if (\CBPHelper::IsAssociativeArray($needle))
+		if (\CBPHelper::isAssociativeArray($needle))
 		{
 			$needle = array_keys($needle);
 		}
-		if (\CBPHelper::IsAssociativeArray($value))
+		if (\CBPHelper::isAssociativeArray($value))
 		{
 			$value = array_keys($value);
 		}
@@ -242,25 +257,33 @@ class Condition
 				$f1 = $v1 = null;
 			}
 
+			/** @var \Bitrix\Bizproc\BaseType\Base $classType */
+			$classType = \Bitrix\Bizproc\BaseType\Base::class;
+			if ($fieldTypeObject)
+			{
+				$classType = $fieldTypeObject->getTypeClass();
+			}
+			$compareResult = $classType::compareValues($f1, $v1);
+
 			switch ($operator)
 			{
 				case '>':
-					$result = ($f1 > $v1);
+					$result = ($compareResult === 1);
 					break;
 				case '>=':
-					$result = ($f1 >= $v1);
+					$result = ($compareResult >= 0);
 					break;
 				case '<':
-					$result = ($f1 < $v1);
+					$result = ($compareResult === -1);
 					break;
 				case '<=':
-					$result = ($f1 <= $v1);
+					$result = ($compareResult <= 0);
 					break;
 				case '!=':
-					$result = ($f1 != $v1);
+					$result = ($compareResult !== 0);
 					break;
 				default:
-					$result = ($f1 == $v1);
+					$result = ($compareResult === 0);
 			}
 
 			if (!$result)
@@ -274,6 +297,9 @@ class Condition
 		return $result;
 	}
 
+	/**
+	 * @return array Array presentation of condition.
+	 */
 	public function toArray()
 	{
 		return array(

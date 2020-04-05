@@ -128,13 +128,17 @@
 	border-radius: 0;
 	height: 39px;
 	outline: none;
-	padding: 0 15px 0 11px;
+	padding: 0 32px 0 11px;
 
 	-o-appearance: none;
 	-ms-appearance: none;
 	-moz-appearance: none;
 	-webkit-appearance: none;
 	appearance: none;
+}
+
+.ui-select::-ms-expand {
+	display: none;
 }
 
 .ui-form-select-100 {
@@ -253,7 +257,7 @@
 
 .ui-checkbox {
 	display: inline-block;
-	margin: 0 14px 0 0;
+	margin: 0 11px 0 0;
 	vertical-align: middle;
 }
 
@@ -332,7 +336,7 @@
 }
 
 .ui-checkbox-hidden-input .ui-checkbox:checked  + .ui-checkbox-hidden-input-inner {
-	height: 84px;
+	height: 108px;
 }
 
 .ui-form-right-cell-metrika .ui-checkbox-hidden-input:first-child .ui-checkbox:checked + .ui-checkbox-hidden-input-inner {
@@ -350,6 +354,14 @@
 
 .ui-checkbox-hidden-input-metrika:last-child {
 	margin-top: 5px;
+}
+
+.ui-form-right-cell-pixel .ui-checkbox-hidden-input:first-child .ui-checkbox:checked + .ui-checkbox-hidden-input-inner {
+	height: 95px;
+}
+
+.ui-form-right-cell-map .ui-input {
+	margin-bottom: 5px;
 }
 
 .ui-control-wrap {
@@ -723,12 +735,12 @@
 
 
 /* Select with color*/
-.ui-select.select-color-wrap {
+.ui-select.select-color-wrap, .ui-select.select-lang-wrap {
 	padding-left: 0;
 	padding-right: 0;
 }
 
-.select-color-field {
+.select-color-field, .select-lang-field {
 	position: relative;
 	display: block;
 	overflow: hidden;
@@ -792,7 +804,7 @@
 }
 
 .landing-form-inner-catalog .ui-form-inner {
-	padding: 0 0 15px 0;
+	padding: 0;
 }
 
 .landing-form-title-catalog td {
@@ -846,6 +858,7 @@
 .landing-form-inner-catalog .landing-ui-panel-content-body-content {
 	background: none;
 	border: none;
+	overflow: hidden;
 }
 
 .landing-form-inner-catalog .landing-ui-field-input.landing-ui-active {
@@ -856,17 +869,85 @@
 	margin-bottom: 0;
 }
 
-.landing-form-inner-catalog .landing-ui-button {
-	display: none;
-}
-
 .landing-form-inner-catalog .landing-ui-popup {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 }
 
+.landing-form-inner-catalog .landing-ui-field-link-url .landing-ui-field-input {
+	max-width: 100%;
+}
+
 .landing-form-select-multi {
 	background: none;
 	height: 52px;
+}
+
+.landing-form-select-wide {
+	min-width: 500px;
+}
+
+.ui-select.select-lang-wrap {
+	max-width: 300px;
+}
+
+.language-icon .menu-popup-item-text {
+	width: auto;
+}
+
+.select-lang-field {
+	display: flex;
+	align-items: center;
+}
+
+.select-lang-field .bx-lang-btn {
+	width: 27px;
+	height: 20px;
+}
+
+.select-lang-field .bx-lang-btn-icon {
+	margin: 0;
+}
+
+.select-lang-field .bx-lang-btn-icon:after {
+	content: none;
+}
+
+.landing-form-page-userconsent {
+	align-self: flex-start;
+}
+
+.landing-form-page-userconsent.ui-checkbox-hidden-input .ui-checkbox:checked + .ui-checkbox-hidden-input-inner {
+	height: 255px;
+}
+
+.landing-form-page-userconsent-block .ui-form-right-cell {
+	height: 100%;
+}
+
+.landing-form-page-userconsent-block .ui-form-label {
+	vertical-align: top;
+	padding-top: 31px;
+}
+
+.ui-domainname-available {
+	box-shadow: inset 0 0 0 1px #7ed321;
+}
+
+.ui-domainname-unavailable {
+	box-shadow: inset 0 0 0 1px #fe5957;
+}
+
+.ui-domainname-available ~ .landing-site-name-status {
+	color: #7ed321;
+}
+
+.ui-domainname-unavailable ~ .landing-site-name-status {
+	color: #fe5957;
+}
+
+.btn-disabled {
+	opacity: .6;
+	pointer-events: none;
 }

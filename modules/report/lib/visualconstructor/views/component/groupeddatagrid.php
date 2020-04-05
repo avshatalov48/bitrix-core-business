@@ -74,7 +74,13 @@ class GroupedDataGrid extends Base
 					$result['config']['groupOptions'][$groupKey]['logo'] = $logUrl;
 				}
 
-
+				if (!empty($reportHandlerResult['config']['groupsTargetUrlMap']))
+				{
+					foreach ($reportHandlerResult['config']['groupsTargetUrlMap'] as $groupKey => $targetUrl)
+					{
+						$result['config']['groupOptions'][$groupKey]['link'] = $targetUrl;
+					}
+				}
 			}
 		}
 
@@ -87,7 +93,7 @@ class GroupedDataGrid extends Base
 	 * @param BaseWidget $widgetHandler Widget handler.
 	 * @return void
 	 */
-	public function collectWidgetHandlerFormElements($widgetHandler)
+	public function collectWidgetHandlerFormElements(BaseWidget $widgetHandler)
 	{
 		parent::collectWidgetHandlerFormElements($widgetHandler);
 	}

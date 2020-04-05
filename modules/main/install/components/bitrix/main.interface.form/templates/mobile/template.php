@@ -289,7 +289,10 @@ array_unshift($tab["fields"], array(
 											endif;
 											?>
 											<div class="avatar"<?if(!empty($item["avatar"])):?> style="background-image:url('<?=htmlspecialcharsbx($item["avatar"])?>')"<?endif;?>></div>
-											<span onclick="BXMobileApp.PageManager.loadPageBlank({url: '<?=str_replace("#ID#", $item["id"], $url)?>',bx24ModernStyle : true});"><?=htmlspecialcharsbx($item["name"])?></span>
+											<?/*
+                                            <span onclick="BXMobileApp.PageManager.loadPageBlank({url: '<?=str_replace("#ID#", $item["id"], $url)?>',bx24ModernStyle : true});"><?=htmlspecialcharsbx($item["name"])?></span>
+                                            */?>
+                                            <span onclick="BXMobileApp.Events.postToComponent('onUserProfileOpen', [<?=$item["id"]?>]);"><?=htmlspecialcharsbx($item["name"])?></span>
 										</div><?
 									}
 									$users = ob_get_clean();
@@ -308,7 +311,10 @@ array_unshift($tab["fields"], array(
 										$item = array_change_key_case($field["item"], CASE_LOWER);
 										?><div class="mobile-grid-field-select-user-item">
 											<div class="avatar"<?if(!empty($item["avatar"])):?> style="background-image:url('<?=htmlspecialcharsbx($item["avatar"])?>')"<?endif;?>></div>
-											<span onclick="BXMobileApp.PageManager.loadPageBlank({url: '<?=str_replace("#ID#", $item["id"], $url)?>',bx24ModernStyle : true});"><?=htmlspecialcharsbx($item["name"])?></span>
+                                        <?/*
+                                        <span onclick="BXMobileApp.PageManager.loadPageBlank({url: '<?=str_replace("#ID#", $item["id"], $url)?>',bx24ModernStyle : true});"><?=htmlspecialcharsbx($item["name"])?></span>
+                                        */?>
+                                        <span onclick="BXMobileApp.Events.postToComponent('onUserProfileOpen', [<?=$item["id"]?>]);"><?=htmlspecialcharsbx($item["name"])?></span>
 										</div><?
 									}
 									$users = ob_get_clean();

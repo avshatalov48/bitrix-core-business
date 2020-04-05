@@ -1,9 +1,9 @@
 <section class="landing-block js-animation fadeIn">
 
-        <div id="team-section" class="container g-py-20">
+        <div class="container g-py-20">
 
             <!-- Carousel -->
-            <div id="carouselTEAM001" class="js-carousel g-mb-50--lg"
+            <div class="js-carousel g-mb-50--lg"
                  data-infinite="true"
                  data-fade="true"
                  data-lazy-load="ondemand"

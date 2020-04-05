@@ -1,0 +1,8 @@
+<?
+$MESS["LANDING_TPL_RECYCLE_BIN"] = "Recycle bin";
+$MESS["LANDING_TPL_FLT_DELETED"] = "In the Recycle Bin";
+$MESS["LANDING_TPL_FLT_Y"] = "Yes";
+$MESS["LANDING_TPL_FLT_N"] = "No";
+$MESS["LANDING_TPL_CREATE_FOLDER"] = "Create folder";
+$MESS["LANDING_TPL_CREATE_FOLDER_ACTION"] = "Create";
+?>

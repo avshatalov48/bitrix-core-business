@@ -7,6 +7,18 @@
 	padding: 20px 0;
 	cursor: pointer;
 	color: #828B95;
+	opacity: 0;
+	transition: opacity 400ms linear, transform 400ms ease;
+}
+
+.landing-ui-card-block-preview.landing-ui-is-not-visible {
+	opacity: .5;
+	transform: translateY(5%);
+}
+
+.landing-ui-card-block-preview.landing-ui-is-visible {
+	opacity: 1;
+	transform: translateY(0%);
 }
 
 .landing-ui-card-block-preview:first-child {
@@ -89,4 +101,74 @@
 
 .landing-ui-card-block-preview .landing-ui-panel-content-body {
 	flex-grow: 0;
+}
+
+.landing-ui-requires-update {
+	position: relative;
+	pointer-events: none;
+}
+
+.landing-ui-requires-update .landing-ui-card-block-preview-image-container::before,
+.landing-ui-requires-update .landing-ui-card-block-preview-image-container::after {
+	display: none!important;
+}
+
+.landing-ui-requires-update .landing-ui-card-block-preview-image-container {
+	min-height: 170px;
+}
+
+.landing-ui-requires-update-overlay {
+	background-color: rgba(255, 255, 255, .6);
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	z-index: 900;
+}
+
+.landing-ui-requires-update-overlay::after {
+	content: "";
+	position: absolute;
+	top: calc(50% - calc(77px / 2));
+	left: 50%;
+	transform: translate3d(-50%, -50%, 0);
+	width: 73px;
+	height: 73px;
+	background-image: url("/bitrix/images/landing/requires_updates.svg");
+	background-repeat: no-repeat;
+	background-position: center;
+	z-index: 3;
+}
+
+.landing-ui-requires-update-overlay-footer {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	background-color: rgba(255, 255, 255, .8);
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding: 10px 20px;
+	color: #525C69;
+}
+
+.landing-ui-requires-update-overlay-footer a {
+	color: #2FC6F6;
+	text-decoration: none!important;
+	border-bottom: 1px rgba(47, 198, 246, .4) solid;
+	white-space: nowrap;
+	pointer-events: all;
+	transition: opacity 200ms ease;
+}
+
+.landing-ui-requires-update-overlay-footer a:hover,
+.landing-ui-requires-update-overlay-footer a:active {
+	color: #2FC6F6;
+	opacity: .6;
 }

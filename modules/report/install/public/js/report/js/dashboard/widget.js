@@ -105,15 +105,23 @@
 				{
 					return this.layout.lazyLoadPresetContainer;
 				}
+				var preview = this.runtimeContent.renderPreview();
+				if (preview)
+				{
+					this.layout.lazyLoadPresetContainer = preview;
+				}
+				else
+				{
+					var loader = new BX.Loader({size: 60});
+					this.layout.lazyLoadPresetContainer = BX.create('div', {
+						attrs: {
+							className: 'report-visualconstructor-dashboard-widget-lazy-load-preset'
+						}
+					});
+					loader.show(this.layout.lazyLoadPresetContainer);
+				}
 
-				var loader = new BX.Loader({size: 60});
-				this.layout.lazyLoadPresetContainer = BX.create('div', {
-					attrs: {
-						className: 'report-visualconstructor-dashboard-widget-lazy-load-preset'
-					}
-				});
 
-				loader.show(this.layout.lazyLoadPresetContainer);
 				return this.layout.lazyLoadPresetContainer;
 			},
 			getWidgetContainer: function ()

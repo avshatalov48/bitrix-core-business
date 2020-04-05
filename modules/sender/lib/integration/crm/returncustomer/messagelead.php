@@ -17,7 +17,7 @@ use Bitrix\Sender\PostingRecipientTable;
  * Class MessageLead
  * @package Bitrix\Sender\Integration\Crm\ReturnCustomer;
  */
-class MessageLead extends MessageBase
+class MessageLead extends MessageBase implements Message\iHideable
 {
 	const CODE = self::CODE_RC_LEAD;
 
@@ -28,6 +28,16 @@ class MessageLead extends MessageBase
 	public function getName()
 	{
 		return Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_NAME_LEAD');
+	}
+
+	/**
+	 * Return true if is hidden.
+	 *
+	 * @return bool
+	 */
+	public function isHidden()
+	{
+		return !Service::isLeadEnabled();
 	}
 
 	protected function setConfigurationOptions()

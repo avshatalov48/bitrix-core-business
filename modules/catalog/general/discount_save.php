@@ -150,6 +150,7 @@ class CAllCatalogDiscountSave
 		$arFields['PRIORITY'] = 1;
 		$arFields['LAST_DISCOUNT'] = 'N';
 		$arFields['VERSION'] = Catalog\DiscountTable::ACTUAL_VERSION;
+		$arFields['USE_COUPONS'] = 'N';
 
 		if ((is_set($arFields, "SITE_ID") || $strAction=="ADD") && empty($arFields["SITE_ID"]))
 		{

@@ -1,4 +1,7 @@
 <?
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION_ADMIN"] = "Bitrix24 provides easy and hassle free SMS messaging.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_FOOTER_2_ADMIN"] = "You are only a few steps away from test driving the SMS notification service. You can test up to five texts per day.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TEST_DESCRIPTION_ADMIN"] = "Test the SMS notification service. You can send up to five free texts per day. Type a message below and click Send. The message will be sent to the specified number.";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE"] = "SMS notifications are simple!";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE_2"] = "Provided by SMS.RU";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_TITLE"] = "Explore possibilities of SMS marketing";

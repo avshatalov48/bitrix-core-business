@@ -63,7 +63,7 @@ $log = Bitrix\Mail\MailLogTable::getList(array(
 		'*', 'MAILBOX_NAME' => 'MAILBOX.NAME', 'FILTER_NAME' => 'FILTER.NAME', 'MESSAGE_SUBJECT' => 'MAIL_MESSAGE.SUBJECT'
 	),
 	'filter'      => array_filter($arFilter),
-	'order'       => array(strtoupper($by) => $order),
+	'order'       => array(strtoupper($by) => $order, 'ID' => $order),
 	'offset'      => $nav->getOffset(),
 	'limit'       => $nav->getLimit(),
 	'count_total' => true,

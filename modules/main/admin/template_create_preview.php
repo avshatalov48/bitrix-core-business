@@ -191,9 +191,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($edit_php || $lpa) && check_bitrix_s
 			$php_begin = $res_php[0][1];
 			$php_fr_num = intval(substr($CONTENT, $php_begin + 4, 4)) - 1; // Number of PHP fragment from #PHPXXXX# conctruction
 			if (isset($arPHPscripts[$php_fr_num]))
-				$CONTENT = substr($CONTENT, 0, $php_begin).'<?'.$arPHPscripts[$php_fr_num].'?>'.substr($CONTENT, $php_begin + 9);
+			{
+				$codeFragment = '<?'.$arPHPscripts[$php_fr_num].'?>';
+			}
 			else
-				$CONTENT = substr($CONTENT, 0, $php_begin).substr($CONTENT, $php_begin + 9);
+			{
+				$codeFragment = '<??>';
+			}
+			$CONTENT = substr($CONTENT, 0, $php_begin).$codeFragment.substr($CONTENT, $php_begin + 9);
 		}
 
 		//Add ..->ShowPanel() & "Secutity Stubs"

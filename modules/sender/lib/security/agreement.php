@@ -89,4 +89,16 @@ class Agreement
 
 		return $msg;
 	}
+
+	/**
+	 * Get agreement error text.
+	 *
+	 * @return string
+	 */
+	public static function getErrorText()
+	{
+		Loc::loadMessages(__FILE__);
+
+		return Loc::getMessage("SENDER_SECURITY_AGREEMENT_ERROR");
+	}
 }

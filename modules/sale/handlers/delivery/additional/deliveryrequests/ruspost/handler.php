@@ -41,7 +41,8 @@ class Handler extends Requests\HandlerBase
 		$requestClasses = array(
 			'Base', 'BaseFile', 'OrderCreate', 'OrderDelete', 'CleanAddress', 'NormalizeFio', 'BatchCreate',
 			'OrderDocF7P', 'OrderDocForms', 'BatchOrderAdd', 'BatchesList', 'BatchOrders', 'BatchDocF103',
-			'BatchDocPrepare', 'BatchDateUpdate', 'BatchDocAll', 'Batch', 'BatchOrder', 'OPS', 'OrderDocF112EK'
+			'BatchDocPrepare', 'BatchDateUpdate', 'BatchDocAll', 'Batch', 'BatchOrder', 'OPS', 'OrderDocF112EK',
+			'UserSettings'
 		);
 		$classes = array(
 			__NAMESPACE__.'\Reference' => 'handlers/delivery/additional/deliveryrequests/ruspost/reference.php'
@@ -218,26 +219,34 @@ class Handler extends Requests\HandlerBase
 				)
 			);
 
-			//todo: cache
-			$opsRes = $this->getRequestObject('OPS')->send();
+			$opsList = array();
+			$ops = $this->getDeliveryServiceOps();
 
-			if($opsRes->isSuccess())
+			if(!empty($ops['VALUE']) && isset($ops['NAME']))
 			{
-				$opsList = array();
+				$opsList[$ops['VALUE']] = $ops['NAME'];
+			}
+			else
+			{
+				//todo: cache
+				$opsRes = $this->getRequestObject('OPS')->send();
 
-				foreach($opsRes->getData() as $ops)
-					if($ops['enabled'] == true)
-						$opsList[$ops['operator-postcode']] = '('.$ops['operator-postcode'].') '.$ops['ops-address'];
-
-				if(!empty($opsList))
+				if($opsRes->isSuccess())
 				{
-					$result["OPS"] = array(
-						"TYPE" => "ENUM",
-						"TITLE" => Loc::getMessage('SALE_DLVRS_ADD_DREQ_OPS'),
-						"REQUIRED" => "Y",
-						"OPTIONS" => $opsList
-					);
+					foreach($opsRes->getData() as $ops)
+						if($ops['enabled'] == true)
+							$opsList[$ops['operator-postcode']] = '('.$ops['operator-postcode'].') '.$ops['ops-address'];
 				}
+			}
+
+			if(!empty($opsList))
+			{
+				$result["OPS"] = array(
+					"TYPE" => "ENUM",
+					"TITLE" => Loc::getMessage('SALE_DLVRS_ADD_DREQ_OPS'),
+					"REQUIRED" => "Y",
+					"OPTIONS" => $opsList
+				);
 			}
 		}
 		elseif($formFieldsType == Requests\Manager::FORM_FIELDS_TYPE_ACTION)
@@ -250,6 +259,11 @@ class Handler extends Requests\HandlerBase
 		}
 
 		return $result;
+	}
+
+	protected function getDeliveryServiceOps()
+	{
+		return \Sale\Handlers\Delivery\Additional\RusPost\Helper::getSelectedShippingPoint($this->deliveryService);
 	}
 
 	/**
@@ -277,6 +291,7 @@ class Handler extends Requests\HandlerBase
 			'BATCH' => 'Batch',
 			'BATCHORDER' => 'BatchOrder',
 			'OPS' => 'OPS',
+			'USER_SETTINGS' => 'UserSettings',
 			'ORDER_DOC_F112EK' => 'OrderDocF112EK'
 		);
 

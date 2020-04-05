@@ -13,7 +13,9 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
 global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
-if (!CModule::IncludeModule("socialnetwork"))
+use Bitrix\Main\Loader;
+
+if (!Loader::includeModule("socialnetwork"))
 {
 	ShowError(GetMessage("SONET_MODULE_NOT_INSTALL"));
 	return;
@@ -114,11 +116,22 @@ if (
 	{
 		$arResult["Group"] = $arGroup;
 
-		if (CModule::IncludeModule("extranet") && !CExtranet::IsExtranetSite() && in_array(CExtranet::GetExtranetSiteID(), $arGroupSites))
+		if (
+			Loader::includeModule("extranet")
+			&& !CExtranet::IsExtranetSite()
+			&& in_array(CExtranet::GetExtranetSiteID(), $arGroupSites)
+		)
+		{
 			$arResult["Group"]["IS_EXTRANET"] = "Y";
+		}
 
-		if ($arResult["Group"]["CLOSED"] == "Y" && COption::GetOptionString("socialnetwork", "work_with_closed_groups", "N") != "Y")
+		if (
+			$arResult["Group"]["CLOSED"] == "Y"
+			&& COption::GetOptionString("socialnetwork", "work_with_closed_groups", "N") != "Y"
+		)
+		{
 			$arResult["HideArchiveLinks"] = true;
+		}
 
 		$arResult["CurrentUserPerms"] = CSocNetUserToGroup::InitUserPerms($USER->GetID(), $arResult["Group"], CSocNetUser::IsCurrentUserModuleAdmin());
 
@@ -163,7 +176,7 @@ if (
 			$arResult["CanView"]["files"] = array_key_exists("files", $arResult["ActiveFeatures"]);
 			if($arResult["CanView"]["files"])
 			{
-				$diskEnabled = CModule::includeModule('disk') && \Bitrix\Disk\Driver::isSuccessfullyConverted();
+				$diskEnabled = (Loader::includeModule('disk') && \Bitrix\Disk\Driver::isSuccessfullyConverted());
 				if($diskEnabled)
 				{
 					$arResult["Urls"]["Files"] = CComponentEngine::makePathFromTemplate($arParams["PATH_TO_GROUP_DISK"], array(
@@ -210,6 +223,41 @@ if (
 			while ($arEvent = $events->Fetch())
 			{
 				ExecuteModuleEventEx($arEvent, array(&$arResult, array("ENTITY_TYPE" => SONET_ENTITY_GROUP, "ENTITY_ID" => $arResult["Group"]["ID"])));
+			}
+
+			if (Loader::includeModule('rest'))
+			{
+				$arResult["CanView"]['marketplace'] = array_key_exists('marketplace', $arResult["ActiveFeatures"]);
+				$arResult["Title"]['marketplace'] = (
+					array_key_exists('marketplace', $arResult["ActiveFeatures"])
+					&& strLen($arResult["ActiveFeatures"]['marketplace']) > 0
+						? $arResult["ActiveFeatures"]['marketplace']
+						: Bitrix\Main\Localization\Loc::getMessage('SONET_UM_MARKETPLACE')
+				);
+				$arResult["Urls"]['marketplace'] = $arResult["Urls"]["view"]."marketplace/";
+
+				$placementHandlerList = \Bitrix\Rest\PlacementTable::getHandlersList('SONET_GROUP_DETAIL_TAB');
+
+				if(is_array($placementHandlerList))
+				{
+					foreach($placementHandlerList as $placementHandler)
+					{
+						$tabId = 'placement_'.$placementHandler['ID'];
+
+						$arResult["CanView"][$tabId] = array_key_exists($tabId, $arResult["ActiveFeatures"]);
+						$arResult["Title"][$tabId] = (
+							array_key_exists($tabId, $arResult["ActiveFeatures"])
+							&& strLen($arResult["ActiveFeatures"][$tabId]) > 0
+									? $arResult["ActiveFeatures"][$tabId]
+									: (
+										!empty($placementHandler['TITLE']) > 0
+											? $placementHandler['TITLE']
+											: $placementHandler['APP_NAME']
+									)
+						);
+						$arResult["Urls"][$tabId] = $arResult["Urls"]["view"]."app/".$placementHandler['ID']."/";
+					}
+				}
 			}
 
 			$this->IncludeComponentTemplate();

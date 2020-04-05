@@ -51,6 +51,7 @@
 			{
 				var formButton = new BX.Landing.UI.Button.SidebarButton("form_button", {
 					text: form.title,
+					empty: !form.fields.length,
 					onClick: function()
 					{
 						this.scrollTo(form.layout);

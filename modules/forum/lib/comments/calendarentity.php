@@ -5,7 +5,7 @@ namespace Bitrix\Forum\Comments;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 
-final class TaskEntity extends Entity
+final class CalendarEntity extends Entity
 {
 	const ENTITY_TYPE = 'ev';
 	const MODULE_ID = 'calendar';
@@ -24,7 +24,7 @@ final class TaskEntity extends Entity
 		{
 			return $this->canRead;
 		}
-		$this->canRead = \CCalendarEvent::canView($this->entityId, $userId);
+		$this->canRead = \CCalendarEvent::canView($this->getId(), $userId);
 
 		return $this->canRead;
 	}

@@ -55,7 +55,7 @@ jsDD = {
 	{
 		jsDD.arObjects = [];
 		jsDD.arDestinations = [];
-		arDestinationsPriority = [];
+		jsDD.arDestinationsPriority = [];
 		jsDD.bStarted = false;
 		jsDD.current_node = null;
 		jsDD.current_dest_index = false;

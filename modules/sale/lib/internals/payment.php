@@ -19,6 +19,11 @@ class PaymentTable extends Main\Entity\DataManager
 		return 'b_sale_order_payment';
 	}
 
+	public static function getUfId()
+	{
+		return 'PAYMENT';
+	}
+
 	public static function getMap()
 	{
 		return array(

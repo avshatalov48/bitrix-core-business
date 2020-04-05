@@ -54,10 +54,10 @@ abstract class ManagerBase
 	}
 
 	/**
-	 * @param $typeId
-	 * @return ImportBase
+	 * @param ImportBase $entity
+	 * @throws NotImplementedException
 	 */
-	static public function create($typeId)
+	static public function configure(ImportBase $entity)
 	{
 		throw new NotImplementedException('The method is not implemented.');
 	}

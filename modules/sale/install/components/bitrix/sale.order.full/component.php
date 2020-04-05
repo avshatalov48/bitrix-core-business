@@ -39,7 +39,7 @@ $arParams["SEND_NEW_USER_NOTIFY"] = (($arParams["SEND_NEW_USER_NOTIFY"] == "N") 
 $arResult["AUTH"]["new_user_registration_email_confirmation"] = ((COption::GetOptionString("main", "new_user_registration_email_confirmation", "N") == "Y") ? "Y" : "N");
 $arResult["AUTH"]["new_user_registration"] = ((COption::GetOptionString("main", "new_user_registration", "Y") == "Y") ? "Y" : "N");
 
-$bUseAccountNumber = (COption::GetOptionString("sale", "account_number_template", "") !== "") ? true : false;
+$bUseAccountNumber = \Bitrix\Sale\Integration\Numerator\NumeratorOrder::isUsedNumeratorForOrder();
 
 if (!$arParams["DELIVERY_NO_SESSION"])
 	$arParams["DELIVERY_NO_SESSION"] = "N";

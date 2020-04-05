@@ -14,7 +14,7 @@ Localization\Loc::loadMessages(__FILE__);
  */
 class ConturOfd extends Ofd
 {
-	const ACTIVE_URL = 'https://cash.kontur.ru/CashReceipt/View';
+	const ACTIVE_URL = 'https://cash-ntt.kontur.ru/CashReceipt/View';
 
 	/**
 	 * @return string

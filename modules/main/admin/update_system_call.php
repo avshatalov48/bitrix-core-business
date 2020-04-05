@@ -176,6 +176,8 @@ if ($queryType == "M")
 			echo ($bFirst ? "" : ", ").$arUpdateDescription["DATA"]["#"]["ITEM"][$i]["@"]["NAME"].(($arUpdateDescription["DATA"]["#"]["ITEM"][$i]["@"]["VALUE"] != "0") ? " (".$arUpdateDescription["DATA"]["#"]["ITEM"][$i]["@"]["VALUE"].")" : "");
 			$bFirst = False;
 		}
+
+		CUpdateClient::finalizeModuleUpdate($arUpdateDescription["DATA"]["#"]["ITEM"]);
 	}
 }
 elseif ($queryType == "L")
@@ -346,6 +348,8 @@ elseif ($queryType == "L")
 					echo ($bFirst ? "" : ", ").$key.((StrLen($value) > 0) ? "(".$value.")" : "");
 					$bFirst = False;
 				}
+
+				CUpdateClient::finalizeLanguageUpdate($arItemsUpdated);
 			}
 		}
 	}

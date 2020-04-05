@@ -72,6 +72,7 @@ include($_SERVER["DOCUMENT_ROOT"].$this->GetFolder()."/lang/".LANGUAGE_ID."/resu
 
 $arActiveFeatures = CSocNetFeatures::GetActiveFeaturesNames(SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"]);
 
+$arMenuTmp = array();
 $events = GetModuleEvents("socialnetwork", "OnFillSocNetMenu");
 while ($arEvent = $events->Fetch())
 {
@@ -88,7 +89,9 @@ foreach($arSocNetFeaturesSettings as $feature_id => $arFeatureTmp)
 		&& count($arFeatureTmp["allowed"]) > 0
 		&& !in_array(SONET_ENTITY_GROUP, $arFeatureTmp["allowed"])
 	)
+	{
 		continue;
+	}
 
 	$arFeaturesTitles[$feature_id] = (
 		array_key_exists($feature_id, $arActiveFeatures) && StrLen($arActiveFeatures[$feature_id]) > 0 

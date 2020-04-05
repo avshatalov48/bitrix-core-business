@@ -219,10 +219,10 @@ Bitrix\Conversion\AdminHelpers\renderFilter($filter);
 
 					foreach ($sites as $id => $name)
 					{
-						$menuItems[$name] = array_merge($filter, array('site' => $id));
+						$menuItems[sprintf('%s (%s)', $name, $id)] = array_merge($filter, array('site' => $id));
 					}
 
-					Bitrix\Conversion\AdminHelpers\renderSite($siteName, $menuItems);
+					Bitrix\Conversion\AdminHelpers\renderSite(sprintf('%s (%s)', $siteName, $site), $menuItems);
 
 					?>
 					<div class="adm-profit-title"><?=Loc::getMessage('CONVERSION_DETAILED_FILTER_SPLIT').': '.($attributeType['NAME'] ?: $attributeName)?></div>

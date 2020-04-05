@@ -54,6 +54,7 @@ $arDefPropInfo = array(
 	'DISPLAY_TYPE' => '',
 	'DISPLAY_EXPANDED' => 'N',
 	'FILTER_HINT' => '',
+	'FEATURES' => []
 );
 
 $arDisabledPropFields = array(
@@ -86,6 +87,7 @@ $arHiddenPropFields = array(
 	'DISPLAY_TYPE',
 	'DISPLAY_EXPANDED',
 	'FILTER_HINT',
+	'FEATURES'
 );
 
 function CheckIBlockTypeID($strIBlockTypeID,$strNewIBlockTypeID,$strNeedAdd)
@@ -179,7 +181,7 @@ function CheckIBlockTypeID($strIBlockTypeID,$strNewIBlockTypeID,$strNeedAdd)
 function ConvProp(&$arProperty,$arHiddenPropFields)
 {
 	$arEncodedProp = array();
-	foreach ($arHiddenPropFields as &$strPropField)
+	foreach ($arHiddenPropFields as $strPropField)
 	{
 		if (isset($arProperty[$strPropField]))
 		{
@@ -235,13 +237,13 @@ function GetPropertyInfo($strPrefix, $ID, $boolUnpack = true, $arHiddenPropField
 				{
 					$arResult[$strFieldKey] = (isset($arPropInfo[$strFieldKey]) ? $arPropInfo[$strFieldKey] : $arDefPropInfo[$strFieldKey]);
 				}
-				$arResult['ROW_COUNT'] = intval($arResult['ROW_COUNT']);
+				$arResult['ROW_COUNT'] = (int)$arResult['ROW_COUNT'];
 				if (0 >= $arResult['ROW_COUNT'])
 					$arResult['ROW_COUNT'] = $arDefPropInfo['ROW_COUNT'];
-				$arResult['COL_COUNT'] = intval($arResult['COL_COUNT']);
+				$arResult['COL_COUNT'] = (int)$arResult['COL_COUNT'];
 				if (0 >= $arResult['COL_COUNT'])
 					$arResult['COL_COUNT'] = $arDefPropInfo['COL_COUNT'];
-				$arResult['LINK_IBLOCK_ID'] = intval($arResult['LINK_IBLOCK_ID']);
+				$arResult['LINK_IBLOCK_ID'] = (int)$arResult['LINK_IBLOCK_ID'];
 				if (0 > $arResult['LINK_IBLOCK_ID'])
 					$arResult['LINK_IBLOCK_ID'] = $arDefPropInfo['LINK_IBLOCK_ID'];
 				$arResult['WITH_DESCRIPTION'] = ('Y' == $arResult['WITH_DESCRIPTION'] ? 'Y' : 'N');
@@ -251,7 +253,7 @@ function GetPropertyInfo($strPrefix, $ID, $boolUnpack = true, $arHiddenPropField
 				$arResult['SMART_FILTER'] = ('Y' == $arResult['SMART_FILTER'] ? 'Y' : 'N');
 				$arResult['DISPLAY_TYPE'] = substr($arResult['DISPLAY_TYPE'], 0, 1);
 				$arResult['DISPLAY_EXPANDED'] = ('Y' == $arResult['DISPLAY_EXPANDED'] ? 'Y' : 'N');
-				$arResult['MULTIPLE_CNT'] = intval($arResult['MULTIPLE_CNT']);
+				$arResult['MULTIPLE_CNT'] = (int)$arResult['MULTIPLE_CNT'];
 				if (0 >= $arResult['MULTIPLE_CNT'])
 					$arResult['MULTIPLE_CNT'] = $arDefPropInfo['MULTIPLE_CNT'];
 				$arResult['LIST_TYPE'] = ('C' == $arResult['LIST_TYPE'] ? 'C' : 'L');
@@ -262,7 +264,7 @@ function GetPropertyInfo($strPrefix, $ID, $boolUnpack = true, $arHiddenPropField
 			{
 				$arResult['PROPINFO'] = $strEncodePropInfo;
 			}
-			if (0 < intval($ID))
+			if (0 < (int)$ID)
 			{
 				$arResult['DEL'] = (isset($_POST[$strPrefix.$ID."_DEL"]) && ('Y' == $_POST[$strPrefix.$ID."_DEL"]) ? 'Y' : 'N');
 			}
@@ -512,6 +514,8 @@ if(
 	&& !isset($_POST["propedit"])
 )
 {
+	$adminSidePanelHelper->decodeUriComponent();
+
 	$DB->StartTransaction();
 
 	$arPICTURE = $_FILES["PICTURE"];
@@ -778,6 +782,7 @@ if(
 			}
 
 			/********************/
+			\CIBlock::disableClearTagCache();
 			$ibp = new CIBlockProperty();
 			foreach($arProperties as $property_id => $arProperty)
 			{
@@ -813,6 +818,9 @@ if(
 					}
 				}
 			}
+			\CIBlock::enableClearTagCache();
+			if (!$bVarsFromForm)
+				\CIBlock::clearIblockTagCache($ID);
 			/*******************************************/
 
 			if(!CIBlockSectionPropertyLink::HasIBlockLinks($ID))
@@ -1107,6 +1115,7 @@ if(
 
 									if (!$bVarsFromForm)
 									{
+										\CIBlock::disableClearTagCache();
 										foreach ($arOfPropList as $arOFProperty)
 										{
 											$arOFProperty['IBLOCK_ID'] = $OF_IBLOCK_ID;
@@ -1117,6 +1126,7 @@ if(
 												$bVarsFromForm = true;
 											}
 										}
+										\CIBlock::enableClearTagCache();
 									}
 								}
 								else
@@ -1309,15 +1319,24 @@ if(
 					}
 				}
 
-				$ob = new CAutoSave();
-				if(strlen($apply)<=0)
+				$reloadUrl = "/bitrix/admin/iblock_edit.php?type=".$type."&tabControl_active_tab=".urlencode($tabControl_active_tab)."&lang=".LANGUAGE_ID."&ID=".$ID."&admin=".($_REQUEST["admin"]=="Y"? "Y": "N").(strlen($_REQUEST["return_url"])>0? "&return_url=".urlencode($_REQUEST["return_url"]): "");
+				if ($adminSidePanelHelper->isAjaxRequest())
 				{
-					if(strlen($_REQUEST["return_url"])>0)
-						LocalRedirect($_REQUEST["return_url"]);
-					else
-						LocalRedirect("/bitrix/admin/iblock_admin.php?type=".$type."&lang=".LANG."&admin=".($_REQUEST["admin"]=="Y"? "Y": "N"));
+					$reloadUrl .= "&IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER";
+					$adminSidePanelHelper->sendSuccessResponse("apply", array("ID" => $ID, "reloadUrl" => $reloadUrl));
 				}
-				LocalRedirect("/bitrix/admin/iblock_edit.php?type=".$type."&tabControl_active_tab=".urlencode($tabControl_active_tab)."&lang=".LANG."&ID=".$ID."&admin=".($_REQUEST["admin"]=="Y"? "Y": "N").(strlen($_REQUEST["return_url"])>0? "&return_url=".urlencode($_REQUEST["return_url"]): ""));
+				else
+				{
+					$ob = new CAutoSave();
+					if(strlen($apply)<=0)
+					{
+						if(strlen($_REQUEST["return_url"])>0)
+							LocalRedirect($_REQUEST["return_url"]);
+						else
+							LocalRedirect("/bitrix/admin/iblock_admin.php?type=".$type."&lang=".LANGUAGE_ID."&admin=".($_REQUEST["admin"]=="Y"? "Y": "N"));
+					}
+					LocalRedirect($reloadUrl);
+				}
 			}
 		}
 	}
@@ -1345,6 +1364,11 @@ if(
 		LocalRedirect($APPLICATION->GetCurPageParam("", Array("delete_bizproc_template", "sessid")));
 		die();
 	}
+}
+
+if ($adminSidePanelHelper->isAjaxRequest() && $bVarsFromForm && $strWarning)
+{
+	$adminSidePanelHelper->sendJsonErrorResponse($strWarning);
 }
 
 
@@ -1570,7 +1594,7 @@ $u->Show();
 <script>
 	var InheritedPropertiesTemplates = new JCInheritedPropertiesTemplates(
 		'frm',
-		'/bitrix/admin/iblock_templates.ajax.php?ENTITY_TYPE=B&ENTITY_ID=<?echo intval($ID)?>'
+		'iblock_templates.ajax.php?ENTITY_TYPE=B&ENTITY_ID=<?echo intval($ID)?>&bxpublic=y'
 	);
 	BX.ready(function(){
 		setTimeout(function(){
@@ -1739,7 +1763,7 @@ $tabControl->BeginNextTab();
 				<input type="hidden" name="VERSION" value="<?=$str_VERSION?>">
 				<?if($str_VERSION==1)echo GetMessage("IB_E_COMMON_STORAGE")?>
 				<?if($str_VERSION==2)echo GetMessage("IB_E_SEPARATE_STORAGE")?>
-				<br><a href="iblock_convert.php?lang=<?=LANG?>&amp;IBLOCK_ID=<?echo $str_ID?>"><?=$str_LAST_CONV_ELEMENT>0?"<span class=\"required\">".GetMessage("IB_E_CONVERT_CONTINUE"):GetMessage("IB_E_CONVERT_START")."</span>"?></a>
+				<br><a href="/bitrix/admin/iblock_convert.php?lang=<?=LANG?>&amp;IBLOCK_ID=<?echo $str_ID?>"><?=$str_LAST_CONV_ELEMENT>0?"<span class=\"required\">".GetMessage("IB_E_CONVERT_CONTINUE"):GetMessage("IB_E_CONVERT_START")."</span>"?></a>
 			</td>
 		</tr>
 		<tr>
@@ -3174,6 +3198,18 @@ $tabControl->BeginNextTab();
 							}
 						}
 
+						$arProp['FEATURES'] = [];
+						$iterator = Iblock\PropertyFeatureTable::getList([
+							'select' => ['ID', 'MODULE_ID', 'FEATURE_ID', 'IS_ENABLED'],
+							'filter' => ['=PROPERTY_ID' => $arProp['ID']]
+						]);
+						while ($row = $iterator->fetch())
+						{
+							$index = Iblock\Model\PropertyFeature::getIndex($row);
+							$arProp['FEATURES'][$index] = $row;
+						}
+						unset($index, $row, $iterator);
+
 						if(array_key_exists($arProp["ID"], $arPropLinks))
 						{
 							$arProp["SECTION_PROPERTY"] = "Y";
@@ -4341,11 +4377,6 @@ if ($bCatalog)
 	$tabControl->BeginNextTab();
 	?>
 	<script type="text/javascript">
-	BX.message({
-		'IB_E_CAT_CONFIRM': '<? echo CUtil::JSEscape(GetMessage('IB_E_CAT_CONFIRM'));?>'
-	});
-	</script>
-	<script type="text/javascript">
 	var obOFProps = new JCIBlockProperty({
 		'PREFIX': '<? echo $strPREFIX_OF_PROPERTY ?>',
 		'FORM_ID': 'frm',
@@ -4366,7 +4397,7 @@ if ($bCatalog)
 		<td  width="40%"><label for="IS_CATALOG_Y"><?echo GetMessage("IB_E_IS_CATALOG")?></label></td>
 		<td width="60%">
 			<input type="hidden" name="IS_CATALOG" id="IS_CATALOG_N" value="N">
-			<input type="checkbox" name="IS_CATALOG" id="IS_CATALOG_Y" value="Y"<?if('Y' == $str_IS_CATALOG)echo " checked"?><? if ('O' == $str_CATALOG_TYPE) echo ' disabled="disabled"'; ?> onclick="ib_checkFldActivity(0,'<? echo $str_IS_CATALOG; ?>');">
+			<input type="checkbox" name="IS_CATALOG" id="IS_CATALOG_Y" value="Y"<?if('Y' == $str_IS_CATALOG)echo " checked"?><? if ('O' == $str_CATALOG_TYPE) echo ' disabled="disabled"'; ?> onclick="ib_checkFldActivity(0);">
 		</td>
 	</tr><?
 	if (CBXFeatures::IsFeatureEnabled('SaleRecurring'))
@@ -4375,7 +4406,7 @@ if ($bCatalog)
 		<td  width="40%"><label for="IS_CONTENT_Y"><?echo GetMessage("IB_E_IS_CONTENT")?></label></td>
 		<td width="60%">
 			<input type="hidden" id="IS_CONTENT_N" name="SUBSCRIPTION" value="N">
-			<input type="checkbox" id="IS_CONTENT_Y" name="SUBSCRIPTION" value="Y"<?if('Y' == $str_SUBSCRIPTION)echo " checked"?> onclick="ib_checkFldActivity(1,'<? echo $str_IS_CATALOG; ?>')">
+			<input type="checkbox" id="IS_CONTENT_Y" name="SUBSCRIPTION" value="Y"<?if('Y' == $str_SUBSCRIPTION)echo " checked"?> onclick="ib_checkFldActivity(1);">
 		</td>
 	</tr><?
 	}
@@ -4573,7 +4604,6 @@ if ($bCatalog)
 		is_yand = BX('YANDEX_EXPORT_Y'),
 		vat_id = BX('VAT_ID'),
 		cat_type =  BX('CATALOG_TYPE'),
-		use_sku = BX('USED_SKU_Y'),
 		ob_sku_settings = BX('SKU-SETTINGS'),
 		ob_offers_add = BX('offers_add_info'),
 		ob_of_iblock_type_id = BX('OF_IBLOCK_TYPE_ID'),
@@ -4581,44 +4611,44 @@ if ($bCatalog)
 
 	//var ob_sku_rights = BX('offers_rights');
 
-	function ib_checkFldActivity(flag,catalog)
+	function ib_checkFldActivity(flag)
 	{
-		catalog = (catalog == 'Y' ? 'Y' : 'N');
-		if (0 == flag)
+		if (
+			!BX.type.isElementNode(is_cat)
+			|| !BX.type.isElementNode(is_yand)
+			|| !BX.type.isElementNode(vat_id)
+		)
+			return;
+		if (flag === 0)
 		{
-			if (undefined != cat_type)
+			if (BX.type.isElementNode(cat_type))
 			{
-				if ('O' == cat_type.value)
+				if (cat_type.value === 'O')
 					is_cat.checked = true;
-			}
-			if (catalog == 'Y' && !is_cat.checked)
-			{
-				is_cat.checked = !confirm(BX.message('IB_E_CAT_CONFIRM'));
 			}
 			if (!is_cat.checked)
 			{
-				if (!!is_cont)
+				if (BX.type.isElementNode(is_cont))
 					is_cont.checked = false;
 				is_yand.checked = false;
 			}
 		}
-		if (1 == flag)
+		if (flag === 1)
 		{
-			if (!!is_cont && is_cont.checked)
+			if (!BX.type.isElementNode(is_cont))
+				return;
+			if (is_cont.checked)
 				is_cat.checked = true;
 		}
 
-		var bActive = is_cat.checked;
-		is_yand.disabled = !bActive;
-		vat_id.disabled = !bActive;
+		is_yand.disabled = !is_cat.checked;
+		vat_id.disabled = !is_cat.checked;
 	}
 	function ib_skumaster(obj)
 	{
-		if (undefined != ob_sku_settings)
-		{
-			var bActive = obj.checked;
-			ob_sku_settings.style.display = (true == bActive ? 'block' : 'none');
-		}
+		if (!BX.type.isElementNode(ob_sku_settings))
+			return;
+		ob_sku_settings.style.display = (obj.checked ? 'block' : 'none');
 	}
 
 	function show_add_offers(obj)
@@ -4643,18 +4673,21 @@ if ($bCatalog)
 	function change_offers_ibtype(obj)
 	{
 		var value = obj.value;
-		if ('Y' == value)
+		if (value !== 'Y' && value !== 'N')
+			return;
+		if (value === 'Y')
 		{
 			ob_of_iblock_type_id.disabled = true;
 			ob_of_new_iblock_type_id.disabled = false;
 		}
-		else if ('N' == value)
+		else
 		{
 			ob_of_iblock_type_id.disabled = false;
 			ob_of_new_iblock_type_id.disabled = true;
 		}
 	}
-</script>	<?
+</script>
+<?
 }
 
 if(CIBlockRights::UserHasRightTo($ID, $ID, "iblock_rights_edit"))
@@ -4801,9 +4834,8 @@ if(CIBlockRights::UserHasRightTo($ID, $ID, "iblock_rights_edit"))
 					<span id="spn_group_<?echo $r["ID"]?>"></span>
 			</td>
 		</tr>
-		<?endwhile?>
-	<?endif?>
-	<?
+		<?endwhile;
+	endif;
 }//if(CIBlockRights::UserHasRightTo($ID, $ID, "iblock_rights_edit"))
 
 $tabControl->BeginNextTab();
@@ -4926,8 +4958,8 @@ $tabControl->BeginNextTab();
 					?>
 				</table>
 				<br>
-			<?endif;?>
-			<?if(IsModuleInstalled("bizprocdesigner")):?>
+			<?endif;
+			if(IsModuleInstalled("bizprocdesigner")):?>
 			<a href="/bitrix/admin/iblock_bizproc_workflow_admin.php?document_type=iblock_<?= $ID ?>&lang=<?=LANGUAGE_ID?>&back_url_list=<?= urlencode($APPLICATION->GetCurPageParam("", array())) ?>" target="_blank"><?echo GetMessage("IB_E_GOTO_BP")?></a>
 			<?endif?>
 		</td>
@@ -4954,25 +4986,28 @@ $tabControl->BeginNextTab();
 				<input type="checkbox" value="Y" id="FIELDS[<?echo $FIELD_ID?>][IS_REQUIRED]" name="FIELDS[<?echo $FIELD_ID?>][IS_REQUIRED]" <?if($arFields[$FIELD_ID]["IS_REQUIRED"]==="Y" || $arDefFields[$FIELD_ID]["IS_REQUIRED"]!==false) echo "checked"?> <?if($arDefFields[$FIELD_ID]["IS_REQUIRED"]!==false) echo "disabled"?>>
 			</td>
 		</tr>
-	<?endforeach?>
-<?
-	$tabControl->Buttons(array("disabled"=>false, "back_url"=>'iblock_admin.php?lang='.LANGUAGE_ID.'&type='.urlencode($type).'&admin='.($_REQUEST["admin"]=="Y"? "Y": "N")));
+	<?endforeach;
+
+	$backUrl = '';
+	if (isset($_REQUEST['return_url']) && is_string($_REQUEST['return_url']))
+		$backUrl = trim($_REQUEST['return_url']);
+	if ($backUrl === '')
+		$backUrl = 'iblock_admin.php?lang='.LANGUAGE_ID.'&type='.urlencode($type).'&admin='.($_REQUEST["admin"]=="Y"? "Y": "N");
+	$tabControl->Buttons(array("disabled"=>false, "back_url"=>$backUrl));
 	$tabControl->End();
+	unset($backUrl);
 	?>
 </form>
-
 <?else:?>
 <br>
-<? ShowError(GetMessage("IBLOCK_BAD_IBLOCK"));?>
-
 <?
+	ShowError(GetMessage("IBLOCK_BAD_IBLOCK"));
 endif;
 
 else: //if($arIBTYPE!==false):?>
 <br>
-<?	ShowError(GetMessage("IBLOCK_BAD_BLOCK_TYPE_ID"));?>
-
 <?
+	ShowError(GetMessage("IBLOCK_BAD_BLOCK_TYPE_ID"));
 endif;// if($arIBTYPE!==false):
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

@@ -151,6 +151,16 @@
 		return result;
 	};
 
+	BX.PhoneNumber.getValidNumberPattern = function()
+	{
+		return validPhoneNumber;
+	};
+
+	BX.PhoneNumber.getValidNumberRegex = function()
+	{
+		return new RegExp(validPhoneNumber);
+	};
+
 	BX.PhoneNumber.prototype.format = function(formatType)
 	{
 		if(this.valid)
@@ -530,12 +540,22 @@
 
 		if(number.isInternational())
 		{
-			return (number.hasPlus() ? '+' : '') + number.getCountryCode() + ' ' + formattedNationalNumber;
+			var formattedNumber = (number.hasPlus() ? '+' : '') + number.getCountryCode() + ' ' + formattedNationalNumber;
 		}
 		else
 		{
-			return formattedNationalNumber;
+			formattedNumber = formattedNationalNumber;
 		}
+
+		// If no digit was inserted/removed/altered in a process of formatting, return the formatted number;
+		var normalizedFormattedNumber = _stripLetters(formattedNumber);
+		var normalizedRawInput = _stripLetters(number.getRawNumber());
+		if (normalizedFormattedNumber !== normalizedRawInput)
+		{
+			formattedNumber = number.getRawNumber();
+		}
+
+		return formattedNumber;
 	};
 
 	BX.PhoneNumberFormatter.selectFormatForNumber = function(nationalNumber, isInternational, countryMetadata)
@@ -632,8 +652,8 @@
 		var patternRegex =  new RegExp(format['pattern']);
 		var nationalNumber = number.getNationalNumber();
 		var countryMetadata = _getCountryMetadata(number.getCountry());
-		var nationalPrefix = number.getNationalPrefix() || '';
-		var hasNationalPrefix = nationalPrefix !== '';
+		var nationalPrefix = _getNationalPrefix(countryMetadata, true);
+		var hasNationalPrefix = _numberContainsNationalPrefix(number.getRawNumber(), nationalPrefix, countryMetadata);
 
 		if(!isInternational && hasNationalPrefix)
 		{
@@ -699,10 +719,10 @@
 	// This is the minimum length of the leading digits of a phone number
 	// to guarantee the first "leading digits pattern" for a phone number format
 	// to be preemptive.
-	const MIN_LEADING_DIGITS_LENGTH = 3;
+	var MIN_LEADING_DIGITS_LENGTH = 3;
 
-	const VALID_INCOMPLETE_PHONE_NUMBER = '[' + plusChar + ']{0,1}' + '[' + validPunctuation + validDigits + ']*';
-	const VALID_INCOMPLETE_PHONE_NUMBER_PATTERN = new RegExp('^' + VALID_INCOMPLETE_PHONE_NUMBER + '$', 'i');
+	var VALID_INCOMPLETE_PHONE_NUMBER = '[' + plusChar + ']{0,1}' + '[' + validPunctuation + validDigits + ']*';
+	var VALID_INCOMPLETE_PHONE_NUMBER_PATTERN = new RegExp('^' + VALID_INCOMPLETE_PHONE_NUMBER + '$', 'i');
 
 	BX.PhoneNumber.IncompleteFormatter = function(defaultCountry)
 	{
@@ -840,7 +860,8 @@
 				return false;
 			}
 			this.hasNationalPrefix = true;
-			this.nationalPrefix = this.nationalNumber.substr(0, this.nationalNumber.length - possibleNationalNumber.length);
+			//this.nationalPrefix = this.nationalNumber.substr(0, this.nationalNumber.length - possibleNationalNumber.length);
+			this.nationalPrefix = this.countryMetadata['nationalPrefix'];
 			this.nationalNumber = possibleNationalNumber;
 			return true;
 		}
@@ -893,12 +914,22 @@
 
 			if(this.isInternational)
 			{
-				return (this.hasPlusChar ? plusChar : '') + this.countryCode + ' ' + this.formattedNumber;
+				var formattedNumber = (this.hasPlusChar ? plusChar : '') + this.countryCode + ' ' + this.formattedNumber;
 			}
 			else
 			{
-				return this.formattedNumber;
+				formattedNumber = this.formattedNumber;
 			}
+
+			// If no digit was inserted/removed/altered in a process of formatting, return the formatted number;
+			var normalizedFormattedNumber = _stripLetters(formattedNumber);
+			var normalizedRawInput = _stripLetters(this.rawInput);
+			if (normalizedFormattedNumber !== normalizedRawInput)
+			{
+				formattedNumber = this.rawInput;
+			}
+
+			return formattedNumber;
 		}
 	};
 
@@ -1086,6 +1117,9 @@
 	 * @param {Element} [params.flagNode]
 	 * @param {int} [params.flagSize] 16, 24 or 32
 	 * @param {string} [params.defaultCountry]
+	 * @param {int} [params.countryPopupHeight] 180
+	 * @param {string} [params.countryPopupClassName] ''
+	 * @param {Array} [params.countryTopList]
 	 * @param {boolean} [params.forceLeadingPlus]
 	 * @param {Function} [params.onInitialize]
 	 * @param {Function} [params.onChange]
@@ -1105,6 +1139,9 @@
 		this.forceLeadingPlus = params.forceLeadingPlus === true;
 		this.flagNode = BX.type.isDomNode(params.flagNode) ? params.flagNode : null;
 		this.flagSize = ([16, 24, 32].indexOf(params.flagSize) !== -1) ? params.flagSize : 16;
+		this.countryPopupHeight = params.countryPopupHeight || 180;
+		this.countryPopupClassName = params.countryPopupClassName || '';
+		this.countryTopList = params.countryTopList || [];
 		this.flagNodeInitialClass = '';
 
 		this.countries = null;
@@ -1124,6 +1161,9 @@
 		this._digitsCount = 0;
 		this._selectedDigitsBeforeAction = 0;
 		this._countryBefore = '';
+
+		this.initialized = false;
+		this.initializationPromises = [];
 
 		this.init();
 		this.bindEvents();
@@ -1156,6 +1196,11 @@
 				self.inputNode.value = self.formatter.getFormattedNumber();
 			}
 			self.drawCountryFlag();
+			self.initialized = true;
+			self.initializationPromises.forEach(function(promise)
+			{
+				promise.resolve();
+			});
 			self.callbacks.initialize();
 		});
 	};
@@ -1168,6 +1213,43 @@
 		{
 			this.flagNode.addEventListener('click', this._onFlagClick.bind(this));
 		}
+	};
+
+	BX.PhoneNumber.Input.prototype.setValue = function (newValue)
+	{
+		this.waitForInitialization().then(function()
+		{
+			this.inputNode.value = this.formatter.format(newValue.toString());
+			this.callbacks.change({
+				value: this.getValue(),
+				formattedValue: this.getFormattedValue(),
+				country: this.getCountry(),
+				countryCode: this.getCountryCode()
+			});
+
+			if(this._countryBefore !== this.getCountry())
+			{
+				this.drawCountryFlag();
+				this.callbacks.countryChange({
+					country: this.getCountry(),
+					countryCode: this.getCountryCode()
+				});
+			}
+		}.bind(this));
+	};
+
+	BX.PhoneNumber.Input.prototype.waitForInitialization = function()
+	{
+		var result = new BX.Promise();
+
+		if(this.initialized)
+		{
+			result.resolve();
+			return result;
+		}
+
+		this.initializationPromises.push(result);
+		return result;
 	};
 
 	BX.PhoneNumber.Input.prototype.getValue = function()
@@ -1342,6 +1424,9 @@
 
 		this.selectCountry({
 			node: this.flagNode,
+			countryPopupHeight: this.countryPopupHeight,
+			countryPopupClassName: this.countryPopupClassName,
+			countryTopList: this.countryTopList,
 			onSelect: this._onCountrySelect.bind(this)
 		});
 	};
@@ -1406,9 +1491,33 @@
 
 	BX.PhoneNumber.Input.prototype.selectCountry = function (params)
 	{
-		var onSelect  = BX.type.isFunction(params.onSelect) ? params.onSelect : BX.DoNothing;
-		var popupContent = BX.create("span", {});
 		var self = this;
+		var onSelect  = BX.type.isFunction(params.onSelect) ? params.onSelect : BX.DoNothing;
+		var popupContent = BX.create("span", {
+			events: {
+				click: BX.delegateEvent(
+					{
+						attribute: 'data-country',
+					},
+					function()
+					{
+						self.countrySelectPopup.close();
+						onSelect({
+							country: this.getAttribute('data-country')
+						});
+					}
+				)
+			}
+		});
+
+		var separator = null;
+		var topList = {};
+		if(params.countryTopList && params.countryTopList.length > 0)
+		{
+			separator = popupContent.appendChild(
+				BX.create('span', {props: {className: 'main-phonenumber-country-separator'}})
+			);
+		}
 
 		this.loadCountries().then(function()
 		{
@@ -1421,17 +1530,9 @@
 					return;
 
 
-				popupContent.appendChild(BX.create("div", {
+				var countryNode = popupContent.appendChild(BX.create("div", {
 					props: {className: "main-phonenumber-country"},
-					events: {
-						click: function()
-						{
-							self.countrySelectPopup.close();
-							onSelect({
-								country: countryDescriptor.CODE
-							})
-						}
-					},
+					attrs: {'data-country': countryDescriptor.CODE},
 					children: [
 						BX.create("span", {
 							props: {className: "main-phonenumber-country-flag bx-flag-16 " + country.toLowerCase()}
@@ -1442,19 +1543,41 @@
 						})
 					]
 				}));
+
+				if(params.countryTopList.indexOf(countryDescriptor.CODE) >= 0)
+				{
+					topList[countryDescriptor.CODE] = countryNode.cloneNode(true);
+				}
 			});
+
+			if(params.countryTopList && params.countryTopList.length > 0)
+			{
+				params.countryTopList.forEach(function(countryCode)
+				{
+					if(typeof topList[countryCode] !== 'undefined')
+					{
+						popupContent.insertBefore(topList[countryCode], separator);
+					}
+				});
+
+				if (popupContent.firstChild === separator)
+				{
+					popupContent.removeChild(separator);
+				}
+			}
 
 			self.countrySelectPopup = new BX.PopupWindow(
 				'phoneNumberInputSelectCountry',
 				params.node,
 				{
+					className: params.countryPopupClassName || '',
 					autoHide: true,
-					zIndex: 100,
+					zIndex: (BX.WindowManager ? BX.WindowManager.GetZIndex() + 100 : 100),
 					closeByEsc: true,
 					bindOptions: {
 						position: 'top'
 					},
-					height: 180,
+					height: params.countryPopupHeight,
 					offsetRight: 35,
 					angle: {
 						offset: 33
@@ -1889,6 +2012,21 @@
 
 	};
 
+	var _getNationalPrefix = function(countryMetadata, stripNonDigits)
+	{
+		if(!countryMetadata.hasOwnProperty('nationalPrefix'))
+		{
+			return '';
+		}
+
+		var nationalPrefix = countryMetadata['nationalPrefix'];
+		if (stripNonDigits)
+		{
+			nationalPrefix = _stripLetters(nationalPrefix);
+		}
+		return nationalPrefix;
+	};
+
 	var _getNationalPrefixFormattingRule = function (format, countryMetadata)
 	{
 		if(format.hasOwnProperty('nationalPrefixFormattingRule'))
@@ -1903,6 +2041,23 @@
 			var mainCountryMetadata = _getCountryMetadata(mainCountry);
 
 			return mainCountryMetadata['nationalPrefixFormattingRule'] || '';
+		}
+	};
+
+	var _numberContainsNationalPrefix = function(phoneNumber, nationalPrefix, countryMetadata)
+	{
+		if (phoneNumber.indexOf(nationalPrefix) === 0)
+		{
+			// Some Japanese numbers (e.g. 00777123) might be mistaken to contain the national prefix
+			// when written without it (e.g. 0777123) if we just do prefix matching. To tackle that, we
+			// check the validity of the number if the assumed national prefix is removed (777123 won't
+			// be valid in Japan).
+			var numberWithoutPrefix = phoneNumber.substr(nationalPrefix.length);
+			return BX.PhoneNumberParser.getInstance()._realParse(numberWithoutPrefix, countryMetadata['id']).isValid();
+		}
+		else
+		{
+			return false;
 		}
 	};
 

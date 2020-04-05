@@ -28,6 +28,7 @@ class BaseTable
 	 */
 	public static function getMap()
 	{
+		/** @var \Bitrix\Main\ORM\Data\DataManager $class */
 		$class = self::getCallingClass();
 		return $class::getMap();
 	}
@@ -35,7 +36,7 @@ class BaseTable
 	/**
 	 * Create new record and return it new id.
 	 * @param array $fields Fields array.
-	 * @return \Bitrix\Main\Result
+	 * @return \Bitrix\Main\ORM\Data\AddResult
 	 */
 	public static function add($fields)
 	{
@@ -70,6 +71,7 @@ class BaseTable
 			$fields['DATE_MODIFY'] = $date;
 		}
 
+		/** @var \Bitrix\Main\ORM\Data\DataManager $class */
 		$class = self::getCallingClass();
 		return $class::add($fields);
 	}
@@ -96,6 +98,10 @@ class BaseTable
 			}
 		}
 
+		if (isset($fields['ID']))
+		{
+			unset($fields['ID']);
+		}
 		if (!isset($fields['MODIFIED_BY_ID']))
 		{
 			$fields['MODIFIED_BY_ID'] = $uid;
@@ -104,7 +110,12 @@ class BaseTable
 		{
 			$fields['DATE_MODIFY'] = $date;
 		}
+		if (!$fields['DATE_MODIFY'])
+		{
+			unset($fields['DATE_MODIFY']);
+		}
 
+		/** @var \Bitrix\Main\ORM\Data\DataManager $class */
 		$class = self::getCallingClass();
 		return $class::update($id, $fields);
 	}
@@ -116,6 +127,7 @@ class BaseTable
 	 */
 	public static function delete($id)
 	{
+		/** @var \Bitrix\Main\ORM\Data\DataManager $class */
 		$class = self::getCallingClass();
 		return $class::delete($id);
 	}
@@ -123,7 +135,7 @@ class BaseTable
 	/**
 	 * Get records of table.
 	 * @param array $params Params array like ORM style.
-	 * @return Bitrix\Main\DB\Result
+	 * @return \Bitrix\Main\DB\Result
 	 */
 	public static function getList($params = array())
 	{
@@ -139,13 +151,14 @@ class BaseTable
 			unset($params['filter']['CHECK_PERMISSIONS']);
 		}
 
+		/** @var \Bitrix\Main\ORM\Data\DataManager $class */
 		return $class::getList($params);
 	}
 
 	/**
 	 * Register calllback for internal table.
 	 * @param string $code Type of callback.
-	 * @param function $callback Callback.
+	 * @param callable $callback Callback.
 	 * @return void
 	 */
 	public static function callback($code, $callback)

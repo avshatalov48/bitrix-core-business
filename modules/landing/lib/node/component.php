@@ -117,7 +117,7 @@ class Component extends \Bitrix\Landing\Node
 	{
 		//$data = array_pop($data);// we allow one type of component per block
 		$manifest = $block->getManifest();
-		if (isset($manifest['nodes'][$selector]))
+		if (isset($manifest['nodes'][$selector]['extra']))
 		{
 			$updateProps = array();
 			$allowedProps = $manifest['nodes'][$selector]['extra'];
@@ -137,6 +137,14 @@ class Component extends \Bitrix\Landing\Node
 			}
 			if (!empty($updateProps))
 			{
+				// !tmp bugfix about set section id to null
+				if (
+					array_key_exists('SECTION_ID', $updateProps) &&
+					!trim($updateProps['SECTION_ID'])
+				)
+				{
+					$updateProps['SECTION_ID'] = '={$sectionId}';
+				}
 				$doc = $block->getDom();
 				$newContent = self::saveComponent(
 					$doc->saveHTML(),
@@ -152,100 +160,6 @@ class Component extends \Bitrix\Landing\Node
 				$doc->loadHTML($newContent);
 			}
 		}
-	}
-
-	/**
-	 * Tmp function for gets iblock params.
-	 * @param string $key If isset, return value for this key.
-	 * @return array|string
-	 */
-	public static function getIblockParams($key = false)
-	{
-		static $params = array();
-
-		if (empty($params) && \Bitrix\Main\Loader::includeModule('catalog'))
-		{
-			$params['id'] = \Bitrix\Main\Config\Option::get('crm', 'default_product_catalog_id');
-			$params['type'] = 'CRM_PRODUCT_CATALOG';
-			// last product
-			$product = \Bitrix\Catalog\ProductTable::getList(array(
-				'select' => array(
-					'CODE' => 'IBLOCK_ELEMENT.CODE'
-				),
-				'filter' => array(
-					'=IBLOCK_ELEMENT.IBLOCK_ID' => $params['id']
-				),
-				'order' => array(
-					'ID' => 'DESC'
-				)
-			))->fetch();
-			if ($product)
-			{
-				$params['default_product'] = $product['CODE'];
-			}
-		}
-
-		if ($key === false)
-		{
-			return $params;
-		}
-		else
-		{
-			return isset($params[$key]) ? $params[$key] : null;
-		}
-	}
-
-	/**
-	 * Build element/section url.
-	 * @param int $elementId Element / section id.
-	 * @param string $urlType Type of url (section / detail).
-	 * @return string
-	 */
-	public static function getIblockURL($elementId, $urlType)
-	{
-		static $pageCatalog = null;
-
-		$url = '#system_catalog';
-		$iblockId = self::getIblockParams('id');
-
-		if (!\Bitrix\Main\Loader::includeModule('iblock'))
-		{
-			return $url;
-		}
-
-		// build url
-		if ($urlType == 'detail')
-		{
-			// element additional info
-			$res = \Bitrix\Iblock\ElementTable::getList(array(
-				'select' => array(
-					'ID', 'CODE', 'IBLOCK_SECTION_ID'
-				),
-				'filter' => array(
-					'ID' => $elementId,
-					'IBLOCK_ID' => $iblockId
-				)
-			));
-			if (!($element = $res->fetch()))
-			{
-				return $url;
-			}
-			// build url
-			$url .= 'item/' . $element['CODE'] . '/';
-		}
-		elseif ($urlType == 'section')
-		{
-			$res = \CIBlockSection::getNavChain(
-				$iblockId,
-				$elementId
-			);
-			while ($row = $res->fetch())
-			{
-				$url .= $row['CODE'] . '/';
-			}
-		}
-
-		return $url;
 	}
 
 	/**
@@ -285,6 +199,7 @@ class Component extends \Bitrix\Landing\Node
 			$manifestFull['style'] = array();
 		}
 
+		$manifestFull['disableCache'] = true;
 		$manifest['allowInlineEdit'] = false;
 		$newExtra = array();
 		$originalStyleBlock = isset($manifestFull['style']['block'])
@@ -374,13 +289,20 @@ class Component extends \Bitrix\Landing\Node
 						}
 						$propType = self::transformPropType(array(
 							'name' => isset($fieldItem['name'])
-								? $fieldItem['name']
-								: $newExtra[$field]['NAME'],
+										? $fieldItem['name']
+										: $newExtra[$field]['NAME'],
 							'style' => isset($fieldItem['style'])
-									&& $fieldItem['style'],
+										&& $fieldItem['style'],
 							'original_type' => 'component',
+							'component_type' => isset($newExtra[$field]['TYPE'])
+										? $newExtra[$field]['TYPE']
+										: '',
 							'attribute' => $field,
-							'value' => $newExtra[$field]['VALUE'],
+							'value' => self::preparePropValue(
+								$newExtra[$field]['VALUE'],
+								$fieldItem
+							),
+							//'original_value' => $newExtra[$field]['VALUE'],
 							'allowInlineEdit' => false
 						) + $fieldItem, $newExtra[$field]);
 						$newExtra[$field]['ATTRIBUTE_TYPE'] = $propType['type'];
@@ -544,7 +466,7 @@ class Component extends \Bitrix\Landing\Node
 							$item['items'][] = array(
 								'name' => $val,
 								'value' => $code,
-								'preview' => '/bitrix/images/landing/catalog_images/preview/' . strtolower($code) . '.svg'
+								'preview' => '/bitrix/images/landing/catalog_images/preview/' . strtolower($code) . '.svg?v3'
 							);
 						}
 					}
@@ -598,14 +520,57 @@ class Component extends \Bitrix\Landing\Node
 	}
 
 	/**
+	 * Prepare prop value before output in edit form.
+	 * @param mixed $value Mixed value.
+	 * @param array $prop Array of field from manifest.
+	 * @return mixed
+	 */
+	protected static function preparePropValue($value, $prop)
+	{
+		if (isset($prop['type']))
+		{
+			switch ($prop['type'])
+			{
+				case 'url':
+					{
+						if ($value && isset($prop['entityType']))
+						{
+							// @todo: make this more universal
+							if (
+								$prop['entityType'] == 'element' &&
+								$value != '={$elementCode}' &&
+								$value != '={$elementId}'
+							)
+							{
+								$value = '#catalogElement' . $value;
+							}
+							else if (
+								$prop['entityType'] == 'section' &&
+								$value != '={$sectionCode}' &&
+								$value != '={$sectionId}'
+							)
+							{
+								$value = '#catalogSection' . $value;
+							}
+						}
+					}
+			}
+		}
+		return $value;
+	}
+
+	/**
 	 * Additional transform prop value before saving.
 	 * @param mixed $value Mixed value.
-	 * @param array $prop Array of type.
+	 * @param array $prop Array of prop.
 	 * @return mixed
 	 */
 	protected static function transformPropValue($value, $prop)
 	{
-		$value = \CUtil::jsObjectToPhp($value);
+		if (!is_array($value))
+		{
+			$value = \CUtil::jsObjectToPhp($value);
+		}
 
 		if (isset($prop['TYPE']))
 		{
@@ -679,6 +644,10 @@ class Component extends \Bitrix\Landing\Node
 										$value = $lansing->getPublicUrl();
 									}
 								}
+								else if (preg_match('/^#catalog(Element|Section)([\d]+)$/', $value, $matches))
+								{
+									$value = $matches[2];
+								}
 								break;
 							}
 						}
@@ -688,5 +657,95 @@ class Component extends \Bitrix\Landing\Node
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Build element/section url.
+	 * @param int $elementId Element / section id.
+	 * @param string $urlType Type of url (section / detail).
+	 * @deprecated since 18.4.0
+	 * @return string
+	 */
+	public static function getIblockURL($elementId, $urlType)
+	{
+		return \Bitrix\Landing\PublicAction\Utils::getIblockURL($elementId, $urlType);
+	}
+
+	/**
+	 * Tmp function for gets iblock params.
+	 * @param string $key If isset, return value for this key.
+	 * @deprecated since 18.4.0
+	 * @return array|string
+	 */
+	public static function getIblockParams($key = false)
+	{
+		static $params = array();
+
+		if (empty($params))
+		{
+			$params['id'] = \Bitrix\Main\Config\Option::get('crm', 'default_product_catalog_id');
+			$params['type'] = 'CRM_PRODUCT_CATALOG';
+			$params['default_product'] = false;
+		}
+
+		if ($key === false)
+		{
+			return $params;
+		}
+		else
+		{
+			return isset($params[$key]) ? $params[$key] : null;
+		}
+	}
+
+	/**
+	 * Get data for this node.
+	 * @param \Bitrix\Landing\Block &$block Block instance.
+	 * @param string $selector Selector.
+	 * @return array
+	 */
+	public static function getNode(\Bitrix\Landing\Block &$block, $selector)
+	{
+		$data = array();
+		$manifest = $block->getManifest();
+
+		// gets common attrs
+		if (isset($manifest['attrs'][$selector]))
+		{
+			$allowedProps = $manifest['attrs'][$selector];
+			foreach ($allowedProps as $attr)
+			{
+				if (!self::checkPhpCode($attr['value']))
+				{
+					$data[$attr['attribute']] = $attr['value'];
+				}
+			}
+		}
+
+		// gets attrs from style block
+		if (
+			isset($manifest['style']['block']['additional']) &&
+			is_array($manifest['style']['block']['additional'])
+		)
+		{
+			foreach ($manifest['style']['block']['additional'] as $item)
+			{
+				if (
+					isset($item['attrs']) &&
+					is_array($item['attrs'])
+				)
+				{
+					foreach ($item['attrs'] as $attr)
+					{
+						if (!self::checkPhpCode($attr['value']))
+						{
+							$data[$attr['attribute']] = $attr['value'];
+						}
+					}
+				}
+			}
+		}
+
+		return $data;
 	}
 }

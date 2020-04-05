@@ -10,9 +10,10 @@ BX.namespace('BX.Sale.OrderAjaxComponent.Maps');
 			this.pickUpOptions = this.context.options.pickUpMap;
 			this.propsOptions = this.context.options.propertyMap;
 			this.maxWaitTimeExpired = false;
+			this.scheme = this.context.isHttps ? 'https' : 'http';
 			this.icons = {
-				red: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
-				green: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+				red: this.scheme + '://maps.google.com/mapfiles/ms/icons/red-dot.png',
+				green: this.scheme + '://maps.google.com/mapfiles/ms/icons/green-dot.png'
 			};
 
 			return this;

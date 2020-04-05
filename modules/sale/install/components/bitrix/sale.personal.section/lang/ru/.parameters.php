@@ -68,4 +68,5 @@ $MESS["SPS_ORDER_HIDE_USER_INFO"] = "Не показывать в информа
 $MESS["SPS_CHAIN_MAIN"] = "Мой кабинет";
 $MESS["SPS_CHAIN_MAIN_FIELD"] = "Название раздела в цепочке навигации";
 $MESS["SPS_REFRESH_PRICE_AFTER_PAYSYSTEM_CHANGE"] = "Пересчитывать заказ после смены платежной системы";
+$MESS["SPS_DISALLOW_CANCEL"] = "Запретить отмену заказа";
 ?>

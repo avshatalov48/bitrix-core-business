@@ -441,6 +441,8 @@ div.blog-idea-body
 
 div.blog-post-text{overflow-x:hidden;overflow-y:hidden;}
 
+div.blog-post-files{margin-top: 10px; margin-bottom: 5px;}
+
 div.bottom-space{margin-bottom: 32px;}
 
 /*Rating*/

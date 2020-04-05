@@ -43,6 +43,7 @@
 		setCallId: 'phoneCallViewSetCallId',
 		setLineNumber: 'phoneCallViewSetLineNumber',
 		setCompanyPhoneNumber: 'phoneCallViewSetCompanyPhoneNumber',
+		setTransfer: 'phoneCallViewSetTransfer',
 		closeWindow: 'phoneCallViewCloseWindow',
 
 		onHold: 'phoneCallViewOnHold',
@@ -56,11 +57,13 @@
 		onHangup: 'phoneCallViewOnHangup',
 		onClose: 'phoneCallViewOnClose',
 		onStartTransfer: 'phoneCallViewOnStartTransfer',
+		onCompleteTransfer: 'phoneCallViewOnCompleteTransfer',
 		onCancelTransfer: 'phoneCallViewOnCancelTransfer',
 		onBeforeUnload: 'phoneCallViewOnBeforeUnload',
 		onSwitchDevice: 'phoneCallViewOnSwitchDevice',
 		onQualityGraded: 'phoneCallViewOnQualityGraded',
 		onDialpadButtonClicked: 'phoneCallViewOnDialpadButtonClicked',
+		onCommentShown: 'phoneCallViewOnCommentShown',
 		onSaveComment: 'phoneCallViewOnSaveComment'
 	};
 
@@ -115,6 +118,7 @@
 		this.allowAutoClose = true;
 		this.folded = (params.folded === true);
 		this.autoFold = (params.autoFold === true);
+		this.transfer = (params.transfer === true);
 
 		this.title = '';
 		this._uiState = params.uiState || BX.PhoneCallView.UiState.idle;
@@ -152,6 +156,7 @@
 			hangup: BX.type.isFunction(params.events.hangup) ? params.events.hangup : nop,
 			close: BX.type.isFunction(params.events.close) ? params.events.close : nop,
 			transfer: BX.type.isFunction(params.events.transfer) ? params.events.transfer : nop,
+			completeTransfer: BX.type.isFunction(params.events.completeTransfer) ? params.events.completeTransfer : nop,
 			cancelTransfer: BX.type.isFunction(params.events.cancelTransfer) ? params.events.cancelTransfer : nop,
 			switchDevice: BX.type.isFunction(params.events.switchDevice) ? params.events.switchDevice : nop,
 			qualityGraded: BX.type.isFunction(params.events.qualityGraded) ? params.events.qualityGraded : nop,
@@ -166,6 +171,7 @@
 		this._onHoldButtonClickHandler = this._onHoldButtonClick.bind(this);
 		this._onMuteButtonClickHandler = this._onMuteButtonClick.bind(this);
 		this._onTransferButtonClickHandler = this._onTransferButtonClick.bind(this);
+		this._onTransferCompleteButtonClickHandler = this._onTransferCompleteButtonClick.bind(this);
 		this._onTransferCancelButtonClickHandler = this._onTransferCancelButtonClick.bind(this);
 		this._onDialpadButtonClickHandler = this._onDialpadButtonClick.bind(this);
 		this._onHangupButtonClickHandler = this._onHangupButtonClick.bind(this);
@@ -220,7 +226,7 @@
 
 		this.currentLayout = (this.callListId > 0 ? layouts.crm : layouts.simple);
 		this.init();
-		this.setTitle(this.createTitle());
+		this.createTitle().then(this.setTitle.bind(this));
 		if(params.hasOwnProperty('uiState'))
 		{
 			this.setUiState(params['uiState']);
@@ -952,7 +958,6 @@
 				offsetTop: 0,
 				offsetLeft: 0,
 				angle: {position: "top"},
-				parentPopup: this.popup,
 				zIndex: baseZIndex + 100,
 				events: {
 					onPopupClose : function()
@@ -978,59 +983,73 @@
 
 	BX.PhoneCallView.prototype.createTitle = function()
 	{
+		var result = new BX.Promise();
 		var callTitle = '';
-		if(this.phoneNumber == 'unknown')
-		{
-			return BX.message('IM_PHONE_CALL_VIEW_NUMBER_UNKNOWN');
-		}
-		if (this.phoneNumber == 'hidden')
-		{
-			callTitle = BX.message('IM_PHONE_HIDDEN_NUMBER');
-		}
-		else
-		{
-			callTitle = this.phoneNumber.toString();
 
-			if (callTitle.substr(0,1) == '8' || callTitle.substr(0,1) == '+')
+		BX.PhoneNumberParser.getInstance().parse(this.phoneNumber).then(function(parsedNumber)
+		{
+			if(this.phoneNumber == 'unknown')
 			{
+				result.resolve(BX.message('IM_PHONE_CALL_VIEW_NUMBER_UNKNOWN'));
+				return result;
 			}
-			else if (!isNaN(parseInt(callTitle)) && callTitle.length >= 10)
+			if (this.phoneNumber == 'hidden')
 			{
-				callTitle = '+'+callTitle;
+				callTitle = BX.message('IM_PHONE_HIDDEN_NUMBER');
 			}
-		}
+			else
+			{
+				callTitle = this.phoneNumber.toString();
 
-		if (this.isTransfer())
-		{
-			callTitle = BX.message('IM_PHONE_CALL_TRANSFER').replace('#PHONE#', callTitle);
-		}
-		else if(this.isCallback())
-		{
-			callTitle = BX.message('IM_PHONE_CALLBACK_TO').replace('#PHONE#', callTitle);
-		}
-		else if(this.isPortalCall())
-		{
-			switch (this.direction)
-			{
-				case BX.PhoneCallView.Direction.incoming:
-					callTitle = BX.message("IM_M_CALL_VOICE_FROM").replace('#USER#', this.portalCallData.users[this.portalCallUserId].name);
-					break;
-				case BX.PhoneCallView.Direction.outgoing:
-					callTitle = BX.message("IM_M_CALL_VOICE_TO").replace('#USER#', this.portalCallData.users[this.portalCallUserId].name);
-					break;
-			}
-		}
-		else
-		{
-			callTitle = BX.message(this.direction === BX.PhoneCallView.Direction.incoming ? 'IM_PHONE_CALL_VOICE_FROM': 'IM_PHONE_CALL_VOICE_TO').replace('#PHONE#', callTitle);
+				if(parsedNumber.isValid())
+				{
+					callTitle = parsedNumber.format();
 
-			if (this.direction === BX.PhoneCallView.Direction.incoming && this.companyPhoneNumber)
-			{
-				callTitle = callTitle + ', ' + BX.message('IM_PHONE_CALL_TO_PHONE').replace('#PHONE#', this.companyPhoneNumber);
+					if(parsedNumber.isInternational() && callTitle.charAt(0) != '+')
+					{
+						callTitle = '+' + callTitle;
+					}
+				}
+				else
+				{
+					callTitle = this.phoneNumber.toString();
+				}
 			}
-		}
 
-		return callTitle;
+			if(this.isCallback())
+			{
+				callTitle = BX.message('IM_PHONE_CALLBACK_TO').replace('#PHONE#', callTitle);
+			}
+			else if(this.isPortalCall())
+			{
+				switch (this.direction)
+				{
+					case BX.PhoneCallView.Direction.incoming:
+						callTitle = BX.message("IM_M_CALL_VOICE_FROM").replace('#USER#', this.portalCallData.users[this.portalCallUserId].name);
+						break;
+					case BX.PhoneCallView.Direction.outgoing:
+						callTitle = BX.message("IM_M_CALL_VOICE_TO").replace('#USER#', this.portalCallData.users[this.portalCallUserId].name);
+						break;
+				}
+			}
+			else
+			{
+				callTitle = BX.message(this.direction === BX.PhoneCallView.Direction.incoming ? 'IM_PHONE_CALL_VOICE_FROM': 'IM_PHONE_CALL_VOICE_TO').replace('#PHONE#', callTitle);
+
+				if (this.direction === BX.PhoneCallView.Direction.incoming && this.companyPhoneNumber)
+				{
+					callTitle = callTitle + ', ' + BX.message('IM_PHONE_CALL_TO_PHONE').replace('#PHONE#', this.companyPhoneNumber);
+				}
+
+				if (this.isTransfer())
+				{
+					callTitle = callTitle + ' ' + BX.message('IM_PHONE_CALL_TRANSFERED');
+				}
+			}
+
+			result.resolve(callTitle);
+		}.bind(this));
+		return result;
 	};
 
 	BX.PhoneCallView.prototype.renderTitle = function()
@@ -1050,7 +1069,7 @@
 			});
 		}
 	};
-	
+
 	BX.PhoneCallView.prototype._getCrmEditUrl = function(entityTypeName, entityId)
 	{
 		if(!BX.type.isNotEmptyString(entityTypeName))
@@ -1165,7 +1184,7 @@
 	BX.PhoneCallView.prototype.setLineNumber = function(lineNumber)
 	{
 		this.lineNumber = lineNumber;
-		this.setOnSlave(desktopEvents.setCallId, [lineNumber]);
+		this.setOnSlave(desktopEvents.setLineNumber, [lineNumber]);
 	};
 
 	BX.PhoneCallView.prototype.setCompanyPhoneNumber = function(companyPhoneNumber)
@@ -1289,14 +1308,12 @@
 		if(!BX.type.isPlainObject(additionalParams))
 			additionalParams = {};
 
+		this.renderButtons();
 		if(callState === BX.PhoneCallView.CallState.connected && this.isAutoFoldAllowed())
 		{
 			this.fold();
 		}
-		else
-		{
-			this.renderButtons();
-		}
+
 		BX.onCustomEvent(window, "CallCard::CallStateChanged", [callState, additionalParams]);
 		this.setOnSlave(desktopEvents.setCallState, [callState, additionalParams]);
 	};
@@ -1338,7 +1355,20 @@
 
 	BX.PhoneCallView.prototype.isTransfer = function()
 	{
-		return (this.direction === BX.PhoneCallView.Direction.incomingTransfer);
+		return this.transfer;
+	};
+
+	BX.PhoneCallView.prototype.setTransfer = function(transfer)
+	{
+		transfer = (transfer == true);
+		if(this.transfer == transfer)
+		{
+			return;
+		}
+
+		this.transfer = transfer;
+		this.setOnSlave(desktopEvents.setTransfer, [transfer]);
+		this.setUiState(this._uiState);
 	};
 
 	BX.PhoneCallView.prototype.isCallback = function()
@@ -1684,9 +1714,18 @@
 				result.buttons = ['sipPhone', 'close'];
 				break;
 			case BX.PhoneCallView.UiState.connected:
-				result.buttons = ['hold', 'mute', 'qualityMeter', 'fold'];
-				if(!this.callListId)
+				result.buttons = this.isTransfer() ? [] : ['hold'];
+				if(!this.deviceCall)
+				{
+					result.buttons.push('mute', 'qualityMeter');
+				}
+				result.buttons.push('fold');
+
+
+				if(!this.callListId && !this.isTransfer())
+				{
 					result.buttons.push('transfer');
+				}
 
 				if(this.deviceCall)
 				{
@@ -1694,14 +1733,19 @@
 				}
 				else
 				{
-					result.buttons.push('dialpad');
-					result.buttons.push('hangup');
+					result.buttons.push('dialpad', 'hangup');
 				}
 
 				result.layout = BX.PhoneCallView.ButtonLayouts.spaced;
 				break;
 			case BX.PhoneCallView.UiState.transferring:
+				result.buttons = ['transferComplete', 'transferCancel'];
+				break;
+			case BX.PhoneCallView.UiState.transferFailed:
 				result.buttons = ['transferCancel'];
+				break;
+			case BX.PhoneCallView.UiState.transferConnected:
+				result.buttons = ['hangup'];
 				break;
 			case BX.PhoneCallView.UiState.idle:
 				if (this.hasSipPhone)
@@ -1756,7 +1800,6 @@
 		var buttonsFragment = document.createDocumentFragment();
 		var topButtonsFragment = document.createDocumentFragment();
 		var topLevelButtonsFragment = document.createDocumentFragment();
-		var buttonNode;
 		var subContainers = {
 			left: null,
 			right: null
@@ -1772,6 +1815,8 @@
 
 		this.buttons.forEach(function(buttonName)
 		{
+			var buttonNode;
+
 			switch (buttonName)
 			{
 				case 'hold':
@@ -1804,10 +1849,18 @@
 						buttonsFragment.appendChild(buttonNode);
 
 					break;
+				case 'transferComplete':
+					buttonNode = self._renderSimpleButton(
+						BX.message('IM_M_CALL_BTN_TRANSFER'),
+						'im-phone-call-btn im-phone-call-btn-blue im-phone-call-btn-arrow',
+						self._onTransferCompleteButtonClickHandler
+					);
+					buttonsFragment.appendChild(buttonNode);
+					break;
 				case 'transferCancel':
 					buttonNode = self._renderSimpleButton(
 						BX.message('IM_M_CALL_BTN_RETURN'),
-						'im-phone-call-btn im-phone-call-btn-blue im-phone-call-btn-arrow',
+						'im-phone-call-btn im-phone-call-btn-red',
 						self._onTransferCancelButtonClickHandler
 					);
 					buttonsFragment.appendChild(buttonNode);
@@ -1866,7 +1919,7 @@
 						subContainers.right.appendChild(buttonNode);
 					else
 						buttonsFragment.appendChild(buttonNode);
-					
+
 					break;
 				case 'topClose':
 					if(!self.isDesktop())
@@ -2190,6 +2243,11 @@
 
 	BX.PhoneCallView.prototype.unloadRestApps = function()
 	{
+		if(!BX.rest || !BX.rest.AppLayout)
+		{
+			return false;
+		}
+
 		var placement = BX.rest.AppLayout.getPlacement('CALL_CARD');
 		if(this.restAppLayoutLoaded && placement)
 		{
@@ -2330,6 +2388,14 @@
 		this.transferPopup.show();
 	};
 
+	BX.PhoneCallView.prototype._onTransferCompleteButtonClick = function(e)
+	{
+		if(this.isDesktop() && this.slave)
+			BX.desktop.onCustomEvent(desktopEvents.onCompleteTransfer, []);
+		else
+			this.callbacks.completeTransfer();
+	};
+
 	BX.PhoneCallView.prototype._onTransferCancelButtonClick = function(e)
 	{
 		if(this.isDesktop() && this.slave)
@@ -2396,7 +2462,7 @@
 					{
 						self.keypad.close();
 						self.phoneNumber = e.phoneNumber;
-						self.setTitle(self.createTitle());
+						self.createTitle().then(self.setTitle.bind(this));
 
 						event = {
 							phoneNumber: e.phoneNumber,
@@ -2434,7 +2500,7 @@
 					onSelect: function(e){
 						self.closeNumberSelectMenu();
 						self.phoneNumber = e.phoneNumber;
-						self.setTitle(self.createTitle());
+						self.createTitle().then(self.setTitle.bind(self));
 
 						event = {
 							phoneNumber: e.phoneNumber,
@@ -2483,6 +2549,11 @@
 	BX.PhoneCallView.prototype._onAddCommentButtonClick = function(e)
 	{
 		this.commentShown = !this.commentShown;
+		if(this.isDesktop() && this.slave)
+		{
+			BX.desktop.onCustomEvent(desktopEvents.onCommentShown, [this.commentShown]);
+		}
+
 		if(this.commentShown)
 		{
 			if(this.elements.crmButtons.addComment)
@@ -2678,7 +2749,7 @@
 				{
 					var crmEntityType = eventParams.entityTypeName;
 					var crmEntityId = eventParams.entityInfo.id;
-					
+
 					if(this.callListView)
 					{
 						var currentElement = this.callListView.getCurrentElement();
@@ -2698,7 +2769,7 @@
 		else
 			this.phoneNumber = 'unknown';
 
-		this.setTitle(this.createTitle());
+		this.createTitle().then(this.setTitle.bind(this));
 		this.loadCrmCard(entity.type, entity.id);
 		if(this.currentTabName === 'webform')
 		{
@@ -3001,7 +3072,7 @@
 		var foldedCallView = BX.FoldedCallView.getInstance();
 		var popupNode = this.popup.popupContainer;
 		var overlayNode = this.popup.overlay.element;
-		
+
 		BX.addClass(popupNode, 'im-phone-call-view-folding');
 		BX.addClass(overlayNode, 'popup-window-overlay-im-phone-call-view-folding');
 		setTimeout(
@@ -3038,6 +3109,7 @@
 		BX.desktop.addCustomEvent(desktopEvents.setCallId, this.setCallId.bind(this));
 		BX.desktop.addCustomEvent(desktopEvents.setLineNumber, this.setLineNumber.bind(this));
 		BX.desktop.addCustomEvent(desktopEvents.setCompanyPhoneNumber, this.setCompanyPhoneNumber.bind(this));
+		BX.desktop.addCustomEvent(desktopEvents.setTransfer, this.setTransfer.bind(this));
 		BX.desktop.addCustomEvent(desktopEvents.setCallState, this.setCallState.bind(this));
 		BX.desktop.addCustomEvent(desktopEvents.closeWindow, function(){window.close()});
 
@@ -3090,6 +3162,7 @@
 		BX.desktop.addCustomEvent(desktopEvents.onHangup, function(){self.callbacks.hangup()});
 		BX.desktop.addCustomEvent(desktopEvents.onClose, function(){self.close()});
 		BX.desktop.addCustomEvent(desktopEvents.onStartTransfer, function(e){self.callbacks.transfer(e)});
+		BX.desktop.addCustomEvent(desktopEvents.onCompleteTransfer, function(){self.callbacks.completeTransfer()});
 		BX.desktop.addCustomEvent(desktopEvents.onCancelTransfer, function(){self.callbacks.cancelTransfer()});
 		BX.desktop.addCustomEvent(desktopEvents.onSwitchDevice, function(e){self.callbacks.switchDevice(e)});
 		BX.desktop.addCustomEvent(desktopEvents.onBeforeUnload, function(){
@@ -3099,6 +3172,7 @@
 		}); //slave window unload
 		BX.desktop.addCustomEvent(desktopEvents.onQualityGraded, function(grade){self.callbacks.qualityGraded(grade)});
 		BX.desktop.addCustomEvent(desktopEvents.onDialpadButtonClicked, function(grade){self.callbacks.dialpadButtonClicked(grade)});
+		BX.desktop.addCustomEvent(desktopEvents.onCommentShown, function(commentShown){self.commentShown = commentShown});
 		BX.desktop.addCustomEvent(desktopEvents.onSaveComment, function(comment){self.comment = comment; self.saveComment();});
 
 	};
@@ -3379,7 +3453,6 @@
 	BX.PhoneCallView.Direction = {
 		incoming: 'incoming',
 		outgoing: 'outgoing',
-		incomingTransfer: 'incomingTransfer',
 		callback: 'callback'
 	};
 
@@ -3391,12 +3464,14 @@
 		connectingOutgoing: 5,
 		connected: 6,
 		transferring: 7,
-		idle: 8,
-		error: 9,
-		moneyError: 10,
-		sipPhoneError: 11,
-		redial: 12,
-		externalCard: 13
+		transferFailed: 8,
+		transferConnected: 9,
+		idle: 10,
+		error: 11,
+		moneyError: 12,
+		sipPhoneError: 13,
+		redial: 14,
+		externalCard: 15
 	};
 
 	BX.PhoneCallView.CallState = {
@@ -3578,7 +3653,7 @@
 
 		BX.desktop.onCustomEvent(windowTarget, eventName, arEventParams);
 	};
-	
+
 	Desktop.prototype.resize = function(width, height)
 	{
 		BXDesktopWindow.SetProperty("clientSize", {Width: width, Height: height});
@@ -4310,7 +4385,7 @@
 			this.render();
 		}
 	};
-	
+
 	BX.FoldedCallView.prototype.load = function()
 	{
 		var savedData = BX.localStorage.get(this._lsKey);
@@ -4319,7 +4394,7 @@
 			this.callListParams = savedData;
 		}
 	};
-	
+
 	BX.FoldedCallView.prototype.destroy = function()
 	{
 		if(this.node)
@@ -4545,7 +4620,7 @@
 		this.selectedUserId = 0;
 
 		this.BXIM = params.BXIM;
-		
+
 		this.elements = {
 			destinationContainer: null,
 			input: null
@@ -4580,7 +4655,6 @@
 	{
 		var self = this;
 		return new BX.PopupWindow('bx-messenger-popup-transfer', this.bindElement, {
-			//parentPopup: this.parentPopup,
 			zIndex: baseZIndex + 200,
 			lightShadow : true,
 			offsetTop: 5,
@@ -4688,7 +4762,7 @@
 					{
 						'viewChat': false,
 						'viewOpenChat': false,
-						'viewOffline': false,
+						'viewOffline': true,
 						'viewBot': false,
 						'viewOnlyIntranet': true,
 						'viewOfflineWithPhones': true
@@ -4705,7 +4779,7 @@
 				{
 					'viewChat': false,
 					'viewOpenChat': false,
-					'viewOffline': false,
+					'viewOffline': true,
 					'viewBot': false,
 					'viewOnlyIntranet': true,
 					'viewOfflineWithPhones': true
@@ -4776,7 +4850,7 @@
 				}
 			}
 
-			BX.MessengerCommon.contactListPrepareSearch('popupTransferDialogContactListElements', this.elements.contactList, this.elements.input.value, {'viewChat': false, 'viewOpenChat': false, 'viewOffline': false, 'viewBot': false, 'viewOnlyIntranet': true, 'viewOfflineWithPhones': true, timeout: 100});
+			BX.MessengerCommon.contactListPrepareSearch('popupTransferDialogContactListElements', this.elements.contactList, this.elements.input.value, {'viewChat': false, 'viewOpenChat': false, 'viewOffline': true, 'viewBot': false, 'viewOnlyIntranet': true, 'viewOfflineWithPhones': true, timeout: 100});
 		}, this));
 
 		BX.bindDelegate(this.elements.destinationContainer, "click", {className: 'bx-messenger-dest-del'}, BX.delegate(function() {
@@ -4790,7 +4864,7 @@
 			if (this.elements.input.value != '')
 			{
 				this.elements.input.value = '';
-				BX.MessengerCommon.contactListPrepareSearch('popupTransferDialogContactListElements', this.elements.contactList, '', {'viewChat': false, 'viewOpenChat': false, 'viewOffline': false, 'viewBot': false, 'viewOnlyIntranet': true, 'viewOfflineWithPhones': true});
+				BX.MessengerCommon.contactListPrepareSearch('popupTransferDialogContactListElements', this.elements.contactList, '', {'viewChat': false, 'viewOpenChat': false, 'viewOffline': true, 'viewBot': false, 'viewOnlyIntranet': true, 'viewOfflineWithPhones': true});
 			}
 			if (this.selectedUserId)
 			{
@@ -4864,7 +4938,7 @@
 	{
 		this.BXIM.messenger.closeMenuPopup();
 	};
-	
+
 	var Keypad = function(params)
 	{
 		if(!BX.type.isPlainObject(params))

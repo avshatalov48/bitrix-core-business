@@ -1,4 +1,6 @@
 <?
+$MESS["SBB_EMPTY_BASKET_TITLE"] = "Your cart is empty";
+$MESS["SBB_EMPTY_BASKET_HINT"] = "#A1#Click here#A2# to continue shopping";
 $MESS["SBB_FILTER_EMPTY_RESULT"] = "No products were found matching your selection";
 $MESS["SBB_BASKET_ITEM_WARNING"] = "In your cart <a href=\"javascript:void(0)\" data-entity=\"basket-items-warning-count\"></a> with error.";
 $MESS["SBB_BASKET_FILTER"] = "Filter";
@@ -36,4 +38,5 @@ $MESS["SBB_GOOD_2"] = "product";
 $MESS["SBB_GOODS"] = "products";
 $MESS["SBB_DELETE"] = "Delete";
 $MESS["SBB_IN_BASKET"] = "In shopping cart";
+$MESS["SBB_GIFTS_BLOCK_TITLE"] = "Select a gift";
 ?>

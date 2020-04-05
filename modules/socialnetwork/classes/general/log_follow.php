@@ -204,7 +204,7 @@ class CSocNetLogFollow
 		}
 	}
 
-	function Delete($user_id, $code, $type = false)
+	public static function Delete($user_id, $code, $type = false)
 	{
 		global $DB, $CACHE_MANAGER;
 
@@ -540,12 +540,15 @@ class CSocNetLogFollow
 			&& intval($arMessageFields["LOG_ID"]) > 0
 		)
 		{
-			$res = CSocNetLogFollow::Set(
-				intval($arMessageFields["TO_USER_ID"]), 
-				"L".intval($arMessageFields["LOG_ID"]), 
-				"Y", 
-				ConvertTimeStamp(time() + CTimeZone::GetOffset(), "FULL", SITE_ID)
-			);
+			$res = \Bitrix\Socialnetwork\ComponentHelper::userLogSubscribe(array(
+				'logId' => $arMessageFields["LOG_ID"],
+				'userId' => $arMessageFields["TO_USER_ID"],
+				'typeList' => array(
+					'FOLLOW',
+					'COUNTER_COMMENT_PUSH'
+				),
+				'followDate' => 'CURRENT'
+			));
 		}
 
 		return $res;

@@ -51,7 +51,7 @@ foreach ($arDocumentStates as $arDocumentState)
 }
 ?>
 </ul>
-	<div class="bizproc-document-toolbar-bottom" data-role="events-apply-container">
+	<div class="bizproc-document-toolbar-bottom" data-role="events-apply-container" style="display: none">
 		<span class="webform-small-button webform-small-button-accept" data-role="events-apply-button">
 			<span class="webform-small-button-text">
 				<?=GetMessage("IBEL_BIZPROC_APPLY")?>

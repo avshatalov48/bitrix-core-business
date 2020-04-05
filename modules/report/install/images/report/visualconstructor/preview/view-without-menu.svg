@@ -1,0 +1,95 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" id="svg_wrapper" class="defs-only" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 1200px">
+    <svg height="1200px">
+        <rect width="100%" height="1200" fill="#EBF1F4"/>
+        <rect fill="#FFFFFF" width="100%" height="1200" x="0" y="75"/>
+
+
+        <rect fill="none" stroke="#C6CDD3" x="100%" y="20" width="135" height="35" rx="2" transform="translate(-300, 0)"/>
+        <rect fill="none" stroke="#C6CDD3" x="100%" y="20" width="135" height="35" rx="2" transform="translate(-150, 0)"/>
+
+        <rect fill="none" stroke="#C6CDD3" x="35" y="95" width="97%" height="35" rx="2"/>
+
+    </svg>
+
+    <svg height="1200">
+        <defs>
+            <g id="a2">
+                <rect x="4" y="30" width="450" height="12"/>
+                <rect x="0" y="190" width="320" height="8"/>
+                <rect fill="#DADADA" x="0" y="220" width="100%" height="1"/>
+                <rect fill="#DADADA" x="0" y="430" width="100%" height="1"/>
+
+                <rect x="0" y="580" width="320" height="8"/>
+                <use xlink:href="#a3" x="0" y="610" preserveAspectRatio="none"/>
+                <use xlink:href="#a3" x="0" y="675" preserveAspectRatio="none"/>
+                <use xlink:href="#a3" x="0" y="740" preserveAspectRatio="none"/>
+                <use xlink:href="#a3" x="0" y="805" preserveAspectRatio="none"/>
+                <use xlink:href="#a3" x="0" y="870" preserveAspectRatio="none"/>
+                <use xlink:href="#a3" x="0" y="935" preserveAspectRatio="none"/>
+                <use xlink:href="#a3" x="0" y="1000" preserveAspectRatio="none"/>
+
+                <use xlink:href="#a5" x="30" y="245" width="100%" preserveAspectRatio="none"/>
+            </g>
+            <g id="a3">
+                <rect fill="#DADADA" x="0" y="0" width="100%" height="1"/>
+                <rect x="0" y="30" width="90" height="8"/>
+                <rect x="140" y="30" width="90" height="8"/>
+                <rect x="280" y="30" width="90" height="8"/>
+                <rect x="420" y="30" width="90" height="8"/>
+                <rect x="560" y="30" width="90" height="8"/>
+                <rect x="700" y="30" width="90" height="8"/>
+                <rect x="840" y="30" width="90" height="8"/>
+            </g>
+            <g id="a5">
+                <rect x="0" y="0" width="165" height="185"/>
+                <use xlink:href="#a6" x="0" y="185"/>
+                <rect x="210" y="55" width="165" height="130"/>
+                <use xlink:href="#a6" x="210" y="185"/>
+                <rect x="420" y="100" width="165" height="85"/>
+                <use xlink:href="#a6" x="420" y="185"/>
+                <rect x="640" y="140" width="165" height="45"/>
+                <use xlink:href="#a6" x="640" y="185"/>
+            </g>
+            <g id="a6">
+                <rect fill="#DADADA" x="0" y="20" height="70" width="1"/>
+                <rect x="20" y="25" width="130" height="8"/>
+                <rect x="20" y="45" width="130" height="8"/>
+                <rect x="20" y="65" width="50" height="8"/>
+            </g>
+        </defs>
+        <use xlink:href="#a2" fill="#9EA6AD" opacity="0.2" x="30" y="0" preserveAspectRatio="none"/>
+    </svg>
+
+    <svg height="1200">
+        <defs>
+            <g id="a4">
+                <rect x="100%" y="0" width="115" height="12" transform="translate(-290, 0)"/>
+                <rect x="100%" y="0" width="115" height="12" transform="translate(-140, 0)"/>
+            </g>
+        </defs>
+        <use xlink:href="#a4" fill="#9EA6AD" opacity="0.2" x="0" y="32" preserveAspectRatio="none"/>
+    </svg>
+
+    <rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#c1)" height="1200" x="89.5074%"/>
+
+    <linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+        <stop stop-color="#000000" stop-opacity="0" offset="0%"/>
+        <stop stop-color="#000000" stop-opacity="0.07" offset="50%"/>
+        <stop stop-color="#000000" stop-opacity="0" offset="100%"/>
+    </linearGradient>
+
+    <mask id="c1" fill="white">
+        <use xlink:href="#a2" x="30" y="0" preserveAspectRatio="none"/>
+        <use xlink:href="#a4" x="0" y="32" preserveAspectRatio="none"/>
+    </mask>
+
+    <animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+
+    <svg viewBox="0 0 100% 1200" height="1200px">
+
+
+        <rect fill="#EBF1F4" width="100%" height="15" x="0" y="150"/>
+        <rect fill="#EBF1F4" width="100%" height="15" x="0" y="535"/>
+    </svg>
+
+</svg>

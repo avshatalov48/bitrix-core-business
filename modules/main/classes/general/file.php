@@ -7,6 +7,7 @@
  */
 
 use Bitrix\Main\IO;
+use Bitrix\Main\UI\Viewer;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -2172,10 +2173,32 @@ function ImgShw(ID, width, height, alt)
 			}
 		}
 
+		$hLock = $io->OpenFile($sourceFile, "r+");
+		if ($hLock)
+		{
+			flock($hLock, LOCK_EX);
+			if ($io->FileExists($destinationFile))
+			{
+				CFile::ScaleImage($arSourceFileSizeTmp[0], $arSourceFileSizeTmp[1], $arSize, $resizeType, $bNeedCreatePicture, $arSourceSize, $arDestinationSize);
+				$arDestinationSizeTmp = CFile::GetImageSize($destinationFile);
+				if (
+					is_array($arDestinationSizeTmp)
+					&& $arDestinationSizeTmp[0] == $arDestinationSize["width"]
+					&& $arDestinationSizeTmp[1] == $arDestinationSize["height"]
+				)
+				{
+					flock($hLock, LOCK_UN);
+					fclose($hLock);
+					return true;
+				}
+			}
+		}
+
 		if(CFile::isEnabledTrackingResizeImage())
 		{
 			header("X-Bitrix-Resize-Image: {$arSize["width"]}_{$arSize["height"]}_{$resizeType}");
 		}
+
 		if (class_exists("imagick") && function_exists('memory_get_usage'))
 		{
 			//When memory limit reached we'll try to use ImageMagic
@@ -2368,9 +2391,19 @@ function ImgShw(ID, width, height, alt)
 				}
 			}
 
+			if ($hLock)
+			{
+				flock($hLock, LOCK_UN);
+				fclose($hLock);
+			}
 			return true;
 		}
 
+		if ($hLock)
+		{
+			flock($hLock, LOCK_UN);
+			fclose($hLock);
+		}
 		return false;
 	}
 
@@ -2612,8 +2645,18 @@ function ImgShw(ID, width, height, alt)
 		return $sourceImage;
 	}
 
+	/**
+	 * @param int|array $arFile
+	 * @param array $arOptions
+	 */
 	public static function ViewByUser($arFile, $arOptions = array())
 	{
+		$previewManager = new Viewer\PreviewManager();
+		if ($previewManager->isInternalRequest($arFile, $arOptions))
+		{
+			$previewManager->processViewByUserRequest($arFile, $arOptions);
+		}
+
 		/** @global CMain $APPLICATION */
 		global $APPLICATION;
 
@@ -2625,6 +2668,8 @@ function ImgShw(ID, width, height, alt)
 		$force_download = false;
 		$cache_time = 10800;
 		$fromClouds = false;
+		$filename = '';
+		$fileWithinDocumentRoot = true;
 
 		if(is_array($arOptions))
 		{
@@ -2653,26 +2698,27 @@ function ImgShw(ID, width, height, alt)
 			}
 			elseif(isset($arFile["tmp_name"]))
 			{
-				$filename = "/".ltrim(substr($arFile["tmp_name"], strlen($_SERVER["DOCUMENT_ROOT"])), "/");
+				if (strpos($arFile['tmp_name'], $_SERVER['DOCUMENT_ROOT']) === 0)
+				{
+					$filename = '/'. ltrim(substr($arFile['tmp_name'], strlen($_SERVER['DOCUMENT_ROOT'])), '/');
+				}
+				elseif (defined('BX_TEMPORARY_FILES_DIRECTORY') && strpos($arFile['tmp_name'], BX_TEMPORARY_FILES_DIRECTORY) === 0)
+				{
+					$fileWithinDocumentRoot = false;
+					$filename = '/'. $arFile['name']; //nonexistent path
+				}
 			}
 			else
 			{
 				$filename = static::GetFileSRC($arFile);
 			}
 		}
-		else
+		elseif (($arFile = static::GetFileArray($arFile)))
 		{
-			if(($arFile = static::GetFileArray($arFile)))
-			{
-				$filename = $arFile["SRC"];
-			}
-			else
-			{
-				$filename = '';
-			}
+			$filename = $arFile['SRC'];
 		}
 
-		if($filename == '')
+		if ($filename == '')
 		{
 			return false;
 		}
@@ -2728,8 +2774,18 @@ function ImgShw(ID, width, height, alt)
 		}
 
 		$src = null;
-		$file = new IO\File($_SERVER["DOCUMENT_ROOT"].$filename);
-		if(substr($filename, 0, 1) == "/")
+		$file = null;
+
+		if ((substr($filename, 0, 1) == '/') && $fileWithinDocumentRoot)
+		{
+			$file = new IO\File($_SERVER['DOCUMENT_ROOT']. $filename);
+		}
+		elseif (isset($arFile['tmp_name']))
+		{
+			$file = new IO\File($arFile['tmp_name']);
+		}
+
+		if ((substr($filename, 0, 1) == '/') && ($file instanceof IO\File))
 		{
 			try
 			{
@@ -2779,7 +2835,11 @@ function ImgShw(ID, width, height, alt)
 			}
 		}
 
-		if($arFile["tmp_name"] <> '')
+		if ($file instanceof IO\File)
+		{
+			$filetime = $file->getModificationTime();
+		}
+		elseif($arFile["tmp_name"] <> '')
 		{
 			$tmpFile = new IO\File($arFile["tmp_name"]);
 			$filetime = $tmpFile->getModificationTime();
@@ -2897,6 +2957,7 @@ function ImgShw(ID, width, height, alt)
 				session_write_close();
 				if ($specialchars)
 				{
+					/** @var IO\File $file */
 					echo "<", "pre" ,">";
 					if(is_resource($src))
 					{
@@ -2906,6 +2967,7 @@ function ImgShw(ID, width, height, alt)
 					}
 					else
 					{
+						/** @var \Bitrix\Main\Web\HttpClient $src */
 						echo htmlspecialcharsbx($src->get($filename));
 					}
 					echo "<", "/pre", ">";
@@ -2914,6 +2976,7 @@ function ImgShw(ID, width, height, alt)
 				{
 					if(is_resource($src))
 					{
+						/** @var IO\File $file */
 						$file->seek($cur_pos);
 						while(!feof($src) && ($cur_pos <= $size))
 						{
@@ -2928,10 +2991,13 @@ function ImgShw(ID, width, height, alt)
 					else
 					{
 						$fp = fopen("php://output", "wb");
+						/** @var \Bitrix\Main\Web\HttpClient $src */
 						$src->setOutputStream($fp);
 						$src->get($filename);
 					}
 				}
+				\CMain::runFinalActionsInternal();
+				die();
 			}
 		}
 		CMain::FinalActions();

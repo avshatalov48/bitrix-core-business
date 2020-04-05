@@ -91,14 +91,27 @@ class CBPWorkflow
 		$this->rootActivity = $rootActivity;
 		$rootActivity->SetWorkflow($this);
 		if (method_exists($rootActivity, 'SetWorkflowTemplateId'))
+		{
 			$rootActivity->SetWorkflowTemplateId($workflowTemplateId);
+		}
+
+		if (method_exists($rootActivity, 'setTemplateUserId'))
+		{
+			$rootActivity->setTemplateUserId(
+				CBPWorkflowTemplateLoader::getTemplateUserId($workflowTemplateId)
+			);
+		}
 
 		$arDocumentId = CBPHelper::ParseDocumentId($documentId);
 
 		$rootActivity->SetDocumentId($arDocumentId);
 
 		$documentService = $this->GetService("DocumentService");
-		$documentType = $documentService->GetDocumentType($arDocumentId);
+		$documentType = isset($workflowParameters[CBPDocument::PARAM_DOCUMENT_TYPE]) ?
+			$workflowParameters[CBPDocument::PARAM_DOCUMENT_TYPE]
+			: $documentService->GetDocumentType($arDocumentId);
+
+		unset($workflowParameters[CBPDocument::PARAM_DOCUMENT_TYPE]);
 
 		if ($documentType !== null)
 		{
@@ -441,6 +454,28 @@ class CBPWorkflow
 					$trackingService = $this->GetService("TrackingService");
 					$trackingService->Write($this->GetInstanceId(), CBPTrackingType::ExecuteActivity, $activity->GetName(), $activity->executionStatus, $activity->executionResult, ($activity->IsPropertyExists("Title") ? $activity->Title : ""), "");
 					$newStatus = $activity->Execute();
+
+					//analyse robots - Temporary, it is prototype
+					if ($trackingService->isForcedMode($this->GetInstanceId()))
+					{
+						$activityType = substr(get_class($activity), 3);
+						if (!in_array($activityType, [
+							'SequentialWorkflowActivity',
+							'ParallelActivity',
+							'SequenceActivity',
+							'DelayActivity',
+							'IfElseActivity',
+							'IfElseBranchActivity'
+						]))
+						{
+							/** @var \Bitrix\Bizproc\Service\Analytics $analyticsService */
+							$analyticsService = $this->GetService("AnalyticsService");
+							if ($analyticsService->isEnabled())
+							{
+								$analyticsService->write($activity->GetDocumentId(), 'robot_run', $activityType);
+							}
+						}
+					}
 
 					if ($newStatus == CBPActivityExecutionStatus::Closed)
 						$this->CloseActivity($activity);

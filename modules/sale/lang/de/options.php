@@ -1,4 +1,9 @@
 <?
+$MESS["SALE_TAB_ORDER_NUMERATOR_TEMPLATE"] = "Vorlage der Bestellnummerierung";
+$MESS["NUMERATOR_NOT_USE_CHECKBOX_TITLE"] = "Nicht nutzen";
+$MESS["SALE_TAB_ORDER_NUMERATOR_TEMPLATE_TITLE"] = "Vorlage der Bestellnummern";
+$MESS["SALE_BASKET_REFRESH_GAP_WARNING"] = "Ihr Onlineshop nutzt einen veralteten Modus der individuellen Rabatte. Rabatte können nicht korrekt berechnet werden, wenn der Parameter \"Warenkorb aktualisieren nach\" nicht Null ist. Es wird empfohlen, dass Sie den neuen Rabattmodus einschalten oder diesen Parameter auf Null setzen.";
+$MESS["SALE_USE_SALE_DISCOUNT_ONLY_WARNING"] = "Der veraltete Rabattmodus mit individuellen Rabatten kann dazu führen, dass Rabatte nicht korrekt berechnet werden, wenn der Parameter \"Warenkorb aktualisieren nach\" nicht Null ist. Es wird empfohlen, dass Sie den neuen Rabattmodus einschalten oder diesen Parameter auf Null setzen.";
 $MESS["SALE_EMAIL_ORDER"] = "E-Mail-Adresse der Verkaufsabteilung:";
 $MESS["SALE_EMAIL_REGISTER"] = "Voreingestellte E-Mail-Adresse für die Registrierung:";
 $MESS["SALE_ADDRESS_POST"] = "Parameter 1";

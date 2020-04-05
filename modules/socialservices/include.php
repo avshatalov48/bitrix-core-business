@@ -74,7 +74,7 @@ CJSCore::RegisterExt('socserv_timeman', $arJSDescription);
 
 class CSocServEventHandlers
 {
-	function OnFillSocNetLogEvents(&$arSocNetLogEvents)
+	public static function OnFillSocNetLogEvents(&$arSocNetLogEvents)
 	{
 		$arSocNetLogEvents["twitter"] = array(
 			"ENTITIES" =>	array(

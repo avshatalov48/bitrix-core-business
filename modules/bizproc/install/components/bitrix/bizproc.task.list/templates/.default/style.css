@@ -200,6 +200,14 @@ input.bx-bizproc-btn.bx-bizproc-btn-medium {
 	margin-right: 10px;
 }
 
+.bx-bizproc-right .bp-task a {
+	max-height: none;
+}
+
+.bx-bizproc-right .bp-task a:after {
+	display: none;
+}
+
 .bp-task a:hover {
 	text-decoration: underline;
 	color: #0069ac;

@@ -230,7 +230,7 @@ echo ('' != $arParams['MESS_NOT_AVAILABLE'] ? $arParams['MESS_NOT_AVAILABLE'] : 
 		}
 
 			$arJSParams = array(
-				'PRODUCT_TYPE' => $arItem['CATALOG_TYPE'],
+				'PRODUCT_TYPE' => $arItem['PRODUCT']['TYPE'],
 				'SHOW_QUANTITY' => false,
 				'SHOW_ADD_BASKET_BTN' => false,
 				'SHOW_BUY_BTN' => true,

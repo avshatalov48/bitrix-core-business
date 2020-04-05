@@ -1,6 +1,8 @@
 <?
-use Bitrix\Catalog;
-use Bitrix\Sale\DiscountCouponsManager;
+use Bitrix\Main,
+	Bitrix\Catalog,
+	Bitrix\Sale\DiscountCouponsManager;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/discount_coupon.php");
 
 class CCatalogDiscountCoupon extends CAllCatalogDiscountCoupon
@@ -34,6 +36,9 @@ class CCatalogDiscountCoupon extends CAllCatalogDiscountCoupon
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 		$ID = (int)$DB->LastID();
+
+		if ($ID > 0)
+			Catalog\DiscountTable::setUseCoupons($arFields['DISCOUNT_ID'], 'Y');
 
 		if ($eventOnAddExists === true || $eventOnAddExists === null)
 		{
@@ -74,12 +79,67 @@ class CCatalogDiscountCoupon extends CAllCatalogDiscountCoupon
 		if (!CCatalogDiscountCoupon::CheckFields("UPDATE", $arFields, $ID))
 			return false;
 
+		$discountIds = array();
 		$strUpdate = $DB->PrepareUpdate("b_catalog_discount_coupon", $arFields);
 		if (!empty($strUpdate))
 		{
+			if (isset($arFields['DISCOUNT_ID']))
+			{
+				$iterator = Catalog\DiscountCouponTable::getList(array(
+					'select' => array('DISCOUNT_ID', 'ID'),
+					'filter' => array('=ID' => $ID)
+				));
+				$row = $iterator->fetch();
+				unset($iterator);
+				if (!empty($row))
+				{
+					$row['DISCOUNT_ID'] = (int)$row['DISCOUNT_ID'];
+					if ($row['DISCOUNT_ID'] != $arFields['DISCOUNT_ID'])
+					{
+						$discountIds[] = $arFields['DISCOUNT_ID'];
+						$discountIds[] = $row['DISCOUNT_ID'];
+					}
+				}
+				unset($row);
+			}
+
 			$strSql = "UPDATE b_catalog_discount_coupon SET ".$strUpdate." WHERE ID = ".$ID;
 			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+
+			if (!empty($discountIds))
+			{
+				$withoutCoupons = array_fill_keys($discountIds, true);
+				$withCoupons = array();
+				$couponIterator = Catalog\DiscountCouponTable::getList(array(
+					'select' => array('DISCOUNT_ID', new Main\Entity\ExpressionField('CNT', 'COUNT(*)')),
+					'filter' => array('@DISCOUNT_ID' => $discountIds),
+					'group' => array('DISCOUNT_ID')
+				));
+				while ($coupon = $couponIterator->fetch())
+				{
+					$coupon['CNT'] = (int)$coupon['CNT'];
+					if ($coupon['CNT'] > 0)
+					{
+						$coupon['DISCOUNT_ID'] = (int)$coupon['DISCOUNT_ID'];
+						unset($withoutCoupons[$coupon['DISCOUNT_ID']]);
+						$withCoupons[$coupon['DISCOUNT_ID']] = true;
+					}
+				}
+				unset($coupon, $couponIterator);
+				if (!empty($withoutCoupons))
+				{
+					$withoutCoupons = array_keys($withoutCoupons);
+					Catalog\DiscountTable::setUseCoupons($withoutCoupons, 'N');
+				}
+				if (!empty($withCoupons))
+				{
+					$withCoupons = array_keys($withCoupons);
+					Catalog\DiscountTable::setUseCoupons($withCoupons, 'Y');
+				}
+				unset($withCoupons, $withoutCoupons);
+			}
 		}
+		unset($discountIds);
 
 		if ($eventOnUpdateExists === true || $eventOnUpdateExists === null)
 		{
@@ -119,7 +179,32 @@ class CCatalogDiscountCoupon extends CAllCatalogDiscountCoupon
 
 		$bAffectDataFile = false;
 
+		$iterator = Catalog\DiscountCouponTable::getList(array(
+			'select' => array('DISCOUNT_ID', 'ID'),
+			'filter' => array('=ID' => $ID)
+		));
+		$row = $iterator->fetch();
+		unset($iterator);
+
 		$DB->Query("DELETE FROM b_catalog_discount_coupon WHERE ID = ".$ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+
+		if (!empty($row))
+		{
+			$row['DISCOUNT_ID'] = (int)$row['DISCOUNT_ID'];
+			$iterator = Catalog\DiscountCouponTable::getList(array(
+				'select' => array('DISCOUNT_ID'),
+				'filter' => array('=DISCOUNT_ID' => $row['DISCOUNT_ID']),
+				'limit' => 1
+			));
+			$existRow = $iterator->fetch();
+			unset($iterator);
+			Catalog\DiscountTable::setUseCoupons(
+				$row['DISCOUNT_ID'],
+				(!empty($existRow) ? 'Y' : 'N')
+			);
+			unset($existRow);
+		}
+		unset($row);
 
 		if ($eventOnDeleteExists === true || $eventOnDeleteExists === null)
 		{
@@ -131,20 +216,6 @@ class CCatalogDiscountCoupon extends CAllCatalogDiscountCoupon
 			if ($eventOnDeleteExists === null)
 				$eventOnDeleteExists = false;
 		}
-
-		return true;
-	}
-
-	public static function DeleteByDiscountID($ID, $bAffectDataFile = true)
-	{
-		global $DB;
-
-		$bAffectDataFile = false;
-		$ID = (int)$ID;
-		if ($ID <= 0)
-			return false;
-
-		$DB->Query("DELETE FROM b_catalog_discount_coupon WHERE DISCOUNT_ID = ".$ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 		return true;
 	}

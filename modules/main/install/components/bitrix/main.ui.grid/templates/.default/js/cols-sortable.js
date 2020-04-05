@@ -140,12 +140,16 @@
 
 		isStatic: function(item)
 		{
-			return BX.hasClass(item, this.parent.settings.get('classCellStatic'));
+			return (
+				BX.hasClass(item, this.parent.settings.get('classCellStatic')) &&
+				!BX.hasClass(item, 'main-grid-fixed-column')
+			);
 		},
 
 		getDragOffset: function()
 		{
-			return (jsDD.x - this.startDragOffset - this.dragRect.left);
+			var offset = this.parent.getScrollContainer().scrollLeft - this.startScrollOffset;
+			return ((jsDD.x - this.startDragOffset - this.dragRect.left) + offset);
 		},
 
 		getColumn: function(cell)
@@ -173,6 +177,7 @@
 				this.colsList = this.getColsList();
 			}
 
+			this.startScrollOffset = this.parent.getScrollContainer().scrollLeft;
 			this.isDrag = true;
 			this.dragItem = jsDD.current_node;
 			this.dragRect = this.dragItem.getBoundingClientRect();
@@ -180,6 +185,7 @@
 			this.startDragOffset = jsDD.start_x - this.dragRect.left;
 			this.dragColumn = this.getColumn(this.dragItem);
 			this.dragIndex = BX.Grid.Utils.getIndex(this.colsList, this.dragItem);
+			this.parent.preventSortableClick = true;
 		},
 
 		isDragToRight: function(node, index)
@@ -257,7 +263,7 @@
 			this.moveColumn(this.dragColumn, this.dragOffset, dragTransitionDuration);
 
 			[].forEach.call(this.colsList, function(current, index) {
-				if (current)
+				if (current && !current.classList.contains('main-grid-cell-static'))
 				{
 					if (this.isDragToRight(current, index) && !this.isMovedToRight(current))
 					{
@@ -301,6 +307,10 @@
 
 			this.parent.getUserOptions().setColumns(columns);
 			BX.onCustomEvent(this.parent.getContainer(), 'Grid::columnMoved', [this.parent]);
+
+			setTimeout(function() {
+				this.parent.preventSortableClick = false;
+			}.bind(this), 10);
 		}
 	};
 })();

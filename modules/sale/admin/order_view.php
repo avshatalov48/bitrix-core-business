@@ -398,8 +398,8 @@ if (empty($statusOnPaid) && (empty($statusOnAllowDelivery) || empty($statusOnPai
 		<?
 		foreach ($blocksOrder as $blockCode)
 		{
-			echo '<a id="'.$blockCode.'" class="adm-sale-fastnav-anchor"></a>';
 			$tabControl->DraggableBlockBegin($fastNavItems[$blockCode], $blockCode);
+			echo '<a id="'.$blockCode.'" class="adm-sale-fastnav-anchor"></a>';
 
 			switch ($blockCode)
 			{

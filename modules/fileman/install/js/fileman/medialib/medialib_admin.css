@@ -124,7 +124,7 @@ div.mlsd table td{padding: 0;}
 div.mlsd table.mlsd-frame{width: 100%;}
 table.mlsd-frame td.ml-content-cell{padding: 5px;}
 table.mlsd-frame td.ml-buttons-cell{padding: 5px; text-align: center;}
-table.mlsd-frame td.ml-buttons-cell input{padding: 0 !important;}
+/* table.mlsd-frame td.ml-buttons-cell input{padding: 0 !important;} */
 table.mlsd-fields-tbl {width: 100%;}
 div.mlsd  table.mlsd-fields-tbl td{padding: 4px 6px; text-align: left;}
 div.mlsd  table.mlsd-fields-tbl td input{width: 190px;}

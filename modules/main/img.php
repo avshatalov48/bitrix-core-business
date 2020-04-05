@@ -338,31 +338,31 @@ function ReColor($colorString)
 	);
 }
 
-/******************************************************************************
-* $k - array performance font size to pixel format
-* array index == font size
-******************************************************************************/
-$k = array();
-$k[1]=5;
-$k[2]=2.7;
-$k[3]=2.3;
-$k[4]=2;
-$k[5]=1.7;
-$k[6]=1.5;
-$k[7]=1.3;
-$k[8]=1.1;
-$k[9]=1;
-$k[10]=0.85;
-$k[11]=0.75;
-$k[12]=0.7;
-$k[13]=0.65;
-$k[14]=0.60;
-$k[15]=0.55;
-$k[16]=0.52;
-
 function DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHandle, $bgColor="FFFFFF", $gColor='B1B1B1', $Color="000000", $dD=15, $FontWidth=2, $arrTTF_FONT=false)
 {
-	global $k, $xA, $yA, $xPixelLength, $yPixelLength, $APPLICATION;
+	global $xA, $yA, $xPixelLength, $yPixelLength, $APPLICATION;
+
+	/******************************************************************************
+	* $k - array performance font size to pixel format
+	* array index == font size
+	******************************************************************************/
+	$k = array();
+	$k[1]=5;
+	$k[2]=2.7;
+	$k[3]=2.3;
+	$k[4]=2;
+	$k[5]=1.7;
+	$k[6]=1.5;
+	$k[7]=1.3;
+	$k[8]=1.1;
+	$k[9]=1;
+	$k[10]=0.85;
+	$k[11]=0.75;
+	$k[12]=0.7;
+	$k[13]=0.65;
+	$k[14]=0.60;
+	$k[15]=0.55;
+	$k[16]=0.52;
 
 	$arResult = array();
 

@@ -110,7 +110,8 @@ BX.Kanban.Utils = {
 				overlay: true,
 				closeByEsc : true,
 				closeIcon : true,
-				draggable : { restrict : true}
+				draggable : { restrict : true},
+				contentColor: "white"
 			}
 		);
 
@@ -120,10 +121,8 @@ BX.Kanban.Utils = {
 			new BX.PopupWindowButton({
 				text: (fatal === true)
 					? BX.message("MAIN_KANBAN_RELOAD")
-					: BX.message("MAIN_KANBAN_ERROR_OK"),
-				className: (fatal === true)
-					? "popup-window-button-cancel"
-					: "",
+					: BX.message("MAIN_KANBAN_ERROR_CLOSE"),
+				className: "popup-window-button-accept",
 				events: {
 					click: function()
 					{

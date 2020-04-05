@@ -58,7 +58,9 @@
 				type: item.data.templateType,
 				code: item.data.templateId,
 				name: item.name,
-				messageFields: item.data.messageFields
+				messageFields: item.data.messageFields,
+				segments: item.data.segments,
+				dispatch: item.data.dispatch
 			}]);
 	};
 	Selector.prototype.initGrid = function (grid)

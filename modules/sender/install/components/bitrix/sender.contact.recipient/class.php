@@ -11,6 +11,7 @@ use Bitrix\Sender\Entity;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\Security;
 
+use Bitrix\Sender\Internals\DataExport;
 use Bitrix\Sender\UI\PageNavigation;
 use Bitrix\Sender\PostingRecipientTable;
 
@@ -74,6 +75,30 @@ class SenderContactRecipientComponent extends CBitrixComponent
 
 	}
 
+	protected function prepareExport()
+	{
+		$list = PostingRecipientTable::getList([
+			'select' => $this->getDataSelectedFields(),
+			'filter' => $this->getDataFilter(),
+			'order' => $this->getGridOrder()
+		]);
+		$statusList = PostingRecipientTable::getStatusList();
+
+		DataExport::toCsv(
+			$this->getUiGridColumns(),
+			$list,
+			function ($item) use ($statusList)
+			{
+				foreach (['IS_READ', 'IS_CLICK', 'IS_UNSUB'] as $key)
+				{
+					$item[$key] = $item[$key] === 'Y' ? Loc::getMessage('SENDER_LETTER_RCP_UI_YES') : null;
+				}
+				$item['STATUS'] = $statusList[$item['STATUS']];
+				return $item;
+			}
+		);
+	}
+
 	protected function prepareResult()
 	{
 		/* Set title */
@@ -130,6 +155,12 @@ class SenderContactRecipientComponent extends CBitrixComponent
 		// set ui grid columns
 		$this->setUiGridColumns();
 
+		// export
+		if ($this->request->get('export'))
+		{
+			$this->prepareExport();
+		}
+
 		// create nav
 		$nav = new PageNavigation("page-sender-contact-recipient-" . $messageCode);
 		$nav->allowAllRecords(false)->setPageSize(10)->initFromUri();
@@ -137,14 +168,7 @@ class SenderContactRecipientComponent extends CBitrixComponent
 		// get rows
 		$statusList = PostingRecipientTable::getStatusList();
 		$list = PostingRecipientTable::getList([
-			'select' => array(
-				'ID', 'NAME' => 'CONTACT.NAME', 'CODE' => 'CONTACT.CODE',
-				'LETTER_TITLE' => 'POSTING.LETTER.TITLE',
-				'LETTER_ID' => 'POSTING.LETTER.ID',
-				'MESSAGE_CODE' => 'POSTING.LETTER.MESSAGE_CODE',
-				'DATE_SENT', 'STATUS',
-				'IS_READ', 'IS_CLICK', 'IS_UNSUB'
-			),
+			'select' => $this->getDataSelectedFields(),
 			'filter' => $this->getDataFilter(),
 			'offset' => $nav->getOffset(),
 			'limit' => $nav->getLimit(),
@@ -162,7 +186,7 @@ class SenderContactRecipientComponent extends CBitrixComponent
 			$item['MESSAGE_CODE'] = $message ? $message->getName() : $item['MESSAGE_CODE'];
 
 			$item['URLS'] = [
-				'LETTER_EDIT' => in_array($message->getCode(), Message\Factory::getMailingMessageCodes())
+				'LETTER_EDIT' => in_array($item['MESSAGE_CODE'], Message\Factory::getMailingMessageCodes())
 					?
 					str_replace('#id#', $item['LETTER_ID'], $this->arParams['PATH_TO_LETTER_EDIT'])
 					:
@@ -181,6 +205,18 @@ class SenderContactRecipientComponent extends CBitrixComponent
 		return true;
 	}
 
+	protected function getDataSelectedFields()
+	{
+		return [
+			'ID', 'NAME' => 'CONTACT.NAME', 'CODE' => 'CONTACT.CODE',
+			'LETTER_TITLE' => 'POSTING.LETTER.TITLE',
+			'LETTER_ID' => 'POSTING.LETTER.ID',
+			'MESSAGE_CODE' => 'POSTING.LETTER.MESSAGE_CODE',
+			'DATE_SENT', 'STATUS',
+			'IS_READ', 'IS_CLICK', 'IS_UNSUB'
+		];
+	}
+
 	protected function getDataFilter()
 	{
 		$filterOptions = new FilterOptions($this->arParams['FILTER_ID']);
@@ -190,16 +226,16 @@ class SenderContactRecipientComponent extends CBitrixComponent
 		$filter = [];
 		if ($searchString)
 		{
-			$filter['%NAME'] = '%' . $searchString . '%';
+			$filter['NAME'] = '%' . $searchString . '%';
 
 		}
 		if (isset($requestFilter['NAME']) && $requestFilter['NAME'])
 		{
-			$filter['%NAME'] = '%' . $requestFilter['NAME'] . '%';
+			$filter['NAME'] = '%' . $requestFilter['NAME'] . '%';
 		}
 		if (isset($requestFilter['CODE']) && $requestFilter['CODE'])
 		{
-			$filter['%CODE'] = '%' . $requestFilter['CODE'] . '%';
+			$filter['CODE'] = '%' . $requestFilter['CODE'] . '%';
 		}
 		if (isset($requestFilter['TYPE_ID']) && $requestFilter['TYPE_ID'])
 		{

@@ -13,74 +13,110 @@ endif;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$GLOBALS["FID"] = $arParams["FID"] = intVal($arParams["FID"]);
-	$arParams["TID"] = intVal((intVal($arParams["TID"]) <= 0 ? $_REQUEST["TID"] : $arParams["TID"]));
-	$arParams["MID_UNREAD"] = (strLen(trim($arParams["MID"])) <= 0 ? $_REQUEST["MID"] : $arParams["MID"]);
-	$arParams["MID"] = (is_array($arParams["MID"]) ? 0 : intVal($arParams["MID"]));
-	if (strtolower($arParams["MID_UNREAD"]) == "unread_mid")
-		$arParams["MID"] = intVal(ForumGetFirstUnreadMessage($arParams["FID"], $arParams["TID"]));
-	$arParams['AJAX_POST'] = ($arParams["AJAX_POST"] == "Y" ? "Y" : "N");
-	$arParams["ACTION"] = (!empty($arParams["ACTION"]) ? $arParams["ACTION"] : $_REQUEST["ACTION"]);
-	$arParams["ACTION"] = (!empty($arParams["ACTION"]) ? $arParams["ACTION"] : ($_POST["MESSAGE_TYPE"]=="REPLY" ? "REPLY" : false));
-	$arParams["SOCNET_GROUP_ID"] = intVal($arParams["SOCNET_GROUP_ID"]);
-	$arParams["MODE"] = ($arParams["SOCNET_GROUP_ID"] > 0 ? "GROUP" : "USER");
-	$arParams["USER_ID"] = intVal(intVal($arParams["USER_ID"]) > 0 ? $arParams["USER_ID"] : $USER->GetID());
+$GLOBALS["FID"] = $arParams["FID"] = intVal($arParams["FID"]);
+$arParams["TID"] = intVal((intVal($arParams["TID"]) <= 0 ? $_REQUEST["TID"] : $arParams["TID"]));
+$arParams["MID_UNREAD"] = (strLen(trim($arParams["MID"])) <= 0 ? $_REQUEST["MID"] : $arParams["MID"]);
+$arParams["MID"] = (is_array($arParams["MID"]) ? 0 : intVal($arParams["MID"]));
+if (strtolower($arParams["MID_UNREAD"]) == "unread_mid")
+	$arParams["MID"] = intVal(ForumGetFirstUnreadMessage($arParams["FID"], $arParams["TID"]));
+$arParams['AJAX_POST'] = ($arParams["AJAX_POST"] == "Y" ? "Y" : "N");
+$arParams["ACTION"] = (!empty($arParams["ACTION"]) ? $arParams["ACTION"] : $_REQUEST["ACTION"]);
+$arParams["ACTION"] = (!empty($arParams["ACTION"]) ? $arParams["ACTION"] : ($_POST["MESSAGE_TYPE"]=="REPLY" ? "REPLY" : false));
+$arParams["SOCNET_GROUP_ID"] = intVal($arParams["SOCNET_GROUP_ID"]);
+$arParams["MODE"] = ($arParams["SOCNET_GROUP_ID"] > 0 ? "GROUP" : "USER");
+$arParams["USER_ID"] = intVal(intVal($arParams["USER_ID"]) > 0 ? $arParams["USER_ID"] : $USER->GetID());
 /***************** URL *********************************************/
-	$URL_NAME_DEFAULT = array(
-		"topic_list" => "PAGE_NAME=topic_list",
-		"topic" => "PAGE_NAME=topic&TID=#TID#",
-		"topic_edit" => "PAGE_NAME=topic_edit&TID=#TID#&MID=#MID#",
-		"message" => "PAGE_NAME=topic&TID=#TID#&MID=#MID#",
-		"profile_view" => "PAGE_NAME=profile_view&UID=#UID#");
-	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
-	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPageParam($URL_VALUE,
-				array("PAGE_NAME", "FID", "TID", "UID", "GID", "MID", "ACTION", "sessid", "SEF_APPLICATION_CUR_PAGE_URL",
-					"AJAX_TYPE", "AJAX_CALL", BX_AJAX_PARAM_ID, "result", "order"));
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
-	}
+$URL_NAME_DEFAULT = array(
+	"topic_list" => "PAGE_NAME=topic_list",
+	"topic" => "PAGE_NAME=topic&TID=#TID#",
+	"topic_edit" => "PAGE_NAME=topic_edit&TID=#TID#&MID=#MID#",
+	"message" => "PAGE_NAME=topic&TID=#TID#&MID=#MID#",
+	"profile_view" => "PAGE_NAME=profile_view&UID=#UID#");
+foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
+{
+	if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPageParam($URL_VALUE,
+			array("PAGE_NAME", "FID", "TID", "UID", "GID", "MID", "ACTION", "sessid", "SEF_APPLICATION_CUR_PAGE_URL",
+				"AJAX_TYPE", "AJAX_CALL", BX_AJAX_PARAM_ID, "result", "order"));
+	$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
+	$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+}
 /***************** ADDITIONAL **************************************/
-	$arParams["PAGEN"] = (intVal($arParams["PAGEN"]) <= 0 ? 1 : intVal($arParams["PAGEN"]));
-	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
-	$arParams["PAGE_NAVIGATION_SHOW_ALL"] = ($arParams["PAGE_NAVIGATION_SHOW_ALL"] == "Y" ? "Y" : "N");
+$arParams["PAGEN"] = (intVal($arParams["PAGEN"]) <= 0 ? 1 : intVal($arParams["PAGEN"]));
+$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
+$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
+$arParams["PAGE_NAVIGATION_SHOW_ALL"] = ($arParams["PAGE_NAVIGATION_SHOW_ALL"] == "Y" ? "Y" : "N");
 
-	$arParams["USER_FIELDS"] = (is_array($arParams["USER_FIELDS"]) ? $arParams["USER_FIELDS"] : ($arParams["USER_FIELDS"] ? array($arParams["USER_FIELDS"]) : array()));
-	if (!in_array("UF_FORUM_MESSAGE_DOC", $arParams["USER_FIELDS"]))
-		$arParams["USER_FIELDS"][] = "UF_FORUM_MESSAGE_DOC";
+$arParams["USER_FIELDS"] = (is_array($arParams["USER_FIELDS"]) ? $arParams["USER_FIELDS"] : ($arParams["USER_FIELDS"] ? array($arParams["USER_FIELDS"]) : array()));
+if (!in_array("UF_FORUM_MESSAGE_DOC", $arParams["USER_FIELDS"]))
+	$arParams["USER_FIELDS"][] = "UF_FORUM_MESSAGE_DOC";
 
-	$arParams["MESSAGES_PER_PAGE"] = intVal(empty($arParams["MESSAGES_PER_PAGE"]) ?
-		COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10") : $arParams["MESSAGES_PER_PAGE"]);
+$arParams["MESSAGES_PER_PAGE"] = intVal(empty($arParams["MESSAGES_PER_PAGE"]) ?
+	COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10") : $arParams["MESSAGES_PER_PAGE"]);
 
-	$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
-	$arParams["PATH_TO_ICON"] = trim($arParams["PATH_TO_ICON"]);
+$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
+$arParams["PATH_TO_ICON"] = trim($arParams["PATH_TO_ICON"]);
 
-	$arParams["WORD_LENGTH"] = intVal($arParams["WORD_LENGTH"]);
-	$arParams["IMAGE_SIZE"] = (intVal($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 500);
+$arParams["WORD_LENGTH"] = intVal($arParams["WORD_LENGTH"]);
+$arParams["IMAGE_SIZE"] = (intVal($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 500);
 
-	// Data and data-time format
-	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
-	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
-	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : CSite::GetNameFormat());
+// Data and data-time format
+$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
+$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : CSite::GetNameFormat());
 
-	// AJAX
-	if ($arParams["AJAX_TYPE"] == "Y" || ($arParams["AJAX_TYPE"] == "A" && COption::GetOptionString("main", "component_ajax_on", "Y") == "Y"))
-		$arParams["AJAX_TYPE"] = "Y";
-	else
-		$arParams["AJAX_TYPE"] = "N";
-	$arParams["AJAX_CALL"] = (($arParams["AJAX_TYPE"] == "Y" && $_REQUEST["AJAX_CALL"] == "Y") ? "Y" : "N");
-	$arParams["AUTOSAVE"] = CForumAutosave::GetInstance();
+// AJAX
+if ($arParams["AJAX_TYPE"] == "Y" || ($arParams["AJAX_TYPE"] == "A" && COption::GetOptionString("main", "component_ajax_on", "Y") == "Y"))
+	$arParams["AJAX_TYPE"] = "Y";
+else
+	$arParams["AJAX_TYPE"] = "N";
+$arParams["AJAX_CALL"] = (($arParams["AJAX_TYPE"] == "Y" && $_REQUEST["AJAX_CALL"] == "Y") ? "Y" : "N");
+$arParams["AUTOSAVE"] = CForumAutosave::GetInstance();
 /***************** STANDART ****************************************/
-	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
-		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
-	else
-		$arParams["CACHE_TIME"] = 0;
-	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
+if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
+	$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
+else
+	$arParams["CACHE_TIME"] = 0;
+$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
 /********************************************************************
 				/Input params
 ********************************************************************/
+
+if ($arParams["MODE"] == "GROUP")
+{
+	$res = \Bitrix\Socialnetwork\WorkgroupTable::getList(array(
+		'filter' => array(
+			'=ID' => $arParams["SOCNET_GROUP_ID"]
+		),
+		'select' => array('ID')
+	));
+	$entity = $res->fetch();
+	if (!$entity)
+	{
+		ShowError(GetMessage("SFTR_ERROR_NO_GROUP"));
+		return false;
+	}
+}
+elseif ($arParams["MODE"] == "USER")
+{
+	$filter = array(
+		'=ID' => $arParams["USER_ID"]
+	);
+	if (!\Bitrix\Main\ModuleManager::isModuleInstalled('intranet'))
+	{
+		$filter['=ACTIVE'] = 'Y';
+	}
+	$res = \Bitrix\Main\UserTable::getList(array(
+		'filter' => $filter,
+		'select' => array('ID')
+	));
+	$entity = $res->fetch();
+	if (!$entity)
+	{
+		ShowError(GetMessage("SFTR_ERROR_NO_USER"));
+		return false;
+	}
+}
 
 /********************************************************************
 				Default params # 1

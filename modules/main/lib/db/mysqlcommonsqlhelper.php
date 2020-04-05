@@ -3,7 +3,8 @@ namespace Bitrix\Main\DB;
 
 use Bitrix\Main;
 use Bitrix\Main\Type;
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM;
+use Bitrix\Main\ORM\Fields\ScalarField;
 
 abstract class MysqlCommonSqlHelper extends SqlHelper
 {
@@ -264,20 +265,21 @@ abstract class MysqlCommonSqlHelper extends SqlHelper
 
 	/**
 	 * Returns callback to be called for a field value on fetch.
+	 * Used for soft conversion. For strict results @see Entity\Query\Result::setStrictValueConverters()
 	 *
-	 * @param Entity\ScalarField $field Type "source".
+	 * @param ScalarField $field Type "source".
 	 *
 	 * @return false|callback
 	 */
-	public function getConverter(Entity\ScalarField $field)
+	public function getConverter(ScalarField $field)
 	{
-		if($field instanceof Entity\DatetimeField)
+		if($field instanceof ORM\Fields\DatetimeField)
 		{
-			return array($this, "convertDatetimeField");
+			return array($this, "convertFromDbDateTime");
 		}
-		elseif($field instanceof Entity\DateField)
+		elseif($field instanceof ORM\Fields\DateField)
 		{
-			return array($this, "convertDateField");
+			return array($this, "convertFromDbDate");
 		}
 		else
 		{
@@ -286,6 +288,7 @@ abstract class MysqlCommonSqlHelper extends SqlHelper
 	}
 
 	/**
+	 * @deprecated
 	 * Converts string into \Bitrix\Main\Type\DateTime object.
 	 * <p>
 	 * Helper function.
@@ -297,6 +300,17 @@ abstract class MysqlCommonSqlHelper extends SqlHelper
 	 */
 	public function convertDatetimeField($value)
 	{
+		return $this->convertFromDbDateTime($value);
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return Type\DateTime|null
+	 * @throws Main\ObjectException
+	 */
+	public function convertFromDbDateTime($value)
+	{
 		if($value !== null && $value != '0000-00-00 00:00:00')
 		{
 			return new Type\DateTime($value, "Y-m-d H:i:s");
@@ -306,16 +320,28 @@ abstract class MysqlCommonSqlHelper extends SqlHelper
 	}
 
 	/**
+	 * @deprecated
 	 * Converts string into \Bitrix\Main\Type\Date object.
 	 * <p>
 	 * Helper function.
 	 *
 	 * @param string $value Value fetched.
 	 *
-	 * @return null|\Bitrix\Main\Type\DateTime
+	 * @return null|\Bitrix\Main\Type\Date
 	 * @see \Bitrix\Main\Db\MysqlCommonSqlHelper::getConverter
 	 */
 	public function convertDateField($value)
+	{
+		return $this->convertFromDbDate($value);
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return Type\Date|null
+	 * @throws Main\ObjectException
+	 */
+	public function convertFromDbDate($value)
 	{
 		if($value !== null && $value != '0000-00-00')
 		{
@@ -352,33 +378,33 @@ abstract class MysqlCommonSqlHelper extends SqlHelper
 	/**
 	 * Returns a column type according to ScalarField object.
 	 *
-	 * @param Entity\ScalarField $field Type "source".
+	 * @param ScalarField $field Type "source".
 	 *
 	 * @return string
 	 */
-	public function getColumnTypeByField(Entity\ScalarField $field)
+	public function getColumnTypeByField(ScalarField $field)
 	{
-		if ($field instanceof Entity\IntegerField)
+		if ($field instanceof ORM\Fields\IntegerField)
 		{
 			return 'int';
 		}
-		elseif ($field instanceof Entity\FloatField)
+		elseif ($field instanceof ORM\Fields\FloatField)
 		{
 			return 'double';
 		}
-		elseif ($field instanceof Entity\DatetimeField)
+		elseif ($field instanceof ORM\Fields\DatetimeField)
 		{
 			return 'datetime';
 		}
-		elseif ($field instanceof Entity\DateField)
+		elseif ($field instanceof ORM\Fields\DateField)
 		{
 			return 'date';
 		}
-		elseif ($field instanceof Entity\TextField)
+		elseif ($field instanceof ORM\Fields\TextField)
 		{
 			return 'text';
 		}
-		elseif ($field instanceof Entity\BooleanField)
+		elseif ($field instanceof ORM\Fields\BooleanField)
 		{
 			$values = $field->getValues();
 
@@ -391,7 +417,7 @@ abstract class MysqlCommonSqlHelper extends SqlHelper
 				return 'varchar('.max(strlen($values[0]), strlen($values[1])).')';
 			}
 		}
-		elseif ($field instanceof Entity\EnumField)
+		elseif ($field instanceof ORM\Fields\EnumField)
 		{
 			return 'varchar('.max(array_map('strlen', $field->getValues())).')';
 		}
@@ -401,7 +427,7 @@ abstract class MysqlCommonSqlHelper extends SqlHelper
 			$defaultLength = false;
 			foreach ($field->getValidators() as $validator)
 			{
-				if ($validator instanceof Entity\Validator\Length)
+				if ($validator instanceof ORM\Fields\Validators\LengthValidator)
 				{
 					if ($defaultLength === false || $defaultLength > $validator->getMax())
 					{

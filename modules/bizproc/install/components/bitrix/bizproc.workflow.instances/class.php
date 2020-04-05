@@ -24,15 +24,15 @@ class BizprocWorkflowInstances extends \CBitrixComponent
 		'MODIFIED' => 'MODIFIED',
 		'OWNER_ID' => 'OWNER_ID',
 		'OWNED_UNTIL' => 'OWNED_UNTIL',
-		'WS_MODULE_ID' => 'STATE.MODULE_ID',
-		'WS_ENTITY' => 'STATE.ENTITY',
-		'WS_DOCUMENT_ID' => 'STATE.DOCUMENT_ID',
-		'WS_STARTED' => 'STATE.STARTED',
-		'WS_STARTED_BY' => 'STATE.STARTED_BY',
-		'WS_WORKFLOW_TEMPLATE_ID' => 'STATE.WORKFLOW_TEMPLATE_ID',
-		'WS_STARTED_USER_NAME' => 'STATE.STARTED_USER.NAME',
-		'WS_STARTED_USER_LAST_NAME' => 'STATE.STARTED_USER.LAST_NAME',
-		'WS_STARTED_USER_LOGIN' => 'STATE.STARTED_USER.LOGIN',
+		'WS_MODULE_ID' => 'MODULE_ID',
+		'WS_ENTITY' => 'ENTITY',
+		'WS_DOCUMENT_ID' => 'DOCUMENT_ID',
+		'WS_STARTED' => 'STARTED',
+		'WS_STARTED_BY' => 'STARTED_BY',
+		'WS_WORKFLOW_TEMPLATE_ID' => 'WORKFLOW_TEMPLATE_ID',
+		'WS_STARTED_USER_NAME' => 'STARTED_USER.NAME',
+		'WS_STARTED_USER_LAST_NAME' => 'STARTED_USER.LAST_NAME',
+		'WS_STARTED_USER_LOGIN' => 'STARTED_USER.LOGIN',
 	);
 	protected static $moduleNames = array();
 
@@ -73,7 +73,7 @@ class BizprocWorkflowInstances extends \CBitrixComponent
 			array('id' => 'OWNED_UNTIL', 'name' => Loc::getMessage('BPWI_OWNED_UNTIL'), 'default' => false, 'sort' => 'OWNED_UNTIL'),
 			array('id' => 'WS_STARTED', 'name' => Loc::getMessage('BPWI_WS_STARTED'), 'default' => true, 'sort' => 'WS_STARTED'),
 			array('id' => 'WS_STARTED_BY', 'name' => Loc::getMessage('BPWI_WS_STARTED_BY'), 'default' => true, 'sort' => 'WS_STARTED_BY'),
-			array('id' => 'WS_WORKFLOW_TEMPLATE_ID', 'name' => Loc::getMessage('BPWI_WS_WORKFLOW_TEMPLATE_ID'), 'default' => true, 'sort' => 'WS_WORKFLOW_TEMPLATE_ID', 'ormField' => 'STATE.WORKFLOW_TEMPLATE_ID'),
+			array('id' => 'WS_WORKFLOW_TEMPLATE_ID', 'name' => Loc::getMessage('BPWI_WS_WORKFLOW_TEMPLATE_ID'), 'default' => true, 'sort' => 'WS_WORKFLOW_TEMPLATE_ID'),
 		);
 	}
 	
@@ -355,7 +355,12 @@ class BizprocWorkflowInstances extends \CBitrixComponent
 						true)." [".$row['WS_STARTED_BY']."]";
 			}
 			$row['DOCUMENT_URL'] = $row['WS_DOCUMENT_NAME'] = '';
-			if (!empty($row['WS_MODULE_ID']))
+			if (
+				!empty($row['WS_MODULE_ID'])
+				&&
+				!empty($row['WS_ENTITY'])
+				&&
+				!empty($row['WS_DOCUMENT_ID']))
 			{
 				$row['DOCUMENT_URL'] = CBPDocument::GetDocumentAdminPage(array(
 					$row['WS_MODULE_ID'],

@@ -84,8 +84,7 @@ class Feed
 			
 			$journal = new Vk\Journal($exportId, $this->feedType);
 			$logger = new Vk\Logger($exportId);
-			if ($richLog = $vk->getRichLog($exportId))
-				$logger->addLog('Feed start', 'Feed type ' . $this->feedType);
+			$logger->addLog('Feed start', 'Feed type ' . $this->feedType);
 			
 			$convertedData = array();
 			$nextStepItem = NULL;
@@ -93,8 +92,7 @@ class Feed
 			
 			foreach ($this->sourceDataIterator as $data)
 			{
-				if ($richLog = $vk->getRichLog($exportId))
-					$logger->addLog('Item to convert', 'ID: ' . $data["ID"] . ' NAME: ' . $data["NAME"]);
+				$logger->addLog('Item to convert', 'ID: ' . $data["ID"] . ' NAME: ' . $data["NAME"]);
 				if ($nextStepFlag)
 				{
 					$nextStepItem = $data["ID"];
@@ -102,28 +100,34 @@ class Feed
 				}
 				
 				if ($currData = $this->dataConvertor->convert($data))
+				{
 					$convertedData += $currData;
+				}
 				
 				if (count($convertedData) >= $executionItemsLimit)
+				{
 					$nextStepFlag = true;
+				}
 			}
 
 //			PROCESSING
 			if (count($convertedData) > 0)
 			{
-				if ($richLog = $vk->getRichLog($exportId))
-					$logger->addLog('Items to process', 'Count '.count($convertedData));
+				$logger->addLog('Items to process', 'Count '.count($convertedData));
 				$this->dataProcessor->process($convertedData, self::getTimer());
-				if ($richLog = $vk->getRichLog($exportId))
-					$logger->addLog('Finish process items', 'Count '.count($convertedData));
+				$logger->addLog('Finish process items', 'Count '.count($convertedData));
 				$journal->addItemsCount(count($convertedData));
 //				for running next step
 				if ($nextStepItem)
+				{
 					throw new TimeIsOverException("VK export next step", $nextStepItem);
+				}
 			}
 			
 			if (count($convertedData) == 0 && $this->feedType == 'PRODUCTS')
+			{
 				$logger->addError('EMPTY_SECTION_PRODUCTS');
+			}
 
 //			all OK - close journal
 			$journal->end();

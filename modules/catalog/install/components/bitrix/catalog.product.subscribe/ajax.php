@@ -6,6 +6,8 @@ use Bitrix\Main\Loader;
 
 define('STOP_STATISTICS', true);
 define('PUBLIC_AJAX_MODE', true);
+define('NOT_CHECK_PERMISSIONS', true);
+
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
 if(isset($_REQUEST['reloadCaptcha']) && $_REQUEST['reloadCaptcha'] == 'Y')
@@ -74,6 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 
 	if($_POST['subscribe'] == 'Y')
 	{
+		$landingId = (!empty($_POST['landingId']) ? intval($_POST['landingId']) : null);
+
 		if(count($contactTypes) > 1)
 		{
 			// Returns a response to the formation of the form of contacts.
@@ -102,6 +106,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 					'CONTACT_TYPE' => $contactTypeId,
 					'USER_ID' => $userId,
 				);
+				if ($landingId)
+				{
+					$subscribeData['LANDING_SITE_ID'] = $landingId;
+				}
 				$subscribeId = $subscribeManager->addSubscribe($subscribeData);
 				if($subscribeId)
 				{
@@ -184,6 +192,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 			if($userId)
 			{
 				$subscribeData['USER_ID'] = $userId;
+			}
+			if ($landingId)
+			{
+				$subscribeData['LANDING_SITE_ID'] = $landingId;
 			}
 			$subscribeManager->addSubscribe($subscribeData);
 			$errorObject = current($subscribeManager->getErrors());

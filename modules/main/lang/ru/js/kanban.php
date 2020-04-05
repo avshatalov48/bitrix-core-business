@@ -9,4 +9,5 @@ $MESS["MAIN_KANBAN_COLUMN_TITLE_PLACEHOLDER"] = "Название";
 $MESS["MAIN_KANBAN_ERROR"] = "Ошибка";
 $MESS["MAIN_KANBAN_RELOAD"] = "Перезагрузить страницу";
 $MESS["MAIN_KANBAN_ERROR_OK"] = "OK";
+$MESS["MAIN_KANBAN_ERROR_CLOSE"] = "Закрыть";
 $MESS["MAIN_KANBAN_DROPZONE_CANCEL"] = "Отмена";

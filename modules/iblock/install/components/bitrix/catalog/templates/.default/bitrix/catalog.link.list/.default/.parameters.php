@@ -1,12 +1,15 @@
 <?
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Iblock;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true) die();
 
 if (!Loader::includeModule('iblock'))
 	return;
 $boolCatalog = Loader::includeModule('catalog');
+
+$usePropertyFeatures = Iblock\Model\PropertyFeature::isEnabledFeatures();
 
 $arSKU = false;
 $boolSKU = false;
@@ -146,16 +149,19 @@ if (isset($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] >
 			'DEFAULT' => '-',
 			'VALUES' => $arFileOfferPropList
 		);
-		$arTemplateParameters['OFFER_TREE_PROPS'] = array(
-			'PARENT' => 'VISUAL',
-			'NAME' => GetMessage('CP_BCLL_TPL_OFFER_TREE_PROPS'),
-			'TYPE' => 'LIST',
-			'MULTIPLE' => 'Y',
-			'ADDITIONAL_VALUES' => 'N',
-			'REFRESH' => 'N',
-			'DEFAULT' => '-',
-			'VALUES' => $arTreeOfferPropList
-		);
+		if (!$usePropertyFeatures)
+		{
+			$arTemplateParameters['OFFER_TREE_PROPS'] = array(
+				'PARENT' => 'VISUAL',
+				'NAME' => GetMessage('CP_BCLL_TPL_OFFER_TREE_PROPS'),
+				'TYPE' => 'LIST',
+				'MULTIPLE' => 'Y',
+				'ADDITIONAL_VALUES' => 'N',
+				'REFRESH' => 'N',
+				'DEFAULT' => '-',
+				'VALUES' => $arTreeOfferPropList
+			);
+		}
 	}
 }
 
@@ -217,4 +223,3 @@ $arTemplateParameters['MESS_NOT_AVAILABLE'] = array(
 	'TYPE' => 'STRING',
 	'DEFAULT' => GetMessage('CP_BCLL_TPL_MESS_NOT_AVAILABLE_DEFAULT')
 );
-?>

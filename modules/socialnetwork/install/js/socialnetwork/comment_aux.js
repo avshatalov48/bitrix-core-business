@@ -56,10 +56,19 @@ BX.CommentAux.getLiveText = function(type, params)
 			{
 				result = BX.message('SONET_COMMENTAUX_JS_CREATETASK_BLOG_POST').replace('#TASK_NAME#', task);
 			}
-			else if (params.sourceEntityType == 'BLOG_COMMENT')
+			else if (
+				params.sourceEntityType == 'BLOG_COMMENT'
+				|| params.sourceEntityType == 'FORUM_POST'
+				|| params.sourceEntityType == 'LOG_COMMENT'
+			)
 			{
 				var sourceComment = this.renderEntity({
 					ENTITY_TYPE: 'createTaskSourceComment',
+					SOURCE_ENTITY_TYPE: (
+						typeof params.sourceEntityType != 'undefined'
+							? params.sourceEntityType + (BX.type.isNotEmptyString(params.suffix) ? '_' + params.suffix : '')
+							: ''
+					),
 					LINK: (typeof params.sourceEntityLink != 'undefined' ? params.sourceEntityLink : '')
 				});
 				result = BX.message('SONET_COMMENTAUX_JS_CREATETASK_BLOG_COMMENT').replace('#TASK_NAME#', task).replace('#COMMENT_LINK#', sourceComment);

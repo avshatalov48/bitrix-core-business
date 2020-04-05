@@ -102,6 +102,7 @@ class CIMStatus
 			'COLOR' => $status['COLOR']? $status['COLOR']: '',
 			'IDLE' => $status['IDLE'] instanceof \Bitrix\Main\Type\DateTime? $status['IDLE']: false,
 			'MOBILE_LAST_DATE' => $status['MOBILE_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime? $status['MOBILE_LAST_DATE']: false,
+			'DESKTOP_LAST_DATE' => $status['DESKTOP_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime? $status['DESKTOP_LAST_DATE']: false,
 			'PREVIOUS_VALUES' => $previousStatus
 		));
 		$event->send();
@@ -140,6 +141,7 @@ class CIMStatus
 		{
 			global $CACHE_MANAGER;
 			$CACHE_MANAGER->ClearByTag('IM_CONTACT_LIST');
+			$CACHE_MANAGER->ClearByTag('USER_NAME_'.$userId);
 		}
 	}
 
@@ -430,7 +432,10 @@ class CIMStatus
 			return $result;
 		}
 
-		if (in_array($status['EXTERNAL_AUTH_ID'], array('bot', 'email', 'network', 'replica', 'controller', 'imconnector')))
+		$externalUser = \Bitrix\Main\UserTable::getExternalUserTypes();
+		$externalUser[] = 'network';
+
+		if (in_array($status['EXTERNAL_AUTH_ID'], $externalUser))
 		{
 			$result['STATUS'] = 'online';
 			$result['STATUS_TEXT'] = GetMessage('IM_STATUS_EAID_'.strtoupper($status['EXTERNAL_AUTH_ID']));

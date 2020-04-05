@@ -15,6 +15,7 @@ use \Bitrix\Main\Localization\Loc;
  * @var bool $showSubscribe
  * @var array $morePhoto
  * @var bool $showSlider
+ * @var bool $itemHasDetailUrl
  * @var string $imgTitle
  * @var string $productTitle
  * @var string $buttonSizeClass
@@ -23,8 +24,12 @@ use \Bitrix\Main\Localization\Loc;
 ?>
 
 <div class="product-item">
+	<? if ($itemHasDetailUrl): ?>
 	<a class="product-item-image-wrapper" href="<?=$item['DETAIL_PAGE_URL']?>" title="<?=$imgTitle?>"
-		data-entity="image-wrapper">
+			data-entity="image-wrapper">
+	<? else: ?>
+	<span class="product-item-image-wrapper" data-entity="image-wrapper">
+	<? endif; ?>
 		<span class="product-item-image-slider-slide-container slide" id="<?=$itemIds['PICT_SLIDER']?>"
 			<?=($showSlider ? '' : 'style="display: none;"')?>
 			data-slider-interval="<?=$arParams['SLIDER_INTERVAL']?>" data-slider-wrap="true">
@@ -34,25 +39,19 @@ use \Bitrix\Main\Localization\Loc;
 				foreach ($morePhoto as $key => $photo)
 				{
 					?>
-					<span class="product-item-image-slide item <?=($key == 0 ? 'active' : '')?>"
-						style="background-image: url('<?=$photo['SRC']?>');">
-					</span>
+					<span class="product-item-image-slide item <?=($key == 0 ? 'active' : '')?>" style="background-image: url('<?=$photo['SRC']?>');"></span>
 					<?
 				}
 			}
 			?>
 		</span>
-		<span class="product-item-image-original" id="<?=$itemIds['PICT']?>"
-			style="background-image: url('<?=$item['PREVIEW_PICTURE']['SRC']?>'); <?=($showSlider ? 'display: none;' : '')?>">
-		</span>
+		<span class="product-item-image-original" id="<?=$itemIds['PICT']?>" style="background-image: url('<?=$item['PREVIEW_PICTURE']['SRC']?>'); <?=($showSlider ? 'display: none;' : '')?>"></span>
 		<?
 		if ($item['SECOND_PICT'])
 		{
 			$bgImage = !empty($item['PREVIEW_PICTURE_SECOND']) ? $item['PREVIEW_PICTURE_SECOND']['SRC'] : $item['PREVIEW_PICTURE']['SRC'];
 			?>
-			<span class="product-item-image-alternative" id="<?=$itemIds['SECOND_PICT']?>"
-				style="background-image: url('<?=$bgImage?>'); <?=($showSlider ? 'display: none;' : '')?>">
-			</span>
+			<span class="product-item-image-alternative" id="<?=$itemIds['SECOND_PICT']?>" style="background-image: url('<?=$bgImage?>'); <?=($showSlider ? 'display: none;' : '')?>"></span>
 			<?
 		}
 
@@ -87,7 +86,7 @@ use \Bitrix\Main\Localization\Loc;
 			<?
 		}
 		?>
-		<div class="product-item-image-slider-control-container" id="<?=$itemIds['PICT_SLIDER']?>_indicator"
+		<span class="product-item-image-slider-control-container" id="<?=$itemIds['PICT_SLIDER']?>_indicator"
 			<?=($showSlider ? '' : 'style="display: none;"')?>>
 			<?
 			if ($showSlider)
@@ -95,26 +94,36 @@ use \Bitrix\Main\Localization\Loc;
 				foreach ($morePhoto as $key => $photo)
 				{
 					?>
-					<div class="product-item-image-slider-control<?=($key == 0 ? ' active' : '')?>" data-go-to="<?=$key?>"></div>
+					<span class="product-item-image-slider-control<?=($key == 0 ? ' active' : '')?>" data-go-to="<?=$key?>"></span>
 					<?
 				}
 			}
 			?>
-		</div>
+		</span>
 		<?
 		if ($arParams['SLIDER_PROGRESS'] === 'Y')
 		{
 			?>
-			<div class="product-item-image-slider-progress-bar-container">
-				<div class="product-item-image-slider-progress-bar" id="<?=$itemIds['PICT_SLIDER']?>_progress_bar" style="width: 0;"></div>
-			</div>
+			<span class="product-item-image-slider-progress-bar-container">
+				<span class="product-item-image-slider-progress-bar" id="<?=$itemIds['PICT_SLIDER']?>_progress_bar" style="width: 0;"></span>
+			</span>
 			<?
 		}
 		?>
+	<? if ($itemHasDetailUrl): ?>
 	</a>
-	<div class="product-item-title">
-		<a href="<?=$item['DETAIL_PAGE_URL']?>" title="<?=$productTitle?>"><?=$productTitle?></a>
-	</div>
+	<? else: ?>
+	</span>
+	<? endif; ?>
+	<h3 class="product-item-title">
+		<? if ($itemHasDetailUrl): ?>
+		<a href="<?=$item['DETAIL_PAGE_URL']?>" title="<?=$productTitle?>">
+		<? endif; ?>
+		<?=$productTitle?>
+		<? if ($itemHasDetailUrl): ?>
+		</a>
+		<? endif; ?>
+	</h3>
 	<?
 	if (!empty($arParams['PRODUCT_BLOCKS_ORDER']))
 	{
@@ -169,11 +178,13 @@ use \Bitrix\Main\Localization\Loc;
 							if ($arParams['PRODUCT_DISPLAY_MODE'] === 'Y')
 							{
 								?>
-								<div class="product-item-info-container product-item-hidden" id="<?=$itemIds['QUANTITY_LIMIT']?>"
-									style="display: none;" data-entity="quantity-limit-block">
-									<div class="product-item-info-container-title">
+								<div class="product-item-info-container product-item-hidden"
+									 id="<?=$itemIds['QUANTITY_LIMIT']?>"
+									 style="display: none;"
+									 data-entity="quantity-limit-block">
+									<div class="product-item-info-container-title text-muted">
 										<?=$arParams['MESS_SHOW_MAX_QUANTITY']?>:
-										<span class="product-item-quantity" data-entity="quantity-limit-value"></span>
+										<span class="product-item-quantity text-dark" data-entity="quantity-limit-value"></span>
 									</div>
 								</div>
 								<?
@@ -190,27 +201,27 @@ use \Bitrix\Main\Localization\Loc;
 							{
 								?>
 								<div class="product-item-info-container product-item-hidden" id="<?=$itemIds['QUANTITY_LIMIT']?>">
-									<div class="product-item-info-container-title">
+									<div class="product-item-info-container-title text-muted">
 										<?=$arParams['MESS_SHOW_MAX_QUANTITY']?>:
-										<span class="product-item-quantity">
-											<?
-											if ($arParams['SHOW_MAX_QUANTITY'] === 'M')
-											{
-												if ((float)$actualItem['CATALOG_QUANTITY'] / $measureRatio >= $arParams['RELATIVE_QUANTITY_FACTOR'])
+										<span class="product-item-quantity text-dark" data-entity="quantity-limit-value">
+												<?
+												if ($arParams['SHOW_MAX_QUANTITY'] === 'M')
 												{
-													echo $arParams['MESS_RELATIVE_QUANTITY_MANY'];
+													if ((float)$actualItem['CATALOG_QUANTITY'] / $measureRatio >= $arParams['RELATIVE_QUANTITY_FACTOR'])
+													{
+														echo $arParams['MESS_RELATIVE_QUANTITY_MANY'];
+													}
+													else
+													{
+														echo $arParams['MESS_RELATIVE_QUANTITY_FEW'];
+													}
 												}
 												else
 												{
-													echo $arParams['MESS_RELATIVE_QUANTITY_FEW'];
+													echo $actualItem['CATALOG_QUANTITY'].' '.$actualItem['ITEM_MEASURE']['TITLE'];
 												}
-											}
-											else
-											{
-												echo $actualItem['CATALOG_QUANTITY'].' '.$actualItem['ITEM_MEASURE']['TITLE'];
-											}
-											?>
-										</span>
+												?>
+											</span>
 									</div>
 								</div>
 								<?
@@ -282,10 +293,10 @@ use \Bitrix\Main\Localization\Loc;
 							{
 								?>
 								<div class="product-item-button-container" id="<?=$itemIds['BASKET_ACTIONS']?>">
-									<a class="btn btn-default <?=$buttonSizeClass?>" id="<?=$itemIds['BUY_LINK']?>"
+									<button class="btn btn-primary <?=$buttonSizeClass?>" id="<?=$itemIds['BUY_LINK']?>"
 										href="javascript:void(0)" rel="nofollow">
 										<?=($arParams['ADD_TO_BASKET_ACTION'] === 'BUY' ? $arParams['MESS_BTN_BUY'] : $arParams['MESS_BTN_ADD_TO_BASKET'])?>
-									</a>
+									</button>
 								</div>
 								<?
 							}
@@ -302,7 +313,7 @@ use \Bitrix\Main\Localization\Loc;
 											array(
 												'PRODUCT_ID' => $actualItem['ID'],
 												'BUTTON_ID' => $itemIds['SUBSCRIBE_LINK'],
-												'BUTTON_CLASS' => 'btn btn-default '.$buttonSizeClass,
+												'BUTTON_CLASS' => 'btn btn-primary '.$buttonSizeClass,
 												'DEFAULT_DISPLAY' => true,
 												'MESS_BTN_SUBSCRIBE' => $arParams['~MESS_BTN_SUBSCRIBE'],
 											),
@@ -311,10 +322,10 @@ use \Bitrix\Main\Localization\Loc;
 										);
 									}
 									?>
-									<a class="btn btn-link <?=$buttonSizeClass?>"
+									<button class="btn btn-link <?=$buttonSizeClass?>"
 										id="<?=$itemIds['NOT_AVAILABLE_MESS']?>" href="javascript:void(0)" rel="nofollow">
 										<?=$arParams['MESS_NOT_AVAILABLE']?>
-									</a>
+									</button>
 								</div>
 								<?
 							}
@@ -334,7 +345,7 @@ use \Bitrix\Main\Localization\Loc;
 											array(
 												'PRODUCT_ID' => $item['ID'],
 												'BUTTON_ID' => $itemIds['SUBSCRIBE_LINK'],
-												'BUTTON_CLASS' => 'btn btn-default '.$buttonSizeClass,
+												'BUTTON_CLASS' => 'btn btn-primary '.$buttonSizeClass,
 												'DEFAULT_DISPLAY' => !$actualItem['CAN_BUY'],
 												'MESS_BTN_SUBSCRIBE' => $arParams['~MESS_BTN_SUBSCRIBE'],
 											),
@@ -343,16 +354,16 @@ use \Bitrix\Main\Localization\Loc;
 										);
 									}
 									?>
-									<a class="btn btn-link <?=$buttonSizeClass?>"
+									<button class="btn btn-link <?=$buttonSizeClass?>"
 										id="<?=$itemIds['NOT_AVAILABLE_MESS']?>" href="javascript:void(0)" rel="nofollow"
 										<?=($actualItem['CAN_BUY'] ? 'style="display: none;"' : '')?>>
 										<?=$arParams['MESS_NOT_AVAILABLE']?>
-									</a>
+									</button>
 									<div id="<?=$itemIds['BASKET_ACTIONS']?>" <?=($actualItem['CAN_BUY'] ? '' : 'style="display: none;"')?>>
-										<a class="btn btn-default <?=$buttonSizeClass?>" id="<?=$itemIds['BUY_LINK']?>"
+										<button class="btn btn-primary <?=$buttonSizeClass?>" id="<?=$itemIds['BUY_LINK']?>"
 											href="javascript:void(0)" rel="nofollow">
 											<?=($arParams['ADD_TO_BASKET_ACTION'] === 'BUY' ? $arParams['MESS_BTN_BUY'] : $arParams['MESS_BTN_ADD_TO_BASKET'])?>
-										</a>
+										</button>
 									</div>
 								</div>
 								<?
@@ -361,9 +372,9 @@ use \Bitrix\Main\Localization\Loc;
 							{
 								?>
 								<div class="product-item-button-container">
-									<a class="btn btn-default <?=$buttonSizeClass?>" href="<?=$item['DETAIL_PAGE_URL']?>">
+									<button class="btn btn-primary <?=$buttonSizeClass?>" href="<?=$item['DETAIL_PAGE_URL']?>">
 										<?=$arParams['MESS_BTN_DETAIL']?>
-									</a>
+									</button>
 								</div>
 								<?
 							}
@@ -385,10 +396,10 @@ use \Bitrix\Main\Localization\Loc;
 									foreach ($item['DISPLAY_PROPERTIES'] as $code => $displayProperty)
 									{
 										?>
-										<dt<?=(!isset($item['PROPERTY_CODE_MOBILE'][$code]) ? ' class="hidden-xs"' : '')?>>
+										<dt class="text-muted<?=(!isset($item['PROPERTY_CODE_MOBILE'][$code]) ? ' d-none d-sm-block' : '')?>">
 											<?=$displayProperty['NAME']?>
 										</dt>
-										<dd<?=(!isset($item['PROPERTY_CODE_MOBILE'][$code]) ? ' class="hidden-xs"' : '')?>>
+										<dd class="text-dark<?=(!isset($item['PROPERTY_CODE_MOBILE'][$code]) ? ' d-none d-sm-block' : '')?>">
 											<?=(is_array($displayProperty['DISPLAY_VALUE'])
 												? implode(' / ', $displayProperty['DISPLAY_VALUE'])
 												: $displayProperty['DISPLAY_VALUE'])?>
@@ -496,10 +507,10 @@ use \Bitrix\Main\Localization\Loc;
 										foreach ($item['DISPLAY_PROPERTIES'] as $code => $displayProperty)
 										{
 											?>
-											<dt<?=(!isset($item['PROPERTY_CODE_MOBILE'][$code]) ? ' class="hidden-xs"' : '')?>>
+											<dt class="text-muted<?=(!isset($item['PROPERTY_CODE_MOBILE'][$code]) ? ' d-none d-sm-block' : '')?>">
 												<?=$displayProperty['NAME']?>
 											</dt>
-											<dd<?=(!isset($item['PROPERTY_CODE_MOBILE'][$code]) ? ' class="hidden-xs"' : '')?>>
+											<dd class="text-dark<?=(!isset($item['PROPERTY_CODE_MOBILE'][$code]) ? ' d-none d-sm-block' : '')?>">
 												<?=(is_array($displayProperty['DISPLAY_VALUE'])
 													? implode(' / ', $displayProperty['DISPLAY_VALUE'])
 													: $displayProperty['DISPLAY_VALUE'])?>
@@ -527,7 +538,7 @@ use \Bitrix\Main\Localization\Loc;
 					if ($arParams['PRODUCT_DISPLAY_MODE'] === 'Y' && $haveOffers && !empty($item['OFFERS_PROP']))
 					{
 						?>
-						<div id="<?=$itemIds['PROP_DIV']?>">
+						<div class="product-item-info-container product-item-hidden" id="<?=$itemIds['PROP_DIV']?>">
 							<?
 							foreach ($arParams['SKU_PROPS'] as $skuProperty)
 							{
@@ -536,9 +547,9 @@ use \Bitrix\Main\Localization\Loc;
 								if (!isset($item['SKU_TREE_VALUES'][$propertyId]))
 									continue;
 								?>
-								<div class="product-item-info-container product-item-hidden" data-entity="sku-block">
+								<div data-entity="sku-block">
 									<div class="product-item-scu-container" data-entity="sku-line-block">
-										<?=$skuProperty['NAME']?>
+										<div class="product-item-scu-block-title text-muted"><?=$skuProperty['NAME']?></div>
 										<div class="product-item-scu-block">
 											<div class="product-item-scu-list">
 												<ul class="product-item-scu-item-list">
@@ -553,12 +564,9 @@ use \Bitrix\Main\Localization\Loc;
 														if ($skuProperty['SHOW_MODE'] === 'PICT')
 														{
 															?>
-															<li class="product-item-scu-item-color-container" title="<?=$value['NAME']?>"
-																data-treevalue="<?=$propertyId?>_<?=$value['ID']?>" data-onevalue="<?=$value['ID']?>">
+															<li class="product-item-scu-item-color-container" title="<?=$value['NAME']?>" data-treevalue="<?=$propertyId?>_<?=$value['ID']?>" data-onevalue="<?=$value['ID']?>">
 																<div class="product-item-scu-item-color-block">
-																	<div class="product-item-scu-item-color" title="<?=$value['NAME']?>"
-																		style="background-image: url('<?=$value['PICT']['SRC']?>');">
-																	</div>
+																	<div class="product-item-scu-item-color" title="<?=$value['NAME']?>" style="background-image: url('<?=$value['PICT']['SRC']?>');"></div>
 																</div>
 															</li>
 															<?
@@ -577,7 +585,6 @@ use \Bitrix\Main\Localization\Loc;
 													}
 													?>
 												</ul>
-												<div style="clear: both;"></div>
 											</div>
 										</div>
 									</div>

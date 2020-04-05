@@ -351,7 +351,7 @@ class Subscription
 
 		$mailingList = array();
 		// all receives mailings
-		$mailingDb = PostingRecipientTable::getList(array(
+		$receiveMailingDb = PostingRecipientTable::getList(array(
 			'select' => array('MAILING_ID' => 'POSTING.MAILING.ID'),
 			'filter' => array(
 				'=EMAIL' => trim(strtolower($data['EMAIL'])),
@@ -360,13 +360,13 @@ class Subscription
 			),
 			'group' => array('MAILING_ID')
 		));
-		while ($mailing = $mailingDb->fetch())
+		while ($receiveMailing = $receiveMailingDb->fetch())
 		{
-			$mailingList[] = $mailing['MAILING_ID'];
+			$mailingList[] = $receiveMailing['MAILING_ID'];
 		}
 
 		// all subscribed mailings
-		$mailingDb = MailingSubscriptionTable::getSubscriptionList(array(
+		$subscribedMailingDb = MailingSubscriptionTable::getSubscriptionList(array(
 			'select' => array('MAILING_ID'),
 			'filter' => array(
 				'=CONTACT.EMAIL' => trim(strtolower($data['EMAIL'])),
@@ -374,9 +374,9 @@ class Subscription
 				'=MAILING.SITE_ID' => $mailing['SITE_ID']
 			)
 		));
-		while ($mailing = $mailingDb->fetch())
+		while ($subscribedMailing = $subscribedMailingDb->fetch())
 		{
-			$mailingList[] = $mailing['MAILING_ID'];
+			$mailingList[] = $subscribedMailing['MAILING_ID'];
 		}
 
 		$mailingList = array_unique($mailingList);
@@ -443,7 +443,7 @@ class Subscription
 				'filter' => array(
 					'=ID' => $data['RECIPIENT_ID'],
 					'=CONTACT.CODE' => $data['EMAIL'],
-					'=CONTACT.TYPE' => Recipient\Type::EMAIL,
+					'=CONTACT.TYPE_ID' => Recipient\Type::EMAIL,
 				)
 			));
 			$posting = $postingDb->fetch();
@@ -470,11 +470,11 @@ class Subscription
 			else
 			{
 				$mailingPostingDb = PostingRecipientTable::getList(array(
-					'select' => array('RECIPIENT_ID' => 'ID', 'CONTACT_ID' => 'CONTACT.ID', 'POSTING_ID'),
+					'select' => array('RECIPIENT_ID' => 'ID', 'CONTACT_ID', 'POSTING_ID'),
 					'filter' => array(
 						'=POSTING.MAILING_ID' => $mailing['ID'],
 						'=CONTACT.CODE' => $data['EMAIL'],
-						'=CONTACT.TYPE' => Recipient\Type::EMAIL,
+						'=CONTACT.TYPE_ID' => Recipient\Type::EMAIL,
 					),
 					'limit' => 1
 				));

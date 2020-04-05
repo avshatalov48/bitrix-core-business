@@ -7,6 +7,7 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\Event;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\UpdateResult;
 use Bitrix\Main\SystemException;
 use Bitrix\Sale\Delivery\Services;
 use Bitrix\Sale\Internals\ShipmentTable;
@@ -241,8 +242,7 @@ class Manager
 	}
 
 	/**
-	 * @param $trackingNumber
-	 * @param $deliveryId
+	 * @param array shipment
 	 * @return StatusResult
 	 * @throws ArgumentNullException
 	 * @throws SystemException
@@ -299,6 +299,7 @@ class Manager
 	/**
 	 * @param string $className Class name delivered from \Bitrix\Sale\Delivery\Tracking\Base
 	 * @param array $params
+	 * @param Services\Base $deliveryService
 	 * @return Base
 	 * @throws ArgumentNullException
 	 * @throws SystemException
@@ -341,15 +342,28 @@ class Manager
 		$data = $result->getData();
 
 		if(!empty($data))
-			$manager->processStatusChange($data);
+		{
+			$result = $manager->processStatusChange($data);
+
+			if(!$result->isSuccess())
+			{
+				$eventLog = new \CEventLog;
+
+				$eventLog->Add(array(
+					"SEVERITY" => \CEventLog::SEVERITY_ERROR,
+					"AUDIT_TYPE_ID" => 'SALE_DELIVERY_TRACKING_REFRESHING_STATUS_ERROR',
+					"MODULE_ID" => "sale",
+					"ITEM_ID" => time(),
+					"DESCRIPTION" => implode('\n', $result->getErrorMessages())
+				));
+			}
+		}
 
 		return '\Bitrix\Sale\Delivery\Tracking\Manager::startRefreshingStatuses();';
 	}
 
 	/**
 	 * @return Result
-	 * @throws ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentException
 	 * todo: timelimit
 	 */
 	protected function updateStatuses()
@@ -710,7 +724,6 @@ class Manager
 
 	/**
 	 * @param StatusChangeEventParam[] $params
-	 * @throws SystemException
 	 */
 	protected function sendOnStatusesChangedEvent(array $params)
 	{
@@ -790,8 +803,7 @@ class Manager
 	/**
 	 * @param int $shipmentId
 	 * @param StatusResult $params
-	 * @param bool|false $isStatusChanged
-	 * @return Result
+	 * @return UpdateResult
 	 * @throws ArgumentNullException
 	 * @throws \Exception
 	 */

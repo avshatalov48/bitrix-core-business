@@ -1,4 +1,5 @@
 <?
+$MESS["ERR_NO_VM"] = "Bitrix24 is guaranteed to operate smoothly only on Bitrix Environment. You are using custom server environment.";
 $MESS["SC_SUBTITLE_DISK"] = "Checking the disk access";
 $MESS["SC_SUBTITLE_DISK_DESC"] = "The site scripts must have write access to site files. This is required for proper functioning of the file manager, file upload and the update system that is used to keep the site kernel up-to-date.";
 $MESS["SC_VER_ERR"] = "The PHP version is #CUR#, but #REQ# or higher is required.";
@@ -12,6 +13,7 @@ $MESS["SC_UPDATE_ERROR"] = "Not connected to update server";
 $MESS["SC_TMP_FOLDER_PERMS"] = "Insufficient permission to write to temporary folder.";
 $MESS["SC_NO_TMP_FOLDER"] = "Temporary folder does not exist.";
 $MESS["ERR_NO_MODS"] = "The required extensions are not installed:";
+$MESS["ERR_NO_MODS_DOC_GENERATOR"] = "The Document Generator module requires php-xml and php-zip extensions.";
 $MESS["SC_ERR_DNS"] = "Cannot get MX record for domain #DOMAIN#";
 $MESS["SC_ERR_DNS_WRONG"] = "DNS configuration is incorrect. Only one MX record has to be there: mail-001.bitrix24.com (current: #DOMAIN#).";
 $MESS["SC_ERR_CONNECT_MAIL001"] = "Cannot connect mail server mail-001.bitrix24.com";
@@ -139,6 +141,13 @@ $MESS["SC_FIX_DATABASE"] = "Fix Database Errors";
 $MESS["SC_FIX_DATABASE_CONFIRM"] = "The system will now attempt to fix database errors. This action is potentially dangerous. Create the database backup copy before you proceed.
 
 Continue?";
+$MESS["SC_ERR_NO_SETTINGS"] = "Configuration file /bitrix/.settings.php was not found";
+$MESS["SC_FIX_MBSTRING"] = "Repair configuration";
+$MESS["SC_FIX_MBSTRING_CONFIRM"] = "Attention!
+
+This will change the configuration files. If the operation fails, your site will be recoverable only from the web hosting control panel.
+
+Continue?";
 $MESS["SC_CHECK_TABLES_ERRORS"] = "Database tables have #VAL# encoding error(s), #VAL1# of which can be fixed automatically.";
 $MESS["SC_CONNECTION_CHARSET_NA"] = "Verification failed due to connection encoding error.";
 $MESS["SC_DATABASE_COLLATION_DIFF"] = "The database collation (#VAL1#) does not match the connection collation (#VAL0#).";
@@ -155,6 +164,7 @@ $MESS["SC_HELP_CHECK_PHP_SETTINGS"] = "This will check for the critical paramete
 $MESS["SC_HELP_CHECK_SERVER_VARS"] = "This will check the server variables.
 
 The value of HTTP_HOST is derived from the current virtual host (domain). Some browsers cannot save cookies for invalid domain names, which will cause cookie authorization failure.";
+$MESS["MAIN_SC_MBSTRING_SETTIGNS_DIFFER"] = "mbstring preferences in <i>/bitrix/.settings.php</i> (utf_mode) and <i>/bitrix/php_interface/dbconn.php</i> (BX_UTF) are different.";
 $MESS["SC_HELP_CHECK_MBSTRING"] = "The mbstring module is required for internationalization support. The module is very strict as to setting the correct parameters depending on the current website encoding: the parameters for UTF-8 encoding are different from those of any national charset (e.g. cp1252).
 
 The following parameters are mandatory for UTF-8 based websites:
@@ -336,12 +346,12 @@ Website check will diagnose the <b>installed</b> modules and create and/or updat
 $MESS["ERR_MAX_INPUT_VARS"] = "The value of max_input_vars must be #MIN# or greater. The current value is: #CURRENT#";
 $MESS["SC_T_APACHE"] = "Web server modules";
 $MESS["SC_T_INSTALL_SCRIPTS"] = "Service scripts in the site root";
-$MESS["ERR_OLD_VM"] = "You are running an outdated version of Bitrix Environment. Please install the most recent version to prevent configuration issues.";
-$MESS["ERR_DNS"] = "You are running an outdated version of Bitrix Environment. Please install the most recent version to prevent configuration issues.";
+$MESS["ERR_OLD_VM"] = "You are running an outdated version of Bitrix Environment (#CURRENT#). Please install the most recent version to prevent configuration issues (#LAST_VERSION#).";
 $MESS["SC_ERR_NO_FIELD"] = "The field #FIELD# is missing from the table #TABLE#";
 $MESS["SC_ERR_NO_VALUE"] = "There is no system record #SQL# for the table #TABLE#";
 $MESS["SC_ERR_FIELD_DIFFERS"] = "Table #TABLE#: the field #FIELD# \"#CUR#\" does not match the description \"#NEW#\"";
 $MESS["SC_ERR_NO_INDEX"] = "Index #INDEX# is missing from the table #TABLE#";
+$MESS["SC_ERR_NO_INDEX_ENABLED"] = "Full-text search index #INDEX# is not enabled for table #TABLE#";
 $MESS["SC_ERR_NO_TABLE"] = "The table #TABLE# does not exist.";
 $MESS["SC_CHECK_TABLES_STRUCT_ERRORS"] = "There are errors in database structure. Total issues: #VAL#. #VAL1# can be fixed right away.";
 $MESS["SC_CHECK_TABLES_STRUCT_ERRORS_FIX"] = "The issues have been fixed, but some fields (#VAL#) have different types. You will have to fix them manually by reviewing the website check log.";
@@ -553,13 +563,4 @@ $MESS["MAIN_SC_NO_PULL_EXTERNAL"] = "External connection to the Intranet was a s
 $MESS["MAIN_CATDOC_WARN"] = "Bad catdoc version: #VERSION#<br>
 Details: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=679877<br>
 Install an earlier catdoc version or a newer version with fixes. ";
-$MESS["MAIN_SC_MBSTRING_SETTIGNS_DIFFER"] = "mbstring preferences in <i>/bitrix/.settings.php</i> (utf_mode) and <i>/bitrix/php_interface/dbconn.php</i> (BX_UTF) are different.";
-$MESS["SC_ERR_NO_SETTINGS"] = "Configuration file /bitrix/.settings.php was not found";
-$MESS["SC_FIX_MBSTRING"] = "Repair configuration";
-$MESS["SC_FIX_MBSTRING_CONFIRM"] = "Attention!
-
-This will change the configuration files. If the operation fails, your site will be recoverable only from the web hosting control panel.
-
-Continue?";
-$MESS["SC_ERR_NO_INDEX_ENABLED"] = "Full-text search index #INDEX# is not enabled for table #TABLE#";
 ?>

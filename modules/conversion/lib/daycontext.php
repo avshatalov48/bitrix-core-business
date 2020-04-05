@@ -2,6 +2,7 @@
 
 namespace Bitrix\Conversion;
 
+use Bitrix\Main;
 use Bitrix\Main\SiteTable;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Web\Json;
@@ -237,11 +238,19 @@ final class DayContext extends Internals\BaseContext
 	{
 		$session = self::$session;
 
-		@setcookie(self::getVarName(), Json::encode(array(
-			'ID'     => $session['ID'    ],
-			'EXPIRE' => $session['EXPIRE'],
-			'UNIQUE' => $session['UNIQUE'],
-		)), strtotime('+1 year'), '/');
+		$cookie = new Main\Web\Cookie(
+			self::getVarName(),
+			Json::encode(array(
+				'ID' => $session['ID'],
+				'EXPIRE' => $session['EXPIRE'],
+				'UNIQUE' => $session['UNIQUE'],
+			)),
+			strtotime('+1 year'),
+			false
+		);
+		$cookie->setHttpOnly(false);
+
+		Main\Context::getCurrent()->getResponse()->addCookie($cookie);
 	}
 
 	/** @internal */

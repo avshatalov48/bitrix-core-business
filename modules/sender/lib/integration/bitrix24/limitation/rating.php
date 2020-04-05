@@ -69,6 +69,14 @@ class Rating
 			return;
 		}
 
+		// don't upgrade if error count more than 10% of sent
+		$countSent = (int) $yesterdayData['SENT_CNT'];
+		$countError = (int) $yesterdayData['ERROR_CNT'];
+		if ($countSent > 0 && ($countError / $countSent) > 0.1)
+		{
+			$countSent -= $countError;
+		}
+
 		$ratio = self::getRatio(1);
 		if ($ratio >= self::getBlockRate())
 		{
@@ -78,7 +86,7 @@ class Rating
 		{
 			self::downgrade();
 		}
-		elseif (intval($yesterdayData['SENT_CNT']) >= DailyLimit::instance()->getLimit())
+		elseif ($countSent >= DailyLimit::instance()->getLimit())
 		{
 			self::upgrade();
 		}
@@ -108,7 +116,7 @@ class Rating
 	}
 
 	/**
-	 * Upgrade.
+	 * Downgrade.
 	 *
 	 * @param bool $isNotify Is notify.
 	 * @return void
@@ -244,7 +252,7 @@ class Rating
 	protected static function getRatio($daysLeft = 0)
 	{
 		$result = Model\DailyCounterTable::getRowByDate($daysLeft);
-		$sentCount = $result ? $result['SENT_CNT'] : 0;
+		$sentCount = $result ? (int) $result['SENT_CNT'] - (int) $result['ERROR_CNT'] : 0;
 		$abuseCount = $result ? $result['ABUSE_CNT'] : 0;
 		if (!$sentCount || $sentCount < 200 || !$abuseCount)
 		{
@@ -287,6 +295,6 @@ class Rating
 	public static function getNotifyText($code)
 	{
 		$code = strtoupper($code);
-		return Loc::getMessage("SENDER_INTEGRATION_BITRIX24_RATING_$code");
+		return Loc::getMessage("SENDER_INTEGRATION_BITRIX24_RATING_{$code}1");
 	}
 }

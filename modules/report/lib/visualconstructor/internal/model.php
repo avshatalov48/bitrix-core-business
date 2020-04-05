@@ -7,6 +7,8 @@ use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Report\VisualConstructor\Config\Common;
 
+use Bitrix\Report\VisualConstructor\Entity\DashboardRow;
+use Bitrix\Report\VisualConstructor\Helper\Util;
 use Bitrix\Report\VisualConstructor\Internal\Error\IErrorable;
 
 /**
@@ -292,6 +294,7 @@ abstract class Model implements IErrorable
 	{
 		$tableClassName = static::getTableClassName();
 		$data['UPDATED_DATE'] = new DateTime();
+		unset($data['ID']);
 		$resultData = $tableClassName::update($primary, $data);
 
 		foreach ($resultData->getData() as $key => $value)
@@ -746,20 +749,6 @@ abstract class Model implements IErrorable
 		if (property_exists($this, $attributeName) && $this->{$attributeName} == null)
 		{
 			$entity = static::load(array('ID' => $this->getId()), array($attributeName));
-			$referencesAttributeMap = $this::getMapReferenceAttributes();
-			foreach ($referencesAttributeMap as $referenceKey => $referenceMapAttributes)
-			{
-				if ($referenceMapAttributes['type'] === Common::ONE_TO_MANY && $referenceKey === $attributeName && !empty($entity->{$attributeName}))
-				{
-					foreach ($entity->{$attributeName} as $subEntity)
-					{
-						if ($subEntity instanceof $referenceMapAttributes['targetEntity'])
-						{
-							$entity->{$attributeName}->{$referenceMapAttributes['mappedBy']} = $this;
-						}
-					}
-				}
-			}
 			$this->{$attributeName} = $entity->{$attributeName};
 		}
 	}
@@ -883,4 +872,28 @@ abstract class Model implements IErrorable
 	{
 		return $this->currentDbState;
 	}
+
+
+	public static function factoryWithHorizontalCells($cellCount = 1)
+	{
+		$row = new DashboardRow();
+		$row->setGId(Util::generateUserUniqueId());
+		$map = [
+			'type' => 'cell-container',
+			'orientation' => 'horizontal',
+			'elements' => []
+		];
+		for ($i = 0; $i < $cellCount; $i++)
+		{
+			$cellId = 'cell_' . randString(4);
+			$map['elements'][] = [
+				'type' => 'cell',
+				'id' => $cellId
+			];
+		}
+		$row->setLayoutMap($map);
+
+		return $row;
+	}
+
 }

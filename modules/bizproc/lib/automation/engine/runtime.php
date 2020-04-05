@@ -40,10 +40,11 @@ class Runtime
 		$ids = WorkflowInstanceTable::getList(array(
 			'select' => array('ID'),
 			'filter' => array(
-				'=STATE.MODULE_ID'             => $documentType[0],
-				'=STATE.ENTITY'                => $documentType[1],
-				'=STATE.DOCUMENT_ID'           => $documentId,
-				'=STATE.TEMPLATE.AUTO_EXECUTE' => \CBPDocumentEventType::Automation
+				'=MODULE_ID'             => $documentType[0],
+				'=ENTITY'                => $documentType[1],
+				'=DOCUMENT_ID'           => $documentId,
+				'=STARTED_EVENT_TYPE' => \CBPDocumentEventType::Automation,
+				'=TEMPLATE.DOCUMENT_TYPE' => $documentType[2],
 			)
 		))->fetchAll();
 
@@ -66,36 +67,41 @@ class Runtime
 
 			$documentType = $this->getTarget()->getDocumentType();
 			$documentId = $this->getTarget()->getDocumentId();
+			$documentComplexId = [$documentType[0], $documentType[1], $documentId];
 
-			$workflowId = \CBPDocument::StartWorkflow(
+			$this->setStarted($documentType[2], $documentId, $documentStatus);
+			$workflowId = \CBPDocument::startWorkflow(
 				$template->getId(),
-				[$documentType[0], $documentType[1], $documentId],
+				$documentComplexId,
 				array(
+					\CBPDocument::PARAM_TAGRET_USER => null, //Started by System
 					\CBPDocument::PARAM_USE_FORCED_TRACKING => !$template->isExternalModified(),
-					\CBPDocument::PARAM_IGNORE_SIMULTANEOUS_PROCESSES_LIMIT => true
+					\CBPDocument::PARAM_IGNORE_SIMULTANEOUS_PROCESSES_LIMIT => true,
+					\CBPDocument::PARAM_DOCUMENT_TYPE => $documentType,
+					\CBPDocument::PARAM_DOCUMENT_EVENT_TYPE => \CBPDocumentEventType::Automation,
 				),
 				$errors
 			);
 
-			if (!$errors && $trigger && $workflowId)
+			if (!$errors && $workflowId)
 			{
-				$this->writeTriggerTracking($workflowId, $trigger);
-			}
+				if ($trigger)
+				{
+					$this->writeTriggerTracking($workflowId, $trigger);
+				}
 
-			$this->setStarted($documentId, $documentStatus);
+				//not today
+				//$this->writeAnalytics($documentComplexId, $documentStatus, $trigger);
+			}
 		}
 		return true;
 	}
 
 	protected function writeTriggerTracking($workflowId, $trigger)
 	{
-		$runtime = \CBPRuntime::GetRuntime();
-		$runtime->StartRuntime();
+		$trackingService = \CBPRuntime::getRuntime(true)->getTrackingService();
 
-		/** @var \CBPTrackingService $trackingService */
-		$trackingService = $runtime->GetService('TrackingService');
-
-		$trackingService->Write(
+		$trackingService->write(
 			$workflowId,
 			\CBPTrackingType::Trigger,
 			'APPLIED_TRIGGER',
@@ -114,7 +120,7 @@ class Runtime
 		$documentId = [$documentType[0], $documentType[1], $this->getTarget()->getDocumentId()];
 		foreach ($instanceIds as $instanceId)
 		{
-			\CBPDocument::TerminateWorkflow(
+			\CBPDocument::terminateWorkflow(
 				$instanceId,
 				$documentId,
 				$errors,
@@ -123,36 +129,78 @@ class Runtime
 		}
 	}
 
+	/**
+	 * Document creation handler.
+	 * @throws InvalidOperationException
+	 * @return void
+	 */
 	public function onDocumentAdd()
 	{
 		$status = $this->getTarget()->getDocumentStatus();
-		if ($status && !$this->isStarted($this->getTarget()->getDocumentId(), $status))
+		$documentType = $this->getTarget()->getDocumentType()[2];
+		$documentId = $this->getTarget()->getDocumentId();
+
+		if ($status && !$this->isStarted($documentType, $documentId, $status))
 		{
 			$this->runTemplates($status);
 		}
 	}
 
+	/**
+	 * Document status changed handler.
+	 * @throws InvalidOperationException
+	 * @return void
+	 */
 	public function onDocumentStatusChanged()
 	{
 		$status = $this->getTarget()->getDocumentStatus();
-		if ($status && !$this->isStarted($this->getTarget()->getDocumentId(), $status))
+		$documentType = $this->getTarget()->getDocumentType()[2];
+		$documentId = $this->getTarget()->getDocumentId();
+
+		if ($status && !$this->isStarted($documentType, $documentId, $status))
 		{
 			$this->stopTemplates();
 			$this->runTemplates($status);
 		}
 	}
 
-	private function setStarted($documentId, $status)
+	/**
+	 * Document moving handler.
+	 * @return void
+	 */
+	public function onDocumentMove()
 	{
-		static::$startedTemplates[$documentId] = (string) $status;
+		$this->stopTemplates();
+	}
+
+	private function setStarted($documentType, $documentId, $status)
+	{
+		$key = $documentType .'_'. $documentId;
+		static::$startedTemplates[$key] = (string) $status;
 		return $this;
 	}
 
-	private function isStarted($documentId, $status)
+	private function isStarted($documentType, $documentId, $status)
 	{
+		$key = $documentType .'_'. $documentId;
 		return (
-			isset(static::$startedTemplates[$documentId])
-			&& (string) $status === static::$startedTemplates[$documentId]
+			isset(static::$startedTemplates[$key])
+			&& (string) $status === static::$startedTemplates[$key]
 		);
+	}
+
+	private function writeAnalytics($documentComplexId, $documentStatus, $trigger)
+	{
+		$analytics = \CBPRuntime::getRuntime(true)->getAnalyticsService();
+
+		if ($analytics && $analytics->isEnabled())
+		{
+			$analytics->write($documentComplexId, 'automation_run', $documentStatus);
+
+			if ($trigger)
+			{
+				$analytics->write($documentComplexId, 'trigger_applied', $trigger['CODE']);
+			}
+		}
 	}
 }

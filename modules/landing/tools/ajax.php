@@ -5,6 +5,14 @@ define('NO_AGENT_CHECK', true);
 define('PUBLIC_AJAX_MODE', true);
 define('DisableEventsCheck', true);
 
+if (
+	isset($_GET['site']) &&
+	preg_match('/^[a-z0-9_]+$/i', $_GET['site'])
+)
+{
+	define('SITE_ID', $_GET['site']);
+}
+
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
 if (\Bitrix\Main\Loader::includeModule('landing'))
@@ -15,4 +23,3 @@ if (\Bitrix\Main\Loader::includeModule('landing'))
 }
 
 \CMain::finalActions();
-die();

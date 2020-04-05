@@ -4,10 +4,13 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
+
+use Bitrix\Sender\Security;
 use Bitrix\Sender\PostingRecipientTable;
 use Bitrix\Sender\TemplateTable;
 use Bitrix\Sender\Internals\QueryController as Controller;
 use Bitrix\Sender\Internals\CommonAjax;
+
 use Bitrix\Fileman\Block;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
@@ -36,8 +39,18 @@ class SenderMessageEditorMailComponent extends CBitrixComponent
 			$this->arParams['~VALUE'] = htmlspecialcharsback($this->arParams['VALUE']);
 		}
 
-		$this->arParams['HAS_USER_ACCESS'] = isset($this->arParams['HAS_USER_ACCESS']) ? (bool) $this->arParams['HAS_USER_ACCESS'] : false;
-		$this->arParams['USE_LIGHT_TEXT_EDITOR'] = isset($this->arParams['USE_LIGHT_TEXT_EDITOR']) ? (bool) $this->arParams['USE_LIGHT_TEXT_EDITOR'] : false;
+		$this->arParams['HAS_USER_ACCESS'] = isset($this->arParams['HAS_USER_ACCESS'])
+			?
+			(bool) $this->arParams['HAS_USER_ACCESS']
+			:
+			Security\User::current()->canEditPhp();
+
+		$this->arParams['USE_LIGHT_TEXT_EDITOR'] = isset($this->arParams['USE_LIGHT_TEXT_EDITOR'])
+			?
+			(bool) $this->arParams['USE_LIGHT_TEXT_EDITOR']
+			:
+			(!Security\User::current()->canEditPhp() && !Security\User::current()->canUseLpa());
+
 		$this->arParams['SITE'] = isset($this->arParams['SITE']) ? $this->arParams['SITE'] : $this->getSiteId();
 		$this->arParams['CHARSET'] = isset($this->arParams['CHARSET']) ? $this->arParams['CHARSET'] : '';
 		$this->arParams['CONTENT_URL'] = isset($this->arParams['CONTENT_URL']) ? $this->arParams['CONTENT_URL'] : '';
@@ -63,7 +76,7 @@ class SenderMessageEditorMailComponent extends CBitrixComponent
 		));
 		\CJSCore::Init(array("sender_editor"));
 		*/
-
+		$this->arParams['~VALUE'] = Block\Content\SliceConverter::sanitize($this->arParams['~VALUE']);
 
 		// personalize tags
 		if (!empty($this->arParams['PERSONALIZE_LIST']))

@@ -302,8 +302,7 @@ class _CIBElement
 	function GetProperty($ID)
 	{
 		$res = $this->GetProperties(array(), array("ID"=>$ID));
-		list(, $res) = each($res);
-		return $res;
+		return reset($res);
 	}
 
 	function GetGroups()

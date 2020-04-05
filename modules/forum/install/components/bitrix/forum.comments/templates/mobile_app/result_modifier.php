@@ -1,6 +1,7 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /**
  * @var CMain $APPLICATION
+ * @var CUser $USER
  * @var array $arResult
  * @var array $arParams
  * @var CBitrixComponentTemplate $this
@@ -64,3 +65,12 @@ if (!empty($arResult["MESSAGES"]))
 		}
 	}
 }
+
+$arResult["bTasksInstalled"] = \Bitrix\Main\Loader::includeModule("tasks");
+$arResult["bTasksAvailable"] = (
+	$arResult["bTasksInstalled"]
+	&& (
+		!\Bitrix\Main\Loader::includeModule('bitrix24')
+		|| CBitrix24BusinessTools::isToolAvailable($USER->getId(), "tasks")
+	)
+);

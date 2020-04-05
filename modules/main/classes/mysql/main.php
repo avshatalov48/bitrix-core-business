@@ -130,7 +130,7 @@ class CMain extends CAllMain
 						foreach($arLangDomain[$row["LID"]] as $dom)
 						{
 							//AND '".$DB->ForSql($CURR_DOMAIN, 255)."' LIKE CONCAT('%', LD.DOMAIN)
-							if(strcasecmp(substr($CURR_DOMAIN, -strlen($dom["LD_DOMAIN"])), $dom["LD_DOMAIN"]) == 0)
+							if(strcasecmp(substr(".".$CURR_DOMAIN, -strlen(".".$dom["LD_DOMAIN"])), ".".$dom["LD_DOMAIN"]) == 0)
 							{
 								$arJoin[] = $row+$dom;
 								$bLeft = false;
@@ -198,7 +198,7 @@ class CMain extends CAllMain
 					"SELECT L.*, L.LID as ID, L.LID as SITE_ID, ".
 					"	C.FORMAT_DATE, C.FORMAT_DATETIME, C.FORMAT_NAME, C.WEEK_START, C.CHARSET, C.DIRECTION ".
 					"FROM b_lang L  ".
-					"	LEFT JOIN b_lang_domain LD ON L.LID=LD.LID AND '".$DB->ForSql($CURR_DOMAIN, 255)."' LIKE CONCAT('%', LD.DOMAIN) ".
+					"	LEFT JOIN b_lang_domain LD ON L.LID=LD.LID AND '".$DB->ForSql(".".$CURR_DOMAIN, 255)."' LIKE CONCAT('%.', LD.DOMAIN) ".
 					"	INNER JOIN b_culture C ON C.ID=L.CULTURE_ID ".
 					"WHERE ".
 					"	('".$DB->ForSql($cur_dir)."' LIKE CONCAT(L.DIR, '%') OR LD.LID IS NOT NULL)".

@@ -378,6 +378,14 @@
     vertical-align: top;
 	text-overflow: ellipsis;
 }
+.bx-messenger-file-link {
+	color: #fff;
+	text-decoration: underline;
+}
+.bx-messenger-file-link:hover {
+	text-decoration: none;
+	color: #fff;
+}
 .bx-messenger-file-size {font: 12px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;color: #777;margin-left: 6px;display: inline-block;}
 .bx-messenger-file-preview+.bx-messenger-file-attrs { display:none; }
 .bx-messenger-file-download {margin-top: -2px;}
@@ -501,7 +509,7 @@
 .bx-messenger-keyboard-button { display: block;  margin-top: 5px; }
 .bx-messenger-keyboard-button-line { display: inline-block; margin-right: 4px; }
 .bx-messenger-keyboard-button-text {  font: 13px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;  padding: 4px 10px; display: inline-block;  text-decoration: none; background-color: #e8e9eb; border-radius: 4px; color: #535c68; text-align: center;  min-width: 24px;  cursor: pointer; transition: opacity .5s; opacity: 1; }
-.bx-messenger-keyboard-button-text:hover { text-decoration: none; }
+.bx-messenger-keyboard-button-text:hover { text-decoration: none; color: #000;  }
 .bx-messenger-keyboard-button-progress  { opacity: .5 }
 .bx-messenger-keyboard-button-ajax { display: inline-block; width: 29px; height: 29px; background: url("./../images/im-sprite-v37.png") no-repeat scroll -73px -998px; -webkit-animation: imRotate360 1.2s linear infinite; animation: imRotate360 1.2s linear infinite; position: absolute;}
 
@@ -560,6 +568,9 @@
 .bx-messenger-content-item-vote-result-row { vertical-align: top;}
 .bx-messenger-content-item-vote-result-name { display: inline-block; padding-right: 10px; line-height: 20px; vertical-align: top;}
 .bx-messenger-content-item-vote-result-value { display: inline-block; padding-right: 10px; line-height: 20px; vertical-align: top; }
+.bx-messenger-content-item-vote-comment-edit { color: #717171; font-weight: normal; cursor: pointer; }
+.bx-messenger-content-item-vote-comment-not-edit { color: #717171; font-weight: normal; }
+.bx-messenger-content-item-vote-comment-add { color: #215ec3; font-weight: normal; cursor: pointer; }
 
 .bx-messenger-content-item-avatar-name { max-width: 55px; }
 .bx-messenger-content-item+.bx-messenger-content-item {

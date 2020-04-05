@@ -5,6 +5,12 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Location;
 
 Loc::loadMessages(__FILE__);
+
+if ($arParams["UI_FILTER"])
+{
+	$arParams["USE_POPUP"] = true;
+}
+
 ?>
 
 <?if(!empty($arResult['ERRORS']['FATAL'])):?>
@@ -34,7 +40,8 @@ Loc::loadMessages(__FILE__);
 
 		<?endif?>
 
-		<div class="dropdown-block bx-ui-sls-input-block">
+		<? $dropDownBlock = $arParams["UI_FILTER"] ? "dropdown-block-ui" : "dropdown-block"; ?>
+		<div class="<?=$dropDownBlock?> bx-ui-sls-input-block">
 
 			<span class="dropdown-icon"></span>
 			<input type="text" autocomplete="off" name="<?=$arParams['INPUT_NAME']?>" value="<?=$arResult['VALUE']?>" class="dropdown-field" placeholder="<?=Loc::getMessage('SALE_SLS_INPUT_SOME')?> ..." />
@@ -119,6 +126,7 @@ Loc::loadMessages(__FILE__);
 				// "js logic"-related part
 				'callback' => $arParams['JS_CALLBACK'],
 				'useSpawn' => $arParams['USE_JS_SPAWN'] == 'Y',
+				'usePopup' => ($arParams["USE_POPUP"] ? true : false),
 				'initializeByGlobalEvent' => $arParams['INITIALIZE_BY_GLOBAL_EVENT'],
 				'globalEventScope' => $arParams['GLOBAL_EVENT_SCOPE'],
 

@@ -7,16 +7,26 @@ if (!CModule::IncludeModule('sale'))
 	return;
 }
 
+$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
+
+if ($saleModulePermissions == "D")
+{
+	ShowError(GetMessage("SMOH_NO_PERMS2VIEW"));
+}
+
 if (isset($_REQUEST['id']))
 	$orderId = $_REQUEST['id'];
 else
 	return;
 
-$bUserCanViewOrder = CSaleOrder::CanUserViewOrder($orderId, $GLOBALS["USER"]->GetUserGroupArray(), $GLOBALS["USER"]->GetID());
+$arResult['ORDER'] = CSaleMobileOrderUtils::getOrderInfoDetail($orderId);
 
-if(!$bUserCanViewOrder)
+$allowedStatusesView = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations($USER->GetID(), array('view'));
+$isAllowView = in_array($arResult['ORDER']['STATUS_ID'], $allowedStatusesView);
+
+if(!$isAllowView)
 {
-	echo ShowError(GetMessage("SMOH_NO_PERMS2VIEW"));
+	ShowError(GetMessage("SMOH_NO_PERMS2VIEW"));
 	return;
 }
 
@@ -25,8 +35,6 @@ if (!CModule::IncludeModule('mobileapp'))
 	ShowError("SMOH_MOBILEAPP_NOT_INSTALLED");
 	return;
 }
-
-$arResult["ORDER"] = CSaleMobileOrderUtils::getOrderInfoDetail($orderId);
 
 if (!function_exists("convertHistoryToNewFormat"))
 {

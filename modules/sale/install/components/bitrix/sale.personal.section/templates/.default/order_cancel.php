@@ -7,7 +7,10 @@ if ($arParams['SHOW_ORDER_PAGE'] !== 'Y')
 {
 	LocalRedirect($arParams['SEF_FOLDER']);
 }
-
+elseif ($arParams['ORDER_DISALLOW_CANCEL'] === 'Y')
+{
+	LocalRedirect($arResult['PATH_TO_ORDERS']);
+}
 if (strlen($arParams["MAIN_CHAIN_NAME"]) > 0)
 {
 	$APPLICATION->AddChainItem(htmlspecialcharsbx($arParams["MAIN_CHAIN_NAME"]), $arResult['SEF_FOLDER']);

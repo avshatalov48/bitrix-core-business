@@ -119,3 +119,8 @@
 	cursor: pointer;
 	margin-top: 25px;
 }
+
+.report-visualconstuctor-widget-property-invisible
+{
+	display:none;
+}

@@ -94,9 +94,16 @@ class CJSPopup
 
 		if ($title == '')
 			$title = $this->title;
-?>
-<script type="text/javascript">top.<?=$this->jsPopup?>.SetTitle('<?echo CUtil::JSEscape($title)?>');</script>
-<?
+		?>
+		<script type="text/javascript">
+			var currentWindow = top.window;
+			if (top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
+			{
+				currentWindow = top.BX.SidePanel.Instance.getTopSlider().getWindow();
+			}
+			currentWindow.<?=$this->jsPopup?>.SetTitle('<?echo CUtil::JSEscape($title)?>');
+		</script>
+		<?
 	}
 
 	function StartDescription($icon = false)

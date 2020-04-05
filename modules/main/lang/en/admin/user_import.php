@@ -1,4 +1,6 @@
 <?
+$MESS["USER_IMPORT_1C_USER_GROUP"] = "Add user to groups";
+$MESS["USER_IMPORT_1C_USER_GROUP_EMPTY"] = "No groups specified";
 $MESS["USER_IMPORT_TITLE"] = "Import Users";
 $MESS["USER_IMPORT_SOURCE_TAB"] = "Data Source";
 $MESS["USER_IMPORT_SOURCE_TAB_DESC"] = "Selects data source";

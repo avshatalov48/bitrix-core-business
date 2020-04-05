@@ -876,6 +876,7 @@ class CAllRatings
 		foreach(GetModuleEvents("main", "OnAddRatingVote", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array(intval($ID), $arParam));
 
+		$userData = \CAllRatings::getUserData(intval($arParam['USER_ID']), floatval($arParam['VALUE']));
 		if (CModule::IncludeModule('pull'))
 		{
 			CPullStack::AddShared(Array(
@@ -888,7 +889,7 @@ class CAllRatings
 					"ENTITY_ID" => intval($arParam['ENTITY_ID']),
 					"TOTAL_POSITIVE_VOTES" => $arParam['TOTAL_POSITIVE_VOTES'],
 					"RESULT" => $votePlus? 'PLUS': 'MINUS',
-					"USER_DATA" => \CAllRatings::getUserData(intval($arParam['USER_ID']), floatval($arParam['VALUE'])),
+					"USER_DATA" => $userData,
 					"REACTION" => $arParam['REACTION'],
 					"REACTIONS_LIST" => $arParam['REACTIONS_LIST']
 				)
@@ -904,7 +905,7 @@ class CAllRatings
 			$CACHE_MANAGER->Clean("b_rvg_".$DB->ForSql($arParam["ENTITY_TYPE_ID"]).$bucket, "b_rating_voting");
 		}
 
-		return true;
+		return $userData;
 	}
 
 	public static function ChangeRatingVote($arParam)
@@ -913,6 +914,7 @@ class CAllRatings
 
 		$arParam['ENTITY_TYPE_ID'] = substr($arParam['ENTITY_TYPE_ID'], 0, 50);
 		$arParam['REACTION'] = (strlen($arParam['REACTION']) > 0 ? $arParam['REACTION'] : self::REACTION_DEFAULT);
+		$userData = \CAllRatings::getUserData(intval($arParam['USER_ID']), floatval($arParam['VALUE']));
 
 		$err_mess = (CRatings::err_mess())."<br>Function: ChangeRatingVote<br>Line: ";
 
@@ -935,6 +937,15 @@ class CAllRatings
 		$res = $DB->Query($sqlStr, false, $err_mess.__LINE__);
 		if ($arVote = $res->Fetch())
 		{
+			// GetOwnerDocument
+			$arParam['OWNER_ID'] = 0;
+			foreach(GetModuleEvents("main", "OnGetRatingContentOwner", true) as $arEvent)
+			{
+				$result = ExecuteModuleEventEx($arEvent, array($arParam));
+				if ($result !== false)
+					$arParam['OWNER_ID'] = IntVal($result);
+			}
+
 			$votePlus = $arVote['VOTE_VALUE'] >= 0 ? true : false;
 			$arVote['REACTION_OLD'] = (strlen($arVote['REACTION']) > 0 ? $arVote['REACTION'] : self::REACTION_DEFAULT);
 
@@ -996,7 +1007,7 @@ class CAllRatings
 				return false;
 			}
 
-			foreach(GetModuleEvents("main", "OnAddRatingChange", true) as $arEvent)
+			foreach(GetModuleEvents("main", "OnChangeRatingVote", true) as $arEvent)
 			{
 				ExecuteModuleEventEx($arEvent, array(intval($ID), $arParam));
 			}
@@ -1013,7 +1024,7 @@ class CAllRatings
 						"ENTITY_ID" => intval($arParam['ENTITY_ID']),
 						"TOTAL_POSITIVE_VOTES" => $arParam['TOTAL_POSITIVE_VOTES'],
 						"RESULT" => 'CHANGE',
-						"USER_DATA" => \CAllRatings::getUserData(intval($arParam['USER_ID']), floatval($arParam['VALUE'])),
+						"USER_DATA" => $userData,
 						"REACTION" => $arParam['REACTION'],
 						"REACTION_OLD" => $arVote['REACTION'],
 						"REACTIONS_LIST" => $arParam['REACTIONS_LIST']
@@ -1033,7 +1044,7 @@ class CAllRatings
 			}
 		}
 
-		return true;
+		return $userData;
 	}
 
 	public static function CancelRatingVote($arParam)
@@ -1105,6 +1116,8 @@ class CAllRatings
 			foreach(GetModuleEvents("main", "OnCancelRatingVote", true) as $arEvent)
 				ExecuteModuleEventEx($arEvent, array(intval($arVote['VOTE_ID']), $arParam));
 
+			$userData = \CAllRatings::getUserData(intval($arParam['USER_ID']), floatval($arVote['VOTE_VALUE']));
+
 			if (CModule::IncludeModule('pull'))
 			{
 				CPullStack::AddShared(Array(
@@ -1117,7 +1130,7 @@ class CAllRatings
 						"ENTITY_ID" => intval($arParam['ENTITY_ID']),
 						"TOTAL_POSITIVE_VOTES" => intval($arVote['TOTAL_POSITIVE_VOTES']+($votePlus? -1: 1)),
 						"RESULT" => $votePlus? 'PLUS': 'MINUS',
-						"USER_DATA" => \CAllRatings::getUserData(intval($arParam['USER_ID']), floatval($arVote['VOTE_VALUE'])),
+						"USER_DATA" => $userData,
 						"REACTION" => $arVote['REACTION'],
 						"REACTIONS_LIST" => $arParam['REACTIONS_LIST']
 					)
@@ -1133,7 +1146,7 @@ class CAllRatings
 				$CACHE_MANAGER->Clean("b_rvg_".$DB->ForSql($arParam["ENTITY_TYPE_ID"]).$bucket, "b_rating_voting");
 			}
 
-			return true;
+			return $userData;
 		}
 
 		return false;
@@ -1681,37 +1694,69 @@ class CAllRatings
 		return "<br>Class: CRatings<br>File: ".__FILE__;
 	}
 
-	public static function GetRatingVoteList($arParam)
+	public static function getRatingVoteReaction($arParam)
 	{
-		global $DB, $USER;
+		global $DB;
+
+		static $cache = array();
 
 		$bplus = (strtoupper($arParam['LIST_TYPE']) != 'MINUS');
+		$key = $arParam['ENTITY_TYPE_ID'].'_'.intval($arParam['ENTITY_ID']).'_'.($bplus ? '1' : '0');
 
-		$sqlStr = "
-			SELECT
-				REACTION,
-				COUNT(RV.ID) as CNT
-			FROM
-				b_rating_vote RV
-			WHERE
-				RV.ENTITY_TYPE_ID = '".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."'
-				AND RV.ENTITY_ID = ".intval($arParam['ENTITY_ID'])."
-			".($bplus ? " AND RV.VALUE > 0 ": " and RV.VALUE < 0 ")." 
-			GROUP BY REACTION";
-		$res_cnt = $DB->Query($sqlStr);
-
-		$cnt = 0;
-		$cntReactions = array();
-		while($ar_cnt = $res_cnt->fetch())
+		if (
+			isset($arParam['USE_REACTIONS_CACHE'])
+			&& $arParam['USE_REACTIONS_CACHE'] == 'Y'
+			&& isset($cache[$key])
+		)
 		{
-			$key = (!empty($ar_cnt["REACTION"]) ? $ar_cnt["REACTION"] : self::REACTION_DEFAULT);
-			if (!isset($cntReactions[$key]))
-			{
-				$cntReactions[$key] = 0;
-			}
-			$cntReactions[$key] += $ar_cnt["CNT"];
-			$cnt += $ar_cnt["CNT"];
+			$result = $cache[$key];
 		}
+		else
+		{
+			$sqlStr = "
+				SELECT
+					REACTION,
+					COUNT(RV.ID) as CNT
+				FROM
+					b_rating_vote RV
+				WHERE
+					RV.ENTITY_TYPE_ID = '".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."'
+					AND RV.ENTITY_ID = ".intval($arParam['ENTITY_ID'])." ".
+//				($bplus ? " AND RV.VALUE > 0 ": " and RV.VALUE < 0 ")
+				"GROUP BY REACTION";
+			$res_cnt = $DB->Query($sqlStr);
+
+			$cnt = 0;
+			$cntReactions = array();
+			while($ar_cnt = $res_cnt->fetch())
+			{
+				$key = (!empty($ar_cnt["REACTION"]) ? $ar_cnt["REACTION"] : self::REACTION_DEFAULT);
+				if (!isset($cntReactions[$key]))
+				{
+					$cntReactions[$key] = 0;
+				}
+				$cntReactions[$key] += $ar_cnt["CNT"];
+				$cnt += $ar_cnt["CNT"];
+			}
+
+			$result = $cache[$key] = array(
+				'items_all' => $cnt,
+				'reactions' => $cntReactions
+			);
+		}
+
+		return $result;
+	}
+
+	public static function getRatingVoteList($arParam)
+	{
+		global $USER;
+
+		$reactionResult = self::GetRatingVoteReaction($arParam);
+		$cnt = $reactionResult['items_all'];
+		$cntReactions = $reactionResult['reactions'];
+
+		$bplus = (strtoupper($arParam['LIST_TYPE']) != 'MINUS');
 
 		$bIntranetInstalled = IsModuleInstalled("intranet");
 

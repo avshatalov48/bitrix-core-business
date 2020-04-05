@@ -19,4 +19,6 @@ $MESS ['BPFC_PD_IN'] = "содержится в";
 $MESS ['BPFC_PD_CONTAIN'] = "содержит";
 $MESS["BPFC_PD_PARAMS"] = "Параметры";
 $MESS["BPFC_PD_VARS"] = "Переменные";
+$MESS ['BPFC_PD_EMPTY'] = "не заполнено";
+$MESS ['BPFC_PD_NOT_EMPTY'] = "заполнено";
 ?>

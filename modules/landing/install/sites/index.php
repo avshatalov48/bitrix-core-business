@@ -22,19 +22,4 @@
 );
 ?>
 
-<script type="text/javascript">
-	BX.ready(function ()
-	{
-		var pageTitle = BX('pagetitle');
-
-		if (BX.type.isDomNode(pageTitle))
-		{
-			pageTitle.appendChild(BX.create('span', {
-				attrs: {className: 'pagetitle-item-beta'},
-				html: 'beta'
-			}));
-		}
-	});
-</script>
-
 <?require($_SERVER['DOCUMENT_ROOT'].'/bitrix/footer.php');?>

@@ -1015,7 +1015,24 @@ class CSaleOrderChangeFormat
 			"DATA_FIELDS" => array("ENTITY_ID", "MESSAGE"),
 			"ENTITY" => 'SHIPMENT'
 		),
-
+		"ORDER_SYNCHRONIZATION_IMPORT" => array(
+			"TRIGGER_FIELDS" => array(),
+			"FUNCTION" => "FormatLog",
+			"DATA_FIELDS" => array(),
+			"ENTITY" => 'ORDER'
+		),
+		"ORDER_SYNCHRONIZATION_EXPORT" => array(
+			"TRIGGER_FIELDS" => array(),
+			"FUNCTION" => "FormatLog",
+			"DATA_FIELDS" => array(),
+			"ENTITY" => 'ORDER'
+		),
+		"ORDER_SYNCHRONIZATION_EXPORT_ERROR" => array(
+			"TRIGGER_FIELDS" => array(),
+			"FUNCTION" => "FormatErrorLog",
+			"DATA_FIELDS" => array("ERROR"),
+			"ENTITY" => 'BASKET_ITEM'
+		),
 	);
 
 	public static function FormatBasketAdded($data)

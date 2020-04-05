@@ -8,6 +8,8 @@ use Bitrix\Main\Localization\Loc;
 /** @var \Bitrix\MessageService\Sender\Sms\SmsRu $sender */
 $sender = $arResult['sender'];
 
+$messageSuffix = (defined('ADMIN_SECTION') && ADMIN_SECTION === true) ? '_ADMIN' : '';
+
 if ($sender->isRegistered())
 {
 	if (defined('SITE_TEMPLATE_ID') && SITE_TEMPLATE_ID === 'bitrix24')
@@ -81,14 +83,14 @@ $formatPhone = function ($phone)
 	<div class="sms-settings-border"></div>
 	<h3 class="sms-settings-title-paragraph"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_TITLE")?></h3>
 	<div class="sms-settings-description">
-		<p><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION")?></p>
+		<p><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION".$messageSuffix)?></p>
 		<ul class="sms-settings-futures-list">
 			<li class="sms-settings-futures-list-item"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_1")?></li>
 			<li class="sms-settings-futures-list-item"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_2")?></li>
 			<li class="sms-settings-futures-list-item"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_3")?></li>
 		</ul>
 		<p><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_FOOTER_1")?></p>
-		<p><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_FOOTER_2")?></p>
+		<p><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_FOOTER_2".$messageSuffix)?></p>
 	</div>
 	<div class="sms-settings-quick-start" id="sms-settings-steps">
 		<!---->
@@ -187,7 +189,7 @@ $formatPhone = function ($phone)
 		<div class="sms-settings-step-section">
 			<div class="sms-settings-step-number">3</div>
 			<div class="sms-settings-step-title"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_TEST_TITLE")?></div>
-			<div class="sms-settings-step-description"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_TEST_DESCRIPTION")?></div>
+			<div class="sms-settings-step-description"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_TEST_DESCRIPTION".$messageSuffix)?></div>
 			<form action="" method="post" name="form_send_message" class="sms-settings-test-form">
 				<?=bitrix_sessid_post()?>
 				<input type="hidden" name="action" value="send_message">

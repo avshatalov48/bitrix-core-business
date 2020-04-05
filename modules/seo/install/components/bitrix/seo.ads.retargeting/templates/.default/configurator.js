@@ -134,6 +134,8 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 			this.loader.init(this);
 			BX.bind(this.uiNodes.logout, 'click', BX.proxy(this.logout, this));
 			this.listenSeoAuth();
+
+			BX.UI.Hint.init(this.containerNode);
 		},
 		showBlockByAuth: function ()
 		{
@@ -194,6 +196,15 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 		showBlockLogin: function ()
 		{
 			this.showBlock('login');
+
+			var btn = BX('seo-ads-login-btn');
+			if (btn && this.provider && this.provider.AUTH_URL)
+			{
+				btn.setAttribute(
+					'onclick',
+					'BX.util.popup(\'' + this.provider.AUTH_URL + '\', 800, 600);'
+				);
+			}
 		},
 		showBlockMain: function ()
 		{

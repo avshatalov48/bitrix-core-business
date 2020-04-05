@@ -167,7 +167,7 @@ else
 			</div>
 		</div>
 		<?
-		if (!$arResult['IS_CASH'])
+		if (!$arResult['IS_CASH'] && strlen($arResult['PAYMENT_LINK']))
 		{
 			?>
 			<script type="text/javascript">

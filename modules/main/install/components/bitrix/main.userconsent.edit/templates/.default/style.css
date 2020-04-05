@@ -73,7 +73,7 @@ select.main-user-consent-edit-select {
 
 .main-user-consent-edit-fields {
 	padding: 7px 17px 1px 17px;
-	border-left: 1px solid rgba(202,206,215,.6);
+	background: rgba(238, 242, 244, .7);
 	border-radius: 2px;
 }
 

@@ -83,7 +83,6 @@ elseif (in_array($this->getPageName(), array('template', 'site_show')))
 			array($arResult['VARS']['site_show'], 0),
 			$link);
 
-		$request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
 		$folderId = $request->get($arParams['ACTION_FOLDER']);
 		if ($folderId)
 		{
@@ -105,6 +104,8 @@ elseif (in_array($this->getPageName(), array('template', 'site_show')))
 		}
 	}
 
+	$folderId = $request->get($arParams['ACTION_FOLDER']);
+
 	$APPLICATION->IncludeComponent(
 		'bitrix:landing.filter',
 		'.default',
@@ -112,18 +113,21 @@ elseif (in_array($this->getPageName(), array('template', 'site_show')))
 			'FILTER_TYPE' => $this->getPageName() == 'site_show'
 							? 'LANDING'
 							: 'SITE',
-			'SETTING_LINK' => str_replace(
-								'#site_edit#',
-								$arResult['VARS']['site_show'],
-								$arParams['PAGE_URL_SITE_EDIT']
-							),
+			'SETTING_LINK' => ($arResult['VARS']['site_show'] > 0)
+								? str_replace(
+									'#site_edit#',
+									$arResult['VARS']['site_show'],
+									$arParams['PAGE_URL_SITE_EDIT']
+								)
+								: '',
 			'BUTTONS' => array(
 				array(
 					'LINK' => $link,
 					'TITLE' => $title
 				)
 			),
-			'TYPE' => $arParams['TYPE']
+			'TYPE' => $arParams['TYPE'],
+			'FOLDER_SITE_ID' => !$folderId ? $arResult['VARS']['site_show'] : 0
 		),
 		$this->__component
 	);

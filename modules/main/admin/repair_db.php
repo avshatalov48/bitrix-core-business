@@ -263,7 +263,6 @@ else
 							else
 								echo "<span style='color:red;'>";
 							echo htmlspecialcharsbx($arStatus["Msg_text"])."</span>";
-							flush();
 
 							if($arStatus["Msg_type"]=="error" || $arStatus["Msg_type"]=="warning")
 								$toRepair = $arResult["Name"];
@@ -288,7 +287,6 @@ else
 								echo "<span style='color:red;'>";
 							echo htmlspecialcharsbx($arRepair["Msg_text"])."</span>";
 							$j++;
-							flush();
 							$toCheck = $toRepair;
 						}
 						if(!empty($toCheck))
@@ -304,14 +302,12 @@ else
 								else
 									echo "<span style='color:red;'>";
 								echo htmlspecialcharsbx($arStatusC["Msg_text"])."</span>";
-								flush();
 							}
 						}
 						echo "</td>";
 					}
 					else
 						echo "<td>&nbsp;</td>";
-					flush();
 				}
 				else
 				{

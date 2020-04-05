@@ -15,6 +15,8 @@ $prologAbsent = (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true);
 if (B_ADMIN_SUBCOUPONS_LIST === false && $prologAbsent)
 	return;
 
+$selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
+
 if ($prologAbsent)
 {
 	require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
@@ -378,7 +380,7 @@ while ($coupon = $couponIterator->Fetch())
 		if ($coupon['USER_ID'] > 0)
 			$userIDs[$coupon['USER_ID']] = true;
 	}
-	$urlEdit = '/bitrix/admin/sale_discount_coupon_edit.php?ID='.$coupon['ID'].'&DISCOUNT_ID='.$discountID.'&lang='.LANGUAGE_ID.'&bxpublic=Y';
+	$urlEdit = $selfFolderUrl.'sale_discount_coupon_edit.php?ID='.$coupon['ID'].'&DISCOUNT_ID='.$discountID.'&lang='.LANGUAGE_ID.'&bxpublic=Y';
 
 	$rowList[$coupon['ID']] = $row = &$adminList->AddRow(
 		$coupon['ID'],
@@ -492,7 +494,7 @@ if (!empty($rowList) && ($selectFieldsMap['CREATED_BY'] || $selectFieldsMap['MOD
 		while ($oneUser = $userIterator->fetch())
 		{
 			$oneUser['ID'] = (int)$oneUser['ID'];
-			if ($canViewUserList)
+			if ($canViewUserList && !$adminSidePanelHelper->isPublicSidePanel())
 				$userList[$oneUser['ID']] = '<a href="/bitrix/admin/user_edit.php?lang='.LANGUAGE_ID.'&ID='.$oneUser['ID'].'">'.CUser::FormatName($nameFormat, $oneUser).'</a>';
 			else
 				$userList[$oneUser['ID']] = CUser::FormatName($nameFormat, $oneUser);
@@ -565,7 +567,7 @@ if (!isset($_REQUEST["mode"]) || ($_REQUEST["mode"] != 'excel' && $_REQUEST["mod
 			sessid: BX.bitrix_sessid()
 		};
 		(new BX.CAdminDialog({
-			'content_url': '/bitrix/admin/sale_discount_coupon_edit.php',
+			'content_url': '<?=$selfFolderUrl?>sale_discount_coupon_edit.php',
 			'content_post': PostParams,
 			'draggable': true,
 			'resizable': true,

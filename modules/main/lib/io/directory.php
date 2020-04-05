@@ -68,9 +68,9 @@ class Directory
 				$pathLogical = Path::combine($this->path, Path::convertPhysicalToLogical($file));
 				$pathPhysical = Path::combine($this->getPhysicalPath(), $file);
 				if (is_dir($pathPhysical))
-					$arResult[] = new Directory($pathLogical);
+					$arResult[] = new Directory($pathLogical, $this->siteId);
 				else
-					$arResult[] = new File($pathLogical);
+					$arResult[] = new File($pathLogical, $this->siteId);
 			}
 			closedir($handle);
 		}

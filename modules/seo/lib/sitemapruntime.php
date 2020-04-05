@@ -147,7 +147,7 @@ class SitemapRuntime
 	
 	public function putSitemapContent(SitemapFile $sitemapFile)
 	{
-//		always write in new empty file - tak nado, a to pechalka ((
+//		always write in new empty file - this is necessary
 		if ($this->isExists())
 			$this->delete();
 		

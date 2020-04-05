@@ -1,0 +1,4 @@
+<?php
+$MESS['LANDING_HOOK_PIXEL_VK_USE'] = 'ВКонтакте';
+$MESS['LANDING_HOOK_PIXEL_VK_COUNTER'] = 'ВКонтакте';
+$MESS['LANDING_HOOK_PIXEL_VK_PLACEHOLDER2'] = 'Введите код пикселя (VK-AAAA-123456-BBBBB)';

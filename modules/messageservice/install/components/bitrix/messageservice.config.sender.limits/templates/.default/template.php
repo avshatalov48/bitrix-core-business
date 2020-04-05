@@ -13,9 +13,9 @@ global $APPLICATION;
 $APPLICATION->SetTitle(GetMessage('MESSAGESERVICE_CONFIG_SENDER_LIMIT_TITLE'));
 
 CJSCore::init(array('date'));
-
+$messageSuffix = (defined('ADMIN_SECTION') && ADMIN_SECTION === true) ? '_ADMIN' : '';
 ?>
-<div class="messageservice-view-progress messageservice-view-progress-show"><?=GetMessage('MESSAGESERVICE_CONFIG_SENDER_LIMIT_TIP')?></div>
+<div class="messageservice-view-progress messageservice-view-progress-show"><?=GetMessage('MESSAGESERVICE_CONFIG_SENDER_LIMIT_TIP'.$messageSuffix)?></div>
 <?
 $APPLICATION->IncludeComponent(
 	"bitrix:main.ui.grid",

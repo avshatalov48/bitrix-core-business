@@ -5,6 +5,7 @@ namespace Bitrix\Main\Discount;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main;
 
 Loc::loadMessages(__FILE__);
 
@@ -15,6 +16,9 @@ if (!Loader::includeModule('sale'))
 
 class UserConditionControl extends \CSaleCondCtrlComplex
 {
+	const ENTITY_USER_ID = 'CondMainUserId';
+	const ENTITY_USER_GROUP_ID = 'BX:CondMainUserGroupId';
+
 	public static function onBuildDiscountConditionInterfaceControls()
 	{
 		return new EventResult(
@@ -86,29 +90,36 @@ class UserConditionControl extends \CSaleCondCtrlComplex
 
 	public static function generate($oneCondition, $params, $control, $subs = false)
 	{
-		$mxResult = '';
+		$result = '';
 		if (is_string($control))
 		{
 			$control = static::getControls($control);
 		}
-		$boolError = !is_array($control);
+		$error = !is_array($control);
 
 		$values = array();
-		if (!$boolError)
+		if (!$error)
 		{
 			$values = static::check($oneCondition, $oneCondition, $control, false);
-			$boolError = (false === $values);
+			$error = ($values === false);
 		}
 
-		if (!$boolError && $control['ID'] === 'CondMainUserId')
+		if (!$error)
 		{
-			$stringArray = 'array(' . implode(',', array_map('intval', $values['value'])) . ')';
-			$type = $oneCondition['logic'];
-
-			$mxResult = static::getClassName() . "::checkBasket({$params['ORDER']}, $stringArray, '{$type}')";
+			switch ($control['ID'])
+			{
+				case self::ENTITY_USER_ID:
+					$stringArray = 'array('.implode(',', $values['value']).')';
+					$type = $oneCondition['logic'];
+					$result = static::getClassName() . "::checkBasket({$params['ORDER']}, $stringArray, '{$type}')";
+					break;
+				case self::ENTITY_USER_GROUP_ID:
+					$result = self::generateOrderConditions($oneCondition, $params, $control, $values);
+					break;
+			}
 		}
 
-		return $mxResult;
+		return $result;
 	}
 
 	/**
@@ -119,15 +130,15 @@ class UserConditionControl extends \CSaleCondCtrlComplex
 	public static function getControls($controlId = false)
 	{
 		$controlList = array(
-			'CondMainUserId' => array(
-				'ID' => 'CondMainUserId',
+			self::ENTITY_USER_ID => array(
+				'ID' => self::ENTITY_USER_ID,
 				'EXECUTE_MODULE' => 'sale',
 				'MODULE_ID' => 'main',
 				'MODULE_ENTITY' => 'main',
 				'ENTITY' => 'USER',
-				'FIELD' => 'ID',
+				'FIELD' => 'USER_ID',
 				'FIELD_TYPE' => 'int',
-				'MULTIPLE' => 'Y',
+				'MULTIPLE' => 'N',
 				'GROUP' => 'N',
 				'LABEL' => Loc::getMessage('SALE_USER_CONDITION_CONTROL_FIELD_USER_ID'),
 				'PREFIX' => Loc::getMessage('SALE_USER_CONDITION_CONTROL_FIELD_USER_PREFIX'),
@@ -145,25 +156,156 @@ class UserConditionControl extends \CSaleCondCtrlComplex
 				'PHP_VALUE' => array(
 					'VALIDATE' => 'user'
 				)
-			)
+			),
 		);
 
-		if (false === $controlId)
+		if (!Main\ModuleManager::isModuleInstalled('bitrix24'))
 		{
-			return $controlList;
+			$labels = array(
+				BT_COND_LOGIC_EQ => Loc::getMessage('SALE_USER_CONDITION_CONTROL_FIELD_USER_GROUP_EQ'),
+				BT_COND_LOGIC_NOT_EQ => Loc::getMessage('SALE_USER_CONDITION_CONTROL_FIELD_USER_GROUP_NOT_EQ'),
+			);
+
+			$userGroups = array();
+			$iterator = Main\GroupTable::getList(array(
+				'select' => array('ID', 'NAME', 'C_SORT'),
+				'order' => array('C_SORT' => 'ASC', 'NAME' => 'ASC')
+			));
+			while ($row = $iterator->fetch())
+				$userGroups[$row['ID']] = $row['NAME'];
+			unset($row, $iterator);
+			$controlList[self::ENTITY_USER_GROUP_ID] = array(
+				'ID' => self::ENTITY_USER_GROUP_ID,
+				'EXECUTE_MODULE' => 'all',
+				'MODULE_ID' => 'main',
+				'MODULE_ENTITY' => 'main',
+				'ENTITY' => 'USER_GROUPS',
+				'FIELD' => 'USER_GROUPS',
+				'FIELD_TYPE' => 'int',
+				'MULTIPLE' => 'Y',
+				'GROUP' => 'N',
+				'LABEL' => Loc::getMessage('SALE_USER_CONDITION_CONTROL_FIELD_USER_GROUP_ID'),
+				'PREFIX' => Loc::getMessage('SALE_USER_CONDITION_CONTROL_FIELD_USER_GROUP_PREFIX'),
+				'LOGIC' => static::getLogicEx(array_keys($labels), $labels),
+				'JS_VALUE' => array(
+					'type' => 'select',
+					'multiple' => 'Y',
+					'values' => $userGroups,
+					'show_value' => 'Y'
+				),
+				'PHP_VALUE' => array(
+					'VALIDATE' => 'list'
+				)
+			);
+			unset($userGroups, $labels);
 		}
-		elseif (isset($controlList[$controlId]))
-		{
-			return $controlList[$controlId];
-		}
-		else
-		{
-			return false;
-		}
+
+		return static::searchControl($controlList, $controlId);
 	}
 
 	public static function getShowIn($arControls)
 	{
 		return array(\CSaleCondCtrlGroup::getControlID());
+	}
+
+	private static function generateOrderConditions(array $oneCondition, array $params, array $control, $values)
+	{
+		$result = '';
+
+		$logic = static::SearchLogic($values['logic'], $control['LOGIC']);
+		if (!empty($logic['OP'][$control['MULTIPLE']]))
+		{
+			$joinOperator = '';
+			$multi = false;
+			if (isset($control['JS_VALUE']['multiple']) && $control['JS_VALUE']['multiple'] == 'Y')
+			{
+				$multi = true;
+				$joinOperator = (isset($logic['MULTI_SEP']) ? $logic['MULTI_SEP'] : ' && ');
+			}
+			$field = $params['ORDER'].'[\''.$control['FIELD'].'\']';
+			switch ($control['FIELD_TYPE'])
+			{
+				case 'int':
+				case 'double':
+					if (!$multi)
+					{
+						$result = str_replace(
+							array('#FIELD#', '#VALUE#'),
+							array($field, $values['value']),
+							$logic['OP'][$control['MULTIPLE']]
+						);
+					}
+					else
+					{
+						$list = array();
+						foreach ($values['value'] as $item)
+						{
+							$list[] = str_replace(
+								array('#FIELD#', '#VALUE#'),
+								array($field, $item),
+								$logic['OP'][$control['MULTIPLE']]
+							);
+						}
+						$result = '(('.implode(')'.$joinOperator.'(', $list).'))';
+						unset($list, $item);
+					}
+					break;
+				case 'char':
+				case 'string':
+				case 'text':
+					if (!$multi)
+					{
+						$result = str_replace(
+							array('#FIELD#', '#VALUE#'),
+							array($field, '"'.EscapePHPString($values['value']).'"'),
+							$logic['OP'][$control['MULTIPLE']]
+						);
+					}
+					else
+					{
+						$list = array();
+						foreach ($values['value'] as $item)
+						{
+							$list[] = str_replace(
+								array('#FIELD#', '#VALUE#'),
+								array($field, '"'.EscapePHPString($item).'"'),
+								$logic['OP'][$control['MULTIPLE']]
+							);
+						}
+						$result = '(('.implode(')'.$joinOperator.'(', $list).'))';
+						unset($list, $item);
+					}
+					break;
+				case 'date':
+				case 'datetime':
+					if (!$multi)
+					{
+						$result = str_replace(
+							array('#FIELD#', '#VALUE#'),
+							array($field, $values['value']),
+							$logic['OP'][$control['MULTIPLE']]
+						);
+					}
+					else
+					{
+						$list = array();
+						foreach ($values['value'] as $item)
+						{
+							$list[] = str_replace(
+								array('#FIELD#', '#VALUE#'),
+								array($field, $item),
+								$logic['OP'][$control['MULTIPLE']]
+							);
+						}
+						$result = '(('.implode(')'.$joinOperator.'(', $list).'))';
+						unset($list, $item);
+					}
+					break;
+			}
+			if ($result !== '')
+				$result = 'isset('.$field.') && '.$result;
+		}
+
+		return $result;
 	}
 }

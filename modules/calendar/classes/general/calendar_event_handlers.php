@@ -204,23 +204,25 @@ class CCalendarEventHandlers
 			$arEvent = $arEvents[0];
 
 			$arEvent['GUESTS'] = array();
-			if ($arEvent['IS_MEETING'] && is_array($arEvent['~ATTENDEES']))
+			if ($arEvent['IS_MEETING'] && is_array($arEvent['ATTENDEE_LIST']))
 			{
-				$arGuests = $arEvent['~ATTENDEES'];
-				foreach ($arGuests as $guest)
+				$userIndex = CCalendarEvent::getUserIndex();
+				foreach ($arEvent['ATTENDEE_LIST'] as $attendee)
 				{
-					$arEvent['GUESTS'][] = array(
-						'id' => $guest['USER_ID'],
-						'name' => CUser::FormatName(CSite::GetNameFormat(null, $arParams['SITE_ID']), $guest, true),
-						'status' => $guest['STATUS'],
-						'accessibility' => $arEvent['ACCESSIBILITY'],
-						'bHost' => $guest['USER_ID'] == $arEvent['MEETING_HOST'],
-
-					);
-
-					if ($guest['USER_ID'] == $USER->GetID())
+					if (isset($userIndex[$attendee["id"]]))
 					{
-						$arEvent['STATUS'] = $guest['STATUS'];
+						$arEvent['GUESTS'][] = array(
+							'id' => $attendee['id'],
+							'name' => $userIndex[$attendee["id"]]['DISPLAY_NAME'],
+							'status' => $attendee['status'],
+							'accessibility' => $arEvent['ACCESSIBILITY'],
+							'bHost' => $attendee['id'] == $arEvent['MEETING_HOST'],
+						);
+
+						if ($attendee['id'] == $USER->GetID())
+						{
+							$arEvent['STATUS'] = $attendee['status'];
+						}
 					}
 				}
 			}

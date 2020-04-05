@@ -505,7 +505,6 @@ BX.CMessageDialog.prototype.adjustPaging = function(change_cnt, stop)
 BX.CMessageDialog.prototype.ShowContent = function(pointer)
 {
 	var html = '';
-	var anchor_id = '';
 
 	if (this.oData[pointer] == null)
 		return;
@@ -543,8 +542,7 @@ BX.CMessageDialog.prototype.ShowContent = function(pointer)
 
 	if (this.oData[pointer]["CAN_VIEW_USER"] == "Y")
 	{
-		anchor_id = Math.floor(Math.random()*100000) + 1;
-		html = '<a href="' + this.oData[pointer]["URL_USER"] + '" id="anchor_' + anchor_id + '">' + this.oData[pointer]["NAME_USER"] + '</a>';
+		html = '<a href="' + this.oData[pointer]["URL_USER"] + '" bx-tooltip-user-id="' + (BX.message('sonetDynevUseTooltip') == 'Y' ? this.oData[pointer]["ID_USER"] : '') + '">' + this.oData[pointer]["NAME_USER"] + '</a>';
 	}
 	else
 		html = this.oData[pointer]["NAME_USER"];
@@ -602,9 +600,6 @@ BX.CMessageDialog.prototype.ShowContent = function(pointer)
 	setTimeout(BX.delegate(function() {this.PARTS.TEXT_INNER.scrollTop = 0}, this), 10);
 		
 	this.PARTS.TEXT_CONTENT.innerHTML += this.oData[pointer]["MESSAGE"];
-
-	if (BX.message('sonetDynevUseTooltip') == 'Y')
-		BX.tooltip(this.oData[pointer]["ID_USER"], "anchor_" + anchor_id, BX.message('sonetDynevMULAjaxPage'));
 
 	this.adjustButtons(this.oCurrentMessagePointer);
 	this.adjustPaging();

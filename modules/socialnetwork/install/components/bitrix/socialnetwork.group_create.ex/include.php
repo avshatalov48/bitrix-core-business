@@ -117,7 +117,36 @@ if (!function_exists('__GCE_GetFeatures'))
 			}
 		}
 
-		$arSocNetFeaturesSettings = CSocNetAllowed::GetAllowedFeatures();
+		$arSocNetFeaturesSettings = CSocNetAllowed::getAllowedFeatures();
+
+		$sampleKeysList = array(
+			'tasks' => 1,
+			'calendar' => 2,
+			'files' => 3,
+			'chat' => 4,
+			'forum' => 5,
+			'microblog' => 6,
+			'blog' => 7,
+			'photo' => 8,
+			'group_lists' => 9,
+			'wiki' => 10,
+			'content_search' => 11,
+			'marketplace' => 12,
+		);
+
+		uksort($arSocNetFeaturesSettings, function($a, $b) use ($sampleKeysList) {
+			$valA = (isset($sampleKeysList[$a]) ? $sampleKeysList[$a] : 100);
+			$valB = (isset($sampleKeysList[$b]) ? $sampleKeysList[$b] : 100);
+			if ($valA > $valB)
+			{
+				return 1;
+			}
+			elseif ($valA < $valB)
+			{
+				return -1;
+			}
+			return 0;
+		});
 
 		foreach ($arSocNetFeaturesSettings as $feature => $arFeature)
 		{

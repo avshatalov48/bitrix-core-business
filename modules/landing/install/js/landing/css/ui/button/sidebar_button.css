@@ -6,6 +6,7 @@
 	padding: 0 20px 0 15px;
 	border: none;
 	display: flex;
+	align-items: center;
 	height: 40px;
 	width: 100%;
 	text-align: left;
@@ -76,7 +77,8 @@
 	background: none;
 }
 
-.landing-ui-button-sidebar-child + .landing-ui-button-sidebar:not(.landing-ui-button-sidebar-child) {
+.landing-ui-button-sidebar-child + .landing-ui-button-sidebar:not(.landing-ui-button-sidebar-child),
+.landing-ui-button-sidebar-empty + .landing-ui-button-sidebar:not(.landing-ui-button-sidebar-child) {
 	margin-top: 40px;
 }
 

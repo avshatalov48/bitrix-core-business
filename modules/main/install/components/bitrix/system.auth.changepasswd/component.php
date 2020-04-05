@@ -16,6 +16,8 @@ if(!is_array($arParams["~AUTH_RESULT"]) && $arParams["~AUTH_RESULT"] <> '')
 	$arParams["~AUTH_RESULT"] = array("MESSAGE" => $arParams["~AUTH_RESULT"], "TYPE" => "ERROR");
 }
 
+$arResult["SHOW_FORM"] = !(is_array($arParams["~AUTH_RESULT"]) && $arParams["~AUTH_RESULT"]["TYPE"] == "OK");
+
 $arParamsToDelete = array(
 	"login",
 	"logout",
@@ -26,6 +28,19 @@ $arParamsToDelete = array(
 	"confirm_code",
 	"confirm_user_id",
 );
+
+//stored in the system.auth.forgotpasswd/component.php
+$arResult["USER_PHONE_NUMBER"] = $_SESSION["system.auth.changepasswd"]["USER_PHONE_NUMBER"];
+
+$arResult["PHONE_REGISTRATION"] = (COption::GetOptionString("main", "new_user_phone_auth", "N") == "Y" && $arResult["USER_PHONE_NUMBER"] <> '');
+if($arResult["PHONE_REGISTRATION"])
+{
+	$arResult["PHONE_CODE_RESEND_INTERVAL"] = CUser::PHONE_CODE_RESEND_INTERVAL;
+	$arResult["SIGNED_DATA"] = \Bitrix\Main\Controller\PhoneAuth::signData([
+		'phoneNumber' => $arResult["USER_PHONE_NUMBER"],
+		'smsTemplate' => "SMS_USER_RESTORE_PASSWORD"
+	]);
+}
 
 if(defined("AUTH_404"))
 {
@@ -53,7 +68,7 @@ $arRequestParams = array(
 
 foreach ($arRequestParams as $param)
 {
-	$arResult[$param] = strlen($_REQUEST[$param]) > 0 ? $_REQUEST[$param] : "";
+	$arResult[$param] = ($_REQUEST[$param] <> ''? $_REQUEST[$param] : "");
 	$arResult[$param] = htmlspecialcharsbx($arResult[$param]);
 }
 

@@ -1,4 +1,4 @@
-<section class="landing-block js-animation fadeIn g-bg-secondary">
+<section class="landing-block js-animation fadeIn">
 
 	<div class="container g-py-40">
 
@@ -40,10 +40,10 @@
 					<img class="landing-block-node-element-img g-height-50 d-flex align-self-center rounded-circle u-shadow-v19 g-brd-around g-brd-3 g-brd-white g-width-50 mr-3"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img1.jpg" alt="">
 					<div class="media-body align-self-center">
-						<h4 class="landing-block-node-element-title g-font-weight-400 g-font-size-15 g-mb-0">Alex
+						<h4 class="landing-block-node-element-title g-font-weight-400 g-font-size-15 g-color-main g-mb-0">Alex
 							Pottorf</h4>
-						<div class="landing-block-node-element-subtitle">
-							<span class="d-block g-color-text g-font-size-13">Reason: Template Quality</span>
+						<div class="landing-block-node-element-subtitle g-color-main g-font-size-13">
+							<span class="d-block">Reason: Template Quality</span>
 						</div>
 					</div>
 				</div>
@@ -58,10 +58,10 @@
 					<img class="landing-block-node-element-img g-height-50 d-flex align-self-center rounded-circle u-shadow-v19 g-brd-around g-brd-3 g-brd-white g-width-50 mr-3"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img5.jpg" alt="">
 					<div class="media-body align-self-center">
-						<h4 class="landing-block-node-element-title g-font-weight-400 g-font-size-15 g-mb-0">Bastien
+						<h4 class="landing-block-node-element-title g-font-weight-400 g-font-size-15 g-color-main g-mb-0">Bastien
 							Rojanawisut</h4>
-						<div class="landing-block-node-element-subtitle">
-							<span class="d-block g-color-text g-font-size-13">Reason: Template Quality</span>
+						<div class="landing-block-node-element-subtitle g-color-main g-font-size-13">
+							<span class="d-block">Reason: Template Quality</span>
 						</div>
 					</div>
 				</div>
@@ -76,10 +76,10 @@
 					<img class="landing-block-node-element-img g-height-50 d-flex align-self-center rounded-circle u-shadow-v19 g-brd-around g-brd-3 g-brd-white g-width-50 mr-3"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img2.jpg" alt="">
 					<div class="media-body align-self-center">
-						<h4 class="landing-block-node-element-title g-font-weight-400 g-font-size-15 g-mb-0">
+						<h4 class="landing-block-node-element-title g-font-weight-400 g-font-size-15 g-color-main g-mb-0">
 							Massalha Shady</h4>
-						<div class="landing-block-node-element-subtitle">
-							<span class="d-block g-color-text g-font-size-13">Reason: Code Quality</span>
+						<div class="landing-block-node-element-subtitle g-color-main g-font-size-13">
+							<span class="d-block">Reason: Code Quality</span>
 						</div>
 					</div>
 				</div>
@@ -94,10 +94,10 @@
 					<img class="landing-block-node-element-img g-height-50 d-flex align-self-center rounded-circle u-shadow-v19 g-brd-around g-brd-3 g-brd-white g-width-50 mr-3"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img4.jpg" alt="">
 					<div class="media-body align-self-center">
-						<h4 class="landing-block-node-element-title g-font-weight-400 g-font-size-15 g-mb-0">Mark
+						<h4 class="landing-block-node-element-title g-font-weight-400 g-font-size-15 g-color-main g-mb-0">Mark
 							Mcmanus</h4>
-						<div class="landing-block-node-element-subtitle">
-							<span class="d-block g-color-text g-font-size-13">Reason: Code Quality</span>
+						<div class="landing-block-node-element-subtitle g-color-main g-font-size-13">
+							<span class="d-block">Reason: Code Quality</span>
 						</div>
 					</div>
 				</div>
@@ -112,10 +112,10 @@
 					<img class="landing-block-node-element-img g-height-50 d-flex align-self-center rounded-circle u-shadow-v19 g-brd-around g-brd-3 g-brd-white g-width-50 mr-3"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img3.jpg" alt="">
 					<div class="media-body align-self-center">
-						<h4 class="landing-block-node-element-title g-font-weight-400 g-font-size-15 g-mb-0">Zuza
+						<h4 class="landing-block-node-element-title g-font-weight-400 g-font-size-15 g-color-main g-mb-0">Zuza
 							Muszyska</h4>
-						<div class="landing-block-node-element-subtitle">
-							<span class="d-block g-color-text g-font-size-13">Reason: Company24 Quality</span>
+						<div class="landing-block-node-element-subtitle g-color-main g-font-size-13">
+							<span class="d-block">Reason: Company24 Quality</span>
 						</div>
 					</div>
 				</div>

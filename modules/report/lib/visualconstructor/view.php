@@ -8,6 +8,7 @@ use Bitrix\Report\VisualConstructor\Fields\ComplexHtml;
 use Bitrix\Report\VisualConstructor\Fields\Container;
 use Bitrix\Report\VisualConstructor\Fields\Div;
 use Bitrix\Report\VisualConstructor\Fields\Valuable\ColorPicker;
+use Bitrix\Report\VisualConstructor\Fields\Valuable\Hidden;
 use Bitrix\Report\VisualConstructor\Fields\Valuable\LabelField;
 use Bitrix\Report\VisualConstructor\Fields\Valuable\PreviewBlock;
 use Bitrix\Report\VisualConstructor\Fields\Valuable\TimePeriod;
@@ -26,9 +27,11 @@ abstract class View
 	const VIEW_KEY                   = '';
 	const MAX_RENDER_REPORT_COUNT    = 0;
 	const DEFAULT_EMPTY_REPORT_COUNT = 1;
+	const USE_IN_VISUAL_CONSTRUCTOR  = true;
 
 	private $label;
 	private $logoUri;
+	private $previewImageUri;
 
 	private $compatibleDataType;
 	private $height;
@@ -219,7 +222,7 @@ abstract class View
 	 * @param BaseWidget $widgetHandler Widget handler.
 	 * @return void
 	 */
-	public function collectWidgetHandlerFormElements($widgetHandler)
+	public function collectWidgetHandlerFormElements(BaseWidget $widgetHandler)
 	{
 		$label = new LabelField('label', 'big');
 		$label->setDefaultValue(Loc::getMessage('REPORT_WIDGET_DEFAULT_TITLE'));
@@ -414,7 +417,8 @@ abstract class View
 			'resizable' => $this->isHorizontalResizable(),
 			'content' => array(
 				'params' => array(
-					'height' => $this->getHeight()
+					'height' => $this->getHeight(),
+					'previewImageUri' => $this->getPreviewImageUri()
 				),
 				'className' => $this->getJsClassName()
 			)
@@ -516,5 +520,21 @@ abstract class View
 	public function setHorizontalResizable($horizontalResizable)
 	{
 		$this->horizontalResizable = $horizontalResizable;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getPreviewImageUri()
+	{
+		return $this->previewImageUri;
+	}
+
+	/**
+	 * @param mixed $previewImageUri
+	 */
+	public function setPreviewImageUri($previewImageUri)
+	{
+		$this->previewImageUri = $previewImageUri;
 	}
 }

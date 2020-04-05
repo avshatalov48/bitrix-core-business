@@ -101,6 +101,189 @@ RatingLike = function(likeId, entityTypeId, entityId, available, userId, localiz
 	}
 };
 
+RatingLike.Draw = function(likeId, params)
+{
+	var i = likeId;
+
+	var element = BXRL[i];
+	element.countText.innerHTML = parseInt(params.TOTAL_POSITIVE_VOTES);
+
+	if (
+		typeof params.TYPE != 'undefined'
+		&& typeof params.USER_ID != 'undefined'
+		&& parseInt(params.USER_ID) > 0
+		&& typeof params.USER_DATA != 'undefined'
+		&& typeof params.USER_DATA.WEIGHT != 'undefined'
+	)
+	{
+		var userWeight = parseFloat(params.USER_DATA.WEIGHT);
+
+		var usersData = (
+			BXRL[i].topUsersDataNode
+				? JSON.parse(BXRL[i].topUsersDataNode.getAttribute('data-users'))
+				: false
+		);
+
+		if (
+			params.TYPE != 'CHANGE'
+			&& BX.type.isPlainObject(usersData)
+		)
+		{
+			var recalcNeeded = (usersData.TOP.length < 2);
+
+			for(var k in usersData.TOP)
+			{
+				if (recalcNeeded)
+				{
+					break;
+				}
+
+				if (!usersData.TOP.hasOwnProperty(k))
+				{
+					continue;
+				}
+
+				if (
+					(
+						params.TYPE == 'ADD'
+						&& userWeight > usersData.TOP[k].WEIGHT
+					)
+					|| (
+						params.TYPE == 'CANCEL'
+						&& params.USER_ID == usersData.TOP[k].ID
+					)
+				)
+				{
+					recalcNeeded = true;
+				}
+			}
+
+			if (recalcNeeded)
+			{
+				if (
+					params.TYPE == 'ADD'
+					&& params.USER_ID != BX.message('USER_ID')
+				)
+				{
+					if (!usersData.TOP.find(function(a) {
+						return a.ID == params.USER_ID
+					}))
+					{
+						usersData.TOP.push({
+							ID: parseInt(params.USER_ID),
+							NAME_FORMATTED: params.USER_DATA.NAME_FORMATTED,
+							WEIGHT: parseFloat(params.USER_DATA.WEIGHT)
+						});
+					}
+				}
+				else if (params.TYPE == 'CANCEL')
+				{
+					usersData.TOP = usersData.TOP.filter(function(a) {
+						return a.ID != params.USER_ID
+					});
+				}
+
+				usersData.TOP.sort(function(a, b) {
+					if (a.WEIGHT == b.WEIGHT) { return 0; } return (a.WEIGHT > b.WEIGHT) ? -1 : 1;
+				});
+
+				if (
+					usersData.TOP.length > 2
+					&& params.TYPE == 'ADD'
+				)
+				{
+					usersData.TOP.pop();
+					usersData.MORE++;
+				}
+			}
+			else
+			{
+				if (params.TYPE == 'ADD')
+				{
+					usersData.MORE = (
+						typeof usersData.MORE != 'undefined'
+							? parseInt(usersData.MORE) + 1
+							: 1
+					);
+				}
+				else if (params.TYPE == 'CANCEL')
+				{
+					usersData.MORE = (
+						typeof usersData.MORE != 'undefined'
+						&& parseInt(usersData.MORE) > 0
+							? parseInt(usersData.MORE) - 1
+							: 0
+					);
+				}
+			}
+
+			BXRL[i].topUsersDataNode.setAttribute('data-users', JSON.stringify(usersData));
+
+			if (BXRL[i].topUsersText)
+			{
+				BXRL[i].topUsersText.innerHTML = BXRL.render.getTopUsersText({
+					you: (
+						params.USER_ID == BX.message('USER_ID')
+							? params.TYPE != 'CANCEL'
+							: BX.hasClass(BXRL[i].count, 'bx-you-like')
+					),
+					top: usersData.TOP,
+					more: usersData.MORE
+				});
+			}
+		}
+
+		if (
+			BX.type.isNotEmptyString(params.REACTION)
+			&& BX.type.isNotEmptyString(params.REACTION_OLD)
+			&& params.TYPE == 'CHANGE'
+		)
+		{
+			BXRL.render.setReaction({
+				likeId: i,
+				rating: BXRL[i],
+				action: 'change',
+				userReaction: params.REACTION,
+				userReactionOld: params.REACTION_OLD,
+				totalCount: params.TOTAL_POSITIVE_VOTES,
+				userId: params.USER_ID
+			});
+		}
+		else if (
+			BX.type.isNotEmptyString(params.REACTION)
+			&& BX.util.in_array(params.TYPE, ['ADD', 'CANCEL'])
+		)
+		{
+			BXRL.render.setReaction({
+				likeId: i,
+				rating: BXRL[i],
+				userReaction: params.REACTION,
+				action: (params.TYPE == 'ADD' ? 'add' : 'cancel'),
+				totalCount: params.TOTAL_POSITIVE_VOTES,
+				userId: params.USER_ID
+			});
+		}
+	}
+
+	if (BXRL[i].topPanel)
+	{
+		BXRL[i].topPanel.setAttribute('data-popup', 'N');
+	}
+
+	if (!BXRL[i].userReactionNode)
+	{
+		element.count.insertBefore(
+			BX.create("span", { props : { className : "bx-ilike-plus-one" }, style: {width: (element.countText.clientWidth-8)+'px', height: (element.countText.clientHeight-8)+'px'}, html: (params.TYPE == 'ADD'? '+1': '-1')})
+			, element.count.firstChild);
+	}
+
+	if (element.popup)
+	{
+		element.popup.close();
+		element.popupContentPage = 1;
+	}
+};
+
 RatingLike.LiveUpdate = function(params)
 {
 	if (params.USER_ID == BX.message('USER_ID'))
@@ -120,167 +303,7 @@ RatingLike.LiveUpdate = function(params)
 			&& BXRL[i].entityId == params.ENTITY_ID
 		)
 		{
-			var element = BXRL[i];
-			element.countText.innerHTML = parseInt(params.TOTAL_POSITIVE_VOTES);
-
-			if (
-				typeof params.TYPE != 'undefined'
-				&& typeof params.USER_ID != 'undefined'
-				&& parseInt(params.USER_ID) > 0
-				&& typeof params.USER_DATA != 'undefined'
-				&& typeof params.USER_DATA.WEIGHT != 'undefined'
-			)
-			{
-				var userWeight = parseFloat(params.USER_DATA.WEIGHT);
-
-				var usersData = (
-					BXRL[i].topUsersDataNode
-						? JSON.parse(BXRL[i].topUsersDataNode.getAttribute('data-users'))
-						: false
-				);
-
-				if (
-					params.TYPE != 'CHANGE'
-					&& BX.type.isPlainObject(usersData)
-				)
-				{
-					var recalcNeeded = (usersData.TOP.length >= 2 ? false : true);
-
-					for(var k in usersData.TOP)
-					{
-						if (!usersData.TOP.hasOwnProperty(k))
-						{
-							continue;
-						}
-
-						if (
-							(
-								params.TYPE == 'ADD'
-								&& userWeight > usersData.TOP[k].WEIGHT
-							)
-							|| (
-								params.TYPE == 'CANCEL'
-								&& params.USER_ID == usersData.TOP[k].ID
-							)
-						)
-						{
-							recalcNeeded = true;
-						}
-					}
-
-					if (recalcNeeded)
-					{
-						if (params.TYPE == 'ADD')
-						{
-							usersData.TOP.push({
-								ID: parseInt(params.USER_ID),
-								NAME_FORMATTED: params.USER_DATA.NAME_FORMATTED,
-								WEIGHT: parseFloat(params.USER_DATA.WEIGHT)
-							});
-						}
-						else if (params.TYPE == 'CANCEL')
-						{
-							usersData.TOP = usersData.TOP.filter(function(a) {
-								return a.ID != params.USER_ID
-							});
-						}
-
-						usersData.TOP.sort(function(a, b) {
-							if (a.WEIGHT == b.WEIGHT) { return 0; } return (a.WEIGHT > b.WEIGHT) ? -1 : 1;
-						});
-
-						if (
-							usersData.TOP.length > 2
-							&& params.TYPE == 'ADD'
-						)
-						{
-							usersData.TOP.pop();
-							usersData.MORE++;
-						}
-					}
-					else
-					{
-						if (params.TYPE == 'ADD')
-						{
-							usersData.MORE = (
-								typeof usersData.MORE != 'undefined'
-									? parseInt(usersData.MORE) + 1
-									: 1
-							);
-						}
-						else if (params.TYPE == 'CANCEL')
-						{
-							usersData.MORE = (
-								typeof usersData.MORE != 'undefined'
-								&& parseInt(usersData.MORE) > 0
-									? parseInt(usersData.MORE) - 1
-									: 0
-							);
-						}
-					}
-
-					BXRL[i].topUsersDataNode.setAttribute('data-users', JSON.stringify(usersData));
-
-					if (BXRL[i].topUsersText)
-					{
-						BXRL[i].topUsersText.innerHTML = BXRL.render.getTopUsersText({
-							you: BX.hasClass(BXRL[i].count, 'bx-you-like'),
-							top: usersData.TOP,
-							more: usersData.MORE
-						});
-					}
-				}
-
-				if (
-					BX.type.isNotEmptyString(params.REACTION)
-					&& BX.type.isNotEmptyString(params.REACTION_OLD)
-					&& params.TYPE == 'CHANGE'
-				)
-				{
-					BXRL.render.setReaction({
-						likeId: i,
-						rating: BXRL[i],
-						action: 'change',
-						userReaction: params.REACTION,
-						userReactionOld: params.REACTION_OLD,
-						totalCount: params.TOTAL_POSITIVE_VOTES,
-						userId: params.USER_ID
-					});
-				}
-
-				else if (
-					BX.type.isNotEmptyString(params.REACTION)
-					&& BX.util.in_array(params.TYPE, ['ADD', 'CANCEL'])
-				)
-				{
-					BXRL.render.setReaction({
-						likeId: i,
-						rating: BXRL[i],
-						userReaction: params.REACTION,
-						action: (params.TYPE == 'ADD' ? 'add' : 'cancel'),
-						totalCount: params.TOTAL_POSITIVE_VOTES,
-						userId: params.USER_ID
-					});
-				}
-			}
-
-			if (BXRL[i].topPanel)
-			{
-				BXRL[i].topPanel.setAttribute('data-popup', 'N');
-			}
-
-			if (!BXRL[i].userReactionNode)
-			{
-				element.count.insertBefore(
-					BX.create("span", { props : { className : "bx-ilike-plus-one" }, style: {width: (element.countText.clientWidth-8)+'px', height: (element.countText.clientHeight-8)+'px'}, html: (params.TYPE == 'ADD'? '+1': '-1')})
-					, element.count.firstChild);
-			}
-
-			if (element.popup)
-			{
-				element.popup.close();
-				element.popupContentPage = 1;
-			}
+			RatingLike.Draw(i, params);
 		}
 	}
 
@@ -290,8 +313,10 @@ RatingLike.LiveUpdate = function(params)
 	}
 };
 
-RatingLike.Set = function(likeId, entityTypeId, entityId, available, userId, localize, template, pathToUserProfile, pathToAjax)
+RatingLike.Set = function(likeId, entityTypeId, entityId, available, userId, localize, template, pathToUserProfile, pathToAjax, mobile)
 {
+	mobile = !!mobile;
+
 	if (template === undefined)
 		template = 'standart';
 
@@ -306,13 +331,15 @@ RatingLike.Set = function(likeId, entityTypeId, entityId, available, userId, loc
 		BXRL[likeId] = new RatingLike(likeId, entityTypeId, entityId, available, userId, localize, template, pathToUserProfile, pathToAjax);
 		if (BXRL[likeId].enabled)
 		{
-			RatingLike.Init(likeId);
+			RatingLike.Init(likeId, {
+				mobile: mobile
+			});
 		}
 		else
 		{
 			setTimeout(function(){
 				BXRL[likeId].tryToSet = tryToSend+1;
-				RatingLike.Set(likeId, entityTypeId, entityId, available, userId, localize, template, pathToUserProfile, pathToAjax);
+				RatingLike.Set(likeId, entityTypeId, entityId, available, userId, localize, template, pathToUserProfile, pathToAjax, mobile);
 			}, 500);
 		}
 	}
@@ -571,41 +598,132 @@ RatingLike.ClickVote = function(likeId, userReaction, forceAdd)
 	BX.removeClass(this.box, 'bx-ilike-button-hover');
 };
 
-RatingLike.Init = function(likeId)
+RatingLike.Init = function(likeId, params)
 {
+	if (typeof params == 'undefined')
+	{
+		params = {};
+	}
+
+	if (typeof BXRL.manager != 'undefined')
+	{
+		BXRL.manager.init(params);
+	}
+
 	// like/unlike button
 	if (BXRL[likeId].available)
 	{
+		var eventNode = (
+			BXRL[likeId].template == 'standart'
+				? BXRL[likeId].button
+				: BXRL[likeId].buttonText
+		);
+
+		if (
+			BXRL[likeId].version >= 2
+			&& BXRL.manager.mobile
+		)
+		{
+			BX.bind(
+				eventNode,
+				'touchstart',
+				BX.delegate(function(e) {
+					BXRL.manager.startScrollTop = (
+						(
+							document.documentElement
+							&& document.documentElement.scrollTop
+						)
+						|| document.body.scrollTop
+					);
+				})
+			);
+		}
+
+		var eventName = (
+			typeof BXRL.manager != 'undefined'
+			&& BXRL.manager.mobile
+				? 'touchend'
+				: 'click'
+		);
+
 		BX.bind(
-			(
-				BXRL[likeId].template == 'standart'
-					? BXRL[likeId].button
-					: BXRL[likeId].buttonText
-			),
-			'click',
+			eventNode,
+			eventName,
 			BX.delegate(function(e) {
-				RatingLike.ClickVote(likeId);
+
+				if (
+					BXRL[likeId].version >= 2
+					&& BXRL.manager.mobile
+					&& BXRL.render.blockTouchEndByScroll
+				)
+				{
+					BXRL.render.blockTouchEndByScroll = false;
+					return;
+				}
+
+				if (
+					BXRL[likeId].version < 2
+					|| !BXRL.manager.mobile
+					|| !BXRL.render.reactionsPopupLikeId
+				)
+				{
+					if (
+						BXRL[likeId].version >= 2
+						&& BXRL.manager.mobile
+					)
+					{
+						var currentScrollTop = (
+							(
+								document.documentElement
+								&& document.documentElement.scrollTop
+							)
+							|| document.body.scrollTop
+						);
+
+						if (Math.abs(currentScrollTop - BXRL.manager.startScrollTop) > 2)
+						{
+							return;
+						}
+					}
+
+					RatingLike.ClickVote(likeId);
+				}
+
 				if (BXRL[likeId].version == 2)
 				{
 					BXRL.render.afterClick({
 						likeId: likeId
 					});
 				}
+
 				e.preventDefault();
 			}, this)
 		);
 
-		// Hover/unHover like-button
-		BX.bind(BXRL[likeId].box, 'mouseover', function() {BX.addClass(this, 'bx-ilike-button-hover')});
-		BX.bind(BXRL[likeId].box, 'mouseout', function() {BX.removeClass(this, 'bx-ilike-button-hover')});
-
-	}
-	else
-	{
-		if (BXRL[likeId].buttonText != undefined)
+		if (
+			typeof BXRL.manager == 'undefined'
+			|| !BXRL.manager.mobile
+		)
 		{
-			BXRL[likeId].buttonText.innerHTML = BXRL[likeId].localize['LIKE_D'];
+			// Hover/unHover like-button
+			BX.bind(BXRL[likeId].box, 'mouseover', function() {BX.addClass(this, 'bx-ilike-button-hover')});
+			BX.bind(BXRL[likeId].box, 'mouseout', function() {BX.removeClass(this, 'bx-ilike-button-hover')});
 		}
+		else
+		{
+			BXRL[likeId].pathToAjax = BX.message('SITE_DIR') + 'mobile/ajax.php?mobile_action=like';
+			BX.bind(BXRL[likeId].topPanel, 'click', function(e) {
+				BXRL.render.openMobileReactionsPage({
+					entityTypeId: BXRL[likeId].entityTypeId,
+					entityId: BXRL[likeId].entityId
+				});
+				e.stopPropagation();
+			});
+		}
+	}
+	else if (BXRL[likeId].buttonText != undefined)
+	{
+		BXRL[likeId].buttonText.innerHTML = BXRL[likeId].localize['LIKE_D'];
 	}
 	// get like-user-list
 
@@ -615,30 +733,43 @@ RatingLike.Init = function(likeId)
 			: BXRL[likeId].count
 	);
 
-	BX.bind(clickShowPopupNode, 'mouseenter', function(e)
+	if (
+		typeof BXRL.manager == 'undefined'
+		|| !BXRL.manager.mobile
+	)
 	{
-		RatingLike.onResultMouseEnter({
-			likeId: likeId,
-			event: e,
-			nodeId: e.currentTarget.id
+		BX.bind(clickShowPopupNode, 'mouseenter', function(e)
+		{
+			RatingLike.onResultMouseEnter({
+				likeId: likeId,
+				event: e,
+				nodeId: e.currentTarget.id
+			});
 		});
-	});
 
-	BX.bind(clickShowPopupNode, 'mouseleave', BX.proxy(function()
-	{
-		RatingLike.onResultMouseLeave({
-			likeId: likeId
-		});
-	}, { likeId: likeId }));
+		BX.bind(clickShowPopupNode, 'mouseleave', BX.proxy(function()
+		{
+			RatingLike.onResultMouseLeave({
+				likeId: likeId
+			});
+		}, { likeId: likeId }));
+	}
 
-	BX.bind(clickShowPopupNode, 'click' , function(e)
+
+	if (
+		typeof BXRL.manager == 'undefined'
+		|| !BXRL.manager.mobile
+	)
 	{
-		RatingLike.onResultClick({
-			likeId: likeId,
-			event: e,
-			nodeId: e.currentTarget.id
+		BX.bind(clickShowPopupNode, 'click' , function(e)
+		{
+			RatingLike.onResultClick({
+				likeId: likeId,
+				event: e,
+				nodeId: e.currentTarget.id
+			});
 		});
-	});
+	}
 
 	if (
 		BXRL[likeId].version == 2
@@ -649,11 +780,6 @@ RatingLike.Init = function(likeId)
 		BXRL.render.bindReactionsPopup({
 			likeId: likeId
 		});
-	}
-
-	if (typeof BXRL.manager != 'undefined')
-	{
-		BXRL.manager.init();
 	}
 };
 
@@ -813,23 +939,22 @@ RatingLike.OpenWindow = function(likeId, clickEvent, target, targetId)
 			closeByEsc: true,
 			zIndexAbsolute: (globalZIndex > 1000 ? globalZIndex + 1 : 1000),
 			bindOptions: { position: "top" },
-			animationOptions: {
-				show: {
-					type: 'opacity-transform'
-				},
-				close: {
-					type: 'opacity'
-				}
-			},
+			animation: "fading-slide",
 			events : {
 				onPopupClose : function() { BXRLW = null; },
 				onPopupDestroy : function() {  }
 			},
 			content : BX('bx-ilike-popup-cont-'+likeId),
-			className: (BXRL[likeId].topPanel ? 'bx-ilike-wrap-block-react-wrap' : '')
+			className: (BXRL[likeId].topPanel ? 'bx-ilike-wrap-block-react-wrap' : '') + (typeof BXRL.manager != 'undefined' && BXRL.manager.mobile ? ' bx-ilike-mobile-wrap' : '')
 		});
 
-		if (!BXRL[likeId].topPanel)
+		if (
+			!BXRL[likeId].topPanel
+			&& (
+				typeof BXRL.manager == 'undefined'
+				|| !BXRL.manager.mobile
+			)
+		)
 		{
 			BXRL[likeId].popup.setAngle({});
 
@@ -925,10 +1050,41 @@ RatingLike.Vote = function(likeId, voteAction, voteReaction, voteReactionOld)
 		voteReaction = 'like';
 	}
 
-	BX.ajax({
-		url: BXRL[likeId].pathToAjax,
+	var BMAjaxWrapper = null;
+
+	if (
+		typeof BXRL.manager != 'undefined'
+		&& BXRL.manager.mobile
+	)
+	{
+		BMAjaxWrapper = new MobileAjaxWrapper;
+	}
+
+	var
+		f = (BMAjaxWrapper ? BX.proxy(BMAjaxWrapper.Wrap, BMAjaxWrapper) : BX.ajax),
+		callbackSuccessName = (BMAjaxWrapper ? 'callback' : 'onsuccess'),
+		callbackFailureName = (BMAjaxWrapper ? 'callback_failure' : 'onfailure');
+
+	var actionUrl = BXRL[likeId].pathToAjax;
+	actionUrl = BX.util.add_url_param(actionUrl, {
+		b24statAction: 'addLike'
+	});
+
+	if (
+		BXRL[likeId].version >= 2
+		&& BXRL.manager.mobile
+	)
+	{
+		actionUrl = BX.util.add_url_param(actionUrl, {
+			b24statContext: 'mobile'
+		});
+	}
+
+	var ajaxProperties = {
+		url: actionUrl,
 		method: 'POST',
 		dataType: 'json',
+		type: 'json',
 		data: {
 			RATING_VOTE : 'Y',
 			RATING_VOTE_TYPE_ID : BXRL[likeId].entityTypeId,
@@ -936,103 +1092,127 @@ RatingLike.Vote = function(likeId, voteAction, voteReaction, voteReactionOld)
 			RATING_VOTE_ACTION : voteAction,
 			RATING_VOTE_REACTION : voteReaction,
 			sessid: BX.bitrix_sessid()
-		},
-		onsuccess: function(data) {
-			BXRL[likeId].lastVote = data.action;
-			BXRL[likeId].lastReaction = voteReaction;
+		}
+	};
 
-			lastVoteRepo[BXRL[likeId].entityTypeId + '_' + BXRL[likeId].entityId] = data.action;
-			lastReactionRepo[BXRL[likeId].entityTypeId + '_' + BXRL[likeId].entityId] = data.voteReaction;
+	ajaxProperties[callbackSuccessName] = function(data) {
+		BXRL[likeId].lastVote = data.action;
+		BXRL[likeId].lastReaction = voteReaction;
 
-			BXRL[likeId].countText.innerHTML = data.items_all;
-			BXRL[likeId].popupContentPage = 1;
+		lastVoteRepo[BXRL[likeId].entityTypeId + '_' + BXRL[likeId].entityId] = data.action;
+		lastReactionRepo[BXRL[likeId].entityTypeId + '_' + BXRL[likeId].entityId] = data.voteReaction;
 
-			BXRL[likeId].popupContent.innerHTML = '';
-			spanTag0 = document.createElement("span");
-			spanTag0.className = "bx-ilike-wait";
-			BXRL[likeId].popupContent.appendChild(spanTag0);
+		BXRL[likeId].countText.innerHTML = data.items_all;
+		BXRL[likeId].popupContentPage = 1;
 
-			if (BXRL[likeId].topPanel)
+		BXRL[likeId].popupContent.innerHTML = '';
+		spanTag0 = document.createElement("span");
+		spanTag0.className = "bx-ilike-wait";
+		BXRL[likeId].popupContent.appendChild(spanTag0);
+
+		if (BXRL[likeId].topPanel)
+		{
+			BXRL[likeId].topPanel.setAttribute('data-popup', 'N');
+		}
+
+		RatingLike.AdjustWindow(likeId);
+
+		if(
+			BX('ilike-popup-'+likeId)
+			&& BX('ilike-popup-'+likeId).style.display == "block"
+		)
+		{
+			RatingLike.List(likeId, null, '', true);
+		}
+
+		if (
+			BXRL[likeId].version >= 2
+			&& BXRL.manager.mobile
+		)
+		{
+			BXMobileApp.onCustomEvent('onRatingLike', {
+				action: data.action,
+				ratingId: likeId,
+				entityTypeId : BXRL[likeId].entityTypeId,
+				entityId: BXRL[likeId].entityId,
+				voteAction: voteAction,
+				voteReaction: voteReaction,
+				voteReactionOld: voteReactionOld,
+				userId: BX.message('USER_ID'),
+				userData: (typeof data.user_data != 'undefined' ? data.user_data : null),
+				itemsAll: data.items_all
+			}, true);
+		}
+	};
+
+	ajaxProperties[callbackFailureName] = function(data) {
+
+		var dataUsers = ((BXRL[likeId].topUsersDataNode)
+				? JSON.parse(BXRL[likeId].topUsersDataNode.getAttribute('data-users'))
+				: false
+		);
+
+		if (BXRL[likeId].version == 2)
+		{
+			if (voteAction == 'change')
 			{
-				BXRL[likeId].topPanel.setAttribute('data-popup', 'N');
+				BXRL.render.setReaction({
+					likeId: likeId,
+					rating: BXRL[likeId],
+					action: voteAction,
+					userReaction: voteReaction,
+					userReactionOld: voteReactionOld,
+					totalCount: parseInt(BXRL[likeId].countText.innerHTML)
+				});
+			}
+			else
+			{
+				BXRL.render.setReaction({
+					likeId: likeId,
+					rating: BXRL[likeId],
+					action: (voteAction == 'cancel' ? 'add' : 'cancel'),
+					userReaction: voteReaction,
+					totalCount: (
+						voteAction == 'cancel'
+							? parseInt(BXRL[likeId].countText.innerHTML) + 1
+							: parseInt(BXRL[likeId].countText.innerHTML) - 1
+					)
+				});
 			}
 
-			RatingLike.AdjustWindow(likeId);
-
-			if(
-				BX('ilike-popup-'+likeId)
-				&& BX('ilike-popup-'+likeId).style.display == "block"
-			)
+			if (BXRL[likeId].buttonText)
 			{
-				RatingLike.List(likeId, null, '', true);
-			}
-		},
-		onfailure: function(data) {
-
-			var dataUsers = ((BXRL[likeId].topUsersDataNode)
-					? JSON.parse(BXRL[likeId].topUsersDataNode.getAttribute('data-users'))
-					: false
-			);
-
-			if (BXRL[likeId].version == 2)
-			{
-				if (voteAction == 'change')
+				if (voteAction == 'add')
 				{
-					BXRL.render.setReaction({
-						likeId: likeId,
-						rating: BXRL[likeId],
-						action: voteAction,
-						userReaction: voteReaction,
-						userReactionOld: voteReactionOld,
-						totalCount: parseInt(BXRL[likeId].countText.innerHTML)
-					});
+					BXRL[likeId].buttonText.innerHTML = BX.message('RATING_LIKE_EMOTION_LIKE_CALC');
+				}
+				else if (voteAction == 'change')
+				{
+					BXRL[likeId].buttonText.innerHTML = BX.message('RATING_LIKE_EMOTION_' + voteReactionOld.toUpperCase() + '_CALC');
 				}
 				else
 				{
-					BXRL.render.setReaction({
-						likeId: likeId,
-						rating: BXRL[likeId],
-						action: (voteAction == 'cancel' ? 'add' : 'cancel'),
-						userReaction: voteReaction,
-						totalCount: (
-							voteAction == 'cancel'
-								? parseInt(BXRL[likeId].countText.innerHTML) + 1
-								: parseInt(BXRL[likeId].countText.innerHTML) - 1
-						)
-					});
+					BXRL[likeId].buttonText.innerHTML = BX.message('RATING_LIKE_EMOTION_' + voteReaction.toUpperCase() + '_CALC');
 				}
-
-				if (BXRL[likeId].buttonText)
-				{
-					if (voteAction == 'add')
-					{
-						BXRL[likeId].buttonText.innerHTML = BX.message('RATING_LIKE_EMOTION_LIKE_CALC');
-					}
-					else if (voteAction == 'change')
-					{
-						BXRL[likeId].buttonText.innerHTML = BX.message('RATING_LIKE_EMOTION_' + voteReactionOld.toUpperCase() + '_CALC');
-					}
-					else
-					{
-						BXRL[likeId].buttonText.innerHTML = BX.message('RATING_LIKE_EMOTION_' + voteReaction.toUpperCase() + '_CALC');
-					}
-				}
-			}
-
-			if (
-				dataUsers
-				&& voteAction != 'change'
-				&& BXRL[likeId].version == 2
-			)
-			{
-				BXRL[likeId].topUsersText.innerHTML = BXRL.render.getTopUsersText({
-					you: (voteAction == 'cancel'), // negative
-					top: dataUsers.TOP,
-					more: dataUsers.MORE
-				});
 			}
 		}
-	});
+
+		if (
+			dataUsers
+			&& voteAction != 'change'
+			&& BXRL[likeId].version == 2
+		)
+		{
+			BXRL[likeId].topUsersText.innerHTML = BXRL.render.getTopUsersText({
+				you: (voteAction == 'cancel'), // negative
+				top: dataUsers.TOP,
+				more: dataUsers.MORE
+			});
+		}
+	};
+
+	f(ajaxProperties);
+
 	return false;
 };
 

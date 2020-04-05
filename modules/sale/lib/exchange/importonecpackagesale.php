@@ -8,6 +8,7 @@ use Bitrix\Sale\Cashbox\Cashbox1C;
 use Bitrix\Sale\Cashbox\Internals\CashboxCheckTable;
 use Bitrix\Sale\Exchange\Entity\OrderImport;
 use Bitrix\Sale\Exchange\Entity\PaymentImport;
+use Bitrix\Sale\Exchange\OneC\DocumentType;
 use Bitrix\Sale\Exchange\OneC\OrderDocument;
 use Bitrix\Sale\Exchange\OneC\ShipmentDocument;
 use Bitrix\Sale\Result;
@@ -16,12 +17,12 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 {
 	protected function convert(array $documents)
 	{
-		$documentOrder = $this->getDocumentByTypeId(EntityType::ORDER, $documents);
+		$documentOrder = $this->getDocumentByTypeId(DocumentType::ORDER, $documents);
 
 		if($documentOrder instanceof OrderDocument)
 		{
 			//region Presset - create Shipment if Service in the Order by information from 1C
-			$documentShipment = $this->getDocumentByTypeId(EntityType::SHIPMENT, $documents);
+			$documentShipment = $this->getDocumentByTypeId(DocumentType::SHIPMENT, $documents);
 			if($documentShipment == null)
 			{
 				$fieldsOrder = $documentOrder->getFieldValues();
@@ -60,11 +61,11 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 		}
 		else
 		{
-			$settingsShipment = ManagerImport::getSettingsByType(EntityType::SHIPMENT);
+			$settingsShipment = ManagerImport::getSettingsByType(static::getShipmentEntityTypeId());
 
-			if($settingsShipment->canCreateOrder(EntityType::SHIPMENT)=='Y')
+			if($settingsShipment->canCreateOrder(static::getShipmentEntityTypeId())=='Y')
 			{
-				$documentShipment = $this->getDocumentByTypeId(EntityType::SHIPMENT, $documents);
+				$documentShipment = $this->getDocumentByTypeId(DocumentType::SHIPMENT, $documents);
 				if($documentShipment !== null)
 				{
 					$order['ID_1C'] = $documentShipment->getField('ID_1C');
@@ -131,9 +132,9 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 		{
 			/** @var PaymentImport $item */
 
-			if($item->getOwnerTypeId() == EntityType::PAYMENT_CASH ||
-				$item->getOwnerTypeId() == EntityType::PAYMENT_CASH_LESS ||
-				$item->getOwnerTypeId() == EntityType::PAYMENT_CARD_TRANSACTION
+			if($item->getOwnerTypeId() == static::getPaymentCashEntityTypeId() ||
+				$item->getOwnerTypeId() == static::getPaymentCashLessEntityTypeId() ||
+				$item->getOwnerTypeId() == static::getPaymentCardEntityTypeId()
 			)
 			{
 				/** @var  $params */

@@ -108,7 +108,8 @@ BX.Sale.Admin.OrderAjaxer =
 					 */
 					BX.Sale.Admin.OrderEditPage.rollBack();
 				}
-				else if(result.ORDER_DATA)
+
+				if(result.ORDER_DATA)
 				{
 					BX.Sale.Admin.OrderEditPage.resetRollbackMethods();
 					BX.Sale.Admin.OrderEditPage.callFieldsUpdaters(result.ORDER_DATA);

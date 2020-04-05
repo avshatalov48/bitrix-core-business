@@ -108,7 +108,9 @@ $buyerFax = $params["BUYER_PERSON_COMPANY_FAX"];
 				}
 				?>
 				<?=Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_ADDRESS')?>: <?= $sellerAddr ?>,
-				<?=Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_PHONE')?>: <?=$params["SELLER_COMPANY_PHONE"]; ?>
+				<?if($params["SELLER_COMPANY_PHONE"]):?>
+					<?=Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_PHONE')?>: <?=$params["SELLER_COMPANY_PHONE"]; ?>
+				<?endif;?>
 				<br>
 				<?
 				$requisiteList = array();

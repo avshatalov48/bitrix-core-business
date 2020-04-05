@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Sale\Exchange\OneC;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Sale\Exchange\ISettings;
 
 
 /**
@@ -173,9 +174,8 @@ class ConverterDocumentProfile extends Converter
 	/**
 	 * @param null $entity
 	 * @param array $fields
-	 * @return array
 	 */
-	public function sanitizeFields($entity = null, array &$fields)
+	static public function sanitizeFields($entity = null, array &$fields, ISettings $settings)
 	{
 		// TODO: Implement sanitizeFields() method.
 	}

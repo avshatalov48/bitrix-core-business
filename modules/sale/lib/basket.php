@@ -22,95 +22,17 @@ class Basket extends BasketBase
 	const BASKET_DELETE_LIMIT = 2000;
 
 	/**
-	 * @throws Main\NotImplementedException
-	 * @return Basket
+	 * @return string
 	 */
-	protected static function createBasketObject()
+	public static function getRegistryType()
 	{
-		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
-		$basketClassName = $registry->getBasketClassName();
-
-		return new $basketClassName;
-	}
-
-	/**
-	 * @param BasketItemCollection $basket
-	 * @param $moduleId
-	 * @param $productId
-	 * @param $basketCode
-	 * @return BasketItemBase
-	 */
-	protected function createItemInternal(BasketItemCollection $basket, $moduleId, $productId, $basketCode = null)
-	{
-		/** @var BasketItem $basketItemClassName */
-		$basketItemClassName = $this->getBasketItemCollectionElementClassName();
-		return $basketItemClassName::create($basket, $moduleId, $productId, $basketCode);
-	}
-
-	/**
-	 * @param array $filter
-	 *
-	 * @return Basket
-	 */
-	public function loadFromDb(array $filter)
-	{
-		$select = array(
-			"ID", "LID", "MODULE", "PRODUCT_ID", "QUANTITY", "WEIGHT",
-			"DELAY", "CAN_BUY", "PRICE", "CUSTOM_PRICE", "BASE_PRICE",
-			'PRODUCT_PRICE_ID', 'PRICE_TYPE_ID', "CURRENCY", 'BARCODE_MULTI',
-			"RESERVED", "RESERVE_QUANTITY",	"NAME", "CATALOG_XML_ID",
-			"VAT_RATE", "NOTES", "DISCOUNT_PRICE","PRODUCT_PROVIDER_CLASS",
-			"CALLBACK_FUNC", "ORDER_CALLBACK_FUNC", "PAY_CALLBACK_FUNC",
-			"CANCEL_CALLBACK_FUNC", "DIMENSIONS", "TYPE", "SET_PARENT_ID",
-			"DETAIL_PAGE_URL", "FUSER_ID", 'MEASURE_CODE', 'MEASURE_NAME',
-			'ORDER_ID', 'DATE_INSERT', 'DATE_UPDATE', 'PRODUCT_XML_ID',
-			'SUBSCRIBE', 'RECOMMENDATION', 'VAT_INCLUDED', 'SORT',
-			'DATE_REFRESH', 'DISCOUNT_NAME', 'DISCOUNT_VALUE', 'DISCOUNT_COUPON'
-		);
-
-		$itemList = array();
-		$first = true;
-
-		$res = static::getList(array(
-			"select" => $select,
-			"filter" => $filter,
-			"order" => array('SORT' => 'ASC', 'ID' => 'ASC'),
-		));
-		while ($item = $res->fetch())
-		{
-			if ($first)
-			{
-				$this->setSiteId($item['LID']);
-				$this->setFUserId($item['FUSER_ID']);
-				$first = false;
-			}
-
-			$itemList[$item['ID']] = $item;
-		}
-
-		foreach ($itemList as $id => $item)
-		{
-			if ($item['SET_PARENT_ID'] > 0)
-			{
-				$itemList[$item['SET_PARENT_ID']]['ITEMS'][$id] = &$itemList[$id];
-			}
-		}
-
-		$result = array();
-		foreach ($itemList as $id => $item)
-		{
-			if ($item['SET_PARENT_ID'] == 0)
-				$result[$id] = $item;
-		}
-
-		$this->loadFromArray($result);
-
-		return $this;
+		return Registry::REGISTRY_TYPE_ORDER;
 	}
 
 	/**
 	 * @param array $parameters
-	 * @return \Bitrix\Main\DB\Result
+	 * @return Main\DB\Result|mixed
+	 * @throws Main\ArgumentException
 	 */
 	public static function getList(array $parameters = array())
 	{
@@ -118,28 +40,36 @@ class Basket extends BasketBase
 	}
 
 	/**
-	 * @internal
-	 *
-	 * Delete basket items without demands.
-	 *
 	 * @param $idOrder
 	 * @return Result
-	 * @throws Main\ObjectNotFoundException
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\NotImplementedException
 	 */
 	public static function deleteNoDemand($idOrder)
 	{
 		$result = new Result();
 
-		$itemsDataList = Internals\BasketTable::getList(
+		$itemsDataList = static::getList(
 			array(
 				"filter" => array("=ORDER_ID" => $idOrder),
-				"select" => array("ID")
+				"select" => array("ID", "TYPE")
 			)
 		);
 
+		/** @var BasketItem $itemClassName */
+		$itemClassName = static::getItemCollectionClassName();
 		while ($item = $itemsDataList->fetch())
 		{
-			$r = Internals\BasketTable::deleteWithItems($item['ID']);
+			if ($item['TYPE'] === $itemClassName::TYPE_SET)
+			{
+				$r = Internals\BasketTable::deleteBundle($item['ID']);
+			}
+			else
+			{
+				$r = Internals\BasketTable::deleteWithItems($item['ID']);
+			}
+
 			if (!$r->isSuccess())
 			{
 				$result->addErrors($r->getErrors());
@@ -148,7 +78,6 @@ class Basket extends BasketBase
 
 		return $result;
 	}
-
 
 	/**
 	 * @param int $days
@@ -237,17 +166,18 @@ class Basket extends BasketBase
 	}
 
 	/**
-	 * @internal
 	 * @return array|bool
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\NotImplementedException
 	 */
 	// must be moved to notify
 	public function getListOfFormatText()
 	{
 		$list = array();
 
-		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
 		/** @var BasketItem $basketItemClassName */
-		$basketItemClassName = $registry->getBasketItemClassName();
+		$basketItemClassName = static::getItemCollectionClassName();
 
 		/** @var BasketItem $basketItem */
 		foreach ($this->collection as $basketItem)
@@ -289,92 +219,22 @@ class Basket extends BasketBase
 	}
 
 	/**
-	 * @param array $requestBasket
-	 * @return Basket
-	 * @throws UserMessageException
+	 * Save basket
+	 *
+	 * @return Result
 	 */
-	public static function createFromRequest(array $requestBasket)
+	public function save()
 	{
-		if (array_key_exists('SITE_ID', $requestBasket) && strval($requestBasket['SITE_ID']) != '')
+		$result = parent::save();
+
+		$orderId = $this->getOrderId();
+		if ($orderId > 0)
 		{
-			throw new UserMessageException('site_id not found');
-		}
+			$registry = Registry::getInstance(static::getRegistryType());
 
-		/** @var Basket $basket */
-		$basket = static::create($requestBasket['SITE_ID']);
-
-		foreach ($requestBasket as $requestBasketItem)
-		{
-			$basketItem = static::createItemInternal($basket, $requestBasketItem['MODULE'], $requestBasketItem['PRODUCT_ID']);
-			$basketItem->initFields($requestBasketItem);
-
-			$basket->addItem($basketItem);
-		}
-
-		return $basket;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getOriginalItemsValues()
-	{
-		$result = array();
-
-		/** @var Order $order */
-		$order = $this->getOrder();
-		$isNew = $order && $order->isNew();
-
-		$filter = array();
-		if (!$isNew && $order && $order->getId() > 0)
-		{
-			$filter['ORDER_ID'] = $order->getId();
-		}
-		else
-		{
-			if ($this->isLoadForFUserId())
-			{
-				$filter = array(
-					'FUSER_ID' => $this->getFUserId(),
-					'ORDER_ID' => null,
-					'LID' => $this->getSiteId()
-				);
-			}
-
-			if ($isNew)
-			{
-				$fUserId = $this->getFUserId(true);
-				if ($fUserId <= 0)
-				{
-					$userId = $order->getUserId();
-					if (intval($userId) > 0)
-					{
-						$fUserId = Fuser::getIdByUserId($userId);
-						if ($fUserId > 0)
-							$this->setFUserId($fUserId);
-					}
-				}
-			}
-		}
-
-		if ($filter)
-		{
-			$dbRes = static::getList(
-				array(
-					"select" => array("ID", 'TYPE', 'SET_PARENT_ID', 'PRODUCT_ID', 'NAME', 'QUANTITY', 'FUSER_ID', 'ORDER_ID'),
-					"filter" => $filter,
-				)
-			);
-
-			while ($item = $dbRes->fetch())
-			{
-				if ((int)$item['SET_PARENT_ID'] > 0 && (int)$item['SET_PARENT_ID'] != $item['ID'])
-				{
-					continue;
-				}
-
-				$result[$item["ID"]] = $item;
-			}
+			/** @var OrderHistory $orderHistory */
+			$orderHistory = $registry->getOrderHistoryClassName();
+			$orderHistory::collectEntityFields('BASKET', $orderId);
 		}
 
 		return $result;
@@ -382,62 +242,119 @@ class Basket extends BasketBase
 
 	/**
 	 * @param array $itemValues
+	 * @return Result
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\NotImplementedException
 	 */
 	protected function deleteInternal(array $itemValues)
 	{
-		/** @var BasketItem $basketItemClassName */
-		$basketItemClassName = $this->getBasketItemCollectionElementClassName();
-		if ($itemValues['TYPE'] == $basketItemClassName::TYPE_SET)
+		$result = new Result();
+
+		/** @var BasketItem $itemClassName */
+		$itemClassName = static::getItemCollectionClassName();
+		if ($itemValues['TYPE'] == $itemClassName::TYPE_SET)
 		{
-			Internals\BasketTable::deleteBundle($itemValues['ID']);
+			$r = Internals\BasketTable::deleteBundle($itemValues['ID']);
 		}
 		else
 		{
-			Internals\BasketTable::deleteWithItems($itemValues['ID']);
+			$r = Internals\BasketTable::deleteWithItems($itemValues['ID']);
 		}
-	}
 
-	/**
-	 * @return string
-	 */
-	protected function getItemEventName()
-	{
-		/** @var BasketItem $basketItemClassName */
-		$basketItemClassName = $this->getBasketItemCollectionElementClassName();
-		return $basketItemClassName::getEntityEventName();
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getBasketItemCollectionElementClassName()
-	{
-		$registry  = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
-
-		return $registry->getBasketItemClassName();
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getContext()
-	{
-		$context = array();
-
-		$order = $this->getOrder();
-		/** @var OrderBase $order */
-		if ($order)
+		if (!$r->isSuccess())
 		{
-			$context['USER_ID'] = $order->getUserId();
-			$context['SITE_ID'] = $order->getSiteId();
-			$context['CURRENCY'] = $order->getCurrency();
-		}
-		else
-		{
-			$context = parent::getContext();
+			$result->addErrors($r->getErrors());
 		}
 
-		return $context;
+		$orderId = $this->getOrderId();
+		if ($orderId > 0)
+		{
+			$registry = Registry::getInstance(static::getRegistryType());
+
+			/** @var OrderHistory $orderHistory */
+			$orderHistory = $registry->getOrderHistoryClassName();
+			$orderHistory::addLog(
+				'BASKET',
+				$orderId,
+				'BASKET_ITEM_DELETED',
+				$itemValues['ID'],
+				null,
+				array(
+					"PRODUCT_ID" => $itemValues["PRODUCT_ID"],
+					"NAME" => $itemValues["NAME"],
+					"QUANTITY" => $itemValues["QUANTITY"],
+				),
+				$orderHistory::SALE_ORDER_HISTORY_LOG_LEVEL_1
+			);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param $itemValues
+	 * @throws Main\ArgumentException
+	 * @return void
+	 */
+	protected function callEventOnSaleBasketItemDeleted($itemValues)
+	{
+		parent::callEventOnSaleBasketItemDeleted($itemValues);
+
+		$orderId = $this->getOrderId();
+		if ($orderId > 0)
+		{
+			$registry = Registry::getInstance(static::getRegistryType());
+
+			/** @var OrderHistory $orderHistory */
+			$orderHistory = $registry->getOrderHistoryClassName();
+			$orderHistory::addAction(
+				'BASKET',
+				$orderId,
+				'BASKET_REMOVED',
+				$itemValues['ID'],
+				null,
+				array(
+					'NAME' => $itemValues['NAME'],
+					'QUANTITY' => $itemValues['QUANTITY'],
+					'PRODUCT_ID' => $itemValues['PRODUCT_ID'],
+				)
+			);
+
+			/** @var EntityMarker $entityMarker */
+			$entityMarker = $registry->getEntityMarkerClassName();
+			$entityMarker::deleteByFilter(array(
+				'=ORDER_ID' => $orderId,
+				'=ENTITY_TYPE' => $entityMarker::ENTITY_TYPE_BASKET_ITEM,
+				'=ENTITY_ID' => $itemValues['ID'],
+			));
+		}
+	}
+
+	/**
+	 * @internal
+	 *
+	 * @param $index
+	 * @return BasketItemBase
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\NotSupportedException
+	 * @throws Main\ObjectNotFoundException
+	 * @throws Main\SystemException
+	 */
+	public function deleteItem($index)
+	{
+		/** @var Order $order */
+		if ($order = $this->getOrder())
+		{
+			/** @var BasketItem $item */
+			$item = $this->getItemByIndex($index);
+
+			$order->onBeforeBasketItemDelete($item);
+		}
+
+		return parent::deleteItem($index);
 	}
 
 }

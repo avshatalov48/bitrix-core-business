@@ -53,10 +53,12 @@ SonetGroupCardSlider.prototype = {
 
 		this.currentUserId = parseInt(params.currentUserId);
 		this.groupId = parseInt(params.groupId);
+		this.groupType = params.groupType;
 		this.isProject = !!params.isProject;
 		this.isOpened = !!params.isOpened;
 		this.favoritesValue = !!params.favoritesValue;
 		this.canInitiate = !!params.canInitiate;
+		this.canProcessRequestsIn = !!params.canProcessRequestsIn;
 		this.canModify = !!params.canModify;
 		this.userRole = params.userRole;
 		this.userIsMember = !!params.userIsMember;
@@ -168,6 +170,7 @@ SonetGroupCardSlider.prototype = {
 				BX.SocialnetworkUICommon.showGroupMenuPopup({
 					bindElement: BX(this.menuButtonNodeId),
 					groupId: this.groupId,
+					groupType: this.groupType,
 					userIsMember: this.userIsMember,
 					userIsAutoMember: this.userIsAutoMember,
 					userRole: this.userRole,
@@ -176,6 +179,7 @@ SonetGroupCardSlider.prototype = {
 					isOpened: this.isOpened,
 					perms: {
 						canInitiate: this.canInitiate,
+						canProcessRequestsIn: this.canProcessRequestsIn,
 						canModify: this.canModify
 					},
 					urls: {

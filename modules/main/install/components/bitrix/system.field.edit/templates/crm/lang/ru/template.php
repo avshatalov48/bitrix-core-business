@@ -3,6 +3,7 @@ $MESS["CRM_FF_LEAD"] = "Лиды";
 $MESS["CRM_FF_CONTACT"] = "Контакты";
 $MESS["CRM_FF_COMPANY"] = "Компании";
 $MESS["CRM_FF_DEAL"] = "Сделки";
+$MESS["CRM_FF_ORDER"] = "Заказы";
 $MESS["CRM_FF_QUOTE"] = "Предложения";
 $MESS["CRM_FF_OK"] = "Выбрать";
 $MESS["CRM_FF_CANCEL"] = "Отмена";
@@ -18,4 +19,5 @@ $MESS["CRM_CES_CREATE_LEAD"] = "Лид";
 $MESS["CRM_CES_CREATE_CONTACT"] = "Контакт";
 $MESS["CRM_CES_CREATE_COMPANY"] = "Компанию";
 $MESS["CRM_CES_CREATE_DEAL"] = "Сделку";
+$MESS["CRM_SFE_PERMISSION_DENIED"] = "Доступ запрещен";
 ?>

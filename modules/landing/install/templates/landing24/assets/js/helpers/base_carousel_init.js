@@ -4,7 +4,7 @@
 
 	BX.addCustomEvent("BX.Landing.Block:init", function (event)
 	{
-		BX.Landing.SliderHelper.init(event, 'init');
+		BX.Landing.SliderHelper.init(event, BX.Landing.SliderHelper.ACTION_INIT);
 	});
 
 	BX.addCustomEvent("BX.Landing.Block:beforeApplyContentChanges", function (event)
@@ -12,10 +12,12 @@
 		BX.Landing.SliderHelper.destroy(event);
 	});
 
-	BX.addCustomEvent("BX.Landing.Block:Node:update", function (event)
+	// todo: always need update? maybe just if change width/height? how can check it?
+	BX.addCustomEvent("BX.Landing.Block:Node:update", BX.debounce(function (event)
 	{
-		BX.Landing.SliderHelper.init(event, 'update');
-	});
+		BX.Landing.SliderHelper.init(event, BX.Landing.SliderHelper.ACTION_UPDATE);
+	}, 300));
+
 
 	// we can't add card in slider - need destroy slider, clone DOM-element,
 	// save content in DB and reinit slider later
@@ -28,7 +30,7 @@
 	// reinit slider after add new element in DOM
 	BX.addCustomEvent("BX.Landing.Block:Card:add", function (event)
 	{
-		BX.Landing.SliderHelper.init(event, 'add');
+		BX.Landing.SliderHelper.init(event, BX.Landing.SliderHelper.ACTION_ADD);
 	});
 
 
@@ -44,7 +46,7 @@
 	// reinit slider after add new element in DOM
 	BX.addCustomEvent("BX.Landing.Block:Cards:update", function (event)
 	{
-		BX.Landing.SliderHelper.init(event);
+		BX.Landing.SliderHelper.init(event, BX.Landing.SliderHelper.ACTION_UPDATE);
 	});
 
 
@@ -54,6 +56,36 @@
 	{
 		BX.Landing.SliderHelper.destroy(event);
 	});
+
+
+	/**
+	 * Rebuild slider after style change.
+	 * Need if style may change width or height of cards and Slick will be incorrectly slide them
+	 */
+	BX.addCustomEvent("BX.Landing.Block:updateStyle", function (event)
+	{
+		// Now need rebuild only verticals sliders, i think.
+		// dbg: maybe change only width-height styles
+		var relativeSelector = BX.Landing.SliderHelper.makeCarouselRelativeSelector(event);
+		if($(relativeSelector).slick('slickGetOption', 'vertical'))
+		{
+			BX.Landing.SliderHelper.init(event, BX.Landing.SliderHelper.ACTION_UPDATE);
+		}
+	});
+
+
+	/**
+	 * Rebuild slider after attributes change.
+	 * Need if style may change width or height of cards and Slick will be incorrectly slide them
+	 */
+	// dbg new method, not testet yet
+	// BX.addCustomEvent("BX.Landing.Block:Node:updateAttr", function (event)
+	// {
+	// 	console.log("BX.Landing.Block:Node:updateAttr");
+	// 	// Now need rebuild only verticals sliders, i think.
+	// 	BX.Landing.SliderHelper.init(event, BX.Landing.SliderHelper.ACTION_UPDATE);
+	// 	BX.Landing.SliderHelper.initAttrs(event);
+	// });
 
 
 	// reinit slider after remove new element in DOM
@@ -81,7 +113,7 @@
 			{
 				event.card = cardNew;
 				BX.Landing.SliderHelper.initBase(relativeSelector);
-				BX.Landing.SliderHelper.goToSlide(event, 'remove');
+				BX.Landing.SliderHelper.goToSlide(relativeSelector, event, BX.Landing.SliderHelper.ACTION_REMOVE);
 			}
 		}
 	});

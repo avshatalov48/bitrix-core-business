@@ -1,4 +1,5 @@
 <?
+$MESS["LANDING_ADMIN_ACTION_ADD_ONE"] = "Create Page";
 $MESS["LANDING_ADMIN_ACTION_ADD"] = "Site or online store";
 $MESS["LANDING_ADMIN_ACTION_ADD_PAGE"] = "Site and Langing Templates";
 $MESS["LANDING_ADMIN_ACTION_ADD_STORE"] = "Online Store Templates";

@@ -10,6 +10,7 @@
  */
 
 use \Bitrix\Main\UI;
+use \Bitrix\Main\Localization\Loc;
 
 UI\Extension::load("ui.buttons");
 
@@ -21,6 +22,8 @@ $array = (((!empty($arParams["DESTINATION"]) || in_array("MentionUser", $arParam
 	array('socnetlogdest') : array());
 $array[] = "fx";
 CUtil::InitJSCore($array);
+\Bitrix\Main\UI\Extension::load("ui.selector");
+
 $arButtonsHTML = array();
 
 foreach($arParams["BUTTONS"] as $val)
@@ -163,18 +166,59 @@ foreach($arParams["BUTTONS"] as $val)
 
 	if($arParams["DESTINATION_SHOW"] == "Y")
 	{
-		?>
-		<li class="feed-add-post-destination-block">
+		?><li class="feed-add-post-destination-block">
 			<div class="feed-add-post-destination-title"><?=GetMessage("MPF_DESTINATION")?></div>
-			<div class="feed-add-post-destination-wrap" id="feed-add-post-destination-container">
-				<span id="feed-add-post-destination-item"></span>
-				<span class="feed-add-destination-input-box" id="feed-add-post-destination-input-box">
-					<input type="text" value="" class="feed-add-destination-inp" id="feed-add-post-destination-input" autocomplete="off">
-				</span>
-				<a href="#" class="feed-add-destination-link" id="bx-destination-tag"></a>
-			</div>
-		</li>
-		<?
+			<?
+			$APPLICATION->IncludeComponent(
+				"bitrix:main.user.selector",
+				"",
+				[
+					"ID" => (!empty($arParams["DEST_SELECTOR_ID"]) ? $arParams["DEST_SELECTOR_ID"] : randString(6)),
+					"LIST" => $arParams["DESTINATION"]["SELECTED"],
+					"LAZYLOAD" => "Y",
+					"INPUT_NAME" => 'DEST_CODES[]',
+					"USE_SYMBOLIC_ID" => "Y",
+					"BUTTON_SELECT_CAPTION" => (
+							!empty($arParams['MPF_DESTINATION_1'])
+								? $arParams['MPF_DESTINATION_1']
+								: Loc::getMessage("MPF_DESTINATION_1")
+					),
+					"BUTTON_SELECT_CAPTION_MORE" => Loc::getMessage("MPF_DESTINATION_2"),
+					"API_VERSION" => 3,
+					"SELECTOR_OPTIONS" => array(
+						'lazyLoad' => 'Y',
+						'context' => (
+							!empty($arParams['SELECTOR_CONTEXT'])
+								? $arParams['SELECTOR_CONTEXT']
+								: (
+									!empty($arParams['DEST_CONTEXT'])
+										? $arParams['DEST_CONTEXT']
+										: 'BLOG_POST'
+								)
+						),
+						'contextCode' => '',
+						'enableSonetgroups' => 'Y',
+						'departmentSelectDisable' => 'N',
+						'showVacations' => 'Y',
+						'useClientDatabase' => ($arParams["DESTINATION_USE_CLIENT_DATABASE"] != "N" ? 'Y' : 'N'),
+//						'allowAddUser' => ($arResult["bExtranetUser"] ? 'N' : 'Y'),
+						'allowSearchEmailUsers' => ($arResult["ALLOW_EMAIL_INVITATION"] ? 'Y' : 'N'),
+						'allowSearchCrmEmailUsers' => ($arResult["ALLOW_CRM_EMAILS"] ? 'Y' : 'N'),
+						'allowEmailInvitation' => (!$arResult["bExtranetUser"] && $arResult["ALLOW_EMAIL_INVITATION"] ? 'Y' : 'N'),
+						'allowAddCrmContact' => (
+							!$arResult["bExtranetUser"]
+							&& $arResult["ALLOW_EMAIL_INVITATION"]
+							&& \Bitrix\Main\Loader::includeModule('crm')
+							&& \CCrmContact::checkCreatePermission()
+								? 'Y'
+								: 'N'
+						),
+						'enableAll' => 'Y'
+					)
+				]
+			);
+		?></li><?
+
 		echo $APPLICATION->GetViewContent("mpl_input_additional");
 	}
 
@@ -251,61 +295,70 @@ foreach($arParams["BUTTONS"] as $val)
 	if (in_array('socnetlogdest', $array))
 	{
 		CModule::IncludeModule('intranet'); // for gov/public messages
-		?>
-		<script type="text/javascript">
-			BX.ready(function(){
+
+		$mentionSelectorId = 'mention_'.randString(6);
+
+		?><span id="bx-mention-<?=$arParams["FORM_ID"]?>-id" data-bx-selector-id="<?=htmlspecialcharsbx($mentionSelectorId)?>"></span><?
+
+		$APPLICATION->IncludeComponent(
+			"bitrix:main.ui.selector",
+			".default",
+			array(
+				'API_VERSION' => 3,
+				'ID' => $mentionSelectorId,
+				'BIND_ID' => 'bx-b-mention-'.$arParams["FORM_ID"],
+				'ITEMS_SELECTED' => array(),
+				'CALLBACK' => array(
+					'select' => "window['BXfpdSelectCallbackMent".$arParams["FORM_ID"]."']",
+					'openDialog' => "window.BXfpdOnDialogOpen",
+					'closeDialog' => "window.BXfpdOnDialogClose",
+					'openSearch' => "window.BXfpdOnDialogOpen",
+					'closeSearch' => "window.BXfpdOnDialogClose"
+				),
+				'OPTIONS' => [
+						'useNewCallback' => 'Y',
+						'eventInit' => 'BX.MPF.MentionSelector:init',
+						'eventOpen' => 'BX.MPF.MentionSelector:open',
+						'lazyLoad' => "N",
+						'multiple' => "N",
+						'extranetContext' => false,
+						'context' => "MENTION",
+						'contextCode' => 'U',
+						'useSearch' => 'N',
+						'userNameTemplate' => CUtil::JSEscape($arParams["NAME_TEMPLATE"]),
+						'useClientDatabase' => 'Y',
+						'allowEmailInvitation' => 'N',
+						'enableAll' => 'N',
+						'enableDepartments' => 'Y',
+						'enableSonetgroups' => 'N',
+						'departmentSelectDisable' => 'Y',
+						'allowAddUser' => 'N',
+						'allowAddCrmContact' => 'N',
+						'allowAddSocNetGroup' => 'N',
+						'allowSearchEmailUsers' => 'N',
+						'allowSearchCrmEmailUsers' => 'N',
+						'allowSearchNetworkUsers' => 'N',
+						'allowSonetGroupsAjaxSearchFeatures' => 'N'
+					]
+			),
+			false,
+			array("HIDE_ICONS" => "Y")
+		);
+
+	?><script type="text/javascript">
+		BX.ready(function(){
 			window.MPFMentionInit('<?=$arParams["FORM_ID"]?>', {
-				editorId : '<?= $arParams["LHE"]["id"]?>',
-				id : '<?=$this->randString(6)?>',
-				extranetUser : <?=($arParams["DESTINATION"]["EXTRANET_USER"] == 'Y'? 'true': 'false')?>,
-				initDestination : <?=($arParams["DESTINATION_SHOW"] == "Y" ? "true" : "false")?>,
-				items : {
-					users : <?=(empty($arParams["DESTINATION"]['USERS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['USERS']))?>,
-					emails: <?=(empty($arParams["DESTINATION"]['EMAILS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['EMAILS']))?>,
-					crmemails: <?=(empty($arParams["DESTINATION"]['CRMEMAILS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['CRMEMAILS']))?>,
-					mentionUsers : <?=(empty($arParams["DESTINATION"]['MENTION_USERS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['MENTION_USERS']))?>,
-					groups : <?=($arParams["DESTINATION"]["EXTRANET_USER"] == 'Y' || (array_key_exists("DENY_TOALL", $arParams["DESTINATION"]) && $arParams["DESTINATION"]["DENY_TOALL"]) ?
-					'{}' : "{'UA' : {'id':'UA','name': '".(!empty($arParams["DESTINATION"]['DEPARTMENT']) ? GetMessageJS("MPF_DESTINATION_3"): GetMessageJS("MPF_DESTINATION_4"))."'}}")?>,
-					sonetgroups : <?=(empty($arParams["DESTINATION"]['SONETGROUPS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['SONETGROUPS']))?>,
-					department : <?=(empty($arParams["DESTINATION"]['DEPARTMENT']) ? '{}' : CUtil::PhpToJSObject($arParams["DESTINATION"]["DEPARTMENT"]))?>,
-					extranetRoot : <?=(empty($arResult["EXTRANET_ROOT"]) ? '{}' : CUtil::PhpToJSObject($arResult["EXTRANET_ROOT"]))?>,
-					departmentRelation : <?=(empty($arParams["DESTINATION"]['DEPARTMENT_RELATION']) ? "false" : CUtil::PhpToJSObject($arParams["DESTINATION"]['DEPARTMENT_RELATION']))?>,
-					contacts : <?=(empty($arParams["DESTINATION"]['CONTACTS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['CONTACTS']))?>,
-					companies : <?=(empty($arParams["DESTINATION"]['COMPANIES'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['COMPANIES']))?>,
-					leads : <?=(empty($arParams["DESTINATION"]['LEADS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['LEADS']))?>,
-					deals : <?=(empty($arParams["DESTINATION"]['DEALS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['DEALS']))?>
-				},
-				itemsLast : {
-					users : <?=(empty($arParams["DESTINATION"]['LAST']['USERS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['LAST']['USERS']))?>,
-					emails : <?=(empty($arParams["DESTINATION"]['LAST']['EMAILS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['LAST']['EMAILS']))?>,
-					crmemails: <?=(empty($arParams["DESTINATION"]['LAST']['CRMEMAILS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['LAST']['CRMEMAILS']))?>,
-					mentionUsers : <?=(!isset($arParams["DESTINATION"]['LAST']['MENTION_USERS']) || empty($arParams["DESTINATION"]['LAST']['MENTION_USERS']) ? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['LAST']['MENTION_USERS']))?>,
-					sonetgroups : <?=(empty($arParams["DESTINATION"]['LAST']['SONETGROUPS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['LAST']['SONETGROUPS']))?>,
-					department : <?=(empty($arParams["DESTINATION"]['LAST']['DEPARTMENT'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['LAST']['DEPARTMENT']))?>,
-					groups : <?=($arParams["DESTINATION"]["EXTRANET_USER"] == 'Y' || (array_key_exists("DENY_TOALL", $arParams["DESTINATION"]) && $arParams["DESTINATION"]["DENY_TOALL"]) ? '{}' : "{'UA':true}" )?>,
-					contacts : <?=(empty($arParams["DESTINATION"]['LAST']['CONTACTS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['LAST']['CONTACTS']))?>,
-					companies : <?=(empty($arParams["DESTINATION"]['LAST']['COMPANIES'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['LAST']['COMPANIES']))?>,
-					leads : <?=(empty($arParams["DESTINATION"]['LAST']['LEADS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['LAST']['LEADS']))?>,
-					deals : <?=(empty($arParams["DESTINATION"]['LAST']['DEALS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['LAST']['DEALS']))?>,
-					crm : <?=(empty($arParams["DESTINATION"]['LAST']['CRM'])? '[]': CUtil::PhpToJSObject($arParams["DESTINATION"]['LAST']['CRM']))?>
-				},
-				itemsSelected : <?=(empty($arParams["DESTINATION"]['SELECTED'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['SELECTED']))?>,
-				itemsHidden : <?=CUtil::PhpToJSObject(isset($arParams["DESTINATION"]["HIDDEN_ITEMS"]) ? $arParams["DESTINATION"]["HIDDEN_ITEMS"] : $arParams["DESTINATION"]["HIDDEN_GROUPS"])?>,
-				isCrmFeed : <?=(empty($arParams["DESTINATION"]['LAST']['CRM']) ? 'false' : 'true')?>,
-				useClientDatabase : <?=($arParams["DESTINATION_USE_CLIENT_DATABASE"] != "N" ? 'true' : 'false')?>,
-				destSort : <?=CUtil::PhpToJSObject(isset($arParams["DESTINATION"]['DEST_SORT']) ? $arParams["DESTINATION"]['DEST_SORT'] : $arResult["DEST_SORT"])?>,
-				mentionDestSort : <?=CUtil::PhpToJSObject(isset($arResult["MENTION_DEST_SORT"]) ? $arResult["MENTION_DEST_SORT"] : false)?>,
-				allowAddUser: <?=($arResult["ALLOW_EMAIL_INVITATION"] ? 'true' : 'false')?>,
-				allowAddCrmContact: <?=($arResult["ALLOW_ADD_CRM_CONTACT"] ? 'true' : 'false')?>,
-				allowSearchCrmEmailUsers: <?=($arResult["ALLOW_CRM_EMAILS"] ? 'true' : 'false')?>,
-				userNameTemplate: '<?=CUtil::JSEscape($arParams['NAME_TEMPLATE'])?>',
-				allowSonetGroupsAjaxSearch: <?=(isset($arParams["DESTINATION"]['SONETGROUPS_LIMITED']) && $arParams["DESTINATION"]['SONETGROUPS_LIMITED'] == 'Y' ? 'true' : 'false')?>,
-				allowSonetGroupsAjaxSearchFeatures: <?=(!empty($arParams["DESTINATION"]['SONETGROUPS_FEATURES']) ? CUtil::PhpToJSObject($arParams["DESTINATION"]['SONETGROUPS_FEATURES']) : '{}')?>,
-				usersVacation : <?=(empty($arParams["DESTINATION"]['USERS_VACATION'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['USERS_VACATION']))?>
+				editorId: '<?= $arParams["LHE"]["id"]?>',
+				id: '<?=$this->randString(6)?>',
+				initDestination: <?=($arParams["DESTINATION_SHOW"] == "Y" ? "true" : "false")?>
+//				isCrmFeed: <?=(empty($arParams["DESTINATION"]['LAST']['CRM']) ? 'false' : 'true')?>,
+//				allowSonetGroupsAjaxSearchFeatures: <?=(!empty($arParams["DESTINATION"]['SONETGROUPS_FEATURES']) ? CUtil::PhpToJSObject($arParams["DESTINATION"]['SONETGROUPS_FEATURES']) : '{}')?>,
 			});
 		});
-		</script>
-		<?
+	</script>
+	<?
+
+
 	}
 
 	if (defined("BITRIX24_INDEX_COMPOSITE"))

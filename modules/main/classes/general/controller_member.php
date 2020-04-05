@@ -24,7 +24,7 @@ class CControllerClient
 
 		$prefix = COption::GetOptionString("main", "auth_controller_prefix", "controller");
 		if(
-			($prefix!='' && substr(strtolower($arParams["LOGIN"]), 0, strlen($prefix)) == $prefix)
+			($prefix!='' && substr(strtolower($arParams["LOGIN"]), 0, strlen($prefix)+1) == $prefix.'\\')
 			||
 			($prefix=='' && strpos($arParams["LOGIN"], "\\")===false)
 		)

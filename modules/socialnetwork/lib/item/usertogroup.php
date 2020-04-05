@@ -26,7 +26,16 @@ class UserToGroup
 	{
 		global $USER;
 
-		if (!is_object($USER))
+		if (!empty($params['CURRENT_USER_ID']))
+		{
+			$currentUserId = intval($params['CURRENT_USER_ID']);
+		}
+		elseif (is_object($USER))
+		{
+			$currentUserId = $USER->getId();
+		}
+
+		if ($currentUserId <= 0)
 		{
 			return;
 		}
@@ -55,7 +64,7 @@ class UserToGroup
 				'GROUP_ID' => $groupId,
 				'ROLE' => (isset($params['ROLE']) && in_array($params['ROLE'], UserToGroupTable::getRolesAll()) ? $params['ROLE'] : UserToGroupTable::ROLE_USER),
 				'INITIATED_BY_TYPE' => UserToGroupTable::INITIATED_BY_GROUP,
-				'INITIATED_BY_USER_ID' => $USER->getId(),
+				'INITIATED_BY_USER_ID' => $currentUserId,
 				"=DATE_CREATE" => $helper->getCurrentDateTimeFunction(),
 				"=DATE_UPDATE" => $helper->getCurrentDateTimeFunction(),
 			);
@@ -498,15 +507,28 @@ class UserToGroup
 		switch($params['action'])
 		{
 			case self::CHAT_ACTION_IN:
-				$chat->addUser($chatId, $userId, false, true, true);
-				$chatMessage = str_replace('#USER_NAME#', $userName, Loc::getMessage("SOCIALNETWORK_ITEM_USERTOGROUP_CHAT_USER_ADD".$projectSuffix.$genderSuffix));
+				if ($chat->addUser($chatId, $userId, false, true, true))
+				{
+					$chatMessage = str_replace('#USER_NAME#', $userName, Loc::getMessage("SOCIALNETWORK_ITEM_USERTOGROUP_CHAT_USER_ADD".$projectSuffix.$genderSuffix));
+				}
+				else
+				{
+					$sendMessage = false;
+				}
 				break;
 			case self::CHAT_ACTION_OUT:
-				$chat->deleteUser($chatId, $userId, false, true);
-				$chatMessage = str_replace('#USER_NAME#', $userName, Loc::getMessage("SOCIALNETWORK_ITEM_USERTOGROUP_CHAT_USER_DELETE".$projectSuffix.$genderSuffix));
+				if ($chat->deleteUser($chatId, $userId, false, true))
+				{
+					$chatMessage = str_replace('#USER_NAME#', $userName, Loc::getMessage("SOCIALNETWORK_ITEM_USERTOGROUP_CHAT_USER_DELETE".$projectSuffix.$genderSuffix));
+				}
+				else
+				{
+					$sendMessage = false;
+				}
 				break;
 			default:
 				$chatMessage = '';
+				$sendMessage = false;
 		}
 
 		if ($sendMessage)
@@ -607,7 +629,7 @@ class UserToGroup
 			{
 				$ownerRelationIdList[$relation['USER_ID']] = $relation['ID'];
 			}
-			else
+			else // ban, request
 			{
 				$otherRelationIdList[$relation['USER_ID']] = $relation['ID'];
 			}
@@ -627,23 +649,32 @@ class UserToGroup
 			{
 				if (array_key_exists($userId, $otherRelationIdList))
 				{
-					\CSocNetUserToGroup::update($otherRelationIdList[$userId], array(
+					$relationId = \CSocNetUserToGroup::update($otherRelationIdList[$userId], array(
 						"ROLE" => UserToGroupTable::ROLE_MODERATOR,
-						"=DATE_UPDATE" => $DB->CurrentTimeFunction(),
+						"=DATE_UPDATE" => $DB->currentTimeFunction(),
 					));
 				}
 				else
 				{
-					\CSocNetUserToGroup::add(array(
+					$relationId = \CSocNetUserToGroup::add(array(
 						"USER_ID" => $userId,
 						"GROUP_ID" => $groupId,
 						"ROLE" => UserToGroupTable::ROLE_MODERATOR,
-						"=DATE_CREATE" => $DB->CurrentTimeFunction(),
-						"=DATE_UPDATE" => $DB->CurrentTimeFunction(),
+						"=DATE_CREATE" => $DB->currentTimeFunction(),
+						"=DATE_UPDATE" => $DB->currentTimeFunction(),
 						"MESSAGE" => "",
 						"INITIATED_BY_TYPE" => UserToGroupTable::INITIATED_BY_GROUP,
 						"INITIATED_BY_USER_ID" => $currentUserId,
 						"SEND_MAIL" => "N"
+					));
+				}
+
+				if ($relationId)
+				{
+					\CSocNetUserToGroup::notifyModeratorAdded(array(
+						'userId' => $currentUserId,
+						'groupId' => $groupId,
+						'relationId' => $relationId
 					));
 				}
 			}

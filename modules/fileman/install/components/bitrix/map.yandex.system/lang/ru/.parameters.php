@@ -23,4 +23,5 @@ $MESS["MYMS_PARAM_CONTROLS_SEARCH"] = "Поиск по карте";
 $MESS["MYMS_PARAM_MAP_HEIGHT"] = "Высота карты";
 $MESS["MYMS_PARAM_MAP_WIDTH"] = "Ширина карты";
 $MESS["MYMS_PARAM_MAP_ID"] = "Идентификатор карты";
+$MESS["MYMS_PARAM_API_KEY"] = "Ключ API";
 ?>

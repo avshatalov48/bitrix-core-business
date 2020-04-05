@@ -1,8 +1,9 @@
 <? if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
-use Bitrix\Main\Loader;
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\SystemException;
+use Bitrix\Main,
+	Bitrix\Main\Loader,
+	Bitrix\Main\Localization\Loc,
+	Bitrix\Main\SystemException;
 
 class IblockElementSelector extends CBitrixComponent
 {
@@ -36,17 +37,10 @@ class IblockElementSelector extends CBitrixComponent
 		$params['CURRENT_ELEMENTS_ID'] = !empty($params['CURRENT_ELEMENTS_ID']) ?
 			$params['CURRENT_ELEMENTS_ID'] : array();
 		if(!is_array($params['CURRENT_ELEMENTS_ID']))
-		{
 			$params['CURRENT_ELEMENTS_ID'] = array($params['CURRENT_ELEMENTS_ID']);
-		}
 		$params['ON_CHANGE'] = !empty($params['ON_CHANGE']) ? $params['ON_CHANGE'] : '';
 		$params['ON_SELECT'] = !empty($params['ON_SELECT']) ? $params['ON_SELECT'] : '';
 		$params['ON_UNSELECT'] = !empty($params['ON_UNSELECT']) ? $params['ON_UNSELECT'] : '';
-
-		$params['LAST_ELEMENTS'] = array();
-		$params['CURRENT_ELEMENTS'] = array();
-
-		$params['ACCESS_DENIED'] = 'N';
 
 		return $params;
 	}
@@ -57,6 +51,8 @@ class IblockElementSelector extends CBitrixComponent
 		{
 			$this->checkModules();
 			$this->checkRequiredParams();
+			$this->checkAdminSection();
+			$this->setMinPermission();
 			$this->checkPermissions();
 
 			$this->getLastElements();
@@ -71,9 +67,13 @@ class IblockElementSelector extends CBitrixComponent
 		}
 	}
 
+	/**
+	 * @return void
+	 * @throws SystemException
+	 */
 	protected function checkRequiredParams()
 	{
-		$listRequiredParams = array('SELECTOR_ID', 'IBLOCK_ID');
+		$listRequiredParams = array('SELECTOR_ID');
 		foreach($listRequiredParams as $requiredParam)
 		{
 			if(empty($this->arParams[$requiredParam]))
@@ -84,48 +84,81 @@ class IblockElementSelector extends CBitrixComponent
 		}
 	}
 
+	/**
+	 * @return void
+	 */
 	protected function checkPermissions()
 	{
-		if(!CIBlockRights::userHasRightTo($this->arParams['IBLOCK_ID'], $this->arParams['IBLOCK_ID'], 'element_read'))
+		$this->arResult['ACCESS_DENIED'] = 'N';
+		if (
+			$this->arParams['IBLOCK_ID'] > 0
+			&& !CIBlockRights::userHasRightTo(
+				$this->arParams['IBLOCK_ID'],
+				$this->arParams['IBLOCK_ID'],
+				$this->arResult['MIN_OPERATION']
+			)
+		)
 		{
-			$this->arParams['ACCESS_DENIED'] = 'Y';
+			$this->arResult['ACCESS_DENIED'] = 'Y';
 		}
 	}
 
 	protected function getLastElements()
 	{
-		if($this->arParams['ACCESS_DENIED'] == 'Y')
-		{
+		$this->arResult['LAST_ELEMENTS'] = [];
+		if($this->arResult['ACCESS_DENIED'] == 'Y')
 			return;
-		}
 
-		$queryObject = CIBlockElement::getList(
-			array('ID' => 'DESC'),
-			array(
-				'=IBLOCK_ID' => $this->arParams['IBLOCK_ID'],
-				'CHECK_PERMISSIONS' => 'Y',
-				'MIN_PERMISSION' => 'R'
-			),
-			false, array('nTopCount' => 50), array('ID', 'NAME'));
+		$filter = [];
+		if ($this->arParams['IBLOCK_ID'] > 0)
+			$filter['IBLOCK_ID'] = $this->arParams['IBLOCK_ID'];
+		$filter['CHECK_PERMISSIONS'] = 'Y';
+		$filter['MIN_PERMISSION'] = $this->arResult['MIN_PERMISSION'];
+
+		$queryObject = CIBlockElement::GetList(
+			['ID' => 'DESC'],
+			$filter,
+			false,
+			['nTopCount' => 20],
+			['ID', 'IBLOCK_ID', 'NAME']
+		);
 		while($element = $queryObject->fetch())
 		{
-			$this->arParams['LAST_ELEMENTS'][] = array('ID' => $element['ID'], 'NAME' => $element['NAME']);
+			$this->arResult['LAST_ELEMENTS'][] = [
+				'ID' => $element['ID'],
+				'NAME' => '['.$element['ID'].'] '.$element['NAME']
+			];
 		}
+		unset($element, $queryObject);
 	}
 
 	protected function getCurrentElements()
 	{
-		if(empty($this->arParams['CURRENT_ELEMENTS_ID']) || $this->arParams['ACCESS_DENIED'] == 'Y')
-		{
+		$this->arResult['CURRENT_ELEMENTS'] = [];
+		if (empty($this->arParams['CURRENT_ELEMENTS_ID']) || $this->arResult['ACCESS_DENIED'] == 'Y')
 			return;
-		}
 
-		$queryObject = CIBlockElement::getList(array('NAME' => 'ASC'),
-			array('=ID' => $this->arParams['CURRENT_ELEMENTS_ID']), false, false, array('ID', 'NAME'));
+		$filter = [
+			'ID' => $this->arParams['CURRENT_ELEMENTS_ID'],
+			'CHECK_PERMISSIONS' => 'Y',
+			'MIN_PERMISSION' => $this->arResult['MIN_PERMISSION']
+		];
+
+		$queryObject = CIBlockElement::GetList(
+			['NAME' => 'ASC'],
+			$filter,
+			false,
+			false,
+			['ID', 'IBLOCK_ID', 'NAME']
+		);
 		while($element = $queryObject->fetch())
 		{
-			$this->arParams['CURRENT_ELEMENTS'][] = array('ID' => $element['ID'], 'NAME' => $element['NAME']);
+			$this->arResult['CURRENT_ELEMENTS'][] = [
+				'ID' => $element['ID'],
+				'NAME' => '['.$element['ID'].'] '.$element['NAME']
+			];
 		}
+		unset($element, $queryObject);
 	}
 
 	protected function fillResult()
@@ -143,10 +176,35 @@ class IblockElementSelector extends CBitrixComponent
 		$this->arResult['ON_SELECT'] = $this->arParams['ON_SELECT'];
 		$this->arResult['ON_UNSELECT'] = $this->arParams['ON_UNSELECT'];
 
-		$this->arResult['ACCESS_DENIED'] = $this->arParams['ACCESS_DENIED'];
-
 		$this->arResult['CURRENT_ELEMENTS_ID'] = $this->arParams['CURRENT_ELEMENTS_ID'];
-		$this->arResult['CURRENT_ELEMENTS'] = $this->arParams['CURRENT_ELEMENTS'];
-		$this->arResult['LAST_ELEMENTS'] = $this->arParams['LAST_ELEMENTS'];
+	}
+
+	/**
+	 * @return void
+	 */
+	private function setMinPermission()
+	{
+		if ($this->arResult['ADMIN_SECTION'] == 'Y')
+		{
+			$this->arResult['MIN_PERMISSION'] = 'S';
+			$this->arResult['MIN_OPERATION'] = 'iblock_admin_display';
+		}
+		else
+		{
+			$this->arResult['MIN_PERMISSION'] = 'R';
+			$this->arResult['MIN_OPERATION'] = 'element_read';
+		}
+	}
+
+	/**
+	 * @return void
+	 * @throws SystemException
+	 */
+	private function checkAdminSection()
+	{
+		$context = Main\Application::getInstance()->getContext();
+		$request = $context->getRequest();
+		$this->arResult['ADMIN_SECTION'] = ($request->isAdminSection() ? 'Y' : 'N');
+		unset($request, $context);
 	}
 }

@@ -1,6 +1,10 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
+use Bitrix\Main\UI;
+
+UI\Extension::load("ui.tooltip");
+
 if(!CModule::IncludeModule("socialnetwork"))
 {
 	return false;
@@ -39,8 +43,6 @@ if(!CModule::IncludeModule("socialnetwork"))
 			?><tr><?
 				?><td align="left"><?
 
-					$tooltip_id = randString(8);
-
 					$arTmpUser = array(
 						"ID" => $friend["USER_ID"],
 						"NAME" => htmlspecialcharsback($friend["USER_NAME"]),
@@ -51,7 +53,7 @@ if(!CModule::IncludeModule("socialnetwork"))
 
 					$link = CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_USER"], array("user_id" => $friend["USER_ID"], "USER_ID" => $friend["USER_ID"], "ID" => $friend["USER_ID"]));
 
-					?><table cellspacing="0" cellpadding="0" border="0" id="anchor_<?=$tooltip_id?>" class="bx-user-info-anchor"><?
+					?><table cellspacing="0" cellpadding="0" border="0" class="bx-user-info-anchor" bx-tooltip-user-id="<?=$friend["USER_ID"]?>"><?
 					?><tr><?
 						?><td class="bx-user-info-anchor-cell"><?
 							?><div class="bx-user-info-thumbnail" align="center" valign="middle" style="width: 30px; height: 32px;"><?
@@ -63,10 +65,6 @@ if(!CModule::IncludeModule("socialnetwork"))
 						?></td><?
 					?></tr><?
 					?></table><?
-					?><script type="text/javascript">
-						BX.tooltip(<?=$friend["USER_ID"]?>, "anchor_<?=$tooltip_id?>");
-					</script><?
-
 				?></td><?
 			?></tr><?
 		}

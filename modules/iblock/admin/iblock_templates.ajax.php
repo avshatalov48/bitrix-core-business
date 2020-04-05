@@ -108,7 +108,7 @@ if (check_bitrix_sessid())
 			$html = ' ';
 			$firstSection = 0;
 			$inSelect = false;
-			$sections = array_filter($_POST["IBLOCK_SECTION"], "strlen");
+			$sections = $_POST["IBLOCK_SECTION"]? array_filter($_POST["IBLOCK_SECTION"], "strlen"): array();
 			$html .= '<select name="IBLOCK_ELEMENT_SECTION_ID" id="IBLOCK_ELEMENT_SECTION_ID" onchange="InheritedPropertiesTemplates.updateInheritedPropertiesValues(false, true)">';
 			if ($sections)
 			{

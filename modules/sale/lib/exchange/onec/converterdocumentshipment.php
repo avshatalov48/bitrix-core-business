@@ -1,8 +1,12 @@
 <?php
 namespace Bitrix\Sale\Exchange\OneC;
+
+
 use Bitrix\Main\ArgumentException;
+use Bitrix\Sale\Exchange\EntityType;
 use Bitrix\Sale\Exchange\ImportBase;
 use Bitrix\Sale\Exchange\ImportOneCBase;
+use Bitrix\Sale\Exchange\ISettings;
 use Bitrix\Sale\Exchange\ISettingsExport;
 use Bitrix\Sale\Exchange\ISettingsImport;
 use Bitrix\Sale\Shipment;
@@ -21,14 +25,6 @@ class ConverterDocumentShipment extends Converter
 	protected function getFieldsInfo()
 	{
 		return ShipmentDocument::getFieldsInfo();
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getOwnerEntityTypeId()
-	{
-		return DocumentType::SHIPMENT;
 	}
 
 	/**
@@ -95,22 +91,7 @@ class ConverterDocumentShipment extends Converter
 						$fields[$k] = $params['REK_VALUES']['1C_TRACKING_NUMBER'];
 					break;
 				case 'BASE_PRICE_DELIVERY':
-					foreach($params['ITEMS'] as $items)
-					{
-						foreach($items as $item)
-						{
-							if($item['TYPE'] == ImportBase::ITEM_SERVICE)
-							{
-								//if((!empty($shipment)? $shipment->getPrice():'') != $item["PRICE"])
-								//{
-								//$fields["CUSTOM_PRICE_DELIVERY"] = "Y";
-								$fields["BASE_PRICE_DELIVERY"] = $item["PRICE"];
-								//$fields["CURRENCY"] = $settings->getCurrency();
-								//}
-								break 2;
-							}
-						}
-					}
+					$fields["BASE_PRICE_DELIVERY"] = $this->getBasePriceDelivery($params['ITEMS']);
 					break;
 				case 'DELIVERY_ID':
 					$deliverySystemId = 0;
@@ -132,12 +113,12 @@ class ConverterDocumentShipment extends Converter
 
 					if($deliverySystemId<=0)
 					{
-						$deliverySystemId = $settings->shipmentServiceFor($documentImport->getOwnerEntityTypeId());
+						$deliverySystemId = $settings->shipmentServiceFor($this->getEntityTypeId());
 					}
 
 					if($deliverySystemId<=0)
 					{
-						$deliverySystemId = $settings->shipmentServiceDefaultFor($documentImport->getOwnerEntityTypeId());
+						$deliverySystemId = $settings->shipmentServiceDefaultFor($this->getEntityTypeId());
 					}
 
 					$fields[$k] = $deliverySystemId;
@@ -146,7 +127,7 @@ class ConverterDocumentShipment extends Converter
 		}
 
 		$result['TRAITS'] = isset($fields)? $fields:array();
-		$result['ITEMS'] = isset($params['ITEMS'])? $params['ITEMS']:array();
+		$result['ITEMS'] = isset($params['ITEMS'])? $this->modifyItemIdByItemName($params['ITEMS']):array();
 		$result['TAXES'] = isset($params['TAXES'])? $params['TAXES']:array();
 
 		return $result;
@@ -157,11 +138,8 @@ class ConverterDocumentShipment extends Converter
 	 * @param array $fields
 	 * @throws ArgumentException
 	 */
-	public function sanitizeFields($shipment=null, array &$fields)
+	static public function sanitizeFields($shipment=null, array &$fields, ISettings $settings)
 	{
-		/** @var ISettingsImport $settings */
-		$settings = $this->getSettings();
-
 		if(!empty($shipment) && !($shipment instanceof Shipment))
 			throw new ArgumentException("Entity must be instanceof Shipment");
 
@@ -172,6 +150,7 @@ class ConverterDocumentShipment extends Converter
 				case 'BASE_PRICE_DELIVERY':
 					if((!empty($shipment)? $shipment->getPrice():'') != $v)
 					{
+						/** @var ISettingsImport $settings */
 						$fields['CURRENCY'] = $settings->getCurrency();
 						$fields['CUSTOM_PRICE_DELIVERY'] = "Y";
 					}
@@ -221,7 +200,7 @@ class ConverterDocumentShipment extends Converter
 					$value = $traits['DATE_INSERT'];
 					break;
 				case 'OPERATION':
-					$value = DocumentBase::resolveDocumentTypeName($this->getOwnerEntityTypeId());
+					$value = DocumentBase::resolveDocumentTypeName($this->getDocmentTypeId());
 					break;
 				case 'ROLE':
 					$value = DocumentBase::getLangByCodeField('SELLER');
@@ -335,19 +314,46 @@ class ConverterDocumentShipment extends Converter
 
 	public function externalizeItems(array $taxes, array $info)
 	{
-		$orderDocumentConverter = new ConverterDocumentOrder();
-		return $orderDocumentConverter->externalizeItems($taxes, $info);
+		/** @var ConverterDocumentOrder $converter */
+		$converter = ConverterFactory::create(EntityType::ORDER);
+		return $converter->externalizeItems($taxes, $info);
 	}
 
 	public function externalizeStories(array $stories, array $info)
 	{
-		$orderDocumentConverter = new ConverterDocumentOrder();
-		return $orderDocumentConverter->externalizeStories($stories, $info);
+		/** @var ConverterDocumentOrder $converter */
+		$converter = ConverterFactory::create(EntityType::ORDER);
+		return $converter->externalizeStories($stories, $info);
 	}
 
 	public function externalizeTaxes(array $items, array $info)
 	{
-		$orderDocumentConverter = new ConverterDocumentOrder();
-		return $orderDocumentConverter->externalizeTaxes($items, $info);
+		/** @var ConverterDocumentOrder $converter */
+		$converter = ConverterFactory::create(EntityType::ORDER);
+		return $converter->externalizeTaxes($items, $info);
+	}
+
+	protected function getBasePriceDelivery($list=[])
+	{
+		if(is_array($list) && count($list)>0)
+		{
+			foreach($list as $item)
+			{
+				foreach($item as $fields)
+				{
+					if($fields['TYPE'] == ImportBase::ITEM_SERVICE)
+					{
+						//if((!empty($shipment)? $shipment->getPrice():'') != $item["PRICE"])
+						//{
+						//$fields["CUSTOM_PRICE_DELIVERY"] = "Y";
+						return $fields["PRICE"];
+						//$fields["CURRENCY"] = $settings->getCurrency();
+						//}
+						//break 2;
+					}
+				}
+			}
+		}
+		return 0;
 	}
 }

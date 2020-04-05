@@ -10,6 +10,7 @@ use Bitrix\Rest\AppTable;
 use Bitrix\Rest\OAuth\Auth;
 use Bitrix\Rest\OAuthService;
 use Bitrix\Rest\Sqs;
+use Bitrix\Rest\StatTable;
 
 /**
  * Class Sender
@@ -199,6 +200,11 @@ class Sender
 						"application_token" => \CRestUtil::getApplicationToken($application),
 					);
 				}
+
+				if(strlen($handler['EVENT_HANDLER']) > 0)
+				{
+					StatTable::logEvent($application['CLIENT_ID'], $handler['EVENT_NAME']);
+				}
 			}
 			else
 			{
@@ -264,6 +270,7 @@ class Sender
 	{
 		if(count(self::$queryData) > 0)
 		{
+			StatTable::finalize();
 			static::getProvider()->send(self::$queryData);
 			self::$queryData = array();
 		}

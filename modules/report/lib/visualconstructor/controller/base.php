@@ -12,6 +12,7 @@ use Bitrix\Main\Error;
  */
 abstract class Base extends Controller
 {
+
 	/**
 	 * If debug mode on return last 3 lines of trace in error collection.
 	 *

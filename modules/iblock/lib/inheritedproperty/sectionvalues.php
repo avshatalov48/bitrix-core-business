@@ -9,6 +9,8 @@ namespace Bitrix\Iblock\InheritedProperty;
 class SectionValues extends BaseValues
 {
 	protected $sectionId = 0;
+	/** @var ValuesQueue */
+	protected $queue = null;
 
 	/**
 	 * @param integer $iblockId Iblock identifier.
@@ -17,7 +19,8 @@ class SectionValues extends BaseValues
 	public function __construct($iblockId, $sectionId)
 	{
 		parent::__construct($iblockId);
-		$this->sectionId = intval($sectionId);
+		$this->sectionId = (int)$sectionId;
+		$this->queue->addElement($this->iblockId, $this->sectionId);
 	}
 
 	/**
@@ -89,11 +92,14 @@ class SectionValues extends BaseValues
 	 */
 	public function queryValues()
 	{
+		$connection = \Bitrix\Main\Application::getConnection();
 		$result = array();
 		if ($this->hasTemplates())
 		{
-			$connection = \Bitrix\Main\Application::getConnection();
-			$query = $connection->query("
+			if ($this->queue->getElement($this->iblockId, $this->sectionId) === false)
+			{
+				$ids = $this->queue->get($this->iblockId);
+				$query = $connection->query("
 				SELECT
 					P.ID
 					,P.CODE
@@ -101,47 +107,44 @@ class SectionValues extends BaseValues
 					,P.ENTITY_TYPE
 					,P.ENTITY_ID
 					,IP.VALUE
+					,IP.SECTION_ID
 				FROM
 					b_iblock_section_iprop IP
 					INNER JOIN b_iblock_iproperty P ON P.ID = IP.IPROP_ID
 				WHERE
 					IP.IBLOCK_ID = ".$this->iblockId."
-					AND IP.SECTION_ID = ".$this->sectionId."
-			");
-
-			while ($row = $query->fetch())
-			{
-				$result[$row["CODE"]] = $row;
+					AND IP.SECTION_ID in (".implode(", ", $ids).")
+				");
+				$result = array();
+				while ($row = $query->fetch())
+				{
+					$result[$row["SECTION_ID"]][$row["CODE"]] = $row;
+				}
+				$this->queue->set($this->iblockId, $result);
 			}
+			$result = $this->queue->getElement($this->iblockId, $this->sectionId);
 
 			if (empty($result))
 			{
 				$sqlHelper = $connection->getSqlHelper();
+				$fields = array(
+					"IBLOCK_ID",
+					"SECTION_ID",
+					"IPROP_ID",
+					"VALUE",
+				);
+				$rows = array();
 				$result = parent::queryValues();
 				foreach ($result as $row)
 				{
-					$mergeSql = $sqlHelper->prepareMerge(
-						"b_iblock_section_iprop",
-						array(
-							"SECTION_ID",
-							"IPROP_ID",
-						),
-						array(
-							"IBLOCK_ID" => $this->iblockId,
-							"SECTION_ID" => $this->sectionId,
-							"IPROP_ID" => $row["ID"],
-							"VALUE" => $row["VALUE"],
-						),
-						array(
-							"IBLOCK_ID" => $this->iblockId,
-							"VALUE" => $row["VALUE"],
-						)
+					$rows[] = array(
+						$this->iblockId,
+						$this->sectionId,
+						$row["ID"],
+						$sqlHelper->forSql($row["VALUE"]),
 					);
-					foreach ($mergeSql as $sql)
-					{
-						$connection->query($sql);
-					}
 				}
+				$this->insertValues("b_iblock_section_iprop", $fields, $rows);
 			}
 		}
 		return $result;
@@ -186,5 +189,6 @@ class SectionValues extends BaseValues
 				)
 			");
 		}
+		ValuesQueue::deleteAll();
 	}
 }

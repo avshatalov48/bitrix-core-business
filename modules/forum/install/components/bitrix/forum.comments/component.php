@@ -302,6 +302,22 @@ $cache_id = "forum_comment_".serialize($ar_cache_id);
 
 if ($arResult['DO_NOT_CACHE'] || $this->StartResultCache($arParams["CACHE_TIME"], $cache_id))
 {
+	$auxSuffix = false;
+	switch (strtolower($arParams['ENTITY_TYPE']))
+	{
+		case \Bitrix\Forum\Comments\TaskEntity::ENTITY_TYPE:
+			$auxSuffix = 'TASK';
+			break;
+		case \Bitrix\Forum\Comments\CalendarEntity::ENTITY_TYPE:
+			$auxSuffix = 'CALENDAR';
+			break;
+		case \Bitrix\Forum\Comments\WorkflowEntity::ENTITY_TYPE:
+			$auxSuffix = 'WF';
+			break;
+		default:
+			$auxSuffix = false;
+	}
+
 	if ($arParams["SET_LAST_VISIT"] == "Y")
 	{
 		ForumSetLastVisit($arParams["FORUM_ID"], $arResult["FORUM_TOPIC_ID"], array("nameTemplate" => $arParams["NAME_TEMPLATE"]));
@@ -431,6 +447,49 @@ if ($arResult['DO_NOT_CACHE'] || $this->StartResultCache($arParams["CACHE_TIME"]
 					);
 
 					$res["NEW"] = ($arResult["UNREAD_MID"] > 0 && $res["ID"] >= $arResult["UNREAD_MID"] ? "Y" : "N");
+
+					if (
+						$auxSuffix
+						&& \Bitrix\Main\Loader::includeModule('socialnetwork')
+						&& ($commentAuxProvider = \Bitrix\Socialnetwork\CommentAux\Base::findProvider(
+							array(
+								'POST_TEXT' => $res['~POST_MESSAGE_TEXT'],
+							),
+							array(
+								'needSetParams' => false
+							)
+						))
+					)
+					{
+						$forumPostLivefeedProvider = new \Bitrix\Socialnetwork\Livefeed\ForumPost();
+						$dbres = \Bitrix\Socialnetwork\LogCommentTable::getList(array(
+							'filter' => array(
+								'SOURCE_ID' => $res['ID'],
+								'EVENT_ID' => $forumPostLivefeedProvider->getEventId()
+							),
+							'select' => array('EVENT_ID', 'SHARE_DEST', 'LOG_ID')
+						));
+						if ($sonetCommentFields = $dbres->fetch())
+						{
+
+							$auxParams = $commentAuxProvider->getParamsFromFields($sonetCommentFields);
+							if (!empty($auxParams))
+							{
+								$commentAuxProvider->setParams($auxParams);
+								$commentAuxProvider->setOptions(array(
+									'eventId' => $sonetCommentFields['EVENT_ID'],
+									'suffix' => $auxSuffix,
+									'logId' => $sonetCommentFields['LOG_ID'],
+									'cache' => !$arResult['DO_NOT_CACHE']
+								));
+
+								$res['~POST_MESSAGE_TEXT'] = $commentAuxProvider->getText();
+								$res["AUX"] = $commentAuxProvider->getType();
+								$res["AUX_LIVE_PARAMS"] = array();
+							}
+						}
+					}
+
 					$arMessages[$res["ID"]] = $res;
 				}
 			}

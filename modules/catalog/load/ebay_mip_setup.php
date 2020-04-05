@@ -144,8 +144,13 @@ $context = new CAdminContextMenu($aMenu);
 
 $context->Show();
 
+$actionParams = "";
+if ($adminSidePanelHelper->isSidePanel())
+{
+	$actionParams = "?IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER";
+}
 ?>
-<form method="post" action="<?echo $APPLICATION->GetCurPage() ?>" name="yandex_setup_form" id="yandex_setup_form">
+<form method="post" action="<?echo $APPLICATION->GetCurPage().$actionParams ?>" name="yandex_setup_form" id="yandex_setup_form">
 <?
 
 $aTabs = array(

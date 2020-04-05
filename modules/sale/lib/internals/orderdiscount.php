@@ -304,6 +304,7 @@ class OrderDiscountTable extends Main\Entity\DataManager
 
 	/**
 	 * Return discount modules list.
+	 * @deprecated
 	 *
 	 * @param array $discount			Discount data.
 	 * @return array
@@ -325,7 +326,7 @@ class OrderDiscountTable extends Main\Entity\DataManager
 			if (!empty($discount['HANDLERS']['MODULES']))
 			{
 				$needDiscountModules = (
-				!is_array($discount['HANDLERS']['MODULES'])
+					!is_array($discount['HANDLERS']['MODULES'])
 					? array($discount['HANDLERS']['MODULES'])
 					: $discount['HANDLERS']['MODULES']
 				);
@@ -707,7 +708,9 @@ class OrderModulesTable extends Main\Entity\DataManager
 
 class OrderDiscountDataTable extends Main\Entity\DataManager
 {
-	const ENTITY_TYPE_BASKET = 0x0001;
+	const ENTITY_TYPE_BASKET_ITEM = 0x0001;
+	/** @deprecated */
+	const ENTITY_TYPE_BASKET = self::ENTITY_TYPE_BASKET_ITEM;
 	const ENTITY_TYPE_DELIVERY = 0x0002;
 	const ENTITY_TYPE_SHIPMENT = 0x0004;
 	const ENTITY_TYPE_DISCOUNT = 0x0008;
@@ -745,7 +748,7 @@ class OrderDiscountDataTable extends Main\Entity\DataManager
 			'ENTITY_TYPE' => new Main\Entity\EnumField('ENTITY_TYPE', array(
 				'required' => true,
 				'values' => array(
-					self::ENTITY_TYPE_BASKET,
+					self::ENTITY_TYPE_BASKET_ITEM,
 					self::ENTITY_TYPE_DELIVERY,
 					self::ENTITY_TYPE_SHIPMENT,
 					self::ENTITY_TYPE_DISCOUNT,
@@ -804,7 +807,7 @@ class OrderDiscountDataTable extends Main\Entity\DataManager
 		);
 		$dataIterator = self::getList(array(
 			'select' => array('ID', 'ENTITY_DATA'),
-			'filter' => array('=ORDER_ID' => $order, '=ENTITY_TYPE' => self::ENTITY_TYPE_BASKET, '=ENTITY_ID' => $basket)
+			'filter' => array('=ORDER_ID' => $order, '=ENTITY_TYPE' => self::ENTITY_TYPE_BASKET_ITEM, '=ENTITY_ID' => $basket)
 		));
 		if ($oldData = $dataIterator->fetch())
 		{
@@ -820,7 +823,7 @@ class OrderDiscountDataTable extends Main\Entity\DataManager
 		else
 		{
 			$fields['ORDER_ID'] = $order;
-			$fields['ENTITY_TYPE'] = self::ENTITY_TYPE_BASKET;
+			$fields['ENTITY_TYPE'] = self::ENTITY_TYPE_BASKET_ITEM;
 			$fields['ENTITY_ID'] = $basket;
 			$fields['ENTITY_VALUE'] = $basket;
 			$result = self::add($fields);
@@ -847,7 +850,7 @@ class OrderDiscountDataTable extends Main\Entity\DataManager
 		$helper = $conn->getSqlHelper();
 		$conn->queryExecute(
 			'delete from '.$helper->quote(self::getTableName()).
-			' where '.$helper->quote('ENTITY_TYPE').' = '.self::ENTITY_TYPE_BASKET.
+			' where '.$helper->quote('ENTITY_TYPE').' = '.self::ENTITY_TYPE_BASKET_ITEM.
 			' and '.$helper->quote('ENTITY_ID').' = '.$basket
 		);
 		unset($helper, $conn);
@@ -925,7 +928,9 @@ class OrderDiscountDataTable extends Main\Entity\DataManager
 
 class OrderRulesTable extends Main\Entity\DataManager
 {
-	const ENTITY_TYPE_BASKET = 0x0001;
+	const ENTITY_TYPE_BASKET_ITEM = 0x0001;
+	/** @deprecated */
+	const ENTITY_TYPE_BASKET = self::ENTITY_TYPE_BASKET_ITEM;
 	const ENTITY_TYPE_DELIVERY = 0x0002;
 
 	/**
@@ -966,7 +971,7 @@ class OrderRulesTable extends Main\Entity\DataManager
 			)),
 			'ENTITY_TYPE' => new Main\Entity\EnumField('ENTITY_TYPE', array(
 				'required' => true,
-				'values' => array(self::ENTITY_TYPE_BASKET, self::ENTITY_TYPE_DELIVERY),
+				'values' => array(self::ENTITY_TYPE_BASKET_ITEM, self::ENTITY_TYPE_DELIVERY),
 				'title' => Loc::getMessage('ORDER_RULES_ENTITY_ENTITY_TYPE_FIELD')
 			)),
 			'ENTITY_ID' => new Main\Entity\IntegerField('ENTITY_ID', array(
@@ -1041,7 +1046,7 @@ class OrderRulesTable extends Main\Entity\DataManager
 		if ($basket <= 0)
 			return;
 
-		self::clear(array('=ENTITY_TYPE' => self::ENTITY_TYPE_BASKET, '=ENTITY_ID' => $basket, '=ORDER_ID' => 0));
+		self::clear(array('=ENTITY_TYPE' => self::ENTITY_TYPE_BASKET_ITEM, '=ENTITY_ID' => $basket, '=ORDER_ID' => 0));
 	}
 
 	/**
@@ -1058,7 +1063,7 @@ class OrderRulesTable extends Main\Entity\DataManager
 		if (empty($basketList))
 			return;
 
-		self::clear(array('=MODULE_ID' => 'sale', '=ENTITY_TYPE' => self::ENTITY_TYPE_BASKET, '@ENTITY_ID' => $basketList, '=ORDER_ID' => 0));
+		self::clear(array('=MODULE_ID' => 'sale', '=ENTITY_TYPE' => self::ENTITY_TYPE_BASKET_ITEM, '@ENTITY_ID' => $basketList, '=ORDER_ID' => 0));
 	}
 
 	/**
@@ -1157,6 +1162,8 @@ class OrderRulesTable extends Main\Entity\DataManager
 			$rule['ID'] = (int)$rule['ID'];
 			$rule['ORDER_DISCOUNT_ID'] = (int)$rule['ORDER_DISCOUNT_ID'];
 			$rule['COUPON_ID'] = (int)$rule['COUPON_ID'];
+			if ($rule['COUPON_ID'] > 0)
+				$orderCouponList[$rule['COUPON_ID']] = $rule['COUPON_ID'];
 			$ruleList[] = $rule['ID'];
 		}
 		unset($rule, $ruleIterator);

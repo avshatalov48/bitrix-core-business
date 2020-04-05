@@ -12,7 +12,9 @@ $arC = array(
 	"<=" => GetMessage("BPFC_PD_LE"),
 	"!=" => GetMessage("BPFC_PD_NE"),
 	"in" => GetMessage("BPFC_PD_IN"),
-	"contain" => GetMessage("BPFC_PD_CONTAIN")
+	"contain" => GetMessage("BPFC_PD_CONTAIN"),
+	"!empty" => GetMessage("BPFC_PD_NOT_EMPTY"),
+	"empty" => GetMessage("BPFC_PD_EMPTY"),
 );
 
 /** @var CBPDocumentService $documentService */
@@ -79,7 +81,8 @@ foreach ($arFieldConditionCount as $i)
 			</select>
 		</td>
 	</tr>
-	<tr id="id_tr_field_condition_value_<?= $i ?>" style="<?if ($arCurrentValues["field_condition_condition_".$i]=='modified') echo 'display:none'?>">
+	<? $hidden = in_array($arCurrentValues["field_condition_condition_".$i], ['modified', 'empty', '!empty']);?>
+	<tr id="id_tr_field_condition_value_<?= $i ?>" style="<?if ($hidden) echo 'display:none'?>">
 		<td align="right" width="40%" class="adm-detail-content-cell-l"><?= GetMessage("BPFC_PD_VALUE") ?>:</td>
 		<td width="60%" id="id_td_field_condition_value_<?= $i ?>" class="adm-detail-content-cell-r">
 			<input type="text" name="field_condition_value_<?= $i ?>" value="<?= htmlspecialcharsbx((string)$arCurrentValues["field_condition_value_".$i]) ?>">
@@ -158,9 +161,12 @@ foreach ($arFieldConditionCount as $i)
 		{
 			var tableRow = document.getElementById('id_tr_field_condition_value_' + ind);
 			if (!tableRow)
+			{
 				return;
+			}
 
-			tableRow.style.display = value == 'modified'? 'none' : '';
+			var hidden = (value === 'modified' || value === 'empty' || value === '!empty');
+			tableRow.style.display = hidden ? 'none' : '';
 		}
 
 		function BWFFCAddCondition()

@@ -45,6 +45,22 @@ class Tax
 	}
 
 	/**
+	 * @return string
+	 */
+	protected static function getTaxClassName()
+	{
+		return \CSaleTax::class;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected static function getOrderTaxClassName()
+	{
+		return \CSaleOrderTax::class;
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getTaxList()
@@ -158,7 +174,9 @@ class Tax
 			$fields['BASKET_ITEMS'][] = $basketItem->getFieldValues();
 		}
 
-		\CSaleTax::calculateTax($fields, array(), $errors = array());
+		/** @var \CSaleTax $className */
+		$className = static::getTaxClassName();
+		$className::calculateTax($fields, array(), $errors = array());
 
 		if (!$order->isUsedVat() && is_array($fields['TAX_LIST']))
 		{
@@ -280,7 +298,10 @@ class Tax
 			}
 
 			$fields = array_merge($fields, $additionalFields);
-			\CSaleTax::calculateDeliveryTax($fields, $options, $errors = array());
+
+			/** @var \CSaleTax $className */
+			$className = static::getTaxClassName();
+			$className::calculateDeliveryTax($fields, $options, $errors = array());
 		}
 
 
@@ -438,7 +459,10 @@ class Tax
 		}
 
 		//DoSaveOrderTax
-		\CSaleTax::DoSaveOrderTax($order->getId(), $this->getTaxList(), $errors = array());
+
+		/** @var \CSaleTax $className */
+		$className = static::getTaxClassName();
+		$className::DoSaveOrderTax($order->getId(), $this->getTaxList(), $errors = array());
 
 		if (!empty($errors) && is_array($errors))
 		{
@@ -451,21 +475,34 @@ class Tax
 
 		if ($order->getId() > 0)
 		{
-			OrderHistory::collectEntityFields('TAX', $order->getId());
+			$registry = Registry::getInstance(static::getRegistryType());
+			/** @var OrderHistory $orderHistory */
+			$orderHistory = $registry->getOrderHistoryClassName();
+
+			$orderHistory::collectEntityFields('TAX', $order->getId());
 		}
 
 		return $result;
 	}
 
 	/**
-	 * @return Tax
+	 * @return mixed
+	 * @throws Main\ArgumentException
 	 */
-	protected static function createTaxObject()
+	private static function createTaxObject()
 	{
-		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
+		$registry = Registry::getInstance(static::getRegistryType());
 		$taxClassName = $registry->getTaxClassName();
 
 		return new $taxClassName();
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function getRegistryType()
+	{
+		return Registry::REGISTRY_TYPE_ORDER;
 	}
 
 	/**
@@ -501,15 +538,18 @@ class Tax
 		if ($order->getId() <= 0)
 			return null;
 
-			$dbTaxList = \CSaleOrderTax::GetList(
-				array("APPLY_ORDER" => "ASC"),
-				array("ORDER_ID" => $order->getId())
-			);
-			while ($taxList = $dbTaxList->Fetch())
-			{
-				$taxList['NAME'] = $taxList['TAX_NAME'];
-				$resultList[] = $taxList;
-			}
+		/** @var \CSaleOrderTax $className */
+		$className = static::getOrderTaxClassName();
+
+		$dbTaxList = $className::GetList(
+			array("APPLY_ORDER" => "ASC"),
+			array("ORDER_ID" => $order->getId())
+		);
+		while ($taxList = $dbTaxList->Fetch())
+		{
+			$taxList['NAME'] = $taxList['TAX_NAME'];
+			$resultList[] = $taxList;
+		}
 
 		return (!empty($resultList) ? $resultList : null);
 	}
@@ -591,8 +631,9 @@ class Tax
 		}
 		else
 		{
-
-			$dbTaxExemptList = \CSaleTax::GetExemptList(array("GROUP_ID" => $userGroups));
+			/** @var \CSaleTax $className */
+			$className = static::getTaxClassName();
+			$dbTaxExemptList = $className::GetExemptList(array("GROUP_ID" => $userGroups));
 			while ($taxExemptList = $dbTaxExemptList->Fetch())
 			{
 				if (!in_array(intval($taxExemptList["TAX_ID"]), $exemptList))

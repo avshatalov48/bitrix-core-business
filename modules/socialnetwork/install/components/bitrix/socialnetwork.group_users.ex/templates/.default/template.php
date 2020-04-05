@@ -11,6 +11,7 @@ use Bitrix\Main\UI;
 
 UI\Extension::load("ui.buttons.icons");
 UI\Extension::load("ui.alerts");
+UI\Extension::load("ui.tooltip");
 UI\Extension::load("socialnetwork.common");
 
 if(strlen($arResult["FatalError"]) > 0)
@@ -19,7 +20,7 @@ if(strlen($arResult["FatalError"]) > 0)
 }
 else
 {
-	CUtil::InitJSCore(array("tooltip", "popup", "sidepanel"));
+	CUtil::InitJSCore(array("popup", "sidepanel"));
 
 	if(strlen($arResult["ErrorMessage"])>0)
 	{
@@ -124,6 +125,11 @@ else
 
 	?><div class="socialnetwork-group-users-content"><?
 
+		if (SITE_TEMPLATE_ID == "bitrix24")
+		{
+			echo \Bitrix\Main\Update\Stepper::getHtml(array('socialnetwork' => array("Bitrix\Socialnetwork\Update\WorkgroupDeptSync")), Loc::getMessage('SONET_GUE_T_STEPPER_TITLE'));
+		}
+
 		?><div id="sonet_group_users_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=(strlen($arResult["ErrorMessage"]) > 0 ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?
 
 		if (!empty($arResult["Owner"]))
@@ -149,6 +155,7 @@ else
 						"bitrix:main.ui.selector",
 						".default",
 						array(
+							'API_VERSION' => 3,
 							'ID' => $selectorID,
 							'BIND_ID' => 'sonet-members-actionlink-changeowner',
 							'ITEMS_SELECTED' => array(
@@ -162,7 +169,9 @@ else
 								'openSearch' => ''
 							),
 							'OPTIONS' => array(
+								'useContainer' => 'Y',
 								'useNewCallback' => 'Y',
+								'lazyLoad' => 'Y',
 								'eventInit' => 'BX.SonetGroupUsers:openInit',
 								'eventOpen' => 'BX.SonetGroupUsers:open',
 								'context' => 'GROUP_SET_OWNER',
@@ -200,7 +209,6 @@ else
 
 				?><div class="sonet-members-member-block-shift"><?
 
-					$tooltip_id = randString(8);
 					$arUserTmp = array(
 						"ID" => $arResult["Owner"]["USER_ID"],
 						"NAME" => htmlspecialcharsback($arResult["Owner"]["USER_NAME"]),
@@ -218,11 +226,11 @@ else
 							?><span class="sonet-members-member-title<?=($arResult["Owner"]["USER_IS_EXTRANET"] == "Y" ? " sonet-members-member-title-extranet" : "")?>"><?
 								if ($arResult["Owner"]["SHOW_PROFILE_LINK"])
 								{
-									?><a id="anchor_<?=$tooltip_id?>" href="<?=htmlspecialcharsback($arResult["Owner"]["USER_PROFILE_URL"])?>" class="sonet-members-member-link" target="_top"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></a><?
+									?><a href="<?=htmlspecialcharsback($arResult["Owner"]["USER_PROFILE_URL"])?>" class="sonet-members-member-link" target="_top" bx-tooltip-user-id="<?=$arResult["Owner"]["USER_ID"]?>"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></a><?
 								}
 								else
 								{
-									?><span id="anchor_<?=$tooltip_id?>" class="sonet-members-member-link"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></span><?
+									?><span class="sonet-members-member-link" bx-tooltip-user-id="<?=$arResult["Owner"]["USER_ID"]?>"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></span><?
 								}
 							?></span><?
 
@@ -235,10 +243,6 @@ else
 									}
 								?></span><?
 							}
-
-							?><script>
-								BX.tooltip(<?=$arResult["Owner"]["USER_ID"]?>, "anchor_<?=$tooltip_id?>");
-							</script><?
 						?></span><?
 					?></span><?
 				?></div><?
@@ -274,6 +278,7 @@ else
 						"bitrix:main.ui.selector",
 						".default",
 						array(
+							'API_VERSION' => 3,
 							'ID' => $selectorID,
 							'BIND_ID' => 'sonet-members-actionlink-addmoderator',
 							'ITEMS_SELECTED' => $arModeratorCodeList,
@@ -286,6 +291,7 @@ else
 							),
 							'OPTIONS' => array(
 								'useNewCallback' => 'Y',
+								'useContainer' => 'Y',
 								'eventInit' => 'BX.SonetGroupUsers:openInit',
 								'eventOpen' => 'BX.SonetGroupUsers:open',
 								'context' => 'GROUP_ADD_MODERATOR',
@@ -330,7 +336,6 @@ else
 							&& $arMember["IS_OWNER"] != 'Y'
 						);
 
-						$tooltip_id = randString(8);
 						$arUserTmp = array(
 							"ID" => $arMember["USER_ID"],
 							"NAME" => htmlspecialcharsback($arMember["USER_NAME"]),
@@ -358,11 +363,11 @@ else
 								?><span class="sonet-members-member-title<?=($arMember["USER_IS_EXTRANET"] == "Y" ? " sonet-members-member-title-extranet" : "")?>"><?
 								if ($arMember["SHOW_PROFILE_LINK"])
 								{
-									?><a id="anchor_<?=$tooltip_id?>" href="<?=htmlspecialcharsback($arMember["USER_PROFILE_URL"])?>" class="sonet-members-member-link" target="_top"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></a><?
+									?><a href="<?=htmlspecialcharsback($arMember["USER_PROFILE_URL"])?>" class="sonet-members-member-link" target="_top" bx-tooltip-user-id="<?=$arMember["USER_ID"]?>"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></a><?
 								}
 								else
 								{
-									?><span id="anchor_<?=$tooltip_id?>" class="sonet-members-member-link"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></span><?
+									?><span class="sonet-members-member-link" bx-tooltip-user-id="<?=$arMember["USER_ID"]?>"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></span><?
 								}
 								?></span><?
 								if ($arResult["bIntranetInstalled"])
@@ -378,9 +383,6 @@ else
 								{
 									?><span class="sonet-members-caption"><?=Loc::getMessage($arResult["Group"]["PROJECT"] == 'Y' ? "SONET_GUE_T_OWNER_PROJECT" : "SONET_GUE_T_OWNER")?></span><?
 								}
-								?><script type="text/javascript">
-									BX.tooltip(<?=$arMember["USER_ID"]?>, "anchor_<?=$tooltip_id?>");
-								</script><?
 							?></span><?
 						?></span><?
 					}
@@ -409,7 +411,6 @@ else
 				?><div class="sonet-members-member-block-shift"><?
 					foreach ($arResult["Ban"]["List"] as $arMember)
 					{
-						$tooltip_id = randString(8);
 						$arUserTmp = array(
 							"ID" => $arMember["USER_ID"],
 							"NAME" => htmlspecialcharsback($arMember["USER_NAME"]),
@@ -434,11 +435,11 @@ else
 								?><span class="sonet-members-member-title<?=($arMember["USER_IS_EXTRANET"] == "Y" ? " sonet-members-member-title-extranet" : "")?>"><?
 								if ($arMember["SHOW_PROFILE_LINK"])
 								{
-									?><a id="anchor_<?=$tooltip_id?>" href="<?=htmlspecialcharsback($arMember["USER_PROFILE_URL"])?>" class="sonet-members-member-link" target="_top"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></a><?
+									?><a href="<?=htmlspecialcharsback($arMember["USER_PROFILE_URL"])?>" class="sonet-members-member-link" target="_top" bx-tooltip-user-id="<?=$arMember["USER_ID"]?>"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></a><?
 								}
 								else
 								{
-									?><span id="anchor_<?=$tooltip_id?>" class="sonet-members-member-link"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></span><?
+									?><span class="sonet-members-member-link" bx-tooltip-user-id="<?=$arMember["USER_ID"]?>"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></span><?
 								}
 								?></span><?
 								if ($arResult["bIntranetInstalled"])
@@ -451,9 +452,6 @@ else
 									?></span><?
 								}
 							?></span><?
-							?><script type="text/javascript">
-								BX.tooltip(<?=$arMember["USER_ID"]?>, "anchor_<?=$tooltip_id?>");
-							</script><?
 						?></span><?
 					}
 				?></div><?
@@ -557,7 +555,6 @@ else
 							&& $arMember["IS_OWNER"] != 'Y'
 						);
 
-						$tooltip_id = randString(8);
 						$arUserTmp = array(
 							"ID" => $arMember["USER_ID"],
 							"NAME" => htmlspecialcharsback($arMember["USER_NAME"]),
@@ -586,11 +583,11 @@ else
 								?><span class="sonet-members-member-title<?=($arMember["USER_IS_EXTRANET"] == "Y" ? " sonet-members-member-title-extranet" : "")?>"><?
 								if ($arMember["SHOW_PROFILE_LINK"])
 								{
-									?><a id="anchor_<?=$tooltip_id?>" href="<?=htmlspecialcharsback($arMember["USER_PROFILE_URL"])?>" class="sonet-members-member-link" target="_top"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></a><?
+									?><a href="<?=htmlspecialcharsback($arMember["USER_PROFILE_URL"])?>" class="sonet-members-member-link" target="_top" bx-tooltip-user-id="<?=$arMember["USER_ID"]?>"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></a><?
 								}
 								else
 								{
-									?><span id="anchor_<?=$tooltip_id?>" class="sonet-members-member-link"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></span><?
+									?><span class="sonet-members-member-link" bx-tooltip-user-id="<?=$arMember["USER_ID"]?>"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></span><?
 								}
 								?></span><?
 								if ($arResult["bIntranetInstalled"])
@@ -607,9 +604,6 @@ else
 									?><span class="sonet-members-caption"><?=Loc::getMessage($arResult["Group"]["PROJECT"] == 'Y' ? "SONET_GUE_T_OWNER_PROJECT" : "SONET_GUE_T_OWNER")?></span><?
 								}
 							?></span><?
-							?><script type="text/javascript">
-								BX.tooltip(<?=$arMember["USER_ID"]?>, "anchor_<?=$tooltip_id?>");
-							</script><?
 						?></span><?
 					}
 				?></div><?
@@ -635,7 +629,6 @@ else
 				?><div class="sonet-members-member-block-shift"><?
 					foreach ($arResult["UsersAuto"]["List"] as $arMember)
 					{
-						$tooltip_id = randString(8);
 						$arUserTmp = array(
 							"ID" => $arMember["USER_ID"],
 							"NAME" => htmlspecialcharsback($arMember["USER_NAME"]),
@@ -651,11 +644,11 @@ else
 								?><span class="sonet-members-member-title<?=($arMember["USER_IS_EXTRANET"] == "Y" ? " sonet-members-member-title-extranet" : "")?>"><?
 									if ($arMember["SHOW_PROFILE_LINK"])
 									{
-										?><a id="anchor_<?=$tooltip_id?>" href="<?=htmlspecialcharsback($arMember["USER_PROFILE_URL"])?>" class="sonet-members-member-link" target="_top"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></a><?
+										?><a href="<?=htmlspecialcharsback($arMember["USER_PROFILE_URL"])?>" class="sonet-members-member-link" target="_top" bx-tooltip-user-id="<?=$arMember["USER_ID"]?>"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></a><?
 									}
 									else
 									{
-										?><span id="anchor_<?=$tooltip_id?>" class="sonet-members-member-link"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></span><?
+										?><span class="sonet-members-member-link" bx-tooltip-user-id="<?=$arMember["USER_ID"]?>"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></span><?
 									}
 								?></span><?
 								if ($arResult["bIntranetInstalled"])
@@ -668,9 +661,6 @@ else
 									?></span><?
 								}
 							?></span><?
-							?><script type="text/javascript">
-								BX.tooltip(<?=$arMember["USER_ID"]?>, "anchor_<?=$tooltip_id?>");
-							</script><?
 						?></span><?
 					}
 				?></div><?

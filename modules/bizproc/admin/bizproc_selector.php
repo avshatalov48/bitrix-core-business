@@ -4,7 +4,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_bef
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 
-include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/include.php");
+\Bitrix\Main\Loader::includeModule('bizproc');
 IncludeModuleLangFile(__FILE__);
 
 if(!$USER->IsAuthorized())
@@ -51,6 +51,7 @@ $arWorkflowTemplate = isset($_POST['arWorkflowTemplate']) && is_array($_POST['ar
 $arWorkflowParameters = isset($_POST['arWorkflowParameters']) && is_array($_POST['arWorkflowParameters'])? $_POST['arWorkflowParameters']: array();
 $arWorkflowVariables = isset($_POST['arWorkflowVariables']) && is_array($_POST['arWorkflowVariables'])? $_POST['arWorkflowVariables']: array();
 $arWorkflowConstants = isset($_POST['arWorkflowConstants']) && is_array($_POST['arWorkflowConstants'])? $_POST['arWorkflowConstants']: array();
+$arGlobalConstants = \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll();
 
 $selectorMode = isset($_POST['selectorMode']) ? $_POST['selectorMode']: null;
 
@@ -79,7 +80,7 @@ switch($_POST['fieldType'])
 {
 	case "int":
 	case "double":
-		$arFilter = Array("int", "double", 'mixed');
+		$arFilter = ["int", "double", 'mixed', 'string'];
 		break;
 
 	case "date":
@@ -191,6 +192,25 @@ function BPSHideShow(id)
 							$fieldId .= ' > printable';
 						?>
 						<option value="{=Constant:<?=htmlspecialcharsbx($fieldId)?>}<?if($_POST['fieldType']=='user')echo '; '?>"><?=htmlspecialcharsbx($documentField['Name'])?></option>
+					<?endif?>
+				<?endforeach?>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="javascript:void(0)" onclick="BPSHideShow('BPSId61')"><b><?echo GetMessage("BP_SEL_GCONST")?></b></a>
+		</td>
+	</tr>
+	<tr id="BPSId61" style="display:none">
+		<td>
+			<select id="BPSId61S" size="13" style="width:100%" ondblclick="BPSVInsert(this.value)">
+				<?foreach($arGlobalConstants as $fieldId => $documentField):?>
+					<?if($arFilter===false || in_array($documentFieldTypes[$documentField["Type"]]["BaseType"], $arFilter)):
+						if ($_POST['fieldType']=='text')
+							$fieldId .= ' > printable';
+						?>
+						<option value="{=GlobalConst:<?=htmlspecialcharsbx($fieldId)?>}<?if($_POST['fieldType']=='user')echo '; '?>"><?=htmlspecialcharsbx($documentField['Name'])?></option>
 					<?endif?>
 				<?endforeach?>
 			</select>
@@ -363,14 +383,14 @@ _RecFindParams($arWorkflowTemplate, $arFilter, $arReturns);
 			{
 				if(ss.options.selectedIndex>0)
 				{
-					BPSVInsert(ss.options[ss.options.selectedIndex].value);
+					BPSVInsert(ss.options[ss.options.selectedIndex].value, true);
 				}
 				return false;
 			}
 		}
 		</script>
 			<input type="text" id="BPSId5I" style="width:100%" onkeyup="BPSlookup(this.value)" onkeydown="return BPSKeyd(event)">
-			<select id="BPSId5S" size="<?=($_REQUEST['only_users'] == 'Y' ? 14 : 11)?>" style="width:100%" ondblclick="BPSVInsert(this.value)">
+			<select id="BPSId5S" size="<?=($_REQUEST['only_users'] == 'Y' ? 14 : 11)?>" style="width:100%" ondblclick="BPSVInsert(this.value, true)">
 				<option value="" style="background-color: #eeeeff" selected><?echo GetMessage("BIZPROC_SEL_USERS_TAB_GROUPS")?></option>
 				<?foreach($arAllowableUserGroups as $groupId => $groupName):
 					if ($groupName === "" || strpos($groupId, 'group_u') === 0)
@@ -414,7 +434,7 @@ _RecFindParams($arWorkflowTemplate, $arFilter, $arReturns);
 </table>
 
 <script>
-function BPSVInsert(v)
+function BPSVInsert(v, isUser)
 {
 	if(!v)
 	{
@@ -438,6 +458,15 @@ function BPSVInsert(v)
 		<?endif;?>
 		var tdocument = top.document;
 		var toField = tdocument.getElementById('<?=AddSlashes(htmlspecialcharsbx($_POST["fieldName"]))?>');
+
+		if (isUser)
+		{
+			var check = BX.util.trim(toField.value);
+			if (check && check[check.length-1] !== ';' && check[check.length-1] !== ',')
+			{
+				toField.value += '; ';
+			}
+		}
 
 		toField.focus();
 		if(tdocument.selection && tdocument.selection.createRange)
@@ -511,7 +540,7 @@ var BPSShowUserGropupsDialog = function()
 			}
 			if (result)
 			{
-				BPSVInsert(result.join('; ')+'; ');
+				BPSVInsert(result.join('; ')+'; ', true);
 			}
 		}
 	});

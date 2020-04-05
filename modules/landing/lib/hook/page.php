@@ -22,16 +22,36 @@ abstract class Page
 	protected $fieldsPage = array();
 
 	/**
+	 * This hook is instance for page.
+	 * @var bool
+	 */
+	protected $isPage = true;
+
+	/**
 	 * Class constructor.
 	 * @param boolean $editMode Edit mode if true.
+	 * @param boolean $isPage Instance of page.
 	 */
-	public function __construct($editMode = false)
+	public function __construct($editMode = false, $isPage = true)
 	{
 		if ($editMode)
 		{
 			$this->editMode = true;
 		}
+		if (!$isPage)
+		{
+			$this->isPage = false;
+		}
 		$this->fields = $this->getMap();
+	}
+
+	/**
+	 * This hook is instance for page?
+	 * @return bool
+	 */
+	public function isPage()
+	{
+		return $this->isPage;
 	}
 
 	/**

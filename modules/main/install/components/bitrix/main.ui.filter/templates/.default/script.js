@@ -15,6 +15,7 @@
 	 * @param types.CUSTOM_DATE
 	 * @param types.MULTI_SELECT
 	 * @param types.NUMBER
+	 * @param types.DEST_SELECTOR
 	 * @param types.CUSTOM_ENTITY
 	 * @param types.CHECKBOX
 	 * @param types.CUSTOM
@@ -63,6 +64,25 @@
 		this.init();
 	};
 
+	/**
+	 * Converts string to camel case
+	 * @param {string} string
+	 * @return {*}
+	 */
+	function toCamelCase(string)
+	{
+		if (BX.type.isString(string))
+		{
+			string = string.toLowerCase();
+			string = string.replace(/[\-_\s]+(.)?/g, function(match, chr) {
+				return chr ? chr.toUpperCase() : '';
+			});
+			return string.substr(0, 1).toLowerCase() + string.substr(1);
+		}
+
+		return string;
+	}
+
 	//noinspection JSUnusedGlobalSymbols
 	BX.Main.Filter.prototype = {
 		init: function()
@@ -73,7 +93,6 @@
 			BX.addCustomEvent('Grid::ready', BX.delegate(this._onGridReady, this));
 
 			this.getSearch().updatePreset(this.getParam('CURRENT_PRESET'));
-			this.clearGet();
 		},
 
 
@@ -125,6 +144,14 @@
 					if (this.getParam('VALUE_REQUIRED_MODE'))
 					{
 						this.restoreRemovedPreset();
+					}
+
+					if (this.getParam('VALUE_REQUIRED'))
+					{
+						if (!this.getSearch().getSquares().length)
+						{
+							this.getPreset().applyPinnedPreset();
+						}
 					}
 				}
 			}
@@ -218,10 +245,13 @@
 		 * Checks is for all
 		 * @return {boolean}
 		 */
-		isForAll: function()
+		isForAll: function(forAll)
 		{
 			var checkbox = this.getForAllCheckbox();
-			return (checkbox && checkbox.checked);
+			return (
+				(BX.type.isBoolean(forAll) && forAll) ||
+				(!!checkbox && !!checkbox.checked)
+			);
 		},
 
 
@@ -305,6 +335,15 @@
 							valuesKeys.forEach(function(curr) {
 								result[current.NAME + curr] = current.VALUES[curr];
 							}, this);
+						}
+						break;
+					}
+
+					case this.types.DEST_SELECTOR : {
+						if (BX.type.isPlainObject(current.VALUES))
+						{
+							result[current.NAME] = current.VALUES._value;
+							result[current.NAME + '_label'] = current.VALUES._label;
 						}
 						break;
 					}
@@ -595,7 +634,8 @@
 								'_days': dataFields[current + '_days'],
 								'_month': dataFields[current + '_month'],
 								'_quarter': dataFields[current + '_quarter'],
-								'_year': dataFields[current + '_year']
+								'_year': dataFields[current + '_year'],
+								'_allow_year': dataFields[current + '_allow_year']
 							};
 						}
 
@@ -621,6 +661,19 @@
 								'_from': dataFields[current + '_from'],
 								'_to': dataFields[current + '_to']
 							};
+						}
+
+						if (field.TYPE === this.types.DEST_SELECTOR)
+						{
+							if (typeof dataFields[current + '_label'] !== 'undefined')
+							{
+								field.VALUES._label = dataFields[current + '_label'];
+							}
+
+							if (typeof dataFields[current] !== 'undefined')
+							{
+								field.VALUES._value = dataFields[current];
+							}
 						}
 
 						if (field.TYPE === this.types.CUSTOM_ENTITY)
@@ -717,60 +770,89 @@
 
 
 		/**
-		 * Save options
-		 * @param {?object} postData
-		 * @param {?object} [getData]
-		 * @param {function} [callback]
-		 * @param {boolean} [forAll = false]
+		 * @private
+		 * @return {Promise}
 		 */
-		saveOptions: function(postData, getData, callback, forAll)
+		confirmSaveForAll: function()
 		{
-			if (this.isUseCommonPresets())
-			{
-				if (BX.type.isPlainObject(getData))
-				{
-					getData.common_presets_id = this.getParam('COMMON_PRESETS_ID');
-				}
-			}
-
-			var url = BX.util.add_url_param(this.getParam('SETTINGS_URL'), getData || {});
-
-			forAll = BX.type.isBoolean(forAll) ? forAll : !!this.getSaveForAllCheckbox() && this.getSaveForAllCheckbox().checked;
-
-			if (forAll && ('action' in getData && getData.action === 'SET_FILTER_ARRAY'))
-			{
+			return new Promise(function(resolve) {
 				var action = {
 					CONFIRM: true,
 					CONFIRM_MESSAGE: this.getParam('MAIN_UI_FILTER__CONFIRM_MESSAGE_FOR_ALL'),
 					CONFIRM_APPLY_BUTTON: this.getParam('MAIN_UI_FILTER__CONFIRM_APPLY_FOR_ALL'),
 					CONFIRM_CANCEL_BUTTON: this.getParam('CONFIRM_CANCEL')
 				};
+				this.confirmDialog(action, resolve);
+			}.bind(this));
+		},
 
-				this.confirmDialog(
-					action,
-					BX.delegate(function() {
-						url = BX.util.add_url_param(url, {'for_all': 'true'});
+
+		/**
+		 * Save options
+		 * @param {object} data
+		 * @param {object} [params]
+		 * @param {function} [callback]
+		 * @param {boolean} [forAll = false]
+		 */
+		saveOptions: function(data, params, callback, forAll)
+		{
+			params.action = toCamelCase(params.action);
+			params.forAll = this.isForAll(forAll);
+			params.commonPresetsId = this.getParam('COMMON_PRESETS_ID');
+			params.apply_filter = data.apply_filter || "N";
+			params.clear_filter = data.clear_filter || "N";
+			params.with_preset = data.with_preset || "N";
+			params.save = data.save || "N";
+
+			var requestData = {
+				params: params,
+				data: data
+			};
+
+			delete data.apply_filter;
+			delete data.save;
+			delete data.clear_filter;
+			delete data.with_preset;
+
+			if (params.forAll && params.action === 'setFilterArray')
+			{
+				return this.confirmSaveForAll()
+					.then(function() {
+						return this.backend(params.action, requestData);
+					}.bind(this))
+					.then(function() {
 						this.disableEdit();
 						this.disableAddPreset();
-						save(url, this, true);
-					}, this),
-					BX.delegate(function() {
-
-					}, this)
-				);
-			}
-			else
-			{
-				save(url, this);
+					}.bind(this))
 			}
 
-			function save(url, ctx)
-			{
-				BX.ajax.post(url, postData, BX.delegate(function() {
+			return this.backend(params.action, requestData)
+				.then(function() {
 					BX.removeClass(this.getFindButton(), this.settings.classWaitButtonClass);
 					BX.type.isFunction(callback) && callback();
-				}, ctx));
-			}
+				}.bind(this));
+		},
+
+
+		/**
+		 *
+		 * @param {string} action
+		 * @param data
+		 */
+		backend: function(action, data)
+		{
+			return BX.ajax.runComponentAction(
+				'bitrix:main.ui.filter',
+				action,
+				{
+					mode: 'ajax',
+					data: data,
+					analyticsLabel: {
+						FILTER_ID: this.getParam('FILTER_ID'),
+						GRID_ID: this.getParam('GRID_ID')
+					}
+				}
+			);
 		},
 
 
@@ -873,6 +955,14 @@
 					if (this.getParam('VALUE_REQUIRED_MODE'))
 					{
 						this.restoreRemovedPreset();
+					}
+
+					if (this.getParam('VALUE_REQUIRED'))
+					{
+						if (!this.getSearch().getSquares().length)
+						{
+							this.getPreset().applyPinnedPreset();
+						}
 					}
 				}
 
@@ -1614,6 +1704,11 @@
 							break;
 						}
 
+						case this.types.DEST_SELECTOR : {
+							this.prepareControlCustomEntityValue(values, name, current);
+							break;
+						}
+
 						case this.types.CUSTOM : {
 							this.prepareControlCustomValue(values, name, current);
 							break;
@@ -1795,6 +1890,13 @@
 			values[monthName] = '';
 			values[quarterName] = '';
 			values[yearName] = '';
+
+			var input = field.querySelector(".main-ui-date-input");
+
+			if (input && input.dataset.isValid === "false")
+			{
+				return;
+			}
 
 			selectValue = JSON.parse(BX.data(select, 'value'));
 			values[selectName] = selectValue.VALUE;
@@ -2017,17 +2119,29 @@
 			var applyParams = {autoResolve: !this.grid};
 			var self = this;
 
+			this.clearGet();
 			this.showGridAnimation();
-			BX.onCustomEvent(window, 'BX.Main.Filter:beforeApply', [filterId, {}, this, promise]);
+
+			var action = clear ? "clear" : "apply";
+
+			BX.onCustomEvent(window, 'BX.Main.Filter:beforeApply', [filterId, {action: action}, this, promise]);
 
 			this.updatePreset(presetId, null, clear, null).then(function() {
 				Search.updatePreset(Preset.getPreset(presetId));
+
+				if (self.getParam('VALUE_REQUIRED'))
+				{
+					if (!Search.getSquares().length)
+					{
+						self.lastPromise = Preset.applyPinnedPreset();
+					}
+				}
 			}).then(function() {
 				var params = {apply_filter: 'Y', clear_nav: 'Y'};
 				var fulfill = BX.delegate(promise.fulfill, promise);
 				var reject = BX.delegate(promise.reject, promise);
 				self.grid && self.grid.reloadTable('POST', params, fulfill, reject);
-				BX.onCustomEvent(window, 'BX.Main.Filter:apply', [filterId, {}, self, promise, applyParams]);
+				BX.onCustomEvent(window, 'BX.Main.Filter:apply', [filterId, {action: action}, self, promise, applyParams]);
 				applyParams.autoResolve && promise.fulfill();
 			});
 
@@ -2129,6 +2243,14 @@
 						controlData.VALUES = {
 							'_from': '',
 							'_to': ''
+						};
+						break;
+					}
+
+					case this.types.DEST_SELECTOR : {
+						controlData.VALUES = {
+							'_label': '',
+							'_value': ''
 						};
 						break;
 					}
@@ -2591,6 +2713,12 @@
 						}
 					}
 
+					if (current.TYPE === this.types.DEST_SELECTOR)
+					{
+						result[current.NAME + '_label'] = current.VALUES._label;
+						result[current.NAME + '_value'] = current.VALUES._value;
+					}
+
 					if (current.TYPE === this.types.CUSTOM_ENTITY)
 					{
 						result[current.NAME + '_label'] = current.VALUES._label;
@@ -2637,6 +2765,7 @@
 		{
 			var Preset = this.getPreset();
 			var currentPresetId = Preset.getCurrentPresetId();
+			var promise;
 
 			if (currentPresetId !== 'tmp_filter' &&
 				currentPresetId !== 'default_filter' &&
@@ -2651,30 +2780,46 @@
 				}, this);
 
 				Preset.applyPreset(currentPresetId);
-				this.applyFilter(false, currentPresetId);
+				promise = this.applyFilter(false, currentPresetId);
 				this.closePopup();
 			}
 			else
 			{
 				Preset.deactivateAllPresets();
-				this.applyFilter();
+				promise = this.applyFilter();
 				this.closePopup();
 			}
+
+			return promise;
 		},
 
 		_onResetButtonClick: function()
 		{
-			if (this.getParam('RESET_TO_DEFAULT_MODE'))
+			if (this.getParam('VALUE_REQUIRED'))
 			{
-				this.getSearch().clearInput();
-				this.getPreset().applyPinnedPreset();
+				var preset = this.getPreset().getCurrentPresetData();
+
+				if (preset.ADDITIONAL.length)
+				{
+					this.closePopup();
+				}
+
+				BX.fireEvent(this.getSearch().getClearButton(), 'click');
 			}
 			else
 			{
-				this.resetFilter();
-			}
+				if (this.getParam('RESET_TO_DEFAULT_MODE'))
+				{
+					this.getSearch().clearInput();
+					this.getPreset().applyPinnedPreset();
+				}
+				else
+				{
+					this.resetFilter();
+				}
 
-			this.closePopup();
+				this.closePopup();
+			}
 		},
 
 

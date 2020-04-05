@@ -3,6 +3,18 @@
 .mli-search-current {background-color: #EEEEEE;}
 .mli-field { margin-right: 10px; }
 .mli-layout { line-height: 14px; }
+.mli-layout-ui-filter {
+	float: left;
+	outline: none;
+	padding-top: 10px;
+	width: 87%;
+}
+.mli-field-ui-filter {
+	border: none;
+}
+.mli-field-ui-filter:focus {
+	border: none !important;
+}
 
 /*for admin filters*/
 .adm-filter-box-sizing .mli-layout {

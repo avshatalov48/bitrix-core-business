@@ -221,7 +221,7 @@ HTML;
 	 * @param int $delay Delay for running agent
 	 * @return void
 	 */
-	public static function bind($delay = 60)
+	public static function bind($delay = 120)
 	{
 		/** @var Stepper $c */
 		$c = get_called_class();
@@ -235,7 +235,7 @@ HTML;
 	 * @param int $delay Delay for running agent
 	 * @return void
 	 */
-	public static function bindClass($className, $moduleId, $delay = 60)
+	public static function bindClass($className, $moduleId, $delay = 120)
 	{
 		if (class_exists("\CAgent"))
 		{

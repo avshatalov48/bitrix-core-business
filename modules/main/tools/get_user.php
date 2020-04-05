@@ -19,6 +19,8 @@ use Bitrix\Main\Loader,
 define("NOT_CHECK_PERMISSIONS", true);
 define("STOP_STATISTICS", true);
 
+$publicMode = (defined("SELF_FOLDER_URL") ? true : false);
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 $ajaxMode = (isset($_REQUEST['ajax']) && is_string($_REQUEST['ajax']) && $_REQUEST['ajax'] == 'Y');
@@ -59,7 +61,14 @@ if($auth)
 		}
 		if (!$ajaxMode)
 		{
-			$res = '[<a title="'.GetMessage("MAIN_EDIT_USER_PROFILE").'" class="tablebodylink" href="/bitrix/admin/user_edit.php?ID='.$arUser["ID"].'&lang='.LANG.'">'.$arUser["ID"].'</a>] '.$res;
+			if ($publicMode)
+			{
+				$res = '['.$arUser["ID"].'] '.$res;
+			}
+			else
+			{
+				$res = '[<a title="'.GetMessage("MAIN_EDIT_USER_PROFILE").'" class="tablebodylink" href="/bitrix/admin/user_edit.php?ID='.$arUser["ID"].'&lang='.LANG.'">'.$arUser["ID"].'</a>] '.$res;
+			}
 		}
 	}
 }

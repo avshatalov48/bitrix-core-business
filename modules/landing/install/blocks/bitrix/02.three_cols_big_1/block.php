@@ -1,8 +1,8 @@
-    <section class="container-fluid px-0 landing-block">
+    <section class="container-fluid px-0 landing-block g-theme-business-bg-blue-dark-v2">
         <div class="row no-gutters">
-            <div class="landing-block-node-left-img g-min-height-300 col-lg-4 g-bg-img-hero" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1600x1920/img2.jpg);"></div>
+            <div class="landing-block-node-left-img g-min-height-300 col-lg-4 g-bg-img-hero order-3 order-lg-1" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1600x1920/img2.jpg);"></div>
 
-            <div class="landing-block-node-center col-md-6 col-lg-4 g-flex-centered g-theme-business-bg-blue-dark-v1">
+            <div class="landing-block-node-center col-md-6 col-lg-4 order-1 order-lg-2 g-flex-centered g-theme-business-bg-blue-dark-v1">
                 <div class="text-center g-color-gray-light-v2 g-pa-30">
                     <div class="landing-block-node-header text-uppercase u-heading-v2-4--bottom g-brd-primary g-mb-40">
                         <h4 class="landing-block-node-center-subtitle js-animation fadeIn h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">About us</h4>
@@ -15,8 +15,9 @@
                 </div>
             </div>
 
-            <div class="col-md-6 col-lg-4 g-theme-business-bg-blue-dark-v2 landing-block-node-right">
+            <div class="landing-block-node-right col-md-6 col-lg-4 order-2 order-lg-3">
                 <div class="js-carousel g-pb-90"
+					 data-autoplay="true"
                      data-infinite="true"
                      data-slides-show="true"
                      data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-bottom-30">

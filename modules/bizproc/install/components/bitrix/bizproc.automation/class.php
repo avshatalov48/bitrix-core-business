@@ -4,6 +4,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 
+Main\UI\Extension::load('ui.alerts');
+
 Loc::loadMessages(__FILE__);
 
 class BizprocAutomationComponent extends \CBitrixComponent
@@ -73,7 +75,7 @@ class BizprocAutomationComponent extends \CBitrixComponent
 		return array_values($relation);
 	}
 
-	public function getRobotViewData($robot, array $documentType)
+	public static function getRobotViewData($robot, array $documentType)
 	{
 		$availableRobots = \Bitrix\Bizproc\Automation\Engine\Template::getAvailableRobots($documentType);
 		$result = array(
@@ -94,22 +96,18 @@ class BizprocAutomationComponent extends \CBitrixComponent
 
 			if (isset($settings['RESPONSIBLE_PROPERTY']))
 			{
-				$users = (array)$robot['Properties'][$settings['RESPONSIBLE_PROPERTY']];
-				$usersLabel = CBPHelper::UsersArrayToString(
-					$users,
-					array(),
-					$documentType,
-					false
-				);
+				$users = self::getUsersFromResponsibleProperty($robot, $settings['RESPONSIBLE_PROPERTY']);
+				$usersLabel = CBPHelper::UsersArrayToString($users, [], $documentType, false);
 
 				if ($result['responsibleLabel'] && $usersLabel)
+				{
 					$result['responsibleLabel'] .= ', ';
+				}
 				$result['responsibleLabel'] .= $usersLabel;
 
-				$user = $users[0];
-				if (count($users) == 1 && $user && strpos($user, 'user_') === 0)
+				if ($users && count($users) == 1 && $users[0] && strpos($users[0], 'user_') === 0)
 				{
-					$id = (int)substr($user, 5);
+					$id = (int) \CBPHelper::StripUserPrefix($users[0]);
 					$result['responsibleUrl'] = CComponentEngine::MakePathFromTemplate(
 						'/company/personal/user/#user_id#/',
 						array('user_id' => $id)
@@ -121,12 +119,26 @@ class BizprocAutomationComponent extends \CBitrixComponent
 		return $result;
 	}
 
+	private static function getUsersFromResponsibleProperty(array $robot, $propertyName)
+	{
+		$value = null;
+		$props = $robot['Properties'];
+		$path = explode('.', $propertyName);
+
+		foreach ($path as $chain)
+		{
+			$value = ($props && is_array($props) && isset($props[$chain])) ? $props[$chain] : null;
+			$props = $value;
+		}
+
+		return $value ? (array)$value : null;
+	}
+
 	public function executeComponent()
 	{
 		if (!Main\Loader::includeModule('bizproc'))
 		{
-			ShowError(Loc::getMessage('BIZPROC_MODULE_NOT_INSTALLED'));
-			return;
+			return $this->showError(Loc::getMessage('BIZPROC_MODULE_NOT_INSTALLED'));
 		}
 
 		$documentType = $this->getDocumentType();
@@ -141,48 +153,60 @@ class BizprocAutomationComponent extends \CBitrixComponent
 
 		if (!$target)
 		{
-			ShowError(Loc::getMessage('BIZPROC_AUTOMATION_NOT_SUPPORTED'));
-			return;
+			return $this->showError(Loc::getMessage('BIZPROC_AUTOMATION_NOT_SUPPORTED'));
 		}
 
 		if (!$target->isAvailable())
 		{
-			ShowError(Loc::getMessage('BIZPROC_AUTOMATION_NOT_AVAILABLE'));
-			return;
+			return $this->showError(Loc::getMessage('BIZPROC_AUTOMATION_NOT_AVAILABLE'));
 		}
 
 		//for HTML editor
 		Main\Loader::includeModule('fileman');
 
-		$canEdit = CBPDocument::CanUserOperateDocumentType(
-			CBPCanUserOperateOperation::CreateAutomation,
-			$GLOBALS["USER"]->GetID(),
-			$documentType,
-			['DocumentCategoryId' => $documentCategoryId]
+		$tplUser = new \CBPWorkflowTemplateUser(\CBPWorkflowTemplateUser::CurrentUser);
+
+		$canRead = $canEdit = (
+			$tplUser->isAdmin() ||
+			CBPDocument::CanUserOperateDocumentType(
+				CBPCanUserOperateOperation::CreateAutomation,
+				$GLOBALS["USER"]->GetID(),
+				$documentType,
+				['DocumentCategoryId' => $documentCategoryId]
+			)
 		);
 		$documentId = $this->getDocumentId();
 
-		if (!$documentId && !$canEdit)
-		{
-			ShowError(Loc::getMessage('BIZPROC_AUTOMATION_ACCESS_DENIED'));
-			return;
-		}
-
 		$target->setDocumentId($documentId);
 
-		if ($documentId)
+		if (!$canEdit)
 		{
-			$canRead = CBPDocument::CanUserOperateDocument(
-				CBPCanUserOperateOperation::ReadDocument,
-				$GLOBALS["USER"]->GetID(),
-				[$documentType[0], $documentType[1], $documentId]
-			);
+			if ($documentId)
+			{
+				$canRead = CBPDocument::CanUserOperateDocument(
+					CBPCanUserOperateOperation::ReadDocument,
+					$GLOBALS["USER"]->GetID(),
+					[$documentType[0], $documentType[1], $documentId]
+				);
+			}
+			else
+			{
+				$canRead = CBPDocument::CanUserOperateDocumentType(
+					CBPCanUserOperateOperation::ReadDocument,
+					$GLOBALS["USER"]->GetID(),
+					$documentType
+				);
+			}
 
 			if (!$canRead)
 			{
-				ShowError(Loc::getMessage('BIZPROC_AUTOMATION_ACCESS_DENIED'));
-				return;
+				return $this->showError(Loc::getMessage('BIZPROC_AUTOMATION_ACCESS_DENIED'));
 			}
+		}
+
+		if (!$canRead && !$canEdit)
+		{
+			return $this->showError(Loc::getMessage('BIZPROC_AUTOMATION_NO_EDIT_PERMISSIONS'));
 		}
 
 		if (isset($this->arParams['ACTION']) && $this->arParams['ACTION'] == 'ROBOT_SETTINGS')
@@ -192,7 +216,9 @@ class BizprocAutomationComponent extends \CBitrixComponent
 			$dialog = $template->getRobotSettingsDialog($this->arParams['~ROBOT_DATA'], $this->arParams['~REQUEST']);
 
 			if ($dialog === '')
+			{
 				return;
+			}
 
 			if (!($dialog instanceof \Bitrix\Bizproc\Activity\PropertiesDialog))
 			{
@@ -217,7 +243,7 @@ class BizprocAutomationComponent extends \CBitrixComponent
 
 		$statusList = $target->getDocumentStatusList($documentCategoryId);
 
-		$log = array();
+		$log = [];
 		if ($documentId)
 		{
 			$tracker = new \Bitrix\Bizproc\Automation\Tracker($target);
@@ -299,10 +325,12 @@ class BizprocAutomationComponent extends \CBitrixComponent
 
 	public static function getDestinationData(array $documentType)
 	{
-		$result = array('LAST' => array());
+		$result = ['LAST' => []];
 
 		if (!Main\Loader::includeModule('socialnetwork'))
-			return array();
+		{
+			return [];
+		}
 
 		$arStructure = CSocNetLogDestination::GetStucture(array());
 		$result['DEPARTMENT'] = $arStructure['department'];
@@ -348,5 +376,15 @@ class BizprocAutomationComponent extends \CBitrixComponent
 	private function getDocumentFields($filter = null)
 	{
 		return array_values(\Bitrix\Bizproc\Automation\Helper::getDocumentFields($this->getDocumentType(), $filter));
+	}
+
+	private function showError($message)
+	{
+		echo <<<HTML
+			<div class="ui-alert ui-alert-danger ui-alert-icon-danger">
+				<span class="ui-alert-message">{$message}</span>
+			</div>
+HTML;
+		return;
 	}
 }

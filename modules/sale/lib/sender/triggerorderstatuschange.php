@@ -3,6 +3,12 @@
 namespace Bitrix\Sale\Sender;
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Loader;
+
+if (!Loader::includeModule('sender'))
+{
+	return;
+}
 
 Loc::loadMessages(__FILE__);
 
@@ -80,7 +86,8 @@ class TriggerOrderStatusChange extends \Bitrix\Sender\TriggerConnector
 		$eventData = $this->getParam('EVENT');
 		if($eventData['ENTITY'] instanceof \Bitrix\Sale\Order)
 		{
-			$result['ORDER_ID'] = $eventData['ENTITY']->getId();
+			$result['ORDER_ID'] = $eventData['ENTITY']->getField('ACCOUNT_NUMBER');
+			$result['ORDER_REAL_ID'] = $eventData['ENTITY']->getId();
 		}
 
 		return $result;

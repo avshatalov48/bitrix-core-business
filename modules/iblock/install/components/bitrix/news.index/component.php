@@ -157,20 +157,9 @@ if($this->startResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 			else
 				$arItem["DISPLAY_ACTIVE_FROM"] = "";
 
-			$ipropValues = new Iblock\InheritedProperty\ElementValues($arItem["IBLOCK_ID"], $arItem["ID"]);
-			$arItem["IPROPERTY_VALUES"] = $ipropValues->getValues();
-
-			Iblock\Component\Tools::getFieldImageData(
-				$arItem,
-				array('PREVIEW_PICTURE', 'DETAIL_PICTURE'),
-				Iblock\Component\Tools::IPROPERTY_ENTITY_ELEMENT,
-				'IPROPERTY_VALUES'
-			);
+			Iblock\InheritedProperty\ElementValues::queue($arItem["IBLOCK_ID"], $arItem["ID"]);
 
 			$arItem["FIELDS"] = array();
-			foreach($arParams["FIELD_CODE"] as $code)
-				if(array_key_exists($code, $arItem))
-					$arItem["FIELDS"][$code] = $arItem[$code];
 
 			if($bGetProperty)
 				$arItem["PROPERTIES"] = $obItem->GetProperties();
@@ -191,6 +180,27 @@ if($this->startResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 		}
 		$arResult["IBLOCKS"][]=$arIBlock;
 	}
+
+	foreach ($arResult["IBLOCKS"] as &$arIBlock)
+	{
+		foreach ($arIBlock["ITEMS"] as &$arItem)
+		{
+			$ipropValues = new Iblock\InheritedProperty\ElementValues($arItem["IBLOCK_ID"], $arItem["ID"]);
+			$arItem["IPROPERTY_VALUES"] = $ipropValues->getValues();
+
+			Iblock\Component\Tools::getFieldImageData(
+				$arItem,
+				array('PREVIEW_PICTURE', 'DETAIL_PICTURE'),
+				Iblock\Component\Tools::IPROPERTY_ENTITY_ELEMENT,
+				'IPROPERTY_VALUES'
+			);
+			foreach($arParams["FIELD_CODE"] as $code)
+				if(array_key_exists($code, $arItem))
+					$arItem["FIELDS"][$code] = $arItem[$code];
+		}
+		unset($arItem);
+	}
+	unset($arIBlock);
 
 	$this->setResultCacheKeys(array(
 	));

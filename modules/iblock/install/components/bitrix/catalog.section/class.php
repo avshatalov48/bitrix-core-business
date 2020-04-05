@@ -48,6 +48,7 @@ class CatalogSectionComponent extends ElementList
 
 		$params['SHOW_ALL_WO_SECTION'] = isset($params['SHOW_ALL_WO_SECTION']) && $params['SHOW_ALL_WO_SECTION'] === 'Y';
 		$params['USE_MAIN_ELEMENT_SECTION'] = isset($params['USE_MAIN_ELEMENT_SECTION']) && $params['USE_MAIN_ELEMENT_SECTION'] === 'Y';
+		$params['SECTIONS_CHAIN_START_FROM'] = isset($params['SECTIONS_CHAIN_START_FROM']) ? (int)$params['SECTIONS_CHAIN_START_FROM'] : 0;
 
 		$params['BACKGROUND_IMAGE'] = isset($params['BACKGROUND_IMAGE']) ? trim($params['BACKGROUND_IMAGE']) : '';
 		if ($params['BACKGROUND_IMAGE'] === '-')
@@ -203,6 +204,11 @@ class CatalogSectionComponent extends ElementList
 					$ipropValues = new Iblock\InheritedProperty\SectionValues($this->arParams['IBLOCK_ID'], $path['ID']);
 					$path['IPROPERTY_VALUES'] = $ipropValues->getValues();
 					$this->arResult['PATH'][] = $path;
+				}
+
+				if ($this->arParams['SECTIONS_CHAIN_START_FROM'] > 0)
+				{
+					$this->arResult['PATH'] = array_slice($this->arResult['PATH'], $this->arParams['SECTIONS_CHAIN_START_FROM']);
 				}
 			}
 		}

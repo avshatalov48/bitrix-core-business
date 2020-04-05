@@ -5,7 +5,6 @@ function socialnetworkBlogPostCommentMobile(
 	array $arResult,
 	SocialnetworkBlogPostComment $component)
 {
-	global $APPLICATION;
 	$arParams["AVATAR_SIZE"] = (intval($arParams["AVATAR_SIZE"]) ?: 58);
 	$arAvatarSizes = array(
 		"AVATAR_SIZE" => intval(array_key_exists("AVATAR_SIZE_COMMON", $arParams) ? $arParams["AVATAR_SIZE_COMMON"] : $arParams["AVATAR_SIZE"]),
@@ -161,6 +160,17 @@ function socialnetworkBlogPostCommentMobile(
 				$res["UF"][$key]['URL_TO_POST'] = str_replace('#source_post_id#', $arPostField['POST_ID'], $arResult['urlToPost']);
 			}
 		}
+	}
+
+	if ($arParams["SHOW_RATING"] == "Y")
+	{
+		$res["RATING_VOTE_ID"] = 'BLOG_COMMENT_'.$res['ID'].'-'.(time()+rand(0, 1000));
+		$res["RATING_USER_HAS_VOTED"] = (
+			isset($arResult['RATING'][$res["ID"]])
+			&& isset($arResult['RATING'][$res["ID"]]["USER_HAS_VOTED"])
+				? $arResult['RATING'][$res["ID"]]["USER_HAS_VOTED"]
+				: "N"
+		);
 	}
 
 	return $res;

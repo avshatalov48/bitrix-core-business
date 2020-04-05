@@ -21,4 +21,5 @@ $MESS["SALE_OK_ORDER_CREATE_ERROR"] = "Ошибка создания заказ�
 $MESS["SALE_OK_ORDER_CREATE_ERROR_NO_PRODUCT"] = "Товар \"##NAME##\" не доступен";
 $MESS["SALE_OK_ORDER_CREATE_ERROR_BASKET_ITEM_NOT_CREATED"] = "Позиция заказа \"##NAME##\" не создана";
 $MESS["ARCHIVE_ERROR_PRODUCT_NOT_FOUND"] = "Товар №#ID# - #NAME# не найден в каталоге";
+$MESS["SALE_OK_ORDER_COPY_ERROR_BASKET_ITEM_NOT_FOUND"] = "Товар \"#NAME#\" в каталоге отсутствует";
 ?>

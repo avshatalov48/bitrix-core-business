@@ -47,7 +47,6 @@ final class GoogleApiTransport //implements IErrorable
 		$this->currentMethod = __METHOD__;
 		$requestBody = Web\Json::encode($channelInfo, JSON_UNESCAPED_SLASHES);
 		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . 'calendars/' . urlencode($calendarId) . '/events/watch', $requestBody);
-		#return $this->client->getResult();
 	}
 
 	/**
@@ -114,6 +113,7 @@ final class GoogleApiTransport //implements IErrorable
 			throw new ArgumentException('Bad request type');
 		}
 		$this->client->query($type, $url, ($requestParams ? $requestParams : null));
+
 		//Only "OK" response is acceptable.
 		if ($this->client->getStatus() == 200)
 		{
@@ -263,6 +263,11 @@ final class GoogleApiTransport //implements IErrorable
 	 */
 	public function getErrorByCode($code)
 	{
+		if (!is_array($this->errors))
+		{
+			return array();
+		}
+
 		$errorsByCode = array_filter($this->errors, function($error) use ($code)
 		{
 			return $error['code'] == $code;

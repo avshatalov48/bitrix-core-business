@@ -36,6 +36,25 @@ if(
 	}
 
 	if(
+		$_REQUEST["cachetype"] == "landing" &&
+		\Bitrix\Main\Loader::includeModule("landing")
+	)
+	{
+		\Bitrix\Landing\Block::clearRepositoryCache();
+		CAdminMessage::ShowMessage(array(
+			"MESSAGE" => GetMessage("main_cache_finished"),
+			"HTML" => true,
+			"TYPE" => "OK",
+		));
+		?>
+		<script type="text/javascript">
+			CloseWaitWindow();
+			EndClearCache();
+		</script>
+		<?
+		require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin_js.php");
+	}
+	else if(
 		$_REQUEST["cachetype"] === "html"
 		|| \Bitrix\Main\Data\Cache::getCacheEngineType() == "cacheenginefiles"
 	)
@@ -295,6 +314,8 @@ if(strlen($okMessage)>0)
 <script language="JavaScript">
 var stop;
 var last_path;
+var cache_types_cnt = 0;
+
 function StartClearCache()
 {
 	stop=false;
@@ -302,7 +323,7 @@ function StartClearCache()
 	document.getElementById('stop_button').disabled=false;
 	document.getElementById('start_button').disabled=true;
 	document.getElementById('continue_button').disabled=true;
-	for(var i=1;i<=5;i++)
+	for(var i=1;i<=cache_types_cnt;i++)
 		document.getElementById('cachetype'+i).disabled=true;
 
 	DoNext('');
@@ -316,7 +337,7 @@ function DoNext(path)
 	;
 
 	var cachetype = '';
-	for(var i=1;i<=5;i++)
+	for(var i=1;i<=cache_types_cnt;i++)
 	{
 		var radio = document.getElementById('cachetype'+i);
 		if(radio.checked)
@@ -346,7 +367,7 @@ function StopClearCache()
 	document.getElementById('stop_button').disabled=true;
 	document.getElementById('start_button').disabled=false;
 	document.getElementById('continue_button').disabled=false;
-	for(var i=1;i<=5;i++)
+	for(var i=1;i<=cache_types_cnt;i++)
 		document.getElementById('cachetype'+i).disabled=false;
 }
 function ContinueClearCache()
@@ -355,7 +376,7 @@ function ContinueClearCache()
 	document.getElementById('stop_button').disabled=false;
 	document.getElementById('start_button').disabled=true;
 	document.getElementById('continue_button').disabled=true;
-	for(var i=1;i<=5;i++)
+	for(var i=1;i<=cache_types_cnt;i++)
 		document.getElementById('cachetype'+i).disabled=true;
 	DoNext(last_path);
 }
@@ -365,7 +386,7 @@ function EndClearCache()
 	document.getElementById('stop_button').disabled=true;
 	document.getElementById('start_button').disabled=false;
 	document.getElementById('continue_button').disabled=true;
-	for(var i=1;i<=5;i++)
+	for(var i=1;i<=cache_types_cnt;i++)
 		document.getElementById('cachetype'+i).disabled=false;
 }
 </script>
@@ -478,12 +499,18 @@ $tabControl->Begin();
 <tr>
 	<td colspan="2" valign="top" align="left">
 		<input type="hidden" name="clearcache" value="Y">
-		<input type="radio" name="cachetype" id="cachetype1" value="expired"<?if($cachetype!="all" && $cachetype!="menu" && $cachetype!="managed")echo " checked"?>> <label for="cachetype1"><?echo GetMessage("MAIN_OPTION_CLEAR_CACHE_OLD")?></label><br>
-		<input type="radio" name="cachetype" id="cachetype2" value="all"<?if($cachetype=="all")echo " checked"?>> <label for="cachetype2"><?echo GetMessage("MAIN_OPTION_CLEAR_CACHE_ALL")?></label><br>
-		<input type="radio" name="cachetype" id="cachetype3" value="menu"<?if($cachetype=="menu")echo " checked"?>> <label for="cachetype3"><?echo GetMessage("MAIN_OPTION_CLEAR_CACHE_MENU")?></label><br>
-		<input type="radio" name="cachetype" id="cachetype4" value="managed"<?if($cachetype=="managed")echo " checked"?>> <label for="cachetype4"><?echo GetMessage("MAIN_OPTION_CLEAR_CACHE_MANAGED")?></label><br>
-		<input type="radio" name="cachetype" id="cachetype5" value="html"<?if($cachetype=="html")echo " checked"?>> <label for="cachetype5"><?echo GetMessage("MAIN_OPTION_CLEAR_CACHE_STATIC")?></label><br>
+		<input type="radio" class="cache-types" name="cachetype" id="cachetype1" value="expired"<?if($cachetype!="all" && $cachetype!="menu" && $cachetype!="managed")echo " checked"?>> <label for="cachetype1"><?echo GetMessage("MAIN_OPTION_CLEAR_CACHE_OLD")?></label><br>
+		<input type="radio" class="cache-types" name="cachetype" id="cachetype2" value="all"<?if($cachetype=="all")echo " checked"?>> <label for="cachetype2"><?echo GetMessage("MAIN_OPTION_CLEAR_CACHE_ALL")?></label><br>
+		<input type="radio" class="cache-types" name="cachetype" id="cachetype3" value="menu"<?if($cachetype=="menu")echo " checked"?>> <label for="cachetype3"><?echo GetMessage("MAIN_OPTION_CLEAR_CACHE_MENU")?></label><br>
+		<input type="radio" class="cache-types" name="cachetype" id="cachetype4" value="managed"<?if($cachetype=="managed")echo " checked"?>> <label for="cachetype4"><?echo GetMessage("MAIN_OPTION_CLEAR_CACHE_MANAGED")?></label><br>
+		<input type="radio" class="cache-types" name="cachetype" id="cachetype5" value="html"<?if($cachetype=="html")echo " checked"?>> <label for="cachetype5"><?echo GetMessage("MAIN_OPTION_CLEAR_CACHE_STATIC")?></label><br>
+		<?if (\Bitrix\Main\ModuleManager::isModuleInstalled("landing")):?>
+		<input type="radio" class="cache-types" name="cachetype" id="cachetype6" value="landing"<?if($cachetype=="landing")echo " checked"?>> <label for="cachetype6"><?echo GetMessage("MAIN_OPTION_CLEAR_CACHE_LANDING")?></label><br>
+		<?endif;?>
 		<br>
+		<script type="text/javascript">
+			cache_types_cnt = document.getElementsByClassName('cache-types').length;
+		</script>
 	</td>
 </tr>
 <tr>

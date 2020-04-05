@@ -23,20 +23,23 @@ if ($arResult['IS_SLIDER'])
 	<body>
 <? } ?>
 	<div class="<?= $arResult['IS_SLIDER'] ? 'main-numerator-edit-slider' : '' ?>
-	<?= htmlspecialcharsbx(isset($arParams['CSS_WRAP_CLASS']) ? $arParams['CSS_WRAP_CLASS'] : ''); ?>">
-		<div class="main-numerator-edit-title">
-			<div class="pagetitle-wrap">
-				<div class="pagetitle-inner-container">
-					<div class="pagetitle">
+	<?= htmlspecialcharsbx(isset($arParams['CSS_WRAP_CLASS']) ? $arParams['CSS_WRAP_CLASS'] : ''); ?>"
+	>
+		<? if (!$arResult['IS_HIDE_PAGE_TITLE']): ?>
+			<div class="main-numerator-edit-title">
+				<div class="pagetitle-wrap">
+					<div class="pagetitle-inner-container">
+						<div class="pagetitle">
 						<span class="pagetitle-item "><?
 							?><?= $arResult['IS_EDIT']
 								? Loc::getMessage('NUMERATOR_EDIT_UPDATE_PAGE_TITLE')
 								: Loc::getMessage('NUMERATOR_EDIT_CREATE_PAGE_TITLE');
-						?></span>
+							?></span>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		<? endif; ?>
 
 		<div class="main-numerator-edit-wrap">
 			<form action="" method="post" data-role="numerator-edit-form">
@@ -49,22 +52,18 @@ if ($arResult['IS_SLIDER'])
 							   data-role="numerator-hidden-<?= htmlspecialcharsbx($setting['settingName']); ?>-input">
 						<? continue; ?>
 					<? endif; ?>
-					<div class="main-numerator-edit-box"
-						<? if ($setting['settingName'] == 'name'
-								&& $arResult['HIDE_NUMERATOR_NAME']): ?>
-							style="display: none"
-						<? endif; ?>>
+					<div class="main-numerator-edit-box">
 						<div class="main-numerator-edit-caption"><?= $setting['title']; ?></div>
 						<? if ($setting['settingName'] == 'template'): ?>
+							<div class="main-numerator-edit-tooltip main-numerator-edit-tooltip-big"
+								data-role="help-article-toggle"></div>
 							<div class="main-numerator-edit-template main-numerator-edit-input"
 								 contenteditable="true" role="textbox" aria-multiline="false"
 								 data-name="<?= $attributeName; ?>"
 								 data-role="numerator-template-input"
 								 data-value="<?= htmlspecialcharsbx($setting['value']); ?>"
 							></div>
-							<a href="<?= htmlspecialcharsbx(Loc::getMessage('MAIN_NUMERATOR_EDIT_HELP_ARTICLE')); ?>"
-							   class="main-numerator-edit-tooltip main-numerator-edit-tooltip-big"></a>
-						<div class="main-numerator-edit-word-btn-wrapper">
+						<div class="main-numerator-edit-word-btn-wrapper" data-role="numerator-edit-word-btn-wrapper">
 							<? foreach ($arResult['numeratorTemplateWords'] as $type => $numeratorTemplateWords) : ?>
 								<? foreach ($numeratorTemplateWords as $wordCode => $numeratorTemplateWordTitle) : ?>
 									<button class="main-numerator-edit-template-word-btn" href="#"
@@ -78,11 +77,9 @@ if ($arResult['IS_SLIDER'])
 						</div>
 						<? else: ?>
 							<input type="<?= $setting['type'] == 'string' ? 'text' : 'number'; ?>"
-								   value="<?= htmlspecialcharsbx($setting['value'] ? $setting['value'] : $this->getComponent()->getDefaultValueFromSettings($setting)); ?>"
+								   value="<?= htmlspecialcharsbx($setting['value'])?>"
 								   class="main-numerator-edit-input"
-								<? if ($setting['settingName'] == 'name'): ?>
-									data-role="numerator-name-input"
-								<? endif; ?>
+								   data-role="numerator-<?= htmlspecialcharsbx($setting['settingName']); ?>-input"
 								   name="<?= $attributeName; ?>"
 							>
 						<? endif; ?>
@@ -97,11 +94,27 @@ if ($arResult['IS_SLIDER'])
 						<div class="main-numerator-edit-hide"
 							 data-role="settings-type-<?= htmlspecialcharsbx($settingsTypeName); ?>">
 							<? foreach ($settings as $setting) : ?>
-								<? if ($setting['settingName'] == 'isDirectNumeration'
-									   && $arResult['HIDE_IS_DIRECT_NUMERATION']): ?>
+								<? $attributeName = htmlspecialcharsbx($settingsTypeName . '[' . $setting['settingName'] . ']'); ?>
+								<? if ($setting['type'] == 'hidden'): ?>
+									<input type="hidden"
+										   name="<?= $attributeName ?>"
+										   value="<?= htmlspecialcharsbx($setting['value']); ?>"
+										   data-role="numerator-hidden-<?= htmlspecialcharsbx($setting['settingName']); ?>-input">
 									<? continue; ?>
 								<? endif; ?>
-								<? $attributeName = htmlspecialcharsbx($settingsTypeName . '[' . $setting['settingName'] . ']'); ?>
+								<? if ($setting['settingName'] == 'currentNumberForSequence'): ?>
+									<? if (isset($setting['value'])): ?>
+										<div class="main-numerator-edit-caption">
+											<?= Loc::getMessage('NUMERATOR_EDIT_TITLE_BITRIX_MAIN_SEQUENTNUMBERGENERATOR_NEXT_NUMBER').' - '. htmlspecialcharsbx($setting['value']); ?>
+										</div>
+									<? endif; ?>
+									<div class="main-numerator-edit-field-wrap">
+										<div class="main-numerator-edit-caption main-numerator-edit-link"
+											 data-role="numerator-set-next-number-toggle">
+											<?= $setting['toggleTitle']; ?>
+										</div>
+									</div>
+								<? endif; ?>
 								<? if (in_array($setting['type'], ['boolean'])): ?>
 									<div class="main-numerator-edit-field-wrap">
 										<div class="main-numerator-edit-label-box">
@@ -115,56 +128,60 @@ if ($arResult['IS_SLIDER'])
 													   value="1">
 												<div class="main-numerator-edit-caption"><?= htmlspecialcharsbx($setting['title']); ?></div>
 											</label>
-											<a href="<?= htmlspecialcharsbx(Loc::getMessage('MAIN_NUMERATOR_EDIT_HELP_ARTICLE')); ?>"
-											   class="main-numerator-edit-tooltip"></a>
+											<div class="main-numerator-edit-tooltip"
+											   data-role="help-article-toggle"></div>
 										</div>
 									</div>
 								<? elseif (in_array($setting['type'], ['string', 'int'])): ?>
-									<div class="main-numerator-edit-field-wrap">
+									<div class="main-numerator-edit-field-wrap"
+										data-role="<?= htmlspecialcharsbx($setting['settingName']); ?>-wrapper"
+									>
 										<div class="main-numerator-edit-caption"><?= htmlspecialcharsbx($setting['title']); ?></div>
 										<input type="<?= $setting['type'] == 'string' ? 'text' : 'number'; ?>"
 											   class="main-numerator-edit-input "
-											   value="<?= htmlspecialcharsbx($setting['value'] ? $setting['value'] : $this->getComponent()->getDefaultValueFromSettings($setting)); ?>"
+											   value="<?= htmlspecialcharsbx($setting['value'])?>"
 											   name="<?= $attributeName; ?>"
 										>
 									</div>
+								<? elseif (in_array($setting['type'], ['linkToggle'])): ?>
+									<div class="main-numerator-edit-control-box">
+										<div class="main-numerator-edit-caption main-numerator-edit-link"
+											 data-role="numerator-<?= htmlspecialcharsbx($setting['settingName']); ?>"
+										>
+											<?= htmlspecialcharsbx($setting['title']); ?>
+										</div>
+									</div>
 								<? elseif (in_array($setting['type'], ['array'])): ?>
-									<? if ($setting['settingName'] == 'timezone'):?>
-										<div class="main-numerator-edit-field-wrap <?= $setting['value'] ? '' : 'main-numerator-edit-hide'; ?>"
-											data-role="numerator-timezones">
-									<? else: ?>
-										<div class="main-numerator-edit-field-wrap">
-									<? endif; ?>
+									<div class="main-numerator-edit-field-wrap"
+										 data-role="numerator-<?= htmlspecialcharsbx($setting['settingName']); ?>"
+									>
 										<div class="main-numerator-edit-caption"><?= htmlspecialcharsbx($setting['title']); ?></div>
-										<select class="main-numerator-edit-select" name="<?= $attributeName; ?>"
-											<?= ($setting['settingName'] == 'periodicBy') ? 'data-role="numerator-period-select"': '' ?>>
+										<select class="main-numerator-edit-select"
+												name="<?= $attributeName; ?>"
+												data-role="numerator-<?= htmlspecialcharsbx($setting['settingName']); ?>-select"
+										>
 											<? foreach ($setting['values'] as $attributeSettings) : ?>
-
 												<option value="<?= htmlspecialcharsbx($attributeSettings['value']); ?>"
 													<? if ($setting['value'] == $attributeSettings['value']): ?> selected <? endif; ?>
 												>
-													<?= htmlspecialcharsbx($setting['settingName'] == 'periodicBy' ? $attributeSettings['title'] : $attributeSettings['settingName']) ?>
+													<?= htmlspecialcharsbx($attributeSettings['title']) ?>
 												</option>
 											<? endforeach; ?>
 										</select>
-										<? if ($setting['settingName'] == 'periodicBy'): ?>
-										<div class="main-numerator-edit-control-box">
-											<div class="main-numerator-edit-caption main-numerator-edit-link"
-											data-role="numerator-timezone-toggle"><?= Loc::getMessage('NUMERATOR_EDIT_TIMEZONE_LINK'); ?></div>
-										</div>
-										<? endif; ?>
 									</div>
 								<? endif; ?>
 							<? endforeach; ?>
 						</div>
 					<? endforeach; ?>
 				</div>
-				<div class="main-numerator-edit-buttons">
-					<div class="main-numerator-edit-buttons-inner">
-						<button class="ui-btn ui-btn-md ui-btn-success main-numerator-edit-btn-save" data-role="btn-save"><?= Loc::getMessage('NUMERATOR_EDIT_BTN_SAVE'); ?></button>
-						<button class="ui-btn ui-btn-md ui-btn-light main-numerator-edit-btn-cancel" data-role="btn-cancel"><?= Loc::getMessage('NUMERATOR_EDIT_BTN_CANCEL'); ?></button>
+				<? if (!$arResult['isEmbedMode']): ?>
+					<div class="main-numerator-edit-buttons">
+						<div class="main-numerator-edit-buttons-inner">
+							<button class="ui-btn ui-btn-md ui-btn-success main-numerator-edit-btn-save" data-role="btn-save"><?= Loc::getMessage('NUMERATOR_EDIT_BTN_SAVE'); ?></button>
+							<button class="ui-btn ui-btn-md ui-btn-light main-numerator-edit-btn-cancel" data-role="btn-cancel"><?= Loc::getMessage('NUMERATOR_EDIT_BTN_CANCEL'); ?></button>
+						</div>
 					</div>
-				</div>
+				<? endif; ?>
 
 				<script>
 					BX.ready(function ()
@@ -174,6 +191,8 @@ if ($arResult['IS_SLIDER'])
 								emptyField: "<?= CUtil::JSEscape(Loc::getMessage('NUMERATOR_EDIT_FORM_EMPTY_FIELD_ERROR'))?>"
 							},
 							isSlider: "<?= CUtil::JSEscape($arResult['IS_SLIDER'])?>",
+							isEdit: "<?= CUtil::JSEscape($arResult['IS_EDIT'])?>",
+							isMultipleSequences: "<?= CUtil::JSEscape($arResult['isMultipleSequences'])?>",
 							defaultDelimiter: '/'
 						});
 					});

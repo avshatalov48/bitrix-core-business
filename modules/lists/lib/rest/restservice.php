@@ -26,6 +26,8 @@ class RestService extends \IRestService
 	{
 		return array(
 			static::SCOPE => array(
+				'lists.get.iblock.type.id' => array(__CLASS__, 'getIblockTypeId'),
+
 				'lists.add' => array(__CLASS__, 'addLists'),
 				'lists.get' => array(__CLASS__, 'getLists'),
 				'lists.update' => array(__CLASS__, 'updateLists'),
@@ -46,13 +48,42 @@ class RestService extends \IRestService
 		);
 	}
 
+	public static function getIblockTypeId($params, $n, $server)
+	{
+		$params = array_change_key_case($params, CASE_UPPER);
+		if (empty($params['IBLOCK_ID']) && empty($params['IBLOCK_CODE']))
+			throw new RestException('Required parameters are missing.', self::ERROR_REQUIRED_PARAMETERS_MISSING);
+
+		$filter = ['CHECK_PERMISSIONS' => 'Y'];
+		if (empty($params['IBLOCK_ID']))
+		{
+			$filter['=CODE'] = $params['IBLOCK_CODE'];
+		}
+		elseif (empty($params['IBLOCK_CODE']))
+		{
+			$filter['=ID'] = $params['IBLOCK_ID'];
+		}
+
+		$queryObject = \CIBlock::getList([], $filter);
+		if ($iblock = $queryObject->fetch())
+		{
+			return ($iblock["IBLOCK_TYPE_ID"] ? $iblock["IBLOCK_TYPE_ID"] : null);
+		}
+		else
+		{
+			return null;
+		}
+	}
+
 	/**
 	 * @param array $params The set of parameters.
 	 * @param int $n Offset.
 	 * @param \CRestServer $server Rest server instance.
+	 *
 	 * @return bool
 	 * @throws AccessException
 	 * @throws RestException
+	 * @throws \Bitrix\Main\LoaderException
 	 */
 	public static function addLists($params, $n, $server)
 	{
@@ -657,21 +688,10 @@ class RestService extends \IRestService
 			{
 				$errors .= str_replace("#FIELD#", $fieldData["NAME"], GetMessage("LRS_FIELD_REQUIED"));
 			}
-			$fieldValue = $params['FIELDS'][$fieldId];
-			if($object->is_field($fieldId))
-			{
-				$isField = true;
-				if(is_array($fieldValue))
-					$fieldValue = current($fieldValue);
-			}
-			else
-			{
-				$isField = false;
-				if(!is_array($fieldValue))
-					$fieldValue = array($fieldValue);
-			}
 
-			if($isField)
+			$fieldValue = $params['FIELDS'][$fieldId];
+
+			if($object->is_field($fieldId))
 			{
 				if($fieldId == 'PREVIEW_PICTURE' || $fieldId == 'DETAIL_PICTURE')
 				{
@@ -681,6 +701,9 @@ class RestService extends \IRestService
 				}
 				elseif($fieldId == 'PREVIEW_TEXT' || $fieldId == 'DETAIL_TEXT')
 				{
+					if (is_array($fieldValue))
+						$fieldValue = current($fieldValue);
+
 					if(!empty($fieldData['SETTINGS']['USE_EDITOR']) && $fieldData['SETTINGS']['USE_EDITOR'] == 'Y')
 						$element[$fieldId.'_TYPE'] = 'html';
 					else
@@ -689,11 +712,17 @@ class RestService extends \IRestService
 				}
 				else
 				{
+					if (is_array($fieldValue))
+						$fieldValue = current($fieldValue);
+
 					$element[$fieldId] = $fieldValue;
 				}
 			}
 			else
 			{
+				if (!is_array($fieldValue))
+					$fieldValue = array($fieldValue);
+
 				switch ($fieldData['TYPE'])
 				{
 					case 'F':
@@ -702,8 +731,18 @@ class RestService extends \IRestService
 						else
 							$delete = array();
 
-						foreach($fieldValue as $key => $value)
-							$element['PROPERTY_VALUES'][$fieldData['ID']][$key]['VALUE'] = \CRestUtil::saveFile($value);
+						foreach ($fieldValue as $key => $value)
+						{
+							if (is_array($value))
+							{
+								$element['PROPERTY_VALUES'][$fieldData['ID']][$key]['VALUE'] = \CRestUtil::saveFile($value);
+							}
+							else
+							{
+								$element['PROPERTY_VALUES'][$fieldData['ID']][0]['VALUE'] = \CRestUtil::saveFile($fieldValue);
+								break;
+							}
+						}
 
 						foreach($delete as $fileId => $checked)
 						{
@@ -768,6 +807,24 @@ class RestService extends \IRestService
 							{
 								$element['PROPERTY_VALUES'][$fieldData['ID']][$key]['VALUE'] =
 									\CRestUtil::unConvertDateTime($value);
+							}
+						}
+						break;
+					case "S:HTML":
+						foreach($fieldValue as $key => $value)
+						{
+							if(is_array($value))
+							{
+								foreach($value as $k => $v)
+								{
+									$element['PROPERTY_VALUES'][$fieldData['ID']][$k]['VALUE']['TYPE'] = 'html';
+									$element['PROPERTY_VALUES'][$fieldData['ID']][$k]['VALUE']['TEXT'] = $v;
+								}
+							}
+							else
+							{
+								$element['PROPERTY_VALUES'][$fieldData['ID']][$key]['VALUE']['TYPE'] = 'html';
+								$element['PROPERTY_VALUES'][$fieldData['ID']][$key]['VALUE']['TEXT'] = $value;
 							}
 						}
 						break;
@@ -1154,11 +1211,11 @@ class RestService extends \IRestService
 		}
 	}
 
-	private static function prepareOrderArray(array $order, array $availableFieldsId, array $availableParams)
+	private static function prepareOrderArray(array $order, array $availableFieldsIdForSort, array $availableParams)
 	{
 		foreach ($order as $fieldId => $orderParams)
 		{
-			if (!in_array(strtoupper($fieldId), $availableFieldsId)
+			if (!in_array(strtoupper($fieldId), $availableFieldsIdForSort)
 				|| !in_array(strtolower($orderParams), $availableParams))
 			{
 				unset($order[$fieldId]);
@@ -1186,10 +1243,10 @@ class RestService extends \IRestService
 		$order = array('ID' => 'ASC');
 		if (is_array($params['IBLOCK_ORDER']))
 		{
-			$availableFieldsId = array('ID', 'IBLOCK_TYPE', 'NAME',
+			$availableFieldsIdForSort = array('ID', 'IBLOCK_TYPE', 'NAME',
 				'ACTIVE', 'CODE', 'SORT', 'ELEMENT_CNT', 'TIMESTAMP_X');
 			$availableParams = array("asc", "desc");
-			$order = self::prepareOrderArray($params['IBLOCK_ORDER'], $availableFieldsId, $availableParams);
+			$order = self::prepareOrderArray($params['IBLOCK_ORDER'], $availableFieldsIdForSort, $availableParams);
 		}
 		$queryObject = \CIBlock::getList($order, $filter);
 		while($result = $queryObject->fetch())
@@ -1213,6 +1270,9 @@ class RestService extends \IRestService
 		$elementSelect = array(
 			'ID', 'IBLOCK_ID', 'NAME', 'IBLOCK_SECTION_ID', 'CREATED_BY', 'BP_PUBLISHED', 'CODE');
 		$propertyFields = array();
+		$ignoreSortFields = array('S:Money', 'PREVIEW_TEXT', 'DETAIL_TEXT', 'S:ECrm', 'S:map_yandex',
+			'PREVIEW_PICTURE', 'DETAIL_PICTURE', 'S:DiskFile', 'IBLOCK_SECTION_ID', 'BIZPROC', 'COMMENTS');
+		$availableFieldsIdForSort = array('ID');
 		foreach($fields as $fieldId => $field)
 		{
 			if($object->is_field($fieldId))
@@ -1223,15 +1283,18 @@ class RestService extends \IRestService
 				$elementSelect[] = 'CREATED_USER_NAME';
 			if($fieldId == 'MODIFIED_BY')
 				$elementSelect[] = 'USER_NAME';
+
+			if (!($field["MULTIPLE"] == "Y" || in_array($field["TYPE"], $ignoreSortFields)))
+			{
+				$availableFieldsIdForSort[] = $fieldId;
+			}
 		}
 
 		$order = array('ID' => 'ASC');
 		if (is_array($params['ELEMENT_ORDER']))
 		{
-			$availableFieldsId = array('ID', 'SORT', 'TIMESTAMP_X', 'NAME', 'ACTIVE_FROM',
-				'ACTIVE_TO', 'STATUS', 'CODE', 'IBLOCK_ID', 'MODIFIED_BY', 'ACTIVE', 'IBLOCK_SECTION_ID');
-			$availableParams = array("nulls,asc", "asc,nulls", "nulls,desc", "desc,nulls", "asc", "desc");
-			$order = self::prepareOrderArray($params['ELEMENT_ORDER'], $availableFieldsId, $availableParams);
+			$availableParams = array('nulls,asc', 'asc,nulls', 'nulls,desc', 'desc,nulls', 'asc', 'desc');
+			$order = self::prepareOrderArray($params['ELEMENT_ORDER'], $availableFieldsIdForSort, $availableParams);
 		}
 
 		$filter = array(
@@ -1243,7 +1306,7 @@ class RestService extends \IRestService
 			'CHECK_PERMISSIONS' => 'Y'
 		);
 
-		if (!empty($params['FILTER']))
+		if (is_array($params['FILTER']))
 		{
 			$filter = self::prepareElementFilter($filter, $params['FILTER']);
 		}
@@ -1298,72 +1361,88 @@ class RestService extends \IRestService
 
 	private static function prepareElementFilter(array $filter, array $inputFilter)
 	{
-		$availableFields = self::getAvailableFields($filter["IBLOCK_ID"]);
-
-		foreach ($inputFilter as $key => $value)
+		$sanitizedFilter = self::getSanitizedFilter($filter['IBLOCK_ID'], $inputFilter);
+		foreach ($sanitizedFilter as $key => $value)
 		{
-			$fieldId = self::getFieldId($key);
-
-			if (in_array($fieldId, $availableFields))
-			{
-				$filter[$key] = $value;
-			}
+			$key = str_replace(["ACTIVE_FROM", "ACTIVE_TO"], ["DATE_ACTIVE_FROM", "DATE_ACTIVE_TO"], $key);
+			$filter[$key] = $value;
 		}
 
 		return $filter;
 	}
 
+	private static function getSanitizedFilter($iblockId, $filter)
+	{
+		list($availableFields, $listCustomFields) = self::getAvailableFields($iblockId);
+
+		return parent::sanitizeFilter(
+			$filter,
+			$availableFields,
+			function($field, $value) use ($listCustomFields)
+			{
+				if (array_key_exists($field, $listCustomFields))
+				{
+					$callback = $listCustomFields[$field];
+					if ($callback instanceof \Closure)
+					{
+						return $callback($value);
+					}
+					else
+					{
+						return call_user_func_array($listCustomFields[$field], [[], ["VALUE" => $value]]);
+					}
+				}
+				return $value;
+			},
+			["", "!%", ">=", "><", "!><", ">", "<=", "<", "%", "=", "*"]
+		);
+	}
+
 	private static function getAvailableFields($iblockId)
 	{
-		$availableFields = array("ID", "ACTIVE", "NAME", "TAGS", "XML_ID", "EXTERNAL_ID", "PREVIEW_TEXT",
-			"PREVIEW_TEXT_TYPE", "PREVIEW_PICTURE", "DETAIL_TEXT", "DETAIL_TEXT_TYPE", "DETAIL_PICTURE",
-			"CHECK_PERMISSIONS", "PERMISSIONS_BY", "CATALOG_TYPE", "MIN_PERMISSION", "SEARCHABLE_CONTENT",
-			"SORT", "TIMESTAMP_X", "DATE_MODIFY_FROM", "DATE_MODIFY_TO", "MODIFIED_USER_ID", "MODIFIED_BY",
-			"DATE_CREATE", "CREATED_USER_ID", "CREATED_BY", "DATE_ACTIVE_FROM", "DATE_ACTIVE_TO", "ACTIVE_DATE",
-			"ACTIVE_FROM", "ACTIVE_TO", "SECTION_ID");
+		$availableFields = array('ID', 'ACTIVE', 'NAME', 'TAGS', 'XML_ID', 'EXTERNAL_ID', 'PREVIEW_TEXT',
+			'PREVIEW_TEXT_TYPE', 'PREVIEW_PICTURE', 'DETAIL_TEXT', 'DETAIL_TEXT_TYPE', 'DETAIL_PICTURE',
+			'CHECK_PERMISSIONS', 'PERMISSIONS_BY', 'CATALOG_TYPE', 'MIN_PERMISSION', 'SEARCHABLE_CONTENT',
+			'SORT', 'TIMESTAMP_X', 'DATE_MODIFY_FROM', 'DATE_MODIFY_TO', 'MODIFIED_USER_ID', 'MODIFIED_BY',
+			'DATE_CREATE', 'CREATED_USER_ID', 'CREATED_BY', 'DATE_ACTIVE_FROM', 'DATE_ACTIVE_TO', 'ACTIVE_DATE',
+			'ACTIVE_FROM', 'ACTIVE_TO', 'SECTION_ID');
+
+		$listCustomFields = [];
 
 		$object = new \CList($iblockId);
 		$fields = $object->getFields();
 
 		foreach ($fields as $field)
 		{
-			if (strlen($field["CODE"]) > 0)
+			if (strlen($field['CODE']) > 0)
 			{
-				$availableFields[] = "PROPERTY_".$field["CODE"];
+				$availableFields[] = 'PROPERTY_'.$field['CODE'];
+			}
+
+			if (self::isFieldDateType($field['TYPE']))
+			{
+				if (array_key_exists('ConvertToDB', $field['PROPERTY_USER_TYPE']))
+				{
+					$listCustomFields[$field['FIELD_ID']] = $field['PROPERTY_USER_TYPE']['ConvertToDB'];
+				}
+				else
+				{
+					$listCustomFields[$field['FIELD_ID']] = function ($value) {
+						return \CRestUtil::unConvertDateTime($value);
+					};
+				}
 			}
 		}
 
 		$availableFields = array_merge($availableFields, array_keys($fields));
 
-		return $availableFields;
+		return array($availableFields, $listCustomFields);
 	}
 
-	private static function getFieldId($key)
+	private static function isFieldDateType($type)
 	{
-		if (substr($key, 0, 1) == "?")
-			$key = substr($key, 1);
-		elseif (substr($key, 0, 2) == "!%")
-			$key = substr($key, 2);
-		elseif (substr($key, 0, 2) == ">=")
-			$key = substr($key, 2);
-		elseif (substr($key, 0, 2) == "><")
-			$key = substr($key, 2);
-		elseif (substr($key, 0, 3) == "!><")
-			$key = substr($key, 3);
-		elseif (substr($key, 0, 1) == ">")
-			$key = substr($key, 1);
-		elseif (substr($key, 0, 2) == "<=")
-			$key = substr($key, 2);
-		elseif (substr($key, 0, 1) == "<")
-			$key = substr($key, 1);
-		elseif (substr($key, 0, 1) == "%")
-			$key = substr($key, 1);
-		elseif (substr($key, 0, 1) == "=")
-			$key = substr($key, 1);
-		elseif (substr($key, 0, 1) == "*")
-			$key = substr($key, 1);
-
-		return $key;
+		return (in_array($type, ['DATE_CREATE', 'TIMESTAMP_X', 'DATE_MODIFY_FROM', 'DATE_MODIFY_TO', 'ACTIVE_DATE',
+			'S:Date', 'S:DateTime', 'DATE_ACTIVE_FROM', 'DATE_ACTIVE_TO', 'ACTIVE_FROM', 'ACTIVE_TO']));
 	}
 
 	private static function getProperty($iblockId, $code)

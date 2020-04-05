@@ -448,6 +448,12 @@ class CSiteCheckerTest
 
 		if ($strError)
 			return $this->Result(false,GetMessage('ERR_NO_MODS')."<br>".$strError);
+
+		if (IsModuleInstalled('intranet'))
+		{
+			if (!class_exists('DOMDocument') || !class_exists('ZipArchive'))
+				return $this->Result(null,GetMessage('ERR_NO_MODS_DOC_GENERATOR'));
+		}
 		return $this->Result(true, GetMessage("MAIN_SC_ALL_MODULES"));
 	}
 
@@ -500,8 +506,30 @@ class CSiteCheckerTest
 		if (($m = ini_get('max_input_vars')) && $m < 10000)
 			$strError .= GetMessage('ERR_MAX_INPUT_VARS',array('#MIN#' => 10000,'#CURRENT#' => $m))."<br>";
 
-		if (($vm = getenv('BITRIX_VA_VER')) && version_compare($vm, '4.2.0','<'))
-			$strError .= GetMessage('ERR_OLD_VM')."<br>";
+		if (IsModuleInstalled('intranet'))
+		{
+			$vm = getenv('BITRIX_VA_VER');
+			if (!$vm)
+				$strError .= GetMessage('ERR_NO_VM')."<br>";
+			else
+			{
+				$last_version = '7.3.0';
+				$tmp = $_SERVER['DOCUMENT_ROOT'].'/bitrix/tmp/bitrix-env.version';
+				if (!file_exists($tmp) || time() - filemtime($tmp) > 86400)
+				{
+					$ob = new CHTTP();
+					$ob->http_timeout = 5;
+					$ob->Download('http://repos.1c-bitrix.ru/yum/bitrix-env.version', $tmp);
+				}
+
+				if (file_exists($tmp))
+					$last_version_remote = str_replace('-', '.', file_get_contents($tmp));
+				if (version_compare($last_version_remote, $last_version, '>'))
+					$last_version = $last_version_remote;
+				if (version_compare($vm, $last_version,'<'))
+					$strError .= GetMessage('ERR_OLD_VM', array('#CURRENT#' => $vm, '#LAST_VERSION#' => $last_version))."<br>";
+			}
+		}
 
 		// check_divider
 		$locale_info = localeconv();
@@ -536,7 +564,7 @@ class CSiteCheckerTest
 		list($host, $port) = explode(':',$_SERVER['HTTP_HOST']);
 		if ($host != 'localhost' && !preg_match('#^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$#',$host))
 		{
-			if (!preg_match('#^[a-z0-9\-\.]{2,192}\.(xn--)?[a-z0-9]{2,63}$#i', $host))
+			if (!preg_match('#^[a-z0-9\-\.]{1,192}\.(xn--)?[a-z0-9]{2,63}$#i', $host))
 				$strError .= GetMessage("SC_TEST_DOMAIN_VALID", array('#VAL#' => htmlspecialcharsbx($_SERVER['HTTP_HOST'])))."<br>";
 		}
 		if ($strError)
@@ -1212,10 +1240,13 @@ class CSiteCheckerTest
 		}
 		else
 		{
+			if (\Bitrix\Main\Config\Option::get("updateserverlight", "is_turned_on", "N") === "Y")
+				return true;
+
 			$strRes = GetHttpResponse($res, $strRequest, $strHeaders);
 
 			$strRes = strtolower(strip_tags($strRes));
-			if ($strRes == "license key is invalid" || $strRes == "license key is required")
+			if ($strRes === "license key is invalid" || $strRes === "license key is required")
 				return true;
 			else
 			{
@@ -1395,9 +1426,9 @@ class CSiteCheckerTest
 
 	function check_push_bitrix()
 	{
-		if (!IsModuleInstalled('pull'))
+		if (!CModule::IncludeModule('pull'))
 			return $this->Result(null, GetMessage("MAIN_NO_PULL_MODULE"));
-		if (COption::GetOptionString('pull', 'push', 'N') != 'Y')
+		if (!CPullOptions::GetPushStatus())
 			return $this->Result(null, GetMessage("MAIN_NO_OPTION_PULL"));
 
 		if ($this->arTestVars['check_access_fail'])
@@ -1567,9 +1598,9 @@ class CSiteCheckerTest
 			return $this->Result($retVal, GetMessage("MAIN_SC_EXTERNAL_ANSWER_INCORRECT"));
 		}
 
-		if (!IsModuleInstalled('pull'))
-			return $this->Result($retVal, GetMessage("MAIN_NO_PULL_MODULE"));
-		if (COption::GetOptionString('pull', 'push', 'N') != 'Y')
+		if (!CModule::IncludeModule('pull'))
+			return $this->Result(null, GetMessage("MAIN_NO_PULL_MODULE"));
+		if (!CPullOptions::GetPushStatus())
 			return $this->Result(null, GetMessage("MAIN_NO_OPTION_PULL"));
 		if (!$ar = parse_url(str_replace('#DOMAIN#', $this->host, COption::GetOptionString('pull', 'path_to_mobile_listener'.($this->ssl ? '_secure' : '')))))
 			return $this->Result(false, GetMessage("MAIN_SC_PATH_SUB"));
@@ -2498,6 +2529,9 @@ class CSiteCheckerTest
 					{
 						if($arIndexes[$name])
 						{
+							if ($name == 'PRIMARY') // dropping primary is not supported
+								continue;
+
 							$sql = 'ALTER TABLE `'.$table.'` DROP INDEX `'.$name.'`';
 							if ($this->fix_mode)
 							{
@@ -2551,7 +2585,7 @@ class CSiteCheckerTest
 					}
 					else
 					{
-						$sql = 'ALTER TABLE `'.$table.'` ADD `'.$f_tmp['Field'].'` '.str_replace('auto_increment', '' , strtolower($tmp)); // if only Primary Key is missing we will have to pass the test twice
+						$sql = 'ALTER TABLE `'.$table.'` ADD '.preg_replace('#auto_increment#i', '' , $tmp); // if only Primary Key is missing we will have to pass the test twice
 						if ($this->fix_mode)
 						{
 							if (!$DB->Query($sql, true))
@@ -2572,7 +2606,14 @@ class CSiteCheckerTest
 				{
 					if (!in_array($ix,$arIndexes))
 					{
-						$sql = $name == 'PRIMARY' ? 'ALTER TABLE `'.$table.'` ADD PRIMARY KEY ('.$ix.')' : 'CREATE '.($arFT[$tmp_name] ? 'FULLTEXT ' : '').'INDEX `'.$name.'` ON `'.$table.'` ('.$ix.')';
+						if ($name == 'PRIMARY' && $arIndexes['PRIMARY']) // Primary key exists
+						{
+							$this->arTestVars['iError']++;
+							$strError .= GetMessage('SC_ERR_NO_INDEX', array('#TABLE#' => $table, '#INDEX#' => $name.' ('.$ix.')'))."<br>";
+							continue;
+						}
+
+						$sql = $name == 'PRIMARY' ? 'ALTER TABLE `'.$table.'` ADD PRIMARY KEY ('.$ix.')' : 'CREATE '.($arFT[$name] ? 'FULLTEXT ' : '').'INDEX `'.$name.'` ON `'.$table.'` ('.$ix.')';
 						if ($this->fix_mode)
 						{
 							if (!$DB->Query($sql, true))
@@ -2588,10 +2629,10 @@ class CSiteCheckerTest
 						}
 					}
 
-					if ($arFT[$name] && !$this->fullTextIndexEnabled($table, $name))
+					if ($arFT[$name] && !$this->fullTextIndexEnabled($table, $ix))
 					{
 						if ($this->fix_mode)
-							$this->enableFullTextIndex($table, $name);
+							$this->enableFullTextIndex($table, $ix);
 						else
 						{
 							$strError .= GetMessage('SC_ERR_NO_INDEX_ENABLED', array('#TABLE#' => $table, '#INDEX#' => $name.' ('.$ix.')'))."<br>";
@@ -2627,7 +2668,8 @@ class CSiteCheckerTest
 		{
 			if ($this->arTestVars['iError'] > 0)
 			{
-				echo implode(";\n", $_SESSION['FixQueryList']).';';
+				if (is_array($_SESSION['FixQueryList']) && count($_SESSION['FixQueryList']))
+					echo implode(";\n", $_SESSION['FixQueryList']).';';
 				$_SESSION['FixQueryList'] = array();
 				return $this->Result(false, GetMessage('SC_CHECK_TABLES_STRUCT_ERRORS', 
 					array(

@@ -2,12 +2,14 @@
 namespace Bitrix\Bizproc\Automation\Target;
 
 use Bitrix\Bizproc\Automation\Engine\Runtime;
+use Bitrix\Bizproc\Automation\Trigger\Entity\TriggerTable;
 
 abstract class BaseTarget
 {
 	protected $runtime;
 	protected $appliedTrigger;
 	protected $documentId;
+	protected $documentType;
 
 	public function isAvailable()
 	{
@@ -56,12 +58,74 @@ abstract class BaseTarget
 
 	public function getTriggers(array $statuses)
 	{
-		return [];
+		$result = [];
+		$documentType = $this->getDocumentType();
+
+		$iterator = TriggerTable::getList(array(
+			'filter' => array(
+				'=MODULE_ID' => $documentType[0],
+				'=ENTITY' => $documentType[1],
+				'=DOCUMENT_TYPE' => $documentType[2],
+				'@DOCUMENT_STATUS' => $statuses
+			)
+		));
+
+		while ($row = $iterator->fetch())
+		{
+			$row['DOCUMENT_TYPE'] = $documentType;
+			$result[] = $row;
+		}
+
+		return $result;
 	}
 
 	public function setTriggers(array $triggers)
 	{
-		return $triggers;
+		$updatedTriggers = [];
+		foreach ($triggers as $trigger)
+		{
+			$triggerId = isset($trigger['ID']) ? (int)$trigger['ID'] : 0;
+
+			if (isset($trigger['DELETED']) && $trigger['DELETED'] === 'Y')
+			{
+				if ($triggerId > 0)
+				{
+					//TODO: check document type
+					TriggerTable::delete($triggerId);
+				}
+				continue;
+			}
+
+			if ($triggerId > 0)
+			{
+				TriggerTable::update($triggerId, array(
+					'NAME' => $trigger['NAME'],
+					'DOCUMENT_STATUS' => $trigger['DOCUMENT_STATUS'],
+					'APPLY_RULES' => is_array($trigger['APPLY_RULES']) ? $trigger['APPLY_RULES'] : null
+				));
+			}
+			elseif (isset($trigger['CODE']) && isset($trigger['DOCUMENT_STATUS']))
+			{
+				$documentType = $this->getDocumentType();
+				$addResult = TriggerTable::add(array(
+					'NAME' => $trigger['NAME'],
+					'MODULE_ID' => $documentType[0],
+					'ENTITY' => $documentType[1],
+					'DOCUMENT_TYPE' => $documentType[2],
+					'DOCUMENT_STATUS' => $trigger['DOCUMENT_STATUS'],
+					'CODE' => $trigger['CODE'],
+					'APPLY_RULES' => is_array($trigger['APPLY_RULES']) ? $trigger['APPLY_RULES'] : null
+				));
+
+				if ($addResult->isSuccess())
+				{
+					$trigger['ID'] = $addResult->getId();
+				}
+			}
+			$updatedTriggers[] = $trigger;
+		}
+
+		return $updatedTriggers;
 	}
 
 	public function getAvailableTriggers()
@@ -69,7 +133,15 @@ abstract class BaseTarget
 		return [];
 	}
 
-	abstract public function getDocumentType();
+	public function setDocumentType(array $documentType)
+	{
+		return $this->documentType = $documentType;
+	}
+
+	public function getDocumentType()
+	{
+		return $this->documentType;
+	}
 
 	public function getDocumentId()
 	{

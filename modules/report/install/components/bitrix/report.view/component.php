@@ -6,6 +6,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 }
 
+$arParams['REPORT_ID'] = isset($arParams['REPORT_ID']) ? (int)$arParams['REPORT_ID'] : 0;
+
 $isStExportEnabled = (is_array($arParams['~STEXPORT_PARAMS']));
 $isStExport = false;
 $stExportOptions = array();
@@ -71,7 +73,10 @@ foreach ($requiredModules as $requiredModule)
 	}
 }
 
-if (!isset($arParams['REPORT_HELPER_CLASS']) || strlen($arParams['REPORT_HELPER_CLASS']) < 1)
+if (!isset($arParams['REPORT_HELPER_CLASS'])
+	|| strlen($arParams['REPORT_HELPER_CLASS']) < 1
+	|| !class_exists($arParams['REPORT_HELPER_CLASS'])
+	|| !is_subclass_of($arParams['REPORT_HELPER_CLASS'], 'CReportHelper'))
 {
 	$errorMessage = GetMessage("REPORT_HELPER_NOT_DEFINED");
 	if ($isStExport)
@@ -112,17 +117,17 @@ if ($arParams['USE_CHART'])
 		array('id' => 'line', 'name' => GetMessage('REPORT_CHART_TYPE_LINE'), 'value_types' => array(
 			/*'boolean', 'date', 'datetime', */
 			'float', 'integer'/*, 'string', 'text', 'enum', 'file', 'disk_file', 'employee', 'crm', 'crm_status',
-			'iblock_element', 'iblock_section'*/
+			'iblock_element', 'iblock_section', 'money'*/
 		)),
 		array('id' => 'bar', 'name' => GetMessage('REPORT_CHART_TYPE_BAR'), 'value_types' => array(
 			/*'boolean', 'date', 'datetime', */
 			'float', 'integer'/*, 'string', 'text', 'enum', 'file', 'disk_file', 'employee', 'crm', 'crm_status',
-			'iblock_element', 'iblock_section'*/
+			'iblock_element', 'iblock_section', 'money'*/
 		)),
 		array('id' => 'pie', 'name' => GetMessage('REPORT_CHART_TYPE_PIE'), 'value_types' => array(
 			/*'boolean', 'date', 'datetime', */
 			'float', 'integer'/*, 'string', 'text', 'enum', 'file', 'disk_file', 'employee', 'crm', 'crm_status',
-			'iblock_element', 'iblock_section'*/
+			'iblock_element', 'iblock_section', 'money'*/
 		))
 	);
 }
@@ -166,6 +171,8 @@ if (!$isStExport)
 		}
 	}
 }
+
+$usedUFMap = array();
 
 try
 {
@@ -375,8 +382,6 @@ try
 	$entityName = call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'getEntityName'));
 	$entityFields = call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'getColumnList'));
 	$grcFields = call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'getGrcColumns'));
-	//$arUFInfo = call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'getUFInfo'));
-	$arUFEnumerations = call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'getUFEnumerations'));
 
 	// customize entity
 	$entity = clone Entity\Base::getInstance($entityName);
@@ -547,6 +552,8 @@ try
 	$need_concat_rows = false;
 	$grcSettingsNum = array();
 
+	$customTotals = [];
+
 	foreach ($settings['select'] as $num => $elem)
 	{
 		/** @var Entity\Field $field */
@@ -571,10 +578,16 @@ try
 			throw new BXUserException(GetMessage('REPORT_COLUMNS_HAS_CYCLIC_DEPENDENCY'));
 		}
 
-		list($alias, $selElem) = CReport::prepareSelectViewElement(
+		list($alias, $selElem, $totalInfo) = CReport::prepareSelectViewElement(
 			$elem, $settings['select'], $is_init_entity_aggregated, $fList, $fChainList,
 			$arParams['REPORT_HELPER_CLASS'], $entity
 		);
+
+		if (is_array($totalInfo))
+		{
+			$customTotals[$alias] = $totalInfo;
+		}
+		unset($totalInfo);
 
 		if (is_array($selElem) && !empty($selElem['expression']))
 		{
@@ -604,10 +617,16 @@ try
 
 		$arUF = call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'detectUserField'), $field);
 
+		if ($arUF['isUF'] && is_array($arUF['ufInfo'])
+			&& isset($arUF['ufInfo']['ENTITY_ID']) && isset($arUF['ufInfo']['FIELD_NAME']))
+		{
+			$usedUFMap[$arUF['ufInfo']['ENTITY_ID']][$arUF['ufInfo']['FIELD_NAME']] = true;
+		}
+
 		// default sort
 		if ($is_grc
 			|| ((in_array($fType, array('file', 'disk_file', 'employee', 'crm', 'crm_status', 'iblock_element',
-						'iblock_section'), true)
+						'iblock_section', 'money'), true)
 					|| ($arUF['isUF'] && $arUF['ufInfo']['MULTIPLE'] === 'Y'))
 				&& empty($elem['aggr'])))
 		{
@@ -770,6 +789,7 @@ try
 			if (is_array($fElem) && $fElem['type'] == 'field' && (int) $fElem['changeable'] > 0)
 			{
 				$match = array();
+				$arUF = null;
 				if (preg_match('/__COLUMN__(\d+)/', $fElem['name'], $match))
 				{
 					/** @var Entity\Field[] $view */
@@ -808,6 +828,7 @@ try
 				}
 				else
 				{
+					// detect UF
 					$arUF = call_user_func_array(
 						array($arParams['REPORT_HELPER_CLASS'], 'detectUserField'),
 						array($field)
@@ -828,7 +849,16 @@ try
 				}
 
 				// detect UF
-				$arUF = call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'detectUserField'), $field);
+				if ($arUF === null)
+				{
+					$arUF = call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'detectUserField'), $field);
+				}
+
+				if ($arUF['isUF'] && is_array($arUF['ufInfo'])
+					&& isset($arUF['ufInfo']['ENTITY_ID']) && isset($arUF['ufInfo']['FIELD_NAME']))
+				{
+					$usedUFMap[$arUF['ufInfo']['ENTITY_ID']][$arUF['ufInfo']['FIELD_NAME']] = true;
+				}
 
 				$changeableFilters[] = array(
 					'name' => $fElem['name'],
@@ -914,6 +944,13 @@ try
 				)
 				{
 					$fElem['value'] = ConvertTimeStamp(strtotime($fElem['value']), 'SHORT');
+
+					// ignore datetime filter with incorrect value
+					if (!CheckDateTime($fElem['value'], CSite::GetDateFormat('SHORT')))
+					{
+						unset($fInfo[$k]);
+						continue;
+					}
 				}
 
 				// rewrite date=DAY to date BETWEEN DAY_START AND DAY_END
@@ -955,7 +992,7 @@ try
 						$fElem_end['value'] = ConvertTimeStamp($dtValue->getTimestamp(), 'FULL');
 
 						// replace filter by subfilter
-						$settings['filter'][] = array('LOGIC' => 'AND', $fElem_start, $fElem_end);
+						$settings['filter'][] = array('LOGIC' => 'OR', $fElem_start, $fElem_end);
 						end($settings['filter']);
 						$lastFilterNum = key($settings['filter']);
 
@@ -1010,6 +1047,13 @@ try
 
 				$fField = $fList[$fElem['name']];
 				$arUF = call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'detectUserField'), $fField);
+
+				if ($arUF['isUF'] && is_array($arUF['ufInfo'])
+					&& isset($arUF['ufInfo']['ENTITY_ID']) && isset($arUF['ufInfo']['FIELD_NAME']))
+				{
+					$usedUFMap[$arUF['ufInfo']['ENTITY_ID']][$arUF['ufInfo']['FIELD_NAME']] = true;
+				}
+
 				if ($arUF['isUF'])
 				{
 					$fFieldDataType = call_user_func(
@@ -1121,23 +1165,39 @@ try
 	// </editor-fold>
 
 	// <editor-fold defaultstate="collapsed" desc="parse sort">
-	$sort_id = $settings['sort'];
-	$sort_name = $viewColumns[$sort_id]['resultName'];
-	$sort_type = $viewColumns[$sort_id]['defaultSort'];
+
+	$sort_id = isset($settings['sort']) ? $settings['sort'] : -1;
+	$sort_name = $sort_type = '';
+	if (is_array($viewColumns[$sort_id])
+		&& isset($viewColumns[$sort_id]['defaultSort'])
+		&& $viewColumns[$sort_id]['defaultSort'] !== ''
+		&& isset($viewColumns[$sort_id]['resultName']))
+	{
+		$sort_type = $viewColumns[$sort_id]['defaultSort'];
+		$sort_name = $viewColumns[$sort_id]['resultName'];
+	}
 
 	// rewrite sort by POST
-	if (array_key_exists('sort_id', $uriParams) && array_key_exists($uriParams['sort_id'], $viewColumns))
+	if (array_key_exists('sort_id', $uriParams))
 	{
 		$sort_id = $uriParams['sort_id'];
-		$sort_name = $viewColumns[$sort_id]['resultName'];
+		if (is_array($viewColumns[$sort_id])
+			&& isset($viewColumns[$sort_id]['defaultSort'])
+			&& $viewColumns[$sort_id]['defaultSort'] !== ''
+			&& isset($viewColumns[$sort_id]['resultName']))
+		{
+			if (isset($uriParams['sort_type'])
+				&& ($uriParams['sort_type'] === 'ASC'
+					|| $uriParams['sort_type'] === 'DESC'))
+			{
+				$sort_type = $uriParams['sort_type'];
+			}
+			else
+			{
+				$sort_type = $viewColumns[$sort_id]['defaultSort'];
+			}
 
-		if ($uriParams['sort_type'] === 'ASC' || $uriParams['sort_type'] === 'DESC')
-		{
-			$sort_type = $uriParams['sort_type'];
-		}
-		else
-		{
-			$sort_type = $viewColumns[$sort_id]['defaultSort'];
+			$sort_name = $viewColumns[$sort_id]['resultName'];
 		}
 	}
 
@@ -1232,7 +1292,6 @@ try
 			{
 				$runtimeField = $queryChains[$k]->getLastElement()->getValue();
 				if (is_array($runtimeField)) $runtimeField = end($runtimeField);
-				/*$arUF = CReport::detectUserField($runtimeField, $arUFInfo);*/
 				$viewColumns[$newNum] = array(
 					'field' => $runtimeField,
 					'fieldName' => $k,
@@ -1244,12 +1303,8 @@ try
 					'href' => empty($runtimeColumnInfo['href']) ? '' : $runtimeColumnInfo['href'],
 					'grouping' => false,
 					'grouping_subtotal' => ($runtimeColumnInfo['grouping_subtotal'] === true) ? true : false,
-					'runtime' => true/*,
-					'isUF' => $arUF['isUF'],
-					'isUF' => $arUF['isUF'],
-					'ufInfo' => $arUF['ufInfo']*/
+					'runtime' => true
 				);
-				/*unset($arUF);*/
 				$viewColumnsByResultName[$k] = &$viewColumns[$newNum];
 			}
 		}
@@ -1401,25 +1456,55 @@ try
 
 	// add SUM aggr
 	$_totalSelect = $totalSelect;
-	$totalSelect = array();
+	$totalSelect = [];
+	$totalSelectAfter = [];
 
 	foreach ($_totalSelect as $k => $v)
 	{
-		$totalSelect[] = new Entity\ExpressionField('TOTAL_'.$k, 'SUM(%s)', $k);
+		if (isset($customTotals[$k]['type']) && $customTotals[$k]['type'] === 'prcntFromCol')
+		{
+			$totalSelectAfter[] = new Entity\ExpressionField(
+				'TOTAL_'.$k,
+				'(SUM(%s)) / (%s) * 100',
+				[
+					$customTotals[$k]['local']['alias'],
+					'TOTAL_'.$customTotals[$k]['remote']['alias']
+				]
+			);
+		}
+		else
+		{
+			$totalSelect[] = new Entity\ExpressionField('TOTAL_'.$k, 'SUM(%s)', $k);
+		}
 	}
+	$totalSelect = array_merge($totalSelect, $totalSelectAfter);
+	unset($_totalSelect, $totalSelectAfter);
 
 	if (!empty($totalSelect))
 	{
 		// source query
 		$query_from = new Entity\Query($entity);
-		$query_from->setSelect($select);
-		$query_from->setFilter($filter);
-		$query_from->setGroup($group);
+
+		$subSelect = $select;
 
 		foreach ($runtime as $k => $v)
 		{
-			$query_from->registerRuntimeField($k, $v);
+			if (isset($customTotals[$k]['type']) && $customTotals[$k]['type'] === 'prcntFromCol')
+			{
+				$fieldAlias = $customTotals[$k]['local']['alias'];
+				$query_from->registerRuntimeField($fieldAlias, $customTotals[$k]['local']['def']);
+				$subSelect[$fieldAlias] = $fieldAlias;
+				unset($subSelect[$k]);
+			}
+			else
+			{
+				$query_from->registerRuntimeField($k, $v);
+			}
 		}
+
+		$query_from->setSelect($subSelect);
+		$query_from->setFilter($filter);
+		$query_from->setGroup($group);
 
 		// total query
 		$total_query = new Entity\Query($query_from);
@@ -1682,7 +1767,6 @@ $arResult['viewColumns'] = $viewColumns;
 $arResult['data'] = $data;
 $arResult['grcData'] = $grcData;
 $arResult['changeableFilters'] = $changeableFilters;
-$arResult['ufEnumerations'] = $arUFEnumerations;
 $arResult['changeableFiltersEntities'] = $changeableFiltersEntities;
 $arResult['chfilter_examples'] = array();
 $arResult['total'] = $total;
@@ -1697,6 +1781,12 @@ $arResult['customChartData'] = $customChartData;
 $arResult['customChartTotal'] = $customChartTotal;
 
 $arResult['ufInfo'] = call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'getUFInfo'));
+
+$arResult['allowHorizontalScroll'] = (
+	!isset($arParams['ALLOW_HORIZONTAL_SCROLL'])
+	|| $arParams['ALLOW_HORIZONTAL_SCROLL'] === 'Y'
+	|| $arParams['ALLOW_HORIZONTAL_SCROLL'] === true
+);
 // </editor-fold>
 
 

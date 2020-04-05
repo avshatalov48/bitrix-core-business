@@ -6,13 +6,15 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\UserToGroupTable;
 
-Loc::loadLanguageFile(__FILE__);
+//Loc::loadLanguageFile(__FILE__);
+Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/socialnetwork/install/js/socialnetwork/common/config.php');
 
 return array(
 	'js' => '/bitrix/js/socialnetwork/common/socialnetwork.common.js',
 	'css' => '/bitrix/js/socialnetwork/common/socialnetwork.common.css',
 	'rel' => array('popup'),
 	'lang_additional' => array(
+		'USER_SONET_ADMIN' => (\CSocNetUser::isCurrentUserModuleAdmin() ? 'Y' : 'N'),
 		'USER_TO_GROUP_ROLE_OWNER' => UserToGroupTable::ROLE_OWNER,
 		'USER_TO_GROUP_ROLE_MODERATOR' => UserToGroupTable::ROLE_MODERATOR,
 		'USER_TO_GROUP_ROLE_USER' => UserToGroupTable::ROLE_USER,

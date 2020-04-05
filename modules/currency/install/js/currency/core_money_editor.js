@@ -51,6 +51,7 @@
 
 	BX.Currency.Editor.prototype.init = function()
 	{
+		this.formatValue();
 		BX.bind(this.input, 'bxchange', BX.proxy(this.valueEdit, this));
 		BX.unbind(this.input, 'change', BX.proxy(this.valueEdit, this));
 	};
@@ -61,7 +62,13 @@
 		this.input = null;
 	};
 
-	BX.Currency.Editor.prototype.valueEdit = function(){
+	BX.Currency.Editor.prototype.valueEdit = function(e){
+		// hack to prevent selection loss while form editing with keyboard
+		if(!!e && e.type === 'keyup' && e.code === 'Tab')
+		{
+			return;
+		}
+
 		this.formatValue();
 	};
 

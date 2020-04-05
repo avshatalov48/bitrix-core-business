@@ -173,7 +173,7 @@ BX.rest.Marketplace = (function(){
 
 		uninstallConfirm: function(code)
 		{
-			var popup = BX.PopupWindowManager.create('mp_delete_confirm_popup', null, {
+			var popup = new BX.PopupWindow('mp_delete_confirm_popup', null, {
 				content: '<div class="mp_delete_confirm"><div class="mp_delete_confirm_text">' + BX.message('REST_MP_DELETE_CONFIRM') + '</div><div class="mp_delete_confirm_cb"><input type="checkbox" name="delete_data" id="delete_data">&nbsp;<label for="delete_data">' + BX.message('REST_MP_DELETE_CONFIRM_CLEAN') + '</label></div></div>',
 				closeByEsc: true,
 				closeIcon: {top: '1px', right: '10px'},
@@ -187,7 +187,28 @@ BX.rest.Marketplace = (function(){
 								BX.rest.Marketplace.uninstall(
 									code,
 									BX('delete_data').checked,
-									BX.delegate(this.popupWindow.close, this.popupWindow)
+									function(result) {
+										if(result.error)
+										{
+											popup.setContent('<div class="mp_delete_confirm"><div class="mp_delete_confirm_text">' + result.error + '</div></div>');
+											popup.setButtons([new BX.PopupWindowButtonLink({
+												text: BX.message('JS_CORE_WINDOW_CLOSE'),
+												className: "popup-window-button-link-cancel",
+												events: {
+													click: function()
+													{
+														this.popupWindow.close()
+													}
+												}
+											})]);
+											popup.adjustPosition();
+										}
+										else
+										{
+											popup.close();
+											window.location.reload();
+										}
+									}
 								);
 							}
 						}
@@ -220,16 +241,18 @@ BX.rest.Marketplace = (function(){
 
 				if(!!callback)
 				{
-					callback();
-				}
-
-				if(!!result.error)
-				{
-					alert(result.error);
+					callback(result);
 				}
 				else
 				{
-					location.reload();
+					if (!!result.error)
+					{
+						alert(result.error);
+					}
+					else
+					{
+						location.reload();
+					}
 				}
 			});
 		},
@@ -342,7 +365,11 @@ BX.rest.Marketplace = (function(){
 
 			if(!!placementConfig && !!placementConfig.PLACEMENT)
 			{
-				url = BX.util.add_url_param(url, {placement: placementConfig.PLACEMENT});
+				url = BX.util.add_url_param(url, {placement: placementConfig.PLACEMENT, category: category});
+			}
+			else
+			{
+				url = BX.util.add_url_param(url, {category: category});
 			}
 
 			BX.SidePanel.Instance.open(
@@ -352,8 +379,7 @@ BX.rest.Marketplace = (function(){
 					allowChangeHistory: false,
 					requestMethod: 'post',
 					requestParams: {
-						sessid: BX.bitrix_sessid(),
-						category: category
+						sessid: BX.bitrix_sessid()
 					}
 				}
 			);
@@ -369,7 +395,7 @@ BX.rest.Marketplace = (function(){
 		{
 			BX.ready(function()
 			{
-				BX.SidePanel.Instance.bindAnchors({
+				BX.SidePanel.Instance.bindAnchors(top.BX.clone({
 					rules: [
 						{
 							condition: [
@@ -382,7 +408,7 @@ BX.rest.Marketplace = (function(){
 							}
 						}
 					]
-				});
+				}));
 			});
 		}
 	};

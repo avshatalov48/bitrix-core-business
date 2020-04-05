@@ -20,7 +20,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 <!DOCTYPE html>
 <html>
 <head>
-<script type="text/javascript">
+<script>
 	// Prevent loading page without header and footer
 	if(window === window.top)
 	{
@@ -28,27 +28,18 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	}
 </script>
 <?$APPLICATION->ShowHead();?>
-<style>
-	body {
-		background-color: #fff;
-	}
-	.mp-slider-wrap
-	{
-		padding: 10px 10px 30px 10px;
-	}
-</style>
 </head>
-<body>
-	<div class="mp-slider-wrap">
-<?php
-$APPLICATION->IncludeComponent(
-	$arParams['COMPONENT_NAME'],
-	$arParams['COMPONENT_TEMPLATE_NAME'],
-	$arParams['COMPONENT_PARAMS'],
-	$component,
-	array('HIDE_ICONS' => 'Y')
-);
-?>
-	</div>
+<body class="rest-mp-slider-body">
+<div class="rest-mp-slider-wrap">
+	<?php
+	$APPLICATION->IncludeComponent(
+		$arParams['COMPONENT_NAME'],
+		$arParams['COMPONENT_TEMPLATE_NAME'],
+		$arParams['COMPONENT_PARAMS'],
+		$component,
+		array('HIDE_ICONS' => 'Y')
+	);
+	?>
+</div>
 </body>
 </html>

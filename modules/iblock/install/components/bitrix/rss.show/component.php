@@ -59,9 +59,15 @@ if($this->StartResultCache())
 {
 	$arResult = CIBlockRSS::GetNewsEx($arParams["SITE"], $arParams["PORT"], $arParams["PATH"], $arParams["QUERY_STR"], $arParams["OUT_CHANNEL"]);
 	$arResult = CIBlockRSS::FormatArray($arResult, $arParams["OUT_CHANNEL"]);
-	if($arParams["NUM_NEWS"]>0)
-		while(count($arResult["item"])>$arParams["NUM_NEWS"])
+	if (
+		$arParams["NUM_NEWS"]>0
+		&& !empty($arResult["item"])
+		&& is_array($arResult["item"])
+	)
+	{
+		while (count($arResult["item"]) > $arParams["NUM_NEWS"])
 			array_pop($arResult["item"]);
+	}
 
 	if($arParams["PROCESS"] == "QUOTE")
 		array_walk_recursive($arResult, create_function('&$val, $key', '$val=htmlspecialcharsex($val);'));
@@ -70,4 +76,3 @@ if($this->StartResultCache())
 
 	$this->IncludeComponentTemplate();
 }
-?>

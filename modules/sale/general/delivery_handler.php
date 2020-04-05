@@ -73,7 +73,7 @@ class CAllSaleDeliveryHandler
 		$matches = array();
 		preg_match('/^new(\d+)(:profile)?/', $sid, $matches);
 
-		return $matches[1];
+		return (int)$matches[1];
 	}
 
 	protected static function convertFilterOldToNew(array $oldFilter)

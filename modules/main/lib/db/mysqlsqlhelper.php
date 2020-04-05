@@ -1,7 +1,7 @@
 <?php
 namespace Bitrix\Main\DB;
 
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM;
 
 class MysqlSqlHelper extends MysqlCommonSqlHelper
 {
@@ -29,25 +29,25 @@ class MysqlSqlHelper extends MysqlCommonSqlHelper
 	 * @param mixed $type Database specific type.
 	 * @param array $parameters Additional information.
 	 *
-	 * @return Entity\ScalarField
+	 * @return \Bitrix\Main\ORM\Fields\ScalarField
 	 */
 	public function getFieldByColumnType($name, $type, array $parameters = null)
 	{
 		switch ($type)
 		{
 			case "int":
-				return new Entity\IntegerField($name);
+				return new ORM\Fields\IntegerField($name);
 
 			case "real":
-				return new Entity\FloatField($name);
+				return new ORM\Fields\FloatField($name);
 
 			case "datetime":
 			case "timestamp":
-				return new Entity\DatetimeField($name);
+				return new ORM\Fields\DatetimeField($name);
 
 			case "date":
-				return new Entity\DateField($name);
+				return new ORM\Fields\DateField($name);
 		}
-		return new Entity\StringField($name);
+		return new ORM\Fields\StringField($name);
 	}
 }

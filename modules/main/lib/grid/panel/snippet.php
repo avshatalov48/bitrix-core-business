@@ -219,4 +219,15 @@ class Snippet
 
 		return $this->forAllCheckbox;
 	}
+
+	/**
+	 * Setup button onChange event handlers.
+	 * @param array $button Button params.
+	 * @param array $actions OnChange action params.
+	 */
+	public function setButtonActions(array &$button, array $actions)
+	{
+		$handler = new Onchange($actions);
+		$button["ONCHANGE"] = $handler->toArray();
+	}
 }

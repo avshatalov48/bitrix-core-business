@@ -4,6 +4,9 @@
 			 data-infinite="true"
 			 data-autoplay="true"
 			 data-slides-show="3"
+			 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-45 g-font-size-40 g-color-white g-bg-primary"
+			 data-arrow-left-classes="fa fa-angle-left g-left-minus-25"
+			 data-arrow-right-classes="fa fa-angle-right g-right-minus-25"
 			 data-responsive='[{
                  "breakpoint": 1200,
                  "settings": {
@@ -30,7 +33,9 @@
 
 					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-color-white g-pa-30">
 						<div>
-							<i class="landing-block-node-card-icon fa fa-calendar g-font-size-22 g-color-primary g-mr-10"></i>
+							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
+								<i class="landing-block-node-card-icon fa fa-calendar"></i>
+							</span>
 							<div class="landing-block-node-card-subtitle d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
 								<p>Duration, 3 Months.</p>
 							</div>
@@ -61,7 +66,9 @@
 
 					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-color-white g-pa-30">
 						<div>
-							<i class="landing-block-node-card-icon fa fa-calendar g-font-size-22 g-color-primary g-mr-10"></i>
+							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
+								<i class="landing-block-node-card-icon fa fa-calendar"></i>
+							</span>
 							<div class="landing-block-node-card-subtitle d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
 								<p>Duration, 4 Months.</p>
 							</div>
@@ -92,7 +99,9 @@
 
 					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-color-white g-pa-30">
 						<div>
-							<i class="landing-block-node-card-icon fa fa-calendar g-font-size-22 g-color-primary g-mr-10"></i>
+							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
+								<i class="landing-block-node-card-icon fa fa-calendar"></i>
+							</span>
 							<div class="landing-block-node-card-subtitle d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
 								<p>Duration, 10 Months.</p>
 							</div>
@@ -123,7 +132,9 @@
 
 					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-color-white g-pa-30">
 						<div>
-							<i class="landing-block-node-card-icon fa fa-calendar g-font-size-22 g-color-primary g-mr-10"></i>
+							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
+								<i class="landing-block-node-card-icon fa fa-calendar"></i>
+							</span>
 							<div class="landing-block-node-card-subtitle d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
 								<p>Duration, 8 Months.</p>
 							</div>
@@ -154,7 +165,9 @@
 
 					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-color-white g-pa-30">
 						<div>
-							<i class="landing-block-node-card-icon fa fa-calendar g-font-size-22 g-color-primary g-mr-10"></i>
+							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
+								<i class="landing-block-node-card-icon fa fa-calendar"></i>
+							</span>
 							<div class="landing-block-node-card-subtitle d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
 								<p>Duration, 7 Months.</p>
 							</div>

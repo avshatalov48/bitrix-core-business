@@ -15,6 +15,7 @@ return array(
 	'nodes' => array(
 		'bitrix:landing.blocks.html' => array(
 			'type' => 'component',
+			'waf_ignore' => true,
 			'extra' => array(
 				'editable' => array(
 					'HTML_CODE' => array(
@@ -22,6 +23,11 @@ return array(
 					),
 				),
 			),
+		),
+	),
+	'style' => array(
+		'block' => array(
+			'type' => array('block-default'),
 		),
 	),
 );

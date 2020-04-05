@@ -151,13 +151,12 @@
 					.appendChild(BX.create('DIV', {props: {className: 'calendar-field-block'}}))
 					.appendChild(BX.create('DIV', {props: {className: 'calendar-add-popup-selected-members'}}));
 
-
 				var host = false;
 				this.showAttendees(this.DOM.hostWrap, this.entry.getAttendees().filter(function(user)
 				{
 					if (host)
 						return false;
-					host = user.STATUS == 'H' || (user.USER_ID == this.entry.getMeetingHost());
+					host = user.STATUS == 'H' || (user.ID == this.entry.getMeetingHost());
 					return host;
 				}, this));
 
@@ -173,23 +172,6 @@
 					return user.STATUS == 'Y' || user.STATUS == 'H';
 				}), this.entry.getAttendees().length);
 			}
-
-			//var reminders = this.entry.getReminders();
-			//if (reminders && reminders.length > 0)
-			//{
-			//	var i, html = '', str;
-			//	for (i = 0; i < reminders.length; i++)
-			//	{
-			//		str = this.calendar.util.getTextReminder(reminders[i]);
-			//		if (str)
-			//		{
-			//			html += '<span class="calendar-text-link">' + str + '</span>';
-			//		}
-			//	}
-			//	row = this.DOM.tableWrap.insertRow(-1);
-			//	BX.adjust(row.insertCell(-1), {html: BX.message('EC_REMIND') + ':'});
-			//	BX.adjust(row.insertCell(-1), {html: '<div class="calendar-field-block"><div class="calendar-text">' + html + '</div></div>'});
-			//}
 
 			var location = this.calendar.util.getTextLocation(this.entry.location);
 			if (location)
@@ -332,17 +314,16 @@
 				for (i = 0; i < userLength; i++)
 				{
 					user = attendees[i] || {};
-
 					wrap.appendChild(BX.create("IMG", {
 						attrs: {
 							id: 'simple_view_popup_' + user.ID,
-							src: user.AVATAR || ''
+							src: user.AVATAR || '',
+							'bx-tooltip-user-id': user.ID
 						},
 						props: {
 							title: user.DISPLAY_NAME,
 							className: 'calendar-member'
 						}}));
-					(function (userId){setTimeout(function(){BX.tooltip(userId, "simple_view_popup_" + userId);}, 100)})(user.ID);
 				}
 
 				if (userLength < attendees.length)
@@ -409,7 +390,7 @@
 					closeByEsc: true,
 					offsetTop: 0,
 					offsetLeft: 0,
-					width: 200,
+					width: 220,
 					resizable: false,
 					lightShadow: true,
 					content: this.DOM.userListPopupWrap,

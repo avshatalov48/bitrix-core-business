@@ -280,6 +280,10 @@ class CAllSocNetGroup
 		{
 			$bSuccess = CSocNetSubscription::DeleteEx(false, "SG".$ID);
 		}
+		if ($bSuccess)
+		{
+			$bSuccess = \Bitrix\Socialnetwork\WorkgroupTagTable::deleteByGroupId(['groupId' => $ID]);
+		}
 
 		if ($bSuccess)
 		{
@@ -496,7 +500,8 @@ class CAllSocNetGroup
 
 				$arFilter = array("ID" => $ID);
 				if (
-					$bCheckPermissions 
+					$bCheckPermissions
+					&& is_object($USER)
 					&& ($USER->GetID() > 0)
 				)
 				{
@@ -661,7 +666,7 @@ class CAllSocNetGroup
 	/***************************************/
 	/************  ACTIONS  ****************/
 	/***************************************/
-	public static function CreateGroup($ownerID, $arFields, $bAutoSubscribe = true)
+	public static function createGroup($ownerID, $arFields, $bAutoSubscribe = true)
 	{
 		global $APPLICATION, $DB;
 

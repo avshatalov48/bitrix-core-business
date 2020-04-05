@@ -76,11 +76,14 @@ class CCodeEditor // CE
 
 	public static function GetLangMessage()
 	{
+		/*
 		$langPath = $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/fileman/lang/'.LANGUAGE_ID.'/classes/general/code_editor_js.php';
 		if(file_exists($langPath))
 			include($langPath);
 		else
 			$langPath = $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/fileman/lang/en/classes/general/code_editor_js.php';
+		*/
+		$MESS = \Bitrix\Main\Localization\Loc::loadLanguageFile($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/fileman/classes/general/code_editor_js.php');
 
 		echo CUtil::PhpToJSObject($MESS);
 	}

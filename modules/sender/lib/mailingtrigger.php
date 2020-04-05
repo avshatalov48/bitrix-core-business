@@ -9,13 +9,15 @@ namespace Bitrix\Sender;
 
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Type;
+use Bitrix\Main\Type\DateTime;
 
 Loc::loadMessages(__FILE__);
 
 class MailingTriggerTable extends Entity\DataManager
 {
 	/**
+	 * Get table name.
+	 *
 	 * @return string
 	 */
 	public static function getTableName()
@@ -24,6 +26,8 @@ class MailingTriggerTable extends Entity\DataManager
 	}
 
 	/**
+	 * Get map.
+	 *
 	 * @return array
 	 */
 	public static function getMap()
@@ -63,7 +67,9 @@ class MailingTriggerTable extends Entity\DataManager
 
 
 	/**
-	 * @param Entity\Event $event
+	 * Handler of "On after add" event.
+	 *
+	 * @param Entity\Event $event Event.
 	 * @return Entity\EventResult
 	 */
 	public static function onAfterAdd(Entity\Event $event)
@@ -85,7 +91,9 @@ class MailingTriggerTable extends Entity\DataManager
 	}
 
 	/**
-	 * @param Entity\Event $event
+	 * Handler of "On update" event.
+	 *
+	 * @param Entity\Event $event Event.
 	 * @return Entity\EventResult
 	 */
 	public static function onUpdate(Entity\Event $event)
@@ -110,7 +118,9 @@ class MailingTriggerTable extends Entity\DataManager
 	}
 
 	/**
-	 * @param Entity\Event $event
+	 * Handler of "On delete" event.
+	 *
+	 * @param Entity\Event $event Event.
 	 * @return Entity\EventResult
 	 */
 	public static function onDelete(Entity\Event $event)
@@ -132,22 +142,29 @@ class MailingTriggerTable extends Entity\DataManager
 		return $result;
 	}
 
+	/**
+	 * Actualize handlers.
+	 *
+	 * @param int $chainId Letter ID.
+	 * @param array|null $fieldsNew New fields.
+	 * @param array|null $fieldsOld Old fields.
+	 */
 	public static function actualizeHandlers($chainId, array $fieldsNew = null, array $fieldsOld = null)
 	{
 		$settingsNew = null;
 		$settingsOld = null;
 
 		if($fieldsNew)
-			$settingsNew = new TriggerSettings($fieldsNew);
+			$settingsNew = new Trigger\Settings($fieldsNew);
 		if($fieldsOld)
-			$settingsOld = new TriggerSettings($fieldsOld);
+			$settingsOld = new Trigger\Settings($fieldsOld);
 
 
 		// if old item was closed trigger
 		if($settingsOld && $settingsOld->isClosedTrigger())
 		{
 			// delete agent
-			$agentName = TriggerManager::getClosedEventAgentName(
+			$agentName = Trigger\Manager::getClosedEventAgentName(
 				$settingsOld->getEventModuleId(),
 				$settingsOld->getEventType(),
 				$chainId
@@ -172,7 +189,7 @@ class MailingTriggerTable extends Entity\DataManager
 				return;
 
 			// add new agent
-			$agentName = TriggerManager::getClosedEventAgentName(
+			$agentName = Trigger\Manager::getClosedEventAgentName(
 				$settingsNew->getEventModuleId(),
 				$settingsNew->getEventType(),
 				$chainId
@@ -184,7 +201,7 @@ class MailingTriggerTable extends Entity\DataManager
 			if($agentInterval <= 0) $agentInterval = 1440;
 
 			$agentTimeArray = explode(":", $agentTime);
-			$agentDate = new \Bitrix\Main\Type\DateTime;
+			$agentDate = new DateTime;
 			$agentDate->setTime((int)$agentTimeArray[0], (int)$agentTimeArray[1]);
 
 			// set next exec on next day if exec was today
@@ -205,7 +222,7 @@ class MailingTriggerTable extends Entity\DataManager
 			// or change operation(the NEW is not equal to the OLD)
 			if(!$settingsNew || $settingsOld->getFullEventType() != $settingsNew->getFullEventType())
 			{
-				TriggerManager::actualizeHandler(array(
+				Trigger\Manager::actualizeHandler(array(
 					'MODULE_ID' => $settingsOld->getEventModuleId(),
 					'EVENT_TYPE' => $settingsOld->getEventType(),
 					'CALLED_BEFORE_CHANGE' => true
@@ -217,7 +234,7 @@ class MailingTriggerTable extends Entity\DataManager
 		if($settingsNew && $settingsNew->getFullEventType())
 		{
 			$calledBeforeChange = ($fieldsOld ?  false : true);
-			TriggerManager::actualizeHandler(array(
+			Trigger\Manager::actualizeHandler(array(
 				'MODULE_ID' => $settingsNew->getEventModuleId(),
 				'EVENT_TYPE' => $settingsNew->getEventType(),
 				'CALLED_BEFORE_CHANGE' => $calledBeforeChange

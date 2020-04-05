@@ -96,24 +96,30 @@ class BaseTemplate
 	 */
 	public function get(BaseValues $entity = null)
 	{
+		static $cache = array();
 		if ($entity === null)
 			$entity = $this->entity;
 
-		$result = array();
-		$templateList = \Bitrix\Iblock\InheritedPropertyTable::getList(array(
-			"select" => array("ID", "CODE", "TEMPLATE", "ENTITY_TYPE", "ENTITY_ID"),
-			"filter" => array(
-				"=IBLOCK_ID" => $entity->getIblockId(),
-				"=ENTITY_TYPE" => $entity->getType(),
-				"=ENTITY_ID" => $entity->getId(),
-			),
-		));
-		while ($row = $templateList->fetch())
+		$filter = array(
+			"=IBLOCK_ID" => $entity->getIblockId(),
+			"=ENTITY_TYPE" => $entity->getType(),
+			"=ENTITY_ID" => $entity->getId(),
+		);
+		$cacheKey = implode('|', $filter);
+		if (!isset($cache[$cacheKey]))
 		{
-			$result[$row["CODE"]] = $row;
+			$result = array();
+			$templateList = \Bitrix\Iblock\InheritedPropertyTable::getList(array(
+				"select" => array("ID", "CODE", "TEMPLATE", "ENTITY_TYPE", "ENTITY_ID"),
+				"filter" => $filter,
+			));
+			while ($row = $templateList->fetch())
+			{
+				$result[$row["CODE"]] = $row;
+			}
+			$cache[$cacheKey] = $result;
 		}
-
-		return $result;
+		return $cache[$cacheKey];
 	}
 
 	/**

@@ -33,14 +33,14 @@ class Twilio extends Sender\BaseConfigurable
 		return 'twilio.com';
 	}
 
-	public function isDemo()
-	{
-		return false;
-	}
-
 	public function isRegistered()
 	{
 		return ($this->getOption('account_sid') !== null);
+	}
+
+	public function isDemo()
+	{
+		return false;
 	}
 
 	public function canUse()
@@ -59,9 +59,9 @@ class Twilio extends Sender\BaseConfigurable
 		$fromList = $this->getFromList();
 		if (count($fromList) > 0)
 		{
-			$from = $fromList[0]['id'];
+			return $fromList[0]['id'];
 		}
-		return $from;
+		return null;
 	}
 
 	public function setDefaultFrom($from)

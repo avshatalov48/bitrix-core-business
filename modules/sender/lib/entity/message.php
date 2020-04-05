@@ -263,7 +263,7 @@ class Message extends Base
 			return $id;
 		}
 
-		MessageFieldTable::delete(array('MESSAGE_ID' => $id));
+		MessageFieldTable::deleteByMessageId($id);
 		foreach ($fields as $field)
 		{
 			MessageFieldTable::add(array(

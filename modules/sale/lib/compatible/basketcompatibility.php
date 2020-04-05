@@ -10,8 +10,7 @@ use Bitrix\Sale\Internals\BasketTable;
 
 Main\Localization\Loc::loadMessages(__FILE__);
 
-class BasketCompatibility
-	extends Internals\EntityCompatibility
+class BasketCompatibility extends Internals\EntityCompatibility
 {
 
 	private static $proxyBasket = array();
@@ -20,12 +19,38 @@ class BasketCompatibility
 	protected $orderCompatibility = null;
 
 	/**
+	 * @return string
+	 */
+	protected static function getRegistryType()
+	{
+		return Sale\Registry::REGISTRY_TYPE_ORDER;
+	}
+
+	/**
+	 * @return Main\Entity\Base
+	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
+	 */
+	protected static function getEntity()
+	{
+		return BasketTable::getEntity();
+	}
+
+	/**
+	 * @return string
+	 */
+	protected static function getOrderCompatibilityClassName()
+	{
+		return OrderCompatibility::class;
+	}
+
+	/**
 	 * @param array $fields - field basket
 	 */
 	protected function __construct(array $fields = array())
 	{
 		/** @var OrderQuery query */
-		$this->query = new OrderQuery(BasketTable::getEntity(), true);
+		$this->query = new OrderQuery(static::getEntity());
 		$this->fields = new Sale\Internals\Fields($fields);
 	}
 
@@ -143,7 +168,7 @@ class BasketCompatibility
 
 		$basketChanged = false;
 
-		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+		$registry = Sale\Registry::getInstance(static::getRegistryType());
 		$basketItemEntity = $registry->getBasketItemClassName();
 
 		$publicMode = DiscountCompatibility::usedByClient();
@@ -173,6 +198,11 @@ class BasketCompatibility
 		$sort = 100;
 		foreach ($requestBasketItems as $basketIndex => $basketItemData)
 		{
+			if (!isset($basketItemData['BASE_PRICE']) && isset($basketItemData['PRICE']))
+			{
+				$basketItemData['BASE_PRICE'] = $basketItemData['PRICE'];
+			}
+
 			$basketItem = null;
 			if (isset($basketItemData['ID']) && intval($basketItemData['ID']) > 0)
 			{
@@ -188,7 +218,7 @@ class BasketCompatibility
 			if (!$basketItem)
 			{
 				/** @var Sale\BasketItem $basketItem */
-				$basketItem = Sale\BasketItem::create($basket, $basketItemData['MODULE'], $basketItemData['PRODUCT_ID']);
+				$basketItem = $basketItemEntity::create($basket, $basketItemData['MODULE'], $basketItemData['PRODUCT_ID']);
 				$basketChanged = true;
 			}
 
@@ -482,6 +512,8 @@ class BasketCompatibility
 		$basket = null;
 		$item = null;
 
+		$registry = Sale\Registry::getInstance(static::getRegistryType());
+
 		if (!array_key_exists('FUSER_ID', $fields) || intval($fields['FUSER_ID']) <= 0)
 		{
 			$fields['FUSER_ID'] = Sale\Fuser::getId(false);
@@ -489,8 +521,9 @@ class BasketCompatibility
 
 		if (!empty($fields['ORDER_ID']) && intval($fields['ORDER_ID']) > 0)
 		{
-			/** @var Sale\Order $order */
-			$order = Sale\Order::load(intval($fields['ORDER_ID']));
+			/** @var Sale\Order $orderClassName */
+			$orderClassName = $registry->getOrderClassName();
+			$order = $orderClassName::load(intval($fields['ORDER_ID']));
 
 			if ($order)
 			{
@@ -501,8 +534,9 @@ class BasketCompatibility
 
 		if (!$basket)
 		{
-			/** @var Sale\Basket $basket */
-			$basket = Sale\Basket::loadItemsForFUser($fields["FUSER_ID"], $fields['LID']);
+			/** @var Sale\Basket $orderClassName */
+			$basketClassName = $registry->getBasketClassName();
+			$basket = $basketClassName::loadItemsForFUser($fields["FUSER_ID"], $fields['LID']);
 		}
 
 
@@ -556,8 +590,10 @@ class BasketCompatibility
 
 				if ($systemShipment->getDeliveryId() > 0)
 				{
+					/** @var OrderCompatibility $orderCompatibilityClassName */
+					$orderCompatibilityClassName = static::getOrderCompatibilityClassName();
 					/** @var Sale\Shipment $shipment */
-					$shipment = OrderCompatibility::getShipmentByDeliveryId($shipmentCollection, $systemShipment->getDeliveryId());
+					$shipment = $orderCompatibilityClassName::getShipmentByDeliveryId($shipmentCollection, $systemShipment->getDeliveryId());
 
 					if (!$shipment)
 					{
@@ -662,6 +698,8 @@ class BasketCompatibility
 		$order = null;
 		$orderId = null;
 
+		$registry = Sale\Registry::getInstance(static::getRegistryType());
+
 		foreach(GetModuleEvents("sale", "OnBeforeBasketUpdateAfterCheck", true) as $event)
 			if (ExecuteModuleEventEx($event, array($id, &$fields))===false)
 				return false;
@@ -675,6 +713,7 @@ class BasketCompatibility
 			{
 				/** @var Sale\BasketItem $item */
 				$item = $itemResultData['BASKET_ITEM'];
+				$basket = $item->getCollection();
 			}
 
 			if (isset($itemResultData['ORDER']))
@@ -746,8 +785,9 @@ class BasketCompatibility
 		if ($order === null && !empty($fields['ORDER_ID']) && intval($fields['ORDER_ID']) > 0)
 		{
 			$orderId = intval($fields['ORDER_ID']);
-			/** @var Sale\Order $order */
-			if ($order = Sale\Order::load($orderId))
+
+			$orderClassName = $registry->getOrderClassName();
+			if ($order = $orderClassName::load($orderId))
 			{
 				/** @var Sale\Basket $basket */
 				if ($basket = $order->getBasket())
@@ -760,15 +800,9 @@ class BasketCompatibility
 						throw new Main\ObjectNotFoundException('Entity "ShipmentCollection" not found');
 					}
 
-					OrderCompatibility::createShipmentFromShipmentSystem($shipmentCollection);
-
-					/** @var Sale\Result $r */
-					$r = static::syncShipmentAndBasketItem($shipmentCollection, $item);
-					if (!$r->isSuccess())
-					{
-						$result->addErrors($r->getErrors());
-						return $result;
-					}
+					/** @var OrderCompatibility $orderCompatibilityClassName */
+					$orderCompatibilityClassName = static::getOrderCompatibilityClassName();
+					$orderCompatibilityClassName::createShipmentFromShipmentSystem($shipmentCollection);
 
 					/** @var Sale\Result $r */
 					$r = static::syncShipmentCollectionAndBasket($shipmentCollection, $basket);
@@ -855,7 +889,7 @@ class BasketCompatibility
 				return $result;
 			}
 
-			$r = $item->save();
+			$r = $basket->save();
 		}
 
 		if (!$r->isSuccess())
@@ -881,7 +915,10 @@ class BasketCompatibility
 		$basket = null;
 		$order = null;
 
-		$res = BasketTable::getList(
+		$registry = Sale\Registry::getInstance(static::getRegistryType());
+		/** @var Sale\Basket $basketClassName */
+		$basketClassName = $registry->getBasketClassName();
+		$res = $basketClassName::getList(
 			array(
 				'filter' => array(
 					'ID' => $id
@@ -898,8 +935,10 @@ class BasketCompatibility
 
 		if (intval($itemDat['ORDER_ID']) > 0)
 		{
+			/** @var Sale\Basket $basketClassName */
+			$orderClassName = $registry->getOrderClassName();
 			/** @var Sale\Order $order */
-			if ($order = Sale\Order::load(intval($itemDat['ORDER_ID'])))
+			if ($order = $orderClassName::load(intval($itemDat['ORDER_ID'])))
 			{
 				if ($basket = $order->getBasket())
 				{
@@ -915,8 +954,9 @@ class BasketCompatibility
 				$itemDat['FUSER_ID'] = Sale\Fuser::getId();
 			}
 
-			/** @var Sale\Basket $basket */
-			if ($basket = Sale\Basket::loadItemsForFUser($itemDat["FUSER_ID"], $itemDat['LID']))
+			/** @var Sale\Basket $basketClassName */
+			$basketClassName = $registry->getBasketClassName();
+			if ($basket = $basketClassName::loadItemsForFUser($itemDat["FUSER_ID"], $itemDat['LID']))
 			{
 				/** @var Sale\BasketItem $item */
 				$item = $basket->getItemById($id);
@@ -974,58 +1014,6 @@ class BasketCompatibility
 	}
 
 	/**
-	 * @param $orderId
-	 * @param array $storeData
-	 * @return Sale\Result
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 */
-	public static function shipShipment($orderId, array $storeData = array())
-	{
-		$result = new Sale\Result();
-
-		/** @var Sale\Order $order */
-		if (!$order = Sale\Order::load($orderId))
-		{
-			$result->addError( new Sale\ResultError(Main\Localization\Loc::getMessage('SALE_COMPATIBLE_BASKET_SHIPMENT_ORDER_NOT_FOUND'), 'SALE_COMPATIBLE_BASKET_SHIPMENT_ORDER_NOT_FOUND') );
-			return $result;
-		}
-
-		/** @var Sale\ShipmentCollection $shipmentCollection */
-		$shipmentCollection = $order->getShipmentCollection();
-
-		/** @var Sale\Shipment $shipment */
-		foreach ($shipmentCollection as $shipment)
-		{
-			if ($shipment->isSystem())
-				continue;
-
-			/** @var Sale\ShipmentItemCollection $shipmentItemCollection */
-			$shipmentItemCollection = $shipment->getShipmentItemCollection();
-			/** @var Sale\ShipmentItem $shipmentItem */
-			foreach ($shipmentItemCollection as $shipmentItem)
-			{
-				/** @var Sale\ShipmentItemStoreCollection $shipmentItemStoreCollection */
-				$shipmentItemStoreCollection = $shipmentItem->getShipmentItemStoreCollection();
-
-				/** @var Sale\ShipmentItemStore $shipmentItemStore */
-				foreach ($shipmentItemStoreCollection as $shipmentItemStore)
-				{
-					$basketId = $shipmentItemStore->getBasketId();
-					if ($basketId > 0 && array_key_exists($basketId, $storeData))
-					{
-
-					}
-				}
-			}
-
-		}
-
-
-
-		return $result;
-	}
-
-	/**
 	 * @internal 
 	 * @return array
 	 */
@@ -1058,7 +1046,7 @@ class BasketCompatibility
 	 */
 	protected static function getSelectFields()
 	{
-		return array_keys(BasketTable::getEntity()->getScalarFields());
+		return array_keys(static::getEntity()->getScalarFields());
 	}
 
 	/**
@@ -1067,7 +1055,9 @@ class BasketCompatibility
 	 */
 	public static function getAvailableFields()
 	{
-		$fields = Sale\BasketItem::getAvailableFields();
+		$registry = Sale\Registry::getInstance(static::getRegistryType());
+		$basketItemClassName = $registry->getBasketItemClassName();
+		$fields = $basketItemClassName::getAvailableFields();
 
 		if ($index = array_search('SET_PARENT_ID', $fields))
 			unset($fields[$index]);
@@ -1089,7 +1079,9 @@ class BasketCompatibility
 		$basket = null;
 		$item = null;
 
-		$res = BasketTable::getList(array(
+		$registry = Sale\Registry::getInstance(static::getRegistryType());
+		$basketClassName = $registry->getBasketClassName();
+		$res = $basketClassName::getList(array(
 				'filter' => array(
 					'ID' => $id
 				),
@@ -1105,8 +1097,9 @@ class BasketCompatibility
 
 		if (intval($itemDat['ORDER_ID']) > 0)
 		{
+			$orderClassName = $registry->getOrderClassName();
 			/** @var Sale\Order $order */
-			if ($order = Sale\Order::load(intval($itemDat['ORDER_ID'])))
+			if ($order = $orderClassName::load(intval($itemDat['ORDER_ID'])))
 			{
 				if ($basket = $order->getBasket())
 				{
@@ -1117,13 +1110,9 @@ class BasketCompatibility
 		}
 		else
 		{
-//			if (!array_key_exists('FUSER_ID', $itemDat) || intval($itemDat['FUSER_ID']) <= 0)
-//			{
-//				$itemDat['FUSER_ID'] = Sale\Fuser::getId();
-//			}
-
+			$basketClassName = $registry->getBasketClassName();
 			/** @var Sale\Basket $basket */
-			$basket = Sale\Basket::loadItemsForFUser($itemDat["FUSER_ID"], $itemDat['LID']);
+			$basket = $basketClassName::loadItemsForFUser($itemDat["FUSER_ID"], $itemDat['LID']);
 
 			if ($basket)
 			{
@@ -1162,7 +1151,6 @@ class BasketCompatibility
 
 		$orderBasketCollection = $order->getBasket();
 
-
 		$shipmentCollection = $order->getShipmentCollection();
 		$systemShipment = $shipmentCollection->getSystemShipment();
 		$systemShipmentItemCollection = $systemShipment->getShipmentItemCollection();
@@ -1197,8 +1185,11 @@ class BasketCompatibility
 		{
 			if ($systemShipment->getDeliveryId() > 0)
 			{
+				/** @var OrderCompatibility $orderCompatibilityClassName */
+				$orderCompatibilityClassName = static::getOrderCompatibilityClassName();
+
 				/** @var Sale\Shipment $shipment */
-				$shipment = OrderCompatibility::getShipmentByDeliveryId($shipmentCollection, $systemShipment->getDeliveryId());
+				$shipment = $orderCompatibilityClassName::getShipmentByDeliveryId($shipmentCollection, $systemShipment->getDeliveryId());
 
 				if (!$shipment)
 				{
@@ -1290,8 +1281,10 @@ class BasketCompatibility
 
 			if ($order === null && intval($orderId) > 0)
 			{
+				$registry = Sale\Registry::getInstance(static::getRegistryType());
+				$orderClassName = $registry->getOrderClassName();
 				/** @var Sale\Order $order */
-				$order = Sale\Order::load($orderId);
+				$order = $orderClassName::load($orderId);
 			}
 
 		}
@@ -1412,53 +1405,6 @@ class BasketCompatibility
 		return $result;
 
 	}
-
-
-	/**
-	 * @internal
-	 * @param Sale\ShipmentCollection $shipmentCollection
-	 * @param Sale\BasketItem $basketItem
-	 *
-	 * @return Sale\Result
-	 * @throws Main\ObjectNotFoundException
-	 */
-	public static function syncShipmentAndBasketItem(Sale\ShipmentCollection $shipmentCollection, Sale\BasketItem $basketItem)
-	{
-		$result = new Sale\Result();
-
-		if (count($shipmentCollection) > 2)
-		{
-			return $result;
-		}
-
-		$basketItemQuantity = $shipmentCollection->getBasketItemQuantity($basketItem);
-		if ($basketItemQuantity >= $basketItem->getQuantity())
-		{
-			return $result;
-		}
-
-		/** @var Sale\Shipment $systemShipment */
-		$systemShipment = $shipmentCollection->getSystemShipment();
-
-		$shipmentCollection->setMathActionOnly(true);
-
-		$oldBasketItemQuantity = $systemShipment->getBasketItemQuantity($basketItem);
-		$newBasketItemQuantity = $oldBasketItemQuantity + $basketItem->getQuantity();
-
-		$r = $systemShipment->syncQuantityAfterModify($basketItem, $newBasketItemQuantity, $oldBasketItemQuantity);
-		$shipmentCollection->setMathActionOnly(false);
-
-		if (!$r->isSuccess())
-		{
-			$result->addErrors($r->getErrors());
-			return $result;
-		}
-
-		return $result;
-
-	}
-
-
 
 	/**
 	 * @internal

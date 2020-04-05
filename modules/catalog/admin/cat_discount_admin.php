@@ -45,6 +45,7 @@ $arFilterFields = array(
 	"filter_renewal",
 	"filter_value_start",
 	"filter_value_end",
+	"filter_use_coupons"
 );
 
 $lAdmin->InitFilter($arFilterFields);
@@ -71,6 +72,8 @@ if (isset($filter_value_start) && doubleval($filter_value_start) > 0)
 	$arFilter[">=VALUE"] = doubleval($filter_value_start);
 if (isset($filter_value_end) && doubleval($filter_value_end) > 0)
 	$arFilter["<=VALUE"] = doubleval($filter_value_end);
+if (!empty($filter_use_coupons))
+	$arFilter['USE_COUPONS'] = $filter_use_coupons;
 
 if (!$bReadOnly && $lAdmin->EditAction())
 {
@@ -268,6 +271,12 @@ $lAdmin->AddHeaders(array(
 		"sort" => "LAST_DISCOUNT",
 		"default" => false
 	),
+	array(
+		"id" => "USE_COUPONS",
+		"content" => GetMessage("DSC_USE_COUPONS"),
+		"sort" => "USE_COUPONS",
+		"default" => true
+	)
 ));
 
 $arSelectFieldsMap = array(
@@ -289,6 +298,7 @@ $arSelectFieldsMap = array(
 	"XML_ID" => false,
 	"CURRENCY" => false,
 	"LAST_DISCOUNT" => false,
+	"USE_COUPONS" => false
 );
 
 $arSelectFields = $lAdmin->GetVisibleHeaderColumns();
@@ -378,6 +388,7 @@ while ($arDiscount = $dbResultList->Fetch())
 		$row->AddCalendarField("TIMESTAMP_X", false);
 
 	$row->AddViewField("ID", '<a href="/bitrix/admin/cat_discount_edit.php?lang='.LANGUAGE_ID.'&ID='.$arDiscount["ID"].'">'.$arDiscount["ID"].'</a>');
+	$row->AddCheckField('USE_COUPONS', false);
 
 	if ($bReadOnly)
 	{
@@ -434,7 +445,7 @@ while ($arDiscount = $dbResultList->Fetch())
 		$strDiscountValue = '';
 		if ($arDiscount["VALUE_TYPE"] == CCatalogDiscount::TYPE_PERCENT)
 		{
-			$strDiscountValue = roundEx($arDiscount["VALUE"], CATALOG_VALUE_PRECISION)."%";
+			$strDiscountValue = $arDiscount["VALUE"]."%";
 		}
 		elseif ($arDiscount["VALUE_TYPE"] == CCatalogDiscount::TYPE_SALE)
 		{
@@ -587,6 +598,7 @@ $oFilter = new CAdminFilter(
 		GetMessage("DSC_COUPON"),
 		GetMessage("DSC_RENEW"),
 		GetMessage("DSC_VALUE"),
+		GetMessage('DSC_FILTER_USE_COUPONS')
 	)
 );
 
@@ -653,6 +665,16 @@ $oFilter->Begin();
 			<input type="text" name="filter_value_start" value="<?=htmlspecialcharsbx($filter_value_start); ?>" size="15">
 			...
 			<input type="text" name="filter_value_end" value="<?=htmlspecialcharsbx($filter_value_end); ?>" size="15">
+		</td>
+	</tr>
+	<tr>
+		<td><?= GetMessage("DSC_FILTER_USE_COUPONS") ?>:</td>
+		<td>
+			<select name="filter_use_coupons">
+				<option value=""><?=htmlspecialcharsbx("(".GetMessage("DSC_ALL").")"); ?></option>
+				<option value="Y"<?if ($filter_use_coupons=="Y") echo " selected"?>><?=htmlspecialcharsbx(GetMessage("DSC_YES")); ?></option>
+				<option value="N"<?if ($filter_use_coupons=="N") echo " selected"?>><?=htmlspecialcharsbx(GetMessage("DSC_NO")); ?></option>
+			</select>
 		</td>
 	</tr>
 <?

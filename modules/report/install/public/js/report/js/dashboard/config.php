@@ -17,7 +17,7 @@ return array(
 	'css' => array(
 		'/bitrix/js/report/js/dashboard/css/dashboard.css',
 	),
-	'rel' => array('popup', 'color_picker', 'dnd'),
+	'rel' => array('date', 'popup', 'color_picker', 'dnd'),
 	'bundle_js' => 'dashboard',
 	'bundle_css' => 'dashboard'
 );

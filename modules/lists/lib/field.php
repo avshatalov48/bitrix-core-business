@@ -89,6 +89,15 @@ class Field
 				$result = call_user_func_array(
 					$field['PROPERTY_USER_TYPE']['GetPublicViewHTML'], array($field, $field, $controlSettings));
 			}
+
+			if ($field['TYPE'] == 'S:DiskFile' && $field['READ'] == 'Y')
+			{
+				$field['VALUE'] = array_filter((is_array($field['VALUE']) ? $field['VALUE'] : array($field['VALUE'])));
+				foreach ($field['VALUE'] as $key => $value)
+				{
+					$result .= '<input type="hidden" name="'.$field['FIELD_ID'].'[n'.$key.'][VALUE][]" value="'.HtmlFilter::encode($value).'">';
+				}
+			}
 		}
 		elseif($field['PROPERTY_TYPE'] != '')
 		{
@@ -263,7 +272,7 @@ class Field
 					}
 					else
 					{
-						if($field['ELEMENT_ID'] > 0 && $field['TYPE'] == 'S:DiskFile')
+						if ($field['TYPE'] == 'S:DiskFile')
 						{
 							$html .= call_user_func_array($field['PROPERTY_USER_TYPE']['GetPublicViewHTML'],
 								array($field, $value, array()));
@@ -593,6 +602,10 @@ class Field
 				{
 					$items[$listElement['ID']] = HtmlFilter::encode($listElement['VALUE']);
 				}
+				if ($listElement['DEF'] == 'Y')
+				{
+					$field['DEFAULT_VALUE'] = HtmlFilter::encode($listElement['VALUE']);
+				}
 			}
 
 			self::$cache[$field['ID']] = $items;
@@ -614,7 +627,7 @@ class Field
 			$result = $items[$field['VALUE']];
 		}
 
-		return $result;
+		return ($result ? $result : $field['DEFAULT_VALUE']);
 	}
 
 	protected static function renderFieldByTypeF(array $field)
@@ -797,9 +810,7 @@ class Field
 			$pathToUser = str_replace(array('#user_id#'), $userId,
 				Option::get('main', 'TOOLTIP_PATH_TO_USER', false, SITE_ID));
 
-			$anchorId = randString(6);
-			$result = '<a id="'.$anchorId.'" href="'.$pathToUser.'" target="_blank">'.$formattedUsersName.'</a>';
-			$result .= '<script>BX.tooltip("'.$userId.'", "'.$anchorId.'", "");</script>';
+			$result = '<a href="'.$pathToUser.'" target="_blank" bx-tooltip-user-id="'.$userId.'">'.$formattedUsersName.'</a>';
 
 			self::$cache[$field['TYPE']][$userId] = $result;
 		}
@@ -984,7 +995,13 @@ class Field
 		$items = array('' => Loc::getMessage('LISTS_FIELD_NO_VALUE'));
 		$queryObject = \CIBlockProperty::getPropertyEnum($field['ID']);
 		while($enum = $queryObject->fetch())
+		{
+			if ($enum['DEF'] == 'Y')
+			{
+				$field['DEFAULT_VALUE'] = $enum['ID'];
+			}
 			$items[$enum['ID']] = $enum['VALUE'];
+		}
 
 		$inputName = $field['FIELD_ID'];
 		if($field['MULTIPLE'] == 'Y')
@@ -997,8 +1014,15 @@ class Field
 			$params = array();
 		}
 
-		if(!is_array($field['VALUE']))
-			$field['VALUE'] = array($field['VALUE']);
+		if (!is_array($field['VALUE']))
+		{
+			$field['VALUE'] = ($field['VALUE'] ? array($field['VALUE']) : array());
+		}
+
+		if (empty($field['VALUE']))
+		{
+			$field['VALUE'][] = $field['DEFAULT_VALUE'];
+		}
 
 		$result = array(
 			'id' => $inputName,

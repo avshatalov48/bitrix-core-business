@@ -18,7 +18,7 @@ use Bitrix\Main;
 class PermissionTable extends Main\Entity\DataManager
 {
 	protected static $deniedPermission = array(
-		'entity', 'placement', \CRestUtil::GLOBAL_SCOPE
+		'rating', 'entity', 'placement', 'landing_cloud', \CRestUtil::GLOBAL_SCOPE
 	);
 
 	/**

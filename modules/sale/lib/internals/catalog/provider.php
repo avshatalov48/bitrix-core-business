@@ -754,6 +754,10 @@ final class Provider
 		foreach ($shipmentItemCollection as $shipmentItem)
 		{
 			$basketItem = $shipmentItem->getBasketItem();
+			if (!$basketItem)
+			{
+				continue;
+			}
 
 			$productId = $basketItem->getProductId();
 

@@ -7,6 +7,7 @@
 /** @global CMain $APPLICATION */
 
 $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css');
+$APPLICATION->AddHeadScript("/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/script.js");
 
 ?><div id="blog-posts-content"><?
 if(!empty($arResult["OK_MESSAGE"]))
@@ -95,7 +96,8 @@ if(count($arResult["POST"])>0)
 						"TYPE"					=> "DRAFT",
 						"ADIT_MENU"				=> $CurPost["ADIT_MENU"],
 						"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
-						"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"]
+						"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
+						"SELECTOR_VERSION"		=> 2
 					),
 					$this->getComponent()
 			);

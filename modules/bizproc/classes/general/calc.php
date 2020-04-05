@@ -585,9 +585,11 @@ class CBPCalc
 			$delta *= -1;
 
 		$days = abs($days);
+		$iterations = 0;
 
-		while ($days > 0)
+		while ($days > 0 && $iterations < 1000)
 		{
+			++$iterations;
 			$date += $delta;
 
 			if ($this->isHoliday($date))
@@ -730,12 +732,26 @@ class CBPCalc
 		$df2 = $GLOBALS["DB"]->DateFormatToPHP(FORMAT_DATE);
 		$date1Formatted = \DateTime::createFromFormat($df, $date1);
 		if ($date1Formatted === false)
+		{
 			$date1Formatted = \DateTime::createFromFormat($df2, $date1);
+			if ($date1Formatted)
+			{
+				$date1Formatted->setTime(0, 0);
+			}
+		}
 		$date2Formatted = \DateTime::createFromFormat($df, $date2);
 		if ($date2Formatted === false)
+		{
 			$date2Formatted = \DateTime::createFromFormat($df2, $date2);
+			if ($date2Formatted)
+			{
+				$date2Formatted->setTime(0, 0);
+			}
+		}
 		if ($date1Formatted === false || $date2Formatted === false)
+		{
 			return null;
+		}
 
 		$interval = $date1Formatted->diff($date2Formatted);
 
@@ -789,6 +805,28 @@ class CBPCalc
 		return floatval($num);
 	}
 
+	private function FunctionNumberFormat($args)
+	{
+		$ar = $this->ArrgsToArray($args);
+		$number = (float) array_shift($ar);
+		$decimals = (int) (array_shift($ar) ?: 0);
+		$decPoint = array_shift($ar);
+		if ($decPoint === null)
+		{
+			$decPoint = '.';
+		}
+		$decPoint = (string) $decPoint;
+
+		$thousandsSeparator = array_shift($ar);
+		if ($thousandsSeparator === null)
+		{
+			$thousandsSeparator = ',';
+		}
+		$thousandsSeparator = (string) $thousandsSeparator;
+
+		return number_format($number, $decimals, $decPoint, $thousandsSeparator);
+	}
+
 	private function FunctionMin($args)
 	{
 		if (!is_array($args))
@@ -824,6 +862,14 @@ class CBPCalc
 		}
 
 		return mt_rand($min, $max);
+	}
+
+	private function FunctionRandString($args)
+	{
+		$ar = $this->ArrgsToArray($args);
+		$len = (int)array_shift($ar);
+
+		return \randString($len);
 	}
 
 	private function FunctionRound($args)
@@ -897,6 +943,41 @@ class CBPCalc
 		return strpos($haystack, $needle, $offset);
 	}
 
+	private function FunctionStrlen($args)
+	{
+		$ar = $this->ArrgsToArray($args);
+		$str = array_shift($ar);
+
+		if (!is_scalar($str))
+		{
+			return null;
+		}
+
+		$str = (string) $str;
+		return strlen($str);
+	}
+
+	private function FunctionUrlencode($args)
+	{
+		$ar = $this->ArrgsToArray($args);
+		$str = array_shift($ar);
+
+		if (!is_scalar($str))
+		{
+			if (is_array($str))
+			{
+				$str = implode(", ", CBPHelper::MakeArrayFlat($str));
+			}
+			else
+			{
+				return null;
+			}
+		}
+
+		$str = (string) $str;
+		return urlencode($str);
+	}
+
 	private function FunctionConvert($args)
 	{
 		if (!is_array($args))
@@ -923,7 +1004,7 @@ class CBPCalc
 				{
 					$ix = randString(5);
 					$attr = (!empty($attr) ? 'href="'.$attr.'"' : 'href="#" onClick="return false;"');
-					$result[] = '<a class="feed-post-user-name" id="bp_'.$userId.'_'.$ix.'" '.$attr.' bx-post-author-id="'.$userId.'" bx-post-author-gender="'.$ar['PERSONAL_GENDER'].'">'.CUser::FormatName(CSite::GetNameFormat(false), $ar, false).'</a><script type="text/javascript">BX.tooltip(\''.$userId.'\', "bp_'.$userId.'_'.$ix.'", "");</script>';
+					$result[] = '<a class="feed-post-user-name" id="bp_'.$userId.'_'.$ix.'" '.$attr.' bx-post-author-id="'.$userId.'" bx-post-author-gender="'.$ar['PERSONAL_GENDER'].'" bx-tooltip-user-id="'.$userId.'">'.CUser::FormatName(CSite::GetNameFormat(false), $ar, false).'</a>';
 				}
 			}
 
@@ -991,6 +1072,7 @@ class CBPCalc
 		'if' => array('args' => true, 'func' => 'FunctionIf'),
 		'intval' => array('args' => true, 'func' => 'FunctionIntval'),
 		'floatval' => array('args' => true, 'func' => 'FunctionFloatval'),
+		'numberformat' => array('args' => true, 'func' => 'FunctionNumberFormat'),
 		'min' => array('args' => true, 'func' => 'FunctionMin'),
 		'max' => array('args' => true, 'func' => 'FunctionMax'),
 		'rand' => array('args' => true, 'func' => 'FunctionRand'),
@@ -1001,6 +1083,8 @@ class CBPCalc
 		'or' => array('args' => true, 'func' => 'FunctionOr'),
 		'substr' => array('args' => true, 'func' => 'FunctionSubstr'),
 		'strpos' => array('args' => true, 'func' => 'FunctionStrpos'),
+		'strlen' => array('args' => true, 'func' => 'FunctionStrlen'),
+		'randstring' => array('args' => true, 'func' => 'FunctionRandString'),
 		'true' => array('args' => false, 'func' => 'FunctionTrue'),
 		'convert' => array('args' => true, 'func' => 'FunctionConvert'),
 		'merge' => array('args' => true, 'func' => 'FunctionMerge'),
@@ -1008,6 +1092,7 @@ class CBPCalc
 		'workdateadd' => array('args' => true, 'func' => 'FunctionWorkDateAdd'),
 		'isworkday' => array('args' => true, 'func' => 'FunctionIsWorkDay'),
 		'isworktime' => array('args' => true, 'func' => 'FunctionIsWorkTime'),
+		'urlencode' => array('args' => true, 'func' => 'FunctionUrlencode'),
 	);
 
 	// Allowable errors

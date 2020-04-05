@@ -1,5 +1,5 @@
 <section class="landing-block g-bg-gray-light-v5 g-pt-100 g-pb-100">
-	<div class="container g-bg-gray-light-v5 g-font-size-13">
+	<div class="container g-font-size-13">
 		<!-- Article -->
 		<article class="landing-block-node-card js-animation fadeInUp d-md-table text-md-left text-center w-100 g-bg-white g-mb-1">
 			<!-- Date -->

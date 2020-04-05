@@ -16,4 +16,5 @@ $MESS["SBB_BDELETE"] = "Удалить";
 $MESS["SBB_BDELAY"] = "Отложить";
 $MESS["SBB_BWEIGHT"] = "Вес";
 $MESS["SBB_BDISCOUNT"] = "Скидка";
-?>
+$MESS["SBB_DETAIL_PICTURE"] = "Детальная картинка";
+$MESS["SBB_PREVIEW_PICTURE"] = "Картинка для анонса";

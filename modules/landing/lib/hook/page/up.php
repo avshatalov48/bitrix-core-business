@@ -37,6 +37,6 @@ class Up extends \Bitrix\Landing\Hook\Page
 	 */
 	public function exec()
 	{
-		Manager::setPageClass('BodyClass', 'g-upper-show');
+		Manager::setPageView('BodyClass', 'g-upper-show');
 	}
 }

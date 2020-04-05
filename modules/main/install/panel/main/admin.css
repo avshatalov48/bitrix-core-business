@@ -1675,6 +1675,30 @@ a.adm-nav-page:hover,
 	position:relative;
 }
 
+.adm-list-table-cell-cnt-wrap{
+	display: block;
+	width: 100%;
+	position: relative;
+	max-height: 32px;
+	overflow: hidden;
+}
+
+.adm-list-table-cell-cnt-wrap:hover{
+	overflow: visible;
+	z-index: 10;
+}
+
+.adm-list-table-cell-cnt-wrap-inner{
+	position: relative;
+}
+
+.adm-list-table-cell-cnt-wrap:hover .adm-list-table-cell-cnt-wrap-inner{
+	background-color: #e0e9ec;
+	margin-left: -16px;
+	padding: 0 0 10px 16px;
+	box-shadow:  0 3px 2px 0 rgba(0,0,0,0.18);
+}
+
 .adm-list-table-cell-sort, .adm-list-table-cell-sort-down, .adm-list-table-cell-sort-up {cursor:pointer;}
 
 .adm-list-table-header .adm-list-table-cell-sort-up,
@@ -3484,7 +3508,6 @@ it's made to prevent appearing of artefacts from old admin button icons.
 	background:none;
 	border:none;
 	border-radius:0;
-	-webkit-box-shadow:none;
 	box-shadow:none;
 	color:#3f4b54;
 	display:inline-block;
@@ -3495,10 +3518,12 @@ it's made to prevent appearing of artefacts from old admin button icons.
 	text-shadow:0 1px #fff;
 	outline:none;
 	overflow:hidden;
-	padding:6px 4px 6px 5px;
+	padding:6px 19px 6px 5px;
 	min-width:44px;
 	vertical-align:top;
 	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
 	position:relative;
 	z-index:1;
 	zoom:1;
@@ -3506,10 +3531,6 @@ it's made to prevent appearing of artefacts from old admin button icons.
 
 .bx-ie9 .adm-select option,
 .bx-ie8 .adm-select option {background:transparent; overflow: hidden;}
-
-.bx-chrome .adm-select {
-	padding-right:14px;
-}
 
 .adm-small-button {
 	background:url("images/bx-admin-sprite-small-2.png") repeat-x 0 -879px;

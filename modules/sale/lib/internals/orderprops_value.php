@@ -7,6 +7,7 @@
  */
 namespace Bitrix\Sale\Internals;
 
+use Bitrix\Main;
 use	Bitrix\Main\Entity\DataManager,
 	Bitrix\Main\Entity\Validator;
 
@@ -59,6 +60,9 @@ class OrderPropsValueTable extends DataManager
 				'data_type' => 'Bitrix\Sale\Internals\OrderPropsTable',
 				'reference' => array('=this.ORDER_PROPS_ID' => 'ref.ID'),
 				'join_type' => 'LEFT',
+			),
+			'XML_ID' => array(
+				'data_type' => 'string',
 			),
 		);
 	}

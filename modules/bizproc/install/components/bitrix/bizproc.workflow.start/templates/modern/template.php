@@ -45,14 +45,16 @@ elseif ($arResult["SHOW_MODE"] == "WorkflowParameters")
 		foreach ($arResult["TEMPLATES"][$arParams["TEMPLATE_ID"]]["PARAMETERS"] as $parameterKey => $arParameter)
 		{
 			if ($parameterKey == "TargetUser")
+			{
 				continue;
+			}
 ?>
 			<div class="bizproc-modern-type-control-container">
 				<span class="bizproc-modern-type-control-container-title bizproc-modern-type-control-container-title-top"
 				<? if ($arParameter["Description"]):?> title="<?=htmlspecialcharsbx($arParameter["Description"])?>"<?endif;?>>
 					<?=htmlspecialcharsbx($arParameter['Name'])?><?=($arParameter["Required"] ? "<span class=\"required\">*</span> " : "")?>:
 				</span>
-				<div class="bizproc-modern-type-control-wrapper bizproc-modern-type-control-wrapper-<?=htmlspecialcharsbx($arParameter["Type"])?>">
+				<div class="bizproc-modern-type-control-wrapper">
 				<?
 				echo $documentService->GetFieldInputControl(
 					$arParams["DOCUMENT_TYPE"],
@@ -60,7 +62,6 @@ elseif ($arResult["SHOW_MODE"] == "WorkflowParameters")
 					array(
 						"Form" => "start_workflow_form1",
 						"Field" => $parameterKey,
-						'ClassNamePrefix' => 'bizproc-modern-type-control'
 					),
 					$arResult["PARAMETERS_VALUES"][$parameterKey],
 					false,

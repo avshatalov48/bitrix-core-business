@@ -150,7 +150,7 @@ class CEbayCategoriesLink extends CBitrixComponent
 			$this->arResult["EBAY_CATEGORY_VARIATIONS"] = array();
 		}
 
-		$this->arResult["CATEGORY_PROPS"] = \CIBlockSectionPropertyLink::GetArray($this->arParams["IBLOCK_ID"], $this->arParams["BITRIX_CATEGORY_ID"]);
+		$categoryProps = \CIBlockSectionPropertyLink::GetArray($this->arParams["IBLOCK_ID"], $this->arParams["BITRIX_CATEGORY_ID"]);
 
 		$rsProps =  \CIBlockProperty::GetList(array(
 			"SORT"=>"ASC",
@@ -159,11 +159,17 @@ class CEbayCategoriesLink extends CBitrixComponent
 			"IBLOCK_ID" => $this->arParams["IBLOCK_ID"],
 			"CHECK_PERMISSIONS" => "N",
 			"ACTIVE"=>"Y",
+			"MULTIPLE" => "N"
 		));
 
 		while ($arProp = $rsProps->Fetch())
-			if(isset($this->arResult["CATEGORY_PROPS"][$arProp["ID"]]))
+		{
+			if(isset($categoryProps[$arProp["ID"]]))
+			{
+				$this->arResult["CATEGORY_PROPS"][$arProp["ID"]] = $categoryProps[$arProp["ID"]];
 				$this->arResult["CATEGORY_PROPS"][$arProp["ID"]]["NAME"] = $arProp["NAME"];
+			}
+		}
 
 		$this->arResult["IBLOCK_IDS"] = array(
 			$this->arParams["IBLOCK_ID"] => Loc::getMessage("SALE_EBAY_SEC_CATEGORY_PROP"),
@@ -174,7 +180,7 @@ class CEbayCategoriesLink extends CBitrixComponent
 		if(is_array($arOffers) && !empty($arOffers))
 		{
 			$this->arResult["OFFERS_IBLOCK_ID"] = $arOffers["IBLOCK_ID"];
-			$this->arResult["CATEGORY_OFFERS_PROPS"] = \CIBlockSectionPropertyLink::GetArray($arOffers["IBLOCK_ID"], $this->arParams["BITRIX_CATEGORY_ID"]);
+			$offerProps = \CIBlockSectionPropertyLink::GetArray($arOffers["IBLOCK_ID"], $this->arParams["BITRIX_CATEGORY_ID"]);
 
 			$rsProps =  \CIBlockProperty::GetList(array(
 				"SORT"=>"ASC",
@@ -183,11 +189,17 @@ class CEbayCategoriesLink extends CBitrixComponent
 				"IBLOCK_ID" => $arOffers["IBLOCK_ID"],
 				"CHECK_PERMISSIONS" => "N",
 				"ACTIVE"=>"Y",
+				"MULTIPLE" => "N"
 			));
 
 			while ($arProp = $rsProps->Fetch())
-				if(isset($this->arResult["CATEGORY_OFFERS_PROPS"][$arProp["ID"]]))
+			{
+				if(isset($offerProps[$arProp["ID"]]))
+				{
+					$this->arResult["CATEGORY_OFFERS_PROPS"][$arProp["ID"]] = $offerProps[$arProp["ID"]];
 					$this->arResult["CATEGORY_OFFERS_PROPS"][$arProp["ID"]]["NAME"] = $arProp["NAME"];
+				}
+			}
 
 			$this->arResult["IBLOCK_IDS"][$arOffers["IBLOCK_ID"]] = Loc::getMessage("SALE_EBAY_SEC_OFFERS_PROP");
 		}

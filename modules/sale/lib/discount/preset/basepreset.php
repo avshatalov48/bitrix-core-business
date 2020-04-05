@@ -2,6 +2,7 @@
 
 namespace Bitrix\Sale\Discount\Preset;
 
+use Bitrix\Crm\Order\BuyerGroup;
 use Bitrix\Main;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
@@ -47,6 +48,8 @@ abstract class BasePreset
 	private $stepResultState;
 	/** @var array */
 	private $discount;
+	/** @var bool */
+	private $restrictedGroupsMode = false;
 
 	/**
 	 * @return string the fully qualified name of this class.
@@ -56,12 +59,32 @@ abstract class BasePreset
 		return get_called_class();
 	}
 
+	/**
+	 * @param BasePreset $classObject
+	 * @return string the short qualified name of this class.
+	 * @throws \ReflectionException
+	 */
+	public static function classShortName(BasePreset $classObject)
+	{
+		return (new \ReflectionClass($classObject))->getShortName();
+	}
+
 	public function __construct()
 	{
 		$this->errorCollection = new ErrorCollection;
 		$this->request = Context::getCurrent()->getRequest();
 
 		$this->init();
+	}
+
+	public function enableRestrictedGroupsMode($state)
+	{
+		$this->restrictedGroupsMode = $state === true;
+	}
+
+	public function isRestrictedGroupsModeEnabled()
+	{
+		return $this->restrictedGroupsMode;
 	}
 
 	protected function init()
@@ -467,6 +490,26 @@ abstract class BasePreset
 		return '</form>';
 	}
 
+	protected function filterUserGroups(array $discountGroups)
+	{
+		if ($this->isRestrictedGroupsModeEnabled())
+		{
+			if (Main\Loader::includeModule('crm'))
+			{
+				$existingGroups = [];
+
+				if ($this->isDiscountEditing())
+				{
+					$existingGroups = $this->getUserGroupsByDiscount($this->discount['ID']);
+				}
+
+				$discountGroups = BuyerGroup::prepareGroupIds($existingGroups, $discountGroups);
+			}
+		}
+
+		return $discountGroups;
+	}
+
 	/**
 	 * @param State $state
 	 * @return array Discount fields.
@@ -474,6 +517,9 @@ abstract class BasePreset
 	public function generateDiscount(State $state)
 	{
 		$siteId = $state->get('discount_lid');
+
+		$discountGroups = $state->get('discount_groups') ?: [];
+		$userGroups = $this->filterUserGroups($discountGroups);
 
 		return array(
 			'LID' => $siteId,
@@ -487,7 +533,7 @@ abstract class BasePreset
 			'LAST_DISCOUNT' => $state->get('discount_last_discount'),
 			'LAST_LEVEL_DISCOUNT' => $state->get('discount_last_level_discount'),
 			'XML_ID' => '',
-			'USER_GROUPS' => $state->get('discount_groups'),
+			'USER_GROUPS' => $userGroups,
 		);
 	}
 
@@ -852,16 +898,28 @@ abstract class BasePreset
 	 */
 	protected function getAllowableUserGroups()
 	{
-		$groupList = array();
-		$groupIterator = Main\GroupTable::getList(
-			array(
-				'select' => array('ID', 'NAME'),
-				'order' => array('C_SORT' => 'ASC', 'ID' => 'ASC')
-			)
-		);
-		while ($group = $groupIterator->fetch())
+		$groupList = [];
+
+		if ($this->isRestrictedGroupsModeEnabled())
 		{
-			$groupList[$group['ID']] = $group['NAME'];
+			if (Main\Loader::includeModule('crm'))
+			{
+				foreach (BuyerGroup::getPublicList() as $group)
+				{
+					$groupList[$group['ID']] = $group['NAME'];
+				}
+			}
+		}
+		else
+		{
+			$groupIterator = Main\GroupTable::getList([
+				'select' => ['ID', 'NAME'],
+				'order' => ['C_SORT' => 'ASC', 'ID' => 'ASC'],
+			]);
+			while ($group = $groupIterator->fetch())
+			{
+				$groupList[$group['ID']] = $group['NAME'];
+			}
 		}
 
 		return $groupList;

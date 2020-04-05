@@ -65,7 +65,7 @@
 				return elements;
 			}
 
-			return [elements[this.getElementIndex(this.currentTarget)]];
+			return this.currentTarget ? [elements[this.getElementIndex(this.currentTarget)]] : [];
 		},
 
 		getElementIndex: function(element)
@@ -197,7 +197,10 @@
 
 				if (affect.length)
 				{
-					this.affects.add(affect);
+					if (affect !== "background-image")
+					{
+						this.affects.add(affect);
+					}
 				}
 
 				this.getNode().forEach(function(node) {
@@ -216,22 +219,18 @@
 						if (affect)
 						{
 							node.style[affect] = null;
-							[].slice.call(node.querySelectorAll("*")).forEach(function(child) {
 
-								if (affect === "background-image" &&
-									isString(child.style[affect]) &&
-									child.style[affect].includes("url")
-								)
-								{
-									return;
-								}
+							if (affect !== "background-image")
+							{
+								[].slice.call(node.querySelectorAll("*")).forEach(function(child) {
+									child.style[affect] = null;
+									if (affect === "color")
+									{
+										child.removeAttribute("color");
+									}
+								});
+							}
 
-								child.style[affect] = null;
-								if (affect === "color")
-								{
-									child.removeAttribute("color");
-								}
-							});
 						}
 
 						node.classList.add(valueItem);
@@ -255,7 +254,7 @@
 		getValue: function()
 		{
 			return {
-				classList: this.node.length ? this.node[0].className.split(" ") : [],
+				classList: this.getNode().length ? this.getNode()[0].className.split(" ") : [],
 				affect: this.affects.toArray()
 			};
 		}

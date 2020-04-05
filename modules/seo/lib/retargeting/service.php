@@ -69,7 +69,9 @@ class Service implements IService
 	}
 
 	/**
-	 * @param string $type
+	 * Get auth adapter.
+	 *
+	 * @param string $type Type.
 	 * @return AuthAdapter
 	 */
 	public static function getAuthAdapter($type)

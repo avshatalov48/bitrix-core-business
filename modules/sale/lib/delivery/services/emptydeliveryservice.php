@@ -69,7 +69,6 @@ class EmptyDeliveryService extends Configurable
 
 	/**
 	 * @return int
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	private static function create()
 	{
@@ -89,5 +88,10 @@ class EmptyDeliveryService extends Configurable
 		ServiceRestrictionTable::add(array('SORT' => 100, 'SERVICE_ID' => $res->getId(), 'PARAMS' => array('PUBLIC_SHOW' => 'N'), 'SERVICE_TYPE' => '0', 'CLASS_NAME' => '\Bitrix\Sale\Delivery\Restrictions\ByPublicMode'));
 
 		return $res->getId();
+	}
+
+	public static function isHandlerCompatible()
+	{
+		return true;
 	}
 }

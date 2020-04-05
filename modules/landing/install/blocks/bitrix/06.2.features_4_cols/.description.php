@@ -10,7 +10,7 @@ return array(
 	'block' =>
 		array(
 			'name' => Loc::getMessage('LANDING_BLOCK_4_FEATURES_4_COLS_NAME'),
-			'section' => array('about', 'columns'),
+			'section' => array('columns'),
 		),
 	'cards' =>
 		array(

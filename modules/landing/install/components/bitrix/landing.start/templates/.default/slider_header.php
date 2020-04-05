@@ -15,7 +15,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	</script>
 	<?$APPLICATION->ShowHead();?>
 </head>
-<body class="landing-slider-frame-popup template-<?= SITE_TEMPLATE_ID ?> <?$APPLICATION->ShowProperty('BodyClass');?>">
+<body class="landing-slider-frame-popup template-<?= defined('SITE_TEMPLATE_ID') ? SITE_TEMPLATE_ID : '';?> <?$APPLICATION->ShowProperty('BodyClass');?>">
 	<div class="landing-slider-pagetitle-wrap">
 		<div class="landing-slider-pagetitle-inner-container">
 			<div class="landing-slider-pagetitle-menu" id="pagetitle-menu">
@@ -27,7 +27,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 		</div>
 	</div>
 
-	<div>
+	<div class="landing-slider-content">
 		<div id="sidebar"><?$APPLICATION->ShowViewContent('sidebar');?></div>
 		<div id="workarea-content">
 			<div class="workarea-content-paddings">

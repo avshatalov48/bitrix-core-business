@@ -245,7 +245,7 @@ $arUsersCache = array();
 
 while($arRes = $rsData->NavNext(true, "f_"))
 {
-	$sec_list_url = '/bitrix/admin/cat_section_search.php?IBLOCK_ID='.$IBLOCK_ID.'&amp;lang='.LANGUAGE_ID.'&amp;find_section_section='.$f_ID.'&amp;n='.urlencode($n).'&amp;k='.urlencode($k).($m? "&amp;m=y": "");
+	$sec_list_url = 'cat_section_search.php?IBLOCK_ID='.$IBLOCK_ID.'&amp;lang='.LANGUAGE_ID.'&amp;find_section_section='.$f_ID.'&amp;n='.urlencode($n).'&amp;k='.urlencode($k).($m? "&amp;m=y": "");
 
 	$row =& $lAdmin->AddRow($f_ID, $arRes);
 
@@ -273,7 +273,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 			$arUsersCache[$f_MODIFIED_BY] = $rsUser->Fetch();
 		}
 		if($arUser = $arUsersCache[$f_MODIFIED_BY])
-			$row->AddViewField("MODIFIED_BY", '[<a href="/bitrix/admin/user_edit.php?lang='.LANGUAGE_ID.'&ID='.$f_MODIFIED_BY.'" title="'.GetMessage("BX_MOD_CATALOG_ADMIN_CSS_HEAD_USERINFO").'">'.$f_MODIFIED_BY."</a>]&nbsp;(".$arUser["LOGIN"].") ".$arUser["NAME"]." ".$arUser["LAST_NAME"]);
+			$row->AddViewField("MODIFIED_BY", "[".$f_MODIFIED_BY."]&nbsp;(".$arUser["LOGIN"].") ".$arUser["NAME"]." ".$arUser["LAST_NAME"]);
 	}
 
 	if(array_key_exists("CREATED_BY", $arVisibleColumnsMap) && intval($f_CREATED_BY) > 0)
@@ -284,7 +284,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 			$arUsersCache[$f_CREATED_BY] = $rsUser->Fetch();
 		}
 		if($arUser = $arUsersCache[$f_MODIFIED_BY])
-			$row->AddViewField("CREATED_BY", '[<a href="/bitrix/admin/user_edit.php?lang='.LANGUAGE_ID.'&ID='.$f_CREATED_BY.'" title="'.GetMessage("BX_MOD_CATALOG_ADMIN_CSS_HEAD_USERINFO").'">'.$f_CREATED_BY."</a>]&nbsp;(".$arUser["LOGIN"].") ".$arUser["NAME"]." ".$arUser["LAST_NAME"]);
+			$row->AddViewField("CREATED_BY", "[".$f_CREATED_BY."]&nbsp;(".$arUser["LOGIN"].") ".$arUser["NAME"]." ".$arUser["LAST_NAME"]);
 	}
 
 	$row->AddActions(array(
@@ -335,8 +335,8 @@ if($IBLOCK_ID > 0)
 			{
 				$chain->AddItem(array(
 					"TEXT" => $ar_nav["NAME"],
-					"LINK" => '/bitrix/admin/cat_section_search.php?lang='.LANGUAGE_ID.'&amp;IBLOCK_ID='.$IBLOCK_ID.'&amp;find_section_section=-1'.'&amp;n='.urlencode($n).'&amp;k='.urlencode($k).($m? "&amp;m=y": ""),
-					"ONCLICK" => $lAdmin->ActionAjaxReload('/bitrix/admin/cat_section_search.php?lang='.LANGUAGE_ID.'&IBLOCK_ID='.$IBLOCK_ID.'&find_section_section='.$ar_nav["ID"].'&n='.urlencode($n).'&k='.urlencode($k).($m? "&m=y": "")).';return false;',
+					"LINK" => 'cat_section_search.php?lang='.LANGUAGE_ID.'&amp;IBLOCK_ID='.$IBLOCK_ID.'&amp;find_section_section=-1'.'&amp;n='.urlencode($n).'&amp;k='.urlencode($k).($m? "&amp;m=y": ""),
+					"ONCLICK" => $lAdmin->ActionAjaxReload('cat_section_search.php?lang='.LANGUAGE_ID.'&IBLOCK_ID='.$IBLOCK_ID.'&find_section_section='.$ar_nav["ID"].'&n='.urlencode($n).'&k='.urlencode($k).($m? "&m=y": "")).';return false;',
 				));
 			}
 		}
@@ -361,8 +361,8 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_adm
 $chain = new CAdminChain("main_navchain");
 $chain->AddItem(array(
 	"TEXT" => htmlspecialcharsEx($arIBlock["NAME"]),
-	"LINK" => '/bitrix/admin/cat_section_search.php?lang='.LANGUAGE_ID.'&amp;IBLOCK_ID='.$IBLOCK_ID.'&amp;find_section_section=0'.'&amp;n='.urlencode($n).'&amp;k='.urlencode($k).($m? "&amp;m=y": ""),
-	"ONCLICK" => $lAdmin->ActionAjaxReload('/bitrix/admin/cat_section_search.php?lang='.LANGUAGE_ID.'&IBLOCK_ID='.$IBLOCK_ID.'&find_section_section=0'.'&n='.urlencode($n).'&k='.urlencode($k).($m? "&m=y": "")).';return false;',
+	"LINK" => 'cat_section_search.php?lang='.LANGUAGE_ID.'&amp;IBLOCK_ID='.$IBLOCK_ID.'&amp;find_section_section=0'.'&amp;n='.urlencode($n).'&amp;k='.urlencode($k).($m? "&amp;m=y": ""),
+	"ONCLICK" => $lAdmin->ActionAjaxReload('cat_section_search.php?lang='.LANGUAGE_ID.'&IBLOCK_ID='.$IBLOCK_ID.'&find_section_section=0'.'&n='.urlencode($n).'&k='.urlencode($k).($m? "&m=y": "")).';return false;',
 ));
 $chain->Show();
 ?>

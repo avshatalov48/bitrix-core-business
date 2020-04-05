@@ -157,9 +157,9 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 		<td width="60%">
 			<select name="SITE_ID">
 				<? $result = Bitrix\Main\SiteTable::getList(array('filter' => array('ACTIVE' => 'Y'), 'order' => array('SORT' => 'ASC'))); ?>
-				<? while (($site = $result->fetch()) !== false) { ?>
-					?><option value="<?=$site['LID']; ?>"<? if ($str_SITE_ID == $site['LID']) { ?> selected="selected"<? } ?>><?=$site['NAME']; ?></option>
-				<? } ?>
+				<? while (($site = $result->fetch()) !== false): ?>
+					?><option value="<?=$site['LID'] ?>" <? if ($str_SITE_ID == $site['LID']) echo 'selected'; ?>><?=htmlspecialcharsbx($site['NAME']) ?></option>
+				<? endwhile ?>
 			</select>
 		</td>
 	</tr>

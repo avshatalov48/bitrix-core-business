@@ -31,7 +31,7 @@ $MESS ['F_SELECT_ALL'] = "Выделить все";
 $MESS ['JS_NO_TOPICS'] = "Не указан список тем. Выберите темы.";
 $MESS ['JS_DEL_TOPICS'] = "Темы будут удалены без возможности восстановления. Удалить?";
 $MESS ['JS_NO_ACTION'] = "Не выбрано действие для списка тем. Выберите действие.";
-$MESS ['F_CREATE_NEW_TOPIC'] = "<noindex><a rel='nofollow' href='#HREF#'>Создайте первую тему</a></noindex> в этом форуме.";
+$MESS ['F_CREATE_NEW_TOPIC'] = "<noindex><a rel=\"nofollow\" href=\"#HREF#\">Создайте первую тему</a></noindex> в этом форуме.";
 $MESS ['F_NO_TOPICS_HERE'] = "Здесь пока нет ни одной темы.";
 $MESS ['F_TOPIC_START'] = "Тема начата";
 $MESS["F_USER_PROFILE"] = "Профиль пользователя";

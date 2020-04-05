@@ -27,8 +27,8 @@
 		</div>
 
 		<div class="row no-gutters">
-			<div class="landing-block-node-block-bottom js-animation fadeInUp col-md-6">
-				<img class="landing-block-node-img2 img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1200x781/img2.jpg" alt="">
+			<div class="landing-block-node-block-bottom js-animation fadeInUp col-md-6 d-flex align-items-center g-max-height-300--md g-max-height-625--lg text-center g-overflow-hidden">
+				<img class="landing-block-node-img2 img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1200x781/img2.jpg" alt="">
 			</div>
 
 			<div class="landing-block-node-block-bottom js-animation fadeInUp col-md-6">
@@ -37,18 +37,18 @@
 					 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-55 g-font-size-12 g-color-gray-dark-v5 g-bg-white g-mt-minus-10"
 					 data-arrow-left-classes="fa fa-chevron-left g-left-0"
 					 data-arrow-right-classes="fa fa-chevron-right g-right-0">
-					<div class="landing-block-node-card js-slide">
-						<img class="landing-block-node-card-img img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1200x781/img3.jpg"
+					<div class="landing-block-node-card js-slide d-flex align-items-center g-max-height-300 g-max-height-625--lg">
+						<img class="landing-block-node-card-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1200x781/img3.jpg"
 							 alt="">
 					</div>
 
-					<div class="landing-block-node-card js-slide">
-						<img class="landing-block-node-card-img img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1200x781/img4.jpg"
+					<div class="landing-block-node-card js-slide d-flex align-items-center g-max-height-300 g-max-height-625--lg">
+						<img class="landing-block-node-card-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1200x781/img4.jpg"
 							 alt="">
 					</div>
 
-					<div class="landing-block-node-card js-slide">
-						<img class="landing-block-node-card-img img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1200x781/img5.jpg"
+					<div class="landing-block-node-card js-slide d-flex align-items-center g-max-height-300 g-max-height-625--lg">
+						<img class="landing-block-node-card-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1200x781/img5.jpg"
 							 alt="">
 					</div>
 				</div>

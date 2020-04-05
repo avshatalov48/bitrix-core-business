@@ -18,4 +18,6 @@ $MESS ['BPFC_PD_GE'] = "не меньше";
 $MESS ['BPFC_PD_LE'] = "не больше";
 $MESS ['BPFC_PD_VALUE'] = "Значение";
 $MESS ['BPFC_PD_YES'] = "Да";
+$MESS ['BPFC_PD_EMPTY'] = "не заполнено";
+$MESS ['BPFC_PD_NOT_EMPTY'] = "заполнено";
 ?>

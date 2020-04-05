@@ -58,7 +58,8 @@ CJSCore::RegisterExt('sender_agreement', array(
 ));
 
 CJSCore::RegisterExt('sender_b24_license', array(
-	'js' => '/bitrix/js/sender/b24_license.js',
+	'js' => '/bitrix/js/sender/b24_license/script.js',
+	'css' => '/bitrix/js/sender/b24_license/style.css',
 	'lang' => '/bitrix/modules/sender/lang/' . LANGUAGE_ID . '/js_b24_license.php',
 ));
 

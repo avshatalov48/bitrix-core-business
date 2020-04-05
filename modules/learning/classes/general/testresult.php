@@ -259,6 +259,8 @@ class CTestResult
 				$arSqlOrder[] = " TR.CORRECT ".$order." ";
 			elseif ($by == "answered")
 				$arSqlOrder[] = " TR.ANSWERED ".$order." ";
+			elseif ($by == "question_point")
+				$arSqlOrder[] = " QUESTION_POINT ".$order." ";
 			elseif ($by == "question_name")
 				$arSqlOrder[] = " QUESTION_NAME ".$order." ";
 			elseif ($by == "rand")

@@ -34,7 +34,7 @@
 				anglePosition,
 				offsetLeft,
 				offsetTop = -152,
-				POPUP_WIDTH = 370,
+				POPUP_WIDTH = 390,
 				POPUP_HEIGHT = 420,
 				ANGLE_WIDTH = 8,
 				nodePos = BX.pos(params.entryNode),
@@ -64,7 +64,7 @@
 					offsetTop: offsetTop,
 					offsetLeft: offsetLeft,
 					closeIcon: true,
-					width: POPUP_WIDTH - 20,
+					width: POPUP_WIDTH,
 					titleBar: true,
 					draggable: true,
 					resizable: false,
@@ -114,7 +114,6 @@
 
 			this.popupButtonsContainer = popup.buttonsContainer;
 			BX.addClass(popup.contentContainer, 'calendar-add-popup-wrap');
-			BX.adjust(popup.contentContainer, {attrs: {style: ""}});
 
 			popup.popupContainer.style.minHeight = (popup.popupContainer.offsetHeight - 20) + 'px';
 
@@ -267,7 +266,7 @@
 						type: 'text'
 					},
 					events:{
-						click: BX.delegate(function(){this.nameField.input.select();}, this),
+						click: BX.proxy(this.nameInputClick, this),
 						keyup: BX.proxy(this.entryNameChanged, this),
 						blur: BX.proxy(this.entryNameChanged, this),
 						change: BX.proxy(this.entryNameChanged, this)
@@ -310,6 +309,13 @@
 			});
 
 			return this.sliderContainer;
+		},
+
+		nameInputClick: function()
+		{
+			this.nameField.input.select();
+			// Do it once, for second and more clicks - do nothing
+			BX.unbind(this.nameField.input, 'click', BX.proxy(this.nameInputClick, this));
 		},
 
 		prepareSecondSlide: function(params)
@@ -484,6 +490,7 @@
 					_this.popup.setAutoHide(true);
 					BX.removeClass(_this.sectionField.select, 'active');
 					BX.PopupMenu.destroy("sectionMenu" + _this.calendar.id);
+					_this.sectionMenu = null;
 				});
 			}
 		},
@@ -713,12 +720,12 @@
 					this.plannerField.currentAttendeesWrap.appendChild(BX.create("IMG", {
 						attrs: {
 							id: 'simple_popup_' + user.id,
-							src: user.smallAvatar || ''
+							src: user.smallAvatar || '',
+							'bx-tooltip-user-id': user.id
 						},
 						props: {
 							className: 'calendar-member'
 						}}));
-					(function (userId){setTimeout(function(){BX.tooltip(userId, "simple_popup_" + userId);}, 100)})(user.id);
 				}
 
 				if (userLength < this.attendees.length)

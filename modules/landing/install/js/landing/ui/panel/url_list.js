@@ -7,18 +7,24 @@
 	var removeClass = BX.Landing.Utils.removeClass;
 	var append = BX.Landing.Utils.append;
 	var onCustomEvent = BX.Landing.Utils.onCustomEvent;
+	var fireCustomEvent = BX.Landing.Utils.fireCustomEvent;
 	var setTextContent = BX.Landing.Utils.setTextContent;
 	var rect = BX.Landing.Utils.rect;
+	var create = BX.Landing.Utils.create;
 	var style = BX.Landing.Utils.style;
 	var join = BX.Landing.Utils.join;
 	var isNumber = BX.Landing.Utils.isNumber;
 	var isString = BX.Landing.Utils.isString;
 	var isPlainObject = BX.Landing.Utils.isPlainObject;
+	var isArray = BX.Landing.Utils.isArray;
+	var addQueryParams = BX.Landing.Utils.addQueryParams;
 	var Cache = BX.Landing.Cache;
 
 	var TYPE_PAGE = "landing";
 	var TYPE_BLOCK = "block";
 	var TYPE_SYSTEM = "system";
+
+	var SidebarButton = BX.Landing.UI.Button.SidebarButton;
 
 	/**
 	 * Implements interface for works with links list
@@ -48,8 +54,7 @@
 		append(this.layout, document.body);
 
 		// Make loader
-		this.loader = new BX.Landing.UI.Card.Loader({id: "url_list_loader"});
-		this.appendCard(this.loader);
+		this.loader = new BX.Loader({target: this.content});
 
 		this.promiseResolve = (function() {});
 		this.layout.hidden = true;
@@ -100,8 +105,7 @@
 		 */
 		showLoader: function()
 		{
-			this.appendCard(this.loader);
-			this.loader.show();
+			this.loader.show(this.content);
 		},
 
 
@@ -126,7 +130,6 @@
 			}
 			else
 			{
-				addClass(this.layout, "landing-ui-panel-url-list-blocks");
 				setTextContent(this.title, BX.message("LANDING_LINKS_BLOCKS_TITLE"));
 				this.showBlocks(options);
 			}
@@ -145,9 +148,13 @@
 		{
 			var currentSiteId = options.siteId;
 
+			void style(this.layout, {
+				width: null
+			});
+
 			void this.getSites(options).then(function(sites) {
 				this.appendSidebarButton(
-					new BX.Landing.UI.Button.SidebarButton("current_site", {
+					new SidebarButton("current_site", {
 						text: BX.message("LANDING_LINKS_PANEL_CURRENT_SITE")
 					})
 				);
@@ -157,9 +164,9 @@
 					if (parseInt(site.ID) == currentSiteId)
 					{
 						this.appendSidebarButton(
-							new BX.Landing.UI.Button.SidebarButton(site.ID, {
+							new SidebarButton(site.ID, {
 								text: site.TITLE,
-								onClick: this.onSiteClick.bind(this, site.ID),
+								onClick: this.onSiteClick.bind(this, site.ID, options.enableAreas),
 								child: true,
 								active: true
 							})
@@ -168,15 +175,30 @@
 				}, this);
 
 				this.getLandings(currentSiteId).then(function(landings) {
+					if (isPlainObject(landings))
+					{
+						landings = Object.keys(landings).reduce(function(acc, key) {
+							if (isPlainObject(landings[key]) && isArray(landings[key].result))
+							{
+								acc = acc.concat(landings[key].result);
+							}
+
+							return acc;
+						}, []);
+					}
+
 					landings.forEach(function(landing) {
-						this.appendCard(
-							new BX.Landing.UI.Card.LandingPreviewCard({
-								title: landing.TITLE,
-								description: landing.DESCRIPTION,
-								preview: landing.PREVIEW,
-								onClick: this.onLandingClick.bind(this, landing.ID, landing.TITLE)
-							})
-						)
+						if (!landing.IS_AREA || (landing.IS_AREA && options.enableAreas))
+						{
+							this.appendCard(
+								new BX.Landing.UI.Card.LandingPreviewCard({
+									title: landing.TITLE,
+									description: landing.DESCRIPTION,
+									preview: landing.PREVIEW,
+									onClick: this.onLandingClick.bind(this, landing.ID, landing.TITLE)
+								})
+							)
+						}
 					}, this);
 
 					var systemPages = this.getSystemPages();
@@ -199,16 +221,16 @@
 				if (!options.currentSiteOnly)
 				{
 					this.appendSidebarButton(
-						new BX.Landing.UI.Button.SidebarButton("my_sites", {
+						new SidebarButton("my_sites", {
 							text: BX.message("LANDING_LINKS_PANEL_MY_SITES")
 						})
 					);
 
 					sites.forEach(function(site) {
 						this.appendSidebarButton(
-							new BX.Landing.UI.Button.SidebarButton(site.ID, {
+							new SidebarButton(site.ID, {
 								text: site.TITLE,
-								onClick: this.onSiteClick.bind(this, site.ID),
+								onClick: this.onSiteClick.bind(this, site.ID, options.enableAreas),
 								child: true
 							})
 						);
@@ -241,45 +263,259 @@
 
 
 		/**
+		 * @private
+		 * @return {BX.Landing.UI.Button.SidebarButton}
+		 */
+		createCurrentSiteButton: function()
+		{
+			return new SidebarButton("current_site", {
+				text: BX.message("LANDING_LINKS_PANEL_CURRENT_SITE")
+			});
+		},
+
+
+		/**
 		 * Shows blocks list
 		 * @param {object} options
 		 */
 		showBlocks: function(options)
 		{
 			var currentLandingId = options.landingId;
+			var currentSiteId = options.siteId;
 
-			void this.getBlocks(currentLandingId, options).then(function(blocks) {
-				blocks.forEach(function(block) {
-					var preview = this.createBlockPreview(block);
-					this.appendCard(preview);
+			void style(this.layout, {
+				width: "880px"
+			});
 
-					requestAnimationFrame(function() {
-						var blockRect = rect(preview.block);
-						var layoutRect = rect(preview.layout);
+			this.getSites(options)
+				.then(function(sites) {
+					this.appendSidebarButton(
+						this.createCurrentSiteButton()
+					);
 
-						var scale = Math.min(
-							layoutRect.width / blockRect.width,
-							layoutRect.height / blockRect.height
-						);
+					var sitesIds = sites.map(function(site) {
+						return site.ID;
+					}, this);
 
-						void style(preview.block, {
-							transform: join("translate(-50%, -50%) ", "scale(", scale,")")
+					return this.getLandings(sitesIds)
+						.then(function(landings) {
+							return sites.reduce(function(result, site, index) {
+								result[site.ID] = {site: site, landings: landings[site.ID].result};
+								return result;
+							}, {});
 						});
-					});
-				}, this);
-				this.loader.hide();
+				}.bind(this))
+				.then(function(result) {
+					result[currentSiteId].landings.forEach(function(landing) {
+						var active = parseInt(landing.ID) === parseInt(currentLandingId);
+						var button = this.createLandingSidebarButton(landing, active);
+						this.appendSidebarButton(button);
+
+						if (active)
+						{
+							button.layout.click();
+						}
+					}, this);
+
+					Object.keys(result).forEach(function(siteId) {
+						if (parseInt(siteId) !== parseInt(currentSiteId))
+						{
+							var site = result[siteId].site;
+							this.appendSidebarButton(
+								this.createSiteSidebarButton(site)
+							);
+
+							result[siteId].landings.forEach(function(landing) {
+								this.appendSidebarButton(
+									this.createLandingSidebarButton(landing)
+								);
+							}, this)
+						}
+					}, this);
+				}.bind(this));
+		},
+
+
+		createLandingSidebarButton: function(landing, active)
+		{
+			return (
+				new SidebarButton(landing.ID, {
+					text: landing.TITLE,
+					onClick: this.onLandingChange.bind(this, landing),
+					child: true,
+					active: active
+				})
+			);
+		},
+
+		createSiteSidebarButton: function(site)
+		{
+			return (
+				new SidebarButton(site.ID, {
+					text: site.TITLE,
+					child: false,
+					active: false
+				})
+			);
+		},
+
+
+		onLandingChange: function(landing, event)
+		{
+			this.currentSelectedLanding = landing;
+			this.sidebarButtons.forEach(function(button) {
+				if (button.layout === event.currentTarget)
+				{
+					button.activate();
+					return;
+				}
+
+				button.deactivate();
+			});
+
+			this.showPreviewLoader()
+				.then(this.createIframeIfNeed())
+				.then(this.loadPreviewSrc(this.buildLandingPreviewUrl(landing)))
+				.then(this.hidePreviewLoader())
+
+		},
+
+		buildLandingPreviewUrl: function(landing)
+		{
+			var editorUrl = BX.Landing.Main.getInstance().options.params.sef_url.landing_view;
+			editorUrl = editorUrl.replace("#site_show#", landing.SITE_ID);
+			editorUrl = editorUrl.replace("#landing_edit#", landing.ID);
+
+			return addQueryParams(editorUrl, {
+				forceLoad: true,
+				landing_mode: "edit"
+			});
+		},
+
+		loadPreviewSrc: function(src)
+		{
+			return function()
+			{
+				return new Promise(function(resolve) {
+					if (this.previewFrame.src !== src)
+					{
+						this.previewFrame.src = src;
+						this.previewFrame.onload = function() {
+							var contentDocument = this.previewFrame.contentDocument;
+							BX.Landing.Utils.removePanels(contentDocument);
+							[].slice.call(contentDocument.querySelectorAll(".block-wrapper"))
+								.forEach(function(wrapper) {
+									wrapper.classList.add("landing-ui-block-selectable-overlay");
+									wrapper.addEventListener("click", function(event) {
+										event.preventDefault();
+										this.onBlockClick(parseInt(wrapper.id.replace("block", "")), event);
+									}.bind(this));
+								}, this);
+							resolve(this.previewFrame);
+						}.bind(this);
+						return;
+					}
+
+					resolve(this.previewFrame);
+				}.bind(this));
+			}.bind(this)
+		},
+
+		showPreviewLoader: function()
+		{
+			if (!this.loader)
+			{
+				this.loader = new BX.Loader();
+			}
+
+			if (this.previewFrameWrapper)
+			{
+				void style(this.previewFrameWrapper, {
+					opacity: 0
+				});
+			}
+
+			return new Promise(function(resolve) {
+				void this.loader.show(this.content);
+				resolve();
 			}.bind(this));
+		},
+
+
+		hidePreviewLoader: function()
+		{
+			return function()
+			{
+				void style(this.previewFrameWrapper, {
+					opacity: null
+				});
+
+				return this.loader.hide();
+			}.bind(this);
+		},
+
+
+		createIframeIfNeed: function()
+		{
+			return function()
+			{
+				new Promise(function(resolve) {
+					if (!this.previewFrame)
+					{
+						this.previewFrame = create("iframe", {});
+						this.previewFrameWrapper = create("div", {
+							attrs: {style: "width: 100%; height: 100%; overflow: hidden;"}
+						});
+						this.previewFrameWrapper.appendChild(this.previewFrame);
+						this.content.innerHTML = "";
+						this.content.appendChild(this.previewFrameWrapper);
+						this.showPreviewLoader();
+
+						requestAnimationFrame(function() {
+							var containerWidth = this.content.clientWidth - 40;
+
+							void style(this.previewFrame, {
+								"width": "1000px",
+								"height": "calc((100vh - 113px) * (100 / "+((containerWidth/1000)*100)+"))",
+								"transform": "scale("+(containerWidth/1000)+") translateZ(0)",
+								"transform-origin": "top left",
+								"border": "none"
+							});
+						}.bind(this));
+					}
+
+					resolve(this.previewFrame);
+				}.bind(this));
+			}.bind(this)
 		},
 
 
 		/**
 		 * Handle block click event
 		 * @param {Number|String} id
-		 * @param {String} name
+		 * @param event
 		 */
-		onBlockClick: function(id, name)
+		onBlockClick: function(id, event)
 		{
-			this.onChange({type: TYPE_BLOCK, id: id, name: name});
+			if (event.isTrusted)
+			{
+				this.getBlocks(this.currentSelectedLanding.ID)
+					.then(function(blocks) {
+						var currentBlock = blocks.find(function(block) {
+							return block.id === id;
+						});
+
+						if (currentBlock)
+						{
+							this.onChange({
+								type: TYPE_BLOCK,
+								id: currentBlock.id,
+								name: currentBlock.name,
+								alias: currentBlock.alias
+							});
+						}
+					}.bind(this));
+			}
 		},
 
 
@@ -307,10 +543,11 @@
 
 		/**
 		 * Handle site click event
-		 * @param {object} options
+		 * @param {?boolean} enableAreas
+		 * @param {object} event
 		 * @param {Number|String} siteId
 		 */
-		onSiteClick: function(siteId, options)
+		onSiteClick: function(siteId, enableAreas, event)
 		{
 			this.sidebarButtons.forEach(function(button) {
 				if (button.layout === event.currentTarget)
@@ -326,9 +563,24 @@
 			this.content.innerHTML = "";
 			this.showLoader();
 
-			this.getLandings(siteId, options).then(function(landings) {
+			this.getLandings(siteId).then(function(landings) {
+				if (isPlainObject(landings))
+				{
+					landings = Object.keys(landings).reduce(function(acc, key) {
+						if (isPlainObject(landings[key]) && isArray(landings[key].result))
+						{
+							acc = acc.concat(landings[key].result);
+						}
+
+						return acc;
+					}, []);
+				}
+
 				landings.forEach(function(landing) {
-					this.appendCard(this.createLandingPreview(landing))
+					if (!landing.IS_AREA || (landing.IS_AREA && enableAreas))
+					{
+						this.appendCard(this.createLandingPreview(landing));
+					}
 				}, this);
 				this.loader.hide();
 			}.bind(this));
@@ -365,7 +617,7 @@
 		{
 			return new BX.Landing.UI.Card.BlockHTMLPreview({
 				content: options.id,
-				onClick: this.onBlockClick.bind(this, options.id, options.name)
+				onClick: this.onBlockClick.bind(this, options.id, options.name, options.alias)
 			});
 		},
 
@@ -397,17 +649,44 @@
 
 		/**
 		 * Gets landings list of site
-		 * @param {number|string} [siteId]
+		 * @param {number|string|Array<string|number>} [siteId]
 		 * @param {object} options
 		 * @returns {Promise.<Object>}
 		 */
 		getLandings: function(siteId, options)
 		{
-			siteId = isNumber(siteId) || isString(siteId) ? siteId : options.siteId;
+			siteId = isNumber(siteId) || isString(siteId) || isArray(siteId) ? siteId : options.siteId;
+			var cacheKey = isArray(siteId) ? siteId.join(',') : siteId;
 
-			if (this.cache.has("getLandings" + siteId))
+			if (this.cache.has("getLandings" + cacheKey))
 			{
-				return Promise.resolve(this.cache.get("getLandings" + siteId));
+				return Promise.resolve(this.cache.get("getLandings" + cacheKey));
+			}
+
+			if (isArray(siteId))
+			{
+				var batchData = siteId.reduce(function(acc, item) {
+					acc[item] = {
+						action: "Landing::getList",
+						data: {
+							params: {
+								filter: {SITE_ID: item},
+								order: {ID: "DESC"},
+								get_preview: true,
+								check_area: 1
+							}
+						}
+					};
+
+					return acc;
+				}, {});
+
+				return BX.Landing.Backend.getInstance()
+					.batch("Landing::getList", batchData)
+					.then(function(response) {
+						this.cache.add("getLandings" + cacheKey, response);
+						return response;
+					}.bind(this));
 			}
 
 			return BX.Landing.Backend.getInstance()
@@ -415,11 +694,12 @@
 					params: {
 						filter: {SITE_ID: siteId},
 						order: {ID: "DESC"},
-						get_preview: true
+						get_preview: true,
+						check_area: 1
 					}
 				})
 				.then(function(response) {
-					this.cache.add("getLandings" + siteId, response);
+					this.cache.add("getLandings" + cacheKey, response);
 					return response;
 				}.bind(this))
 		},
@@ -458,14 +738,23 @@
 		 */
 		getBlocks: function(landingId, options)
 		{
-			landingId = isNumber(landingId) || isString(landingId) ? landingId : options.id;
+			landingId = isNumber(landingId) || isString(landingId) ? landingId : options.landingId;
 
 			if (this.cache.has(["getBlocks" + landingId, options]))
 			{
-				return Promise.resolve(this.cache.get(["getBlocks" + landingId, options]));
+				var cacheResult = this.cache.get(["getBlocks" + landingId, options]);
+
+				if (cacheResult &&
+					typeof cacheResult === "object" &&
+					typeof cacheResult.then === "function")
+				{
+					return cacheResult;
+				}
+
+				return Promise.resolve(cacheResult);
 			}
 
-			return BX.Landing.Backend.getInstance()
+			var resultPromise = BX.Landing.Backend.getInstance()
 				.action("Block::getList", {
 					lid: landingId,
 					params: {
@@ -474,9 +763,48 @@
 					}
 				})
 				.then(function(response) {
-					this.cache.add(["getBlocks" + landingId, options], response);
+					this.cache.set(["getBlocks" + landingId, options], response);
 					return response;
-				}.bind(this))
+				}.bind(this));
+
+			this.cache.set(["getBlocks" + landingId, options], resultPromise);
+
+			return resultPromise;
+		},
+
+		getBlock: function(id)
+		{
+			var cacheKey = "getBlocks" + id;
+
+			if (this.cache.has(cacheKey))
+			{
+				var cacheResult = this.cache.get(cacheKey);
+
+				if (cacheResult &&
+					typeof cacheResult === "object" &&
+					typeof cacheResult.then === "function")
+				{
+					return cacheResult;
+				}
+
+				return Promise.resolve(cacheResult);
+			}
+
+			var resultPromise = BX.Landing.Backend.getInstance()
+				.action("Block::getById", {
+					block: id,
+					params: {
+						edit_mode: true
+					}
+				})
+				.then(function(response) {
+					this.cache.set(cacheKey, response);
+					return response;
+				}.bind(this));
+
+			this.cache.set(cacheKey, resultPromise);
+
+			return resultPromise;
 		},
 
 
@@ -528,6 +856,12 @@
 		{
 			this.promiseResolve(value);
 			this.hide();
+		},
+
+		hide: function()
+		{
+			this.previewFrame = null;
+			return BX.Landing.UI.Panel.Content.prototype.hide.call(this);
 		}
 	}
 })();

@@ -29,11 +29,17 @@ class Text extends StringType
 	{
 		$name = static::generateControlName($field);
 		$controlId = static::generateControlId($field);
-		$renderResult =  '<textarea class="'.htmlspecialcharsbx(static::generateControlClassName($fieldType, $field))
-			.'"rows="5" cols="40" id="'.htmlspecialcharsbx($controlId).'" name="'
-			.htmlspecialcharsbx($name).'">'.htmlspecialcharsbx((string) $value).'</textarea>';
+		$className = static::generateControlClassName($fieldType, $field);
 
-		if ($allowSelection)
+		$isPublic = ($renderMode & FieldType::RENDER_MODE_PUBLIC);
+
+		$renderResult =  '<textarea id="'.htmlspecialcharsbx($controlId).'" class="'
+			.htmlspecialcharsbx($className).'" placeholder="'.htmlspecialcharsbx($fieldType->getDescription()).'"'
+			.' rows="5" cols="40"  name="'.htmlspecialcharsbx($name).'"'
+			.($isPublic && $allowSelection ? ' data-role="inline-selector-target"' : '')
+			.'>'.htmlspecialcharsbx((string) $value).'</textarea>';
+
+		if ($allowSelection && !$isPublic)
 		{
 			$renderResult .= static::renderControlSelector($field, null, false, '', $fieldType);
 		}

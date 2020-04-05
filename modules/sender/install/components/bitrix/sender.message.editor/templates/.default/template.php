@@ -254,7 +254,6 @@ $fieldPrefix = 'CONFIGURATION_';
 							"VALUE" => $option['value'],
 							"TEMPLATE_TYPE" => $arParams['TEMPLATE_TYPE'],
 							"TEMPLATE_ID" => $arParams['TEMPLATE_ID'],
-							"USE_LIGHT_TEXT_EDITOR" => true,
 						),
 						null
 					);

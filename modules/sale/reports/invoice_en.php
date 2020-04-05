@@ -274,7 +274,7 @@ array(
 											echo htmlspecialcharsbx($ar_tax_list["TAX_NAME"]);
 											if ($ar_tax_list["IS_PERCENT"]=="Y")
 											{
-												echo " (".$ar_tax_list["VALUE"]."%)";
+												echo " (".(int)$ar_tax_list["VALUE"]."%)";
 											}
 											?>:
 

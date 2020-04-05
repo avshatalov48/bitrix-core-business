@@ -113,7 +113,7 @@ Asset::getInstance()->addJs($this->GetFolder().'/right.js');
 						'groups' : {},
 						'sonetgroups' : {},
 						'department' : <?=(empty($arResult["DESTINATION"]["FEED_DESTINATION"]['DEPARTMENT'])? '{}': CUtil::PhpToJSObject($arResult["DESTINATION"]["FEED_DESTINATION"]['DEPARTMENT']))?>,
-						'departmentRelation' : departmentRelation
+						'departmentRelation' : <?=(empty($arResult["DESTINATION"]["FEED_DESTINATION"]['DEPARTMENT_RELATION']) ? "false" : CUtil::PhpToJSObject($arResult["DESTINATION"]["FEED_DESTINATION"]['DEPARTMENT_RELATION']))?>
 					},
 					'itemsLast' : {
 						'users' : {},

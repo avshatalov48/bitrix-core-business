@@ -80,9 +80,13 @@ class CLearnRenderAdminUnilessonList
 		}
 
 		if (isset($_POST['PARENT_LESSON_ID']))
-			$parentLessonId = $_POST['PARENT_LESSON_ID'];
+		{
+			$parentLessonId = intval($_POST['PARENT_LESSON_ID']);
+		}
 		elseif (isset($_GET['PARENT_LESSON_ID']))
-			$parentLessonId = $_GET['PARENT_LESSON_ID'];
+		{
+			$parentLessonId = intval($_GET['PARENT_LESSON_ID']);
+		}
 		elseif ($oPath !== false)
 		{
 			$parentLessonId = $oPath->GetBottom();
@@ -461,7 +465,7 @@ class CLearnRenderAdminUnilessonList
 
 						$courseId = CLearnLesson::GetLinkedCourse($lessonId);
 						if (($courseId !== false) && CCourse::IsCertificatesExists($courseId))
-							throw new Exception (GetMessage(LEARNING_COURSE_UNREMOVABLE_CAUSE_OF_CERTIFICATES));
+							throw new Exception (GetMessage("LEARNING_COURSE_UNREMOVABLE_CAUSE_OF_CERTIFICATES"));
 
 						$this->EnsureLessonDisbandAccess ($lessonId);
 						CLearnLesson::Delete($lessonId);
@@ -474,7 +478,7 @@ class CLearnRenderAdminUnilessonList
 
 						$courseId = CLearnLesson::GetLinkedCourse($lessonId);
 						if (($courseId !== false) && CCourse::IsCertificatesExists($courseId))
-							throw new Exception (GetMessage(LEARNING_COURSE_UNREMOVABLE_CAUSE_OF_CERTIFICATES));
+							throw new Exception (GetMessage("LEARNING_COURSE_UNREMOVABLE_CAUSE_OF_CERTIFICATES"));
 
 						try
 						{

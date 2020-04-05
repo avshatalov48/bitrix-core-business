@@ -91,7 +91,7 @@ if (!empty($arResult['ITEMS']))
 			if (!empty($skuPropList[$catalogId]))
 			{
 				$shortPropList = array();
-				foreach ($skuPropList[$iblockId] as $property)
+				foreach ($skuPropList[$catalogId] as $property)
 				{
 					$shortPropList[$property['CODE']] = array(
 						'ID' => $property['ID'],

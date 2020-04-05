@@ -5,8 +5,7 @@ use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
 
-use Bitrix\Sender\Preset;
-use Bitrix\Sender\Security;
+use Bitrix\Sender\Integration;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -27,7 +26,8 @@ class SenderConfigRoleComponent extends CBitrixComponent
 			$this->errors->setError(new Error('Module `sender` is not installed.'));
 			return false;
 		}
-		return true;
+
+		return Integration\Bitrix24\Service::isAvailable();
 	}
 
 	protected function initParams()

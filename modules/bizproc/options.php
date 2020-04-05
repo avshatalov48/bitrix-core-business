@@ -125,7 +125,7 @@ $tabControl->BeginNextTab();
 		<tr>
 			<td width="50%" valign="top"><?= GetMessage("BIZPROC_OPT_LOCKED_WI_PATH") ?>:</td>
 			<td width="50%" valign="top">
-				<?$path = \Bitrix\Main\Config\Option::get("bizproc", "locked_wi_path", "/services/bp/instances.php?type=is_locked");?>
+				<?$path = \Bitrix\Main\Config\Option::get("bizproc", "locked_wi_path", "/bizproc/bizproc/?type=is_locked");?>
 				<input type="text" size="40" name="locked_wi_path" value="<?=htmlspecialcharsbx($path)?>">
 			</td>
 		</tr>

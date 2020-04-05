@@ -62,6 +62,8 @@
 
 .landing-ui-panel-alert-support-link:hover {
 	opacity: .8;
+	color: #535c69;
+	text-decoration: none;
 }
 
 

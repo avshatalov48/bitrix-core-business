@@ -5,6 +5,8 @@ $type = $arCurrentValues["PLAYER_TYPE"] ? $arCurrentValues["PLAYER_TYPE"] : 'aut
 $adv_mode = ($arCurrentValues["ADVANCED_MODE_SETTINGS"] == 'Y');
 $hidden = ($adv_mode) ? "N" : "Y";
 
+$defaultVideoJsSkinPath = '/bitrix/js/fileman/player/videojs/skins';
+
 if (!function_exists('getSkinsFromDir'))
 {
 	function getSkinsFromDir($path) //http://jabber.bx/view.php?id=28856
@@ -389,7 +391,7 @@ if ($type == 'flv')
 		"HIDDEN" => $hidden,
 	);
 
-	if ($arCurrentValues['SKIN_PATH'] == "/bitrix/components/bitrix/player/videojs/skins")
+	if ($arCurrentValues['SKIN_PATH'] == $defaultVideoJsSkinPath)
 		$arCurrentValues['SKIN_PATH'] = "/bitrix/components/bitrix/player/mediaplayer/skins";
 	$arSkins = getSkinsEx($arCurrentValues['SKIN_PATH'] ? $arCurrentValues['SKIN_PATH'] : "/bitrix/components/bitrix/player/mediaplayer/skins");
 
@@ -765,15 +767,15 @@ if ($type == 'videojs' || $type == 'auto')
 		"TYPE" => "FILE",
 		"FD_TARGET" => "D",
 		"FD_UPLOAD" => false,
-		"DEFAULT" => "/bitrix/components/bitrix/player/videojs/skins",
+		"DEFAULT" => $defaultVideoJsSkinPath,
 		"REFRESH" => "Y",
 		"HIDDEN" => $hidden,
 	);
 
 	if ($arCurrentValues['SKIN_PATH'] == "/bitrix/components/bitrix/player/mediaplayer/skins")
-		$arCurrentValues['SKIN_PATH'] = "/bitrix/components/bitrix/player/videojs/skins";
+		$arCurrentValues['SKIN_PATH'] = $defaultVideoJsSkinPath;
 
-	$arSkins = getSkinsEx($arCurrentValues['SKIN_PATH'] ? $arCurrentValues['SKIN_PATH'] : "/bitrix/components/bitrix/player/videojs/skins");
+	$arSkins = getSkinsEx($arCurrentValues['SKIN_PATH'] ? $arCurrentValues['SKIN_PATH'] : $defaultVideoJsSkinPath);
 
 	$arParams["SKIN"] = Array(
 		"PARENT" => "APPEARANCE",

@@ -119,9 +119,9 @@ class Product extends DataConverter
 
 //		validate LENGTH
 		$this->result['description'] = $this->validateDescription($this->result['description'], $logger);
+		$this->result['NAME'] = self::convertQuotes($this->result['NAME']);
 		$this->result['NAME'] = $this->validateName($this->result['NAME'], $logger);
 //		VK don't understand specialchars-quotes. Change them to the yolochki
-		$this->result['NAME'] = self::convertQuotes($this->result['NAME']);
 		
 		return array($data["ID"] => $this->result);
 	}
@@ -142,14 +142,18 @@ class Product extends DataConverter
 		{
 			$newName = str_pad($name, self::NAME_LENGHT_MIN, "_");
 			if ($logger)
+			{
 				$logger->addError('PRODUCT_SHORT_NAME', $this->result["BX_ID"]);
+			}
 		}
 		
 		if (strlen($name) > self::NAME_LENGHT_MAX)
 		{
-			$newName = substr($name, 0, self::NAME_LENGHT_MAX - 1);
+			$newName = substr($name, 0, self::NAME_LENGHT_MAX - 1 - 4) . ' ...';
 			if ($logger)
+			{
 				$logger->addError('PRODUCT_LONG_NAME', $this->result["BX_ID"]);
+			}
 		}
 		
 		return $newName;
@@ -172,9 +176,16 @@ class Product extends DataConverter
 			$newDesc = $this->result['NAME'] . ': ' . $desc;
 			if (strlen($newDesc) < self::DESCRIPTION_LENGHT_MIN)
 			{
-				$newDesc = str_pad($newDesc, self::DESCRIPTION_LENGHT_MIN, "_");
+				$newDesc = self::mb_str_pad($newDesc, self::DESCRIPTION_LENGHT_MIN, self::PAD_STRING);
+//				ending spase trim fix
+				if ($newDesc[strlen($newDesc) - 1] == ' ')
+				{
+					$newDesc .= self::PAD_STRING;
+				}
 				if ($logger)
+				{
 					$logger->addError('PRODUCT_SHORT_DESCRIPTION', $this->result["BX_ID"]);
+				}
 			}
 		}
 		
@@ -376,7 +387,7 @@ class Product extends DataConverter
 	{
 		$result = array();
 		$result["BX_ID"] = $data["ID"];
-		$result["IBLOCK_ID"] = $data["IBLOCK_ID"];;
+		$result["IBLOCK_ID"] = $data["IBLOCK_ID"];
 		$result["NAME"] = $data["NAME"];
 		$result["SECTION_ID"] = $data["IBLOCK_SECTION_ID"];
 		$result["CATEGORY_VK"] = $this->sectionsList->getVkCategory($data["IBLOCK_SECTION_ID"]);

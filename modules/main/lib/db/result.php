@@ -247,7 +247,7 @@ abstract class Result implements \IteratorAggregate
 	/**
 	 * Returns an array of fields according to columns in the result.
 	 *
-	 * @return @return \Bitrix\Main\Entity\ScalarField[]
+	 * @return \Bitrix\Main\ORM\Fields\ScalarField[]
 	 */
 	abstract public function getFields();
 

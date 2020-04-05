@@ -4,6 +4,8 @@
 	BX.namespace("BX.Landing");
 
 	var isPlainObject = BX.Landing.Utils.isPlainObject;
+	var isString = BX.Landing.Utils.isString;
+	var addQueryParams = BX.Landing.Utils.addQueryParams;
 
 	/**
 	 * Implements interface for works with backend.
@@ -14,7 +16,10 @@
 	 */
 	BX.Landing.Backend = function()
 	{
-		this.ajaxController = "/bitrix/tools/landing/ajax.php";
+
+		this.ajaxController = addQueryParams("/bitrix/tools/landing/ajax.php", {
+			site: BX.message["SITE_ID"] ? BX.message("SITE_ID") : undefined
+		});
 	};
 
 
@@ -102,9 +107,28 @@
 						reject(error);
 					}
 				});
-			}).catch(function(err) {
-				err.action = requestBody.action;
-				BX.Landing.ErrorManager.getInstance().add(err);
+			})
+			.then(function(response) {
+				if (
+					requestBody.action === "Block::updateNodes"
+					|| requestBody.action === "Block::removeCard"
+					|| requestBody.action === "Block::cloneCard"
+					|| requestBody.action === "Block::addCard"
+					|| requestBody.action === "Block::updateStyles"
+				)
+				{
+					BX.Landing.UI.Panel.StatusPanel.getInstance().update();
+				}
+				return response;
+			})
+			.catch(function(err) {
+				if (requestBody.action !== "Block::getById")
+				{
+					err = isString(err) ? {type: "error"} : err;
+					err.action = requestBody.action;
+					BX.Landing.ErrorManager.getInstance().add(err);
+				}
+
 				return Promise.reject();
 			});
 		},
@@ -150,9 +174,19 @@
 						reject(error);
 					}
 				});
-			}).catch(function(err) {
-				err.action = requestBody.action;
-				BX.Landing.ErrorManager.getInstance().add(err);
+			})
+			.then(function(response) {
+				BX.Landing.UI.Panel.StatusPanel.getInstance().update();
+				return response;
+			})
+			.catch(function(err) {
+				if (requestBody.action !== "Block::getById")
+				{
+					err = isString(err) ? {type: "error"} : err;
+					err.action = requestBody.action;
+					BX.Landing.ErrorManager.getInstance().add(err);
+				}
+
 				return Promise.reject();
 			});
 		},
@@ -175,6 +209,78 @@
 			return siteId;
 		},
 
+		upload: function(file, uploadParams)
+		{
+			var formData = new FormData();
+			var params = uploadParams || {};
+			var action = "Block::uploadFile";
+
+			formData.append("sessid", BX.bitrix_sessid());
+			formData.append("action", "Block::uploadFile");
+			formData.append("picture", file, file.name);
+
+			if ("block" in params)
+			{
+				formData.append("data[block]", params.block);
+			}
+
+			if ("lid" in params)
+			{
+				action = "Landing::uploadFile";
+				formData.append("data[lid]", params.lid);
+				formData.set("action", action);
+			}
+
+			if ("id" in params)
+			{
+				action = "Site::uploadFile";
+				formData.append("data[id]", params.id);
+				formData.set("action", action);
+			}
+
+			var url = BX.util.add_url_param(this.ajaxController, {
+				action: action,
+				site_id: this.getSiteId()
+			});
+
+			if (params.context) {
+				url = BX.util.add_url_param(url, {
+					context: params.context
+				});
+			}
+
+			return new Promise(function(resolve, reject) {
+				var xhr = BX.ajax({
+					url: url,
+					method: "POST",
+					dataType: "json",
+					data: formData,
+					start: false,
+					preparePost: false,
+					onsuccess: function(response) {
+						if (!!response && response.type === "error")
+						{
+							reject(response);
+						}
+						else
+						{
+							resolve(response.result);
+						}
+					},
+					onfailure: function(error) {
+						reject(error);
+					}
+				});
+
+				xhr.send(formData);
+			})
+			.catch(function(err) {
+				err = isString(err) ? {type: "error"} : err;
+				err.action = "Block::uploadFile";
+				BX.Landing.ErrorManager.getInstance().add(err);
+				return Promise.reject(err);
+			});
+		},
 
 		/**
 		 * Uploads image
@@ -186,6 +292,11 @@
 		 */
 		uploadImage: function(form, file, params, uploadParams)
 		{
+			if (!form)
+			{
+				form = document.createElement('form');
+			}
+
 			uploadParams = isPlainObject(uploadParams) ? uploadParams : {};
 
 			var requestBody = {};
@@ -222,13 +333,26 @@
 					dataType: "json",
 					data: requestBody,
 					onsuccess: function(response) {
-						resolve(response.result);
+						if (!!response && response.type === "error")
+						{
+							reject(response);
+						}
+						else
+						{
+							resolve(response.result);
+						}
 					},
 					onfailure: function(error) {
 						reject(error);
 					}
 				});
-			}.bind(this));
+			})
+			.catch(function(err) {
+				err = isString(err) ? {type: "error"} : err;
+				err.action = requestBody.action;
+				BX.Landing.ErrorManager.getInstance().add(err);
+				return Promise.reject();
+			});
 		}
 	};
 })();

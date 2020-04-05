@@ -10,10 +10,18 @@ return array(
 	'block' => array(
 		'name' => Loc::getMessage('LANDING_BLOCK_0.MENU_1_NAME_NEW'),
 		'section' => 'menu',
+		'subtype' => 'menu',
+		'subtype_params' => array(
+			'selector' => '.landing-block-node-menu-list-item-link',
+			'count' => 5,
+			'source' => 'catalog',
+		),
+		'version' => '18.4.0',
 	),
 	'cards' => array(
 		'.landing-block-node-menu-list-item' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_0.MENU_1_NODES_LANDINGBLOCKNODEMENULISTITEMLINK'),
+			'label' => array('.landing-block-node-menu-list-item-link'),
 		),
 	),
 	'nodes' => array(
@@ -38,11 +46,14 @@ return array(
 			'type' => array('display'),
 		),
 		'nodes' => array(
-			'.landing-block-node-menu-list-item-link' =>
-				array(
-					'name' => Loc::getMessage('LANDING_BLOCK_0.MENU_1_STYLE_LANDINGBLOCKNODEMENULISTITEMLINK'),
-					'type' => 'typo',
-				),
+			'.landing-block-node-menu-list-item-link' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_0.MENU_1_STYLE_LANDINGBLOCKNODEMENULISTITEMLINK'),
+				'type' => ['typo-simple'],
+			),
+			'.navbar' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_0.MENU_1_STYLE_LANDINGBLOCKNODEMENULIST'),
+				'type' => ['navbar-full'],
+			),
 		),
 	),
 	'assets' => array(

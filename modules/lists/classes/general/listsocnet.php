@@ -3,7 +3,7 @@ IncludeModuleLangFile(__FILE__);
 
 class CListsSocnet
 {
-	function OnFillSocNetFeaturesList(&$arSocNetFeaturesSettings)
+	public static function OnFillSocNetFeaturesList(&$arSocNetFeaturesSettings)
 	{
 		$arSocNetFeaturesSettings["group_lists"] = array(
 			"allowed" 		=> array(SONET_ENTITY_GROUP),

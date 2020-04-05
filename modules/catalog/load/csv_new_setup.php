@@ -1,7 +1,14 @@
 <?
 //<title>CSV (new)</title>
+/** @global CDatabase $DB */
+/** @global CUser $USER */
+/** @global CMain $APPLICATION */
+/** @global string $ACTION */
+/** @global array $arOldSetupVars */
+/** @global int $IBLOCK_ID */
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/export_setup_templ.php');
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/export_yandex.php');
+IncludeModuleLangFile(__FILE__);
 
 global $APPLICATION, $USER;
 
@@ -84,6 +91,8 @@ if (($ACTION == 'EXPORT_EDIT' || $ACTION == 'EXPORT_COPY') && $STEP == 2)
 		$export_from_clouds = $arOldSetupVars['export_from_clouds'];
 	if (isset($arOldSetupVars['CML2_LINK_IS_XML']))
 		$CML2_LINK_IS_XML = $arOldSetupVars['CML2_LINK_IS_XML'];
+	if (isset($arOldSetupVars['MAX_EXECUTION_TIME']))
+		$maxExecutionTime = $arOldSetupVars['MAX_EXECUTION_TIME'];
 }
 
 if ($STEP>2)
@@ -183,6 +192,12 @@ if ($STEP>2)
 
 	$CML2_LINK_IS_XML = (isset($CML2_LINK_IS_XML) && $CML2_LINK_IS_XML == 'Y' ? 'Y' : 'N');
 
+	if (isset($_POST['MAX_EXECUTION_TIME']) && is_string($_POST['MAX_EXECUTION_TIME']))
+		$maxExecutionTime = $_POST['MAX_EXECUTION_TIME'];
+	$maxExecutionTime = (!isset($maxExecutionTime) ? 0 : (int)$maxExecutionTime);
+	if ($maxExecutionTime < 0)
+		$maxExecutionTime = 0;
+
 	if (($ACTION=="EXPORT_SETUP" || $ACTION == 'EXPORT_EDIT' || $ACTION == 'EXPORT_COPY') && (!isset($SETUP_PROFILE_NAME) || strlen($SETUP_PROFILE_NAME)<=0))
 	{
 		$arSetupErrors[] = GetMessage("CET_ERROR_NO_NAME");
@@ -211,8 +226,14 @@ $context->Show();
 
 if (!empty($arSetupErrors))
 	ShowError(implode('<br />', $arSetupErrors));
+
+$actionParams = "";
+if ($adminSidePanelHelper->isSidePanel())
+{
+	$actionParams = "?IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER";
+}
 ?>
-<form method="POST" action="<? echo $APPLICATION->GetCurPage(); ?>" enctype="multipart/form-data" name="dataload">
+<form method="POST" action="<? echo $APPLICATION->GetCurPage().$actionParams; ?>" enctype="multipart/form-data" name="dataload">
 <?
 $aTabs = array(
 	array("DIV" => "edit1", "TAB" => GetMessage("CAT_ADM_CSV_EXP_TAB1"), "ICON" => "store", "TITLE" => GetMessage("CAT_ADM_CSV_EXP_TAB1_TITLE")),
@@ -563,7 +584,8 @@ if ($STEP == 2)
 			<script type="text/javascript">
 			function checkAll(obj,cnt)
 			{
-				var boolCheck = obj.checked;
+				var boolCheck = obj.checked,
+					i;
 				for (i = 0; i < cnt; i++)
 				{
 					BX('field_needed_'+i).checked = boolCheck;
@@ -599,7 +621,7 @@ if ($STEP == 2)
 	<?
 	}
 	?><tr>
-		<td valing="top" width="40%"><label for="export_files"><? echo GetMessage('CAT_ADM_CSV_EXP_EXPORT_FILES'); ?>:</label></td>
+		<td valign="top" width="40%"><label for="export_files"><? echo GetMessage('CAT_ADM_CSV_EXP_EXPORT_FILES'); ?>:</label></td>
 		<td valign="top" width="60%">
 			<input type="hidden" name="export_files" id="export_files_N" value="N">
 			<input type="checkbox" name="export_files" id="export_files_Y" value="Y" <? echo (isset($export_files) && $export_files == 'Y' ? 'checked' : ''); ?>>
@@ -610,7 +632,7 @@ if ($STEP == 2)
 	{
 		?>
 	<tr>
-		<td valing="top" width="40%"><label for="export_from_clouds"><? echo GetMessage('CAT_ADM_CSV_EXP_EXPORT_FROM_CLOUDS'); ?>:</label></td>
+		<td valign="top" width="40%"><label for="export_from_clouds"><? echo GetMessage('CAT_ADM_CSV_EXP_EXPORT_FROM_CLOUDS'); ?>:</label></td>
 		<td valign="top" width="60%">
 			<input type="hidden" name="export_from_clouds" id="export_from_clouds_N" value="N">
 			<input type="checkbox" name="export_from_clouds" id="export_from_clouds_Y" value="Y" <? echo (isset($export_from_clouds) && $export_from_clouds == 'Y' ? 'checked' : ''); ?>>
@@ -621,7 +643,18 @@ if ($STEP == 2)
 	{
 		?><input type="hidden" name="export_from_clouds" id="export_from_clouds_N" value="N"><?
 	}
-	?>
+
+	$maxExecutionTime = (isset($maxExecutionTime) ? (int)$maxExecutionTime : 0);
+	?><tr>
+	<td width="40%"><?=GetMessage('CAT_MAX_EXECUTION_TIME');?></td>
+	<td width="60%">
+		<input type="text" name="MAX_EXECUTION_TIME" size="40" value="<?=$maxExecutionTime; ?>">
+	</td>
+	</tr>
+	<tr>
+		<td width="40%" style="padding-top: 0;">&nbsp;</td>
+		<td width="60%" style="padding-top: 0;"><small><?=GetMessage("CAT_MAX_EXECUTION_TIME_NOTE");?></small></td>
+	</tr>
 	<tr class="heading">
 		<td colspan="2"><?echo GetMessage("CATI_DATA_FILE_NAME") ?></td>
 	</tr>
@@ -674,7 +707,7 @@ if ($STEP < 3)
 	<?if ($STEP > 1)
 	{
 		?><input type="hidden" name="IBLOCK_ID" value="<? echo $IBLOCK_ID; ?>">
-		<input type="hidden" name="SETUP_FIELDS_LIST" value="IBLOCK_ID,SETUP_FILE_NAME,fields_type,delimiter_r,delimiter_other_r,first_line_names,field_needed,field_num,field_code,export_files,export_from_clouds,CML2_LINK_IS_XML"><?
+		<input type="hidden" name="SETUP_FIELDS_LIST" value="IBLOCK_ID,SETUP_FILE_NAME,fields_type,delimiter_r,delimiter_other_r,first_line_names,field_needed,field_num,field_code,export_files,export_from_clouds,CML2_LINK_IS_XML,MAX_EXECUTION_TIME"><?
 	}
 	if ($STEP > 1)
 	{

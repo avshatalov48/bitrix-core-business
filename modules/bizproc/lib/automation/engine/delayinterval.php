@@ -14,27 +14,49 @@ class DelayInterval
 	protected $valueType;
 	protected $basis;
 	protected $workTime = false;
+	protected $localTime = false;
 
+	/**
+	 * DelayInterval constructor.
+	 * @param array|null $params Initial parameters.
+	 */
 	public function __construct(array $params = null)
 	{
 		if ($params)
 		{
 			if (isset($params['type']))
+			{
 				$this->setType($params['type']);
+			}
 			if (isset($params['value']))
+			{
 				$this->setValue($params['value']);
+			}
 			if (isset($params['valueType']))
+			{
 				$this->setValueType($params['valueType']);
+			}
+
 			$this->setBasis(isset($params['basis']) ? $params['basis'] : Helper::CURRENT_DATETIME_BASIS);
 
 			if (isset($params['workTime']))
+			{
 				$this->setWorkTime($params['workTime']);
+			}
+			if (isset($params['localTime']))
+			{
+				$this->setLocalTime($params['localTime']);
+			}
 		}
 	}
 
+	/**
+	 * @param array $properties Activity properties.
+	 * @return DelayInterval
+	 */
 	public static function createFromActivityProperties(array $properties)
 	{
-		$params = array();
+		$params = [];
 		if (is_array($properties))
 		{
 			if (isset($properties['TimeoutTime']))
@@ -50,12 +72,19 @@ class DelayInterval
 			)
 			{
 				if ($properties['TimeoutDurationType'] === 'm')
+				{
 					$properties['TimeoutDurationType'] = 'i';
+				}
 				$params = array(
 					'type' => static::TYPE_AFTER,
 					'value' => (int)$properties['TimeoutDuration'],
 					'valueType' => $properties['TimeoutDurationType'],
 				);
+			}
+
+			if (isset($properties['TimeoutTimeIsLocal']))
+			{
+				$params['localTime'] = ($properties['TimeoutTimeIsLocal'] === 'Y');
 			}
 		}
 
@@ -71,14 +100,16 @@ class DelayInterval
 	}
 
 	/**
-	 * @param mixed $type
+	 * @param mixed $type Interval type (before, after, in time).
 	 * @return DelayInterval
 	 */
 	public function setType($type)
 	{
 		$type = (string)$type;
 		if ($type === static::TYPE_BEFORE || $type === static::TYPE_AFTER || $type === static::TYPE_IN)
+		{
 			$this->type = $type;
+		}
 
 		return $this;
 	}
@@ -92,7 +123,7 @@ class DelayInterval
 	}
 
 	/**
-	 * @param mixed $value
+	 * @param int $value Delay interval value.
 	 * @return DelayInterval
 	 */
 	public function setValue($value)
@@ -111,13 +142,15 @@ class DelayInterval
 	}
 
 	/**
-	 * @param mixed $valueType
+	 * @param string $valueType Delay interval value type.
 	 * @return DelayInterval
 	 */
 	public function setValueType($valueType)
 	{
 		if ($valueType === 'i' || $valueType === 'h' || $valueType === 'd')
+		{
 			$this->valueType = $valueType;
+		}
 
 		return $this;
 	}
@@ -131,7 +164,7 @@ class DelayInterval
 	}
 
 	/**
-	 * @param mixed $basis
+	 * @param mixed $basis Delay interval basis (date/time field etc.).
 	 * @return DelayInterval
 	 */
 	public function setBasis($basis)
@@ -150,16 +183,37 @@ class DelayInterval
 	}
 
 	/**
-	 * @param bool $flag
+	 * @param bool $flag True of false.
 	 * @return $this
 	 */
 	public function setWorkTime($flag)
 	{
 		$this->workTime = (bool)$flag;
-
 		return $this;
 	}
 
+	/**
+	 * @return mixed
+	 */
+	public function isLocalTime()
+	{
+		return $this->localTime;
+	}
+
+	/**
+	 * @param bool $flag True or false.
+	 * @return $this
+	 */
+	public function setLocalTime($flag)
+	{
+		$this->localTime = (bool)$flag;
+		return $this;
+	}
+
+	/**
+	 * Converts instance to array.
+	 * @return array
+	 */
 	public function toArray()
 	{
 		return array(
@@ -168,11 +222,20 @@ class DelayInterval
 			'valueType' => $this->getValueType(),
 			'basis' => $this->getBasis(),
 			'workTime' => $this->isWorkTime(),
+			'localTime' => $this->isLocalTime(),
 		);
 	}
 
+	/**
+	 * Converts instance to activity properties array.
+	 * @return array
+	 */
 	public function toActivityProperties()
 	{
+		$properties = [
+			'TimeoutTimeIsLocal' => $this->isLocalTime() ? 'Y' : 'N'
+		];
+
 		if (
 			$this->getBasis() === Helper::CURRENT_DATETIME_BASIS
 			&& $this->getType() === static::TYPE_AFTER
@@ -181,23 +244,28 @@ class DelayInterval
 		{
 			$valueType = $this->getValueType();
 			if ($valueType === 'i')
+			{
 				$valueType = 'm';
-			return array(
-				'TimeoutDuration' => $this->getValue(),
-				'TimeoutDurationType' => $valueType,
-			);
+			}
+
+			return ['TimeoutDuration' => $this->getValue(), 'TimeoutDurationType' => $valueType];
 		}
 		elseif ($this->getType() === static::TYPE_IN && !$this->isWorkTime())
 		{
-			return array(
-				'TimeoutTime' => $this->getBasis()
-			);
+			$properties['TimeoutTime'] = $this->getBasis();
 		}
-		return array(
-			'TimeoutTime' => Helper::getDateTimeIntervalString($this->toArray())
-		);
+		else
+		{
+			$properties['TimeoutTime'] = Helper::getDateTimeIntervalString($this->toArray());
+		}
+
+		return $properties;
 	}
 
+	/**
+	 * Checks if interval equals to Now.
+	 * @return bool
+	 */
 	public function isNow()
 	{
 		return (

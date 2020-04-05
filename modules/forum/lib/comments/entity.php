@@ -2,6 +2,8 @@
 
 namespace Bitrix\Forum\Comments;
 
+use Bitrix\Forum\ForumTable;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Event;
 use Bitrix\Main\SystemException;
 
@@ -173,7 +175,32 @@ class Entity
 				else if (\CForumUser::IsLocked($userId))
 					$result = \CForumNew::GetPermissionUserDefault($this->forum["ID"]);
 				else
-					$result = \CForumNew::GetUserPermission($this->forum["ID"], $userId);
+				{
+					if (in_array($this->getType(), array('PH', 'TR', 'TE', 'IBLOCK')))
+					{
+						$result = 'Y';
+					}
+					else
+					{
+						$res = ForumTable::getList(array(
+							'filter' => array(
+								'=ID' => $this->forum["ID"],
+								'@XML_ID' => array(
+									'USERS_AND_GROUPS'
+								)
+							),
+							'select' => array('ID')
+						));
+						if ($forumFields = $res->fetch())
+						{
+							$result = 'Y';
+						}
+						else
+						{
+							$result = \CForumNew::GetUserPermission($this->forum["ID"], $userId);
+						}
+					}
+				}
 
 				self::$permissions[$userId][$this->forum["ID"]] = $result;
 			}
@@ -221,6 +248,28 @@ class Entity
 					"className" => TaskEntity::className(),
 					"moduleId" => "tasks",
 					"xmlIdPrefix" => TaskEntity::getXmlIdPrefix()),
+				"wf" => array(
+					"entityType" => "wf",
+					"className" => WorkflowEntity::className(),
+					"moduleId" => "lists",
+					"xmlIdPrefix" => WorkflowEntity::getXmlIdPrefix()),
+				"ev" => array(
+					"entityType" => "ev",
+					"className" => CalendarEntity::className(),
+					"moduleId" => "calendar",
+					"xmlIdPrefix" => CalendarEntity::getXmlIdPrefix()),
+				"te" => array(
+					"entityType" => "te",
+					"className" => Entity::className(),
+					"moduleId" => "timeman",
+					"xmlIdPrefix" => 'TIMEMAN_ENTRY_'
+				),
+				"tr" => array(
+					"entityType" => "tr",
+					"className" => Entity::className(),
+					"moduleId" => "timeman",
+					"xmlIdPrefix" => 'TIMEMAN_REPORT_'
+				),
 				"default" => array(
 					"entityType" => "default",
 					"className" => Entity::className(),

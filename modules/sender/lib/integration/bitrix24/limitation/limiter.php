@@ -86,7 +86,7 @@ class Limiter
 	public static function getMonthly()
 	{
 		$counter = new B24MailCounter();
-		return Transport\CountLimiter::create()
+		$limiter = Transport\CountLimiter::create()
 			->withName('mail_per_month')
 			->withLimit($counter->getLimit())
 			->withUnit("1 " . Transport\iLimiter::MONTHS)
@@ -96,12 +96,18 @@ class Limiter
 					return $counter->getMonthly();
 				}
 			)
-			->setParameter('setupUri', 'javascript: BX.Sender.B24License.showMailLimitPopup();')
 			->setParameter(
 				'globalHelpUri',
 				Loc::getMessage('SENDER_INTEGRATION_BITRIX24_LIMITER_MONTH_HELP_URL') ?: Loc::getMessage('SENDER_INTEGRATION_BITRIX24_LIMITER_DAILY_HELP_URL')
 			)
 			->setParameter('percentage', self::getMonthlyLimitPercentage());
+
+		if (!Service::isLicenceTop())
+		{
+			$limiter->setParameter('setupUri', 'javascript: BX.Sender.B24License.showMailLimitPopup();');
+		}
+
+		return $limiter;
 	}
 
 	/**

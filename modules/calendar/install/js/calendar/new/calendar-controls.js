@@ -154,6 +154,7 @@
 			BX.addCustomEvent(this.menuPopup.popupWindow, 'onPopupClose', BX.delegate(function()
 			{
 				BX.PopupMenu.destroy(this.popupId);
+				this.menuPopup = null;
 			}, this));
 		},
 
@@ -183,23 +184,115 @@
 		}
 	};
 
+	function SettingsMenu(params)
+	{
+		this.calendar = params.calendar;
+		this.wrap = params.wrap;
+		this.showMarketPlace = params.showMarketPlace;
+		this.id = this.calendar.id + '_settings_button';
+		this.zIndex = params.zIndex || 3200;
+		this.create();
+	}
+
+	SettingsMenu.prototype = {
+		create: function ()
+		{
+			this.menuItems = [
+				{
+					text: BX.message('EC_SET_SLIDER_SETTINGS_TITLE'),
+					onclick: BX.proxy(this.openSettingsSlider, this)
+				}
+			];
+
+			if (this.showMarketPlace)
+			{
+				this.menuItems.push({
+					text: BX.message('EC_ADD_APPLICATION'),
+					onclick: BX.proxy(this.openApplicationSlider, this)
+				});
+			}
+
+			this.button = this.wrap.appendChild(BX.create("button", {
+				props: {
+					className: "ui-btn ui-btn-icon-setting ui-btn-light-border ui-btn-themes",
+					type: "button"
+				}
+			}));
+
+			if (this.menuItems.length > 1)
+			{
+				BX.bind(this.button, 'click', BX.proxy(this.showPopup, this));
+			}
+			else
+			{
+				BX.bind(this.button, 'click', BX.proxy(this.openSettingsSlider, this));
+			}
+		},
+
+		showPopup: function ()
+		{
+			if (this.menuPopup && this.menuPopup.popupWindow && this.menuPopup.popupWindow.isShown())
+			{
+				return this.menuPopup.close();
+			}
+
+			this.menuPopup = BX.PopupMenu.create(
+				this.id,
+				this.button,
+				this.menuItems,
+				{
+					closeByEsc : true,
+					autoHide : true,
+					zIndex: this.zIndex
+				}
+			);
+
+			this.menuPopup.show();
+
+			BX.addCustomEvent(this.menuPopup.popupWindow, 'onPopupClose', BX.delegate(function()
+			{
+				BX.PopupMenu.destroy(this.addButtonMorePopupId);
+				BX.PopupMenu.destroy(this.id);
+				this.menuPopup = null;
+				this.addBtnMenu = null;
+			}, this));
+		},
+
+		openSettingsSlider: function()
+		{
+			if (this.menuPopup && this.menuPopup.popupWindow && this.menuPopup.popupWindow.isShown())
+			{
+				this.menuPopup.close();
+			}
+
+			if (!this.calendar.settingsSlider)
+			{
+				this.calendar.settingsSlider = new window.BXEventCalendar.SettingsSlider({calendar: this.calendar});
+			}
+			this.calendar.settingsSlider.show();
+		},
+
+		openApplicationSlider: function()
+		{
+			if (this.menuPopup && this.menuPopup.popupWindow && this.menuPopup.popupWindow.isShown())
+			{
+				this.menuPopup.close();
+			}
+		}
+	};
 
 	function AddButton(params)
 	{
 		this.calendar = params.calendar;
 		this.wrap = params.wrap;
 		this.id = this.calendar.id + '_top_add_button';
+		this.zIndex = params.zIndex || 3200;
 		this.create();
 	}
 
 	AddButton.prototype = {
 		create: function ()
 		{
-			this.button = this.wrap.appendChild(BX.create("SPAN", {
-				props: {className: "webform-small-button webform-small-button-blue"},
-				html: BX.message('EC_ADD'),
-				events: {click: BX.proxy(this.addEntry, this)}
-			}));
 
 			this.menuItems = [
 				{
@@ -218,10 +311,30 @@
 
 			if (this.menuItems.length > 1)
 			{
-				BX.addClass(this.wrap, 'webform-small-button-separate-wrap');
-				this.addButtonMore = this.wrap.appendChild(BX.create("SPAN", {
-					props: {className: "webform-small-button-right-part"},
+				this.addButtonMore = BX.create("span", {
+					props: {className: "ui-btn-double ui-btn-primary"},
+					children: [
+						BX.create("button", {
+							props: {className: "ui-btn-main", type: "button"},
+							html: BX.message('EC_ADD'),
+							events: {click: BX.proxy(this.addEntry, this)}
+						})
+					]
+				});
+				this.wrap.appendChild(this.addButtonMore);
+
+				this.addButtonExtra = BX.create("span", {
+					props: {className: "ui-btn-extra"},
 					events: {click: BX.proxy(this.showPopup, this)}
+				});
+				this.addButtonMore.appendChild(this.addButtonExtra)
+			}
+			else
+			{
+				this.button = this.wrap.appendChild(BX.create("button", {
+					props: {className: "ui-btn ui-btn-primary", type: "button"},
+					html: BX.message('EC_ADD'),
+					events: {click: BX.proxy(this.addEntry, this)}
 				}));
 			}
 		},
@@ -235,7 +348,7 @@
 
 			this.menuPopup = BX.PopupMenu.create(
 				this.id,
-				this.addButtonMore,
+				this.addButtonExtra,
 				this.menuItems,
 				{
 					closeByEsc : true,
@@ -253,6 +366,8 @@
 			{
 				BX.PopupMenu.destroy(this.addButtonMorePopupId);
 				BX.PopupMenu.destroy(this.id);
+				this.menuPopup = null;
+				this.addBtnMenu = null;
 			}, this));
 		},
 
@@ -387,6 +502,7 @@
 			{
 				BX.PopupMenu.destroy(_this.id);
 				_this.shown = false;
+				_this.popupMenu = null;
 			});
 
 			this.input.select();
@@ -397,6 +513,7 @@
 		closePopup: function()
 		{
 			BX.PopupMenu.destroy(this.id);
+			this.popupMenu = null;
 			this.shown = false;
 		},
 
@@ -456,6 +573,7 @@
 			if (this.popupMenu)
 				this.popupMenu.close();
 			BX.PopupMenu.destroy(this.id);
+			this.popupMenu = null;
 			this.shown = false;
 		}
 	};
@@ -532,24 +650,39 @@
 				if (_this.hidePopupCallBack)
 					_this.hidePopupCallBack();
 				BX.PopupMenu.destroy(_this.id);
+				_this.reminderMenu = null;
 			});
 		},
 
 		addValue: function(value)
 		{
 			var i, item, closeIcon, _this = this;
-			for (i = 0; i < this.values.length; i++)
+			if (value >= 0 && !BX.util.in_array(value, this.selectedValues))
 			{
-				if (this.values[i].value == value && value >= 0 && !BX.util.in_array(value, this.selectedValues))
+				for (i = 0; i < this.values.length; i++)
+				{
+					if (this.values[i].value == value)
+					{
+						if (!this.selectedValues.length)
+							BX.cleanNode(this.valuesWrap);
+
+						item = this.valuesWrap.appendChild(BX.create('SPAN', {props: {className: 'calendar-reminder-item'}, text: this.values[i].shortLabel || this.values[i].label}));
+						closeIcon = item.appendChild(BX.create('SPAN', {props: {className: 'calendar-reminder-clear-icon'}, events: {click: function(){_this.removeValue(value);}}}));
+						this.selectedValues.push(value);
+						this.controlList[value] = item;
+						break;
+					}
+				}
+
+				if (item === undefined)
 				{
 					if (!this.selectedValues.length)
 						BX.cleanNode(this.valuesWrap);
 
-					item = this.valuesWrap.appendChild(BX.create('SPAN', {props: {className: 'calendar-reminder-item'}, text: this.values[i].shortLabel || this.values[i].label}));
+					item = this.valuesWrap.appendChild(BX.create('SPAN', {props: {className: 'calendar-reminder-item'}, text: this.getText(value)}));
 					closeIcon = item.appendChild(BX.create('SPAN', {props: {className: 'calendar-reminder-clear-icon'}, events: {click: function(){_this.removeValue(value);}}}));
 					this.selectedValues.push(value);
 					this.controlList[value] = item;
-					break;
 				}
 			}
 
@@ -560,6 +693,29 @@
 
 			if (this.changeCallack)
 				this.changeCallack(this.selectedValues);
+		},
+
+		getText: function(value)
+		{
+			var tempValue = value,
+				dividers = [60, 24], //list of time dividers
+				messageCodes = ['EC_REMIND1_MIN_COUNT', 'EC_REMIND1_HOUR_COUNT', 'EC_REMIND1_DAY_COUNT'],
+				result = '';
+			for (var i = 0; i < messageCodes.length; i++)
+			{
+				if (tempValue < dividers[i] || i === dividers.length)
+				{
+					result = BX.message(messageCodes[i]).toString();
+					result = result.replace('\#COUNT\#', tempValue.toString());
+					break;
+				}
+				else
+				{
+					tempValue = Math.ceil(tempValue / dividers[i]);
+				}
+			}
+
+			return result;
 		},
 
 		removeValue: function(value)
@@ -577,7 +733,7 @@
 
 			if (!this.selectedValues.length)
 			{
-				this.valuesWrap.appendChild(BX.create('SPAN', {props: {className: ''}, text: ' ' + BX.message('EC_REMIND_NO')}));
+				this.valuesWrap.appendChild(BX.create('SPAN', {props: {className: ''}, text: ' ' + BX.message('EC_REMIND1_NO')}));
 			}
 			if (this.changeCallack)
 				this.changeCallack(this.selectedValues);
@@ -1036,7 +1192,8 @@
 				attrs: {
 					name: this.params.inputName || '',
 					placeholder: BX.message('EC_LOCATION_LABEL'),
-					type: 'text'
+					type: 'text',
+					autocomplete: this.disabled ? 'on' : 'off'
 				},
 				props: {
 					className: 'calendar-field calendar-field-select'
@@ -1851,9 +2008,13 @@
 		}
 	};
 
+
+
+
 	if (window.BXEventCalendar)
 	{
 		window.BXEventCalendar.ViewSwitcher = ViewSwitcher;
+		window.BXEventCalendar.SettingsMenu = SettingsMenu;
 		window.BXEventCalendar.AddButton = AddButton;
 		window.BXEventCalendar.SelectInput = SelectInput;
 		window.BXEventCalendar.ReminderSelector = Reminder;
@@ -1867,6 +2028,7 @@
 		BX.addCustomEvent(window, "onBXEventCalendarInit", function()
 		{
 			window.BXEventCalendar.ViewSwitcher = ViewSwitcher;
+			window.BXEventCalendar.SettingsMenu = SettingsMenu;
 			window.BXEventCalendar.AddButton = AddButton;
 			window.BXEventCalendar.SelectInput = SelectInput;
 			window.BXEventCalendar.ReminderSelector = Reminder;

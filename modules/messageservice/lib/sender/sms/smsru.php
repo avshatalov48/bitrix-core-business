@@ -24,14 +24,9 @@ class SmsRu extends Sender\BaseConfigurable
 	{
 		if (Loader::includeModule('bitrix24'))
 		{
-			$zone = \CBitrix24::getPortalZone();
+			return in_array(\CBitrix24::getPortalZone(), ['ru', 'kz', 'by']);
 		}
-		else
-		{
-			$zone = Application::getInstance()->getContext()->getLanguage();
-		}
-
-		return in_array($zone, array('ru', 'kz', 'by'));
+		return true;
 	}
 
 	public function getId()
@@ -51,7 +46,7 @@ class SmsRu extends Sender\BaseConfigurable
 
 	public function isDemo()
 	{
-		return false; //DEMO mode has been deprecated since May, 2018
+		return false;
 	}
 
 	public function getDemoBalance()
@@ -87,7 +82,7 @@ class SmsRu extends Sender\BaseConfigurable
 	public function getDefaultFrom()
 	{
 		$fromList = $this->getFromList();
-		$from = $fromList[0]['id'];
+		$from = isset($fromList[0]) ? $fromList[0]['id'] : null;
 		//Try to find alphanumeric from
 		foreach ($fromList as $item)
 		{

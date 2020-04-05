@@ -10,13 +10,6 @@ class CDiskPdfComponent extends \CBitrixComponent
 	const DEFAULT_WIDTH = 900;
 	const DEFAULT_HEIGHT = 600;
 
-	public function onPrepareComponentParams($arParams)
-	{
-		$arParams['VIEWER_ID'] = $arParams['VIEWER_ID'];
-
-		return $arParams;
-	}
-
 	public function executeComponent()
 	{
 		if(empty($this->arParams['PATH']))
@@ -84,6 +77,16 @@ class CDiskPdfComponent extends \CBitrixComponent
 			CUtil::GetAdditionalFileURL($this->__path.'/pdfjs/l10n.js'),
 			CUtil::GetAdditionalFileURL($this->__path.'/pdfjs/pdf_viewer.js')
 		);
+		CJSCore::Init();
+		$coreScripts = CJSCore::GetCoreConfig();
+		if(!is_array($coreScripts['js']))
+		{
+			$coreScripts['js'] = [$coreScripts['js']];
+		}
+		foreach($coreScripts['js'] as $script)
+		{
+			$this->arResult['JS_FILES'][] = CUtil::GetAdditionalFileURL($script);
+		}
 		$this->arResult['LOCALE_FILES'] = $this->__path.'/pdfjs/locale/locale.properties';
 		$this->arResult['PATH_TO_WORKER'] = CUtil::GetAdditionalFileURL($this->__path.'/pdfjs/pdf.worker.js');
 

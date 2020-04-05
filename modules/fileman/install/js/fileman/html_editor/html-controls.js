@@ -704,8 +704,8 @@ function __run()
 		// Call parrent constructor
 		BbCodeButton.superclass.constructor.apply(this, arguments);
 		this.id = 'bbcode';
-		this.title = BX.message('BXEdBbCode');
-		this.className += ' bxhtmled-button-bbcode';
+		this.title = this.editor.bbCode ? BX.message('BXEdBbCode') : BX.message('BXEdHtmlCode');
+		this.className += this.editor.bbCode ? ' bxhtmled-button-bbcode' : ' bxhtmled-button-htmlcode';
 		this.disabledForTextarea = false;
 
 		this.Create();

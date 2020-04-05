@@ -121,7 +121,9 @@ $arDefaultUrlTemplates404 = array(
 	"user_blog_post" => "user/#user_id#/blog/#post_id#/",
 
 	"user_tasks" => "user/#user_id#/tasks/",
+	"user_tasks_import" => "user/#user_id#/tasks/import/",
 	"user_tasks_board" => "user/#user_id#/tasks/board/",
+	"user_tasks_recyclebin" => "user/#user_id#/tasks/recyclebin/",
 	"user_tasks_task" => "user/#user_id#/tasks/task/#action#/#task_id#/",
 	"user_tasks_view" => "user/#user_id#/tasks/view/#action#/#view_id#/",
 	"user_tasks_departments_overview" => "user/#user_id#/tasks/departments/",
@@ -136,8 +138,6 @@ $arDefaultUrlTemplates404 = array(
 	"user_tasks_templates" => "user/#user_id#/tasks/templates/",
 	"user_templates_template" => "user/#user_id#/tasks/templates/template/#action#/#template_id#/",
 
-	"user_tasks_import" => "user/#user_id#/tasks/import/",
-
 	"user_forum" => "user/#user_id#/forum/",
 	"user_forum_topic" => "user/#user_id#/forum/#topic_id#/",
 	"user_forum_topic_edit" => "user/#user_id#/forum/edit/#action#/#topic_id#/#message_id#/",
@@ -147,6 +147,25 @@ $arDefaultUrlTemplates404 = array(
 	"user_security" => "user/#user_id#/security/",
 	"user_codes" => "user/#user_id#/codes/",
 	"user_passwords" => "user/#user_id#/passwords/",
+);
+
+$taskPageTitles = array(
+	'user_tasks' => GetMessage('SONET_TASKS_PAGE_TITLE_USER_TASKS'),
+	'user_tasks_import' => GetMessage('SONET_TASKS_PAGE_TITLE_USER_TASKS_IMPORT'),
+	'user_tasks_board' => GetMessage('SONET_TASKS_PAGE_TITLE_USER_TASKS_BOARD'),
+	'user_tasks_recyclebin' => GetMessage('SONET_TASKS_PAGE_TITLE_USER_TASKS_RECYCLEBIN'),
+	'user_tasks_task' => GetMessage('SONET_TASKS_PAGE_TITLE_USER_TASKS_TASK'),
+	'user_tasks_departments_overview' => GetMessage('SONET_TASKS_PAGE_TITLE_USER_TASKS_DEPARTMENTS_OVERVIEW'),
+	'user_tasks_employee_plan' => GetMessage('SONET_TASKS_PAGE_TITLE_USER_TASKS_EMPLOYEE_PLAN'),
+	'user_tasks_projects_overview' => GetMessage('SONET_TASKS_PAGE_TITLE_USER_TASKS_PROJECTS_OVERVIEW'),
+	'user_tasks_effective' => GetMessage('SONET_TASKS_PAGE_TITLE_USER_TASKS_EFFECTIVE'),
+	'user_tasks_effective_detail' => GetMessage('SONET_TASKS_PAGE_TITLE_USER_TASKS_EFFECTIVE_DETAIL'),
+	'user_tasks_effective_inprogress' => GetMessage('SONET_TASKS_PAGE_TITLE_USER_TASKS_EFFECTIVE_INPROGRESS'),
+	'user_tasks_report' => GetMessage('SONET_TASKS_PAGE_TITLE_USER_TASKS_REPORT'),
+	'user_tasks_report_construct' => GetMessage('SONET_TASKS_PAGE_TITLE_USER_TASKS_REPORT_CONSTRUCT'),
+	'user_tasks_report_view' => GetMessage('SONET_TASKS_PAGE_TITLE_USER_TASKS_REPORT_VIEW'),
+	'user_tasks_templates' => GetMessage('SONET_TASKS_PAGE_TITLE_USER_TASKS_TEMPLATES'),
+	'user_templates_template' => GetMessage('SONET_TASKS_PAGE_TITLE_USER_TEMPLATES_TEMPLATE'),
 );
 
 $diskEnabled = (
@@ -174,6 +193,7 @@ if($diskEnabled)
 {
 	$arDefaultUrlTemplates404["user_disk"] = "user/#user_id#/disk/path/#PATH#";
 	$arDefaultUrlTemplates404["user_disk_file"] = "user/#user_id#/disk/file/#FILE_PATH#";
+	$arDefaultUrlTemplates404["user_disk_file_history"] = "user/#user_id#/disk/file-history/#FILE_ID#";
 	$arDefaultUrlTemplates404["user_trashcan_list"] = "user/#user_id#/disk/trashcan/#TRASH_PATH#";
 	$arDefaultUrlTemplates404["user_trashcan_file_view"] = "user/#user_id#/disk/trash/file/#TRASH_FILE_PATH#";
 	$arDefaultUrlTemplates404["user_external_link_list"] = "user/#user_id#/disk/external";
@@ -292,15 +312,16 @@ $arDefaultUrlTemplatesN404 = array(
 	"user_blog_tags" => "page=user_blog_tags&user_id=#user_id#",
 	"user_blog_post" => "page=user_blog_post&user_id=#user_id#&post_id=#post_id#",
 
-	"user_tasks" => "page=user_tasks&user_id=#user_id#",
-	"user_tasks_board" => "page=user_tasks_board&user_id=#user_id#",
-	"user_tasks_task" => "page=user_tasks_task&user_id=#user_id#&action=#action#&task_id=#task_id#",
-	"user_tasks_view" => "page=user_tasks_view&user_id=#user_id#&action=#action#&view_id=#view_id#",
-	"user_tasks_report" => "page=user_tasks_report&user_id=#user_id#",
-	"user_tasks_report_construct" => "page=user_tasks_report_construct&user_id=#user_id#&action=#action#&report_id=#report_id#",
-	"user_tasks_report_view" => "page=user_tasks_report_view&user_id=#user_id#&report_id=#report_id#",
-	"user_tasks_effective" => "page=user_tasks_effective&user_id=#user_id#",
-	"user_tasks_effective_detail" => "page=user_tasks_effective_detail&user_id=#user_id#",
+	"user_tasks"                      => "page=user_tasks&user_id=#user_id#",
+	"user_tasks_board"                => "page=user_tasks_board&user_id=#user_id#",
+	"user_tasks_task"                 => "page=user_tasks_task&user_id=#user_id#&action=#action#&task_id=#task_id#",
+	"user_tasks_view"                 => "page=user_tasks_view&user_id=#user_id#&action=#action#&view_id=#view_id#",
+	"user_tasks_recyclebin"                => "page=user_tasks_recyclebin&user_id=#user_id#",
+	"user_tasks_report"               => "page=user_tasks_report&user_id=#user_id#",
+	"user_tasks_report_construct"     => "page=user_tasks_report_construct&user_id=#user_id#&action=#action#&report_id=#report_id#",
+	"user_tasks_report_view"          => "page=user_tasks_report_view&user_id=#user_id#&report_id=#report_id#",
+	"user_tasks_effective"            => "page=user_tasks_effective&user_id=#user_id#",
+	"user_tasks_effective_detail"     => "page=user_tasks_effective_detail&user_id=#user_id#",
 	"user_tasks_effective_inprogress" => "page=user_tasks_effective_inprogress&user_id=#user_id#",
 	"user_tasks_templates" => "page=user_tasks_templates&user_id=#user_id#",
 	"user_tasks_employee_plan" => "page=user_tasks_employee_plan&user_id=#user_id#",
@@ -346,6 +367,9 @@ if (!array_key_exists("ALLOW_GROUP_CREATE_REDIRECT_REQUEST", $arParams))
 	$arParams["ALLOW_GROUP_CREATE_REDIRECT_REQUEST"] = "Y";
 }
 
+$folderWorkgroups = COption::GetOptionString("socialnetwork", "workgroups_page", false, SITE_ID);
+$folderWorkgroups = ($folderWorkgroups ? $folderWorkgroups : SITE_DIR."workgroups/");
+
 if (
 	$arParams["ALLOW_GROUP_CREATE_REDIRECT_REQUEST"] != "N" 
 	&& (
@@ -354,7 +378,7 @@ if (
 	)
 )
 {
-	$arParams["GROUP_CREATE_REDIRECT_REQUEST"] = SITE_DIR."workgroups/group/#group_id#/user_search/";
+	$arParams["GROUP_CREATE_REDIRECT_REQUEST"] = $folderWorkgroups."group/#group_id#/user_search/";
 }
 
 if (strlen(trim($arParams["NAME_TEMPLATE"])) <= 0)
@@ -434,11 +458,11 @@ if (IsModuleInstalled("blog"))
 {
 	if (!array_key_exists("PATH_TO_GROUP_POST", $arParams))
 	{
-		$arParams["PATH_TO_GROUP_POST"] = SITE_DIR."workgroups/group/#group_id#/blog/#post_id#/";
+		$arParams["PATH_TO_GROUP_POST"] = $folderWorkgroups."group/#group_id#/blog/#post_id#/";
 	}
 	if (!array_key_exists("PATH_TO_GROUP_BLOG", $arParams))
 	{
-		$arParams["PATH_TO_GROUP_BLOG"] = SITE_DIR."workgroups/group/#group_id#/blog/";
+		$arParams["PATH_TO_GROUP_BLOG"] = $folderWorkgroups."group/#group_id#/blog/";
 	}
 
 	if (!array_key_exists("BLOG_ALLOW_POST_CODE", $arParams))
@@ -721,6 +745,7 @@ $arResult = array_merge(
 		"ITEM_DETAIL_COUNT" => $arParams["ITEM_DETAIL_COUNT"],
 		"ITEM_MAIN_COUNT" => $arParams["ITEM_MAIN_COUNT"],
 		"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT"],
+		"DATE_TIME_FORMAT_WITHOUT_YEAR" => (isset($arParams["DATE_TIME_FORMAT_WITHOUT_YEAR"]) ? $arParams["DATE_TIME_FORMAT_WITHOUT_YEAR"] : false),
 		"USER_PROPERTY_MAIN" => $arParams["USER_PROPERTY_MAIN"],
 		"USER_PROPERTY_CONTACT" => $arParams["USER_PROPERTY_CONTACT"],
 		"USER_PROPERTY_PERSONAL" => $arParams["USER_PROPERTY_PERSONAL"],
@@ -868,6 +893,7 @@ if(check_bitrix_sessid() || $_SERVER['REQUEST_METHOD'] == "PUT")
 if(
 	$componentPage === 'user_disk' ||
 	$componentPage === 'user_disk_file' ||
+	$componentPage === 'user_disk_file_history' ||
 	$componentPage === 'user_disk_volume' ||
 	$componentPage === 'user_trashcan_list' ||
 	$componentPage === 'user_trashcan_file_view' ||
@@ -1236,6 +1262,19 @@ elseif ($componentPage == "bizproc_task_list")
 /********************************************************************
 				/Business-process
 ********************************************************************/
+
+if (
+	(strpos($componentPage, 'user_tasks') !== false || $componentPage == 'user_templates_template')
+	&& !\Bitrix\Main\Loader::includeModule('tasks')
+)
+{
+	if (($title = $taskPageTitles[$componentPage]) && isset($title))
+	{
+		$APPLICATION->SetTitle($title);
+	}
+	ShowError(GetMessage('SONET_TASKS_MODULE_NOT_INSTALLED'));
+}
+
 if (
 	!in_array($componentPage, array("message_form_mess", "messages_chat", "messages_users_messages"))
 	&& IntVal($arResult["VARIABLES"]["user_id"]) > 0 
@@ -1265,6 +1304,14 @@ if (
 	)
 	{
 		\Bitrix\Socialnetwork\ComponentHelper::checkProfileRedirect(intval($arResult["VARIABLES"]["user_id"]));
+	}
+
+	$rsUser = \CUser::getById(intval($arResult["VARIABLES"]["user_id"]));
+	$arUser = $rsUser->fetch();
+	if (!$arUser)
+	{
+		ShowError(GetMessage("SONET_NO_USER"));
+		return;
 	}
 
 	if (!CSocNetUser::CanProfileView($USER->GetID(), intval($arResult["VARIABLES"]["user_id"]), SITE_ID, $arContext))
@@ -1355,7 +1402,7 @@ $this->IncludeComponentTemplate($componentPage, array_key_exists($componentPage,
 //top panel button to reindex
 if($USER->IsAdmin())
 {
-	$GLOBALS['APPLICATION']->AddPanelButton(array(
+	$APPLICATION->AddPanelButton(array(
 		"HREF"=> $arResult["PATH_TO_USER_REINDEX"],
 		"ICON"=>"bx-panel-reindex-icon",
 		"ALT"=>GetMessage('SONET_PANEL_REINDEX_TITLE'),

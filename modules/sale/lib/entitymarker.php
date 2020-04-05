@@ -9,10 +9,6 @@ use Bitrix\Sale\Internals;
 
 Main\Localization\Loc::loadMessages(__FILE__);
 
-/**
- * Class EntityMarker
- * @package Bitrix\Sale
- */
 class EntityMarker
 {
 	const ENTITY_MARKED_TYPE_AUTO = 'AUTO';
@@ -34,8 +30,6 @@ class EntityMarker
 	 * @param OrderBase $order
 	 * @param Internals\Entity $entity
 	 * @param Result $result
-	 *
-	 * @throws Main\ArgumentException
 	 */
 	public static function addMarker(OrderBase $order, Internals\Entity $entity, Result $result)
 	{
@@ -469,7 +463,7 @@ class EntityMarker
 			
 			if (!empty($filter['filter']['=ENTITY_TYPE']))
 			{
-				$res = Internals\EntityMarkerTable::getList($filter);
+				$res = static::getList($filter);
 				while($data = $res->fetch())
 				{
 					if (isset($saveList[$data['ORDER_ID']]) && is_array($saveList[$data['ORDER_ID']]))
@@ -585,7 +579,7 @@ class EntityMarker
 								OrderHistory::SALE_ORDER_HISTORY_ACTION_LOG_LEVEL_1
 							);
 
-							$r = Internals\EntityMarkerTable::delete($elementId);
+							$r = static::delete($elementId);
 							if (!$r->isSuccess())
 							{
 								$result->addErrors($r->getErrors());
@@ -594,7 +588,7 @@ class EntityMarker
 							continue;
 						}
 
-						$r = Internals\EntityMarkerTable::update($elementId, $fields);
+						$r = static::updateInternal($elementId, $fields);
 						if (!$r->isSuccess())
 						{
 							$result->addErrors($r->getErrors());
@@ -607,7 +601,7 @@ class EntityMarker
 							$fields['DATE_CREATE'] = new Main\Type\DateTime();
 						}
 
-						$r = Internals\EntityMarkerTable::add($fields);
+						$r = static::addInternal($fields);
 						if (!$r->isSuccess())
 						{
 							$result->addErrors($r->getErrors());
@@ -622,9 +616,7 @@ class EntityMarker
 		return $result;
 	}
 
-	/**
-	 * @param null $orderCode
-	 */
+
 	protected static function resetMarkers($orderCode = null)
 	{
 		if (intval($orderCode) > 0)
@@ -636,16 +628,13 @@ class EntityMarker
 			static::$pool = array();
 		}
 	}
-
 	/**
 	 * @param Order $order
-	 * @param null $markerId
+	 * @param $markerId
 	 *
 	 * @return Result
 	 * @throws Main\ArgumentException
 	 * @throws Main\ArgumentNullException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	public static function tryFixErrorsByOrder(Order $order, $markerId = null)
 	{
@@ -678,7 +667,7 @@ class EntityMarker
 			$filter['filter']['!=SUCCESS'] = static::ENTITY_SUCCESS_CODE_DONE;
 		}
 		
-		$res = Internals\EntityMarkerTable::getList($filter);
+		$res = static::getList($filter);
 		while($markerData = $res->fetch())
 		{
 			if ($markerData['SUCCESS'] == static::ENTITY_SUCCESS_CODE_DONE)
@@ -730,14 +719,11 @@ class EntityMarker
 		return $result;
 	}
 
+
 	/**
 	 * @return Result
 	 * @throws Main\ArgumentException
 	 * @throws Main\ArgumentNullException
-	 * @throws Main\NotImplementedException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 * @throws \Exception
 	 */
 	public static function tryFixErrors()
 	{
@@ -746,14 +732,14 @@ class EntityMarker
 		$lastOrderId = null;
 
 		$result = new Result();
-		$res = Internals\EntityMarkerTable::getList(array(
-														'filter' => array(
-															'=TYPE' => static::ENTITY_MARKED_TYPE_AUTO,
-															'!=SUCCESS' => static::ENTITY_SUCCESS_CODE_DONE
-														),
-														'select' => array('ID', 'ENTITY_TYPE', 'ENTITY_ID', 'CODE', 'ORDER_ID'),
-														'order' => array('ORDER_ID' => 'ASC', 'ID' => 'DESC')
-													));
+		$res = static::getList(array(
+			'filter' => array(
+				'=TYPE' => static::ENTITY_MARKED_TYPE_AUTO,
+				'!=SUCCESS' => static::ENTITY_SUCCESS_CODE_DONE
+			),
+			'select' => array('ID', 'ENTITY_TYPE', 'ENTITY_ID', 'CODE', 'ORDER_ID'),
+			'order' => array('ORDER_ID' => 'ASC', 'ID' => 'DESC')
+		));
 		while($data = $res->fetch())
 		{
 			if (array_key_exists($data['ORDER_ID'], $orderList))
@@ -800,7 +786,7 @@ class EntityMarker
 				$data['SUCCESS'] = static::ENTITY_SUCCESS_CODE_FAIL;
 			}
 
-			EntityMarker::updateMarker($data['ID'], $data, $order, $entity);
+			static::updateMarker($data['ID'], $data, $order, $entity);
 
 			$lastOrderId = $order->getId();
 		}
@@ -815,23 +801,15 @@ class EntityMarker
 
 		foreach ($orderList as $order)
 		{
-			EntityMarker::saveMarkers($order);
+			static::saveMarkers($order);
 		}
 
 		return $result;
 	}
 
-	/**
-	 * @param array $filter
-	 *
-	 * @return array|bool|false
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 */
 	public static function loadFromDb(array $filter)
 	{
-		$entityDat = Internals\EntityMarkerTable::getList($filter)->fetch();
+		$entityDat = static::getList($filter)->fetch();
 		if ($entityDat)
 		{
 			return $entityDat;
@@ -842,12 +820,11 @@ class EntityMarker
 
 	/**
 	 * @param Order $order
-	 * @param $entityType
-	 * @param $entityId
+	 * @param string $entityType
+	 * @param int $entityId
 	 *
-	 * @return Internals\Entity|null
+	 * @return Internals\Entity
 	 * @throws Main\ArgumentNullException
-	 *
 	 */
 	public static function getEntity(Order $order, $entityType, $entityId)
 	{
@@ -908,16 +885,14 @@ class EntityMarker
 	}
 
 	/**
-	 * @param array $filter
+	 * @param array $parameters
 	 *
 	 * @return Main\DB\Result
 	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
-	public static function getList(array $filter = array())
+	public static function getList(array $parameters = array())
 	{
-		return Internals\EntityMarkerTable::getList($filter);
+		return Internals\EntityMarkerTable::getList($parameters);
 	}
 
 	/**
@@ -935,6 +910,16 @@ class EntityMarker
 		}
 
 		return Internals\EntityMarkerTable::delete($id);
+	}
+
+	protected static function addInternal(array $data)
+	{
+		return Internals\EntityMarkerTable::add($data);
+	}
+
+	protected static function updateInternal($primary, array $data)
+	{
+		return Internals\EntityMarkerTable::update($primary, $data);
 	}
 
 	/**
@@ -982,11 +967,6 @@ class EntityMarker
 		return null;
 	}
 
-	/**
-	 * @param Order $order
-	 *
-	 * @return bool
-	 */
 	public static function hasErrors(Order $order)
 	{
 		$orderCode = $order->getInternalId();
@@ -1016,11 +996,11 @@ class EntityMarker
 	}
 
 	/**
-	 * @param Order|null $order
+	 * @param null|OrderBase $order
 	 *
 	 * @return Result
 	 */
-	public static function getPoolAsResult(Order $order = null)
+	public static function getPoolAsResult(OrderBase $order = null)
 	{
 		$result = new Result();
 
@@ -1047,9 +1027,7 @@ class EntityMarker
 		return $result;
 	}
 
-	/**
-	 * @return array
-	 */
+
 	private static function getFieldsDuplicateCheck()
 	{
 		return array(
@@ -1063,17 +1041,13 @@ class EntityMarker
 	 * @param $id
 	 *
 	 * @return bool
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 * @throws \Exception
 	 */
 	public static function deleteByOrderId($id)
 	{
 		if(intval($id) <= 0)
 			return false;
 
-		$res = Internals\EntityMarkerTable::getList(array(
+		$res = static::getList(array(
 			'filter' => array(
 				'=ORDER_ID' => $id
 			),
@@ -1081,7 +1055,7 @@ class EntityMarker
 		));
 		while($data = $res->fetch())
 		{
-			Internals\EntityMarkerTable::delete($data['ID']);
+			static::delete($data['ID']);
 		}
 	}
 
@@ -1089,20 +1063,15 @@ class EntityMarker
 	 * @param Internals\Entity $entity
 	 *
 	 * @return bool
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 * @throws \Exception
 	 */
 	public static function deleteByEntity(Internals\Entity $entity)
 	{
 		if($entity->getId() <= 0)
 			return false;
 
-		$entityType = static::getEntityType($entity);
-		if ($entityType)
+		if ($entityType = static::getEntityType($entity))
 		{
-			$res = Internals\EntityMarkerTable::getList(array(
+			$res = static::getList(array(
 				'filter' => array(
 					'=ENTITY_ID' => $entity->getId(),
 					'=ENTITY_TYPE' => $entityType
@@ -1111,28 +1080,20 @@ class EntityMarker
 			));
 			while($data = $res->fetch())
 			{
-				Internals\EntityMarkerTable::delete($data['ID']);
+				static::delete($data['ID']);
 			}
 		}
 	}
 
-	/**
-	 * @param array $values
-	 *
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 * @throws \Exception
-	 */
 	public static function deleteByFilter(array $values)
 	{
-		$res = Internals\EntityMarkerTable::getList(array(
+		$res = static::getList(array(
 			'filter' => $values,
 			'select' => array('ID')
 		));
 		while($data = $res->fetch())
 		{
-			Internals\EntityMarkerTable::delete($data['ID']);
+			static::delete($data['ID']);
 		}
 	}
 
@@ -1176,7 +1137,7 @@ class EntityMarker
 		$filter = [
 			'filter' => [
 				'=ORDER_ID' => $order->getId(),
-				'!=SUCCESS' => EntityMarker::ENTITY_SUCCESS_CODE_DONE
+				'!=SUCCESS' => static::ENTITY_SUCCESS_CODE_DONE
 			],
 			'select' => ['ID', 'ENTITY_TYPE', 'ENTITY_ID', 'CODE', 'SUCCESS'],
 			'order' => ['ID' => 'DESC']

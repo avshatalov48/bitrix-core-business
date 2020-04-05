@@ -660,17 +660,15 @@
 		{
 			if (
 				typeof params == 'undefined'
-				|| !BX.type.isNotEmptyString(params.name)
-				|| typeof params.item == 'undefined'
-				|| !BX.type.isNotEmptyString(params.type)
+				|| !BX.type.isNotEmptyString(params.selectorId)
+				|| !BX.type.isNotEmptyObject(params.item)
 			)
 			{
 				return;
 			}
 
 			var
-				name = params.name,
-				type = params.type,
+				name = params.selectorId,
 				item = params.item;
 
 			if (typeof BX.BXGUEDestinationSelectorManager.data[name] == 'undefined')
@@ -679,15 +677,6 @@
 			}
 
 			var multiple = BX.BXGUEDestinationSelectorManager.data[name].multiple;
-			if (!multiple)
-			{
-				BX.SocNetLogDestination.obItemsSelected[name] = {};
-			}
-
-			if (typeof BX.SocNetLogDestination.obItemsSelected[name][item.id] == 'undefined')
-			{
-				BX.SocNetLogDestination.obItemsSelected[name][item.id] = type;
-			}
 
 			if (
 				typeof params.state != 'undefined'
@@ -750,11 +739,6 @@
 						});
 					}
 				}
-			}
-
-			if (BX.SocNetLogDestination.containerWindow != null)
-			{
-				BX.SocNetLogDestination.containerWindow.close();
 			}
 		},
 
@@ -826,7 +810,7 @@
 		this.opened = null;
 
 		BX.addCustomEvent(window, "BX.SonetGroupUsers:openDestDialog", BX.delegate(this.onSelectorOpen, this));
-		BX.addCustomEvent(window, "BX.Main.Selector:beforeInitDialog", BX.delegate(this.onBeforeInitDialog, this));
+		BX.addCustomEvent(window, "BX.Main.SelectorV2:beforeInitDialog", BX.delegate(this.onBeforeInitDialog, this));
 	};
 
 	BX.BXGUEDestinationSelector.prototype.getSetting = function(name, defaultval)
@@ -838,7 +822,7 @@
 	{
 		if (!this.inited)
 		{
-			BX.addCustomEvent(window, "BX.Main.Selector:afterInitDialog", BX.delegate(function(params) {
+			BX.addCustomEvent(window, "BX.Main.SelectorV2:afterInitDialog", BX.delegate(function(params) {
 				if (
 					typeof params.id != 'undefined'
 					|| params.id != this.id

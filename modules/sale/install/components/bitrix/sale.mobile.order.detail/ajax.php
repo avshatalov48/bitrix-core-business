@@ -10,15 +10,22 @@ CComponentUtil::__IncludeLang(dirname($_SERVER["SCRIPT_NAME"]), "/ajax.php");
 
 if (!CModule::IncludeModule('sale')) die(GetMessage("SMOD_SALE_NOT_INSTALLED"));
 
+$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
+
+if ($saleModulePermissions == "D")
+{
+	die('Access denied');
+}
+
 if(!isset($_REQUEST['id'])) die();
 
-$id = trim($_REQUEST['id']);
+$id = (int)($_REQUEST['id']);
+$order = \Bitrix\Sale\Order::load($id);
+$allowedStatusesView = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations($USER->GetID(), array('view'));
+$isAllowView = in_array($order->getField('STATUS_ID'), $allowedStatusesView);
 
-$bUserCanViewOrder = CSaleOrder::CanUserViewOrder($id, $GLOBALS["USER"]->GetUserGroupArray(), $GLOBALS["USER"]->GetID());
-
-if($USER->IsAuthorized() && check_bitrix_sessid() && $bUserCanViewOrder)
+if($USER->IsAuthorized() && check_bitrix_sessid() && $isAllowView)
 {
-
 	if (!CModule::IncludeModule('mobileapp')) die(GetMessage('SMOD_MOBILEAPP_NOT_INSTALLED'));
 
 	$action = isset($_REQUEST['action']) ? trim($_REQUEST['action']): '';

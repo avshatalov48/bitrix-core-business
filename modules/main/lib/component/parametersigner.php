@@ -46,6 +46,11 @@ class ParameterSigner
 
 	protected static function refineComponentName($componentName)
 	{
+		if (!is_string($componentName))
+		{
+			return null;
+		}
+
 		return str_replace(':', '', $componentName);
 	}
 }

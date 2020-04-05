@@ -16,8 +16,8 @@ interface ICacheEngine
 {
 	public function isAvailable();
 	public function clean($baseDir, $initDir = false, $filename = false);
-	public function read(&$arAllVars, $baseDir, $initDir, $filename, $TTL);
-	public function write($arAllVars, $baseDir, $initDir, $filename, $TTL);
+	public function read(&$allVars, $baseDir, $initDir, $filename, $TTL);
+	public function write($allVars, $baseDir, $initDir, $filename, $TTL);
 	public function isCacheExpired($path);
 }
 
@@ -281,8 +281,8 @@ class Cache
 		if (static::shouldClearCache())
 			return false;
 
-		$arAllVars = array("CONTENT" => "", "VARS" => "");
-		if (!$this->cacheEngine->read($arAllVars, $this->baseDir, $this->initDir, $this->filename, $this->TTL))
+		$allVars = array("CONTENT" => "", "VARS" => "");
+		if (!$this->cacheEngine->read($allVars, $this->baseDir, $this->initDir, $this->filename, $this->TTL))
 			return false;
 
 		if (static::$showCacheStat)
@@ -306,8 +306,8 @@ class Cache
 			Diag\CacheTracker::add($read, $path, $this->baseDir, $this->initDir, $this->filename, "R");
 		}
 
-		$this->content = $arAllVars["CONTENT"];
-		$this->vars = $arAllVars["VARS"];
+		$this->content = $allVars["CONTENT"];
+		$this->vars = $allVars["VARS"];
 
 		return true;
 	}
@@ -366,12 +366,12 @@ class Cache
 
 		$this->isStarted = false;
 
-		$arAllVars = array(
+		$allVars = array(
 			"CONTENT" => ob_get_contents(),
 			"VARS" => ($vars!==false ? $vars : $this->vars),
 		);
 
-		$this->cacheEngine->write($arAllVars, $this->baseDir, $this->initDir, $this->filename, $this->TTL);
+		$this->cacheEngine->write($allVars, $this->baseDir, $this->initDir, $this->filename, $this->TTL);
 
 		if (static::$showCacheStat)
 		{

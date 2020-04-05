@@ -18,6 +18,11 @@ if(!$USER->CanDoOperation('cache_control') && !$USER->CanDoOperation('view_other
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 }
 
+if (Composite\Engine::isSelfHostedPortal())
+{
+	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
+
 $APPLICATION->SetAdditionalCSS("/bitrix/panel/main/composite.css");
 $APPLICATION->AddHeadString("<style type=\"text/css\">".Composite\Engine::getInjectedCSS()."</style>");
 

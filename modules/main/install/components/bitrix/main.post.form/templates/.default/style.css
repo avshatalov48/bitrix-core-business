@@ -377,11 +377,15 @@
 }
 
 .feed-add-post-form {
-	background-color: #fff;
-	margin-bottom: 12px;
 	position: relative;
+	margin-bottom: 12px;
+	background-color: #fff;
 	overflow: hidden;
 	zoom: 1;
+}
+
+.comments-form .feed-add-post-form {
+	border-radius: 22px;
 }
 
 /* Preloading for waiter-button-light.gif */

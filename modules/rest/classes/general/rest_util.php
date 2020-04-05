@@ -118,6 +118,87 @@ class CRestUtil
 		}
 	}
 
+	public static function canInstallApplication($appInfo = null)
+	{
+		global $USER;
+
+		if(static::isAdmin())
+		{
+			return true;
+		}
+
+		$hasAccess = $USER->CanAccess(static::getInstallAccessList());
+		if($hasAccess && is_array($appInfo))
+		{
+			return static::appCanBeInstalledByUser($appInfo);
+		}
+
+		return $hasAccess;
+	}
+
+	public static function appCanBeInstalledByUser(array $appInfo)
+	{
+		return $appInfo['USER_INSTALL'] === 'Y';
+	}
+
+	public static function getInstallAccessList()
+	{
+		$accessList = \Bitrix\Main\Config\Option::get('rest', 'install_access_list', '');
+
+		return $accessList === '' ? array() : explode(",", $accessList);
+	}
+
+	public static function setInstallAccessList($accessList)
+	{
+		if(is_array($accessList))
+		{
+			$value = implode(',', $accessList);
+		}
+		else
+		{
+			$value = '';
+		}
+
+		\Bitrix\Main\Config\Option::set('rest', 'install_access_list', $value);
+	}
+
+	public static function notifyInstall($appInfo)
+	{
+		global $USER;
+
+		if(Loader::includeModule('im'))
+		{
+			$userName = \CUser::FormatName("#NAME# #LAST_NAME#", array(
+				"NAME" => $USER->GetFirstName(),
+				"LAST_NAME" => $USER->GetLastName(),
+				"SECOND_NAME" => $USER->GetSecondName(),
+				"LOGIN" => $USER->GetLogin()
+			));
+
+			$adminList = \CRestUtil::getAdministratorIdList();
+			foreach($adminList as $id)
+			{
+				$messageFields = array(
+					"TO_USER_ID" => $id,
+					"FROM_USER_ID" => $USER->GetID(),
+					"NOTIFY_TYPE" => IM_NOTIFY_SYSTEM,
+					"NOTIFY_MODULE" => "rest",
+					"NOTIFY_TAG" => "REST|APP_INSTALL_NOTIFY|".$USER->GetID()."|TO|".$id,
+					"NOTIFY_SUB_TAG" => "REST|APP_INSTALL_NOTIFY",
+					"NOTIFY_MESSAGE" => GetMessage(
+						"REST_APP_INSTALL_NOTIFY_TEXT",
+						array(
+							"#USER_NAME#" => $userName,
+							"#APP_NAME#" => $appInfo['APP_NAME'],
+							"#APP_CODE#" => $appInfo['CODE'],
+							"#APP_LINK#" => '/marketplace/detail/'.urlencode($appInfo['CODE']).'/',
+						)),
+				);
+				\CIMNotify::Add($messageFields);
+			}
+		}
+	}
+
 	public static function signLicenseRequest(array $request, $licenseKey)
 	{
 		if(Loader::includeModule('bitrix24'))
@@ -228,7 +309,7 @@ class CRestUtil
 		return preg_match("/^http[s]{0,1}:\/\/[^\/]*?(\.apps-bitrix24\.com|\.bitrix24-cdn\.com|cdn\.bitrix24\.|app\.bitrix24\.com|upload-.*?\.s3\.amazonaws\.com\/app_local\/)/i", $url);
 	}
 
-	public static function GetFile($fileId)
+	public static function GetFile($fileId , $resizeParam = false)
 	{
 		$fileSrc = array();
 		$bMult = false;
@@ -244,7 +325,15 @@ class CRestUtil
 			$dbRes = CFile::GetList(array(), array('@ID' => $fileId));
 			while($arRes = $dbRes->Fetch())
 			{
-				$fileSrc[$arRes['ID']] = CHTTP::URN2URI(CFile::GetFileSrc($arRes));
+				if($resizeParam !== false)
+				{
+					$resizeResult = \CFile::ResizeImageGet($arRes, $resizeParam, BX_RESIZE_IMAGE_PROPORTIONAL_ALT, false, false, false);
+					$fileSrc[$arRes['ID']] = \CHTTP::URN2URI($resizeResult['src']);
+				}
+				else
+				{
+					$fileSrc[$arRes['ID']] = \CHTTP::URN2URI(CFile::GetFileSrc($arRes));
+				}
 			}
 		}
 
@@ -703,7 +792,24 @@ class CRestUtil
 		}
 
 		unset($description[\CRestUtil::GLOBAL_SCOPE]);
-		return array_keys($description);
+
+		$scopeList = array_keys($description);
+
+		$installedModuleList = ModuleManager::getInstalledModules();
+		foreach($installedModuleList as $moduleId => $moduleDescription)
+		{
+			if(!isset($description[$moduleId]))
+			{
+				$controllersConfig = \Bitrix\Main\Config\Configuration::getInstance($moduleId);
+
+				if(!empty($controllersConfig['controllers']['restIntegration']['enabled']))
+				{
+					$scopeList[] = \Bitrix\Rest\Engine\RestManager::getModuleScopeAlias($moduleId);
+				}
+			}
+		}
+
+		return array_unique($scopeList);
 	}
 
 	public static function getEventList(array $description = null)
@@ -809,7 +915,7 @@ class CRestUtil
 		return static::getSpecialUrl(static::METHOD_UPLOAD, $query, $server);
 	}
 
-	protected static function getSpecialUrl($method, $query, \CRestServer $server)
+	public static function getSpecialUrl($method, $query, \CRestServer $server)
 	{
 		if(is_array($query))
 		{
@@ -824,7 +930,7 @@ class CRestUtil
 			$scope = '';
 		}
 
-		$signature = $server->getTokenCheckSignature($method, $query);
+		$signature = $server->getTokenCheckSignature(ToLower($method), $query);
 
 		$token = $scope
 			.static::TOKEN_DELIMITER.$query

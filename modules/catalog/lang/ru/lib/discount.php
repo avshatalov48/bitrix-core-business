@@ -21,6 +21,7 @@ $MESS["DISCOUNT_ENTITY_PRIORITY_FIELD"] = "Приоритет применимо
 $MESS["DISCOUNT_ENTITY_LAST_DISCOUNT_FIELD"] = "Прекратить дальнейшее применение скидок";
 $MESS["DISCOUNT_ENTITY_NOTES_FIELD"] = "Краткое описание";
 $MESS["DISCOUNT_ENTITY_CONDITIONS_LIST_FIELD"] = "Условия применения";
+$MESS["DISCOUNT_ENTITY_USE_COUPONS_FIELD"] = "Купоны";
 $MESS["DISCOUNT_ENTITY_VALIDATOR_TYPE"] = "Неверный тип скидки";
 $MESS["CATALOG_DISCOUNT_ENTITY_MESS_ADD_BLOCKED"] = "Для добавления скидок на товары используйте вызов CCatalogDiscount::Add()";
 $MESS["CATALOG_DISCOUNT_ENTITY_MESS_UPDATE_BLOCKED"] = "Для изменения скидок на товары используйте вызов CCatalogDiscount::Update()";

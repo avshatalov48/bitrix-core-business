@@ -9,7 +9,7 @@ Loc::loadMessages(__FILE__);
 class CB24ConnectorOpenlineInfoComponent extends \CBitrixComponent
 {
 	private $data = array();
-	
+
 	private function formatOperatorMessage()
 	{
 		$message = Array();
@@ -40,16 +40,16 @@ class CB24ConnectorOpenlineInfoComponent extends \CBitrixComponent
 		$message[] = '';
 		$message[] = '[b]'.Loc::getMessage('AUTH_IMOL_SITE').'[/b]: #VAR_HOST#';
 		$message[] = '[b]'.Loc::getMessage('AUTH_IMOL_PAGE').'[/b]: #VAR_PAGE#';
-		
+
 		if ($this->arParams['DATA'])
 		{
 			$message[] = '';
 			$message[] = $this->arParams['DATA'];
 		}
-		
+
 		$event = new \Bitrix\Main\Event("b24connector", "onOpenlineInfoFormatOperatorMessage", Array('DATA' => $this->data));
 		$event->send();
-		
+
 		foreach ($event->getResults() as $eventResult)
 		{
 			$eventResult = $eventResult->getParameters();
@@ -59,34 +59,35 @@ class CB24ConnectorOpenlineInfoComponent extends \CBitrixComponent
 				$message[] = $eventResult;
 			}
 		}
-		
+
 		$this->data['FIRST_MESSAGE'] = implode('[br]', $message);
 	}
-	
+
 	private function prepareAuthData()
 	{
+		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client.php");
+		$licence = md5("BITRIX".\CUpdateClient::GetLicenseKey()."LICENCE");
+
 		global $USER;
-
-		$context = \Bitrix\Main\Application::getInstance()->getContext();
-		$request = $context->getRequest();
-
-		$cookieValue = $request->getCookieRaw('LIVECHAT_HASH');
-		if (preg_match("/^[a-fA-F0-9]{32}$/i", $cookieValue))
+		if ($USER->GetID() > 0)
 		{
-			$this->data['HASH'] = $cookieValue;
-		}
-		else if ($_SESSION['LIVECHAT_HASH'])
-		{
-			$this->data['HASH'] = $_SESSION['LIVECHAT_HASH'];
+			$this->data['HASH'] = md5('user'.$USER->GetID().$licence);
+			$this->data['USER_ID'] = $USER->GetID();
+			$this->data['USER_NAME'] = $USER->GetFirstName();
+			$this->data['USER_LAST_NAME'] = $USER->GetLastName();
+			$this->data['USER_FULL_NAME'] = $USER->GetFirstName();
+			$this->data['USER_EMAIL'] = $USER->GetEmail();
+			$this->data['USER_LOGIN'] = $USER->GetLogin();
 		}
 		else
 		{
-			require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client.php");
-			$licence = md5("BITRIX".\CUpdateClient::GetLicenseKey()."LICENCE");
-			
-			if ($USER->GetID() > 0)
+			$context = \Bitrix\Main\Application::getInstance()->getContext();
+			$request = $context->getRequest();
+
+			$cookieValue = $request->getCookieRaw('LIVECHAT_GUEST_HASH');
+			if (preg_match("/^[a-fA-F0-9]{32}$/i", $cookieValue))
 			{
-				$this->data['HASH'] = md5('user'.$USER->GetID().$licence);
+				$this->data['HASH'] = $cookieValue;
 			}
 			else if (\Bitrix\Main\ModuleManager::isModuleInstalled('statistic') && intval($_SESSION["SESS_SEARCHER_ID"]) <= 0 && intval($_SESSION["SESS_GUEST_ID"]) > 0)
 			{
@@ -96,43 +97,24 @@ class CB24ConnectorOpenlineInfoComponent extends \CBitrixComponent
 			{
 				$this->data['HASH'] = md5('guest'.time().\bitrix_sessid().$licence);
 			}
+
+			$_SESSION['LIVECHAT_GUEST_HASH'] = $this->data['HASH'];
+			setcookie('LIVECHAT_GUEST_HASH', $this->data['HASH'], time() + 31536000, '/');
 		}
-		
-		$_SESSION['LIVECHAT_HASH'] = $this->data['HASH'];
-		setcookie('LIVECHAT_HASH', $this->data['HASH'], time() + 31536000, '/');
-		
-		if ($USER->GetID() > 0)
-		{
-			$this->data['USER_ID'] = $USER->GetID();
-			$this->data['USER_NAME'] = $USER->GetFirstName();
-			$this->data['USER_LAST_NAME'] = $USER->GetLastName();
-			$this->data['USER_FULL_NAME'] = $USER->GetFirstName();
-			$this->data['USER_EMAIL'] = $USER->GetEmail();
-			$this->data['USER_LOGIN'] = $USER->GetLogin();
-		}
-		else 
-		{
-			$this->data['USER_ID'] = 0;
-			$this->data['USER_NAME'] = Loc::getMessage('AUTH_IMOL_GUEST');
-			$this->data['USER_LAST_NAME'] = '';
-			$this->data['USER_FULL_NAME'] = Loc::getMessage('AUTH_IMOL_GUEST');
-			$this->data['USER_EMAIL'] = '';
-			$this->data['USER_LOGIN'] = '';
-		}
-		
+
 		return true;
 	}
-	
+
 	private function prepareSessionData()
 	{
 		$this->data['SESSION_SEARCHER'] = '';
 		$this->data['SESSION_SEARCHER_PHRASE'] = '';
 		$this->data['SESSION_FIRST_VISIT'] = '';
 		$this->data['SESSION_COUNTRY'] = '';
-		
+
 		if (!\Bitrix\Main\Loader::includeModule('statistic'))
 			return false;
-		
+
 		$this->data['SEARCHER'] = '';
 		if ($_SESSION["FROM_SEARCHER_ID"])
 		{
@@ -142,22 +124,22 @@ class CB24ConnectorOpenlineInfoComponent extends \CBitrixComponent
 				$this->data['SESSION_SEARCHER'] = $searcher['NAME'];
 			}
 		}
-		
+
 		if ($_SESSION["SESS_SEARCH_PHRASE"])
 		{
 			$this->data['SESSION_SEARCHER_PHRASE'] = $_SESSION["SESS_SEARCH_PHRASE"];
 		}
-		
+
 		if ($_SESSION["GUEST_NEW"])
 		{
 			$this->data['SESSION_FIRST_VISIT'] = $_SESSION["SESS_GUEST_NEW"];
 		}
-		
+
 		if ($_SESSION["GUEST_NEW"])
 		{
 			$this->data['SESSION_COUNTRY'] = $_SESSION["SESS_GUEST_NEW"];
 		}
-		
+
 		if ($_SESSION["SESS_COUNTRY_ID"] != "N0")
 		{
 			$param = '';
@@ -165,27 +147,27 @@ class CB24ConnectorOpenlineInfoComponent extends \CBitrixComponent
 				"ID" => $_SESSION["SESS_COUNTRY_ID"]
 			);
 			$res = \CCountry::GetList(
-				($by = "s_name"), 
-				($order = "desc"), 
+				($by = "s_name"),
+				($order = "desc"),
 				$filter,
 				$param
 			);
 			if ($ar = $res->Fetch())
 			{
-				$this->data['SESSION_COUNTRY'] = $ar['REFERENCE'];    
+				$this->data['SESSION_COUNTRY'] = $ar['REFERENCE'];
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	private function prepareVariableForTemplate()
 	{
 		foreach($this->data as $key => $value)
 		{
 			$this->arResult[$key] = $value;
 		}
-		
+
 		$this->arResult['GA_MARK'] = $this->arParams['GA_MARK'];
 		$this->arResult['CONFIG'] = Array(
 			'user' => Array(
@@ -197,14 +179,14 @@ class CB24ConnectorOpenlineInfoComponent extends \CBitrixComponent
 			'firstMessage' => $this->data['FIRST_MESSAGE']
 		);
 	}
-	
+
 	public function executeComponent()
 	{
 		$this->prepareAuthData();
 		$this->prepareSessionData();
 		$this->formatOperatorMessage();
 		$this->prepareVariableForTemplate();
-		
+
 		$this->includeComponentTemplate();
 	}
 }

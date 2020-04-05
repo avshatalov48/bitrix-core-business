@@ -19,7 +19,7 @@ class MetaOg extends \Bitrix\Landing\Hook\Page
 			'TITLE' => new Field\Text('TITLE', array(
 				'title' => Loc::getMessage('LANDING_HOOK_METAOG_TITLE'),
 				'placeholder' => Loc::getMessage('LANDING_HOOK_METAOG_TITLE_PLACEHOLDER'),
-				'maxlength' => 135
+				'maxlength' => 140
 			)),
 			'DESCRIPTION' => new Field\Textarea('DESCRIPTION', array(
 				'title' => Loc::getMessage('LANDING_HOOK_METAOG_DESCRIPTION'),
@@ -88,13 +88,16 @@ class MetaOg extends \Bitrix\Landing\Hook\Page
 		$og = array(
 			'title' => \htmlspecialcharsbx(trim($this->fields['TITLE'])),
 			'description' => \htmlspecialcharsbx(trim($this->fields['DESCRIPTION'])),
-			'image' => trim($this->fields['IMAGE'])
+			'image' => trim($this->fields['IMAGE']),
+			'type' => 'website'
 		);
 		foreach ($og as $key => $val)
 		{
 			if ($key == 'image' && intval($val) > 0)
 			{
-				$val = \Cfile::getFileArray($val);
+				$val = \Bitrix\Landing\File::getFileArray(
+					$val
+				);
 			}
 			if ($val)
 			{
@@ -102,6 +105,7 @@ class MetaOg extends \Bitrix\Landing\Hook\Page
 				{
 					if (is_array($val))
 					{
+						$val['SRC'] = Manager::getUrlFromFile($val['SRC']);
 						$output .=
 							'<meta name="og:image" content="' . str_replace(' ', '%20', \htmlspecialcharsbx($val['SRC'])) . '" />' .
 							'<meta name="og:image:width" content="' . $val['WIDTH'] . '" />' .

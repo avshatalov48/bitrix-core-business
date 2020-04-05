@@ -6,7 +6,7 @@ if ($saleModulePermissions < 'W')
 	$APPLICATION->AuthForm(GetMessage('ACCESS_DENIED'));
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/prolog.php');
-require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/include.php');
+\Bitrix\Main\Loader::includeModule('sale');
 
 ClearVars();
 ClearVars('f_');
@@ -14,7 +14,6 @@ ClearVars('l_');
 
 use	Bitrix\Sale\Internals\Input,
 	Bitrix\Sale\Internals\OrderPropsTable,
-	Bitrix\Sale\Internals\PersonTypeTable,
 	Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
@@ -27,10 +26,7 @@ unset($ID, $PERSON_TYPE_ID);
 
 // load person types
 $personTypes = array();
-//$result = PersonTypeTable::getList(array( // TODO LIDS
-//	'select'  => array('ID', 'NAME', 'LID', 'DOMAIN' => 'SALE.DOMAIN'),
-//	'order'   => array('LID', 'SORT', 'NAME'),
-//));
+
 $result = CSalePersonType::GetList(array('SORT' => 'ASC', 'NAME' => 'ASC'), array());
 while ($row = $result->Fetch())
 	$personTypes[$row['ID']] = array(
@@ -62,8 +58,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // get property from post
 	{
 		if ($_POST['TYPE'] == 'ENUM')
 			foreach ($_POST['VARIANTS'] as $row)
-				if (($row = array_filter($row, 'strlen')) && $row != array('SORT' => 100))
-					$variants []= $row;
+			{
+				$row = array_filter($row, 'strlen');
+				if (count($row) > 2)
+				{
+					$variants[] = $row;
+				}
+			}
 	}
 	else
 	{
@@ -130,8 +131,11 @@ switch ($property['TYPE'])
 
 		if (! $variants)
 		{
-			$result = CSaleOrderPropsVariant::GetList(($b='SORT'), ($o='ASC'), Array('ORDER_PROPS_ID' => $propertyId));
-			while ($row = $result->Fetch())
+			$result = \Bitrix\Sale\Internals\OrderPropsVariantTable::getList([
+				'filter' => ['ORDER_PROPS_ID' => $propertyId],
+				'order' => ['SORT' => 'ASC']
+			]);
+			while ($row = $result->fetch())
 			{
 				$variants []= $row;
 			}
@@ -154,6 +158,7 @@ $variantSettings = array(
 	'SORT'        => array('TYPE' => 'NUMBER', 'LABEL' => Loc::getMessage('SALE_VARIANTS_SORT' ), 'MIN' => 0, 'STEP' => 1, 'VALUE' => 100),
 	'DESCRIPTION' => array('TYPE' => 'STRING', 'LABEL' => Loc::getMessage('SALE_VARIANTS_DESCR'), 'SIZE' => '30', 'MAXLENGTH' => 255),
 	'ID'          => array('TYPE' => 'NUMBER', 'MIN' => 0, 'STEP' => 1, 'HIDDEN' => 'Y'),
+	'XML_ID' => array('TYPE' => 'STRING', 'LABEL' => Loc::getMessage('SALE_VARIANTS_XML_ID')),
 );
 
 // common settings
@@ -174,6 +179,7 @@ $commonSettings = array(
 	'IS_FILTERED'    => array('TYPE' => 'Y/N'   , 'LABEL' => Loc::getMessage('F_IS_FILTERED'   ), 'DESCRIPTION' => Loc::getMessage('MULTIPLE_DESCRIPTION')),
 	'SORT'           => array('TYPE' => 'NUMBER', 'LABEL' => Loc::getMessage('F_SORT'          ), 'MIN' => 0, 'STEP' => 1, 'VALUE' => 100),
 	'DESCRIPTION'    => array('TYPE' => 'STRING', 'LABEL' => Loc::getMessage('F_DESCRIPTION'   ), 'MULTILINE' => 'Y', 'ROWS' => 3, 'COLS' => 40),
+	'XML_ID' => array('TYPE' => 'STRING', 'LABEL' => Loc::getMessage('F_XML_ID'), 'VALUE' => OrderPropsTable::generateXmlId()),
 );
 if ($propertyId > 0)
 {
@@ -419,7 +425,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST["apply"]) || isset($_P
 
 		$propertyForDB = array();
 		foreach ($commonSettings + $inputSettings + $stringSettings + $locationSettings as $name => $input)
+		{
+			if (is_string($property[$name]))
+			{
+				$property[$name] = trim($property[$name]);
+			}
+
 			$propertyForDB[$name] = Input\Manager::getValue($input, $property[$name]);
+		}
 
 		$propertyForDB['SETTINGS'] = array_intersect_key($propertyForDB, $inputSettings);
 		$propertyForDB = array_diff_key($propertyForDB, $propertyForDB['SETTINGS']);
@@ -455,6 +468,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST["apply"]) || isset($_P
 		// 2. insert property
 		else
 		{
+			$propertyForDB['ENTITY_REGISTRY_TYPE'] = \Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER;
 			$insert = OrderPropsTable::add($propertyForDB);
 			if ($insert->isSuccess())
 				$propertyId = $property['ID'] = $insert->getId();
@@ -557,7 +571,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST["apply"]) || isset($_P
 			LocalRedirect("sale_order_props_edit.php?lang=".LANG."&ID=".$propertyId.GetFilterParams("filter_", false));
 	}
 }
-
 // RENDER VIEW /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 $APPLICATION->SetTitle($propertyId
@@ -581,7 +594,7 @@ if ($propertyId && $saleModulePermissions >= "W")
 	$arDDMenu = array();
 
 	$arDDMenu[] = array(
-		"TEXT" => "<b>".Loc::getMessage('SOPEN_4NEW_PROMT')."</b>",
+		"HTML" => "<b>".Loc::getMessage('SOPEN_4NEW_PROMT')."</b>",
 		"ACTION" => false
 	);
 
@@ -626,10 +639,26 @@ if ($errors)
 	<?=bitrix_sessid_post()?>
 
 	<?
-	$tabControl = new CAdminTabControl('tabControl', array(
-		array('DIV' => 'edit1', 'TAB' => Loc::getMessage('SOPEN_TAB_PROPS'), 'ICON' => 'sale', 'TITLE' => str_replace('#PTYPE#', "{$personType['NAME']} ({$personType['LID']})", Loc::getMessage('SOPEN_TAB_PROPS_DESCR'))),
-		array('DIV' => 'edit2', 'TAB' => Loc::getMessage('SALE_PROPERTY_LINKING'), 'ICON' => 'sale', 'TITLE' => Loc::getMessage('SALE_PROPERTY_LINKING_DESC'))
-	));
+	$tabs = [
+		[
+			'DIV' => 'edit1',
+			'TAB' => Loc::getMessage('SOPEN_TAB_PROPS'),
+			'ICON' => 'sale',
+			'TITLE' => str_replace(
+				'#PTYPE#',
+				"{$personType['NAME']} ({$personType['LID']})",
+				Loc::getMessage('SOPEN_TAB_PROPS_DESCR')
+			)
+		],
+		[
+			'DIV' => 'edit2',
+			'TAB' => Loc::getMessage('SALE_PROPERTY_LINKING'),
+			'ICON' => 'sale',
+			'TITLE' => Loc::getMessage('SALE_PROPERTY_LINKING_DESC')
+		]
+	];
+
+	$tabControl = new CAdminTabControl('tabControl', $tabs);
 	$tabControl->Begin();
 	$tabControl->BeginNextTab();
 	?>
@@ -679,6 +708,12 @@ if ($errors)
 						<tr>
 							<td><?=++$index?></td>
 							<?foreach ($variantSettings as $name => $input): $input['REQUIRED'] = 'N'?>
+								<?
+									if ($name === 'XML_ID')
+									{
+										$input['VALUE'] = \Bitrix\Sale\Internals\OrderPropsVariantTable::generateXmlId();
+									}
+								?>
 								<td><?=Input\Manager::getEditHtml("VARIANTS[$index][$name]", $input, $variant[$name])?></td>
 							<?endforeach?>
 							<td><input type="checkbox" name="VARIANTS[<?=$index?>][DELETE]"></td>
@@ -710,7 +745,6 @@ if ($errors)
 			<td width="60%"><?=Input\Manager::getEditHtml("RELATIONS[$name]", $input, $value)?></td>
 		</tr>
 	<?endforeach?>
-
 	<?
 	$tabControl->EndTab();
 	$tabControl->Buttons(array(

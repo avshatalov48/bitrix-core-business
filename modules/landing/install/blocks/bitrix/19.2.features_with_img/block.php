@@ -1,14 +1,14 @@
 <section class="landing-block g-bg-gray-light-v5 g-pt-90 g-pb-90">
 	<div class="container">
 		<div class="row">
-			<div class="col-md-5 text-center g-overflow-hidden g-mb-50 g-mb-0--md">
+			<div class="col-md-5 text-center g-overflow-hidden order-2 order-md-1">
 				<img class="landing-block-node-img js-animation slideInLeft img-fluid"
 					 src="https://cdn.bitrix24.site/bitrix/images/landing/business/mockups/mockup2.png"
 					 alt="">
 			</div>
 
-			<div class="col-md-7 d-flex text-center text-md-left">
-				<div class="align-self-center">
+			<div class="landing-block-node-text-container col-md-7 d-flex text-center text-md-left order-1 order-md-2">
+				<div>
 					<div class="text-uppercase g-mb-20">
 						<h4 class="landing-block-node-subtitle g-font-weight-700 g-font-size-11 g-mb-15">
 							<span class="g-color-primary">05.</span> Awesome features</h4>

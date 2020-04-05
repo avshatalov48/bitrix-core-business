@@ -148,6 +148,7 @@ $config = array(
 	'externalDataHandleMode' => $arParams["EXTERNAL_DATA_HANDLE_MODE"],
 	'showSectionSelector' => $arParams["SHOW_SECTION_SELECTOR"],
 	'showSettingsButton' => $arParams["SHOW_SETTINGS_BUTTON"],
+	'userSettings' => CCalendarUserSettings::Get(),
 	'user' => array(
 		'id' => $currentUserId,
 		'name' => CCalendar::GetUserName($currentUserId),

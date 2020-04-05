@@ -51,8 +51,7 @@ $actions[] = Controller\Action::create('createUsingPreset')->setHandler(
 
 		$entity = (new Entity\TriggerCampaign())
 			->set('NAME', $data['NAME'])
-			->set('DESCRIPTION', $data['DESC'])
-			->set('DESCRIPTION', $data['DESC'])
+			->set('DESCRIPTION', $data['DESC_USER'])
 			->set('SITE_ID', SITE_ID)
 			->set('TRIGGER_FIELDS', $triggerFields);
 
@@ -63,6 +62,10 @@ $actions[] = Controller\Action::create('createUsingPreset')->setHandler(
 			return;
 		}
 
+		Loader::includeModule('fileman');
+		$defaultMessage = \Bitrix\Fileman\Block\Content\SliceConverter::SLICE_SECTION_ID . '/STYLES/page/';
+		$defaultMessage = "<!--START $defaultMessage--><!--END $defaultMessage-->";
+
 		$emailFromList = \Bitrix\Sender\MailingChainTable::getDefaultEmailFromList();
 		foreach ($data['CHAIN'] as $letterData)
 		{
@@ -71,11 +74,15 @@ $actions[] = Controller\Action::create('createUsingPreset')->setHandler(
 				->set('CREATED_BY', Bitrix\Sender\Security\User::current()->getId())
 				->set('CAMPAIGN_ID', $entity->getId())
 				->set('TITLE', trim(str_replace('#SITE_NAME#:', '',$letterData['SUBJECT'])))
-				->set('TIME_SHIFT', $letterData['TIME_SHIFT']);
+				->set('TIME_SHIFT', $letterData['TIME_SHIFT'])
+				->set('TEMPLATE_ID', $letterData['TEMPLATE_ID'])
+				->set('TEMPLATE_TYPE', $letterData['TEMPLATE_TYPE']);
 			$config = $letter->getMessage()->getConfiguration();
 			$config->set('SUBJECT', $letterData['SUBJECT']);
-			$config->set('MESSAGE', $letterData['MESSAGE']);
+			$config->set('MESSAGE', $defaultMessage);
 			$config->set('EMAIL_FROM', current($emailFromList));
+			$config->set('TEMPLATE_ID', $letterData['TEMPLATE_ID']);
+			$config->set('TEMPLATE_TYPE', $letterData['TEMPLATE_TYPE']);
 			$result = $letter->getMessage()->saveConfiguration($config);
 			if (!$result->isSuccess())
 			{

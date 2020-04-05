@@ -168,6 +168,24 @@
 		}
 
 		top.BX.addCustomEvent(top, 'sender-segment-edit-change', this.onSegmentChange.bind(this));
+
+		if (BX.Sender.Template && BX.Sender.Template.Selector)
+		{
+			var selector = BX.Sender.Template.Selector;
+			BX.addCustomEvent(selector, selector.events.templateSelect, this.onTemplateSelect.bind(this));
+		}
+	};
+	Manager.prototype.onTemplateSelect = function (templateData)
+	{
+		if (!templateData.segments || templateData.segments.length === 0)
+		{
+			return;
+		}
+
+		this.selectorInclude.selector.removeTiles();
+		templateData.segments.forEach(function (tile) {
+			this.selectorInclude.selector.addTile(tile.name, tile.data, tile.id);
+		}, this);
 	};
 	Manager.prototype.onSegmentChange = function (segmentData)
 	{

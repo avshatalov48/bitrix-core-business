@@ -136,6 +136,15 @@ $arResult["Types"] = \Bitrix\Socialnetwork\Item\Workgroup::getTypes(array(
 	'currentExtranetSite' => $arResult["bExtranet"]
 ));
 
+$arResult["groupTypeCode"] = \Bitrix\Socialnetwork\Item\Workgroup::getTypeCodeByParams(array(
+	'fields' => array(
+		'VISIBLE' => (isset($arResult["Group"]['VISIBLE']) && $arResult["Group"]['VISIBLE'] == 'Y' ? 'Y' : 'N'),
+		'OPENED' => (isset($arResult["Group"]['OPENED']) && $arResult["Group"]['OPENED'] == 'Y' ? 'Y' : 'N'),
+		'PROJECT' => (isset($arResult["Group"]['PROJECT']) && $arResult["Group"]['PROJECT'] == 'Y' ? 'Y' : 'N'),
+		'EXTERNAL' => (isset($arResult["Group"]["IS_EXTRANET_GROUP"]) && $arResult["Group"]["IS_EXTRANET_GROUP"] == 'Y' ? 'Y' : 'N')
+	)
+));
+
 $arResult["Group"]["IS_EXTRANET_GROUP"] = (
 	Loader::includeModule("extranet")
 	&& CExtranet::isExtranetSocNetGroup($arResult["Group"]["ID"])

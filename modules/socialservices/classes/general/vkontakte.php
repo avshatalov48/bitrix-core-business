@@ -13,7 +13,7 @@ class CSocServVKontakte extends CSocServAuth
 		return array(
 			array("vkontakte_appid", GetMessage("socserv_vk_id"), "", Array("text", 40)),
 			array("vkontakte_appsecret", GetMessage("socserv_vk_key"), "", Array("text", 40)),
-			array("note" => GetMessage("socserv_vk_sett_note")),
+			array("note" => GetMessage("socserv_vk_sett_note1", array('#URL#'=>$this->getEntityOAuth()->GetRedirectURI()))),
 		);
 	}
 
@@ -39,8 +39,7 @@ class CSocServVKontakte extends CSocServAuth
 	{
 		global $APPLICATION;
 
-		$gAuth = $this->getEntityOAuth();
-
+		CSocServAuthManager::SetUniqueKey();
 		if (IsModuleInstalled('bitrix24') && defined('BX24_HOST_NAME'))
 		{
 			$redirect_uri = self::CONTROLLER_URL . "/redirect.php";
@@ -51,18 +50,17 @@ class CSocServVKontakte extends CSocServAuth
 		}
 		else
 		{
-			//$redirect_uri = CSocServUtil::GetCurUrl('auth_service_id='.self::ID);
-			$redirect_uri = \CHTTP::URN2URI($APPLICATION->GetCurPage()) . '?auth_service_id=' . self::ID;
-
 			$backurl = $APPLICATION->GetCurPageParam(
 				'check_key=' . $_SESSION["UNIQUE_KEY"],
 				array("logout", "auth_service_error", "auth_service_id", "backurl")
 			);
 
 			$state = 'site_id=' . SITE_ID . '&backurl=' . urlencode($backurl) . (isset($arParams['BACKURL']) ? '&redirect_url=' . urlencode($arParams['BACKURL']) : '');
+			$redirect_uri = $this->getEntityOAuth()->GetRedirectURI();
+
 		}
 
-		return $gAuth->GetAuthUrl($redirect_uri, $state);
+		return $this->getEntityOAuth()->GetAuthUrl($redirect_uri, $state);
 	}
 
 	public function getEntityOAuth($code = false)
@@ -154,7 +152,7 @@ class CSocServVKontakte extends CSocServAuth
 			if (IsModuleInstalled('bitrix24') && defined('BX24_HOST_NAME'))
 				$redirect_uri = self::CONTROLLER_URL . "/redirect.php";
 			else
-				$redirect_uri = \CHTTP::URN2URI($GLOBALS['APPLICATION']->GetCurPage()) . '?auth_service_id=' . self::ID;
+				$redirect_uri = $this->getEntityOAuth()->GetRedirectURI();
 
 			$this->entityOAuth = $this->getEntityOAuth($_REQUEST['code']);
 			if ($this->entityOAuth->GetAccessToken($redirect_uri) !== false)
@@ -230,7 +228,7 @@ window.close();
 		if (IsModuleInstalled('bitrix24') && defined('BX24_HOST_NAME'))
 			$redirect_uri = self::CONTROLLER_URL . "/redirect.php";
 		else
-			$redirect_uri = \CHTTP::URN2URI($GLOBALS['APPLICATION']->GetCurPage()) . '?auth_service_id=' . self::ID;
+			$redirect_uri = $this->getEntityOAuth()->GetRedirectURI();
 
 		$vk = $this->getEntityOAuth();
 		if ($vk->GetAccessToken($redirect_uri) !== false)
@@ -259,7 +257,7 @@ window.close();
 		if (IsModuleInstalled('bitrix24') && defined('BX24_HOST_NAME'))
 			$redirect_uri = self::CONTROLLER_URL . "/redirect.php";
 		else
-			$redirect_uri = \CHTTP::URN2URI($GLOBALS['APPLICATION']->GetCurPage()) . '?auth_service_id=' . self::ID;
+			$redirect_uri = $this->getEntityOAuth()->GetRedirectURI();
 
 		if ($vk->GetAccessToken($redirect_uri) !== false)
 		{
@@ -310,6 +308,11 @@ class CVKontakteOAuthInterface extends CSocServOAuthTransport
 		parent::__construct($appID, $appSecret, $code);
 	}
 
+	public function GetRedirectURI()
+	{
+		return \CHTTP::URN2URI("/bitrix/tools/oauth/vkontakte.php");
+	}
+
 	public function GetAuthUrl($redirect_uri, $state = '')
 	{
 		return self::AUTH_URL .
@@ -355,6 +358,19 @@ class CVKontakteOAuthInterface extends CSocServOAuthTransport
 		} catch (\Bitrix\Main\ArgumentException $e)
 		{
 			$arResult = array();
+		}
+
+		foreach ($arResult as $key => $value)
+		{
+			if (strpos($key, 'access_token_') === 0)
+			{
+				$this->access_token = $value;
+				$this->userID = null;
+				$this->userEmail = null;
+
+				$_SESSION["OAUTH_DATA"] = array("OATOKEN" => $this->access_token);
+				return true;
+			}
 		}
 
 		if ((isset($arResult["access_token"]) && $arResult["access_token"] <> '') && isset($arResult["user_id"]) && $arResult["user_id"] <> '')

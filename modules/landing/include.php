@@ -1,8 +1,14 @@
 <?php
+use Bitrix\Landing\Manager;
+
 $pathJS = '/bitrix/js/landing';
-$pathTemplate24 = '/bitrix/templates/landing24';
+$pathTemplate24 = '/bitrix/templates/';
+$pathTemplate24 .= Manager::getTemplateId(
+	Manager::getMainSiteId()
+);
 $pathCSS = '/bitrix/js/landing/css';
 $pathLang = BX_ROOT . '/modules/landing/lang/' . LANGUAGE_ID;
+
 
 $jsConfig = array(
 	'landing_master' => array(
@@ -47,8 +53,18 @@ $jsConfig = array(
 			$pathJS . '/ui/tool/menu.js',
 			$pathJS . '/ui/tool/suggests.js',
 			$pathJS . '/ui/tool/font-manager.js',
-			$pathJS . '/ui/tool/image-editor.js',
 			$pathJS . '/ui/adapter/css-property.js',
+			$pathJS . '/ui/button/base_button.js',
+			$pathJS . '/ui/button/action_button.js',
+			$pathJS . '/ui/button/plus_button.js',
+			$pathJS . '/ui/button/editor_action_button.js',
+			$pathJS . '/ui/button/design_button.js',
+			$pathJS . '/ui/button/color_button.js',
+			$pathJS . '/ui/button/block_card_action.js',
+			$pathJS . '/ui/button/sidebar_button.js',
+			$pathJS . '/ui/button/create_link.js',
+			$pathJS . '/ui/button/font_action.js',
+			$pathJS . '/ui/button/change_tag.js',
 			$pathJS . '/ui/panel/base_panel.js',
 			$pathJS . '/ui/panel/base_button_panel.js',
 			$pathJS . '/ui/panel/editor_panel.js',
@@ -68,21 +84,12 @@ $jsConfig = array(
 			$pathJS . '/ui/panel/google_fonts_panel.js',
 			$pathJS . '/ui/panel/google_images_settings_panel.js',
 			$pathJS . '/ui/panel/catalog_panel.js',
-			$pathJS . '/ui/button/base_button.js',
-			$pathJS . '/ui/button/action_button.js',
-			$pathJS . '/ui/button/plus_button.js',
-			$pathJS . '/ui/button/editor_action_button.js',
-			$pathJS . '/ui/button/design_button.js',
-			$pathJS . '/ui/button/color_button.js',
-			$pathJS . '/ui/button/block_card_action.js',
-			$pathJS . '/ui/button/sidebar_button.js',
-			$pathJS . '/ui/button/create_link.js',
-			$pathJS . '/ui/button/font_action.js',
-			$pathJS . '/ui/button/change_tag.js',
+			$pathJS . '/ui/panel/status_panel.js',
 			$pathJS . '/ui/form/base_form.js',
 			$pathJS . '/ui/form/card_form.js',
 			$pathJS . '/ui/form/cards_form.js',
 			$pathJS . '/ui/form/style_form.js',
+			$pathJS . '/ui/form/balloon_form.js',
 			$pathJS . '/ui/field/base_field.js',
 			$pathJS . '/ui/field/text_field.js',
 			$pathJS . '/ui/field/image_field.js',
@@ -106,6 +113,8 @@ $jsConfig = array(
 			$pathJS . '/ui/field/font_field.js',
 			$pathJS . '/ui/field/html_field.js',
 			$pathJS . '/ui/field/switch_field.js',
+			$pathJS . '/ui/field/embed_field.js',
+			$pathJS . '/ui/field/date_field.js',
 			$pathJS . '/ui/style_node.js',
 			$pathJS . '/ui/highlight_node.js',
 			$pathJS . '/events/block_event.js',
@@ -118,8 +127,10 @@ $jsConfig = array(
 			$pathJS . '/node/link.js',
 			$pathJS . '/node/img.js',
 			$pathJS . '/node/ul.js',
+			$pathJS . '/node/map.js',
 			$pathJS . '/node/component.js',
 			$pathJS . '/node/icon.js',
+			$pathJS . '/node/embed.js',
 			$pathJS . '/client/unsplash.js',
 			$pathJS . '/client/google_images.js',
 			$pathJS . '/client/google_fonts.js',
@@ -133,6 +144,8 @@ $jsConfig = array(
 			$pathJS . '/history/action/history_action_edit_link.js',
 			$pathJS . '/history/action/history_action_edit_style.js',
 			$pathJS . '/history/action/history_action_edit_text.js',
+			$pathJS . '/history/action/history_action_edit_embed.js',
+			$pathJS . '/history/action/history_action_edit_map.js',
 			$pathJS . '/history/action/history_action_remove_block.js',
 			$pathJS . '/history/action/history_action_remove_card.js',
 			$pathJS . '/history/action/history_action_sort_block.js',
@@ -150,12 +163,14 @@ $jsConfig = array(
 			$pathJS . '/mediaservice/instagram_mediaservice.js',
 			$pathJS . '/mediaservice/google_maps_search_mediaservice.js',
 			$pathJS . '/mediaservice/google_maps_place_mediaservice.js',
+			$pathJS . '/mediaservice/facebook_page_plugin_service.js',
+			$pathJS . '/mediaservice/facebook_post_embed_service.js',
+			$pathJS . '/mediaservice/facebook_video_embed_service.js',
 			$pathJS . '/mediaservice/service_factory.js',
 			$pathJS . '/error_manager.js',
 			$pathJS . '/external/webfontloader/webfontloader.js',
-//			'//api.glvrd.ru/v1/glvrd.js',
-//			$pathJS . '/client/glavred.js',
-//			'//dme0ih8comzn4.cloudfront.net/imaging/v3/editor.js'
+			$pathJS . '/external/image-compressor/image-compressor.js',
+			$pathJS . '/compressor/compressor.js',
 		),
 		'css' => array(
 			$pathCSS . '/landing_master.css',
@@ -183,10 +198,12 @@ $jsConfig = array(
 			$pathCSS . '/ui/panel/alert_panel.css',
 			$pathCSS . '/ui/panel/google_fonts_panel.css',
 			$pathCSS . '/ui/panel/catalog_panel.css',
+			$pathCSS . '/ui/panel/status_panel.css',
 			$pathCSS . '/ui/form/base_form.css',
 			$pathCSS . '/ui/form/card_form.css',
 			$pathCSS . '/ui/form/cards_form.css',
 			$pathCSS . '/ui/form/style_form.css',
+			$pathCSS . '/ui/form/balloon_form.css',
 			$pathCSS . '/ui/field/base_field.css',
 			$pathCSS . '/ui/field/image_field.css',
 			$pathCSS . '/ui/field/link_field.css',
@@ -207,6 +224,7 @@ $jsConfig = array(
 			$pathCSS . '/ui/field/font_field.css',
 			$pathCSS . '/ui/field/html_field.css',
 			$pathCSS . '/ui/field/switch_field.css',
+			$pathCSS . '/ui/field/embed_field.css',
 			$pathCSS . '/ui/card/base_card.css',
 			$pathCSS . '/ui/card/block_preview_card.css',
 			$pathCSS . '/ui/card/field_group.css',
@@ -234,11 +252,48 @@ $jsConfig = array(
 			'color_picker',
 			'dnd',
 			'fx',
+			'ajax',
 			'action_dialog',
-			'loader'
+			'loader',
+			'mediaplayer',
+			'date',
+			'main.imageeditor'
 		),
 		'lang' => $pathLang . '/js/landing_master.php',
 		'bundle_js' => 'landing_master',
+	),
+
+	'mediaplayer' => array(
+		'js' => array(
+			'https://www.youtube.com/iframe_api',
+			$pathJS . '/utils.js',
+			$pathJS . '/mediaplayer/base_mediaplayer.js',
+			$pathJS . '/mediaplayer/youtube_mediaplayer.js',
+			$pathJS . '/mediaplayer/mediaplayer_factory.js'
+		)
+	),
+
+	'landing_inline_video' => array(
+		'js' => array(
+			$pathTemplate24 . '/assets/js/helpers/inline-video.js',
+		)
+	),
+
+	'map_provider' => array(
+		'js' => array(
+			$pathJS . '/utils.js',
+			$pathJS . '/collection/base_collection.js',
+			$pathJS . '/provider/map/base-map-provider.js',
+			$pathJS . '/provider/map/google-map.js',
+			$pathJS . '/provider/map/google-map/theme/silver.theme.js',
+			$pathJS . '/provider/map/google-map/theme/retro.theme.js',
+			$pathJS . '/provider/map/google-map/theme/dark.theme.js',
+			$pathJS . '/provider/map/google-map/theme/night.theme.js',
+			$pathJS . '/provider/map/google-map/theme/aubergine.theme.js'
+		),
+		'css' => array(
+			$pathCSS . '/provider/map/google-map.css',
+		)
 	),
 
 	'polyfill' => array(
@@ -270,7 +325,7 @@ $jsConfig = array(
 			$pathJS . '/events/block_event.js',
 			$pathJS . '/public.js'
 		),
-		'rel' => array('landing_event_tracker')
+		'rel' => array('landing_event_tracker', 'mediaplayer')
 	),
 
 	'landing_event_tracker' => array(
@@ -286,7 +341,7 @@ $jsConfig = array(
 	'landing_core' => array(
 		'js' => array(
 			$pathJS . '/utils.js',
-			$pathTemplate24 . '/assets/vendor/vendors_base.js',
+			//$pathTemplate24 . '/assets/vendor/vendors_base.js',
 			$pathTemplate24 . '/assets/js/helpers/onscroll-animation_init.js',
 			$pathTemplate24 . '/assets/js/helpers/go_to_init.js',
 			$pathTemplate24 . '/assets/js/helpers/popup_init.js',
@@ -316,20 +371,12 @@ $jsConfig = array(
 		'js' => array(
 			$pathTemplate24 . '/assets/js/helpers/form_init.js',
 		),
+		'lang' => $pathLang . '/js/webform_alerts.php',
 	),
 
 	'landing_gallery_cards' => array(
 		'js' => array(
 			$pathTemplate24 . '/assets/js/helpers/gallery_cards_init.js',
-		),
-		'rel' => array('landing_core'),
-	),
-
-	'landing_google_map' => array(
-		'js' => array(
-			$pathTemplate24 . '/assets/vendor/gmaps/gmaps.js',
-			$pathTemplate24 . '/assets/js/components/hs.map.js',
-			$pathTemplate24 . '/assets/js/helpers/gmap_init.js',
 		),
 		'rel' => array('landing_core'),
 	),
@@ -343,6 +390,15 @@ $jsConfig = array(
 		),
 		'css' => array(
 			$pathTemplate24 . '/assets/vendor/slick-carousel/slick/slick.css',
+		),
+		'rel' => array('landing_core'),
+	),
+	
+	'landing_countdown' => array(
+		'js' => array(
+			$pathTemplate24 . '/assets/vendor/jquery.countdown/jquery.countdown.js',
+			$pathTemplate24 . '/assets/js/components/hs.countdown.js',
+			$pathTemplate24 . '/assets/js/helpers/countdown_init.js',
 		),
 		'rel' => array('landing_core'),
 	),
@@ -364,22 +420,17 @@ $jsConfig = array(
 		'rel' => array('landing_core'),
 	),
 	
-	'landing_rating' => array(
+	'landing_google_maps_new' => array(
 		'js' => array(
-			$pathTemplate24 . '/assets/js/components/hs.rating.js',
-			$pathTemplate24 . '/assets/js/helpers/rating_init.js',
+			$pathTemplate24 . '/assets/js/helpers/google_maps_new.js'
 		),
-		'rel' => array('landing_core'),
-	),
-	'landing_videobg' => array(
-		'js' => array(
-			$pathTemplate24 . '/assets/js/helpers/videobg_init.js',
-		),
-		'rel' => array('landing_core'),
-	),
+		'rel' => array(
+			'map_provider'
+		)
+	)
 );
 
 foreach ($jsConfig as $code => $ext)
 {
-	\CJSCore::RegisterExt($code, $ext);
+	\CJSCore::registerExt($code, $ext);
 }

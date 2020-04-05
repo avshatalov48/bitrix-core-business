@@ -13,6 +13,11 @@
 
 .side-panel-overlay-open {
 	display: block;
+	pointer-events: auto;
+}
+
+.side-panel-overlay-opening {
+	pointer-events: none;
 }
 
 .side-panel-overlay-hidden {
@@ -29,7 +34,7 @@
 	right: 0;
 	bottom: 0;
 	z-index: 3001;
-	display: none;
+	display: block;
 	width: calc(100% - 300px);
 	background: #ebf1f4;
 	transform: translateX(100%);
@@ -37,10 +42,6 @@
 
 .side-panel-disable-scrollbar {
 	overflow: hidden;
-}
-
-.side-panel-container-open {
-	display: block;
 }
 
 .side-panel-close {

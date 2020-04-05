@@ -1,8 +1,8 @@
 <?
 
 use Bitrix\Sale\TradingPlatform\YMarket;
+use Bitrix\Sale;
 use Bitrix\Sale\DiscountCouponsManager;
-use Bitrix\Sale\Internals\OrderTable;
 use Bitrix\Main\Config\Option;
 use Bitrix\Sale\EntityMarker;
 use Bitrix\Main\EventResult;
@@ -1040,10 +1040,14 @@ class CSaleYMHandler
 				return $result;
 			}
 
-			if(Option::get("sale", "account_number_template", "") === "")
-				$orderId = $order->getId();
-			else
+			if (\Bitrix\Sale\Integration\Numerator\NumeratorOrder::isUsedNumeratorForOrder())
+			{
 				$orderId = $order->getField('ACCOUNT_NUMBER');
+			}
+			else
+			{
+				$orderId = $order->getId();
+			}
 
 			$res = \Bitrix\Sale\TradingPlatform\OrderTable::add(array(
 				"ORDER_ID" => $res->getId(),
@@ -1667,6 +1671,11 @@ class CSaleYMHandler
 		$value = $params->getParameter("VALUE");
 		$oldValue = $params->getParameter("OLD_VALUE");
 
+		if (!static::isOrderEntity($order))
+		{
+			return;
+		}
+
 		if($value == $oldValue)
 			return;
 
@@ -1685,6 +1694,11 @@ class CSaleYMHandler
 
 		/** @var \Bitrix\Sale\Order $order */
 		$order = $params->getParameter("ENTITY");
+
+		if (!static::isOrderEntity($order))
+		{
+			return;
+		}
 
 		if($order->getId() <= 0)
 			return;
@@ -1709,6 +1723,11 @@ class CSaleYMHandler
 		/** @var \Bitrix\Sale\Shipment $shipment */
 		$shipment = $params->getParameter("ENTITY");
 
+		if (!static::isOrderEntity($shipment))
+		{
+			return;
+		}
+
 		if($shipment->getId() <= 0)
 			return;
 
@@ -1729,6 +1748,11 @@ class CSaleYMHandler
 		/** @var \Bitrix\Sale\Order $order */
 		$order = $params->getParameter("ENTITY");
 
+		if (!static::isOrderEntity($order))
+		{
+			return;
+		}
+
 		if($order->getId() <= 0)
 			return;
 
@@ -1745,6 +1769,11 @@ class CSaleYMHandler
 	{
 		/** @var \Bitrix\Sale\Shipment $shipment */
 		$shipment = $params->getParameter("ENTITY");
+
+		if (!static::isOrderEntity($shipment))
+		{
+			return;
+		}
 
 		if($shipment->getId() <= 0)
 			return;
@@ -2539,5 +2568,22 @@ class CSaleYMHandler
 	public static function isYandexRequest()
 	{
 		return self::$isYandexRequest;
+	}
+
+	/**
+	 * @param Sale\Internals\Entity $entity
+	 * @return bool
+	 */
+	protected static function isOrderEntity(Sale\Internals\Entity $entity)
+	{
+		if ($entity instanceof Sale\Order
+			|| $entity instanceof Sale\Shipment
+			|| $entity instanceof Sale\Payment
+		)
+		{
+			return $entity::getRegistryType() === Sale\Registry::REGISTRY_TYPE_ORDER;
+		}
+
+		return false;
 	}
 }

@@ -46,4 +46,6 @@ $MESS ['SALE_SDL_MARKETPLACE_ADD_NEW'] = "Установить из Маркет
 $MESS ['SALE_SDL_MARKETPLACE_ADD_NEW_ALT'] = "Нажмите для установки из Маркетплейс";
 $MESS ['SALE_SDL_VAT_ID'] = "Ставка НДС";
 $MESS ['SALE_SDL_NO_VAT'] = "Без НДС";
+$MESS ['SALE_SDL_UPPER_LEVELL'] = "Без группы";
+$MESS ['SALE_SDL_LOCATION_NOTE'] = "Расчёт стоимости доставки может быть некорректен, так как в #A1#настройках модуля#A2# \"Интернет-магазин\" не задано местоположение";
 ?>

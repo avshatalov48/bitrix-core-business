@@ -75,7 +75,7 @@ class SenderConnectorResultListComponent extends CBitrixComponent
 		if ($this->arParams['SET_TITLE'])
 		{
 			/**@var CAllMain*/
-			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_CONTACT_LIST_TITLE'));
+			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_CONTACT_LIST_TITLE1'));
 		}
 
 		if (!$this->arParams['CAN_VIEW'])
@@ -100,7 +100,7 @@ class SenderConnectorResultListComponent extends CBitrixComponent
 		*/
 		$endpoint = $this->arParams['ENDPOINT'];
 		$connector = Connector\Manager::getConnector($this->arParams['ENDPOINT']);
-		if (!$connector->isResultViewable())
+		if (!$connector || !$connector->isResultViewable())
 		{
 			$this->errors->setError(new Error('Unsupportable connector.'));
 			return false;

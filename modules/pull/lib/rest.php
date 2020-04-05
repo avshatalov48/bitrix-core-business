@@ -16,7 +16,8 @@ class Rest extends \IRestService
 		return array(
 			'pull' => array(
 				'pull.application.config.get' =>  array('callback' => array(__CLASS__, 'applicationConfigGet'), 'options' => array('private' => true)),
-
+				'pull.channel.public.get' =>  array('callback' => array(__CLASS__, 'channelPublicGet'), 'options' => array()),
+				'pull.channel.public.list' =>  array('callback' => array(__CLASS__, 'channelPublicList'), 'options' => array()),
 				'pull.watch.extend' =>  array('callback' => array(__CLASS__, 'watchExtend'), 'options' => array()),
 			),
 			'pull_channel' => array(
@@ -39,6 +40,87 @@ class Rest extends \IRestService
 		);
 	}
 
+	public static function channelPublicGet($params, $n, \CRestServer $server)
+	{
+		$params = array_change_key_case($params, CASE_UPPER);
+
+		$type = \CPullChannel::TYPE_PRIVATE;
+		if ($params['APPLICATION'] == 'Y')
+		{
+			$clientId = $server->getClientId();
+			if (!$clientId)
+			{
+				throw new \Bitrix\Rest\RestException("Get application public channel available only for application authorization.", "WRONG_AUTH_TYPE", \CRestServer::STATUS_WRONG_REQUEST);
+			}
+			$type = $clientId;
+		}
+
+		$userId = intval($params['USER_ID']);
+
+		$configParams = Array();
+		$configParams['TYPE'] = $type;
+		$configParams['USER_ID'] = $userId;
+		$configParams['JSON'] = true;
+
+		$config = \Bitrix\Pull\Channel::getPublicId($configParams);
+		if (!$config)
+		{
+			throw new \Bitrix\Rest\RestException("Push & Pull server is not configured", "SERVER_ERROR", \CRestServer::STATUS_INTERNAL);
+		}
+
+		return $config;
+	}
+
+	public static function channelPublicList($params, $n, \CRestServer $server)
+	{
+		$params = array_change_key_case($params, CASE_UPPER);
+
+		$type = \CPullChannel::TYPE_PRIVATE;
+		if ($params['APPLICATION'] == 'Y')
+		{
+			$clientId = $server->getClientId();
+			if (!$clientId)
+			{
+				throw new \Bitrix\Rest\RestException("Get application public channel available only for application authorization.", "WRONG_AUTH_TYPE", \CRestServer::STATUS_WRONG_REQUEST);
+			}
+			$type = $clientId;
+		}
+
+		$users = Array();
+		if (is_string($params['USERS']))
+		{
+			$params['USERS'] = \CUtil::JsObjectToPhp($params['USERS']);
+		}
+		if (is_array($params['USERS']))
+		{
+			foreach ($params['USERS'] as $userId)
+			{
+				$userId = intval($userId);
+				if ($userId > 0)
+				{
+					$users[$userId] = $userId;
+				}
+			}
+		}
+
+		if (empty($users))
+		{
+			throw new \Bitrix\Rest\RestException("A wrong format for the USERS field is passed", "INVALID_FORMAT", \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$configParams = Array();
+		$configParams['TYPE'] = $type;
+		$configParams['USERS'] = $users;
+		$configParams['JSON'] = true;
+
+		$config = \Bitrix\Pull\Channel::getPublicIds($configParams);
+		if (!$config)
+		{
+			throw new \Bitrix\Rest\RestException("Push & Pull server is not configured", "SERVER_ERROR", \CRestServer::STATUS_INTERNAL);
+		}
+
+		return $config;
+	}
 
 	public static function applicationConfigGet($params, $n, \CRestServer $server)
 	{
@@ -69,17 +151,15 @@ class Rest extends \IRestService
 	{
 		$params = array_change_key_case($params, CASE_UPPER);
 
-		if (!method_exists('CRestServer', 'getAuthType'))
+		if ($server->getAuthType() === \Bitrix\Rest\OAuth\Auth::AUTH_TYPE)
 		{
-			throw new \Bitrix\Rest\RestException("Please install rest 17.5.0 for use this method.", "NEED_UPDATE", \CRestServer::STATUS_INTERNAL);
+			throw new \Bitrix\Rest\RestException("Method not available for OAuth authorization.", "WRONG_AUTH_TYPE", \CRestServer::STATUS_FORBIDDEN);
 		}
 
-		if (!in_array($server->getAuthType(), Array(
-			\Bitrix\Rest\SessionAuth\Auth::AUTH_TYPE,
-			\Bitrix\Rest\APAuth\Auth::AUTH_TYPE
-		)))
+		global $USER;
+		if (!$USER->IsAuthorized())
 		{
-			throw new \Bitrix\Rest\RestException("Get access to Push & Pull config available only for session or webhook authorization.", "WRONG_AUTH_TYPE", \CRestServer::STATUS_FORBIDDEN);
+			throw new \Bitrix\Rest\RestException("Method not available for guest session at the moment.", "AUTHORIZE_ERROR", \CRestServer::STATUS_FORBIDDEN);
 		}
 
 		$configParams = Array();

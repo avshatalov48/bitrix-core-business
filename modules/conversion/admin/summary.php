@@ -164,6 +164,15 @@ CJSCore::Init(array('amcharts', 'amcharts_serial'));
 
 function conversion_renderRate(array $rate, array $rateType)
 {
+	if (isset($rateType['UNITS']['SUM']))
+	{
+		$sanitizer = new \CBXSanitizer();
+		$sanitizer->delAllTags();
+		$sanitizer->addTags(array(array()));
+
+		$rateType['UNITS']['SUM'] = $sanitizer->sanitizeHtml($rateType['UNITS']['SUM']);
+	}
+
 	?>
 	<div class="stat-item">
 		<span class="stat-item-subtitle"><?=$rateType['NAME']?></span>
@@ -182,7 +191,7 @@ function conversion_renderRate(array $rate, array $rateType)
 					?>
 					<span class="stat-item-block-title"><?=Loc::getMessage('CONVERSION_SALE_RATE_SUM')?></span>
 					<span class="stat-item-block-digit"><?=number_format($rate['SUM'])?>
-						<span><? if (isset($rateType['UNITS']['SUM'])) echo htmlspecialcharsbx($rateType['UNITS']['SUM']); ?></span>
+						<span><? if (isset($rateType['UNITS']['SUM'])) echo $rateType['UNITS']['SUM']; ?></span>
 					</span>
 					<?
 				}
@@ -352,11 +361,11 @@ Bitrix\Conversion\AdminHelpers\renderFilter($filter);
 
 					foreach ($sites as $id => $name)
 					{
-						$menuItems[$name] = array_merge($filter, array('site' => $id));
+						$menuItems[sprintf('%s (%s)', $name, $id)] = array_merge($filter, array('site' => $id));
 					}
 
 					Bitrix\Conversion\AdminHelpers\renderScale(array(
-						'SITE_NAME'  => $siteName,
+						'SITE_NAME'  => sprintf('%s (%s)', $siteName, $site),
 						'SITE_MENU'  => $menuItems,
 						'CONVERSION' => $totalTopConversion,
 						'SCALE'      => $scale,

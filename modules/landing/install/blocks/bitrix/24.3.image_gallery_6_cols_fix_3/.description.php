@@ -44,7 +44,7 @@ return array(
 			'nodes' => array(
 				'.landing-block-node-card' => array(
 					'name' => Loc::getMessage('LANDING_BLOCK_24.3.IMAGE_GALLERY_6_COLS_FIX_3_NODES_LANDINGBLOCKNODEIMG'),
-					'type' => array('columns')
+					'type' => array('columns', 'align-items')
 				),
 			),
 		),

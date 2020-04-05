@@ -7,6 +7,7 @@ use Bitrix\Main\Error;
 
 use Bitrix\Sender\Preset;
 use Bitrix\Sender\Security;
+use Bitrix\Sender\Integration;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -22,7 +23,7 @@ class SenderAdsComponent extends CBitrixComponent
 
 	protected function checkRequiredParams()
 	{
-		return true;
+		return Integration\Bitrix24\Service::isAvailable();
 	}
 
 	protected function initParams()
@@ -119,7 +120,8 @@ class SenderAdsComponent extends CBitrixComponent
 				$key = 'PATH_TO_'.strtoupper($url);
 				$value = substr($value, 0, -1);
 				$value = str_replace('/', '&ID=', $value);
-				$this->arResult[$key] = $APPLICATION->GetCurPage() . "?$value";
+				$lang = isset($_REQUEST['lang']) ? $_REQUEST['lang'] : null;
+				$this->arResult[$key] = $APPLICATION->GetCurPage() . "?$value" . ($lang ? "&lang=$lang" : '');
 			}
 		}
 

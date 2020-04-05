@@ -22,3 +22,5 @@ $MESS["SALE_DLVRS_ADD_PCONFIG_RECEIVE_ERROR"] = "Ошибка получения
 $MESS["SALE_DLVRS_ADD_LICENSE_WRONG"] = "В связи с тем, что лицензия недействительна, функциональность обработчика ограничена";
 $MESS["SALE_DLVRS_ADD_LIST_RECEIVE_ERROR"] = "Ошибка получения списка служб доставок";
 $MESS["SALE_DLVRS_ADD_LIST_LICENSE_WRONG"] = "В связи с тем, что лицензия недействительна, некоторые службы доставки недоступны для добавления";
+$MESS["SALE_DLVRS_ADD_SP_SAVE"] = "Сохранить";
+$MESS["SALE_DLVRS_ADD_SP_CHOOSE_TITLE"] = "Выбор точки сдачи";

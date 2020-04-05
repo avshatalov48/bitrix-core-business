@@ -23,7 +23,13 @@ class CBPLogActivity
 
 	public function Execute()
 	{
-		$this->WriteToTrackingService($this->Text, 0, CBPTrackingType::Report);
+		$message = $this->Text;
+		if (is_array($message))
+		{
+			$message = implode(', ', \CBPHelper::MakeArrayFlat($message));
+		}
+
+		$this->WriteToTrackingService($message, 0, CBPTrackingType::Report);
 
 		if ($this->SetVariable)
 		{
@@ -60,11 +66,6 @@ class CBPLogActivity
 	{
 		$runtime = CBPRuntime::GetRuntime();
 
-		if (!is_array($arWorkflowParameters))
-			$arWorkflowParameters = array();
-		if (!is_array($arWorkflowVariables))
-			$arWorkflowVariables = array();
-
 		if (!is_array($arCurrentValues))
 		{
 			$arCurrentValues = array("text" => "", "set_variable" => "N");
@@ -87,25 +88,23 @@ class CBPLogActivity
 		);
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$arErrors)
+	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$errors)
 	{
-		$arErrors = array();
-
-		$runtime = CBPRuntime::GetRuntime();
-
-		$arProperties = array(
+		$errors = [];
+		$properties = array(
 			"Text" => $arCurrentValues["text"],
-			"SetVariable" => ((strtoupper($arCurrentValues["set_variable"]) == "Y") ? true : false)
+			"SetVariable" => (strtoupper($arCurrentValues["set_variable"]) === 'Y')
 		);
 
-		$arErrors = self::ValidateProperties($arProperties, new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser));
-		if (count($arErrors) > 0)
+		$errors = self::ValidateProperties($properties, new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser));
+		if (count($errors) > 0)
+		{
 			return false;
+		}
 
-		$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-		$arCurrentActivity["Properties"] = $arProperties;
+		$currentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
+		$currentActivity["Properties"] = $properties;
 
 		return true;
 	}
 }
-?>

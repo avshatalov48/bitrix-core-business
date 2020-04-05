@@ -98,6 +98,7 @@
 				data: data
 			};
 
+		this.parent.disableCheckAllCheckboxes();
 		BX.onCustomEvent(
 			window,
 			"Grid::beforeRequest",
@@ -159,6 +160,7 @@
 
 					if (BX.type.isFunction(then))
 					{
+						self.parent.enableCheckAllCheckboxes();
 						BX.delegate(then, self)(response, xhr);
 					}
 				},
@@ -168,6 +170,7 @@
 
 					if (BX.type.isFunction(error))
 					{
+						self.parent.enableCheckAllCheckboxes();
 						BX.delegate(error, self)(xhr, err);
 					}
 				}

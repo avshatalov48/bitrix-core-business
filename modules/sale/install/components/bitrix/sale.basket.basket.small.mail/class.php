@@ -11,7 +11,16 @@ class CBitrixBasketBasketSmallMailComponent extends CBitrixBasketComponent
 
 	public function onPrepareComponentParams($params)
 	{
+		$columnList = $params['COLUMNS_LIST'];
+		foreach ($columnList as $column)
+		{
+			if (strpos($column, "_FORMATED"))
+			{
+				$columnList[] = str_replace("_FORMATED", '', $column);
+			}
+		}
 		$params = parent::onPrepareComponentParams($params);
+		$this->columns = $columnList;
 
 		$this->userId = (int)$params["USER_ID"];
 
@@ -25,6 +34,12 @@ class CBitrixBasketBasketSmallMailComponent extends CBitrixBasketComponent
 		}
 
 		$params['COMPATIBLE_MODE'] = 'Y';
+
+		if (!$this->getSiteId())
+		{
+			$siteId = isset($params["LID"]) ? $params["LID"] : \CSite::GetDefSite();
+			$this->setSiteId($siteId);
+		}
 
 		return $params;
 	}

@@ -121,7 +121,6 @@ BX.ImMobile = function(params)
 		'desktopClass': this.desktop,
 		'phoneEnabled': false,
 		'mobileSupport': false,
-		'phoneSipAvailable': 0,
 		'phoneDeviceActive':'N',
 		'phoneDeviceCall': 'Y',
 		'phoneCrm': {},
@@ -1410,7 +1409,7 @@ BX.ImMessengerMobile = function(BXIM, params)
 	this.popupMessengerSendingTimeout = {};
 
 	this.sendAjaxTry = 0;
-	this.updateStateStepDefault = this.BXIM.ppStatus? parseInt(params.updateStateInterval): 60;
+	this.updateStateStepDefault = this.BXIM.ppServerStatus? parseInt(params.updateStateInterval): 60;
 	this.updateStateStep = this.updateStateStepDefault;
 	this.updateStateTimeout = null;
 
@@ -1536,7 +1535,7 @@ BX.ImMessengerMobile = function(BXIM, params)
 	this.redrawContactListTimeout = {};
 	this.redrawRecentListTimeout = null;
 
-	this.enableGroupChat = this.BXIM.ppStatus? true: false;
+	this.enableGroupChat = this.BXIM.ppServerStatus? true: false;
 
 	this.historySearch = '';
 	this.historyOpenPage = {};
@@ -3246,7 +3245,7 @@ BX.ImDiskManagerMobile.prototype.uploadFromMobile = function(image, text)
 {
 	var imageType = imageType? imageType: 'jpg';
 	var dataBlob = BX.UploaderUtils.dataURLToBlob("data:image/"+imageType+";base64,"+image);
-	dataBlob.name = 'mobile_'+BX.date.format("Ymd_His")+'.'+imageType;
+	dataBlob.name = 'mobile_'+BX.Main.Date.format("Ymd_His")+'.'+imageType;
 	this.formAgents['imDialog'].messageText = text? text: '';
 	this.formAgents['imDialog'].onChange([dataBlob]);
 };
@@ -3510,7 +3509,6 @@ BX.ImWebRTCMobile = function(rootObject, params)
 	this.phoneHolded = false;
 	this.phoneRinging = 0;
 	this.phoneTransferEnabled = false;
-	this.phoneTransferUser = 0;
 	this.phoneConnectedInterval = null;
 	this.phoneDeviceDelayTimeout = null;
 	this.callNotify = null;
@@ -3531,7 +3529,6 @@ BX.ImWebRTCMobile = function(rootObject, params)
 	this.turnServerPassword = params.turnServerPassword;
 
 	this.phoneEnabled = params.phoneEnabled;
-	this.phoneSipAvailable = params.phoneSipAvailable;
 	this.phoneDeviceActive = params.phoneDeviceActive == 'Y';
 	this.phoneCallerID = '';
 	this.phoneLogin = "";
@@ -3602,7 +3599,6 @@ BX.ImWebRTCMobile.prototype.init = function(params)
 
 	this.phoneEnabled = params.webrtc && params.webrtc.phoneEnabled || false;
 	this.mobileSupport = params.webrtc && params.webrtc.mobileSupport || false;
-	this.phoneSipAvailable = params.webrtc && params.webrtc.phoneSipAvailable || 0;
 	this.phoneDeviceActive = params.webrtc && params.webrtc.phoneDeviceActive || 'N';
 	this.phoneDeviceCall = params.webrtc && params.webrtc.phoneDeviceCall || 'Y';
 	this.phoneCrm = params.phoneCrm && params.phoneCrm || {};

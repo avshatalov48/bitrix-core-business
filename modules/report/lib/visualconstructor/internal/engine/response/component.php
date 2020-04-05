@@ -7,6 +7,7 @@ use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Errorable;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Page\AssetMode;
+use Bitrix\Main\Web\HttpHeaders;
 
 /**
  * Response type for rendering ajax components from action
@@ -20,6 +21,8 @@ final class Component extends Json implements Errorable
 
 	private $jsPathList = array();
 	private $cssPathList = array();
+	private $stringPathList = array();
+
 	/**
 	 * @var string
 	 */
@@ -38,12 +41,13 @@ final class Component extends Json implements Errorable
 	 * @param array $params
 	 * @param array $parentComponent
 	 * @param array $functionParams
+	 * @param array $additionalResponseParams
 	 * @param string $status
 	 * @param ErrorCollection|null $errorCollection
 	 */
-	public function __construct($componentName, $templateName = '', $params = array(), $parentComponent = array(), $functionParams = array(), $status = self::STATUS_SUCCESS, ErrorCollection $errorCollection = null)
+	public function __construct($componentName, $templateName = '', $params = array(), $additionalResponseParams = array(), $parentComponent = array(), $functionParams = array(), $status = self::STATUS_SUCCESS, ErrorCollection $errorCollection = null)
 	{
-
+		$this->setHeaders(new HttpHeaders());
 		global $APPLICATION;
 		ob_start();
 		$APPLICATION->IncludeComponent(
@@ -67,8 +71,10 @@ final class Component extends Json implements Errorable
 			'data' => $componentContent,
 			'assets' => array(
 				'js' => $this->getJsList(),
-				'css' => $this->getCssList()
+				'css' => $this->getCssList(),
+				'string' => $this->getStringList()
 			),
+			'additionalParams' => $additionalResponseParams,
 			'errors' => $this->getErrorsToResponse(),
 		));
 	}
@@ -118,6 +124,32 @@ final class Component extends Json implements Errorable
 		}
 
 		return $cssList;
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getStringList()
+	{
+		$stringList = array();
+		foreach($this->cssPathList as $targetAsset)
+		{
+			$assetInfo = Asset::getInstance()->getAssetInfo($targetAsset['NAME'], AssetMode::ALL);
+			if (!empty($assetInfo['STRINGS']))
+			{
+				$stringList = array_merge($stringList, $assetInfo['STRINGS']);
+			}
+		}
+
+		foreach($this->jsPathList as $targetAsset)
+		{
+			$assetInfo = Asset::getInstance()->getAssetInfo($targetAsset['NAME'], AssetMode::ALL);
+			if (!empty($assetInfo['STRINGS']))
+			{
+				$stringList = array_merge($stringList, $assetInfo['STRINGS']);
+			}
+		}
+		return $stringList;
 	}
 
 	/**

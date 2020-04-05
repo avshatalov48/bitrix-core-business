@@ -315,27 +315,7 @@ if($this->StartResultCache(false, array($arrFilter, CDBResult::NavStringForCache
 	$rsSections->SetUrlTemplates("", $arParams["SECTION_URL"]);
 	while($arSection = $rsSections->GetNext())
 	{
-		$ipropValues = new \Bitrix\Iblock\InheritedProperty\SectionValues($arResult["IBLOCK_ID"], $arResult["ID"]);
-		$arSection["IPROPERTY_VALUES"] = $ipropValues->getValues();
-
-		if(isset($arSection["PICTURE"]))
-		{
-			$arSection["PICTURE"] = CFile::GetFileArray($arSection["PICTURE"]);
-			if ($arSection["PICTURE"])
-			{
-				$arSection["PICTURE"]["ALT"] = $arSection["IPROPERTY_VALUES"]["SECTION_PICTURE_FILE_ALT"];
-				$arSection["PICTURE"]["TITLE"] = $arSection["IPROPERTY_VALUES"]["SECTION_PICTURE_FILE_TITLE"];
-			}
-		}
-		if(isset($arSection["DETAIL_PICTURE"]))
-		{
-			$arSection["DETAIL_PICTURE"] = CFile::GetFileArray($arSection["DETAIL_PICTURE"]);
-			if ($arSection["DETAIL_PICTURE"])
-			{
-				$arSection["DETAIL_PICTURE"]["ALT"] = $arSection["IPROPERTY_VALUES"]["SECTION_DETAIL_PICTURE_FILE_ALT"];
-				$arSection["DETAIL_PICTURE"]["TITLE"] = $arSection["IPROPERTY_VALUES"]["SECTION_DETAIL_PICTURE_FILE_TITLE"];
-			}
-		}
+		\Bitrix\Iblock\InheritedProperty\SectionValues::queue($arSection["IBLOCK_ID"], $arSection["ID"]);
 
 		// list of the element fields that will be used in selection
 		$arSelect = array(
@@ -428,29 +408,7 @@ if($this->StartResultCache(false, array($arrFilter, CDBResult::NavStringForCache
 			$arItem["EDIT_LINK"] = $arButtons["edit"]["edit_element"]["ACTION_URL"];
 			$arItem["DELETE_LINK"] = $arButtons["edit"]["delete_element"]["ACTION_URL"];
 
-			$ipropValues = new \Bitrix\Iblock\InheritedProperty\ElementValues($arItem["IBLOCK_ID"], $arItem["ID"]);
-			$arItem["IPROPERTY_VALUES"] = $ipropValues->getValues();
-
-			$arItem["PREVIEW_PICTURE"] = (0 < $arItem["PREVIEW_PICTURE"] ? CFile::GetFileArray($arItem["PREVIEW_PICTURE"]) : false);
-			if ($arItem["PREVIEW_PICTURE"])
-			{
-				$arItem["PREVIEW_PICTURE"]["ALT"] = $arItem["IPROPERTY_VALUES"]["ELEMENT_PREVIEW_PICTURE_FILE_ALT"];
-				if ($arItem["PREVIEW_PICTURE"]["ALT"] == "")
-					$arItem["PREVIEW_PICTURE"]["ALT"] = $arItem["NAME"];
-				$arItem["PREVIEW_PICTURE"]["TITLE"] = $arItem["IPROPERTY_VALUES"]["ELEMENT_PREVIEW_PICTURE_FILE_TITLE"];
-				if ($arItem["PREVIEW_PICTURE"]["TITLE"] == "")
-					$arItem["PREVIEW_PICTURE"]["TITLE"] = $arItem["NAME"];
-			}
-			$arItem["DETAIL_PICTURE"] = (0 < $arItem["DETAIL_PICTURE"] ? CFile::GetFileArray($arItem["DETAIL_PICTURE"]) : false);
-			if ($arItem["DETAIL_PICTURE"])
-			{
-				$arItem["DETAIL_PICTURE"]["ALT"] = $arItem["IPROPERTY_VALUES"]["ELEMENT_DETAIL_PICTURE_FILE_ALT"];
-				if ($arItem["DETAIL_PICTURE"]["ALT"] == "")
-					$arItem["DETAIL_PICTURE"]["ALT"] = $arItem["NAME"];
-				$arItem["DETAIL_PICTURE"]["TITLE"] = $arItem["IPROPERTY_VALUES"]["ELEMENT_DETAIL_PICTURE_FILE_TITLE"];
-				if ($arItem["DETAIL_PICTURE"]["TITLE"] == "")
-					$arItem["DETAIL_PICTURE"]["TITLE"] = $arItem["NAME"];
-			}
+			\Bitrix\Iblock\InheritedProperty\ElementValues::queue($arItem["IBLOCK_ID"], $arItem["ID"]);
 
 			$arItem["PROPERTIES"] = array();
 			if ($bGetProperties)
@@ -540,6 +498,33 @@ if($this->StartResultCache(false, array($arrFilter, CDBResult::NavStringForCache
 		if(count($arResult["SECTIONS"])>=$arParams["SECTION_COUNT"])
 			break;
 	}
+
+	foreach ($arResult["SECTIONS"] as &$arSection)
+	{
+		$ipropValues = new \Bitrix\Iblock\InheritedProperty\SectionValues($arSection["IBLOCK_ID"], $arSection["ID"]);
+		$arSection["IPROPERTY_VALUES"] = $ipropValues->getValues();
+
+		\Bitrix\Iblock\Component\Tools::getFieldImageData(
+			$arSection,
+			array('PICTURE', 'DETAIL_PICTURE'),
+			\Bitrix\Iblock\Component\Tools::IPROPERTY_ENTITY_SECTION,
+			'IPROPERTY_VALUES'
+		);
+
+		foreach($arSection["ITEMS"] as &$arItem)
+		{
+			$ipropValues = new \Bitrix\Iblock\InheritedProperty\ElementValues($arItem["IBLOCK_ID"], $arItem["ID"]);
+			$arItem["IPROPERTY_VALUES"] = $ipropValues->getValues();
+			\Bitrix\Iblock\Component\Tools::getFieldImageData(
+				$arItem,
+				array('PREVIEW_PICTURE', 'DETAIL_PICTURE'),
+				\Bitrix\Iblock\Component\Tools::IPROPERTY_ENTITY_ELEMENT,
+				'IPROPERTY_VALUES'
+			);
+		}
+		unset($arItem);
+	}
+	unset($arSection);
 
 	if (
 		'Y' == $arParams['CONVERT_CURRENCY']

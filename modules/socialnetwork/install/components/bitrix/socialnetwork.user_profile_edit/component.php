@@ -108,6 +108,17 @@ $arResult["bEdit"] = (
 		: "N"
 );
 
+//check integrator for cloud
+if (
+	CModule::IncludeModule("bitrix24")
+	&& $arResult["User"]["ID"] != $USER->GetID()
+	&& \CBitrix24::isIntegrator($USER->GetID())
+	&& \CBitrix24::IsPortalAdmin($arResult["User"]["ID"])
+)
+{
+	$arResult["bEdit"] = "N";
+}
+
 if ($arResult['bEdit'] != 'Y')
 {
 	$APPLICATION->AuthForm(GetMessage('SONET_P_PU_NO_RIGHTS'));
@@ -345,20 +356,42 @@ else
 			\Bitrix\Main\Loader::includeModule("bitrix24")
 			&& \CBitrix24::IsPortalAdmin($USER->GetID())
 			&& $USER->GetID() != $arResult["User"]['ID']
+			&& !( // not extranet
+				!is_array($arResult["User"]['UF_DEPARTMENT'])
+				|| empty($arResult["User"]['UF_DEPARTMENT'][0])
+			)
+			&& $arResult["User"]['ACTIVE'] == "Y"
 		)
 		{
 			//moving admin rights to another user
 			if (
 				!\CBitrix24::IsPortalAdmin($arResult["User"]['ID'])
 				&& $_POST["IS_ADMIN"] == "Y"
-				&& $arResult["User"]['ACTIVE'] == "Y"
 				&& !CBitrix24::isMoreAdminAvailable()
 			)
 			{
 				$removeAdminRights = true;
 			}
+			
+			$curUserGroups = CUser::GetUserGroup($arResult["User"]['ID']);
+			foreach ($curUserGroups as $groupKey => $group)
+			{
+				if ($group == 1 || $group == 12 || $group == 11)
+				{
+					unset($curUserGroups[$groupKey]);
+				}
+			}
+			if ($_POST["IS_ADMIN"] == "Y")
+			{
+				$curUserGroups[] = "1";
+				$curUserGroups[] = "12";
+			}
+			else
+			{
+				$curUserGroups[] = "11";
+			}
 
-			$arFieldsValue["GROUP_ID"] = $_POST["IS_ADMIN"] == "Y" ? array(1, 3, 4, 12) : array(3, 4, 11);
+			$arFieldsValue["GROUP_ID"] = $curUserGroups;
 		}
 
 		//time zones
@@ -526,18 +559,19 @@ else
 
 	if (CModule::IncludeModule('mail'))
 	{
-		$dbMailbox = CMailbox::getList(
-			array(
-				'TIMESTAMP_X' => 'DESC'
+		$dbMailbox = \Bitrix\Mail\MailboxTable::getList(array(
+			'filter' => array(
+				'=LID' => SITE_ID,
+				'=ACTIVE' => 'Y',
+				'=USER_ID' => $arParams['ID'],
+				'=SERVER_TYPE' => 'imap',
 			),
-			array(
-				'LID'     => SITE_ID,
-				'ACTIVE'  => 'Y',
-				'USER_ID' => intval($arParams['ID']),
-				'SERVER_TYPE' => 'imap|controller|domain'
-			)
-		);
+			'order' => array(
+				'TIMESTAMP_X' => 'DESC',
+			),
+		));
 		$mailbox = $dbMailbox->fetch();
+		\Bitrix\Mail\MailboxTable::normalizeEmail($mailbox);
 		if (strpos($mailbox['LOGIN'], '@') !== false)
 			$arResult['User']['MAILBOX'] = $mailbox['LOGIN'];
 	}

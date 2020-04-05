@@ -1,12 +1,13 @@
 __bitrixSalePush = function(params) {
 
 	for(var key in params)
-		this[key] = params[key];
+		if(params.hasOwnProperty(key))
+			this[key] = params[key];
 };
 
 __bitrixSalePush.prototype.close = function()
 {
-		app.closeController({drop: true});
+	app.closeController({drop: true});
 };
 
 __bitrixSalePush.prototype.getSubs = function()
@@ -31,10 +32,15 @@ __bitrixSalePush.prototype.getSubs = function()
 	return result;
 };
 
+__bitrixSalePush.prototype.toggleSubsBlock = function()
+{
+	var subs = BX("subs_items_block_id");
+	subs.style.display = subs.style.display === "none" ? "" : "none";
+};
+
 __bitrixSalePush.prototype.save = function()
 {
-	var subs = this.getSubs(),
-		_this = this;
+	var subs = this.getSubs();
 
 	var postData = {
 		subs: subs,

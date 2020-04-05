@@ -61,11 +61,15 @@ class CommandLangTable extends Main\Entity\DataManager
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateTitle'),
 				'title' => Loc::getMessage('COMMAND_LANG_ENTITY_TITLE_FIELD'),
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'PARAMS' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateParams'),
 				'title' => Loc::getMessage('COMMAND_LANG_ENTITY_PARAMS_FIELD'),
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 		);
 	}

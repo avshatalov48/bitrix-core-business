@@ -8,8 +8,11 @@
 namespace Bitrix\Sender\Entity;
 
 use Bitrix\Main\Application;
+use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Sender\ContactTable;
+use Bitrix\Sender\ListTable;
 use Bitrix\Sender\GroupTable;
 use Bitrix\Sender\GroupConnectorTable;
 use Bitrix\Sender\Connector;
@@ -178,7 +181,9 @@ class Segment extends Base
 	}
 
 	/**
-	 * Is hidden.
+	 * Return true if segment is hidden.
+	 *
+	 * @return bool
 	 */
 	public function isHidden()
 	{
@@ -186,11 +191,13 @@ class Segment extends Base
 	}
 
 	/**
-	 * Is hidden.
+	 * Return true if segment is system.
+	 *
+	 * @return bool
 	 */
 	public function isSystem()
 	{
-		return $this->get('SYSTEM') === 'Y';
+		return $this->get('IS_SYSTEM') === 'Y';
 	}
 
 	/**
@@ -212,6 +219,91 @@ class Segment extends Base
 	public function setFilterOnlyMode($mode = true)
 	{
 		$this->isFilterOnly = $mode;
+		return $this;
+	}
+
+	/**
+	 * Append contact set connector.
+	 *
+	 * @param int|null $contactSetId Contact set ID.
+	 * @return $this
+	 */
+	public function appendContactSetConnector($contactSetId = null)
+	{
+		if ($this->getFirstContactSetId())
+		{
+			return $this;
+		}
+
+		if (!$contactSetId)
+		{
+			$contactSetId = ListTable::add(['SORT' => 100])->getId();
+		}
+		elseif (!ListTable::getRowById($contactSetId))
+		{
+			$this->errors->setError(new Error('Wrong contact set ID.'));
+			return $this;
+		}
+
+		$this->data['ENDPOINTS'][] = [
+			'MODULE_ID' => 'sender',
+			'CODE' => 'contact_list',
+			'FIELDS' => [
+				'LIST_ID' => $contactSetId,
+				'SENDER_SELECT_ALL' => null,
+			],
+		];
+		return $this;
+	}
+
+	/**
+	 * Return fisrt contact set ID from in segment.
+	 *
+	 * @return int|null
+	 */
+	protected function getFirstContactSetId()
+	{
+		foreach ($this->data['ENDPOINTS'] as $endpoint)
+		{
+			if ($endpoint['MODULE_ID'] !== 'sender' || $endpoint['CODE'] !== 'contact_list')
+			{
+				continue;
+			}
+
+			if (empty($endpoint['FIELDS']['LIST_ID']))
+			{
+				continue;
+			}
+
+			return $endpoint['FIELDS']['LIST_ID'];
+		}
+
+		return null;
+	}
+
+	/**
+	 * Upload.
+	 *
+	 * @param array $list List of emails and phones.
+	 * @return $this
+	 */
+	public function upload(array $list)
+	{
+		$contactSetId = $this->getFirstContactSetId();
+		if (!$contactSetId)
+		{
+			$this->appendContactSetConnector()->save();
+		}
+
+		$contactSetId = $this->getFirstContactSetId();
+		if (!$contactSetId)
+		{
+			$this->errors->setError(new Error('Contact set not found.'));
+			return $this;
+		}
+
+		ContactTable::upload($list, false, $contactSetId);
+
 		return $this;
 	}
 
@@ -253,7 +345,7 @@ class Segment extends Base
 			return false;
 		}
 
-		GroupCounterTable::delete(array('GROUP_ID' => $segmentId));
+		GroupCounterTable::deleteByGroupId($segmentId);
 		foreach ($countByType as $typeId => $typeCount)
 		{
 			if (!$typeCount)

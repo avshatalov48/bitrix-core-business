@@ -46,6 +46,11 @@ class ReportDispatcher implements IErrorable
 		else
 		{
 			$reportHandler = $this->getReport()->getReportHandler();
+			if (!$reportHandler->isEnabled())
+			{
+				return null;
+			}
+
 			$reportHandler->setView($this->getView());
 			if ($reportHandler instanceof Common::$reportImplementationTypesMap[$compatibleDataType]['interface'])
 			{

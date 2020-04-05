@@ -62,7 +62,7 @@ $containerId = 'sender-segment-selector';
 					<?=htmlspecialcharsbx($arParams['RECIPIENT_COUNT'])?>
 				</div>
 				<?if($arParams['IS_RECIPIENT_COUNT_EXACT']):?>
-					<div data-hint="<?=$getMessageLocal('SENDER_SEGMENT_SELECTOR_RECIPIENT_COUNT_EXACT_HINT')?>"></div>
+					<div data-hint="<?=$getMessageLocal('SENDER_SEGMENT_SELECTOR_RECIPIENT_COUNT_EXACT_HINT1')?>"></div>
 				<?else:?>
 					<div data-hint="<?=$getMessageLocal('SENDER_SEGMENT_SELECTOR_RECIPIENT_COUNT_HINT')?>"></div>
 				<?endif;?>

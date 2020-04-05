@@ -1,8 +1,8 @@
 (function() {
 
-	"use strict";
+	'use strict';
 
-	BX.namespace("BX.Landing.Component");
+	BX.namespace('BX.Landing.Component');
 
 	BX.Landing.Component.Demo = function(options)
 	{
@@ -18,6 +18,13 @@
 
 		this.createTileList();
 		this.bindTitle();
+
+		// event on app install
+		top.BX.addCustomEvent(
+			top,
+			'Rest:AppLayout:ApplicationInstall',
+			BX.delegate(this.appInstall, this)
+		);
 	};
 
 	BX.Landing.Component.Demo.prototype =
@@ -99,6 +106,11 @@
 
 				this.isShow = false;
 			}
+		},
+
+		appInstall: function(installed)
+		{
+			window.location.reload();
 		}
 	};
 

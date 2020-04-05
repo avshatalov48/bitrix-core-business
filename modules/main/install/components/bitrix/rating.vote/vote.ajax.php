@@ -40,10 +40,13 @@ if ($_POST['RATING_VOTE_LIST'] == 'Y'
 
 	$arResult = CRatings::GetRatingVoteList($ar);
 
-	if (!isset($_POST["PATH_TO_USER_PROFILE"]) || strlen($_POST["PATH_TO_USER_PROFILE"])==0)
+	if (empty($_POST["PATH_TO_USER_PROFILE"]))
+	{
 		$_POST["PATH_TO_USER_PROFILE"] = '/people/user/#USER_ID#/';
+	}
 
 	$arVoteList = array(
+		'items' => array(),
 		'items_all' => $arResult['items_all'],
 		'items_page' => $arResult['items_page'],
 		'reactions' => (isset($arResult['reactions']) && is_array($arResult['reactions']) ? $arResult['reactions'] : array())
@@ -138,7 +141,7 @@ else if ($_POST['RATING_VOTE'] == 'Y'
 				"USER_ID" => $USER->GetId(),
 				"REACTION" => ($_POST['RATING_VOTE_ACTION'] == 'plus' && !empty($_POST['RATING_VOTE_REACTION']) ? $_POST['RATING_VOTE_REACTION'] : \CAllRatings::REACTION_DEFAULT)
 			);
-			CRatings::AddRatingVote($arAdd);
+			$userData = CRatings::AddRatingVote($arAdd);
 			$action = $_POST['RATING_VOTE_ACTION'];
 		}
 		elseif ($_POST['RATING_VOTE_ACTION'] == 'change')
@@ -150,7 +153,7 @@ else if ($_POST['RATING_VOTE'] == 'Y'
 				"USER_ID" => $USER->GetId(),
 				"REACTION" => (!empty($_POST['RATING_VOTE_REACTION']) ? $_POST['RATING_VOTE_REACTION'] : \CAllRatings::REACTION_DEFAULT)
 			);
-			CRatings::ChangeRatingVote($arChange);
+			$userData = CRatings::ChangeRatingVote($arChange);
 			$action = $_POST['RATING_VOTE_ACTION'];
 		}
 		else if ($_POST['RATING_VOTE_ACTION'] == 'cancel')
@@ -160,7 +163,7 @@ else if ($_POST['RATING_VOTE'] == 'Y'
 				"ENTITY_ID" => intval($_POST['RATING_VOTE_ENTITY_ID']),
 				"USER_ID" => $USER->GetId(),
 			);
-			CRatings::CancelRatingVote($arCancel);
+			$userData = CRatings::CancelRatingVote($arCancel);
 			$action = $_POST['RATING_VOTE_ACTION'];
 		}
 		$ar = Array(
@@ -176,6 +179,7 @@ else if ($_POST['RATING_VOTE'] == 'Y'
 			$arVoteList = array_merge($arVoteList, $arVoteResult);
 		}
 		$arVoteList['action'] = $action;
+		$arVoteList['user_data'] = $userData;
 		Header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 		echo CUtil::PhpToJsObject($arVoteList);
 	}

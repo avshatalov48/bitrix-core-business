@@ -81,6 +81,11 @@ class FieldType
 	 */
 	const RENDER_MODE_MOBILE = 4;
 
+	/**
+	 * Control render mode - Automation designer
+	 */
+	const RENDER_MODE_PUBLIC = 8;
+
 	/** @var \Bitrix\Bizproc\BaseType\Base $typeClass */
 	protected $typeClass;
 
@@ -106,6 +111,14 @@ class FieldType
 
 		$this->typeClass = $typeClass;
 		$this->documentId = $documentId;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getProperty()
+	{
+		return $this->property;
 	}
 
 	/**
@@ -255,6 +268,22 @@ class FieldType
 	}
 
 	/**
+	 * @return null|string
+	 */
+	public function getName()
+	{
+		return $this->property['Name'];
+	}
+
+	/**
+	 * @return null|string
+	 */
+	public function getDescription()
+	{
+		return $this->property['Description'];
+	}
+
+	/**
 	 * @param mixed $value Field value.
 	 * @param string $format Format name.
 	 * @return mixed|null|string
@@ -382,17 +411,17 @@ class FieldType
 	public static function getBaseTypesMap()
 	{
 		return array(
-			static::BOOL => '\Bitrix\Bizproc\BaseType\BoolType',
-			static::DATE => '\Bitrix\Bizproc\BaseType\Date',
-			static::DATETIME => '\Bitrix\Bizproc\BaseType\Datetime',
-			static::DOUBLE => '\Bitrix\Bizproc\BaseType\Double',
-			static::FILE => '\Bitrix\Bizproc\BaseType\File',
-			static::INT => '\Bitrix\Bizproc\BaseType\IntType',
-			static::SELECT => '\Bitrix\Bizproc\BaseType\Select',
-			static::STRING => '\Bitrix\Bizproc\BaseType\StringType',
-			static::TEXT => '\Bitrix\Bizproc\BaseType\Text',
-			static::USER => '\Bitrix\Bizproc\BaseType\User',
-			static::INTERNALSELECT => '\Bitrix\Bizproc\BaseType\InternalSelect',
+			static::BOOL => BaseType\BoolType::class,
+			static::DATE => BaseType\Date::class,
+			static::DATETIME => BaseType\Datetime::class,
+			static::DOUBLE => BaseType\Double::class,
+			static::FILE => BaseType\File::class,
+			static::INT => BaseType\IntType::class,
+			static::SELECT => BaseType\Select::class,
+			static::STRING => BaseType\StringType::class,
+			static::TEXT => BaseType\Text::class,
+			static::USER => BaseType\User::class,
+			static::INTERNALSELECT => BaseType\InternalSelect::class,
 		);
 	}
 
@@ -403,7 +432,20 @@ class FieldType
 	 */
 	public static function normalizeProperty($property)
 	{
-		$normalized = array('Type' => null, 'Multiple' => false, 'Required' => false, 'Options' => null);
+		$normalized = [
+			'Type' => null,
+
+			'Name' => null,
+			'Description' => null,
+
+			'Multiple' => false,
+			'Required' => false,
+
+			'Options' => null,
+			'Settings' => null,
+			'Default' => null,
+		];
+
 		if (is_array($property))
 		{
 			foreach ($property as $key => $val)
@@ -416,11 +458,11 @@ class FieldType
 						break;
 					case 'MULTIPLE':
 					case '1':
-						$normalized['Multiple'] = (!$val || is_int($val) && ($val == 0) || (strtoupper($val) == 'N')) ? false : true;
+						$normalized['Multiple'] = \CBPHelper::getBool($val);
 						break;
 					case 'REQUIRED':
 					case '2':
-						$normalized['Required'] = (!$val || is_int($val) && ($val == 0) || (strtoupper($val) == 'N')) ? false : true;
+						$normalized['Required'] = \CBPHelper::getBool($val);
 						break;
 					case 'OPTIONS':
 					case '3':
@@ -434,11 +476,28 @@ class FieldType
 							}
 						}
 						break;
+					case 'NAME':
+						{
+							$normalized['Name'] = (string) $val;
+						}
+						break;
+					case 'DESCRIPTION':
+						{
+							$normalized['Description'] = (string) $val;
+						}
+						break;
+					case 'DEFAULT':
+						{
+							$normalized['Default'] = $val;
+						}
+						break;
 				}
 			}
 		}
 		else
+		{
 			$normalized['Type'] = (string) $property;
+		}
 
 		return $normalized;
 	}

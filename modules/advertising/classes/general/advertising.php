@@ -1178,6 +1178,8 @@ class CAdvContract_all
 					}
 				}
 
+				\Bitrix\Main\Type\Collection::normalizeArrayValuesByInt($arFilter['CONTRACT_ID']);
+
 				if (is_array($arFilter['CONTRACT_ID']) && !empty($arFilter['CONTRACT_ID']))
 				{
 					$arSqlSearch[] = CSQLWhere::_NumberIN("C.ID", $arFilter['CONTRACT_ID']);
@@ -1724,6 +1726,7 @@ class CAdvBanner_all
 	public static function CheckFields($arFields, $BANNER_ID, $CHECK_RIGHTS="Y")
 	{
 		global $strError;
+		$maxLongString = 65534;
 		$str = "";
 		if ($CHECK_RIGHTS=="Y")
 		{
@@ -1746,6 +1749,14 @@ class CAdvBanner_all
 		else
 		{
 			$CONTRACT_ID = intval($arFields["CONTRACT_ID"]);
+		}
+
+		if (in_array("TEMPLATE", $arrKeys))
+		{
+			if (strlen($arFields['TEMPLATE']) > $maxLongString)
+			{
+				$str.= GetMessage("AD_ERROR_LONG_STRING")."<br>";
+			}
 		}
 
 		if ($CONTRACT_ID>0)
@@ -4938,7 +4949,7 @@ class CAdvBanner_all
 
 	public static function GetStatList($by, $order, $arFilter)
 	{
-		$err_mess = (CAdvBanner::err_mess())."<br>Function: GetDynamicList<br>Line: ";
+		$err_mess = (CAdvBanner::err_mess())."<br>Function: GetStatList<br>Line: ";
 		global $DB;
 		$arSqlSearch = Array();
 		if (CAdvBanner::CheckDynamicFilter($arFilter))
@@ -4969,6 +4980,9 @@ class CAdvBanner_all
 							break;
 					}
 				}
+
+				\Bitrix\Main\Type\Collection::normalizeArrayValuesByInt($arFilter['BANNER_ID']);
+
 				if(!empty($arFilter['BANNER_ID']))
 				{
 					$arSqlSearch[] = CSQLWhere::_NumberIN("D.BANNER_ID", $arFilter['BANNER_ID']);

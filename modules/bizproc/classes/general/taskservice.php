@@ -240,10 +240,10 @@ class CBPAllTaskService
 		else
 		{
 			$query =
-				"SELECT WS.MODULE_ID AS MODULE_ID, WS.ENTITY AS ENTITY, COUNT('x') AS CNT ".
+				"SELECT WI.MODULE_ID AS MODULE_ID, WI.ENTITY AS ENTITY, COUNT('x') AS CNT ".
 				'FROM b_bp_task T '.
 				'	INNER JOIN b_bp_task_user TU ON (T.ID = TU.TASK_ID) '.
-				'	INNER JOIN b_bp_workflow_state WS ON (T.WORKFLOW_ID = WS.ID) '.
+				'	INNER JOIN b_bp_workflow_instance WI ON (T.WORKFLOW_ID = WI.ID) '.
 				'WHERE TU.STATUS = '.(int)CBPTaskUserStatus::Waiting.' '.
 				'	AND TU.USER_ID = '.(int)$userId.' '.
 				'GROUP BY MODULE_ID, ENTITY';
@@ -489,14 +489,17 @@ class CBPAllTaskService
 
 		$strUpdate = $DB->PrepareUpdate("b_bp_task", $arFields);
 
-		$strSql =
-			"UPDATE b_bp_task SET ".
-			"	".$strUpdate.", ".
-			"	MODIFIED = ".$DB->CurrentTimeFunction()." ".
-			"WHERE ID = ".intval($id)." ";
-		$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+		if ($strUpdate)
+		{
+			$strSql =
+				"UPDATE b_bp_task SET ".
+				"	".$strUpdate.", ".
+				"	MODIFIED = ".$DB->CurrentTimeFunction()." ".
+				"WHERE ID = ".intval($id)." ";
+			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+		}
 
-		$removedUsers = array();
+		$removedUsers = [];
 
 		if (is_set($arFields, "USERS"))
 		{

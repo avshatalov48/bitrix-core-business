@@ -1,0 +1,35 @@
+.feed-post-stub-block {
+	background-color: #f4fed5;
+	border-radius: 2px;
+	color: #535c69;
+	line-height: 24px;
+	margin: 12px 20px 0 0;
+	padding: 19px 19px 17px 21px;
+}
+
+.feed-post-stub-icon {
+	display: inline-block;
+	width: 21px;
+	height: 21px;
+	vertical-align: middle;
+}
+.feed-post-stub-icon-timeman-entry {
+	background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMSIgaGVpZ2h0PSIyMiIgdmlld0JveD0iMCAwIDIxIDIyIj4gIDxwYXRoIGZpbGw9IiM5RENGMDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIgZD0iTTEyLjAxMTI5MTgsMTAuNDI5MTIxIEwxNS40Mjc2NjEyLDEwLjQyOTEyMSBMMTUuNDI3NjYxMiwxMi43MDY3MDA2IEw5LjczMzcxMjE3LDEyLjcwNjcwMDYgTDkuNzMzNzEyMTcsNy4wMTI3NTE1NSBMMTIuMDExMjkxOCw3LjAxMjc1MTU1IEwxMi4wMTEyOTE4LDEwLjQyOTEyMSBMMTIuMDExMjkxOCwxMC40MjkxMjEgWiBNMTEuNTU3OTU4MiwyMS42MTM5MTE3IEM3LjI4NDI5NjQ3LDIxLjc4NDI5NTcgMy4zMzU4NTU1LDE5LjM0MDc0NyAxLjU4MTY5NTU3LDE1LjQzOTk2MDEgQy0wLjE3MjQ2NDM2MSwxMS41MzkxNzMzIDAuNjE5NjI2ODE3LDYuOTYzODM2MzUgMy41ODMwMTk1NiwzLjg3OTc2MTMxIEM2LjU0NjQxMjMsMC43OTU2ODYyNzYgMTEuMDg2NTA1NCwtMC4xNzgzMTA5NTUgMTUuMDU0MTcwMywxLjQxODgyNzQyIEMxOS4wMjE4MzUxLDMuMDE1OTY1OCAyMS42MjA5NjQ1LDYuODYzNzc1OSAyMS42MjEyMTczLDExLjE0MDgzMjcgQzIxLjczMTQ3ODIsMTYuODEwNjQ4NSAxNy4yMjc2NTg4LDIxLjQ5Nzg4MyAxMS41NTc5NTgyLDIxLjYxMzkxMTcgTDExLjU1Nzk1ODIsMjEuNjEzOTExNyBaIE0xMS40NTY4OTgxLDE5LjA3Mzc4NSBDMTUuNzUxNDE1NiwxOC45ODU4OTg5IDE5LjE2MjgzNTcsMTUuNDM1NTUwOSAxOS4wNzkzMTg2LDExLjE0MDk0NjIgQzE5LjA3OTEyNzEsNy45MDEyODczOSAxNy4xMTA0MTUzLDQuOTg2NzYxNzUgMTQuMTA1MTA1NiwzLjc3NzAwODUgQzExLjA5OTc5NTksMi41NjcyNTUyNiA3LjY2MDkwMDE3LDMuMzA1MDA5OTQgNS40MTYyNzY4OSw1LjY0MTA0NDA4IEMzLjE3MTY1MzYxLDcuOTc3MDc4MjIgMi41NzE2ODM3NiwxMS40NDI2Njk0IDMuOTAwMzczMDYsMTQuMzk3MzIyMyBDNS4yMjkwNjIzNiwxNy4zNTE5NzUzIDguMjE5ODEwOSwxOS4yMDI4NDI0IDExLjQ1Njg5ODEsMTkuMDczNzg1IFoiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0uNjcyIC0uNTc1KSIvPjwvc3ZnPg==);
+}
+
+.feed-post-stub-message {
+	display: inline-block;
+	vertical-align: middle;
+	padding-left: 14px;
+	font-weight: bold;
+}
+
+.feed-post-stub-more {
+	display: inline-block;
+	padding-left: 6px;
+	vertical-align: middle;
+}
+
+.feed-post-stub-buttons {
+	padding: 20px 0 20px 0;
+}

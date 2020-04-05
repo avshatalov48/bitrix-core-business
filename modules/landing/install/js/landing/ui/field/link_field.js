@@ -10,6 +10,7 @@
 	var fireCustomEvent = BX.Landing.Utils.fireCustomEvent;
 	var htmlToElement = BX.Landing.Utils.htmlToElement;
 	var style = BX.Landing.Utils.style;
+	var escapeText = BX.Landing.Utils.escapeText;
 
 	/**
 	 * Implements interface for works with link field in editor
@@ -31,8 +32,14 @@
 		this.content = isPlainObject(this.content) ? this.content : {};
 		this.content = clone(this.content);
 		this.content.text = trim(this.content.text);
-		this.content.href = trim(this.content.href);
-		this.content.target = trim(this.content.target);
+		this.content.href = trim(escapeText(this.content.href));
+		this.content.target = trim(escapeText(this.content.target));
+		this.skipContent = data.skipContent;
+
+		if (!this.containsImage() && !this.containsHtml())
+		{
+			this.content.text = escapeText(this.content.text);
+		}
 
 		this.input = new BX.Landing.UI.Field.Text({
 			placeholder: BX.message("FIELD_LINK_TEXT_LABEL"),
@@ -44,6 +51,12 @@
 				fireCustomEvent(this, "BX.Landing.UI.Field:change", [this.getValue()]);
 			}.bind(this)
 		});
+
+		if (this.skipContent)
+		{
+			this.input.layout.hidden = true;
+			this.header.hidden = true;
+		}
 
 		this.hrefInput = new BX.Landing.UI.Field.LinkURL({
 			title: BX.message("FIELD_LINK_HREF_LABEL"),
@@ -227,7 +240,8 @@
 		 */
 		containsHtml: function()
 		{
-			return htmlToElement(this.content.text);
+			var element = htmlToElement(this.content.text);
+			return !!element && !element.matches("br");
 		},
 
 
@@ -257,7 +271,17 @@
 					value.attrs = {};
 				}
 
+				if (this.hrefInput.input.firstElementChild)
+				{
+					value.attrs["data-url"] = this.hrefInput.input.firstElementChild.getAttribute("data-url");
+				}
+
 				value.attrs["data-dynamic"] = this.hrefInput.getDynamic();
+			}
+
+			if (this.skipContent)
+			{
+				delete value['text'];
 			}
 
 			return value;
@@ -268,9 +292,9 @@
 		{
 			if (isPlainObject(value))
 			{
-				this.input.setValue(value.text);
+				this.input.setValue(escapeText(value.text));
 				this.hrefInput.setValue(value.href);
-				this.targetInput.setValue(value.target);
+				this.targetInput.setValue(escapeText(value.target));
 			}
 		},
 
@@ -295,7 +319,7 @@
 			this.mediaButton.disable();
 			this.targetInput.enable();
 			this.targetInput.closePopup();
-			this.targetInput.setValue(this.content.target);
+			this.targetInput.setValue("_self");
 			this.hideMediaPreview();
 			this.hideMediaSettings();
 		},
@@ -358,55 +382,43 @@
 
 		onMediaHelpButtonMouseover: function(event)
 		{
-			if (!this.helpPopup)
-			{
-				this.helpPopup = new BX.PopupWindow(
-					this.selector + "_help",
-					this.mediaHelpButton.layout,
-					{
-						content: BX.create("div", {
-							props: {className: "landing-ui-field-link-media-help-popup-content"},
-							children: [
-								BX.create("div", {
-									props: {className: "landing-ui-field-link-media-help-popup-content-title"},
-									html: BX.message("LANDING_CONTENT_URL_MEDIA_HELP_TITLE")
-								}),
-								BX.create("div", {
-									props: {className: "landing-ui-field-link-media-help-popup-content-content"},
-									html: BX.message("LANDING_CONTENT_URL_MEDIA_HELP")
-								})
-							]
-						}),
-						angle: {
-							offset: 32
-						}
-					}
-				);
-
-				this.helpPopup.popupContainer.classList.add("landing-ui-field-link-media-help-popup");
-			}
-
-			this.helpPopupTimeout = setTimeout(function() {
-				this.helpPopup.show();
-				BX.Landing.Utils.Show(this.helpPopup.popupContainer);
-			}.bind(this), 100);
+			BX.Landing.UI.Tool.Suggest
+				.getInstance()
+				.show(this.mediaHelpButton.layout, {
+					description: BX.create("div", {
+						props: {className: "landing-ui-field-link-media-help-popup-content"},
+						children: [
+							BX.create("div", {
+								props: {className: "landing-ui-field-link-media-help-popup-content-title"},
+								html: BX.message("LANDING_CONTENT_URL_MEDIA_HELP_TITLE")
+							}),
+							BX.create("div", {
+								props: {className: "landing-ui-field-link-media-help-popup-content-content"},
+								html: BX.message("LANDING_CONTENT_URL_MEDIA_HELP")
+							})
+						]
+					}).outerHTML,
+					angleOffset: 53
+				});
 		},
 
-		onMediaHelpButtonMouseout: function(event)
+		onMediaHelpButtonMouseout: function()
 		{
-			if (this.helpPopup)
-			{
-				BX.Landing.Utils.Hide(this.helpPopup.popupContainer);
-			}
-
-			clearTimeout(this.helpPopupTimeout);
+			BX.Landing.UI.Tool.Suggest
+				.getInstance()
+				.hide();
 		},
 
 		onVideoPreviewClick: function()
 		{
 			$.fancybox.open({
 				src: this.mediaService.getEmbedURL(),
-				type: "iframe"
+				type: "iframe",
+				afterShow: function(instance, current)
+				{
+					var iframe = current.$slide.find("iframe")[0];
+					void BX.Landing.MediaPlayer.Factory.create(iframe);
+				}
 			}, {
 				iframe: {
 					scrolling : "auto"
@@ -417,9 +429,12 @@
 		showMediaPreview: function()
 		{
 			// Make and show loader
-			var loader = new BX.Landing.UI.Card.Loader();
+			var loader = new BX.Loader({
+				target: this.mediaLayout,
+				mode: "inline",
+				offset: {top: "calc(50% - 55px)", left: "calc(50% - 55px)"}
+			});
 			this.video = loader.layout;
-			this.mediaLayout.appendChild(this.video);
 			loader.show();
 
 			this.mediaService.getURLPreviewElement()

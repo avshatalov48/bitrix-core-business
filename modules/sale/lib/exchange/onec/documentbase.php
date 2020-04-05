@@ -41,13 +41,13 @@ class DocumentBase
 		);
 	}
 
-    /**
-     * @return int
-     */
-    public function getOwnerEntityTypeId()
-    {
-        return Exchange\EntityType::UNDEFINED;
-    }
+	/**
+	 * @return int
+	 */
+	public function getTypeId()
+	{
+		return DocumentType::UNDEFINED;
+	}
 
 	/**
 	 * @param array $values
@@ -349,7 +349,7 @@ class DocumentBase
                 {
                     foreach($traits as $k=>$v)
                     {
-                        $namePropertyBaslet = $message["CC_BSC1_".$name];
+                        $namePropertyBaslet = $message["CC_BSC1_PROP_BASKET"];
                         if (strpos($k, $namePropertyBaslet."#") === 0)
                         {
                             $position = strpos($k, $namePropertyBaslet."#");

@@ -99,7 +99,7 @@
 			var content = "<div class='adm-info-message'>"+BX.message('CASHBOX_CREATE_ZREPORT_WINDOW_INFO')+"</div>";
 			content += "<table><tbody><tr><td><label>"+BX.message('SALE_F_CASHBOX')+":</label></td><td>";
 			content += "<select id='cashboxListAddReport' class='sale-discount-bus-select'>";
-			for (option in cashboxFilterOptions)
+			for (var option in cashboxFilterOptions)
 			{
 				if (cashboxFilterOptions[option].value != undefined)
 				{

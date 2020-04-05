@@ -1198,7 +1198,7 @@ class CAllCatalog
 		$strSql = "INSERT INTO b_catalog_iblock(".$arInsert[0].") VALUES(".$arInsert[1].")";
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-		CCatalogSKU::ClearCache();
+		CCatalogSku::ClearCache();
 
 		return true;
 	}
@@ -1229,7 +1229,7 @@ class CAllCatalog
 			if (isset(self::$catalogVatCache[$ID]))
 				unset(self::$catalogVatCache[$ID]);
 		}
-		CCatalogSKU::ClearCache();
+		CCatalogSku::ClearCache();
 		return true;
 	}
 
@@ -1257,10 +1257,9 @@ class CAllCatalog
 			}
 		}
 		if (isset(self::$catalogVatCache[$ID]))
-		{
 			unset(self::$catalogVatCache[$ID]);
-		}
-		CCatalogSKU::ClearCache();
+
+		CCatalogSku::ClearCache();
 		CCatalogProduct::ClearCache();
 		return $DB->Query("DELETE FROM b_catalog_iblock WHERE IBLOCK_ID = ".$ID, true);
 	}
@@ -1307,7 +1306,7 @@ class CAllCatalog
 	 */
 	public static function GetSkuInfoByProductID($ID)
 	{
-		return CCatalogSKU::GetInfoByProductIBlock($ID);
+		return CCatalogSku::GetInfoByProductIBlock($ID);
 	}
 
 	/**
@@ -1319,7 +1318,7 @@ class CAllCatalog
 	 */
 	public static function GetSkuInfoByPropID($ID)
 	{
-		return CCatalogSKU::GetInfoByLinkProperty($ID);
+		return CCatalogSku::GetInfoByLinkProperty($ID);
 	}
 
 	public static function OnBeforeIBlockElementDelete($ID)
@@ -1332,8 +1331,8 @@ class CAllCatalog
 			$intIBlockID = (int)CIBlockElement::GetIBlockByID($ID);
 			if (0 < $intIBlockID)
 			{
-				$arCatalog = CCatalogSKU::GetInfoByProductIBlock($intIBlockID);
-				if (!empty($arCatalog) && is_array($arCatalog) && 0 < $arCatalog['IBLOCK_ID'] && 0 < $arCatalog['SKU_PROPERTY_ID'])
+				$arCatalog = CCatalogSku::GetInfoByProductIBlock($intIBlockID);
+				if (!empty($arCatalog))
 				{
 					$arFilter = array('IBLOCK_ID' => $arCatalog['IBLOCK_ID'],'=PROPERTY_'.$arCatalog['SKU_PROPERTY_ID'] => $ID);
 					$rsOffers = CIBlockElement::GetList(array(), $arFilter, false, false, array('ID', 'IBLOCK_ID'));
@@ -1375,12 +1374,12 @@ class CAllCatalog
 		$ID = (int)$ID;
 		if (0 >= $ID)
 			return true;
-		$arCatalog = CCatalogSKU::GetInfoByIBlock($ID);
+		$arCatalog = CCatalogSku::GetInfoByIBlock($ID);
 		if (empty($arCatalog))
 			return true;
-		if (CCatalogSKU::TYPE_CATALOG != $arCatalog['CATALOG_TYPE'])
+		if (CCatalogSku::TYPE_CATALOG != $arCatalog['CATALOG_TYPE'])
 		{
-			if (CCatalogSKU::TYPE_OFFERS == $arCatalog['CATALOG_TYPE'])
+			if (CCatalogSku::TYPE_OFFERS == $arCatalog['CATALOG_TYPE'])
 			{
 				$arMsg[] = array('id' => 'IBLOCK_ID', 'text' => Loc::getMessage('BT_MOD_CATALOG_ERR_CANNOT_DELETE_SKU_IBLOCK'));
 				$obError = new CAdminException($arMsg);
@@ -1498,19 +1497,19 @@ class CAllCatalog
 	 */
 	public static function GetByIDExt($ID)
 	{
-		$arResult = CCatalogSKU::GetInfoByIBlock($ID);
+		$arResult = CCatalogSku::GetInfoByIBlock($ID);
 		if (!empty($arResult))
 		{
 			$arResult['OFFERS_IBLOCK_ID'] = 0;
 			$arResult['OFFERS_PROPERTY_ID'] = 0;
 			$arResult['OFFERS'] = 'N';
-			if (CCatalogSKU::TYPE_PRODUCT == $arResult['CATALOG_TYPE'] || CCatalogSKU::TYPE_FULL == $arResult['CATALOG_TYPE'])
+			if (CCatalogSku::TYPE_PRODUCT == $arResult['CATALOG_TYPE'] || CCatalogSku::TYPE_FULL == $arResult['CATALOG_TYPE'])
 			{
 				$arResult['OFFERS_IBLOCK_ID'] = $arResult['IBLOCK_ID'];
 				$arResult['OFFERS_PROPERTY_ID'] = $arResult['SKU_PROPERTY_ID'];
 				$arResult['OFFERS'] = 'Y';
 			}
-			if (CCatalogSKU::TYPE_PRODUCT != $arResult['CATALOG_TYPE'])
+			if (CCatalogSku::TYPE_PRODUCT != $arResult['CATALOG_TYPE'])
 			{
 				$arResult['ID'] = $arResult['IBLOCK_ID'];
 				$arResult['IBLOCK_TYPE_ID'] = '';
@@ -1570,7 +1569,7 @@ class CAllCatalog
 		}
 		else
 		{
-			CCatalogSKU::ClearCache();
+			CCatalogSku::ClearCache();
 		}
 		return $boolResult;
 	}

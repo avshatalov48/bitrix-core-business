@@ -218,4 +218,9 @@ class Configurable extends Base
 	{
 		return self::$whetherAdminExtraServicesShow;
 	}
+
+	public static function isHandlerCompatible()
+	{
+		return true;
+	}
 }

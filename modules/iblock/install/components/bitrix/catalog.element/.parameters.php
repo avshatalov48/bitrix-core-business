@@ -9,6 +9,9 @@ use Bitrix\Main\Loader,
 if (!Loader::includeModule('iblock'))
 	return;
 $catalogIncluded = Loader::includeModule('catalog');
+
+$usePropertyFeatures = Iblock\Model\PropertyFeature::isEnabledFeatures();
+
 $iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
 
 $arIBlockType = CIBlockParameters::GetIBlockTypes();
@@ -628,6 +631,13 @@ $arComponentParameters = array(
 		)
 	),
 );
+if ($usePropertyFeatures)
+{
+	unset($arComponentParameters["PARAMETERS"]["PROPERTY_CODE"]);
+	unset($arComponentParameters["PARAMETERS"]["OFFERS_PROPERTY_CODE"]);
+	if (isset($arComponentParameters["PARAMETERS"]["PRODUCT_PROPERTIES"]))
+		unset($arComponentParameters["PARAMETERS"]["PRODUCT_PROPERTIES"]);
+}
 
 if ($arCurrentValues["SEF_MODE"] == "Y")
 {
@@ -688,7 +698,8 @@ if (isset($arCurrentValues['COMPATIBLE_MODE']) && $arCurrentValues['COMPATIBLE_M
 if (empty($offers))
 {
 	unset($arComponentParameters["PARAMETERS"]["OFFERS_FIELD_CODE"]);
-	unset($arComponentParameters["PARAMETERS"]["OFFERS_PROPERTY_CODE"]);
+	if (isset($arComponentParameters["PARAMETERS"]["OFFERS_PROPERTY_CODE"]))
+		unset($arComponentParameters["PARAMETERS"]["OFFERS_PROPERTY_CODE"]);
 	unset($arComponentParameters["PARAMETERS"]["OFFERS_SORT_FIELD"]);
 	unset($arComponentParameters["PARAMETERS"]["OFFERS_SORT_ORDER"]);
 	unset($arComponentParameters["PARAMETERS"]["OFFERS_SORT_FIELD2"]);
@@ -696,15 +707,18 @@ if (empty($offers))
 }
 else
 {
-	$arComponentParameters["PARAMETERS"]["OFFERS_CART_PROPERTIES"] = array(
-		"PARENT" => "BASKET",
-		"NAME" => GetMessage("CP_BCE_OFFERS_CART_PROPERTIES"),
-		"TYPE" => "LIST",
-		"MULTIPLE" => "Y",
-		"VALUES" => $arProperty_OffersWithoutFile,
-		"SIZE" => (count($arProperty_OffersWithoutFile) > 5 ? 8 : 3),
-		"HIDDEN" => (isset($arCurrentValues['ADD_PROPERTIES_TO_BASKET']) && $arCurrentValues['ADD_PROPERTIES_TO_BASKET'] == 'N' ? 'Y' : 'N')
-	);
+	if (!$usePropertyFeatures)
+	{
+		$arComponentParameters["PARAMETERS"]["OFFERS_CART_PROPERTIES"] = array(
+			"PARENT" => "BASKET",
+			"NAME" => GetMessage("CP_BCE_OFFERS_CART_PROPERTIES"),
+			"TYPE" => "LIST",
+			"MULTIPLE" => "Y",
+			"VALUES" => $arProperty_OffersWithoutFile,
+			"SIZE" => (count($arProperty_OffersWithoutFile) > 5 ? 8 : 3),
+			"HIDDEN" => (isset($arCurrentValues['ADD_PROPERTIES_TO_BASKET']) && $arCurrentValues['ADD_PROPERTIES_TO_BASKET'] == 'N' ? 'Y' : 'N')
+		);
+	}
 }
 
 if (isset($arCurrentValues['DISPLAY_COMPARE']) && $arCurrentValues['DISPLAY_COMPARE'] == 'Y')

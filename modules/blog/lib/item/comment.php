@@ -394,4 +394,107 @@ class Comment
 
 		return true;
 	}
+
+	public static function processCommentShare($params = array())
+	{
+		$commentText = (isset($params['commentText']) ? $params['commentText'] : '');
+		$authorId = (isset($params['authorId']) ? intval($params['authorId']) : 0);
+		$postId = (isset($params['postId']) ? intval($params['postId']) : 0);
+		$blogId = (isset($params['blogId']) ? intval($params['blogId']) : 0);
+		$siteId = (isset($params['siteId']) ? $params['siteId'] : SITE_ID);
+
+		if (
+			strlen($commentText) <= 0
+			|| $postId <= 0
+		)
+		{
+			return false;
+		}
+
+		if ($blogId <= 0)
+		{
+			$postFields = \CBlogPost::getById($postId);
+			$blogId = intval($postFields['BLOG_ID']);
+		}
+
+		if ($blogId <= 0)
+		{
+			return false;
+		}
+
+		$userIdToShareList = array();
+
+		preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER, $commentText, $matches);
+
+		if (!empty($matches))
+		{
+			foreach($matches[1] as $userId)
+			{
+				$userId = intVal($userId);
+				if (
+					$userId > 0
+					&& $userId != $authorId
+				)
+				{
+					$postPerm = \CBlogPost::getSocNetPostPerms(array(
+						"POST_ID" => $postId,
+						"NEED_FULL" => true,
+						"USER_ID" => $userId,
+						"IGNORE_ADMIN" => true
+					));
+
+					if ($postPerm < \Bitrix\Blog\Item\Permissions::PREMODERATE)
+					{
+						$userIdToShareList[] = $userId;
+					}
+				}
+			}
+		}
+
+		$userIdToShareList = array_unique($userIdToShareList);
+		if (empty($userIdToShareList))
+		{
+			return false;
+		}
+
+		$newRightsList = array();
+
+		foreach($userIdToShareList as $userId)
+		{
+			$newRightsList[] = 'U'.$userId;
+		}
+
+		$fullRightsList = $newRightsList;
+
+		$blogPermsList = \CBlogPost::getSocnetPerms($postId);
+		foreach($blogPermsList as $entityType => $entitiesList)
+		{
+			foreach($entitiesList as $entityId => $rightsList)
+			{
+				$fullRightsList = array_merge($fullRightsList, $rightsList);
+			}
+		}
+		$fullRightsList = array_unique($fullRightsList);
+
+		$commentId = \Bitrix\Socialnetwork\ComponentHelper::processBlogPostShare(
+			array(
+				"POST_ID" => $postId,
+				"BLOG_ID" => $blogId,
+				"SITE_ID" => $siteId,
+				"SONET_RIGHTS" => $fullRightsList,
+				"NEW_RIGHTS" => $newRightsList,
+				"USER_ID" => $authorId
+			),
+			array(
+				"PATH_TO_USER" => Option::get("main", "TOOLTIP_PATH_TO_USER", '/company/personal/user/#user_id#/', $siteId),
+				"PATH_TO_POST" => Option::get("socialnetwork", "userblogpost_page", '/company/personal/user/#user_id#/blog/#post_id#', $siteId),
+				"NAME_TEMPLATE" => \CSite::getNameFormat(),
+				"SHOW_LOGIN" => "Y",
+				"LIVE" => "N",
+				"MENTION" => "Y"
+			)
+		);
+
+		return $commentId;
+	}
 }

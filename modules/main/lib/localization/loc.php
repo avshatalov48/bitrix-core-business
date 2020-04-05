@@ -5,6 +5,7 @@ use Bitrix\Main;
 use Bitrix\Main\IO\Path;
 use Bitrix\Main\Context;
 use Bitrix\Main\Config\Configuration;
+use Bitrix\Main\Text\Encoding;
 
 final class Loc
 {
@@ -14,6 +15,7 @@ final class Loc
 	private static $userMessages = null;
 	private static $includedFiles = array();
 	private static $lazyLoadFiles = array();
+	private static $triedFiles = array();
 
 	/**
 	 * Returns translation by message code.
@@ -30,7 +32,9 @@ final class Loc
 		{
 			//function call optimization
 			if(static::$currentLang === null)
+			{
 				self::getCurrentLang();
+			}
 
 			$language = static::$currentLang;
 		}
@@ -69,7 +73,10 @@ final class Loc
 		self::$lazyLoadFiles[$file] = $file;
 	}
 
-	private static function getCurrentLang()
+	/**
+	 * @return string
+	 */
+	public static function getCurrentLang()
 	{
 		if(self::$currentLang === null)
 		{
@@ -91,7 +98,16 @@ final class Loc
 		static::$currentLang = $language;
 	}
 
-	private static function includeLangFiles($file, $language)
+	/**
+	 * Loads language messages for specified file and language.
+	 *
+	 * @param string $file File path to look for language translation for its.
+	 * @param string $language Language code.
+	 * @param string $loadedLangFile Certain loaded language file.
+	 *
+	 * @return array
+	 */
+	private static function includeLangFiles($file, $language, &$loadedLangFile)
 	{
 		static $langDirCache = array();
 
@@ -105,12 +121,12 @@ final class Loc
 		else
 		{
 			//let's find language folder
-			$langDir = $fileName = "";
+			$langDir = $fileName = '';
 			$filePath = $file;
-			while(($slashPos = strrpos($filePath, "/")) !== false)
+			while(($slashPos = strrpos($filePath, '/')) !== false)
 			{
 				$filePath = substr($filePath, 0, $slashPos);
-				$langPath = $filePath."/lang";
+				$langPath = $filePath.'/lang';
 				if(is_dir($langPath))
 				{
 					$langDir = $langPath;
@@ -122,24 +138,32 @@ final class Loc
 		}
 
 		$mess = array();
-		if($langDir <> "")
+		if($langDir <> '')
 		{
 			//load messages for default lang first
 			$defaultLang = self::getDefaultLang($language);
 			if($defaultLang <> $language)
 			{
-				$langFile = $langDir."/".$defaultLang.$fileName;
+				$langFile = $langDir. '/'. $defaultLang. $fileName;
+
+				$langFile = Translation::convertLangPath($langFile, $defaultLang);
+
 				if(file_exists($langFile))
 				{
 					$mess = self::includeFile($langFile);
+					$loadedLangFile = $langFile;
 				}
 			}
 
 			//then load messages for specified lang
-			$langFile = $langDir."/".$language.$fileName;
+			$langFile = $langDir. '/'. $language. $fileName;
+
+			$langFile = Translation::convertLangPath($langFile, $language);
+
 			if(file_exists($langFile))
 			{
 				$mess = array_merge($mess, self::includeFile($langFile));
+				$loadedLangFile = $langFile;
 			}
 		}
 
@@ -178,17 +202,127 @@ final class Loc
 		}
 
 		//let's find language folder and include lang files
-		$mess = self::includeLangFiles($file, $language);
+		$mess = self::includeLangFiles($file, $language, $langFile);
 
-		foreach($mess as $key => $val)
+		if (!empty($mess))
 		{
-			if(isset(self::$customMessages[$language][$key]))
+			static $encodingCache = array();
+			if (isset($encodingCache[$language]))
 			{
-				self::$messages[$language][$key] = $mess[$key] = self::$customMessages[$language][$key];
+				list($convertEncoding, $targetEncoding, $sourceEncoding) = $encodingCache[$language];
 			}
 			else
 			{
-				self::$messages[$language][$key] = $val;
+				$convertEncoding = Translation::needConvertEncoding($language);
+				$targetEncoding = $sourceEncoding = '';
+				if ($convertEncoding)
+				{
+					$targetEncoding = Translation::getCurrentEncoding();
+					$sourceEncoding = Translation::getSourceEncoding($language);
+				}
+
+				$encodingCache[$language] = array($convertEncoding, $targetEncoding, $sourceEncoding);
+			}
+
+
+			if ($convertEncoding)
+			{
+				$convertEncoding = \Bitrix\Main\Localization\Translation::checkPathRestrictionConvertEncoding($langFile);
+			}
+
+
+			foreach ($mess as $key => $val)
+			{
+				if (isset(self::$customMessages[$language][$key]))
+				{
+					self::$messages[$language][$key] = $mess[$key] = self::$customMessages[$language][$key];
+				}
+				else
+				{
+					if ($convertEncoding)
+					{
+						$val = Encoding::convertEncoding($val, $sourceEncoding, $targetEncoding);
+						$mess[$key] = $val;
+					}
+
+					self::$messages[$language][$key] = $val;
+				}
+			}
+		}
+
+		return $mess;
+	}
+
+	/**
+	 * @deprecated Do not use, will be removed soon. loadLanguageFile() is enough
+	 */
+	public static function loadFile($langFile, $language = null)
+	{
+		if (empty($language))
+		{
+			// extract language from path
+			$arr = explode('/', $langFile);
+			$langKey = array_search('lang', $arr);
+			if ($langKey !== false && isset($arr[$langKey + 1]))
+			{
+				$language = $arr[$langKey + 1];
+			}
+		}
+
+		if (empty($language))
+		{
+			$language = self::getCurrentLang();
+		}
+
+		$langFile = Translation::convertLangPath($langFile, $language);
+
+		$mess = array();
+		if (file_exists($langFile))
+		{
+			$mess = self::includeFile($langFile);
+
+			if (!empty($mess))
+			{
+				static $encodingCache = array();
+				if (isset($encodingCache[$language]))
+				{
+					list($convertEncoding, $targetEncoding, $sourceEncoding) = $encodingCache[$language];
+				}
+				else
+				{
+					$convertEncoding = Translation::needConvertEncoding($language);
+					$targetEncoding = $sourceEncoding = '';
+					if ($convertEncoding)
+					{
+						$targetEncoding = Translation::getCurrentEncoding();
+						$sourceEncoding = Translation::getSourceEncoding($language);
+					}
+
+					$encodingCache[$language] = array($convertEncoding, $targetEncoding, $sourceEncoding);
+				}
+
+				if ($convertEncoding)
+				{
+					$convertEncoding = \Bitrix\Main\Localization\Translation::checkPathRestrictionConvertEncoding($langFile);
+				}
+
+				foreach ($mess as $key => $val)
+				{
+					if (isset(self::$customMessages[$language][$key]))
+					{
+						self::$messages[$language][$key] = $mess[$key] = self::$customMessages[$language][$key];
+					}
+					else
+					{
+						if ($convertEncoding)
+						{
+							$val = Encoding::convertEncoding($val, $sourceEncoding, $targetEncoding);
+							$mess[$key] = $val;
+						}
+
+						self::$messages[$language][$key] = $val;
+					}
+				}
 			}
 		}
 
@@ -214,7 +348,7 @@ final class Loc
 		}
 
 		//let's find language folder and include lang files
-		$mess = self::includeLangFiles(Path::normalize($file), $language);
+		$mess = self::includeLangFiles(Path::normalize($file), $language, $langFile);
 
 		foreach($mess as $key => $val)
 		{
@@ -227,6 +361,12 @@ final class Loc
 		if($code == '')
 		{
 			return;
+		}
+
+		//control of duplicates
+		if(!isset(self::$triedFiles[$language]))
+		{
+			self::$triedFiles[$language] = [];
 		}
 
 		$trace = Main\Diag\Helper::getBackTrace(4, DEBUG_BACKTRACE_IGNORE_ARGS);
@@ -247,7 +387,11 @@ final class Loc
 		if($currentFile !== null && isset(self::$lazyLoadFiles[$currentFile]))
 		{
 			//in most cases we know the file containing the "code" - load it directly
-			self::loadLanguageFile($currentFile, $language, false);
+			if(!isset(self::$triedFiles[$language][$currentFile]))
+			{
+				self::loadLanguageFile($currentFile, $language, false);
+				self::$triedFiles[$language][$currentFile] = true;
+			}
 			unset(self::$lazyLoadFiles[$currentFile]);
 		}
 
@@ -259,7 +403,12 @@ final class Loc
 			{
 				do
 				{
-					self::loadLanguageFile($file, $language, false);
+					if(!isset(self::$triedFiles[$language][$file]))
+					{
+						self::loadLanguageFile($file, $language, false);
+						self::$triedFiles[$language][$file] = true;
+					}
+
 					$unset[] = $file;
 					if(isset(self::$messages[$language][$code]))
 					{
@@ -355,6 +504,10 @@ final class Loc
 		return 'en';
 	}
 
+	/**
+	 * Returns previously included lang files.
+	 * @return array
+	 */
 	public static function getIncludedFiles()
 	{
 		return self::$includedFiles;

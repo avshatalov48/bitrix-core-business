@@ -69,6 +69,10 @@ class Template
 						'class' => ($type == 'checkbox') ? 'ui-checkbox' : 'ui-input',
 						'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
 					));
+					if ($help  = $field->getHelpValue())
+					{
+						echo $help;
+					}
 					if ($type == 'checkbox')
 					{
 						echo '<label for="field-' . strtolower($key) . '-use">' .
@@ -112,10 +116,12 @@ class Template
 				{
 					var imageField = new BX.Landing.UI.Field.Image({
 						id: 'page_settings_<?= $code?>',
-                        disableAltField: true
+						disableLink: true,
+                        disableAltField: true,
+                        allowClear: true
 						<?if ($imgId):?>
 						,content: {
-							src: '<?= \CUtil::jsEscape(str_replace(' ', '%20', \htmlspecialcharsbx((int) $imgId > 0 ? \CFile::getPath($imgId) : $imgId)));?>',
+							src: '<?= \CUtil::jsEscape(str_replace(' ', '%20', \htmlspecialcharsbx((int) $imgId > 0 ? \Bitrix\Landing\File::getFilePath($imgId) : $imgId)));?>',
 							id : <?= $imgId ? intval($imgId) : -1?>,
 							alt : ''
 						}

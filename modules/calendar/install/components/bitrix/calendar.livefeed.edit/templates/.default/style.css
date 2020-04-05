@@ -1,3 +1,7 @@
+.feed-event {
+	min-width: 540px;
+}
+
 .feed-event-text {
 	color: #bfbfbf;
 	font-size: 17px;

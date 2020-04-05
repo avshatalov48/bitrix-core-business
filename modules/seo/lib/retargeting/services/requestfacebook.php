@@ -11,7 +11,7 @@ class RequestFacebook extends Request
 
 	public function query(array $params = array())
 	{
-		$url = 'https://graph.facebook.com/v2.12/';
+		$url = 'https://graph.facebook.com/v3.1/';
 		$url .= $params['endpoint'];
 
 		$clientParameters = is_array($params['fields']) ? $params['fields'] : array();

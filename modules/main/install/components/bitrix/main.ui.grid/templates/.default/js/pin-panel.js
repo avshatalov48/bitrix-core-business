@@ -12,11 +12,10 @@
 	{
 		this.parent = null;
 		this.panel = null;
-		this.panelRect = null;
 		this.isSelected = null;
 		this.offset = null;
 		this.animationDuration = null;
-		this.lastIsSelected = null;
+		this.pinned = false;
 		this.init(parent);
 	};
 
@@ -36,7 +35,6 @@
 			BX.addCustomEvent('Grid::noSelectedRows', BX.delegate(this._onNoSelectedRows, this));
 			BX.addCustomEvent('Grid::allRowsUnselected', BX.delegate(this._onNoSelectedRows, this));
 			BX.addCustomEvent('Grid::updated', BX.delegate(this._onNoSelectedRows, this));
-
 		},
 
 		bindOnWindowEvents: function()
@@ -83,26 +81,84 @@
 			return this.windowHeight;
 		},
 
-		pinPanel: function()
+		pinPanel: function(withAnimation)
 		{
-			BX.style(this.getPanel(), 'width', BX.width(this.getPanel().parentNode) + 'px');
-			BX.style(this.getPanel().parentNode, 'height', BX.height(this.getPanel().parentNode) + 'px');
-			BX.addClass(this.getPanel(), 'main-grid-fixed-bottom');
-			BX.style(this.getPanel(), 'bottom', '');
-			setTimeout(BX.delegate(function() {
-				BX.style(this.getPanel(), 'transition', 'none');
-			}, this), 200);
+			var panel = this.getPanel();
+			var width = BX.width(this.getPanel().parentNode);
+			var height = BX.height(this.getPanel().parentNode);
+			var bodyRect = BX.pos(this.parent.getBody());
+			var offset = this.getStartDiffPanelPosition();
+
+			panel.parentNode.style.setProperty('height', height + 'px');
+
+			panel.style.setProperty('transform', 'translateY('+ offset + 'px)');
+			panel.classList.add('main-grid-fixed-bottom');
+			panel.style.setProperty('width', width + 'px');
+			panel.style.removeProperty('position');
+			panel.style.removeProperty('top');
+
+			requestAnimationFrame(function() {
+				if (withAnimation !== false)
+				{
+					panel.style.setProperty('transition', 'transform 200ms ease');
+				}
+
+				panel.style.setProperty('transform', 'translateY(0)');
+			});
+
+			if (this.isNeedPinAbsolute() && !this.absolutePin)
+			{
+				this.absolutePin = true;
+				panel.style.removeProperty('transition');
+				panel.style.setProperty('position', 'absolute');
+				panel.style.setProperty('top', bodyRect.top + 'px');
+			}
+
+			if (!this.isNeedPinAbsolute() && this.absolutePin)
+			{
+				this.absolutePin = false;
+			}
+
+			this.adjustPanelPosition();
+			this.pinned = true;
 		},
 
-		unpinPanel: function()
+		unpinPanel: function(withAnimation)
 		{
-			BX.removeClass(this.getPanel(), 'main-grid-fixed-bottom');
-			BX.style(this.getPanel(), 'width', '');
-			BX.style(this.getPanel().parentNode, 'height', '');
-			BX.style(this.getPanel(), 'bottom', '');
-			setTimeout(BX.delegate(function() {
-				BX.style(this.getPanel(), 'transition', '');
-			}, this), 200);
+			var panel = this.getPanel();
+			var panelRect = BX.pos(panel);
+			var parentRect = BX.pos(panel.parentNode);
+			var offset = Math.abs(panelRect.bottom - parentRect.bottom);
+
+			if (withAnimation !== false)
+			{
+				panel.style.setProperty('transition', 'transform 200ms ease');
+			}
+
+			var translateOffset = offset < panelRect.height ? offset + 'px' : '100%';
+			panel.style.setProperty('transform', 'translateY('+translateOffset+')');
+
+			var delay = function(cb, delay)
+			{
+				if (withAnimation !== false)
+				{
+					return setTimeout(cb, delay);
+				}
+
+				cb();
+			};
+
+			delay(function() {
+				panel.parentNode.style.removeProperty('height');
+				panel.classList.remove('main-grid-fixed-bottom');
+				panel.style.removeProperty('transition');
+				panel.style.removeProperty('transform');
+				panel.style.removeProperty('width');
+				panel.style.removeProperty('position');
+				panel.style.removeProperty('top');
+			}, withAnimation !== false ? 200 : 0);
+
+			this.pinned = false;
 		},
 
 		isSelectedRows: function()
@@ -138,56 +194,18 @@
 			this.lastScrollX = scrollX;
 		},
 
-		pinController: function(isNeedAnimation)
+		pinController: function(withAnimation)
 		{
-			if(!this.getPanel())
+			if (this.getPanel())
 			{
-				return;
-			}
-			var self = this;
-
-			if (this.isNeedPin() && this.isSelectedRows())
-			{
-				if (isNeedAnimation)
+				if (!this.isPinned() && this.isNeedPin() && this.isSelectedRows())
 				{
-					BX.style(this.getPanel(), 'bottom', -this.getStartDiffPanelPosition() + 'px');
-					setTimeout(function() {
-						self.pinPanel();
-					}, 200);
-				}
-				else
-				{
-					this.pinPanel();
+					return this.pinPanel(withAnimation);
 				}
 
-				if (this.isNeedPinAbsolute() && !this.absolutePin)
+				if (this.isPinned() && !this.isNeedPin() || !this.isSelectedRows())
 				{
-					this.absolutePin = true;
-					BX.style(this.getPanel(), 'transition', '');
-					BX.style(this.getPanel(), 'top', (BX.pos(this.parent.getBody()).top - parseFloat(BX.style(this.getPanel(), 'margin-top'))) + 'px');
-					BX.style(self.getPanel(), 'position', 'absolute');
-				}
-				else if (!this.isNeedPinAbsolute() && this.absolutePin)
-				{
-					this.absolutePin = false;
-					BX.style(this.getPanel(), 'position', '');
-					BX.style(this.getPanel(), 'top', '');
-				}
-
-				this.adjustPanelPosition();
-			}
-			else
-			{
-				if (isNeedAnimation)
-				{
-					BX.style(this.getPanel(), 'bottom', -this.getEndDiffPanelPosition() + 'px');
-					setTimeout(function() {
-						self.unpinPanel();
-					}, 200);
-				}
-				else
-				{
-					this.unpinPanel();
+					this.unpinPanel(withAnimation);
 				}
 			}
 		},
@@ -214,7 +232,7 @@
 			var panelPos = BX.pos(this.getPanel());
 			var scrollTop = BX.scrollTop(window);
 			var scrollBottom = scrollTop + BX.height(window);
-			var diff = panelPos.height + this.offset;
+			var diff = panelPos.height;
 
 			if (panelPos.bottom > scrollBottom && panelPos.top < scrollBottom)
 			{
@@ -222,6 +240,11 @@
 			}
 
 			return diff;
+		},
+
+		isPinned: function()
+		{
+			return this.pinned;
 		},
 
 		_onThereSelectedRows: function()
@@ -236,7 +259,7 @@
 			else
 			{
 				this.lastIsSelected = true;
-				this.pinController(true);
+				this.pinController();
 			}
 
 		},
@@ -245,13 +268,13 @@
 		{
 			this.unbindOnWindowEvents();
 			this.isSelected = false;
-			this.pinController(true);
+			this.pinController();
 			this.lastIsSelected = false;
 		},
 
 		_onScroll: function()
 		{
-			this.pinController();
+			this.pinController(false);
 		},
 
 		_onResize: function()
@@ -259,7 +282,7 @@
 			this.windowHeight = BX.height(window);
 			this.panel = this.parent.getActionsPanel().getPanel();
 			this.panelRect = this.getPanel().getBoundingClientRect();
-			this.pinController();
+			this.pinController(false);
 		}
 	};
 })();

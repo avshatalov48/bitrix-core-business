@@ -3,7 +3,8 @@ namespace Bitrix\Main\DB;
 
 use Bitrix\Main;
 use Bitrix\Main\Type;
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM;
+use Bitrix\Main\ORM\Fields\ScalarField;
 
 class OracleSqlHelper extends SqlHelper
 {
@@ -301,8 +302,8 @@ class OracleSqlHelper extends SqlHelper
 	/**
 	 * Performs additional processing of CLOB fields.
 	 *
-	 * @param Entity\ScalarField[] $tableFields Table fields.
-	 * @param array $fields Data fields.
+	 * @param ScalarField[] $tableFields Table fields.
+	 * @param array         $fields      Data fields.
 	 *
 	 * @return array
 	 */
@@ -314,7 +315,7 @@ class OracleSqlHelper extends SqlHelper
 		{
 			if (isset($fields[$columnName]) && !($fields[$columnName] instanceof SqlExpression))
 			{
-				if ($tableField instanceof Entity\TextField && $fields[$columnName] <> '')
+				if ($tableField instanceof ORM\Fields\TextField && $fields[$columnName] <> '')
 				{
 					$binds[$columnName] = $fields[$columnName];
 				}
@@ -326,24 +327,25 @@ class OracleSqlHelper extends SqlHelper
 
 	/**
 	 * Returns callback to be called for a field value on fetch.
+	 * Used for soft conversion. For strict results @see ORM\Query\Result::setStrictValueConverters()
 	 *
-	 * @param Entity\ScalarField $field Type "source".
+	 * @param ScalarField $field Type "source".
 	 *
 	 * @return false|callback
 	 */
-	public function getConverter(Entity\ScalarField $field)
+	public function getConverter(ScalarField $field)
 	{
-		if ($field instanceof Entity\DatetimeField)
+		if ($field instanceof ORM\Fields\DatetimeField)
 		{
-			return array($this, "convertDatetimeField");
+			return array($this, "convertFromDbDateTime");
 		}
-		elseif ($field instanceof Entity\TextField)
+		elseif ($field instanceof ORM\Fields\TextField)
 		{
-			return array($this, "convertTextField");
+			return array($this, "convertFromDbText");
 		}
-		elseif ($field instanceof Entity\StringField)
+		elseif ($field instanceof ORM\Fields\StringField)
 		{
-			return array($this, "convertStringField");
+			return array($this, "convertFromDbString");
 		}
 		else
 		{
@@ -352,6 +354,7 @@ class OracleSqlHelper extends SqlHelper
 	}
 
 	/**
+	 * @deprecated
 	 * Converts string into \Bitrix\Main\Type\DateTime object.
 	 * <p>
 	 * Helper function.
@@ -362,6 +365,17 @@ class OracleSqlHelper extends SqlHelper
 	 * @see \Bitrix\Main\Db\OracleSqlHelper::getConverter
 	 */
 	public function convertDatetimeField($value)
+	{
+		return $this->convertFromDbDateTime($value);
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return Type\DateTime
+	 * @throws Main\ObjectException
+	 */
+	public function convertFromDbDateTime($value)
 	{
 		if ($value !== null)
 		{
@@ -378,6 +392,85 @@ class OracleSqlHelper extends SqlHelper
 		}
 
 		return $value;
+	}
+
+	/**
+	 * @deprecated
+	 * Converts lob object into string.
+	 * <p>
+	 * Helper function.
+	 *
+	 * @param string $value Value fetched.
+	 *
+	 * @return null|string
+	 * @see \Bitrix\Main\Db\OracleSqlHelper::getConverter
+	 */
+	public function convertTextField($value)
+	{
+		return $this->convertFromDbText($value);
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return string
+	 */
+	public function convertFromDbText($value)
+	{
+		if ($value !== null)
+		{
+			if (is_object($value))
+			{
+				/** @var \OCI_Lob $value */
+				$value = $value->load();
+			}
+		}
+
+		return $value;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function convertToDbText($value)
+	{
+		return empty($value) ? "NULL" : "EMPTY_CLOB()";
+	}
+
+	/**
+	 * @deprecated
+	 * Converts string into \Bitrix\Main\Type\Date object if string has datetime specific format..
+	 * <p>
+	 * Helper function.
+	 *
+	 * @param string $value Value fetched.
+	 *
+	 * @return null|\Bitrix\Main\Type\DateTime
+	 * @see \Bitrix\Main\Db\OracleSqlHelper::getConverter
+	 */
+	public function convertStringField($value)
+	{
+		return $this->convertFromDbString($value);
+	}
+
+	/**
+	 * @param string $value
+	 * @param null   $length
+	 *
+	 * @return Type\DateTime|string
+	 * @throws Main\ObjectException
+	 */
+	public function convertFromDbString($value, $length = null)
+	{
+		if ($value !== null)
+		{
+			if ((strlen($value) == 19) && preg_match("#^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$#", $value))
+			{
+				return new Type\DateTime($value, "Y-m-d H:i:s");
+			}
+		}
+
+		return parent::convertFromDbString($value, $length);
 	}
 
 	/**
@@ -405,91 +498,36 @@ class OracleSqlHelper extends SqlHelper
 	}
 
 	/**
-	 * Converts lob object into string.
-	 * <p>
-	 * Helper function.
-	 *
-	 * @param string $value Value fetched.
-	 *
-	 * @return null|string
-	 * @see \Bitrix\Main\Db\OracleSqlHelper::getConverter
-	 */
-	public function convertTextField($value)
-	{
-		if ($value !== null)
-		{
-			if (is_object($value))
-			{
-				/** @var \OCI_Lob $value */
-				$value = $value->load();
-			}
-		}
-
-		return $value;
-	}
-
-	/**
-	 * Converts string into \Bitrix\Main\Type\Date object if string has datetime specific format..
-	 * <p>
-	 * Helper function.
-	 *
-	 * @param string $value Value fetched.
-	 *
-	 * @return null|\Bitrix\Main\Type\DateTime
-	 * @see \Bitrix\Main\Db\OracleSqlHelper::getConverter
-	 */
-	public function convertStringField($value)
-	{
-		if ($value !== null)
-		{
-			if ((strlen($value) == 19) && preg_match("#^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$#", $value))
-			{
-				$value = new Type\DateTime($value, "Y-m-d H:i:s");
-			}
-		}
-
-		return $value;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function convertToDbText($value)
-	{
-		return empty($value) ? "NULL" : "EMPTY_CLOB()";
-	}
-
-	/**
 	 * Returns a column type according to ScalarField object.
 	 *
-	 * @param Entity\ScalarField $field Type "source".
+	 * @param ScalarField $field Type "source".
 	 *
 	 * @return string
 	 */
-	public function getColumnTypeByField(Entity\ScalarField $field)
+	public function getColumnTypeByField(ScalarField $field)
 	{
-		if ($field instanceof Entity\IntegerField)
+		if ($field instanceof ORM\Fields\IntegerField)
 		{
 			return 'number(18)';
 		}
-		elseif ($field instanceof Entity\FloatField)
+		elseif ($field instanceof ORM\Fields\FloatField)
 		{
 			$scale = $field->getScale();
 			return 'number'.($scale !== null? "(*,".$scale.")": "");
 		}
-		elseif ($field instanceof Entity\DatetimeField)
+		elseif ($field instanceof ORM\Fields\DatetimeField)
 		{
 			return 'date';
 		}
-		elseif ($field instanceof Entity\DateField)
+		elseif ($field instanceof ORM\Fields\DateField)
 		{
 			return 'date';
 		}
-		elseif ($field instanceof Entity\TextField)
+		elseif ($field instanceof ORM\Fields\TextField)
 		{
 			return 'clob';
 		}
-		elseif ($field instanceof Entity\BooleanField)
+		elseif ($field instanceof ORM\Fields\BooleanField)
 		{
 			$values = $field->getValues();
 
@@ -502,7 +540,7 @@ class OracleSqlHelper extends SqlHelper
 				return 'varchar2('.max(strlen($values[0]), strlen($values[1])).' char)';
 			}
 		}
-		elseif ($field instanceof Entity\EnumField)
+		elseif ($field instanceof ORM\Fields\EnumField)
 		{
 			return 'varchar2('.max(array_map('strlen', $field->getValues())).' char)';
 		}
@@ -512,7 +550,7 @@ class OracleSqlHelper extends SqlHelper
 			$defaultLength = false;
 			foreach ($field->getValidators() as $validator)
 			{
-				if ($validator instanceof Entity\Validator\Length)
+				if ($validator instanceof ORM\Fields\Validators\LengthValidator)
 				{
 					if ($defaultLength === false || $defaultLength > $validator->getMax())
 					{
@@ -532,39 +570,39 @@ class OracleSqlHelper extends SqlHelper
 	 * @param mixed $type Database specific type.
 	 * @param array $parameters Additional information.
 	 *
-	 * @return Entity\ScalarField
+	 * @return ScalarField
 	 */
 	public function getFieldByColumnType($name, $type, array $parameters = null)
 	{
 		switch ($type)
 		{
 		case "DATE":
-			return new Entity\DatetimeField($name);
+			return new ORM\Fields\DatetimeField($name);
 
 		case "NCLOB":
 		case "CLOB":
 		case "BLOB":
-			return new Entity\TextField($name);
+			return new ORM\Fields\TextField($name);
 
 		case "FLOAT":
 		case "BINARY_FLOAT":
 		case "BINARY_DOUBLE":
-			return new Entity\FloatField($name);
+			return new ORM\Fields\FloatField($name);
 
 		case "NUMBER":
 			if ($parameters["precision"] == 0 && $parameters["scale"] == -127)
 			{
 				//NUMBER
-				return new Entity\FloatField($name);
+				return new ORM\Fields\FloatField($name);
 			}
 			if (intval($parameters["scale"]) <= 0)
 			{
 				//NUMBER(18)
 				//NUMBER(18,-2)
-				return new Entity\IntegerField($name);
+				return new ORM\Fields\IntegerField($name);
 			}
 			//NUMBER(*,2)
-			return new Entity\FloatField($name, array("scale" => $parameters["scale"]));
+			return new ORM\Fields\FloatField($name, array("scale" => $parameters["scale"]));
 		}
 		//LONG
 		//VARCHAR2(size [BYTE | CHAR])
@@ -581,7 +619,7 @@ class OracleSqlHelper extends SqlHelper
 		//CHAR [(size [BYTE | CHAR])]
 		//NCHAR[(size)]
 		//BFILE
-		return new Entity\StringField($name, array("size" => $parameters["size"]));
+		return new ORM\Fields\StringField($name, array("size" => $parameters["size"]));
 	}
 
 	/**

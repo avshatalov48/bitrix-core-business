@@ -95,6 +95,7 @@
 .new-from-email-dialog-content {
 	position: relative;
 	margin: 0 20px;
+	width: 440px;
 	overflow-y: hidden;
 }
 

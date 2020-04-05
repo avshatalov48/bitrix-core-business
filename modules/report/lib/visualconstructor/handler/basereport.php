@@ -539,4 +539,13 @@ abstract class BaseReport extends BaseHandler implements IReportData
 		return array();
 	}
 
+	/**
+	 * In some case, need to dynamically disable some report handler
+	 * @return bool
+	 */
+	public function isEnabled()
+	{
+		return true;
+	}
+
 }

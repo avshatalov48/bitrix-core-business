@@ -14,10 +14,11 @@ return array(
 		),
 	'cards' =>
 		array(
-//			'.landing-block-card-social' =>
-//				array(
-//					'name' => Loc::getMessage('LANDING_BLOCK_17.2.COPYRIGHT_WITH_SOCIAL_CARDS_LANDINGBLOCKCARDSOCIAL'),
-//				),
+			'.landing-block-card-social' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_17.2.COPYRIGHT_WITH_SOCIAL_CARDS_LANDINGBLOCKCARDSOCIAL'),
+				'label' => array('.landing-block-card-social-icon'),
+				'presets' => include __DIR__ . '/presets_social.php',
+			),
 		),
 	'nodes' =>
 		array(
@@ -26,16 +27,16 @@ return array(
 					'name' => Loc::getMessage('LANDING_BLOCK_17.2.COPYRIGHT_WITH_SOCIAL_NODES_LANDINGBLOCKNODETEXT'),
 					'type' => 'text',
 				),
-//			'.landing-block-node-social-link' =>
-//				array(
-//					'name' => Loc::getMessage('LANDING_BLOCK_17.2.COPYRIGHT_WITH_SOCIAL_NODES_LANDINGBLOCKNODESOCIALLINK'),
-//					'type' => 'link',
-//				),
-//			'.landing-block-node-social-img' =>
-//				array(
-//					'name' => Loc::getMessage('LANDING_BLOCK_17.2.COPYRIGHT_WITH_SOCIAL_NODES_LANDINGBLOCKNODESOCIALIMG'),
-//					'type' => 'img',
-//				),
+			'.landing-block-card-social-icon-link' =>
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_17.2.COPYRIGHT_WITH_SOCIAL_NODES_LANDINGBLOCKNODESOCIALLINK'),
+					'type' => 'link',
+				),
+			'.landing-block-card-social-icon' =>
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_17.2.COPYRIGHT_WITH_SOCIAL_NODES_LANDINGBLOCKNODESOCIALIMG'),
+					'type' => 'icon',
+				),
 		),
 	'style' =>
 		array(
@@ -52,6 +53,10 @@ return array(
 					array(
 						'name' => Loc::getMessage('LANDING_BLOCK_17.2.COPYRIGHT_WITH_SOCIAL_STYLE_LANDINGBLOCKNODELINK'),
 						'type' => 'typo',
+					),
+				'.landing-block-card-social-icon-link' => array(
+					'name' => Loc::getMessage('LANDING_BLOCK_17.2.COPYRIGHT_WITH_SOCIAL_NODES_LANDINGBLOCKNODESOCIALLINK'),
+					'type' => array('color', 'color-hover', 'background-color', 'background-hover')
 					),
 			),
 

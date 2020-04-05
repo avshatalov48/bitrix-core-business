@@ -131,6 +131,10 @@ abstract class Base
 
 		if($id)
 		{
+			if (array_key_exists('ID', $data))
+			{
+				unset($data['ID']);
+			}
 			$resultDb = $className::update($primary, $data);
 		}
 		else

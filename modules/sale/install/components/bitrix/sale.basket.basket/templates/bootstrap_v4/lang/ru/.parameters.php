@@ -8,6 +8,7 @@ $MESS["CP_SBB_TPL_THEME_RED"] = "Красная";
 $MESS["CP_SBB_TPL_THEME_YELLOW"] = "Желтая";
 $MESS["CP_SBB_TPL_DEFERRED_REFRESH"] = "Использовать механизм отложенной актуализации данных товаров с провайдером";
 $MESS["CP_SBB_TPL_SHOW_RESTORE"] = "Разрешить восстановление удалённых товаров";
+$MESS["CP_SBB_EMPTY_BASKET_HINT_PATH"] = "Путь к странице для продолжения покупок";
 $MESS["CP_SBB_TPL_TEMPLATE_THEME"] = "Цветовая тема";
 $MESS["CP_SBB_TPL_TOTAL_BLOCK_DISPLAY"] = "Отображение блока с общей информацией по корзине";
 $MESS["CP_SBB_TPL_TOTAL_BLOCK_DISPLAY_TOP"] = "Над корзиной";
@@ -34,4 +35,6 @@ $MESS["USE_ENHANCED_ECOMMERCE_TIP"] = "Требуется дополнитель
 Ecommerce и/или Яндекс.Метрике";
 $MESS["CP_SBB_TPL_DATA_LAYER_NAME"] = "Имя контейнера данных";
 $MESS["CP_SBB_TPL_BRAND_PROPERTY"] = "Свойство брендов";
+$MESS["EMPTY_BASKET_HINT_PATH_TIP"] = "Ссылка для продолжения покупок отображается в случае если корзина пуста.<br>При условии, что путь пустой, текст не будет отображен.";
+
 ?>

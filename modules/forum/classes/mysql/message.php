@@ -440,29 +440,31 @@ class CForumMessage extends CAllForumMessage
 			$strSqlSearch = "";
 		}
 
+		$select = "FM.ID, 
+			FM.AUTHOR_ID, FM.AUTHOR_NAME, FM.AUTHOR_EMAIL, FM.AUTHOR_IP,
+			FM.USE_SMILES, FM.POST_MESSAGE, FM.POST_MESSAGE_HTML, FM.POST_MESSAGE_FILTER,
+			FM.FORUM_ID, FM.TOPIC_ID, FM.NEW_TOPIC,
+			FM.APPROVED, FM.SOURCE_ID, FM.POST_MESSAGE_CHECK, FM.GUEST_ID, FM.AUTHOR_REAL_IP, FM.ATTACH_IMG, FM.XML_ID,
+			" . $DB->DateToCharFunction("FM.POST_DATE", "FULL") . " as POST_DATE,
+			FM.EDITOR_ID, FM.EDITOR_NAME, FM.EDITOR_EMAIL, FM.EDIT_REASON,
+			FU.SHOW_NAME, U.LOGIN, U.NAME, U.SECOND_NAME, U.LAST_NAME, U.PERSONAL_PHOTO,
+			" . $DB->DateToCharFunction("FM.EDIT_DATE", "FULL") . " as EDIT_DATE, FM.PARAM1, FM.PARAM2, FM.HTML, FM.MAIL_HEADER" .
+			$obUserFieldsSql->GetSelect() .
+			(!empty($arAddParams["sNameTemplate"]) ?
+				",\n\t".CForumUser::GetFormattedNameFieldsForSelect(array_merge(
+					$arAddParams, array(
+					"sUserTablePrefix" => "U.",
+					"sForumUserTablePrefix" => "FU.",
+					"sFieldName" => "AUTHOR_NAME_FRMT")), false) : "");
+
 		$strSql =
-			"SELECT FM.ID,
-				FM.AUTHOR_ID, FM.AUTHOR_NAME, FM.AUTHOR_EMAIL, FM.AUTHOR_IP,
-				FM.USE_SMILES, FM.POST_MESSAGE, FM.POST_MESSAGE_HTML, FM.POST_MESSAGE_FILTER,
-				FM.FORUM_ID, FM.TOPIC_ID, FM.NEW_TOPIC,
-				FM.APPROVED, FM.SOURCE_ID, FM.POST_MESSAGE_CHECK, FM.GUEST_ID, FM.AUTHOR_REAL_IP, FM.ATTACH_IMG, FM.XML_ID,
-				".$DB->DateToCharFunction("FM.POST_DATE", "FULL")." as POST_DATE,
-				FM.EDITOR_ID, FM.EDITOR_NAME, FM.EDITOR_EMAIL, FM.EDIT_REASON,
-				FU.SHOW_NAME, U.LOGIN, U.NAME, U.SECOND_NAME, U.LAST_NAME, U.PERSONAL_PHOTO,
-				".$DB->DateToCharFunction("FM.EDIT_DATE", "FULL")." as EDIT_DATE, FM.PARAM1, FM.PARAM2, FM.HTML, FM.MAIL_HEADER".
-				$obUserFieldsSql->GetSelect().
-				(!empty($arAddParams["sNameTemplate"]) ?
-					",\n\t".CForumUser::GetFormattedNameFieldsForSelect(array_merge(
-						$arAddParams, array(
-						"sUserTablePrefix" => "U.",
-						"sForumUserTablePrefix" => "FU.",
-						"sFieldName" => "AUTHOR_NAME_FRMT")), false) : "")."
+			"SELECT " . $select . "
 			FROM b_forum_message FM
 				LEFT JOIN b_forum_user FU ON (FM.AUTHOR_ID = FU.USER_ID)
-				LEFT JOIN b_user U ON (FM.AUTHOR_ID = U.ID)".
-				$strSqlUserFieldJoin."
-			WHERE 1 = 1 ".$strSqlSearch."
-			".$strSqlOrder;
+				LEFT JOIN b_user U ON (FM.AUTHOR_ID = U.ID)" .
+				$strSqlUserFieldJoin . "
+			WHERE 1 = 1 " . $strSqlSearch . "
+			" . $strSqlOrder;
 
 		$iNum = intVal($iNum);
 		if (($iNum>0) || (is_array($arAddParams) && (intVal($arAddParams["nTopCount"])>0)))

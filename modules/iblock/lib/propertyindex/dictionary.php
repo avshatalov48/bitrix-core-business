@@ -159,12 +159,41 @@ class Dictionary
 	 */
 	public function getStringById($valueId)
 	{
-		$connection  = \Bitrix\Main\Application::getConnection();
-		$stringValue = $connection->queryScalar("SELECT VALUE FROM ".$this->getTableName()." WHERE ID = ".intval($valueId));
-		if ($stringValue === null)
-		{
+		$valueId = (int)$valueId;
+		if ($valueId <= 0)
 			return "";
+
+		$connection  = \Bitrix\Main\Application::getConnection();
+		$stringValue = $connection->queryScalar("SELECT VALUE FROM ".$this->getTableName()." WHERE ID = ".$valueId);
+		return ($stringValue === null ? "" : $stringValue);
+	}
+
+	/**
+	 * Returns array of string by its identifier in the dictionary.
+	 *
+	 * @param array $valueIDs Value identifier for dictionary lookup.
+	 *
+	 * @return array
+	 */
+	public function getStringByIds($valueIDs)
+	{
+		$result = [];
+		if (empty($valueIDs) || !is_array($valueIDs))
+			return $result;
+		\Bitrix\Main\Type\Collection::normalizeArrayValuesByInt($valueIDs, true);
+		if (empty($valueIDs))
+			return $result;
+
+		$connection  = \Bitrix\Main\Application::getConnection();
+
+		$result = array_fill_keys($valueIDs, '');
+
+		$rs = $connection->query("SELECT ID, VALUE FROM ".$this->getTableName()." WHERE ID IN(".implode(',',$valueIDs).")");
+		while ($row = $rs->fetch())
+		{
+			$result[$row['ID']] = $row['VALUE'];
 		}
-		return $stringValue;
+
+		return $result;
 	}
 }

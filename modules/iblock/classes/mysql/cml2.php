@@ -94,6 +94,14 @@ class CIBlockXMLFile
 		return true;
 	}
 
+	public function GetRoot()
+	{
+		global $DB;
+		$rs = $DB->Query("SELECT ID MID from ".$this->_table_name." WHERE PARENT_ID = 0");
+		$ar = $rs->Fetch();
+		return $ar["MID"];
+	}
+
 	/*
 	This function have to called once at the import start.
 
@@ -171,6 +179,8 @@ class CIBlockXMLFile
 	function GetCountItemsWithParent($parentID)
 	{
 		global $DB;
+
+		$parentID = (int)$parentID;
 
 		if (!isset($this) || !is_object($this) || strlen($this->_table_name) <= 0)
 		{
@@ -812,7 +822,7 @@ class CIBlockXMLFile
 			return false;
 
 		$hZip = zip_open($file_name);
-		if(!$hZip)
+		if(!is_resource($hZip))
 			return false;
 		//Skip from last step
 		if($last_zip_entry)

@@ -80,7 +80,7 @@ class CBPIfElseBranchActivity
 		$runtime = CBPRuntime::GetRuntime();
 		$arActivities = $runtime->SearchActivitiesByType("condition", $documentType);
 
-		$defaultCondition = "";
+		$defaultCondition = "truecondition";
 		$defaultConditionValue = null;
 		if (!is_array($arCurrentValues))
 		{

@@ -781,11 +781,22 @@ class CCalendarWebService extends IWebService
 	public static function ClearOutlookHtml($html)
 	{
 		$q = tolower($html);
+		if (($pos = strrpos($q, '</head>')) !== false)
+		{
+			$html = substr($html, $pos + 7);
+			$q = tolower($html);
+		}
+
+		if (strpos($q, '<body') !== false)
+		{
+			$html = preg_replace("/((\s|\S)*)<body[^>]*>((\s|\S)*)/is", "$3", $html);
+			$q = tolower($html);
+		}
 
 		if (($pos = strrpos($q, '</body>')) !== false)
+		{
 			$html = substr($html, 0, $pos);
-		if (($pos = strpos($q, '<body>')) !== false)
-			$html = substr($html, $pos + 6);
+		}
 
 		$html = str_replace('</DIV>', "\r\n</DIV>", $html);
 		$html = str_replace(array("&#10;", "&#13;"), "", $html);

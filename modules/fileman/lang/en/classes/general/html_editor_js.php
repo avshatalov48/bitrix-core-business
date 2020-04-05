@@ -280,6 +280,7 @@ $MESS["BXEdSup"] = "Superscript";
 $MESS["BXEdAddListItem"] = "Add list item";
 $MESS["BXEdSettingsCleanSpans"] = "Remove &lt;span&gt; tags without attributes";
 $MESS["BXEdBbCode"] = "BB Code mode";
+$MESS["BXEdHtmlCode"] = "HTML Mode";
 $MESS["BXEdDelFromText"] = "Delete from text";
 $MESS["BXEdColorpickerDialog"] = "Text and background color";
 $MESS["BXEdBgColor"] = "Background color";

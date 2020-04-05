@@ -32,6 +32,7 @@ class Actions
 	const GRID_SAVE_ROWS_SORT = "saveRowsSort";
 	const GRID_SAVE_BATH = "saveBath";
 	const GRID_SET_COLLAPSED_GROUPS = "setCollapsedGroups";
+	const GRID_SET_STICKED_COLUMNS = "setStickedColumns";
 
 
 	/**

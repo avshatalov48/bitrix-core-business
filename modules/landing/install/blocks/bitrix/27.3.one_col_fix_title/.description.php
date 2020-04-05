@@ -10,7 +10,7 @@ return array(
 	'block' =>
 		array(
 			'name' => Loc::getMessage('LANDING_BLOCK_27_3_ONE_COL_FIX_TITLE_AND_TEXT_2_NAME_NEW'),
-			'section' => array('title', 'text'),
+			'section' => array('title'),
 		),
 	'cards' =>
 		array(),

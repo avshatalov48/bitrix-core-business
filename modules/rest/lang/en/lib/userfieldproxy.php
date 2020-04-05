@@ -1,4 +1,5 @@
 <?
+$MESS["REST_UF_ROWS"] = "Rows per text box";
 $MESS["REST_UF_ID"] = "ID";
 $MESS["REST_UF_ENTITY_ID"] = "Object";
 $MESS["REST_UF_FIELD_NAME"] = "Code";

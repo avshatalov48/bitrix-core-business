@@ -20,16 +20,17 @@ use Bitrix\Main\Localization\Loc;
 					<div class="form">
 						<div class="form-group" style="position: relative;">
 							<input type="text" class="form-control" id="" placeholder="" data-entity="basket-coupon-input">
-							<span class="basket-coupon-block-coupon-btn"></span>
+							<span class=" basket-coupon-block-coupon-btn"></span>
 						</div>
 					</div>
+
 				</div>
 			</div>
 			<?
 		}
 		?>
 		<div class="basket-checkout-section">
-			<div class="basket-checkout-section-inner">
+			<div class="basket-checkout-section-inner<?=(($arParams['HIDE_COUPON'] == 'Y') ? ' justify-content-between' : '')?>">
 				<div class="basket-checkout-block basket-checkout-block-total">
 					<div class="basket-checkout-block-total-inner">
 						<div class="basket-checkout-block-total-title"><?=Loc::getMessage('SBB_TOTAL')?>:</div>

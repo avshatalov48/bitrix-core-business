@@ -7,6 +7,7 @@ class CBPStateMachineWorkflowActivity
 {
 	private $documentId = array();
 	private $workflowTemplateId = null;
+	private $templateUserId = null;
 	protected $documentType = array();
 
 	private $workflowStatus = CBPWorkflowStatus::Created;
@@ -57,6 +58,16 @@ class CBPStateMachineWorkflowActivity
 		$this->workflowTemplateId = $workflowTemplateId;
 	}
 
+	public function getTemplateUserId()
+	{
+		return $this->templateUserId;
+	}
+
+	public function setTemplateUserId($userId)
+	{
+		$this->templateUserId = (int) $userId;
+	}
+
 	public function GetWorkflowStatus()
 	{
 		return $this->workflowStatus;
@@ -90,6 +101,10 @@ class CBPStateMachineWorkflowActivity
 			\Bitrix\Bizproc\SchedulerEventTable::deleteByWorkflow($this->workflow->GetInstanceId());
 			//Finalize workflow activities
 			$this->workflow->FinalizeActivity($this);
+
+			/** @var CBPTrackingService $trackingService */
+			$trackingService = $this->workflow->GetService("TrackingService");
+			$trackingService->setCompletedByWorkflow($this->workflow->GetInstanceId());
 		}
 		try
 		{

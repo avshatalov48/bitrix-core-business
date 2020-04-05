@@ -1,8 +1,7 @@
-<?
-global $MESS;
-$strPath2Lang = str_replace("\\", "/", __FILE__);
-$strPath2Lang = substr($strPath2Lang, 0, strlen($strPath2Lang)-strlen("/install/index.php"));
-include(GetLangFileName($strPath2Lang."/lang/", "/install/index.php"));
+<?php
+
+use Bitrix\Main\Localization\Loc;
+Loc::loadMessages(__FILE__);
 
 Class mail extends CModule
 {
@@ -13,7 +12,7 @@ Class mail extends CModule
 	var $MODULE_DESCRIPTION;
 	var $MODULE_CSS;
 
-	function mail()
+	function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -32,8 +31,8 @@ Class mail extends CModule
 			$this->MODULE_VERSION_DATE = MAIL_VERSION_DATE;
 		}
 
-		$this->MODULE_NAME = GetMessage("MAIL_MODULE_NAME");
-		$this->MODULE_DESCRIPTION = GetMessage("MAIL_MODULE_DESC");
+		$this->MODULE_NAME = Loc::getMessage("MAIL_MODULE_NAME");
+		$this->MODULE_DESCRIPTION = Loc::getMessage("MAIL_MODULE_DESC");
 	}
 
 	function InstallDB($arParams = array())
@@ -54,118 +53,48 @@ Class mail extends CModule
 		}
 		else
 		{
+			$eventManager = \Bitrix\Main\EventManager::getInstance();
+
+			$eventManager->registerEventHandlerCompatible('rest', 'OnRestServiceBuildDescription', 'mail', 'CMailRestService', 'OnRestServiceBuildDescription');
+
+			$eventManager->registerEventHandlerCompatible('main', 'OnAfterUserUpdate', 'mail', 'CMail', 'onUserUpdate');
+			$eventManager->registerEventHandlerCompatible('main', 'OnAfterUserDelete', 'mail', 'CMail', 'onUserDelete');
+
+			$eventManager->registerEventHandlerCompatible('main', 'OnBeforeSiteUpdate', 'mail', 'Bitrix\Mail\User', 'handleSiteUpdate');
+			$eventManager->registerEventHandler('main', 'OnAfterSetOption_server_name', 'mail', 'Bitrix\Mail\User', 'handleServerNameUpdate');
+
+			$eventManager->registerEventHandlerCompatible('main', 'OnUserTypeBuildList', 'mail', 'Bitrix\Mail\MessageUserType', 'getUserTypeDescription');
+			$eventManager->registerEventHandlerCompatible('main', 'OnMailEventMailRead', 'mail', 'Bitrix\Mail\Helper\MessageEventManager', 'onMailEventMailRead');
+
 			RegisterModule("mail");
 
 			if (CModule::IncludeModule("mail"))
 			{
-				$result = Bitrix\Mail\MailServicesTable::getList(array('filter' => array('ACTIVE' => 'Y')));
-				if ($result->fetch() === false)
+				if (strtolower($DB->type) == 'mysql')
 				{
-					$mailServices = array(
-						'gmail' => array(
-							'SERVER' => 'imap.gmail.com', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'https://mail.google.com/',
-						),
-						'icloud' => array(
-							'SERVER' => 'imap.mail.me.com', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'https://www.icloud.com/#mail',
-						),
-						'outlook.com' => array(
-							'SERVER' => 'imap-mail.outlook.com', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'https://www.outlook.com/owa',
-						),
-						'office365' => array(
-							'SERVER' => 'outlook.office365.com', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'http://mail.office365.com/',
-						),
-						'yahoo' => array(
-							'SERVER' => 'imap.mail.yahoo.com', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'http://mail.yahoo.com/',
-						),
-						'aol' => array(
-							'SERVER' => 'imap.aol.com', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'http://mail.aol.com/',
-						),
-						'yandex' => array(
-							'SERVER' => 'imap.yandex.ru', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'https://mail.yandex.ru/',
-						),
-						'mail.ru' => array(
-							'SERVER' => 'imap.mail.ru', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'http://e.mail.ru/',
-						),
-						'exchange' => array(),
-						'other' => array(),
-					);
-
-					$mailServicesByLang = array(
-						'ru' => array(
-							100  => 'gmail',
-							200  => 'outlook.com',
-							300  => 'icloud',
-							400  => 'office365',
-							500  => 'exchange',
-							600  => 'yahoo',
-							700  => 'aol',
-							800  => 'yandex',
-							900  => 'mail.ru',
-							1000 => 'other',
-						),
-						'ua' => array(
-							100  => 'gmail',
-							200  => 'outlook.com',
-							300  => 'icloud',
-							400  => 'office365',
-							500  => 'exchange',
-							600  => 'yahoo',
-							700  => 'aol',
-							800  => 'other',
-						),
-						'en' => array(
-							100 => 'gmail',
-							200 => 'outlook.com',
-							300 => 'icloud',
-							400 => 'office365',
-							500 => 'exchange',
-							600 => 'yahoo',
-							700 => 'aol',
-							800 => 'other'
-						),
-						'de' => array(
-							100 => 'gmail',
-							200 => 'outlook.com',
-							300 => 'icloud',
-							400 => 'office365',
-							500 => 'exchange',
-							600 => 'yahoo',
-							700 => 'aol',
-							800 => 'other'
-						)
-					);
-
-					$result = \Bitrix\Main\SiteTable::getList();
-					while (($site = $result->fetch()) !== false)
+					$errors = $DB->runSqlBatch(sprintf(
+						'%s/bitrix/modules/mail/install/db/%s/install_ft.sql',
+						$_SERVER['DOCUMENT_ROOT'],
+						strtolower($DB->type)
+					));
+					if ($errors === false)
 					{
-						if (CModule::IncludeModule('extranet') && CExtranet::IsExtranetSite($site['LID']))
-							continue;
-
-						$mailServicesList = isset($mailServicesByLang[$site['LANGUAGE_ID']])
-							? $mailServicesByLang[$site['LANGUAGE_ID']]
-							: $mailServicesByLang['en'];
-						foreach ($mailServicesList as $serviceSort => $serviceName)
-						{
-							$serviceSettings = $mailServices[$serviceName];
-
-							$serviceSettings['SITE_ID']      = $site['LID'];
-							$serviceSettings['ACTIVE']       = 'Y';
-							$serviceSettings['SERVICE_TYPE'] = 'imap';
-							$serviceSettings['NAME']         = $serviceName;
-							$serviceSettings['SORT']         = $serviceSort;
-
-							Bitrix\Mail\MailServicesTable::add($serviceSettings);
-						}
+						\Bitrix\Mail\MailMessageTable::getEntity()->enableFullTextIndex('SEARCH_CONTENT');
 					}
 				}
 
+				$result = \Bitrix\Main\SiteTable::getList();
+				while (($site = $result->fetch()) !== false)
+				{
+					$this->installMailService($site["LID"]);
+				}
 
 				// create group and give it rights
 				$arGroup = array(
 					"ACTIVE" => "Y",
 					"C_SORT" => 201,
-					"NAME" => GetMessage("MAIL_GROUP_NAME"),
-					"DESCRIPTION" => GetMessage("MAIL_GROUP_DESC"),
+					"NAME" => Loc::getMessage("MAIL_GROUP_NAME"),
+					"DESCRIPTION" => Loc::getMessage("MAIL_GROUP_DESC"),
 					"STRING_ID" => "MAIL_INVITED",
 					"TASKS_MODULE" => array("main_change_profile"),
 					"TASKS_FILE" => array(
@@ -259,20 +188,126 @@ Class mail extends CModule
 				}
 			}
 
-			$eventManager = \Bitrix\Main\EventManager::getInstance();
-
-			$eventManager->registerEventHandlerCompatible('rest', 'OnRestServiceBuildDescription', 'mail', 'CMailRestService', 'OnRestServiceBuildDescription');
-
-			$eventManager->registerEventHandlerCompatible('main', 'OnAfterUserUpdate', 'mail', 'CMail', 'onUserUpdate');
-			$eventManager->registerEventHandlerCompatible('main', 'OnAfterUserDelete', 'mail', 'CMail', 'onUserDelete');
-
-			$eventManager->registerEventHandlerCompatible('main', 'OnBeforeSiteUpdate', 'mail', 'Bitrix\\Mail\\User', 'handleSiteUpdate');
-			$eventManager->registerEventHandler('main', 'OnAfterSetOption_server_name', 'mail', 'Bitrix\\Mail\\User', 'handleServerNameUpdate');
-
 			CAgent::AddAgent("CMailbox::CleanUp();", "mail", "N", 60*60*24);
 			CAgent::addAgent('Bitrix\Mail\Helper::resyncDomainUsersAgent();', 'mail', 'N', 60*60*24);
 
 			return true;
+		}
+	}
+
+	/**
+	 * @param $siteId
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public function installMailService($siteId)
+	{
+		$filter = [
+			'ACTIVE' => 'Y',
+			'SITE_ID' => $siteId
+		];
+		$result = Bitrix\Mail\MailServicesTable::getList(array('filter' => $filter));
+		if ($result->fetch() === false)
+		{
+			$mailServices = array(
+				'gmail' => array(
+					'SERVER' => 'imap.gmail.com', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'https://mail.google.com/', 'SMTP_SERVER' => 'smtp.gmail.com', 'SMTP_PORT' => 465, 'SMTP_LOGIN_AS_IMAP' => true, 'SMTP_PASSWORD_AS_IMAP' => true,
+				),
+				'icloud' => array(
+					'SERVER' => 'imap.mail.me.com', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'https://www.icloud.com/#mail', 'SMTP_SERVER' => 'smtp.mail.me.com', 'SMTP_PORT' => 587, 'SMTP_LOGIN_AS_IMAP' => true, 'SMTP_PASSWORD_AS_IMAP' => true,
+				),
+				'outlook.com' => array(
+					'SERVER' => 'imap-mail.outlook.com', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'https://www.outlook.com/owa', 'SMTP_SERVER' => 'smtp-mail.outlook.com', 'SMTP_PORT' => 587, 'SMTP_LOGIN_AS_IMAP' => true, 'SMTP_PASSWORD_AS_IMAP' => true,
+				),
+				'office365' => array(
+					'SERVER' => 'outlook.office365.com', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'http://mail.office365.com/', 'SMTP_SERVER' => 'smtp.office365.com', 'SMTP_PORT' => 587, 'SMTP_LOGIN_AS_IMAP' => true, 'SMTP_PASSWORD_AS_IMAP' => true,
+				),
+				'yahoo' => array(
+					'SERVER' => 'imap.mail.yahoo.com', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'http://mail.yahoo.com/', 'SMTP_SERVER' => 'smtp.mail.yahoo.com', 'SMTP_PORT' => 465, 'SMTP_LOGIN_AS_IMAP' => true, 'SMTP_PASSWORD_AS_IMAP' => true,
+				),
+				'aol' => array(
+					'SERVER' => 'imap.aol.com', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'http://mail.aol.com/', 'SMTP_SERVER' => 'smtp.aol.com', 'SMTP_PORT' => 465, 'SMTP_LOGIN_AS_IMAP' => true, 'SMTP_PASSWORD_AS_IMAP' => true,
+				),
+				'yandex' => array(
+					'SERVER' => 'imap.yandex.ru', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'https://mail.yandex.ru/', 'SMTP_SERVER' => 'smtp.yandex.ru', 'SMTP_PORT' => 465, 'SMTP_LOGIN_AS_IMAP' => true, 'SMTP_PASSWORD_AS_IMAP' => true,
+				),
+				'mail.ru' => array(
+					'SERVER' => 'imap.mail.ru', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'http://e.mail.ru/','SMTP_SERVER' => 'smtp.mail.ru', 'SMTP_PORT' => 465, 'SMTP_LOGIN_AS_IMAP' => true, 'SMTP_PASSWORD_AS_IMAP' => true,
+				),
+				'exchange' => array(),
+				'other' => array(),
+			);
+
+			$mailServicesByLang = array(
+				'ru' => array(
+					100  => 'gmail',
+					200  => 'outlook.com',
+					300  => 'icloud',
+					400  => 'office365',
+					500  => 'exchange',
+					600  => 'yahoo',
+					700  => 'aol',
+					800  => 'yandex',
+					900  => 'mail.ru',
+					1000 => 'other',
+				),
+				'ua' => array(
+					100  => 'gmail',
+					200  => 'outlook.com',
+					300  => 'icloud',
+					400  => 'office365',
+					500  => 'exchange',
+					600  => 'yahoo',
+					700  => 'aol',
+					800  => 'other',
+				),
+				'en' => array(
+					100 => 'gmail',
+					200 => 'outlook.com',
+					300 => 'icloud',
+					400 => 'office365',
+					500 => 'exchange',
+					600 => 'yahoo',
+					700 => 'aol',
+					800 => 'other'
+				),
+				'de' => array(
+					100 => 'gmail',
+					200 => 'outlook.com',
+					300 => 'icloud',
+					400 => 'office365',
+					500 => 'exchange',
+					600 => 'yahoo',
+					700 => 'aol',
+					800 => 'other'
+				)
+			);
+
+			$site = \Bitrix\Main\SiteTable::getList(array('filter' => ["=LID" => $siteId]))
+				->fetch();
+
+			if (!$site)
+				return;
+
+			if (CModule::IncludeModule('extranet') && CExtranet::IsExtranetSite($site['LID']))
+				return;
+
+			$mailServicesList = isset($mailServicesByLang[$site['LANGUAGE_ID']])
+				? $mailServicesByLang[$site['LANGUAGE_ID']]
+				: $mailServicesByLang['en'];
+			foreach ($mailServicesList as $serviceSort => $serviceName)
+			{
+				$serviceSettings = $mailServices[$serviceName];
+
+				$serviceSettings['SITE_ID']      = $site['LID'];
+				$serviceSettings['ACTIVE']       = 'Y';
+				$serviceSettings['SERVICE_TYPE'] = 'imap';
+				$serviceSettings['NAME']         = $serviceName;
+				$serviceSettings['SORT']         = $serviceSort;
+
+				Bitrix\Mail\MailServicesTable::add($serviceSettings);
+			}
 		}
 	}
 
@@ -304,7 +339,25 @@ Class mail extends CModule
 		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
 		{
 			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/db/".strtolower($DB->type)."/uninstall.sql");
+
+			if (\Bitrix\Main\Loader::includeModule('mail'))
+			{
+				\Bitrix\Mail\MailMessageTable::getEntity()->enableFullTextIndex('SEARCH_CONTENT', false);
+			}
 		}
+
+		$eventManager = \Bitrix\Main\EventManager::getInstance();
+
+		$eventManager->unRegisterEventHandler('rest', 'OnRestServiceBuildDescription', 'mail', 'CMailRestService', 'OnRestServiceBuildDescription');
+
+		$eventManager->unRegisterEventHandler('main', 'OnAfterUserUpdate', 'mail', 'CMail', 'onUserUpdate');
+		$eventManager->unRegisterEventHandler('main', 'OnAfterUserDelete', 'mail', 'CMail', 'onUserDelete');
+
+		$eventManager->unRegisterEventHandler('main', 'OnBeforeSiteUpdate', 'mail', 'Bitrix\\Mail\\User', 'handleSiteUpdate');
+		$eventManager->unRegisterEventHandler('main', 'OnAfterSetOption_server_name', 'mail', 'Bitrix\\Mail\\User', 'handleServerNameUpdate');
+
+		$eventManager->unRegisterEventHandler('main', 'OnUserTypeBuildList', 'mail', 'Bitrix\\Mail\\MessageUserType', 'getUserTypeDescription');
+		$eventManager->unRegisterEventHandler('main', 'OnMailEventMailRead', 'mail', 'Bitrix\\Mail\\Helper\\MessageEventManager', 'onMailEventMailRead');
 
 		//delete agents
 		CAgent::RemoveModuleAgents("mail");
@@ -339,6 +392,7 @@ Class mail extends CModule
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools", true, true);
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/themes", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/templates", $_SERVER["DOCUMENT_ROOT"]."/bitrix/templates", true, true);
+			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
 		}
 		return true;
 	}
@@ -359,7 +413,7 @@ Class mail extends CModule
 
 		if(!CBXFeatures::IsFeatureEditable("SMTP"))
 		{
-			$APPLICATION->ThrowException(GetMessage("MAIN_FEATURE_ERROR_EDITABLE"));
+			$APPLICATION->ThrowException(Loc::getMessage("MAIN_FEATURE_ERROR_EDITABLE"));
 		}
 		else
 		{
@@ -367,7 +421,7 @@ Class mail extends CModule
 			$this->InstallDB();
 			CBXFeatures::SetFeatureEnabled("SMTP", true);
 		}
-		$APPLICATION->IncludeAdminFile(GetMessage("MAIL_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/step1.php");
+		$APPLICATION->IncludeAdminFile(Loc::getMessage("MAIL_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/step1.php");
 	}
 
 	function DoUninstall()
@@ -375,7 +429,7 @@ Class mail extends CModule
 		global $DB, $APPLICATION, $step;
 		if($step < 2)
 		{
-			$APPLICATION->IncludeAdminFile(GetMessage("MAIL_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/unstep1.php");
+			$APPLICATION->IncludeAdminFile(Loc::getMessage("MAIL_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/unstep1.php");
 		}
 		elseif($step == 2)
 		{
@@ -385,7 +439,7 @@ Class mail extends CModule
 			$this->UnInstallFiles();
 			CBXFeatures::SetFeatureEnabled("SMTP", false);
 			$GLOBALS["errors"] = $this->errors;
-			$APPLICATION->IncludeAdminFile(GetMessage("MAIL_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/unstep2.php");
+			$APPLICATION->IncludeAdminFile(Loc::getMessage("MAIL_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/unstep2.php");
 		}
 	}
 }

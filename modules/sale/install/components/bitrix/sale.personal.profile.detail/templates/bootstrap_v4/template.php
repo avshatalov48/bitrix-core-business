@@ -1,6 +1,27 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main\Localization\Loc;
+
+if (!empty($arResult['ERRORS']))
+{
+	if ($arParams['AUTH_FORM_IN_TEMPLATE'] && isset($arResult['ERRORS'][$component::E_NOT_AUTHORIZED]))
+	{
+		?>
+		<div class="row mb-3">
+			<div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+				<div class="alert alert-danger"><?=$arResult['ERRORS'][$component::E_NOT_AUTHORIZED]?></div>
+			</div>
+			<? $authListGetParams = array(); ?>
+			<div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3" id="catalog-subscriber-auth-form" style="<?=$authStyle?>">
+				<?$APPLICATION->AuthForm('', false, false, 'N', false);?>
+			</div>
+		</div>
+		<?
+	}
+
+	return;
+}
+
 ?>
 <div class="row mb-3">
 	<div class="col">
@@ -14,7 +35,7 @@ if(strlen($arResult["ID"])>0)
 	ShowError($arResult["ERROR_MESSAGE"]);
 	?>
 	<div class="row mb-3">
-		<form method="post"  class="col-12 sale-profile-detail-form" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data">
+		<form method="post"  class="col sale-profile-detail-form" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data">
 
 			<div class="row mb-2">
 				<?=bitrix_sessid_post()?>
@@ -25,13 +46,13 @@ if(strlen($arResult["ID"])>0)
 			</div>
 
 			<div class="form-group row mb-2">
-				<label class="col-sm-2 col-form-label"><?=Loc::getMessage('SALE_PERS_TYPE')?></label>
-				<div class="col-sm-10 col-form-label"><?=$arResult["PERSON_TYPE"]["NAME"]?></div>
+				<label class="col-sm-3 text-right col-form-label"><?=Loc::getMessage('SALE_PERS_TYPE')?>:</label>
+				<div class="col-sm-9 col-form-label"><?=$arResult["PERSON_TYPE"]["NAME"]?></div>
 			</div>
 
 			<div class="form-group row mb-2">
-				<label class="col-sm-2 col-form-label" for="sale-personal-profile-detail-name"><?=Loc::getMessage('SALE_PNAME')?>:<span class="req">*</span></label>
-				<div class="col-sm-10">
+				<label class="col-sm-3 text-right col-form-label" for="sale-personal-profile-detail-name"><?=Loc::getMessage('SALE_PNAME')?>:<span class="req">*</span></label>
+				<div class="col-sm-9">
 					<input class="form-control mb-1" type="text" name="NAME" maxlength="50" id="sale-personal-profile-detail-name" value="<?=$arResult["NAME"]?>" />
 				</div>
 			</div>
@@ -48,9 +69,10 @@ if(strlen($arResult["ID"])>0)
 						</div>
 					</div>
 					<?
-					foreach($block["PROPS"] as $key => $property)
+					foreach($block["PROPS"] as $property)
 					{
-						$name = "ORDER_PROP_".(int)$property["ID"];
+						$key = (int)$property["ID"];
+						$name = "ORDER_PROP_".$key;
 						$currentValue = $arResult["ORDER_PROPS_VALUES"][$name];
 						$alignTop = ($property["TYPE"] === "LOCATION" && $arParams['USE_AJAX_LOCATIONS'] === 'Y') ? "vertical-align-top" : "";
 						?>
@@ -59,7 +81,7 @@ if(strlen($arResult["ID"])>0)
 							{
 								?>
 								<div class="form-check row mb-2">
-									<label class="col-sm-2 col-form-label <?=$alignTop?>" for="sppd-property-<?=$key?>">
+									<label class="col-sm-3 text-right col-form-label <?=$alignTop?>" for="sppd-property-<?=$key?>">
 										<?= $property["NAME"]?>:
 										<? if ($property["REQUIED"] == "Y")
 										{
@@ -67,7 +89,7 @@ if(strlen($arResult["ID"])>0)
 										}
 										?>
 									</label>
-									<div class="col-sm-10">
+									<div class="col-sm-9">
 										<input class="form-check-input" id="sppd-property-<?=$key?>" type="checkbox" name="<?=$name?>" value="Y"
 										<?if ($currentValue == "Y" || !isset($currentValue) && $property["DEFAULT_VALUE"] == "Y") echo " checked";?>/>
 									</div>
@@ -78,7 +100,7 @@ if(strlen($arResult["ID"])>0)
 							{
 								?>
 								<div class="form-group row mb-2">
-									<label class="col-sm-2 col-form-label <?=$alignTop?>" for="sppd-property-<?=$key?>">
+									<label class="col-sm-3 text-right col-form-label <?=$alignTop?>" for="sppd-property-<?=$key?>">
 										<?= $property["NAME"]?>:
 										<? if ($property["REQUIED"] == "Y")
 										{
@@ -86,7 +108,7 @@ if(strlen($arResult["ID"])>0)
 										}
 										?>
 									</label>
-									<div class="col-sm-10">
+									<div class="col-sm-9">
 										<?
 										if ($property["MULTIPLE"] === 'Y')
 										{
@@ -117,7 +139,7 @@ if(strlen($arResult["ID"])>0)
 							{
 								?>
 								<div class="form-group row mb-2">
-									<label class="col-sm-2 col-form-label <?=$alignTop?>" for="sppd-property-<?=$key?>">
+									<label class="col-sm-3 text-right col-form-label <?=$alignTop?>" for="sppd-property-<?=$key?>">
 										<?= $property["NAME"]?>:
 										<? if ($property["REQUIED"] == "Y")
 										{
@@ -125,7 +147,7 @@ if(strlen($arResult["ID"])>0)
 										}
 										?>
 									</label>
-									<div class="col-sm-10">
+									<div class="col-sm-9">
 										<select class="form-control mb-1" name="<?=$name?>" id="sppd-property-<?=$key?>" size="<?echo (intval($property["SIZE1"])>0)?$property["SIZE1"]:1; ?>">
 											<?
 											foreach ($property["VALUES"] as $value)
@@ -146,7 +168,7 @@ if(strlen($arResult["ID"])>0)
 							{
 								?>
 								<div class="form-group row mb-2">
-									<label class="col-sm-2 col-form-label <?=$alignTop?>" for="sppd-property-<?=$key?>">
+									<label class="col-sm-3 text-right col-form-label <?=$alignTop?>" for="sppd-property-<?=$key?>">
 										<?= $property["NAME"]?>:
 										<? if ($property["REQUIED"] == "Y")
 										{
@@ -154,7 +176,7 @@ if(strlen($arResult["ID"])>0)
 										}
 										?>
 									</label>
-									<div class="col-sm-10">
+									<div class="col-sm-9">
 										<select class="form-control mb-1" id="sppd-property-<?=$key?>" multiple name="<?=$name?>[]" size="<?echo (intval($property["SIZE1"])>0)?$property["SIZE1"]:5; ?>">
 											<?
 											$arCurVal = array();
@@ -182,7 +204,7 @@ if(strlen($arResult["ID"])>0)
 							{
 								?>
 								<div class="form-group row mb-2">
-									<label class="col-sm-2 col-form-label <?=$alignTop?>" for="sppd-property-<?=$key?>">
+									<label class="col-sm-3 text-right col-form-label <?=$alignTop?>" for="sppd-property-<?=$key?>">
 										<?= $property["NAME"]?>:
 										<? if ($property["REQUIED"] == "Y")
 										{
@@ -190,7 +212,7 @@ if(strlen($arResult["ID"])>0)
 										}
 										?>
 									</label>
-									<div class="col-sm-10">
+									<div class="col-sm-9">
 										<textarea
 											class="form-control mb-1"
 											id="sppd-property-<?=$key?>"
@@ -206,7 +228,7 @@ if(strlen($arResult["ID"])>0)
 							{
 								?>
 								<div class="form-group row mb-2">
-									<label class="col-sm-2 col-form-label <?=$alignTop?>" for="sppd-property-<?=$key?>">
+									<label class="col-sm-3 text-right col-form-label <?=$alignTop?>" for="sppd-property-<?=$key?>">
 										<?= $property["NAME"]?>:
 										<? if ($property["REQUIED"] == "Y")
 										{
@@ -214,7 +236,7 @@ if(strlen($arResult["ID"])>0)
 										}
 										?>
 									</label>
-									<div class="col-sm-10">
+									<div class="col-sm-9">
 										<?
 											$locationTemplate = ($arParams['USE_AJAX_LOCATIONS'] !== 'Y') ? "popup" : "";
 											$locationClassName = 'location-block-wrapper';
@@ -227,16 +249,16 @@ if(strlen($arResult["ID"])>0)
 												if (empty($currentValue) || !is_array($currentValue))
 													$currentValue = array($property["DEFAULT_VALUE"]);
 
-												foreach ($currentValue as $key => $elementValue)
+												foreach ($currentValue as $code => $elementValue)
 												{
 													$locationValue = intval($elementValue) ? $elementValue : $property["DEFAULT_VALUE"];
 													CSaleLocation::proxySaleAjaxLocationsComponent(
 														array(
-															"ID" => "propertyLocation".$name."[$key]",
+															"ID" => "propertyLocation".$name."[$code]",
 															"AJAX_CALL" => "N",
 															'CITY_OUT_LOCATION' => 'Y',
 															'COUNTRY_INPUT_NAME' => $name.'_COUNTRY',
-															'CITY_INPUT_NAME' => $name."[$key]",
+															'CITY_INPUT_NAME' => $name."[$code]",
 															'LOCATION_VALUE' => $locationValue,
 														),
 														array(
@@ -249,7 +271,7 @@ if(strlen($arResult["ID"])>0)
 												?><span class="btn btn-primary btn-md input-add-multiple"
 													  data-add-type="<?=$property["TYPE"]?>"
 													  data-add-name="<?=$name?>"
-													  data-add-last-key="<?=$key?>"
+													  data-add-last-key="<?=$code?>"
 													  data-add-template="<?=$locationTemplate?>"><?=Loc::getMessage('SPPD_ADD')?></span><?
 										}
 										else
@@ -282,7 +304,7 @@ if(strlen($arResult["ID"])>0)
 								{
 									?>
 									<div class="form-check row mb-2">
-										<label class="col-sm-2 col-form-label <?=$alignTop?>" for="sppd-property-<?=$key?>">
+										<label class="col-sm-3 text-right col-form-label <?=$alignTop?>" for="sppd-property-<?=$key?>">
 											<?= $property["NAME"]?>:
 											<? if ($property["REQUIED"] == "Y")
 											{
@@ -290,7 +312,7 @@ if(strlen($arResult["ID"])>0)
 											}
 											?>
 										</label>
-										<div class="col-sm-10">
+										<div class="col-sm-9">
 											<input type="radio" id="sppd-property-<?=$key?>" name="<?=$name?>" value="<?= $value["VALUE"]?>"
 												<?if ($value["VALUE"] == $currentValue || !isset($currentValue) && $value["VALUE"] == $property["DEFAULT_VALUE"]) echo " checked"?>>
 											<?= $value["NAME"]?>
@@ -339,7 +361,7 @@ if(strlen($arResult["ID"])>0)
 								}
 								?>
 								<div class="form-group row mb-2">
-									<label class="col-sm-2 col-form-label <?=$alignTop?>" for="sppd-property-<?=$key?>">
+									<label class="col-sm-3 text-right col-form-label <?=$alignTop?>" for="sppd-property-<?=$key?>">
 										<?= $property["NAME"]?>:
 										<? if ($property["REQUIED"] == "Y")
 										{
@@ -347,7 +369,7 @@ if(strlen($arResult["ID"])>0)
 										}
 										?>
 									</label>
-									<div class="col-sm-10">
+									<div class="col-sm-9">
 										<label>
 											<span class="btn btn-primary btn-md"><?=Loc::getMessage('SPPD_SELECT')?></span>
 											<span class="sale-personal-profile-detail-load-file-info">

@@ -13,7 +13,7 @@ if(!$USER->CanDoOperation('fileman_view_file_structure'))
 
 IncludeModuleLangFile(__FILE__);
 
-echo '<!--BX_FD_LOAD_OK-->';
+echo '<div style="display:none">BX_FD_LOAD_OK</div>';
 
 if (!check_bitrix_sessid())
 	die('<!--BX_FD_DUBLICATE_ACTION_REQUEST'.bitrix_sessid().'-->');

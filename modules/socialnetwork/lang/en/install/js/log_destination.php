@@ -1,4 +1,6 @@
 <?
+$MESS["LM_POPUP_TAB_MAIL_CONTACTS"] = "Contacts";
+$MESS["LM_POPUP_TAB_LAST_MAIL_CONTACTS"] = "Contacts";
 $MESS["LM_POPUP_TITLE"] = "Title";
 $MESS["LM_POPUP_TAB_LAST"] = "Recent";
 $MESS["LM_POPUP_TAB_SG"] = "My Groups";

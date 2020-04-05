@@ -23,6 +23,11 @@ class Tracking
 {
 	const SIGN_SALT_ACTION = 'event_mail_tracking';
 
+	const onRead = 'OnMailEventMailRead';
+	const onClick = 'OnMailEventMailClick';
+	const onUnsubscribe = 'OnMailEventSubscriptionDisable';
+	const onChangeStatus = 'OnMailEventMailChangeStatus';
+
 	/**
 	 * Get tag.
 	 *
@@ -392,6 +397,36 @@ class Tracking
 			$filter = null;
 
 		$event = new Main\Event("main", "OnMailEventMailRead", array($data['FIELDS']), $filter);
+		$event->send();
+		foreach ($event->getResults() as $eventResult)
+		{
+			if ($eventResult->getType() == EventResult::ERROR)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Change status of sending.
+	 *
+	 * @param Callback\Result $callbackResult Callback result instance.
+	 * @return bool
+	 */
+	public static function changeStatus(Callback\Result $callbackResult)
+	{
+		if($callbackResult->getModuleId())
+		{
+			$filter = [$callbackResult->getModuleId()];
+		}
+		else
+		{
+			$filter = null;
+		}
+
+		$event = new Main\Event("main", self::onChangeStatus, [$callbackResult], $filter);
 		$event->send();
 		foreach ($event->getResults() as $eventResult)
 		{

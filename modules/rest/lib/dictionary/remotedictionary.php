@@ -10,6 +10,7 @@ namespace Bitrix\Rest\Dictionary;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Event;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\Dictionary;
@@ -72,8 +73,15 @@ class RemoteDictionary extends Dictionary
 		else
 		{
 			$dictionary = $this->load();
+
 			$managedCache->set($this->getCacheId(), $dictionary);
 		}
+
+		$event = new Event('rest', 'onRemoteDictionaryLoad', array(
+			'ID' => static::ID,
+			'DICTIONARY' => &$dictionary
+		));
+		$event->send();
 
 		return $dictionary;
 	}

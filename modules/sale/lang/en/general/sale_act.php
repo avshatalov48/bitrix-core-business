@@ -1,4 +1,5 @@
 <?
+$MESS["BT_SALE_ACT_GROUP_BASKET_SELECT_TYPE_CLOSEOUT"] = "fixed price";
 $MESS["BT_SALE_ACT_GROUP_GLOBAL_PREFIX"] = "Execute action:";
 $MESS["BT_SALE_ACT_DELIVERY_LABEL"] = "Change delivery cost";
 $MESS["BT_SALE_ACT_DELIVERY_DEF_TEXT"] = "Delivery cost";
@@ -64,8 +65,4 @@ $MESS["BT_SALE_GIFT_DISCOUNT_DESCR"] = "Gift";
 $MESS["BT_SALE_ACT_GROUP_BASKET_DESCR_EXT"] = "to products for which";
 $MESS["BT_SALE_ACT_MAX_DISCOUNT_GROUP_BASKET_DESCR"] = ", but not more than";
 $MESS["BT_SALE_ACT_MAX_DISCOUNT_ON_GROUP_BASKET_ERROR_CONDITION"] = "Cannot set maximum discount restriction for total order amount.";
-$MESS["BT_MOD_SALE_ACT_BASKET_APPLIED_DISCOUNT_LABEL"] = "Discounts applied";
-$MESS["BT_MOD_SALE_ACT_BASKET_APPLIED_DISCOUNT_PREFIX"] = "Discounts applied";
-$MESS["BT_MOD_SALE_ACT_BASKET_APPLIED_DISCOUNT_Y"] = "yes";
-$MESS["BT_MOD_SALE_ACT_BASKET_APPLIED_DISCOUNT_N"] = "no";
 ?>

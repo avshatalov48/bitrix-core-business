@@ -88,7 +88,8 @@ class Product extends Entity
 			$paymentPeriods = null,
 			$tripleFields = null,
 			$booleanFields = null,
-			$nullFields = null;
+			$nullFields = null,
+			$sizeFields = null;
 		if ($defaultValues === null)
 		{
 			$defaultValues = array(
@@ -120,7 +121,8 @@ class Product extends Entity
 			$paymentPeriods = Catalog\ProductTable::getPaymentPeriods(false);
 			$tripleFields = array('QUANTITY_TRACE', 'CAN_BUY_ZERO', 'SUBSCRIBE');
 			$booleanFields = array('WITHOUT_ORDER', 'SELECT_BEST_PRICE', 'VAT_INCLUDED', 'BARCODE_MULTI', 'BUNDLE');
-			$nullFields = array('WIDTH', 'LENGTH', 'HEIGHT', 'MEASURE', 'TRIAL_PRICE_ID', 'VAT_ID', 'RECUR_SCHEME_LENGTH');
+			$nullFields = array('MEASURE', 'TRIAL_PRICE_ID', 'VAT_ID', 'RECUR_SCHEME_LENGTH');
+			$sizeFields = ['WIDTH', 'LENGTH', 'HEIGHT'];
 		}
 		$defaultValues['TYPE'] = $defaultType;
 
@@ -159,7 +161,10 @@ class Product extends Entity
 
 		foreach ($tripleFields as $fieldName)
 		{
-			if ($fields[$fieldName] != Catalog\ProductTable::STATUS_NO && $fields[$fieldName] != Catalog\ProductTable::STATUS_YES)
+			if (
+				$fields[$fieldName] != Catalog\ProductTable::STATUS_NO
+				&& $fields[$fieldName] != Catalog\ProductTable::STATUS_YES
+			)
 				$fields[$fieldName] = $defaultValues[$fieldName];
 		}
 		foreach ($booleanFields as $fieldName)
@@ -176,9 +181,21 @@ class Product extends Entity
 					$fields[$fieldName] = null;
 			}
 		}
+		foreach ($sizeFields as $fieldName)
+		{
+			if ($fields[$fieldName] !== null)
+			{
+				$fields[$fieldName] = (float)$fields[$fieldName];
+				if ($fields[$fieldName] <= 0)
+					$fields[$fieldName] = null;
+			}
+		}
 		unset($fieldName);
 
-		if ($fields['PRICE_TYPE'] != Catalog\ProductTable::PAYMENT_TYPE_REGULAR && $fields['PRICE_TYPE'] != Catalog\ProductTable::PAYMENT_TYPE_TRIAL)
+		if (
+			$fields['PRICE_TYPE'] != Catalog\ProductTable::PAYMENT_TYPE_REGULAR
+			&& $fields['PRICE_TYPE'] != Catalog\ProductTable::PAYMENT_TYPE_TRIAL
+		)
 			$fields['PRICE_TYPE'] = $defaultValues['PRICE_TYPE'];
 		if (!in_array($fields['RECUR_SCHEME_TYPE'], $paymentPeriods, true))
 			$fields['RECUR_SCHEME_TYPE'] = $defaultValues['RECUR_SCHEME_TYPE'];
@@ -192,7 +209,7 @@ class Product extends Entity
 				)
 			));
 		}
-		$fields['WEIGHT'] = (int)$fields['WEIGHT'];
+		$fields['WEIGHT'] = (float)$fields['WEIGHT'];
 		if ($fields['TMP_ID'] !== null)
 			$fields['TMP_ID'] = substr($fields['TMP_ID'], 0, 40);
 
@@ -296,6 +313,7 @@ class Product extends Entity
 			$tripleFields = null,
 			$booleanFields = null,
 			$nullFields = null,
+			$sizeFields = null,
 			$blackList = null;
 
 		if ($quantityFields === null)
@@ -304,7 +322,8 @@ class Product extends Entity
 			$paymentPeriods = Catalog\ProductTable::getPaymentPeriods(false);
 			$tripleFields = array('QUANTITY_TRACE', 'CAN_BUY_ZERO', 'SUBSCRIBE');
 			$booleanFields = array('WITHOUT_ORDER', 'SELECT_BEST_PRICE', 'VAT_INCLUDED', 'BARCODE_MULTI', 'BUNDLE', 'AVAILABLE');
-			$nullFields = array('WIDTH', 'LENGTH', 'HEIGHT', 'MEASURE', 'TRIAL_PRICE_ID', 'VAT_ID', 'RECUR_SCHEME_LENGTH');
+			$nullFields = array('MEASURE', 'TRIAL_PRICE_ID', 'VAT_ID', 'RECUR_SCHEME_LENGTH');
+			$sizeFields = ['WIDTH', 'LENGTH', 'HEIGHT'];
 
 			$blackList = array(
 				'ID' => true,
@@ -374,6 +393,15 @@ class Product extends Entity
 				}
 			}
 		}
+		foreach ($sizeFields as $fieldName)
+		{
+			if ($fields[$fieldName] !== null)
+			{
+				$fields[$fieldName] = (float)$fields[$fieldName];
+				if ($fields[$fieldName] <= 0)
+					$fields[$fieldName] = null;
+			}
+		}
 		unset($fieldName);
 
 		if (array_key_exists('PRICE_TYPE', $fields))
@@ -399,7 +427,7 @@ class Product extends Entity
 			}
 			else
 			{
-				$fields['WEIGHT'] = (int)$fields['WEIGHT'];
+				$fields['WEIGHT'] = (float)$fields['WEIGHT'];
 				$data['actions']['SETS'] = true;
 			}
 		}
@@ -482,10 +510,18 @@ class Product extends Entity
 			switch ($data['fields']['TYPE'])
 			{
 				case Catalog\ProductTable::TYPE_OFFER:
-					Catalog\Product\Sku::calculateComplete($id, $data['external_fields']['IBLOCK_ID'], Catalog\ProductTable::TYPE_OFFER);
+					Catalog\Product\Sku::calculateComplete(
+						$id,
+						$data['external_fields']['IBLOCK_ID'],
+						Catalog\ProductTable::TYPE_OFFER
+					);
 					break;
 				case Catalog\ProductTable::TYPE_SKU:
-					Catalog\Product\Sku::calculateComplete($id, $data['external_fields']['IBLOCK_ID'], Catalog\ProductTable::TYPE_SKU);
+					Catalog\Product\Sku::calculateComplete(
+						$id,
+						$data['external_fields']['IBLOCK_ID'],
+						Catalog\ProductTable::TYPE_SKU
+					);
 					break;
 			}
 		}
@@ -499,10 +535,18 @@ class Product extends Entity
 			switch ($product['TYPE'])
 			{
 				case Catalog\ProductTable::TYPE_OFFER:
-					Catalog\Product\Sku::calculateComplete($id, $data['external_fields']['IBLOCK_ID'], Catalog\ProductTable::TYPE_OFFER);
+					Catalog\Product\Sku::calculateComplete(
+						$id,
+						$data['external_fields']['IBLOCK_ID'],
+						Catalog\ProductTable::TYPE_OFFER
+					);
 					break;
 				case Catalog\ProductTable::TYPE_SKU:
-					Catalog\Product\Sku::calculateComplete($id, $data['external_fields']['IBLOCK_ID'], Catalog\ProductTable::TYPE_SKU);
+					Catalog\Product\Sku::calculateComplete(
+						$id,
+						$data['external_fields']['IBLOCK_ID'],
+						Catalog\ProductTable::TYPE_SKU
+					);
 					break;
 			}
 		}

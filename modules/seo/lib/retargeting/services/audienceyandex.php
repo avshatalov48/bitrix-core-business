@@ -2,6 +2,7 @@
 
 namespace Bitrix\Seo\Retargeting\Services;
 
+use Bitrix\Main\Error;
 use Bitrix\Main\NotImplementedException;
 use \Bitrix\Seo\Retargeting\Audience;
 
@@ -19,7 +20,9 @@ class AudienceYandex extends Audience
 		'COUNT_VALID' => 'VALID_UNIQUE_QUANTITY',
 		'COUNT_MATCHED' => 'MATCHED_QUANTITY',
 		'HASHED' => 'HASHED',
+		'STATUS' => 'STATUS',
 		'SUPPORTED_CONTACT_TYPES' => array(
+			self::ENUM_CONTACT_TYPE_PHONE,
 			self::ENUM_CONTACT_TYPE_EMAIL
 		),
 	);
@@ -27,16 +30,20 @@ class AudienceYandex extends Audience
 	public static function normalizeListRow(array $row)
 	{
 		$map = array(
-			'email' => self::ENUM_CONTACT_TYPE_EMAIL,
-			'phone' => self::ENUM_CONTACT_TYPE_PHONE
+			//'email' => [self::ENUM_CONTACT_TYPE_EMAIL],
+			//'phone' => [self::ENUM_CONTACT_TYPE_PHONE],
+			'crm' => [
+				self::ENUM_CONTACT_TYPE_PHONE,
+				self::ENUM_CONTACT_TYPE_EMAIL
+			],
 		);
-		static::$listRowMap['SUPPORTED_CONTACT_TYPES'] = array($map[$row['CONTENT_TYPE']]);
+		static::$listRowMap['SUPPORTED_CONTACT_TYPES'] = $map[$row['CONTENT_TYPE']];
 		return parent::normalizeListRow($row);
 	}
 
 	public static function isSupportMultiTypeContacts()
 	{
-		return false;
+		return true;
 	}
 
 	public static function isSupportAccount()
@@ -59,23 +66,50 @@ class AudienceYandex extends Audience
 		throw new NotImplementedException('Method `AudienceYandex::Add` not implemented.');
 	}
 
-	protected function prepareContacts(array $contacts = array(), $hashed = false, $type)
+	protected function prepareContacts(array $contacts = array(), $hashed = false, $type, array $audienceData)
 	{
-		$data = array();
-		$contacts = isset($contacts[$type]) ? $contacts[$type] : array();
-		$contactsCount = count($contacts);
-		for ($i = 0; $i < $contactsCount; $i++)
+		// filter by type
+		if ($type)
 		{
-			$contact = $contacts[$i];
-			$data[] = $hashed ? md5($contact) : $contact;
+			$contacts = [
+				$type => isset($contacts[$type]) ? $contacts[$type] : []
+			];
 		}
 
-		return implode("\r\n", $data);
+		// prepare data
+		$eol = "\r\n";
+		$separator = ",";
+		$types = array_keys($contacts);
+		$typeCount = count($types);
+		$result = implode($separator, $types);
+		foreach ($types as $index => $contactType)
+		{
+			foreach ($contacts[$contactType] as $contact)
+			{
+				$contact = $hashed ? md5($contact) : $contact;
+				$data = array_fill(0, $typeCount, "");
+				$data[$index] = $contact;
+				$result .= $eol . implode($separator, $data);
+			}
+		}
+
+		return $result;
 	}
 
 	protected function changeContacts($method = 'ADD', $audienceId, array $contacts = array(), $type)
 	{
 		$audienceData = $this->getById($audienceId);
+		if (!$audienceData)
+		{
+			return new ResponseYandex();
+		}
+		if ($audienceData['STATUS'] === 'is_processed')
+		{
+			$response = new ResponseYandex();
+			$response->addError(new Error('Cant update processed segment.'));
+			return $response;
+		}
+
 		$hashed = (bool) $audienceData['HASHED'];
 
 		// https://tech.yandex.ru/audience/doc/segments/modifyuploadingdata-docpage/
@@ -86,9 +120,9 @@ class AudienceYandex extends Audience
 			'endpoint' => 'segment/' . $audienceId . '/modify_data?modification_type=' . $modificationType,
 			'fields' => array(
 				'file' => array(
-					'filename' => 'data.tsv',
+					'filename' => 'data.csv',
 					'contentType' => 'application/octet-stream',
-					'content' => $this->prepareContacts($contacts, $hashed, $type)
+					'content' => $this->prepareContacts($contacts, $hashed, $type, $audienceData)
 				)
 			),
 		));
@@ -135,6 +169,10 @@ class AudienceYandex extends Audience
 			while($row = $response->fetch())
 			{
 				if ($row['TYPE'] != 'uploading') // we can upload only in auditory of this type
+				{
+					continue;
+				}
+				if (!isset($row['CONTENT_TYPE']) || $row['CONTENT_TYPE'] != 'crm')
 				{
 					continue;
 				}

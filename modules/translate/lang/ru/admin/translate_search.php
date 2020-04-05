@@ -13,4 +13,5 @@ $MESS["TR_SEARCH_MESSAGE"] = "В сообщении";
 $MESS["TR_SEARCH_MNEMONIC"] = "В идентификаторе сообщения";
 $MESS["TR_SEARCH_SUBFOLDERS"] = "Во всех подпапках";
 $MESS["TR_SEARCH_CASESENS"] = "Учитывать регистр";
+$MESS["TR_SEARCH_LANGUAGE"] = "Язык";
 ?>

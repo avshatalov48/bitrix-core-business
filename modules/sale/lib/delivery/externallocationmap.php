@@ -2,15 +2,20 @@
 namespace Bitrix\Sale\Delivery;
 
 use Bitrix\Main\Error;
-use Bitrix\Sale\Location\Comparator;
 use Bitrix\Sale\Result;
 use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\SystemException;
+use Bitrix\Sale\Location\Comparator;
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Sale\Location\ExternalTable;
 use Bitrix\Sale\Location\LocationTable;
 use Bitrix\Sale\Location\ExternalServiceTable;
 
+/**
+ * Class ExternalLocationMap
+ * @package Bitrix\Sale\Delivery
+ * Helper class for locations mapping.
+ */
 class ExternalLocationMap
 {
 	//Dlivery idtifyer, stored in \Bitrix\Sale\Location\ExternalServiceTable : CODE
@@ -36,7 +41,6 @@ class ExternalLocationMap
 	 * Returns internal location id
 	 * @param string $externalCode
 	 * @return int
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public static function getInternalId($externalCode)
 	{
@@ -65,7 +69,6 @@ class ExternalLocationMap
 	 * Returns external location id
 	 * @param int $locationId
 	 * @return int|string
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public static function getExternalId($locationId)
 	{
@@ -150,7 +153,6 @@ class ExternalLocationMap
 	 * Returns external location city id
 	 * @param int $locationId
 	 * @return int|string
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public static function getCityId($locationId)
 	{
@@ -227,7 +229,6 @@ class ExternalLocationMap
 	/**
 	 * Check locations map was sat.
 	 * @return bool
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public static function isInstalled()
 	{
@@ -341,7 +342,6 @@ class ExternalLocationMap
 	 * Export locations map from database to file, csv format.
 	 * @param string $path
 	 * @return bool|int
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public static function exportToCsv($path)
 	{
@@ -373,7 +373,6 @@ class ExternalLocationMap
 	/**
 	 * If exist returns id, if not exist create it
 	 * @return int External service Id
-	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Exception
 	 */
 	public static function getExternalServiceId()
@@ -586,6 +585,10 @@ class ExternalLocationMap
 
 	/**
 	 * Fill table b_sale_hdaln with locations with normalized names
+	 * @param int|bool $startId
+	 * @param int $timeout
+	 * @return int
+	 * @throws \Bitrix\Main\Db\SqlQueryException
 	 */
 	public static function fillNormalizedTable($startId = false, $timeout = 0)
 	{
@@ -623,9 +626,9 @@ class ExternalLocationMap
 				INSERT INTO
 					  b_sale_hdaln (LOCATION_ID, LEFT_MARGIN, RIGHT_MARGIN, NAME)
 				VALUES(
-					".$sqlHelper->forSql($loc['ID']).",
-					".$sqlHelper->forSql($loc['LEFT_MARGIN']).",
-					".$sqlHelper->forSql($loc['RIGHT_MARGIN']).",
+					".intval($loc['ID']).",
+					".intval($loc['LEFT_MARGIN']).",
+					".intval($loc['RIGHT_MARGIN']).",
 					'".$sqlHelper->forSql(
 							preg_replace(
 									'/\s*(\(.*\))/i'.BX_UTF_PCRE_MODIFIER,
@@ -644,6 +647,17 @@ class ExternalLocationMap
 		return $lastProcessedId;
 	}
 
+	/**
+	 * @param string $name Location name.
+	 * @param string $city Citry name.
+	 * @param string $subregion Subregions name.
+	 * @param string $region Region name.
+	 * @param string $country Country name.
+	 * @param bool $exactOnly If we search exact name, or partly coincidence is enought
+	 * @return int
+	 * @throws \Bitrix\Main\Db\SqlQueryException
+	 * @throws \Exception
+	 */
 	public static function getLocationIdByNames($name, $city, $subregion, $region, $country = '', $exactOnly = false)
 	{
 		$nameNorm = Comparator::normalizeEntity($name, 'LOCALITY');
@@ -817,5 +831,4 @@ class ExternalLocationMap
 
 		return 0;
 	}
-
 }

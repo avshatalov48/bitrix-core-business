@@ -15,12 +15,22 @@ use Bitrix\Main\Type as Type;
 class EventManager
 {
 	/**
-	 * @return string|void
+	 * @return string|null
 	 */
 	public static function checkEvents()
 	{
-		if((defined("DisableEventsCheck") && DisableEventsCheck===true) || (defined("BX_CRONTAB_SUPPORT") && BX_CRONTAB_SUPPORT===true && BX_CRONTAB!==true))
+		if(
+			(defined("DisableEventsCheck") && DisableEventsCheck === true)
+			||
+			(
+				defined("BX_CRONTAB_SUPPORT") && BX_CRONTAB_SUPPORT === true
+				&&
+				(!defined("BX_CRONTAB") || BX_CRONTAB !== true)
+			)
+		)
+		{
 			return null;
+		}
 
 		$manage_cache = \Bitrix\Main\Application::getInstance()->getManagedCache();
 		if(CACHED_b_event !== false && $manage_cache->read(CACHED_b_event, "events"))
@@ -210,7 +220,7 @@ class EventManager
 		$connection = \Bitrix\Main\Application::getConnection();
 		$datetime = $connection->getSqlHelper()->addSecondsToDateTime('-' . $periodInSeconds);
 
-		$strSql = "DELETE FROM b_event WHERE DATE_EXEC <= " . $datetime . "";
+		$strSql = "DELETE FROM b_event WHERE DATE_EXEC <= " . $datetime;
 		$connection->query($strSql);
 
 		return "CEvent::CleanUpAgent();";

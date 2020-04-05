@@ -130,10 +130,6 @@ window.onbeforeunload = function(e)
 		var need_to_ask = (pBXEventDispatcher.arEditors[0].IsChanged() && !pBXEventDispatcher.arEditors[0].isSubmited);
 		if (need_to_ask)
 		{
-			if (typeof(BX.PULL) != 'undefined' && typeof(BX.PULL.tryConnectDelay) == 'function') // TODO change to right code in near future (e.shelenkov)
-			{
-				BX.PULL.tryConnectDelay();
-			}
 			return BX_MESS.ExitConfirm;
 		}
 	} catch(e){}

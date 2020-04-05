@@ -69,6 +69,11 @@ $modes = array();
 if((defined("ADMIN_SECTION") && ADMIN_SECTION == true) || $arParams['ADMIN_MODE'] == 'Y')
 	$modes[] = 'admin';
 
+if (defined("PUBLIC_MODE") && PUBLIC_MODE == 1)
+{
+	$modes[] = 'admin';
+}
+
 foreach($modes as &$mode)
 	$mode = 'bx-'.$mode.'-mode';
 

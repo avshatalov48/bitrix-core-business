@@ -19,8 +19,6 @@ class ShipmentItemStore
 	/** @var null|array  */
 	protected $barcodeList = null;
 
-	protected static $mapFields = array();
-
 	private static $eventClassName = null;
 
 
@@ -35,34 +33,30 @@ class ShipmentItemStore
 	/**
 	 * @return array
 	 */
-	public static function getMeaningfulFields()
+	protected static function getMeaningfulFields()
 	{
 		return array();
 	}
 
-	/**
-	 * @return array
-	 */
-	public static function getAllFields()
-	{
-		if (empty(static::$mapFields))
-		{
-			static::$mapFields = parent::getAllFieldsByMap(Sale\Internals\ShipmentItemStoreTable::getMap());
-		}
-		return static::$mapFields;
-
-	}
 
 	/**
 	 * @param $itemData
 	 * @return ShipmentItemStore
 	 */
-	protected static function createShipmentItemStoreObject(array $itemData = array())
+	private static function createShipmentItemStoreObject(array $itemData = array())
 	{
-		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
+		$registry = Registry::getInstance(static::getRegistryType());
 		$shipmentItemStoreClassName = $registry->getShipmentItemStoreClassName();
 
 		return new $shipmentItemStoreClassName($itemData);
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function getRegistryType()
+	{
+		return Registry::REGISTRY_TYPE_ORDER;
 	}
 
 	public static function create(ShipmentItemStoreCollection $collection, BasketItem $basketItem)
@@ -274,7 +268,7 @@ class ShipmentItemStore
 
 		$items = array();
 
-		$itemDataList = Sale\Internals\ShipmentItemStoreTable::getList(
+		$itemDataList = static::getList(
 			array(
 				'filter' => array('ORDER_DELIVERY_BASKET_ID' => $id),
 				'order' => array('DATE_CREATE' => 'ASC', 'ID' => 'ASC')
@@ -379,10 +373,14 @@ class ShipmentItemStore
 				$fields['MODIFIED_BY'] = $USER->GetID();
 				$this->setFieldNoDemand('MODIFIED_BY', $fields['MODIFIED_BY']);
 
-				$r = Sale\Internals\ShipmentItemStoreTable::update($id, $fields);
+				$r = $this->updateInternal($id, $fields);
 				if (!$r->isSuccess())
 				{
-					OrderHistory::addAction(
+					$registry = Registry::getInstance(static::getRegistryType());
+
+					/** @var OrderHistory $orderHistory */
+					$orderHistory = $registry->getOrderHistoryClassName();
+					$orderHistory::addAction(
 						'SHIPMENT',
 						$order->getId(),
 						'SHIPMENT_ITEM_STORE_UPDATE_ERROR',
@@ -429,10 +427,14 @@ class ShipmentItemStore
 				return $result;
 			}
 
-			$r = Sale\Internals\ShipmentItemStoreTable::add($fields);
+			$r = $this->addInternal($fields);
 			if (!$r->isSuccess())
 			{
-				OrderHistory::addAction(
+				$registry = Registry::getInstance(static::getRegistryType());
+
+				/** @var OrderHistory $orderHistory */
+				$orderHistory = $registry->getOrderHistoryClassName();
+				$orderHistory::addAction(
 					'SHIPMENT',
 					$order->getId(),
 					'SHIPMENT_ITEM_STORE_ADD_ERROR',
@@ -539,7 +541,11 @@ class ShipmentItemStore
 					);
 				}
 
-				OrderHistory::addField(
+				$registry = Registry::getInstance(static::getRegistryType());
+
+				/** @var OrderHistory $orderHistory */
+				$orderHistory = $registry->getOrderHistoryClassName();
+				$orderHistory::addField(
 					'SHIPMENT_ITEM_STORE',
 					$order->getId(),
 					$name,
@@ -556,22 +562,28 @@ class ShipmentItemStore
 	}
 
 	/**
-	 * @param array $filter
+	 * @param array $parameters
 	 *
 	 * @return Main\DB\Result
 	 * @throws Main\ArgumentException
 	 */
-	public static function getList(array $filter)
+	public static function getList(array $parameters = array())
 	{
-		return Sale\Internals\ShipmentItemStoreTable::getList($filter);
+		return Sale\Internals\ShipmentItemStoreTable::getList($parameters);
 	}
-
 
 	/**
 	 * @internal
-	 * @param \SplObjectStorage $cloneEntity
 	 *
-	 * @return ShipmentItemStore
+	 * @param \SplObjectStorage $cloneEntity
+	 * @return Internals\CollectableEntity|ShipmentItemStore|object
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\ArgumentTypeException
+	 * @throws Main\NotImplementedException
+	 * @throws Main\ObjectException
+	 * @throws Main\ObjectNotFoundException
 	 */
 	public function createClone(\SplObjectStorage $cloneEntity)
 	{
@@ -580,19 +592,8 @@ class ShipmentItemStore
 			return $cloneEntity[$this];
 		}
 
-		$shipmentItemStoreClone = clone $this;
-		$shipmentItemStoreClone->isClone = true;
-
-		/** @var Internals\Fields $fields */
-		if ($fields = $this->fields)
-		{
-			$shipmentItemStoreClone->fields = $fields->createClone($cloneEntity);
-		}
-
-		if (!$cloneEntity->contains($this))
-		{
-			$cloneEntity[$this] = $shipmentItemStoreClone;
-		}
+		/** @var ShipmentItemStore $shipmentItemStoreClone */
+		$shipmentItemStoreClone = parent::createClone($cloneEntity);
 
 		/** @var BasketItem $basketItem */
 		if ($basketItem = $this->getBasketItem())
@@ -605,19 +606,6 @@ class ShipmentItemStore
 			if ($cloneEntity->contains($basketItem))
 			{
 				$shipmentItemStoreClone->basketItem = $cloneEntity[$basketItem];
-			}
-		}
-
-		if ($collection = $this->getCollection())
-		{
-			if (!$cloneEntity->contains($collection))
-			{
-				$cloneEntity[$collection] = $collection->createClone($cloneEntity);
-			}
-
-			if ($cloneEntity->contains($collection))
-			{
-				$shipmentItemStoreClone->collection = $cloneEntity[$collection];
 			}
 		}
 
@@ -679,6 +667,33 @@ class ShipmentItemStore
 	public function getMarkField()
 	{
 		return null;
+	}
+
+	/**
+	 * @param array $data
+	 * @return Main\Entity\AddResult
+	 */
+	protected function addInternal(array $data)
+	{
+		return Internals\ShipmentItemStoreTable::add($data);
+	}
+
+	/**
+	 * @param $primary
+	 * @param array $data
+	 * @return Main\Entity\UpdateResult
+	 */
+	protected function updateInternal($primary, array $data)
+	{
+		return Internals\ShipmentItemStoreTable::update($primary, $data);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected static function getFieldsMap()
+	{
+		return Internals\ShipmentItemStoreTable::getMap();
 	}
 
 }

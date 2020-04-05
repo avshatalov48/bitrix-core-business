@@ -1,22 +1,29 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+/** @var CBitrixComponentTemplate $this */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CDatabase $DB */
+/** @global CUser $USER */
+/** @global CMain $APPLICATION */
+
 if ($arParams['AJAX_POST']=='Y' && in_array($arParams['ACTION'], array('REPLY', 'VIEW')))
 	ob_start();
 
 if (!$this->__component->__parent || empty($this->__component->__parent->__name)):
-	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/style.css');
-	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/themes/gray/style.css');
-	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/styles/additional.css');
+	$APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/style.css');
+	$APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/themes/gray/style.css');
+	$APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/styles/additional.css');
 endif;
 
-$GLOBALS["APPLICATION"]->AddHeadScript("/bitrix/js/main/utils.js");
-$GLOBALS['APPLICATION']->AddHeadString('<script src="/bitrix/components/bitrix/forum.interface/templates/.default/script.js"></script>', true);
+$APPLICATION->AddHeadScript("/bitrix/js/main/utils.js");
+$APPLICATION->AddHeadString('<script src="/bitrix/components/bitrix/forum.interface/templates/.default/script.js"></script>', true);
 
 /********************************************************************
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
 $arParams["component"] = $component;
-$arParams["SHOW_MAIL"] = (($arParams["SEND_MAIL"] <= "A" || ($arParams["SEND_MAIL"] <= "E" && !$GLOBALS['USER']->IsAuthorized())) ? "N" : "Y");
+$arParams["SHOW_MAIL"] = (($arParams["SEND_MAIL"] <= "A" || ($arParams["SEND_MAIL"] <= "E" && !$USER->IsAuthorized())) ? "N" : "Y");
 $arParams["SHOW_RSS"] = ($arParams["SHOW_RSS"] == "N" ? "N" : "Y");
 $arParams["SHOW_VOTE"] = ($arParams["SHOW_VOTE"] == "Y" ? "Y" : "N");
 $arParams["VOTE_TEMPLATE"] = (strlen(trim($arParams["VOTE_TEMPLATE"])) > 0 ? trim($arParams["VOTE_TEMPLATE"]) : "light");

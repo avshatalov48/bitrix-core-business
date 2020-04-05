@@ -25,7 +25,7 @@ class SenderTriggerEditComponent extends \CBitrixComponent
 	/** @var ErrorCollection $errors */
 	protected $errors;
 
-	/** @var Entity\Campaign $entityCampaign */
+	/** @var Entity\TriggerCampaign $entityCampaign */
 	protected $entityCampaign;
 
 	protected function checkRequiredParams()
@@ -180,14 +180,29 @@ class SenderTriggerEditComponent extends \CBitrixComponent
 			return;
 		}
 
+		$emptyKeys = ['CAN_RUN_FOR_OLD_DATA', 'IS_CLOSED_TRIGGER'];
 		$fields = $this->arResult['ROW']['TRIGGER_FIELDS'];
 		$existsList = $this->arResult['TRIGGERS']['EXISTS'];
-		foreach($existsList as $type => $value)
+		foreach($existsList as $type => $values)
 		{
 			if(!is_array($fields[$type])) continue;
 			$trigger = Trigger\Manager::getOnce($fields[$type]);
 			if ($trigger)
 			{
+				foreach ($emptyKeys as $emptyKey)
+				{
+					if (!isset($fields[$type][$emptyKey]))
+					{
+						continue;
+					}
+					if (!empty($fields[$type][$emptyKey]))
+					{
+						continue;
+					}
+
+					unset($fields[$type][$emptyKey]);
+				}
+
 				$existsList[$type] = $fields[$type] + $list[$type][$trigger->getId()];
 
 				$trigger->setFieldFormName('post_form');

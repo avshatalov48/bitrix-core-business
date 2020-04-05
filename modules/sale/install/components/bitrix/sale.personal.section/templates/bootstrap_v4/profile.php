@@ -22,6 +22,7 @@ $APPLICATION->IncludeComponent(
 		"PATH_TO_DELETE" => $arResult['PATH_TO_PROFILE_DELETE'],
 		"PER_PAGE" => $arParams["PROFILES_PER_PAGE"],
 		"SET_TITLE" =>$arParams["SET_TITLE"],
+		"AUTH_FORM_IN_TEMPLATE" => 'Y',
 	),
 	$component
 );

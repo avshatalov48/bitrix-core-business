@@ -1,0 +1,71 @@
+.bx-404-container{
+	width: 100%;
+	margin: 0 auto;
+	text-align: center;
+}
+.bx-404-block{
+	margin-top: 100px;
+	margin-bottom: 66px;
+}
+
+@media (max-width:768px) {
+	.bx-404-block{
+		margin-top: 50px;
+		margin-bottom: 33px;
+	}
+}
+
+.bx-404-text-block{
+	font-size: 20px;
+	font-family: "Open Sans", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	padding-bottom: 20px;
+}
+
+.bx-maps-title{
+	color: #8f8f8f;
+	font-size: 16px;
+	font-family: "Open Sans", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	padding-bottom: 20px;
+	padding-top: 10px;
+	border-bottom: 1px solid #e9eaea;
+}
+
+.map-columns{
+	padding-top: 20px;
+}
+.bx-map-title{
+	font-weight: bold;
+	font-size: 14px;
+	font-family: "Open Sans", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	position: relative;
+	min-height: 20px;
+	padding-left: 25px;
+	margin-bottom: 20px;
+}
+.bx-map-title .fa{
+	color: #0083d1;
+	position: absolute;
+	left: 0;
+	top: 2px;
+	font-size: 15px;
+}
+
+.map-columns ul{
+	list-style: none;
+	margin-bottom: 5px;
+}
+.map-level-0{
+	margin-left: 0;
+	padding-left: 25px;
+	margin-bottom: 20px;
+}
+.map-level-0 li{
+	margin-left: 0;
+	padding-left: 0;
+}
+.map-level-0 ul{
+	padding-left: 15px;
+}
+ul.map-level-1{
+	margin-bottom: 30px;
+}

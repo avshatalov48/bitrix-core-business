@@ -184,11 +184,12 @@ create table if not exists b_catalog_discount
 	NOTES varchar(255) null,
 	CONDITIONS text null,
 	UNPACK text null,
+	USE_COUPONS char(1) not null default 'N',
 	SALE_ID int null,
 	primary key (ID),
-	index IX_C_D_COUPON(COUPON),
 	index IX_C_D_ACT(ACTIVE, ACTIVE_FROM, ACTIVE_TO),
-	index IX_C_D_ACT_B(SITE_ID, RENEWAL, ACTIVE, ACTIVE_FROM, ACTIVE_TO)
+	index IX_C_D_ACT_B(SITE_ID, RENEWAL, ACTIVE, ACTIVE_FROM, ACTIVE_TO),
+	index IX_B_CAT_DISCOUNT_COUPON(USE_COUPONS)
 );
 
 create table if not exists b_catalog_discount_cond
@@ -298,7 +299,6 @@ create table if not exists b_catalog_disc_save_range
 	TYPE char(1) default 'P' not null,
 	VALUE double not null,
 	primary key (ID),
-	index IX_CAT_DSR_DISCOUNT(DISCOUNT_ID),
 	index IX_CAT_DSR_DISCOUNT2(DISCOUNT_ID, RANGE_FROM)
 );
 
@@ -321,7 +321,6 @@ create table if not exists b_catalog_disc_save_user
 	ACTIVE_TO datetime not null,
 	RANGE_FROM double not null,
 	primary key (ID),
-	index IX_CAT_DSU_DISCOUNT(DISCOUNT_ID),
 	index IX_CAT_DSU_USER(DISCOUNT_ID,USER_ID)
 );
 
@@ -517,6 +516,7 @@ create table if not exists b_catalog_subscribe (
 	ITEM_ID int unsigned not null,
 	NEED_SENDING char(1) not null default 'N',
 	SITE_ID char(2) not null,
+	LANDING_SITE_ID int(18) null,
 	primary key (ID),
 	INDEX IX_CAT_SUB_USER_CONTACT (USER_CONTACT),
 	INDEX IX_CAT_SUB_USER_ID (USER_ID),

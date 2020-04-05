@@ -199,7 +199,7 @@ BXMailBlockEditorHandler = function()
 			{
 				'button_caption': {
 					'func': function(node, param, value){
-						return this.helper.innerHTML(node, value);
+						return this.helper.textContent(node, value);
 					}
 				},
 				'color': {
@@ -316,7 +316,7 @@ BXMailBlockEditorHandler = function()
 						if(typeof(value) !== "undefined")
 						{
 							value = JSON.parse(value);
-							itemList = BX.findChildren(node, {tag: 'table'}, true);
+							var itemList = BX.findChildren(node, {tag: 'table'}, true);
 							var diffLength = value.length - itemList.length;
 							var diffLengthAbs = Math.abs(diffLength);
 							var diffDelete = diffLength < 0;
@@ -340,7 +340,7 @@ BXMailBlockEditorHandler = function()
 							{
 								var itemValue = value[j];
 								var a = BX.findChild(itemList[j], {'tag': 'a'}, true);
-								a.innerHTML = itemValue.name.trim();
+								a.textContent = itemValue.name.trim();
 								a.href = itemValue.href.trim();
 								a.title = itemValue.name.trim();
 							}

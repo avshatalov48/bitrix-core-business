@@ -55,7 +55,7 @@ class CAllSocNetGroupSubject
 		return True;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB, $CACHE_MANAGER, $APPLICATION;
 
@@ -76,6 +76,12 @@ class CAllSocNetGroupSubject
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GS_NOT_EMPTY_SUBJECT"), "NOT_EMPTY_SUBJECT");
 			return false;
+		}
+
+		$events = GetModuleEvents("socialnetwork", "OnSocNetGroupSubjectDelete");
+		while ($arEvent = $events->Fetch())
+		{
+			ExecuteModuleEventEx($arEvent, array($ID));
 		}
 
 		$bSuccess = $DB->Query("DELETE FROM b_sonet_group_subject_site WHERE SUBJECT_ID = ".$ID."", true);
@@ -144,6 +150,12 @@ class CAllSocNetGroupSubject
 					"FROM b_lang ".
 					"WHERE LID IN (".$str_SiteID.") ";
 				$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			}
+
+			$events = GetModuleEvents("socialnetwork", "OnSocNetGroupSubjectUpdate");
+			while ($arEvent = $events->Fetch())
+			{
+				ExecuteModuleEventEx($arEvent, array($ID, &$arFields));
 			}
 
 			if (CACHED_b_sonet_group_subjects != false)

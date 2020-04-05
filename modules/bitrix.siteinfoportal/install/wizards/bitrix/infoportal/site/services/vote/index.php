@@ -62,8 +62,8 @@ if (!$rsVoteChan->Fetch())
 			"EVENT3"			=> "NULL",
 			"UNIQUE_TYPE"		=> "'1'",
 			"KEEP_IP_SEC"		=> "'0'",
-			"DELAY"				=> "'0'",
-			"DELAY_TYPE"		=> "NULL",
+			//"DELAY"			=> "'0'",
+			//"DELAY_TYPE"		=> "NULL",
 			"TEMPLATE"			=> "'default.php'",
 			"RESULT_TEMPLATE"	=> "'default.php'",
 			"NOTIFY"			=> "'N'"

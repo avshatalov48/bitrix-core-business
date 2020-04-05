@@ -12,7 +12,7 @@ if(!empty($arResult["arSocServ"]))
 	$arFields['SOCSERV'] = array('SOCSERVICES');
 
 $arFields['CONTACT'] = array(
-	'EMAIL', 'EXTMAIL', 'PERSONAL_PHONE', 'PERSONAL_MOBILE', 'PERSONAL_WWW', 'PERSONAL_ICQ', 'PERSONAL_FAX', 'PERSONAL_PAGER',
+	'EMAIL', 'PERSONAL_PHONE', 'PERSONAL_MOBILE', 'PERSONAL_WWW', 'PERSONAL_ICQ', 'PERSONAL_FAX', 'PERSONAL_PAGER',
 	'PERSONAL_COUNTRY', 'PERSONAL_STREET', 'PERSONAL_MAILBOX', 'PERSONAL_CITY', 'PERSONAL_STATE', 'PERSONAL_ZIP',
 );
 
@@ -37,26 +37,6 @@ if ($arParams['IS_BLOG'] == 'Y')
 	$arFields['BLOG'] = array(
 		'BLOG_ALIAS', 'BLOG_DESCRIPTION', 'BLOG_INTERESTS', 'BLOG_AVATAR'
 	);
-}
-
-$extmailAvailable = CModule::IncludeModule('intranet') && CIntranetUtils::IsExternalMailAvailable();
-$extmailConfigPath = \Bitrix\Main\Config\Option::get('intranet', $arParams['ID'] == $USER->getId() ? 'path_mail_config' : 'path_mail_manage');
-if (
-	(
-		!empty($arResult['User']['MAILBOX'])
-		|| (
-			$extmailAvailable
-			&& !empty($extmailConfigPath)
-			&& (
-				$arParams['ID'] == $USER->getID()
-				|| $USER->isAdmin())
-		)
-	)
-	&& !in_array($arResult["User"]["EXTERNAL_AUTH_ID"], \Bitrix\Socialnetwork\ComponentHelper::checkPredefinedAuthIdList(array('bot', 'email', 'imconnector')))
-)
-
-{
-	$arParams['EDITABLE_FIELDS'][] = 'EXTMAIL';
 }
 
 foreach ($arParams['EDITABLE_FIELDS'] as $FIELD)
@@ -114,7 +94,6 @@ if ($arResult['ERROR_MESSAGE'])
 
 ?>
 <form name="bx_user_profile_form" method="POST" action="<?echo POST_FORM_ACTION_URI;?>" enctype="multipart/form-data">
-<input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
 <?echo bitrix_sessid_post()?>
 <input type="hidden" name="current_fieldset" value="<?echo $current_fieldset?>" />
 <div class="bx-sonet-profile-edit-layout">
@@ -249,14 +228,6 @@ foreach ($arFields as $GROUP_ID => $arGroupFields):
 						<option value="<?=htmlspecialcharsbx($tz)?>"<?=($value == $tz? ' SELECTED="SELECTED"' : '')?>><?=htmlspecialcharsbx($tz_name)?></option>
 					<?endforeach?>
 					</select><?
-					break;
-				case 'EXTMAIL':
-					if (!empty($arResult['User']['MAILBOX']))
-						echo $arResult['User']['MAILBOX'];
-					if ($extmailAvailable && !empty($extmailConfigPath) && ($arParams['ID'] == $USER->getID() || $USER->isAdmin()))
-					{
-						?> <a href="<?=htmlspecialcharsbx($extmailConfigPath) ?>"><?=getMessage('ISL_EXTMAIL_EDIT') ?></a><?
-					}
 					break;
 				default: 
 					if (substr($FIELD, 0, 3) == 'UF_'):

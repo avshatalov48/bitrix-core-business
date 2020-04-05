@@ -26,7 +26,7 @@ return array(
 				array(
 					'name' => Loc::getMessage('LANDING_BLOCK_45.1.GALLERY_APP_WO_SLIDER_NODES_LANDINGBLOCKNODECARDIMG'),
 					'type' => 'img',
-					'dimensions' => array('width' => 960, 'height' => 960),
+					'dimensions' => array('width' => 270, 'height' => 481),
 					'allowInlineEdit' => false,
 				),
 			'.landing-block-node-card-title' =>

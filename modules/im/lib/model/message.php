@@ -73,10 +73,14 @@ class MessageTable extends Main\Entity\DataManager
 			'MESSAGE' => array(
 				'data_type' => 'text',
 				'title' => Loc::getMessage('MESSAGE_ENTITY_MESSAGE_FIELD'),
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'MESSAGE_OUT' => array(
 				'data_type' => 'text',
 				'title' => Loc::getMessage('MESSAGE_ENTITY_MESSAGE_OUT_FIELD'),
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'DATE_CREATE' => array(
 				'data_type' => 'datetime',

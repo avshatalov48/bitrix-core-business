@@ -11,6 +11,7 @@
 
 .landing-ui-panel-content-overlay.landing-ui-show {
 	animation: showOverlay 300ms both;
+	/*animation-delay: 100ms;*/
 }
 
 .landing-ui-panel-content-overlay.landing-ui-hide {
@@ -35,7 +36,7 @@
 	z-index: 322;
 	-webkit-box-shadow: 0 0 16px 0 rgba(0,0,0,.1);
 	box-shadow: 0 0 16px 0 rgba(0,0,0,.1);
-	transform: translateX(-10%);
+	transform: translateX(-100%);
 	opacity: 0;
 	contain: layout;
 }
@@ -53,11 +54,11 @@
 }
 
 .landing-ui-panel-content.landing-ui-show {
-	animation: showContentPanel 300ms ease both;
+	animation: showContentPanel 400ms ease both;
 }
 
 .landing-ui-panel-content.landing-ui-hide {
-	animation: hideContentPanel 300ms ease both;
+	animation: hideContentPanel 400ms ease both;
 	visibility: visible;
 }
 
@@ -65,7 +66,7 @@
 @keyframes showContentPanel {
 	0% {
 		opacity: 0;
-		transform: translateX(-10%);
+		transform: translateX(-100%);
 	}
 	100% {
 		visibility: visible;
@@ -83,7 +84,7 @@
 	100% {
 		visibility: hidden;
 		opacity: 0;
-		transform: translateX(-10%);
+		transform: translateX(-100%);
 	}
 }
 
@@ -93,13 +94,13 @@
 		opacity: 0;
 	}
 	100% {
-		opacity: .4;
+		opacity: .5;
 	}
 }
 
 @keyframes hideOverlay {
 	0% {
-		opacity: .4;
+		opacity: .5;
 	}
 	100% {
 		opacity: 0;
@@ -154,6 +155,7 @@
 .landing-ui-panel-content-body {
 	display: flex;
 	height: calc(100% - 73px);
+	overflow: auto;
 }
 
 .landing-ui-panel-content-footer {

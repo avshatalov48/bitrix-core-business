@@ -8,7 +8,7 @@
 namespace Bitrix\Sender;
 
 use Bitrix\Main\DB;
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM;
 use Bitrix\Main\Type as MainType;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
@@ -17,7 +17,7 @@ use Bitrix\Fileman\Block\EditorMail as BlockEditorMail;
 
 Loc::loadMessages(__FILE__);
 
-class TemplateTable extends Entity\DataManager
+class TemplateTable extends ORM\Data\DataManager
 {
 	const LOCAL_DIR_IMG = '/images/sender/preset/template/';
 
@@ -38,7 +38,7 @@ class TemplateTable extends Entity\DataManager
 		}
 
 		$localPathOfIcon = static::LOCAL_DIR_IMG . 'my.png';
-		$fullPathOfIcon = Loader::getLocal($localPathOfIcon);
+		//$fullPathOfIcon = Loader::getLocal($localPathOfIcon);
 
 		// return only active templates, but if requested template by id return any
 		$filter = array();
@@ -62,7 +62,7 @@ class TemplateTable extends Entity\DataManager
 				'FIELDS' => array(
 					'MESSAGE' => array(
 						'CODE' => 'MESSAGE',
-						'VALUE' => $template['CONTENT'],
+						'VALUE' => Security\Sanitizer::fixTemplateStyles($template['CONTENT']),
 						'ON_DEMAND' => static::isContentForBlockEditor($template['CONTENT'])
 					),
 					'SUBJECT' => array(
@@ -144,13 +144,45 @@ class TemplateTable extends Entity\DataManager
 	}
 
 	/**
-	 * Handler of before delete event
-	 * @param Entity\Event $event
-	 * @return Entity\EventResult
+	 * @param ORM\Event $event
+	 * @return ORM\EventResult
 	 */
-	public static function onBeforeDelete(Entity\Event $event)
+	public static function onBeforeAdd(ORM\Event $event)
 	{
-		$result = new Entity\EventResult;
+		$result = new ORM\EventResult;
+		$data = $event->getParameters();
+		$data['fields']['CONTENT'] = Security\Sanitizer::fixTemplateStyles($data['fields']['CONTENT']);
+		$result->modifyFields($data['fields']);
+
+		return $result;
+	}
+
+	/**
+	 * Handler of before delete event.
+	 *
+	 * @param ORM\Event $event Event.
+	 * @return ORM\EventResult
+	 */
+	public static function onBeforeUpdate(ORM\Event $event)
+	{
+		$result = new ORM\EventResult;
+
+		$data = $event->getParameters();
+		$data['fields']['CONTENT'] = Security\Sanitizer::fixTemplateStyles($data['fields']['CONTENT']);
+		$result->modifyFields($data['fields']);
+
+		return $result;
+	}
+	
+	/**
+	 * Handler of before delete event.
+	 * 
+	 * @param ORM\Event $event Event.
+	 * @return ORM\EventResult
+	 */
+	public static function onBeforeDelete(ORM\Event $event)
+	{
+		$result = new ORM\EventResult;
 		$data = $event->getParameters();
 		$chainListDb = MailingChainTable::getList(array(
 			'select' => array('ID', 'SUBJECT', 'MAILING_ID', 'MAILING_NAME' => 'TITLE'),
@@ -173,7 +205,7 @@ class TemplateTable extends Entity\DataManager
 				$message .= Loc::getMessage('SENDER_ENTITY_TEMPLATE_DELETE_ERROR_MAILING', array('#NAME#' => $mailingName)) . "\n" . $messageItem . "\n";
 			}
 
-			$result->addError(new Entity\EntityError($message));
+			$result->addError(new ORM\EntityError($message));
 		}
 
 		return $result;

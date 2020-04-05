@@ -3,8 +3,10 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/ge
 
 class CSocNetLogCounter extends CAllSocNetLogCounter
 {
+	const TYPE_LOG_ENTRY = 'L';
+	const TYPE_LOG_COMMENT = 'LC';
 
-	function Increment($log_id, $entity_type = false, $entity_id = false, $event_id = false, $created_by_id = false, $arOfEntities = false, $arAdmin = false, $transport = false, $visible = "Y", $type = "L")
+	function Increment($log_id, $entity_type = false, $entity_id = false, $event_id = false, $created_by_id = false, $arOfEntities = false, $arAdmin = false, $transport = false, $visible = "Y", $type = CSocNetLogCounter::TYPE_LOG_ENTRY)
 	{
 		global $DB;
 

@@ -15,6 +15,7 @@
 use Bitrix\Main\Localization\Loc;
 
 CJSCore::Init(array('lists'));
+\Bitrix\Main\UI\Extension::load("ui.buttons");
 ?>
 
 <div id="bx-lists-lcp-total-div">
@@ -33,22 +34,13 @@ CJSCore::Init(array('lists'));
 	?>
 	<div class="pagetitle-container pagetitle-align-right-container <?=$pagetitleAlignRightContainer?>">
 		<? if(!$arResult['ALL_PROCESSES_INSTALL']): ?>
-			<p
-				id="bx-lists-lcp-install-processes"
-				onclick="javascript:BX.Lists['CatalogProcessesClass_<?= $arResult['RAND_STRING']?>']
-					.installProcesses(this);"
-				class="webform-small-button webform-small-button-accept"
-				title="<?= GetMessage("LISTS_LCP_TEMPLATE_BUTTON_INSTALL") ?>"
-				>
-				<?= GetMessage("LISTS_LCP_TEMPLATE_BUTTON_INSTALL") ?>
-			</p>
+			<button class="ui-btn ui-btn-md ui-btn-success" id="bx-lists-lcp-install-processes"
+					onclick="javascript:BX.Lists['CatalogProcessesClass_<?= $arResult['RAND_STRING']?>']
+							.installProcesses(this);" title="<?= GetMessage("LISTS_LCP_TEMPLATE_BUTTON_INSTALL") ?>">
+				<?= GetMessage("LISTS_LCP_TEMPLATE_BUTTON_INSTALL") ?></button>
 		<? endif; ?>
-		<a
-			id="bx-lists-lcp-transition-processes"
-			href="<?= $arResult['LISTS_URL'] ?>"
-			class="webform-small-button webform-small-button-cancel"
-			title="<?= GetMessage("LISTS_LCP_TEMPLATE_TRANSITION_PROCESSES") ?>"
-			>
+		<a class="ui-btn ui-btn-md ui-btn-light-border ui-btn-themes" title="<?= GetMessage("LISTS_LCP_TEMPLATE_TRANSITION_PROCESSES") ?>" id="bx-lists-lcp-transition-processes"
+		   href="<?= $arResult['LISTS_URL'] ?>">
 			<?= GetMessage("LISTS_LCP_TEMPLATE_TRANSITION_PROCESSES") ?>
 		</a>
 	</div>
@@ -120,15 +112,10 @@ CJSCore::Init(array('lists'));
 
 	<? if(count($arResult['USER_PROCESSES']) > 10): ?>
 		<div class="bx-lists-lcp-button-block">
-			<p
-				id="bx-lists-lcp-install-processes"
-				onclick="javascript:BX.Lists['CatalogProcessesClass_<?= $arResult['RAND_STRING']?>']
-					.installProcesses(this);"
-				class="webform-small-button webform-small-button-accept"
-				title="<?= GetMessage("LISTS_LCP_TEMPLATE_BUTTON_INSTALL") ?>"
-			>
-				<?= GetMessage("LISTS_LCP_TEMPLATE_BUTTON_INSTALL") ?>
-			</p>
+			<button class="ui-btn ui-btn-md ui-btn-success" id="bx-lists-lcp-install-processes"
+					onclick="javascript:BX.Lists['CatalogProcessesClass_<?= $arResult['RAND_STRING']?>']
+							.installProcesses(this);" title="<?= GetMessage("LISTS_LCP_TEMPLATE_BUTTON_INSTALL") ?>">
+				<?= GetMessage("LISTS_LCP_TEMPLATE_BUTTON_INSTALL") ?></button>
 		</div>
 	<? endif; ?>
 </div>

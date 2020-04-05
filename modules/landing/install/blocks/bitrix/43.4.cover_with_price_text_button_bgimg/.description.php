@@ -59,7 +59,7 @@ return array(
 				'.landing-block-node-card-price' =>
 					array(
 						'name' => Loc::getMessage('LANDING_BLOCK_43.4.COVER_WITH_PRICE_TEXT_BUTTON_BGIMG_NODES_LANDINGBLOCKNODECARDPRICE'),
-						'type' => array('typo','box'),
+						'type' => array('typo','box', 'paddings'),
 					),
 				'.landing-block-node-card-title' =>
 					array(
@@ -79,12 +79,12 @@ return array(
 				'.landing-block-node-card-bgimg' =>
 					array(
 						'name' => Loc::getMessage('LANDING_BLOCK_43.4.COVER_WITH_PRICE_TEXT_BUTTON_BGIMG_NODES_LANDINGBLOCKNODECARDBGIMG'),
-						'type' => 'background-overlay',
+						'type' => array('background-overlay', 'height-vh')
 					),
 				'.landing-block-node-card-container' =>
 					array(
 						'name' => Loc::getMessage('LANDING_BLOCK_43.4.COVER_WITH_PRICE_TEXT_BUTTON_BGIMG_NODES_LANDINGBLOCKNODECARD_CONTAINER'),
-						'type' => 'animation',
+						'type' => [ 'padding-top', 'padding-bottom', 'animation'],
 					),
 				'.landing-block-node-card-button-container' =>
 					array(

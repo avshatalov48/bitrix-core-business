@@ -114,6 +114,11 @@ class User
 	 */
 	public function hasAccess()
 	{
+		if (!Integration\Bitrix24\Service::isAvailable())
+		{
+			return false;
+		}
+
 		return $this->getAccess()->canViewAnything();
 	}
 
@@ -249,6 +254,11 @@ class User
 	 */
 	public function canEditPhp()
 	{
+		if (Integration\Bitrix24\Service::isCloud())
+		{
+			return false;
+		}
+
 		return $this->getObject()->canDoOperation('edit_php', $this->id);
 	}
 
@@ -259,6 +269,11 @@ class User
 	 */
 	public function canUseLpa()
 	{
+		if (Integration\Bitrix24\Service::isCloud())
+		{
+			return false;
+		}
+
 		return $this->getObject()->canDoOperation('lpa_template_edit', $this->id);
 	}
 

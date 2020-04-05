@@ -2,6 +2,7 @@
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
+use Bitrix\Catalog;
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
@@ -24,7 +25,7 @@ $arParams['SHOW_NEXT_LEVEL'] = (isset($arParams['SHOW_NEXT_LEVEL']) && 'Y' == $a
 if (!CModule::IncludeModule('catalog'))
 	return;
 
-if (!CBXFeatures::IsFeatureEnabled('CatDiscountSave'))
+if (!Catalog\Config\Feature::isCumulativeDiscountsEnabled())
 {
 	CCatalogDiscountSave::Disable();
 	ShowError(GetMessage("CAT_FEATURE_NOT_ALLOW"));

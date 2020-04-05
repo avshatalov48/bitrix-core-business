@@ -90,6 +90,7 @@ $APPLICATION->IncludeComponent(
 		"GET_FOLLOW" => "Y",
 		"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
 		"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
+		"SELECTOR_VERSION" => 2
 	),
 	$this->getComponent()
 );

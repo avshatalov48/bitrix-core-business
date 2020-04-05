@@ -317,11 +317,11 @@
 
 
 .landing-ui-card-library-load-more.landing-ui-show {
-	animation: showEmptyResult 200ms ease both;
+	animation: showEmptyResult 10ms ease both;
 }
 
 .landing-ui-card-library-load-more.landing-ui-hide {
-	animation: hideEmptyResult 200ms ease both;
+	animation: hideEmptyResult 10ms ease both;
 }
 
 @keyframes showEmptyResult {

@@ -16,10 +16,16 @@
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
+if($arResult["SHOW_SMS_FIELD"] == true)
+{
+	CJSCore::Init('phone_auth');
+}
+
 //one css for all system.auth.* forms
 $APPLICATION->SetAdditionalCSS("/bitrix/css/main/system.auth/flat/style.css");
 ?>
 <div class="bx-authform">
+<noindex>
 
 <?
 if(!empty($arParams["~AUTH_RESULT"])):
@@ -28,19 +34,63 @@ if(!empty($arParams["~AUTH_RESULT"])):
 	<div class="alert <?=($arParams["~AUTH_RESULT"]["TYPE"] == "OK"? "alert-success":"alert-danger")?>"><?=nl2br(htmlspecialcharsbx($text))?></div>
 <?endif?>
 
-<?if($arResult["USE_EMAIL_CONFIRMATION"] === "Y" && is_array($arParams["AUTH_RESULT"]) &&  $arParams["AUTH_RESULT"]["TYPE"] === "OK"):?>
+<?if($arResult["SHOW_EMAIL_SENT_CONFIRMATION"]):?>
 	<div class="alert alert-success"><?echo GetMessage("AUTH_EMAIL_SENT")?></div>
-<?else:?>
+<?endif?>
 
-<?if($arResult["USE_EMAIL_CONFIRMATION"] === "Y"):?>
+<?if(!$arResult["SHOW_EMAIL_SENT_CONFIRMATION"] && $arResult["USE_EMAIL_CONFIRMATION"] === "Y"):?>
 	<div class="alert alert-warning"><?echo GetMessage("AUTH_EMAIL_WILL_BE_SENT")?></div>
 <?endif?>
 
-<noindex>
+<?if($arResult["SHOW_SMS_FIELD"] == true):?>
+
+<form method="post" action="<?=$arResult["AUTH_URL"]?>" name="regform">
+
+	<input type="hidden" name="SIGNED_DATA" value="<?=htmlspecialcharsbx($arResult["SIGNED_DATA"])?>" />
+
+	<div class="bx-authform-formgroup-container">
+		<div class="bx-authform-label-container"><span class="bx-authform-starrequired">*</span><?echo GetMessage("main_register_sms_code")?></div>
+		<div class="bx-authform-input-container">
+			<input type="text" name="SMS_CODE" maxlength="255" value="<?=htmlspecialcharsbx($arResult["SMS_CODE"])?>" autocomplete="off" />
+		</div>
+	</div>
+
+	<div class="bx-authform-formgroup-container">
+		<input type="submit" class="btn btn-primary" name="code_submit_button" value="<?echo GetMessage("main_register_sms_send")?>" />
+	</div>
+
+</form>
+
+<script>
+new BX.PhoneAuth({
+	containerId: 'bx_register_resend',
+	errorContainerId: 'bx_register_error',
+	interval: <?=$arResult["PHONE_CODE_RESEND_INTERVAL"]?>,
+	data:
+		<?=CUtil::PhpToJSObject([
+			'signedData' => $arResult["SIGNED_DATA"],
+		])?>,
+	onError:
+		function(response)
+		{
+			var errorNode = BX('bx_register_error');
+			errorNode.innerHTML = '';
+			for(var i = 0; i < response.errors.length; i++)
+			{
+				errorNode.innerHTML = errorNode.innerHTML + BX.util.htmlspecialchars(response.errors[i].message) + '<br />';
+			}
+			errorNode.style.display = '';
+		}
+});
+</script>
+
+<div id="bx_register_error" style="display:none" class="alert alert-danger"></div>
+
+<div id="bx_register_resend"></div>
+
+<?elseif(!$arResult["SHOW_EMAIL_SENT_CONFIRMATION"]):?>
+
 	<form method="post" action="<?=$arResult["AUTH_URL"]?>" name="bform" enctype="multipart/form-data">
-<?if($arResult["BACKURL"] <> ''):?>
-		<input type="hidden" name="backurl" value="<?=$arResult["BACKURL"]?>" />
-<?endif?>
 		<input type="hidden" name="AUTH_FORM" value="Y" />
 		<input type="hidden" name="TYPE" value="REGISTRATION" />
 
@@ -93,12 +143,23 @@ document.getElementById('bx_auth_secure_conf').style.display = '';
 			</div>
 		</div>
 
+<?if($arResult["EMAIL_REGISTRATION"]):?>
 		<div class="bx-authform-formgroup-container">
 			<div class="bx-authform-label-container"><?if($arResult["EMAIL_REQUIRED"]):?><span class="bx-authform-starrequired">*</span><?endif?><?=GetMessage("AUTH_EMAIL")?></div>
 			<div class="bx-authform-input-container">
 				<input type="text" name="USER_EMAIL" maxlength="255" value="<?=$arResult["USER_EMAIL"]?>" />
 			</div>
 		</div>
+<?endif?>
+
+<?if($arResult["PHONE_REGISTRATION"]):?>
+		<div class="bx-authform-formgroup-container">
+			<div class="bx-authform-label-container"><?if($arResult["PHONE_REQUIRED"]):?><span class="bx-authform-starrequired">*</span><?endif?><?echo GetMessage("main_register_phone_number")?></div>
+			<div class="bx-authform-input-container">
+				<input type="text" name="USER_PHONE_NUMBER" maxlength="255" value="<?=$arResult["USER_PHONE_NUMBER"]?>" />
+			</div>
+		</div>
+<?endif?>
 
 <?if($arResult["USER_PROPERTIES"]["SHOW"] == "Y"):?>
 	<?foreach ($arResult["USER_PROPERTIES"]["DATA"] as $FIELD_NAME => $arUserField):?>
@@ -184,11 +245,12 @@ $APPLICATION->IncludeComponent(
 		</div>
 
 	</form>
-</noindex>
 
 <script type="text/javascript">
 document.bform.USER_NAME.focus();
 </script>
 
 <?endif?>
+
+</noindex>
 </div>

@@ -114,7 +114,7 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 						if (isset($mobileColumns['DELETE']))
 						{
 							?>
-							<span class="basket-item-actions-remove d-block d-sm-none" data-entity="basket-item-delete"></span>
+							<span class="basket-item-actions-remove d-block d-md-none" data-entity="basket-item-delete"></span>
 							<?
 						}
 						?>
@@ -321,8 +321,8 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 			if ($usePriceInAdditionalColumn)
 			{
 				?>
-				<td class="basket-items-list-item-price basket-items-list-item-price-for-one<?=(!isset($mobileColumns['PRICE']) ? ' d-none d-sm-block' : '')?>">
-					<div class="basket-item-block-price">
+				<td class="basket-items-list-item-price basket-items-list-item-price-for-one">
+					<div class="basket-item-block-price<?=(!isset($mobileColumns['PRICE']) ? ' d-none d-sm-block' : '')?>">
 						{{#SHOW_DISCOUNT_PRICE}}
 							<div class="basket-item-price-old">
 								<span class="basket-item-price-old-text">
@@ -425,7 +425,7 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 			if ($useActionColumn)
 			{
 				?>
-				<td class="basket-items-list-item-remove d-none d-sm-block">
+				<td class="basket-items-list-item-remove d-none d-md-block">
 					<div class="basket-item-block-actions">
 						<span class="basket-item-actions-remove" data-entity="basket-item-delete"></span>
 						{{#SHOW_LOADING}}

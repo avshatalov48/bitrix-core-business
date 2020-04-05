@@ -4,6 +4,7 @@ define("BX_STATISTIC_BUFFER_USED", false);
 define("NO_LANG_FILES", true);
 define("NOT_CHECK_PERMISSIONS", true);
 define("PUBLIC_AJAX_MODE", true);
+define('BX_SECURITY_SESSION_READONLY', true);
 
 $site_id = (isset($_REQUEST["site"]) && is_string($_REQUEST["site"])) ? trim($_REQUEST["site"]): "";
 $site_id = substr(preg_replace("/[^a-z0-9_]/i", "", $site_id), 0, 2);

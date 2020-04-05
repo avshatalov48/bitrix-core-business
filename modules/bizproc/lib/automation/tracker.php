@@ -22,17 +22,9 @@ class Tracker
 
 	public function getLog(array $statuses)
 	{
-		$log = array();
-
+		$log = [];
 		$currentStatus = $this->target->getDocumentStatus();
-
-		$needleKey = array_search($currentStatus, $statuses);
-
-		if ($needleKey === false)
-			return $log;
-
-		$logStatuses = array_slice($statuses, 0, $needleKey + 1);
-		$statusEntries = $this->getBizprocTrackingEntries($logStatuses);
+		$statusEntries = $this->getBizprocTrackingEntries($statuses);
 
 		foreach ($statusEntries as $status => $entries)
 		{

@@ -2,6 +2,8 @@
 
 namespace Bitrix\Rest\Engine;
 
+use Bitrix\Main\Config\Configuration;
+use Bitrix\Main\Context;
 use Bitrix\Main\Engine;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Engine\Crawler;
@@ -25,60 +27,48 @@ class RestManager extends \IRestService
 	/** @var PageNavigation */
 	private $pageNavigation;
 
-	/**
-	 * Builds list of REST methods which provides modules.
-	 *
-	 * @return array
-	 */
-	public static function onRestServiceBuildDescription()
+	public static function onFindMethodDescription($potentialAction)
 	{
 		$restManager = new static();
 
-		$methods = array();
-		foreach ($restManager->getModules() as $module)
-		{
-			$actions = Crawler::getInstance()->listActionsByModule($module);
-			if (!$actions)
-			{
-				continue;
-			}
+		$request = new \Bitrix\Main\HttpRequest(
+			Context::getCurrent()->getServer(),
+			['action' => $potentialAction],
+			[], [], []
+		);
 
-			$methods[$module] = array();
-			foreach ($actions as $action)
-			{
-				$methods[$module][$module . '.' . $action] = array(
-					$restManager,
-					'processMethodRequest'
-				);
-			}
+		$router = new Engine\Router($request);
+		$controllersConfig = Configuration::getInstance($router->getModule());
+		if (empty($controllersConfig['controllers']['restIntegration']['enabled']))
+		{
+			return false;
 		}
 
-		return $methods;
+		/** @var Controller $controller */
+		list($controller) = $router->getControllerAndAction();
+		if (!$controller || $controller instanceof Engine\DefaultController)
+		{
+			return false;
+		}
+
+		return [
+			'scope' => static::getModuleScopeAlias($router->getModule()),
+			'callback' => [
+				$restManager, 'processMethodRequest'
+			]
+		];
 	}
 
-	protected function getModules()
+	public static function getModuleScopeAlias($moduleId)
 	{
-		$event = new Event('rest', 'onRestGetModule');
-		$event->send();
-
-		$modules = array();
-		foreach ($event->getResults() as $eventResult)
+		if($moduleId === 'tasks')
 		{
-			if ($eventResult->getType() == \Bitrix\Main\EventResult::ERROR)
-			{
-				continue;
-			}
-
-			$eventParams = $eventResult->getParameters();
-			if (!empty($eventParams['MODULE_ID']))
-			{
-				$modules[] = $eventParams['MODULE_ID'];
-			}
+			return 'task';
 		}
 
-		return $modules;
+		return $moduleId;
 	}
-
+	
 	/**
 	 * Processes method to services.
 	 *
@@ -96,20 +86,35 @@ class RestManager extends \IRestService
 
 		$errorCollection = new ErrorCollection();
 		$method = $restServer->getMethod();
-		$parts = explode('.', $method);
-		$module = array_shift($parts);
 
-		$action = implode('.', $parts);
-		list ($controller, $action) = Resolver::getControllerAndAction($module, $action, Controller::SCOPE_REST);
+		$request = new \Bitrix\Main\HttpRequest(
+			Context::getCurrent()->getServer(),
+			['action' => $method],
+			[], [], []
+		);
+		$router = new Engine\Router($request);
+
+		list ($controller, $action) = Resolver::getControllerAndAction(
+			$router->getVendor(),
+			$router->getModule(),
+			$router->getAction(),
+			Controller::SCOPE_REST
+		);
 		if (!$controller)
 		{
-			throw new RestException("Unknown {$method}. There is not controller in module {$module}");
+			throw new RestException("Unknown {$method}. There is not controller in module {$router->getModule()}");
 		}
 
 		$this->registerAutoWirings($restServer, $start);
 
 		/** @var Controller $controller */
 		$result = $controller->run($action, array($params));
+		if ($result instanceof Engine\Response\File)
+		{
+			/** @noinspection PhpVoidFunctionResultUsedInspection */
+			return $result->send();
+		}
+
 		if ($result instanceof HttpResponse)
 		{
 			if ($result instanceof Errorable)
@@ -132,6 +137,31 @@ class RestManager extends \IRestService
 		return $this->processData($result);
 	}
 
+	/**
+	 * @param Engine\Response\DataType\Page $page
+	 * @see \IRestService::setNavData
+	 *
+	 * @return array
+	 */
+	private function getNavigationData(Engine\Response\DataType\Page $page)
+	{
+		$result = [];
+		$offset = $this->pageNavigation->getOffset();
+		$total = $page->getTotalCount();
+
+		$currentPageSize = count($page->getItems());
+
+		if ($offset + $currentPageSize < $total)
+		{
+			$result['next'] = $offset + $currentPageSize;
+		}
+
+		$result['total'] = $total;
+
+		return $result;
+	}
+
+
 	private function processData($result)
 	{
 		if ($result instanceof DateTime)
@@ -151,10 +181,16 @@ class RestManager extends \IRestService
 
 		if ($result instanceof Engine\Response\DataType\Page)
 		{
-			return self::setNavData($this->processData($result->getIterator()), array(
-				"count" => $result->getTotalCount(),
-				"offset" => $this->pageNavigation->getOffset(),
-			));
+			if (method_exists($result, 'getId'))
+			{
+				$data = [$result->getId() => $this->processData($result->getIterator())];
+			}
+			else
+			{
+				$data = $this->processData($result->getIterator());
+			}
+
+			return array_merge($data, $this->getNavigationData($result));
 		}
 
 		if ($result instanceof Contract\Arrayable)
@@ -162,12 +198,31 @@ class RestManager extends \IRestService
 			$result = $result->toArray();
 		}
 
-		if (is_array($result) || $result instanceof \Traversable)
+		if (is_array($result))
 		{
 			foreach ($result as $key => $item)
 			{
-				$result[$key] = $this->processData($item);
+				if ($item instanceof Engine\Response\DataType\ContentUri)
+				{
+					$result[$key . "Machine"] = $this->processData($item);
+					$result[$key] = $this->processData(new Uri($item));
+				}
+				else
+				{
+					$result[$key] = $this->processData($item);
+				}
+
 			}
+		}
+		elseif ($result instanceof \Traversable)
+		{
+			$newResult = [];
+			foreach ($result as $key => $item)
+			{
+				$newResult[$key] = $this->processData($item);
+			}
+
+			$result = $newResult;
 		}
 
 		return $result;
@@ -175,8 +230,12 @@ class RestManager extends \IRestService
 
 	private function convertAjaxUriToRest(Uri $uri)
 	{
-		$endPoint = Engine\UrlManager::getInstance()->getEndPoint(Engine\UrlManager::ABSOLUTE_URL);
+		if (!($uri instanceof Engine\Response\DataType\ContentUri))
+		{
+			return $uri->getUri();
+		}
 
+		$endPoint = Engine\UrlManager::getInstance()->getEndPoint(Engine\UrlManager::ABSOLUTE_URL);
 		if ($uri->getPath() !== $endPoint->getPath())
 		{
 			return $uri->getUri();
@@ -188,56 +247,12 @@ class RestManager extends \IRestService
 		}
 
 		parse_str($uri->getQuery(), $params);
-		if (empty($params['action']) || empty($params['m']))
+		if (empty($params['action']))
 		{
 			return $uri->getUri();
 		}
 
-		//todo @see \CRestUtil::getSpecialUrl
-		$uri->addParams(array('_' => randString(32)));
-		$query = $uri->getQuery();
-
-		$scope = $this->restServer->getScope();
-		if($scope === \CRestUtil::GLOBAL_SCOPE)
-		{
-			$scope = '';
-		}
-
-		$method = "{$params['m']}.{$params['action']}";
-		$signature = $this->restServer->getTokenCheckSignature($method, $query);
-
-		$token = $scope
-				 .\CRestUtil::TOKEN_DELIMITER.$query
-				 .\CRestUtil::TOKEN_DELIMITER.$signature;
-
-
-		$authData = $this->restServer->getAuthData();
-		if($authData['password_id'])
-		{
-			$auth = $this->restServer->getAuth();
-
-			return \CRestUtil::getWebhookEndpoint(
-					$auth['ap'],
-					$auth['aplogin'],
-					$method
-				)."?".http_build_query(array(
-				   'token' => $token,
-				));
-		}
-		else
-		{
-			$urlParam = array_merge(
-				$this->restServer->getAuth(),
-				array(
-					'token' => $token,
-				)
-			);
-
-			return \CHTTP::URN2URI(
-				$this->getRestEndPoint()."/".$method.".".$this->restServer->getTransport()
-				."?".http_build_query($urlParam)
-			);
-		}
+		return \CRestUtil::getSpecialUrl($params['action'], $params, $this->restServer);
 	}
 
 	private function getRestEndPoint()
@@ -256,17 +271,9 @@ class RestManager extends \IRestService
 			return null;
 		}
 
-		$description = array();
-		/** @var Error $lastError */
-		$lastError = array_pop($errors);
-		$description[] = $lastError->getMessage() . " ({$lastError->getCode()}).";
+		$firstError = reset($errors);
 
-		foreach ($errors as $error)
-		{
-			$description[] = $error->getMessage() . " ({$error->getCode()}).";
-		}
-
-		return new RestException(implode(' ', $description), $lastError->getCode());
+		return new RestException($firstError->getMessage(), $firstError->getCode());
 	}
 
 	private function registerAutoWirings(\CRestServer $restServer, $start)

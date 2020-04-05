@@ -21,11 +21,11 @@
 			throw new Error("BX.Report.Dashboard.Board: 'renderTo' is not a DOMNode.");
 		}
 
-		window.addEventListener('scroll', BX.throttle(this.lazyLoad, 100, this));
 		this.renderTo = options.renderTo;
 		this.id = options.id || null;
 		this.rendered = false;
 		this.designerMode = options.designerMode;
+		this.isDefault = options.isDefault || false;
 
 		this.defaultWidgetClass = options.defaultWidgetClass || 'BX.Report.Dashboard.Widget';
 		this.rowsOrder = [];
@@ -152,6 +152,16 @@
 				}
 			});
 			return this.layout.boardContainer;
+		},
+		scrollEventListener: function()
+		{
+			if (this.scrollEventListenerFunc !== undefined)
+			{
+				return this.scrollEventListenerFunc;
+			}
+
+			this.scrollEventListenerFunc = BX.throttle(this.lazyLoad, 100, this);
+			return this.scrollEventListenerFunc;
 		},
 		lazyLoad: function ()
 		{
@@ -371,7 +381,9 @@
 		{
 			this.setDesignerMode(this.isDesignerMode());
 			var rowFragment = document.createDocumentFragment();
-			//var widgetFragment = document.createDocumentFragment();
+
+
+
 			var rows = this.getRows();
 			BX.Report.Dashboard.Utils.forEach(rows, function (key)
 			{
@@ -387,6 +399,9 @@
 			}
 
 			BX.onCustomEvent(this, "Dashboard.Board:onRender", [this]);
+
+
+			window.addEventListener('scroll', this.scrollEventListener());
 		},
 		renderLayout: function ()
 		{
@@ -441,6 +456,7 @@
 		{
 			this.rendered = false;
 			BX.remove(this.getBoardContainer());
+			window.removeEventListener('scroll', this.scrollEventListener());
 			var rows = this.getRows();
 			for (var i in rows)
 			{
@@ -582,7 +598,18 @@
 		getBoards: function ()
 		{
 			return this.dashboards;
+		},
+		destroyBoards: function()
+		{
+			var boards = this.getBoards();
+
+			for (var i = 0; i < boards.length; i++)
+			{
+				boards[i].destroy();
+				boards.splice(i, 1);
+			}
 		}
+
 	}
 })();
 

@@ -4,11 +4,14 @@ namespace Bitrix\Sale\Delivery;
 
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Sale\Internals\Input;
 use Bitrix\Currency;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class Helper
+ * @package Bitrix\Sale\Delivery
+ */
 class Helper
 {
 	/**
@@ -108,6 +111,12 @@ class Helper
 		return $result;
 	}
 
+	/**
+	 * @return string Default site id.
+	 * @throws SystemException
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 */
 	public static function getDefaultSiteId()
 	{
 		static $result = null;
@@ -126,6 +135,9 @@ class Helper
 		return $result;
 	}
 
+	/**
+	 * Clean additional delivery cache
+	 */
 	public static function additionalHandlerCacheClean()
 	{
 		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/handlers/delivery/additional/cache.php");

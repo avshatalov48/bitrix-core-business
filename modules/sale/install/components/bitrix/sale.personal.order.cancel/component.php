@@ -16,7 +16,7 @@ if (!$USER->IsAuthorized())
 	$APPLICATION->AuthForm(GetMessage("SALE_ACCESS_DENIED"), false, false, 'N', false);
 }
 
-$ID = urldecode(urldecode($arParams["ID"]));
+$id = urldecode(urldecode($arParams["ID"]));
 
 $arParams["PATH_TO_LIST"] = Trim($arParams["PATH_TO_LIST"]);
 if (strlen($arParams["PATH_TO_LIST"]) <= 0)
@@ -27,52 +27,49 @@ if (strlen($arParams["PATH_TO_DETAIL"]) <= 0)
 	$arParams["PATH_TO_DETAIL"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?"."ID=#ID#");
 
 if ($arParams["SET_TITLE"] == 'Y')
-	$APPLICATION->SetTitle(str_replace("#ID#", $ID, GetMessage("SPOC_TITLE")));
+	$APPLICATION->SetTitle(str_replace("#ID#", $id, GetMessage("SPOC_TITLE")));
 
-$bUseAccountNumber = (COption::GetOptionString("sale", "account_number_template", "") !== "") ? true : false;
+$bUseAccountNumber = \Bitrix\Sale\Integration\Numerator\NumeratorOrder::isUsedNumeratorForOrder();
 
 $errors = array();
 
-if (strlen($ID) > 0 && $_REQUEST["CANCEL"] == "Y" && $_SERVER["REQUEST_METHOD"]=="POST" && strlen($_REQUEST["action"])>0 && check_bitrix_sessid())
+if (strlen($id) <= 0 && $arParams["PATH_TO_LIST"] != htmlspecialcharsbx($APPLICATION->GetCurPage()))
 {
-	$arOrder = false;
-	if ($bUseAccountNumber) // support ACCOUNT_NUMBER or ID in the URL
-	{
-		$dbOrder = CSaleOrder::GetList(
-			array("ID" => "DESC"),
-			array(
-				"ACCOUNT_NUMBER" => $ID,
-				"USER_ID" => IntVal($USER->GetID())
-			),
-			false,
-			false,
-			array("ID", "ACCOUNT_NUMBER")
-		);
+	LocalRedirect($arParams["PATH_TO_LIST"]);
+}
 
-		if ($arOrder = $dbOrder->Fetch())
+$order = null;
+if ($bUseAccountNumber)
+{
+	$order = \Bitrix\Sale\Order::loadByAccountNumber($id);
+}
+
+if (!$order)
+{
+	$order = \Bitrix\Sale\Order::load($id);
+}
+
+if (!$order)
+{
+	$arResult["ERROR_MESSAGE"] = str_replace("#ID#", $id, GetMessage("SPOC_NO_ORDER"));
+}
+elseif ($order->isCanceled())
+{
+	$arResult["ERROR_MESSAGE"] = GetMessage("SPOC_ORDER_CANCELED", ['#ACCOUNT_NUMBER#' => htmlspecialcharsbx($id)]);
+}
+else
+{
+	$request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
+	if ($request->get("CANCEL") == "Y" && $request->isPost() && strlen($request->get("action")) > 0 && check_bitrix_sessid())
+	{
+		if ($order->isPaid() || $order->isShipped())
 		{
-			CSaleOrder::CancelOrder($arOrder["ID"], "Y", $_REQUEST["REASON_CANCELED"]);
-			LocalRedirect($arParams["PATH_TO_LIST"]);
+			$arResult["ERROR_MESSAGE"] = GetMessage("SPOC_CANCEL_ORDER");
 		}
-	}
-
-	if (!$arOrder)
-	{
-		$dbOrder = CSaleOrder::GetList(
-			array("ID" => "DESC"),
-			array(
-				"ID" => $ID,
-				"USER_ID" => IntVal($USER->GetID())
-			),
-			false,
-			false,
-			array("ID")
-		);
-
-		if ($arOrder = $dbOrder->Fetch())
+		else
 		{
-			CSaleOrder::CancelOrder($arOrder["ID"], "Y", $_REQUEST["REASON_CANCELED"]);
-
+			$oldOrderObject = new CSaleOrder();
+			$oldOrderObject->CancelOrder($order->getId(), "Y", $_REQUEST["REASON_CANCELED"]);
 			if ($ex = $APPLICATION->GetException())
 			{
 				$errors[] = $ex->GetString();
@@ -81,62 +78,23 @@ if (strlen($ID) > 0 && $_REQUEST["CANCEL"] == "Y" && $_SERVER["REQUEST_METHOD"]=
 			{
 				LocalRedirect($arParams["PATH_TO_LIST"]);
 			}
-
 		}
 	}
+	else
+	{
+		$arResult = [
+			"ID" => $id,
+			"ACCOUNT_NUMBER" => $order->getField('ACCOUNT_NUMBER'),
+			"URL_TO_DETAIL" => CComponentEngine::MakePathFromTemplate(
+				$arParams["PATH_TO_DETAIL"],
+				[
+					"ID" => urlencode(urlencode($order->getField('ACCOUNT_NUMBER')))
+				]
+			),
+			"URL_TO_LIST" => $arParams["PATH_TO_LIST"],
+		];
+	}
 }
-
-if (strlen($ID) <= 0 && $arParams["PATH_TO_LIST"] != htmlspecialcharsbx($APPLICATION->GetCurPage()))
-	LocalRedirect($arParams["PATH_TO_LIST"]);
-
-$arOrder = false;
-if ($bUseAccountNumber)
-{
-	$dbOrder = CSaleOrder::GetList(
-		array("ID" => "DESC"),
-		array(
-			"ACCOUNT_NUMBER" => $ID,
-			"USER_ID" => IntVal($USER->GetID())
-		),
-		false,
-		false,
-		array("ID", "CANCELED", "STATUS_ID", "PAYED", "ACCOUNT_NUMBER")
-	);
-
-	if ($arOrder = $dbOrder->GetNext())
-		$ID = $arOrder["ID"];
-}
-
-if (!$arOrder)
-{
-	$dbOrder = CSaleOrder::GetList(
-		array("ID" => "DESC"),
-		array(
-			"ID" => $ID,
-			"USER_ID" => IntVal($USER->GetID())
-		),
-		false,
-		false,
-		array("ID", "CANCELED", "STATUS_ID", "PAYED", "ACCOUNT_NUMBER")
-	);
-
-	$arOrder = $dbOrder->GetNext();
-}
-
-if ($arOrder)
-{
-	$arResult = Array(
-		"ID" => $ID,
-		"ACCOUNT_NUMBER" => $arOrder["ACCOUNT_NUMBER"],
-		"URL_TO_DETAIL" => CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_DETAIL"], Array("ID" => urlencode(urlencode($arOrder["ACCOUNT_NUMBER"])))),
-		"URL_TO_LIST" => $arParams["PATH_TO_LIST"],
-	);
-
-	if (!($arOrder["CANCELED"]!="Y" && $arOrder["STATUS_ID"]!="F" && $arOrder["PAYED"]!="Y"))
-		$arResult["ERROR_MESSAGE"] = GetMessage("SPOC_CANCEL_ORDER");
-}
-else
-	$arResult["ERROR_MESSAGE"] = str_replace("#ID#", $ID, GetMessage("SPOC_NO_ORDER"));
 
 if (!empty($errors) && is_array($errors))
 {

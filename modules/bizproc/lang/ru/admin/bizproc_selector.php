@@ -16,4 +16,5 @@ $MESS["BP_SEL_ADDIT"] = "Дополнительные результаты";
 $MESS["BIZPROC_AS_TITLE"] = "Вставка значения";
 $MESS["BIZPROC_AS_TITLE_TOOLBAR"] = "Вставка значения";
 $MESS["BP_SEL_CONSTANTS"] = "Константы";
+$MESS["BP_SEL_GCONST"] = "Глобальные константы";
 ?>

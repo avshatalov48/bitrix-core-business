@@ -15,12 +15,16 @@ $strPayPath .= "&method=POST";
 $strPayPath .= "&desc=Order_".IntVal(CSalePaySystemAction::GetParamValue("ORDER_ID"));
 $strPayPath .= "&mode=".CSalePaySystemAction::GetParamValue("TEST_MODE");
 ?>
+<div class="container-fluid">
+	<div class="row mb-3">
+		<div class="col">
+			Если Вы пользуетесь <strong>WMKeeper Classic</strong>, перейдите для оплаты заказа по следующей ссылке: <a class="" href="wmk:paylink?<?= $strPayPath ?>"><strong>Оплатить заказ</strong></a>
+		</div>
+	</div>
 
-<table>
-<tr>
-	<td align="left">Если Вы пользуетесь <b>WMKeeper Classic</b>, перейдите для оплаты заказа по следующей ссылке:</td>
-	<td align="center"><a href="wmk:paylink?<?= $strPayPath ?>"><b>Оплатить заказ</b></a><br><br></td>
-	<td align="left">Если Вы пользуетесь <b>WMKeeper Light</b>, перейдите для оплаты заказа по следующей ссылке:</td>
-	<td align="center"><a href="https://light.webmoney.ru/pci.aspx?<?= $strPayPath ?>"><b>Оплатить заказ</b></a><br><br></td>
-</tr>
-</table>
+	<div class="row">
+		<div class="col">
+			Если Вы пользуетесь <strong>WMKeeper Light</strong>, перейдите для оплаты заказа по следующей ссылке: <a class="" href="https://light.webmoney.ru/pci.aspx?<?= $strPayPath ?>"><strong>Оплатить заказ</strong></a>
+		</div>
+	</div>
+</div>

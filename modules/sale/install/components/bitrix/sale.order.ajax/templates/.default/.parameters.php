@@ -216,6 +216,12 @@ $arTemplateParameters = array(
 		"ADDITIONAL_VALUES" => "N",
 		"PARENT" => "ADDITIONAL_SETTINGS"
 	),
+	"HIDE_ORDER_DESCRIPTION" => array(
+		"NAME" => GetMessage("HIDE_ORDER_DESCRIPTION"),
+		"TYPE" => "CHECKBOX",
+		"DEFAULT" => "N",
+		"PARENT" => "ADDITIONAL_SETTINGS"
+	),
 	"ALLOW_USER_PROFILES" => array(
 		"NAME" => GetMessage("ALLOW_USER_PROFILES"),
 		"TYPE" => "CHECKBOX",

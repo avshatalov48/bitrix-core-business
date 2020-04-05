@@ -1,4 +1,19 @@
 <?
+$MESS["SALE_CHECK_PRINT_ERROR_TYPE_NAME"] = "Benachrichtigung über einen Fehler beim Ausdrucken vom Kassenzettel";
+$MESS["SALE_CHECK_PRINT_ERROR_TYPE_DESC"] = "#ORDER_ACCOUNT_NUMBER# - ID der Bestellung
+#ORDER_DATE# - Bestelldatum
+#ORDER_ID# - ID der Bestellung
+#CHECK_ID# - ID des Kassenzettels
+";
+$MESS["SALE_CHECK_PRINT_ERROR_SUBJECT"] = "Fehler beim Drucken des Kassenzettels";
+$MESS["SALE_CHECK_PRINT_ERROR_HTML_TITLE"] = "Fehler beim Drucken des Kassenzettels";
+$MESS["SALE_CHECK_PRINT_ERROR_HTML_SUB_TITLE"] = "Hallo!";
+$MESS["SALE_CHECK_PRINT_ERROR_HTML_TEXT"] = "
+Der Kassenzettel ##CHECK_ID# für die Bestellung ##ORDER_ACCOUNT_NUMBER# vom #ORDER_DATE# kann nicht gedruckt werden.
+
+Klicken Sie hier, um das Problem zu lösen:
+http://#SERVER_NAME#/bitrix/admin/sale_order_view.php?ID=#ORDER_ID#
+";
 $MESS["SALE_NEW_ORDER_NAME"] = "Neue Bestellung";
 $MESS["SALE_NEW_ORDER_SUBJECT"] = "#SITE_NAME#: Neue Bestellung Nr. #ORDER#";
 $MESS["SALE_NEW_ORDER_MESSAGE"] = "Informationsnachricht von #SITE_NAME#

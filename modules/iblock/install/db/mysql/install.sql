@@ -123,6 +123,16 @@ create table if not exists b_iblock_property
 	index ix_iblock_property_2(CODE)
 );
 
+create table if not exists b_iblock_property_feature
+(
+	ID int not null auto_increment,
+	PROPERTY_ID int not null,
+	MODULE_ID varchar(50) not null,
+	FEATURE_ID varchar(100) not null,
+	IS_ENABLED char(1) not null default 'N',
+	PRIMARY KEY (ID),
+	unique index ix_iblock_property_feature (PROPERTY_ID, MODULE_ID, FEATURE_ID)
+);
 
 create table if not exists b_iblock_section
 (

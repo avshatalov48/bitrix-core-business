@@ -151,6 +151,7 @@
 	display: flex;
 	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	color: #525C69;
+	margin: 0 0 0 10px;
 }
 
 .sender-test-result-line-icon {

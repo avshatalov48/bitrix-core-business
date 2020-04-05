@@ -5,9 +5,6 @@ use Bitrix\Main\Localization\Loc;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
-if (!\Bitrix\Main\Loader::includeModule('advertising'))
-	return;
-
 Loc::loadMessages(__FILE__);
 
 class AdvertisingBanner extends \CBitrixComponent
@@ -296,8 +293,24 @@ class AdvertisingBanner extends \CBitrixComponent
 		return $this->startResultCache(false, $USER->GetGroups());
 	}
 
+	protected function checkModules()
+	{
+		if (!\Bitrix\Main\Loader::includeModule('advertising'))
+		{
+			ShowError(Loc::getMessage('MODULE_IS_NOT_INSTALLED'));
+			return false;
+		}
+
+		return true;
+	}
+
 	public function executeComponent()
 	{
+		if (!$this->checkModules())
+		{
+			return;
+		}
+
 		$this->arResult = array(
 			'ID' => $this->randString(5),
 			'BANNER' => '',

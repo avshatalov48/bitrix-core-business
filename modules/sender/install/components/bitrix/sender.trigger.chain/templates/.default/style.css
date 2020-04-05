@@ -1,5 +1,6 @@
 .sender-trigger-chain-wrap {
 	padding: 20px;
+	background: white;
 }
 
 .sender-trigger-start-after-event {
@@ -12,10 +13,21 @@
 	display: none;
 }
 
-.sender-link-email {
-	color: #0000ee;
-	text-decoration: underline;
+.sender-link-email,
+.sender_letter_container-author {
+	display: inline-block;
+	/*border-bottom: 1px solid transparent;*/
+	color: #1c53a2;
+	font-weight: 400;
+	text-decoration: none;
+	/*transition: border-bottom .3s;*/
 	cursor: pointer;
+}
+
+.sender-link-email:hover,
+.sender_letter_container-author:hover {
+	/*border-bottom: 1px solid #1c53a2;*/
+	text-decoration: underline;
 }
 
 /*
@@ -84,16 +96,14 @@
 }
 
 .sender-mailing-group-container .sender-mailing-group-container-title {
-	font-size: 20px;
-	font-weight: bold;
-	display: inline-block;
-	line-height: 27px;
+	position: relative;
+	float: left;
+	/*display: inline-block;*/
+	display: table;
 	padding-right: 27px;
 	padding-left: 38px;
-	text-shadow: rgb(255, 255, 255) 0px 1px 0px;
-	float: left;
-	position: relative;
-	display: table;
+	font: bold 20px/27px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	text-shadow: rgb(255, 255, 255) 0 1px 0;
 }
 
 .sender-mailing-group-container .sender-mailing-group-container-title span {
@@ -165,10 +175,8 @@
 
 .sender-trigger-status-mailing-title {
 	position: relative;
-	font-size: 17px;
+	font: bold 17px/36px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	color: #2d2e2f;
-	line-height: 36px;
-	font-weight: bold;
 }
 
 .sender-trigger-status-mailing-title:before {
@@ -182,7 +190,7 @@
 	height: 10px;
 	background: #949caa;
 	display: block;
-	box-shadow: 0 5px 0 0 #f5f9f9, 0 -12px 0 0 #f5f9f9
+	box-shadow: 0 5px 0 0 #fff, 0 -12px 0 0 #fff;
 }
 
 .sender-trigger-status-mailing-desc {
@@ -318,13 +326,13 @@
 }
 
 .sender_letter_container-author {
-	color: #474747;
+	/*color: #474747;*/
 	font-size: 12px;
 }
 
-.sender_letter_container-author:hover {
-	text-decoration: none;
-}
+/*.sender_letter_container-author:hover {*/
+	/*text-decoration: none;*/
+/*}*/
 
 .sender_letter_container-create {
 	font-weight: bold;
@@ -439,5 +447,5 @@ table.trigger_chain_item td:first-child {
 	height: 10px;
 	background: #949caa;
 	display: block;
-	box-shadow: 0 10px 0 0 #f5f9f9, 0 -10px 0 0 #f5f9f9;
+	box-shadow: 0 10px 0 0 #fff, 0 -10px 0 0 #fff;
 }

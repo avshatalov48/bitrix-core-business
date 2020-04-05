@@ -1,0 +1,81 @@
+.report-widget-grid-value,
+.report-widget-grid-value-bold {
+	display: inline-block;
+}
+.report-widget-grid-value {
+	display: inline-block;
+	border-bottom: 1px dashed transparent;
+	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #333;
+	transition: color .3s, border-bottom .3s;
+}
+
+.report-widget-grid-value-clickable {
+	cursor: pointer;
+}
+
+.report-widget-grid-value-bold {
+	display: inline-block;
+	border-bottom: 1px dashed transparent;
+	font: bold 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #333;
+	transition: color .3s, border-bottom .3s;
+	cursor: pointer;
+}
+
+.report-widget-grid-value-bold {
+	color: #515C69;
+}
+
+.report-widget-grid-value-clickable:hover,
+.report-widget-grid-value-bold-clickable:hover {
+	color: #2066B0;
+	border-bottom: 1px dashed #2066B0;
+}
+
+
+.crm-report-column-funnel-grid-rating {
+	display: flex;
+	align-items: center;
+}
+.crm-report-column-funnel-grid-rating-icon {
+	display: inline-block;
+	margin: 0 8px 0 0;
+	width: 10px;
+	height: 10px;
+	border-radius: 100%;
+}
+.crm-report-column-funnel-grid-rating-value {
+	display: inline-block;
+	margin: 0 8px 0 0;
+	padding: 0 8px 0 0;
+	border-right: 1px solid rgba(82,92,105,.17);
+	font: 13px/10px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #364150;
+}
+.crm-report-column-funnel-grid-rating-text {
+	font: 10px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	text-transform: uppercase;
+}
+.crm-report-column-funnel-grid-rating-bold .crm-report-column-funnel-grid-rating-value,
+.crm-report-column-funnel-grid-rating-bold .crm-report-column-funnel-grid-rating-text {
+	font-weight: bold;
+}
+.crm-report-column-funnel-grid-rating-success .crm-report-column-funnel-grid-rating-text {
+	color: #6F9300;
+}
+.crm-report-column-funnel-grid-rating-success .crm-report-column-funnel-grid-rating-icon {
+	background: #B3E600;
+}
+.crm-report-column-funnel-grid-rating-warning .crm-report-column-funnel-grid-rating-text {
+	color: #E22E29;
+}
+.crm-report-column-funnel-grid-rating-warning .crm-report-column-funnel-grid-rating-icon {
+	background: #FF5752;
+}
+.crm-report-column-funnel-grid-rating-normal .crm-report-column-funnel-grid-rating-text {
+	color: #1DB0DE;
+}
+.crm-report-column-funnel-grid-rating-normal .crm-report-column-funnel-grid-rating-icon {
+	background: #2FC6F6;
+}

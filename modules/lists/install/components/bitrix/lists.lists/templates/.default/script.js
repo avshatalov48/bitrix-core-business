@@ -34,7 +34,7 @@ BX.Lists.ListsIblockClass = (function ()
 
 	ListsIblockClass.prototype.createDefaultProcesses = function ()
 	{
-		BX.addClass(BX('bx-lists-default-processes'), 'webform-small-button-wait');
+		BX.addClass(BX('bx-lists-default-processes'), 'ui-btn-clock');
 		BX('bx-lists-default-processes').setAttribute('onclick','');
 		BX.Lists.ajax({
 			method: 'POST',
@@ -57,7 +57,7 @@ BX.Lists.ListsIblockClass = (function ()
 						status: 'error',
 						message: result.errors.pop().message
 					});
-					BX.removeClass(BX('bx-lists-default-processes'), 'webform-small-button-wait');
+					BX.removeClass(BX('bx-lists-default-processes'), 'ui-btn-clock');
 				}
 			}, this)
 		});

@@ -81,6 +81,7 @@ if(CModule::IncludeModule("socialnetwork"))
 		$provider = \Bitrix\Socialnetwork\Livefeed\Provider::init(array(
 			'ENTITY_TYPE' => (isset($_REQUEST['ENTITY_TYPE']) ? preg_replace("/[^a-z0-9_]/i", "", $_REQUEST['ENTITY_TYPE']) : false),
 			'ENTITY_ID' => (isset($_REQUEST['ENTITY_ID']) ? intval($_REQUEST['ENTITY_ID']) : false),
+			'LOG_ID' => (isset($_REQUEST['LOG_ID']) ? intval($_REQUEST['LOG_ID']) : false),
 			'CLONE_DISK_OBJECTS' => true
 		));
 
@@ -91,7 +92,6 @@ if(CModule::IncludeModule("socialnetwork"))
 				'DESCRIPTION' => $provider->getSourceDescription(),
 				'DISK_OBJECTS' => $provider->getSourceDiskObjects()
 			);
-
 			if (isset($_REQUEST["params"]))
 			{
 				if (
@@ -120,16 +120,48 @@ if(CModule::IncludeModule("socialnetwork"))
 					$arResult['LIVEFEED_URL'] = $provider->getLiveFeedUrl();
 				}
 			}
+
+			if ($provider->getType() == Livefeed\Provider::TYPE_COMMENT)
+			{
+				$arResult['SUFFIX'] = $provider->getSuffix();
+			}
+
+			$logId = $provider->getLogId();
+			if (intval($logId) > 0)
+			{
+				$arResult['LOG_ID'] =$logId;
+			}
 		}
 	}
 	elseif ($action == "create_task_comment")
 	{
-		\Bitrix\Socialnetwork\ComponentHelper::processBlogCreateTask(array(
-			'TASK_ID' => (isset($_REQUEST['TASK_ID']) ? intval($_REQUEST['TASK_ID']) : false),
-			'SOURCE_ENTITY_TYPE' => (isset($_REQUEST['ENTITY_TYPE']) ? preg_replace("/[^a-z0-9_]/i", "", $_REQUEST['ENTITY_TYPE']) : false),
-			'SOURCE_ENTITY_ID' => (isset($_REQUEST['ENTITY_ID']) ? intval($_REQUEST['ENTITY_ID']) : false),
-			'LIVE' => 'Y'
-		));
+		if (
+			isset($_REQUEST['ENTITY_TYPE'])
+			&& isset($_REQUEST['ENTITY_ID'])
+			&& isset($_REQUEST['TASK_ID'])
+		)
+		{
+			if (in_array($_REQUEST['ENTITY_TYPE'], array('BLOG_POST', 'BLOG_COMMENT')))
+			{
+				\Bitrix\Socialnetwork\ComponentHelper::processBlogCreateTask(array(
+					'TASK_ID' => intval($_REQUEST['TASK_ID']),
+					'SOURCE_ENTITY_TYPE' => preg_replace("/[^a-z0-9_]/i", "", $_REQUEST['ENTITY_TYPE']),
+					'SOURCE_ENTITY_ID' => intval($_REQUEST['ENTITY_ID']),
+					'LIVE' => 'Y'
+				));
+			}
+			else
+			{
+				\Bitrix\Socialnetwork\ComponentHelper::processLogEntryCreateTask(array(
+					'LOG_ID' => (!empty($_REQUEST['LOG_ID']) ? intval($_REQUEST['LOG_ID']) : false),
+					'TASK_ID' => intval($_REQUEST['TASK_ID']),
+					'POST_ENTITY_TYPE' => preg_replace("/[^a-z0-9_]/i", "", $_REQUEST['POST_ENTITY_TYPE']),
+					'SOURCE_ENTITY_TYPE' => preg_replace("/[^a-z0-9_]/i", "", $_REQUEST['ENTITY_TYPE']),
+					'SOURCE_ENTITY_ID' => intval($_REQUEST['ENTITY_ID']),
+					'LIVE' => 'Y'
+				));
+			}
+		}
 	}
 	elseif ($action == "get_data")
 	{
@@ -804,6 +836,17 @@ if(CModule::IncludeModule("socialnetwork"))
 				? "Y"
 				: "N"
 		);
+
+		if ($_REQUEST["follow"] == "Y")
+		{
+			\Bitrix\Socialnetwork\ComponentHelper::userLogSubscribe(array(
+				'logId' => $_REQUEST["log_id"],
+				'userId' => $USER->getId(),
+				'typeList' => array(
+					'COUNTER_COMMENT_PUSH'
+				)
+			));
+		}
 	}
 
 	if (empty($_REQUEST['mobile_action']))

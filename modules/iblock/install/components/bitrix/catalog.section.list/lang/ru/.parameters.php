@@ -10,4 +10,6 @@ $MESS["CP_BCSL_ADD_SECTIONS_CHAIN"] = "Включать раздел в цепо
 $MESS["CP_BCSL_CACHE_GROUPS"] = "Учитывать права доступа";
 $MESS["CP_BCSL_SECTION_FIELDS"] = "Поля разделов";
 $MESS["CP_BCSL_SECTION_USER_FIELDS"] = "Свойства разделов";
+$MESS["CP_BCSL_FILTER_NAME_IN"] = "Имя массива со значениями фильтра разделов";
+$MESS["CP_BCSL_CACHE_FILTER"] = "Кешировать при установленном фильтре";
 ?>

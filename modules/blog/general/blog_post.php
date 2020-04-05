@@ -191,7 +191,7 @@ class CAllBlogPost
 			return false;
 		}
 
-		if ((is_set($arFields, "DETAIL_TEXT") || $ACTION=="ADD") && strlen($arFields["DETAIL_TEXT"]) <= 0)
+		if ((is_set($arFields, "DETAIL_TEXT") || $ACTION=="ADD") && strlen(trim(str_replace("\xc2\xa0", ' ', $arFields["DETAIL_TEXT"]), " \t\n\r\0\x0B\xA0")) <= 0)
 		{
 			$APPLICATION->ThrowException(GetMessage("BLG_GP_EMPTY_DETAIL_TEXT"), "EMPTY_DETAIL_TEXT");
 			return false;
@@ -891,6 +891,13 @@ class CAllBlogPost
 					)
 				));
 
+				if ($hasVideoTransforming)
+				{
+					CUserOptions::setOption("socialnetwork", "~log_videotransform_popup_show", "Y");
+					CUserOptions::setOption("socialnetwork", "~log_videotransform_post_url", $arSoFields["URL"]);
+					CUserOptions::setOption("socialnetwork", "~log_videotransform_post_id", $arPost["ID"]);
+				}
+
 				return $logID;
 			}
 		}
@@ -1317,7 +1324,7 @@ class CAllBlogPost
 		return $result;
 	}
 
-	public static function GetSocNetPerms($ID)
+	public static function getSocNetPerms($ID, $useCache = true)
 	{
 		global $DB, $CACHE_MANAGER;
 		$ID = IntVal($ID);
@@ -1331,7 +1338,10 @@ class CAllBlogPost
 		$cacheDir = '/blog/getsocnetperms/'.$ID;
 
 		$obCache = new CPHPCache;
-		if($obCache->InitCache($cacheTtl, $cacheId, $cacheDir))
+		if(
+			$obCache->InitCache($cacheTtl, $cacheId, $cacheDir)
+			&& $useCache
+		)
 		{
 			$arResult = $obCache->GetVars();
 		}
@@ -1956,7 +1966,7 @@ class CAllBlogPost
 				$arParams["MENTION_ID_OLD"] = Array();
 			}
 
-			$arUserIdToMention = $arUserIdToShare = $arNewRights = array();
+			$arUserIdToMention = $arNewRights = array();
 
 			foreach($arParams["MENTION_ID"] as $val)
 			{
@@ -1975,14 +1985,6 @@ class CAllBlogPost
 					));
 
 					if (
-						$postPerm < BLOG_PERMS_PREMODERATE
-						&& $arParams["TYPE"] == "COMMENT"
-					)
-					{
-						$arUserIdToShare[] = $val;
-					}
-
-					if (
 						$postPerm >= BLOG_PERMS_READ
 						|| $arParams["TYPE"] == "COMMENT"
 					)
@@ -1993,90 +1995,6 @@ class CAllBlogPost
 			}
 
 			$arUserIdToMention = array_unique($arUserIdToMention);
-			$arUserIdToShare = array_unique($arUserIdToShare);
-
-			foreach($arUserIdToShare as $val)
-			{
-				$arParams["TO_SOCNET_RIGHTS"][] = 'U'.$val;
-				$arNewRights[] = 'U'.$val;
-			}
-
-			if (!empty($arUserIdToShare))
-			{
-				$arPost = CBlogPost::GetByID($arParams["ID"]);
-				$arSocnetPerms = CBlogPost::GetSocnetPerms($arPost["ID"]);
-				$arSocNetRights = $arNewRights;
-
-				foreach($arSocnetPerms as $entityType => $arEntities)
-				{
-					foreach($arEntities as $entityId => $arRights)
-					{
-						$arSocNetRights = array_merge($arSocNetRights, $arRights);
-					}
-				}
-
-				$arSocNetRights = array_unique($arSocNetRights);
-
-				\Bitrix\Socialnetwork\ComponentHelper::processBlogPostShare(
-					array(
-						"POST_ID" => $arParams["ID"],
-						"BLOG_ID" => $arPost["BLOG_ID"],
-						"SITE_ID" => SITE_ID,
-						"SONET_RIGHTS" => $arSocNetRights,
-						"NEW_RIGHTS" => $arNewRights,
-						"USER_ID" => $arParams["FROM_USER_ID"]
-					),
-					array(
-						"PATH_TO_USER" => COption::GetOptionString("main", "TOOLTIP_PATH_TO_USER", '/company/personal/user/#user_id#/', SITE_ID),
-						"PATH_TO_POST" => COption::GetOptionString("socialnetwork", "userblogpost_page", '/company/personal/user/#user_id#/blog/#post_id#', SITE_ID),
-						"NAME_TEMPLATE" => CSite::GetNameFormat(),
-						"SHOW_LOGIN" => "Y",
-						"LIVE" => "N",
-						"MENTION" => "Y"
-					)
-				);
-
-				if (
-					isset($arParams["COMMENT_ID"])
-					&& intval($arParams["COMMENT_ID"]) > 0
-				)
-				{
-					$res = CSocNetLogComments::GetList(
-						array(),
-						array(
-							"EVENT_ID" => "blog_comment",
-							"SOURCE_ID" => $arParams["COMMENT_ID"]
-						),
-						false,
-						false,
-						array("ID", "LOG_ID")
-					);
-
-					if ($arSonetLogComment = $res->Fetch())
-					{
-						$commentId = intval($arSonetLogComment["ID"]);
-						if ($commentId > 0)
-						{
-							CUserCounter::IncrementWithSelect(
-								CSocNetLogCounter::GetSubSelect2(
-									$commentId,
-									array(
-										"TYPE" => "LC",
-										"MULTIPLE" => "Y",
-										"SET_TIMESTAMP" => "Y",
-										"USER_ID" => $arUserIdToShare
-									)
-								),
-								true,
-								array(
-									"SET_TIMESTAMP" => "Y",
-									"USERS_TO_PUSH" => $arUserIdToShare
-								)
-							);
-						}
-					}
-				}
-			}
 
 			foreach($arUserIdToMention as $val)
 			{
@@ -3253,7 +3171,7 @@ class CAllBlogPost
 		return true;
 	}
 
-	function DeleteSocNetPostPerms($postId)
+	public static function DeleteSocNetPostPerms($postId)
 	{
 		global $DB;
 		$postId = IntVal($postId);

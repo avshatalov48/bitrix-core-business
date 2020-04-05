@@ -44,7 +44,7 @@ if (CPGalleryInterface::CheckSign($_REQUEST['sigh'], $_REQUEST["checkParams"]))
 					"PATH_TO_USER_PROFILE" => $arParams["PATH_TO_USER"],
 					"AJAX_MODE" => "Y",
 				),
-				$this,
+				null,
 				array("HIDE_ICONS" => "Y")
 			);
 			?><!--BX_PHOTO_RATING_END--><?
@@ -68,7 +68,7 @@ if (CPGalleryInterface::CheckSign($_REQUEST['sigh'], $_REQUEST["checkParams"]))
 					"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 					"CACHE_TIME" => $arParams["CACHE_TIME"]
 				),
-				$this,
+				null,
 				array("HIDE_ICONS" => "Y")
 			);
 		}

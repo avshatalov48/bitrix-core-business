@@ -85,6 +85,7 @@ else
 	$javascriptParams = array(
 		"url" => CUtil::JSEscape($this->__component->GetPath().'/ajax.php'),
 		"templateFolder" => CUtil::JSEscape($templateFolder),
+		"templateName" => $this->__component->GetTemplateName(),
 		"accountNumber" => $arParams['ACCOUNT_NUMBER'],
 		"paymentNumber" => $arParams['PAYMENT_NUMBER'],
 		"inner" => $arParams['ALLOW_INNER'],

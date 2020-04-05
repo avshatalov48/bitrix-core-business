@@ -615,7 +615,7 @@ class CAllForumNew
 		if (is_integer($arUserGroups) || is_null($arUserGroups))
 		{
 			global $USER;
-			$arUserGroups = ($USER->getId() == $arUserGroups ? $USER->GetUserGroupArray() : CUser::GetUserGroup($arUserGroups));
+			$arUserGroups = (is_object($USER) && $USER->getId() == $arUserGroups ? $USER->GetUserGroupArray() : CUser::GetUserGroup($arUserGroups));
 		}
 		$arUserGroups = (!is_array($arUserGroups) ? array($arUserGroups) : $arUserGroups);
 		sort($arUserGroups);
@@ -1013,7 +1013,7 @@ class CAllForumNew
 				case "LID":
 				case "SITE_ID":
 					if (strLen($val) <= 0):
-						continue;
+						break;
 					endif;
 					$arSqlSelect["PATH2FORUM_MESSAGE"] = "F2S.PATH2FORUM_MESSAGE";
 					$arSqlGroup["PATH2FORUM_MESSAGE"] = "F2S.PATH2FORUM_MESSAGE";
@@ -1050,7 +1050,7 @@ class CAllForumNew
 				case "PERMS":
 					$v = (is_array($val) && isset($val[0]) && !empty($val[0]) ? array_map("intval", is_array($val[0]) ? $val[0] : explode(",", $val[0])) : array());
 					if (empty($v))
-						continue;
+						break;
 					$val[0] = $DB->ForSql(implode(", ", $v));
 					$arSqlFrom["FP"] = "
 					INNER JOIN b_forum_perms FP ON (F.ID = FP.FORUM_ID)";
@@ -1061,7 +1061,7 @@ class CAllForumNew
 					break;
 				case "APPROVED":
 					if (strLen($val) <= 0):
-						continue;
+						break;
 					endif;
 					$arSqlFrom["FMM"] = "
 					LEFT JOIN b_forum_message FMM ON (FMM.FORUM_ID=F.ID AND (FMM.APPROVED ".$strOperation." '".$DB->ForSql($val)."'))";
@@ -1070,7 +1070,7 @@ class CAllForumNew
 				case "RENEW":
 					$val = intVal($val);
 					if ($val <= 0):
-						continue;
+						break;
 					endif;
 
 					$perms = "NOT_CHECK";

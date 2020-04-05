@@ -152,17 +152,7 @@
 	opacity: 0;
 	-webkit-animation: senderShowItemsAll .2s linear forwards;
 	animation: senderShowItemsAll .2s linear forwards;
-	-webkit-animation-delay: .4s;
-	animation-delay: .4s;
-}
 
-@-webkit-keyframes senderShowItemsAll {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
 }
 
 @keyframes senderShowItemsAll {

@@ -2,7 +2,6 @@
 namespace Bitrix\Sale\Exchange\OneC;
 
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Sale\Exchange;
 
 /**
  * Class ProfileDocument
@@ -15,9 +14,9 @@ class ProfileDocument extends UserProfileDocument
 	/**
 	 * @return int
 	 */
-	public function getOwnerEntityTypeId()
+	public function getTypeId()
 	{
-		return Exchange\EntityType::PROFILE;
+		return DocumentType::PROFILE;
 	}
 
 	/**

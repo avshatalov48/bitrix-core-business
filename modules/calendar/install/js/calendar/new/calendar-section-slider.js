@@ -18,12 +18,13 @@
 			BX.SidePanel.Instance.open(this.sliderId, {
 				contentCallback: BX.delegate(this.create, this),
 				width: this.SLIDER_WIDTH,
-				animationDuration: this.SLIDER_DURATION
+				animationDuration: this.SLIDER_DURATION,
+				events: {
+					onCloseByEsc: BX.proxy(this.escHide, this),
+					onClose: BX.proxy(this.hide, this),
+					onCloseComplete: BX.proxy(this.destroy, this)
+				}
 			});
-
-			BX.addCustomEvent("SidePanel.Slider:onCloseByEsc", BX.proxy(this.escHide, this));
-			BX.addCustomEvent("SidePanel.Slider:onClose", BX.proxy(this.hide, this));
-			BX.addCustomEvent("SidePanel.Slider:onCloseComplete", BX.proxy(this.destroy, this));
 
 			BX.addCustomEvent("BXCalendar:onSectionDelete", BX.proxy(this.deleteSectionHandler, this));
 			BX.addCustomEvent("BXCalendar:onSectionChange", BX.proxy(this.changeSectionHandler, this));
@@ -214,12 +215,12 @@
 		createAddButton:function()
 		{
 			this.addButtonOuter = this.titleWrap.appendChild(BX.create('SPAN', {
-				props: {className: 'webform-small-button-separate-wrap'},
+				props: {className: 'ui-btn-double ui-btn-light-border'},
 				style: {marginRight: 0}
 			}));
 
-			this.addButton = this.addButtonOuter.appendChild(BX.create('SPAN', {props: {className: 'webform-small-button'}, text: BX.message('EC_ADD')}));
-			this.addButtonMore = this.addButtonOuter.appendChild(BX.create('SPAN', {props: {className: 'webform-small-button-right-part'}}));
+			this.addButton = this.addButtonOuter.appendChild(BX.create('SPAN', {props: {className: 'ui-btn-main'}, text: BX.message('EC_ADD')}));
+			this.addButtonMore = this.addButtonOuter.appendChild(BX.create('SPAN', {props: {className: 'ui-btn-extra'}}));
 
 			this.addButtonMorePopupId = "add_btn_popup_" + this.calendar.id;
 			BX.bind(this.addButtonMore, 'click', BX.proxy(this.showAddBtnPopup, this));
@@ -297,8 +298,8 @@
 			BX.addCustomEvent(this.addBtnMenu.popupWindow, 'onPopupClose', function()
 			{
 				_this.allowSliderClose();
-				//BX.removeClass(_this.sectionField.select, 'active');
 				BX.PopupMenu.destroy(_this.addButtonMorePopupId);
+				_this.addBtnMenu = null;
 			});
 		},
 
@@ -529,6 +530,7 @@
 						BX.removeClass(section.DOM.item, 'active');
 					_this.allowSliderClose();
 					BX.PopupMenu.destroy(menuId);
+					_this.sectionActionMenu = null;
 				});
 			}
 		},
@@ -634,20 +636,16 @@
 		showTrackingUsersForm: function()
 		{
 			this.closeForms();
-
-			if (!this.trackingUsersForm)
-			{
-				this.trackingUsersForm = new TrackingUsersForm({
-					calendar: this.calendar,
-					wrap: this.trackingUsersFormWrap,
-					trackingUsers: this.calendar.util.getSuperposedTrackedUsers(),
-					superposedSections: this.calendar.sectionController.getSuperposedSectionList(),
-					closeCallback: BX.delegate(function()
-					{
-						this.allowSliderClose();
-					}, this)
-				});
-			}
+			this.trackingUsersForm = new TrackingUsersForm({
+				calendar: this.calendar,
+				wrap: this.trackingUsersFormWrap,
+				trackingUsers: this.calendar.util.getSuperposedTrackedUsers(),
+				superposedSections: this.calendar.sectionController.getSuperposedSectionList(),
+				closeCallback: BX.delegate(function()
+				{
+					this.allowSliderClose();
+				}, this)
+			});
 
 			this.trackingUsersForm.show();
 			this.denySliderClose();
@@ -851,13 +849,13 @@
 			// Buttons
 			this.buttonsWrap = this.formFieldsWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-list-slider-btn-container'}}));
 			this.saveBtn = this.buttonsWrap.appendChild(BX.create('DIV', {
-				props: {className: 'webform-small-button webform-small-button-blue'},
+				props: {className: 'ui-btn ui-btn-success'},
 				text: BX.message('EC_SEC_SLIDER_SAVE'),
 				events: {click: BX.proxy(this.save, this)}
 			}));
 
 			this.cancelBtn = this.buttonsWrap.appendChild(BX.create('SPAN', {
-				props: {className: 'webform-button-link'},
+				props: {className: 'ui-btn ui-btn-link'},
 				text: BX.message('EC_SEC_SLIDER_CANCEL'),
 				events: {click: BX.proxy(this.checkClose, this)}
 			}));
@@ -1244,6 +1242,7 @@
 			BX.addCustomEvent(this.accessPopupMenu.popupWindow, 'onPopupClose', function()
 			{
 				BX.PopupMenu.destroy(menuId);
+				_this.accessPopupMenu = null;
 			});
 		}
 	};
@@ -1399,12 +1398,28 @@
 			this.close();
 		},
 
-		updateSectionList: function()
+		updateSectionList: function(delayExecution)
 		{
+			if (this.updateSectionLoader)
+			{
+				BX.remove(this.updateSectionLoader);
+			}
+			this.updateSectionLoader = this.sectionsWrap.appendChild(BX.adjust(this.calendar.util.getLoader(), {style: {height: '140px'}}));
+
+			if (this.updateSectionTimeout)
+			{
+				this.updateSectionTimeout = clearTimeout(this.updateSectionTimeout);
+			}
+
+			if (delayExecution !== false)
+			{
+				this.updateSectionTimeout = setTimeout(BX.proxy(function(){
+					this.updateSectionList(false);
+				}, this), 300);
+				return;
+			}
+
 			var codes = this.destinationSelector.getCodes();
-
-			this.sectionsWrap.appendChild(BX.adjust(this.calendar.util.getLoader(), {style: {height: '140px'}}));
-
 			this.checkInnerWrapHeight();
 			this.calendar.request({
 				data: {
@@ -1531,6 +1546,7 @@
 
 		checkInnerWrapHeight: function()
 		{
+
 			if (this.checkHeightTimeout)
 			{
 				this.checkHeightTimeout = clearTimeout(this.checkHeightTimeout);

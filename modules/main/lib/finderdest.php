@@ -77,7 +77,7 @@ class FinderDestTable extends Entity\DataManager
 	 *
 	 * @param array $data data to store, keys: USER_ID - user who selected a destination, CODE - code or array of codes of destinations, CONTEXT - the place where a destination is selected
 	 * @return void
-     */
+	*/
 	public static function merge($data)
 	{
 		global $USER;
@@ -168,6 +168,7 @@ class FinderDestTable extends Entity\DataManager
 
 			$cache = new \CPHPCache;
 			$cache->cleanDir('/sonet/log_dest_sort/'.intval($userId / 100));
+			$cache->cleanDir('/ui_selector/dest_sort/'.intval($userId / 100));
 		}
 	}
 

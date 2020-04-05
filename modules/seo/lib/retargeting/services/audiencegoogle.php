@@ -37,7 +37,7 @@ class AudienceGoogle extends Audience
 
 	public static function isSupportAccount()
 	{
-		return false;
+		return true;
 	}
 
 	public static function isSupportRemoveContacts()
@@ -50,6 +50,7 @@ class AudienceGoogle extends Audience
 		$response = $this->request->send(array(
 			'methodName' => 'audience.add',
 			'parameters' => array(
+				'ACCOUNT_ID' => $this->accountId,
 				'NAME' => $data['NAME'],
 				'DESCRIPTION' => ''
 			)
@@ -90,6 +91,7 @@ class AudienceGoogle extends Audience
 		$response = $this->request->send(array(
 			'methodName' => 'audience.importcontacts',
 			'parameters' => array(
+				'ACCOUNT_ID' => $this->accountId,
 				'AUDIENCE_ID' => $audienceId,
 				'LIST' => $this->prepareContacts($contacts, $options['type'])
 			)
@@ -103,6 +105,7 @@ class AudienceGoogle extends Audience
 		$response = $this->request->send(array(
 			'methodName' => 'audience.removecontacts',
 			'parameters' => array(
+				'ACCOUNT_ID' => $this->accountId,
 				'AUDIENCE_ID' => $audienceId,
 				'LIST' => $this->prepareContacts($contacts, $options['type'])
 			)
@@ -115,7 +118,9 @@ class AudienceGoogle extends Audience
 	{
 		$response = $this->request->send(array(
 			'methodName' => 'audience.list',
-			'parameters' => array()
+			'parameters' => array(
+				'ACCOUNT_ID' => $this->accountId,
+			)
 		));
 
 		return $response;

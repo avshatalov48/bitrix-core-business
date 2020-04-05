@@ -109,8 +109,9 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 		self::tryParseBoolean($arParams['SHOW_DEFAULT_LOCATIONS']);
 
 		// the code below should not be here, is should belong to a template
-		self::tryParseStringStrict($arParams['JS_CONTROL_GLOBAL_ID']);
-		self::tryParseStringStrict($arParams['JS_CONTROL_DEFERRED_INIT']);
+		self::tryParseString($arParams['RANDOM_TAG']);
+		self::tryParseString($arParams['JS_CONTROL_GLOBAL_ID']);
+		self::tryParseString($arParams['JS_CONTROL_DEFERRED_INIT']);
 		self::tryParseStringStrict($arParams['JS_CALLBACK']);
 
 		return $arParams;

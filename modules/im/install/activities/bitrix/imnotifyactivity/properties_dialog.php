@@ -19,23 +19,20 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 <tr>
 	<td align="right" width="40%"><span class="adm-required-field"><?= GetMessage("BPIMNA_PD_FROM") ?>:</span></td>
 	<td width="60%">
-			<input type="text" name="to_user_id" id="id_to_user_id" value="<?= htmlspecialcharsbx($arCurrentValues["to_user_id"]) ?>" size="50">
-			<input type="button" value="..." onclick="BPAShowSelector('id_to_user_id', 'user');">
+		<?=CBPDocument::ShowParameterField("user", 'to_user_id', $arCurrentValues['to_user_id'], ['rows'=> 1]);?>
 	</td>
 </tr>
 <tr>
 	<td align="right" width="40%" valign="top"><span class="adm-required-field"><?= GetMessage("BPIMNA_PD_MESSAGE") ?>:</span></td>
 	<td width="60%" valign="top">
-		<textarea name="message_site" id="id_message_site" rows="4" cols="40"><?= htmlspecialcharsbx($arCurrentValues["message_site"]) ?></textarea>
-		<input style="vertical-align: top" type="button" value="..." onclick="BPAShowSelector('id_message_site', 'string');"><br/>
+		<?=CBPDocument::ShowParameterField("text", 'message_site', $arCurrentValues['message_site'], ['rows'=> 4, 'cols' => 40])?>
 		<?= GetMessage("BPIMNA_PD_MESSAGE_BBCODE") ?>
 	</td>
 </tr>
 <tr>
 	<td align="right" width="40%" valign="top"><span class="adm-required-field"><?= GetMessage("BPIMNA_PD_MESSAGE_OUT") ?>:</span></td>
 	<td width="60%" valign="top">
-		<textarea name="message_out" id="id_message_out" rows="4" cols="40"><?= htmlspecialcharsbx($arCurrentValues["message_out"]) ?></textarea>
-		<input style="vertical-align: top" type="button" value="..." onclick="BPAShowSelector('id_message_out', 'string');"><br/>
+		<?=CBPDocument::ShowParameterField("text", 'message_out', $arCurrentValues['message_out'], ['rows'=> 4, 'cols' => 40])?>
 		<?= GetMessage("BPIMNA_PD_MESSAGE_OUT_EMPTY") ?>
 	</td>
 </tr>

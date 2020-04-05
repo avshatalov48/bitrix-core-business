@@ -90,7 +90,7 @@
 
 	BX.webrtc.prototype.attachMediaStream = function(element, stream)
 	{
-		element.src = URL.createObjectURL(stream);
+		element.srcObject = stream;
 		if(BX.type.isNotEmptyString(this.defaultSpeaker) && element.setSinkId)
 		{
 			this.log('Trying to set output device: ' + this.defaultSpeaker);

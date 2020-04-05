@@ -185,6 +185,7 @@
 
 .feed-add-grat-box {
 	background: url("/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/images/log/medals-2.png") no-repeat 100px 100px;
+	background-clip: content-box;
 	border-radius: 50%;
 	border: 3px solid #fff;
 	cursor: pointer;

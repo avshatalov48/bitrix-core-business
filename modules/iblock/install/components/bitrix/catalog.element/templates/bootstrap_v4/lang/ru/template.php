@@ -8,6 +8,7 @@ $MESS["CT_BCE_CATALOG_ECONOMY_INFO2"] = "Скидка #ECONOMY#";
 $MESS["CT_BCE_CATALOG_DESCRIPTION"] = "Описание";
 $MESS["CT_BCE_CATALOG_PROPERTIES"] = "Характеристики";
 $MESS["CT_BCE_CATALOG_COMMENTARY"] = "Комментарии";
+$MESS["CATALOG_QUANTITY"] = "Количество";
 $MESS["CT_BCE_CATALOG_TITLE_ERROR"] = "Ошибка";
 $MESS["CT_BCE_CATALOG_TITLE_BASKET_PROPS"] = "Свойства товара, добавляемые в корзину";
 $MESS["CT_BCE_CATALOG_BASKET_UNKNOWN_ERROR"] = "Неизвестная ошибка при добавлении товара в корзину";

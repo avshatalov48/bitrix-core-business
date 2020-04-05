@@ -1171,6 +1171,9 @@ BXBannerTemplate.prototype =
                         name: 'TEMPLATE_PROP[' + ind + '][' + name + ']',
                         size: '50',
                         value: text
+                    },
+                    attrs: {
+                        maxlength: '255',
                     }
                 });
         return input;

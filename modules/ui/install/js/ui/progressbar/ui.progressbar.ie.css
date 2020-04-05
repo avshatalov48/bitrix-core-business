@@ -1,0 +1,79 @@
+/*region Base style*/
+.bx-ie .ui-progressbar {
+	display: -ms-flexbox;
+	-ms-flex-align: center;
+	align-items: center;
+}
+
+.bx-ie .ui-progressbar.ui-progressbar-bg { background-color: #ccf2ff; }
+
+.bx-ie .ui-progressbar-track {
+	-ms-flex-order: 2;
+	-ms-flex: 1;
+}
+
+.bx-ie .ui-progressbar-md .ui-progressbar-track {
+	height: 8px;
+	border-radius: 4px;
+}
+
+.bx-ie .ui-progressbar-lg .ui-progressbar-track {
+	height: 16px;
+	border-radius: 8px;
+}
+
+.bx-ie .ui-progressbar-md .ui-progressbar-bar{
+	height: 8px;
+	border-radius: 4px;
+}
+
+.bx-ie .ui-progressbar-lg .ui-progressbar-bar{
+	height: 16px;
+	border-radius: 8px;
+}
+
+.bx-ie .ui-progressbar-status,
+.bx-ie .ui-progressbar-status-percent { -ms-flex-order: 3; }
+
+.bx-ie .ui-progressbar-text-after { -ms-flex-order: 4; }
+
+.bx-ie .ui-progressbar-text-before { -ms-flex-order: 1; }
+
+/*endregion*/
+
+/*region Column*/
+.bx-ie .ui-progressbar-column { -ms-flex-direction: column; }
+
+.bx-ie .ui-progressbar-column .ui-progressbar-track { -ms-flex-order: 3; }
+
+.bx-ie .ui-progressbar-column .ui-progressbar-text-before { -ms-flex-order: 1; }
+
+.bx-ie .ui-progressbar-column .ui-progressbar-text-after { -ms-flex-order: 5; }
+
+.bx-ie .ui-progressbar-column .ui-progressbar-status { -ms-flex-order: 4; }
+
+.bx-ie .ui-progressbar-column .ui-progressbar-status-percent { -ms-flex-order: 2; }
+
+/*endregion*/
+
+/*region Bar colors*/
+.bx-ie .ui-progressbar-bar,
+.bx-ie .ui-progressbar-primary .ui-progressbar-bar { background-color: #2fc6f6; }
+.bx-ie .ui-progressbar-bg,
+.bx-ie .ui-progressbar-primary.ui-progressbar-bg { background-color: #ccf2ff; }
+.bx-ie .ui-progressbar-track,
+.bx-ie .ui-progressbar-primary .ui-progressbar-track { background-color: #b0e8fa; }
+
+.bx-ie .ui-progressbar-danger .ui-progressbar-bar { background-color: #ff5752; }
+.bx-ie .ui-progressbar-danger.ui-progressbar-bg { background-color: #ffdfde; }
+.bx-ie .ui-progressbar-danger .ui-progressbar-track { background-color: #ffccca; }
+
+.bx-ie .ui-progressbar-warning .ui-progressbar-bar { background-color: #e5cf4d; }
+.bx-ie .ui-progressbar-warning.ui-progressbar-bg { background-color: #fff8d2; }
+.bx-ie .ui-progressbar-warning .ui-progressbar-track { background-color: #f9f0b7; }
+
+.bx-ie .ui-progressbar-success .ui-progressbar-bar { background-color: #9dcf00; }
+.bx-ie .ui-progressbar-success.ui-progressbar-bg { background-color: #e7faa9; }
+.bx-ie .ui-progressbar-success .ui-progressbar-track { background-color: #d7f282; }
+
+/*endregion*/

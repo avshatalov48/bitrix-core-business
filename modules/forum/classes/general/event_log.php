@@ -9,7 +9,7 @@ IncludeModuleLangFile(__FILE__);
 
 class CForumEventLog
 {
-	function Log($object, $action, $id, $description = "", $title = "")
+	public static function Log($object, $action, $id, $description = "", $title = "")
 	{
 		if (COption::GetOptionString("forum", "LOGS", "Q") <= "A")
 			return false;

@@ -28,6 +28,7 @@ $strError = "";
 $bInitVars = false;
 if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleModulePermissions=="W" && check_bitrix_sessid())
 {
+	$adminSidePanelHelper->decodeUriComponent();
 	$SORT = IntVal($SORT);
 	if ($SORT<=0) $SORT = 100;
 
@@ -71,7 +72,13 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleMod
 		}
 	}
 
-	if (strlen($strError)>0) $bInitVars = True;
+	if (strlen($strError) > 0)
+	{
+		$adminSidePanelHelper->sendJsonErrorResponse($strError);
+		$bInitVars = true;
+	}
+
+	$adminSidePanelHelper->sendSuccessResponse("base");
 
 	if (strlen($save)>0 && strlen($strError)<=0)
 		LocalRedirect("sale_location_group_admin.php?lang=".LANG.GetFilterParams("filter_", false));

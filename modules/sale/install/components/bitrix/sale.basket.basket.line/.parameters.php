@@ -197,3 +197,15 @@ if($arCurrentValues["POSITION_FIXED"] == "Y")
 		),
 	);
 }
+
+if (isset($arCurrentValues['SHOW_IMAGE']) && $arCurrentValues['SHOW_IMAGE'] == 'Y')
+{
+	$arComponentParameters["PARAMETERS"] += [
+		"MAX_IMAGE_SIZE" => [
+			"NAME" => GetMessage("SBBL_MAX_IMAGE_SIZE"),
+			"TYPE" => "STRING",
+			"DEFAULT" => "70",
+			"PARENT" => "VISUAL",
+		]
+	];
+}

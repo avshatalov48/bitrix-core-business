@@ -10,16 +10,36 @@ class Domain extends \Bitrix\Landing\Internals\BaseTable
 	public static $internalClass = 'DomainTable';
 
 	/**
+	 * Gets domain name.
+	 * @return string.
+	 */
+	protected static function getDomainName()
+	{
+		static $domain = null;
+
+		if (!$domain)
+		{
+			$context = \Bitrix\Main\Application::getInstance()->getContext();
+			$server = $context->getServer();
+			$domain = $server->getServerName();
+			if (!$domain)
+			{
+				$domain = $server->getHttpHost();
+			}
+		}
+
+		return $domain;
+	}
+
+	/**
 	 * Create current domain and return new id..
 	 * @return int
 	 */
 	public static function createDefault()
 	{
-		$context = \Bitrix\Main\Application::getInstance()->getContext();
-		$server = $context->getServer();
 		$res = self::add(array(
 			'ACTIVE' => 'Y',
-			'DOMAIN' => $server->getServerName()
+			'DOMAIN' => self::getDomainName()
 		));
 		if ($res->isSuccess())
 		{
@@ -35,13 +55,10 @@ class Domain extends \Bitrix\Landing\Internals\BaseTable
 	 */
 	public static function getCurrentId()
 	{
-		$context = \Bitrix\Main\Application::getInstance()->getContext();
-		$server = $context->getServer();
-
 		$res = self::getList(array(
 			'filter' => array(
 				'=ACTIVE' => 'Y',
-				'DOMAIN' => $server->getServerName()
+				'DOMAIN' => self::getDomainName()
 			)
 		));
 		if ($row = $res->fetch())

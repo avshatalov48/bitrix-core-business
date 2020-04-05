@@ -8,6 +8,7 @@ use Bitrix\Sale\Exchange\EntityType;
 use Bitrix\Sale\Exchange\OneC\DocumentBase;
 use Bitrix\Sale\Exchange\OneC\DocumentType;
 use Bitrix\Sale\Exchange\OneC\PaymentCardDocument;
+use Bitrix\Sale\Exchange\OneC\PaymentCashDocument;
 use Bitrix\Sale\Exchange\OneC\PaymentCashLessDocument;
 use Bitrix\Sale\Exchange\OneC\ProfileDocument;
 use Bitrix\Sale\Exchange\OneC\UserProfileDocument;
@@ -43,7 +44,7 @@ class DocumentFactory
 		}
 		elseif($documentTypeID === DocumentType::PAYMENT_CASH)
 		{
-			return new PaymentCardDocument();
+			return new PaymentCashDocument();
 		}
 		elseif($documentTypeID === DocumentType::PAYMENT_CASH_LESS)
 		{

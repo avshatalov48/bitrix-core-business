@@ -222,7 +222,13 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 		<?
 		$oFilter = new CAdminFilter(
 			$tableId."_filter",
-			array()
+			array(
+                    'filter_entity_type_id'=>Loc::getMessage('LOG_REPORT_TYPES'),
+				    'filter_entity_id'=>Loc::getMessage("LOG_REPORT_ENTITY_ID"),
+				    'filter_parent_id'=>Loc::getMessage("LOG_REPORT_PARENT_ENTITY_ID"),
+				    'filter_xml_id'=>Loc::getMessage("LOG_REPORT_XML_ID"),
+				    'filter_date_insert'=>Loc::getMessage("LOG_REPORT_DATE_INSERT")
+            )
 		);
 
 		$oFilter->Begin();
@@ -294,11 +300,11 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
             </td>
         </tr>
         <tr>
-            <td><?= Loc::getMessage("LOG_REPORT_XML_ID") ?>:</td>
+            <td><?echo Loc::getMessage("LOG_REPORT_XML_ID");?>:</td>
             <td><input name="filter_xml_id" value="<?= htmlspecialcharsbx($filter_xml_id) ?>" size="40" type="text"></td>
         </tr>
         <tr>
-            <td><?=Loc::getMessage("LOG_REPORT_DATE_INSERT");?>:</td>
+            <td><?echo Loc::getMessage("LOG_REPORT_DATE_INSERT");?>:</td>
             <td>
 				<?=CalendarPeriod("filter_date_insert_from", htmlspecialcharsbx($filter_date_insert_from), "filter_date_insert_to", htmlspecialcharsbx($filter_date_insert_to), "find_form", "Y")?>
             </td>

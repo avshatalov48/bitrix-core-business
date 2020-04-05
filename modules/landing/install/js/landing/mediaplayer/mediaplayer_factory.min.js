@@ -1,0 +1,1 @@
+(function(){"use strict";BX.namespace("BX.Landing.MediaPlayer");var a=BX.Landing.Utils.Matchers;BX.Landing.MediaPlayer.Factory=function(a){this.player=BX.Landing.MediaPlayer.Factory.create(a)};BX.Landing.MediaPlayer.Factory.create=function(e){if(a.youtube.test(e.src)){return new BX.Landing.MediaPlayer.Youtube(e)}}})();

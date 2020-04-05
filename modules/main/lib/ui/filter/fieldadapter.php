@@ -73,7 +73,8 @@ class FieldAdapter
 					$sourceField["time"],
 					$sourceField["exclude"],
 					$sourceField["include"],
-					$sourceField["allow_years_switcher"]
+					$sourceField["allow_years_switcher"],
+					$sourceField["messages"]
 				);
 				break;
 
@@ -155,6 +156,17 @@ class FieldAdapter
 
 			case "custom_date" :
 				$field = Field::customDate($sourceField);
+				break;
+
+			case "dest_selector" :
+				$field = Field::destSelector(
+					$sourceField["id"],
+					$sourceField["name"],
+					$sourceField["placeholder"],
+					(!empty($sourceField["params"]) && !empty($sourceField["params"]["multiple"]) && $sourceField["params"]["multiple"] == "Y"),
+					(!empty($sourceField["params"]) && is_array($sourceField["params"]) ? $sourceField["params"] : array()),
+					(isset($sourceField["lightweight"]) ? $sourceField["lightweight"] : false)
+				);
 				break;
 
 			default :

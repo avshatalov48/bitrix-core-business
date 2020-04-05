@@ -7,7 +7,7 @@ use Bitrix\B24Connector\Connection;
 
 Loc::loadMessages(__FILE__);
 
-if (isset($_REQUEST["action"]) && $moduleAccess > "R" && check_bitrix_sessid() && $ssModuleIncluded)
+if (isset($_REQUEST["action"]) && $moduleAccess > "R" && check_bitrix_sessid())
 {
 	if($_REQUEST["action"] == "delete_connection")
 	{

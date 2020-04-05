@@ -14,6 +14,7 @@
 		this.clickDisabled = false;
 		this.lastWait = [];
 		this.animationStartHeight = 0;
+		this.initedEditorsList = [];
 	};
 
 	window.SBPEFullForm.instance = null;
@@ -592,6 +593,7 @@
 							else if(
 								BX.type.isElementNode(messageBody.childNodes[ii])
 								&& !BX.hasClass(messageBody.childNodes[ii], 'urlpreview')
+								&& !BX.hasClass(messageBody.childNodes[ii], 'feed-add-post-strings-blocks')
 							)
 							{
 								BX.adjust(messageBody.childNodes[ii], {style : {display : (type == 'file' ? "none" : "")}});
@@ -612,7 +614,10 @@
 											wdObj.urlUpload = wdObj.agent.uploadFileUrl = wdObj.urlUpload.replace('&random_folder=Y', '&dropped=Y');
 										}
 										BX('bx-b-uploadfile-blogPostForm').setAttribute("bx-press", "pressOn");
-										window.SBPETabs.changePostFormTab("message");
+										if (window.SBPETabs.getInstance().active != 'file')
+										{
+											window.SBPETabs.changePostFormTab("message");
+										}
 									});
 								}
 								window["PlEditorblogPostForm"].controllerInit('show');
@@ -1135,65 +1140,6 @@
 		}
 	};
 
-
-	window.BXfpGratSelectCallback = function(item/*, type_user, name*/)
-	{
-		BXfpGratMedalSelectCallback(item, 'grat');
-	};
-
-	window.BXfpMedalSelectCallback = function(item/*, type_user, name*/)
-	{
-		BXfpGratMedalSelectCallback(item, 'medal');
-	};
-
-	window.BXfpGratMedalSelectCallback = function(item, type)
-	{
-		if (type != 'grat')
-			type = 'medal';
-
-		var prefix = 'U';
-
-		BX('feed-add-post-'+type+'-item').appendChild(
-			BX.create("span", {
-				attrs : { 'data-id' : item.id },
-				props : { className : "feed-add-post-"+type+" feed-add-post-destination-users" },
-				children: [
-					BX.create("input", {
-						attrs : { 'type' : 'hidden', 'name' : (type == 'grat' ? 'GRAT' : 'MEDAL')+'['+prefix+'][]', 'value' : item.id }
-					}),
-					BX.create("span", {
-						props : { 'className' : "feed-add-post-"+type+"-text" },
-						html : item.name
-					}),
-					BX.create("span", {
-						props : { 'className' : "feed-add-post-del-but"},
-						events : {
-							'click' : function(e){
-								BX.SocNetLogDestination.deleteItem(item.id, 'users', window["BXSocNetLogGratFormName"]);
-								BX.PreventDefault(e)
-							},
-							'mouseover' : function(){
-								BX.addClass(this.parentNode, 'feed-add-post-'+type+'-hover')
-							},
-							'mouseout' : function(){
-								BX.removeClass(this.parentNode, 'feed-add-post-'+type+'-hover')
-							}
-						}
-					})
-				]
-			})
-		);
-
-		BX('feed-add-post-'+type+'-input').value = '';
-
-		BX.SocNetLogDestination.BXfpSetLinkName({
-			formName: (type == 'grat' ? window["BXSocNetLogGratFormName"] : window["BXSocNetLogMedalFormName"]),
-			tagInputName: 'bx-' + type + '-tag',
-			tagLink1: BX.message('BX_FPGRATMEDAL_LINK_1'),
-			tagLink2: BX.message('BX_FPGRATMEDAL_LINK_2')
-		});
-	};
-
 	if (!!BX.SocNetGratSelector)
 		return;
 
@@ -1581,11 +1527,18 @@
 					if(data[titleID].length > 0 && data[titleID] != BX(titleID).getAttribute("placeholder"))
 					{
 						if(BX('divoPostFormLHE_blogPostForm').style.display != "none")
+						{
 							window['showPanelTitle_' + formId](true);
+						}
 						else
+						{
 							window["bShowTitle"] = true;
+						}
+
 						if (!!BX(titleID).__onchange)
+						{
 							BX(titleID).__onchange();
+						}
 					}
 
 					var formTags = window["BXPostFormTags_" + formId];
@@ -1598,35 +1551,10 @@
 						}
 					}
 
-					if(BX.SocNetLogDestination)
-					{
-						var i;
-						if(data['SPERM[DR][]'])
-						{
-							for (i = 0; i < data['SPERM[DR][]'].length; i++ )
-							{
-								BX.SocNetLogDestination.selectItem(BXSocNetLogDestinationFormName, '', 3, data['SPERM[DR][]'][i], 'department', false);
-							}
-						}
-						if(data['SPERM[SG][]'])
-						{
-							for (i = 0; i < data['SPERM[SG][]'].length; i++ )
-							{
-								BX.SocNetLogDestination.selectItem(BXSocNetLogDestinationFormName, '', 3, data['SPERM[SG][]'][i], 'sonetgroups', false);
-							}
-						}
-						if(data['SPERM[U][]'])
-						{
-							for (i = 0; i < data['SPERM[U][]'].length; i++ )
-							{
-								BX.SocNetLogDestination.selectItem(BXSocNetLogDestinationFormName, '', 3, data['SPERM[U][]'][i], 'users', false);
-							}
-						}
-						if(!data['SPERM[UA][]'])
-						{
-							BX.SocNetLogDestination.deleteItem('UA', 'groups', BXSocNetLogDestinationFormName);
-						}
-					}
+					BX.onCustomEvent('onAutoSaveRestoreDestination', [{
+						formId: formId,
+						data: data
+					}]);
 
 					bindLHEEvents(ob);
 				});
@@ -1647,6 +1575,8 @@
 
 	BX.SocnetBlogPostInit = function(formID, params)
 	{
+		this.disabled = false;
+
 		formParams[formID] = {
 			editorID : params['editorID'],
 			showTitle : (!!params['showTitle']),
@@ -1696,7 +1626,7 @@
 				formParams[formID]['showTitle'] = bShowTitleCopy;
 		};
 
-		window["setBlogPostFormSubmitted"] = function(value)
+		window["setBlogPostFormSubmitted"] = BX.proxy(function(value)
 		{
 			if (BX("blog-submit-button-save"))
 			{
@@ -1711,10 +1641,16 @@
 			}
 
 			formParams[formID]["submitted"] = value;
-		};
+			this.disabled = value;
+		}, this);
 
-		window["submitBlogPostForm"] = function(editor, value)
+		window["submitBlogPostForm"] = BX.proxy(function(editor, value)
 		{
+			if (this.disabled)
+			{
+				return;
+			}
+
 			if (typeof editor != "object")
 			{
 				value = editor;
@@ -1758,25 +1694,39 @@
 				if (submitButton)
 				{
 					BX.addClass(submitButton, 'ui-btn-clock');
-					BX.addClass(submitButton, 'ui-btn-disabled');
-					submitButton.disabled = true;
+					this.disabled = true;
 
 					window.addEventListener('beforeunload', BX.proxy(function(event) { // is called on every sumbit, with or without dialog
 						var __submitButton = this.submitButton;
+						var __form = this.form;
+
 						setTimeout(function() {
 							BX.removeClass(__submitButton, 'ui-btn-clock');
-							BX.removeClass(__submitButton, 'ui-btn-disabled');
-							__submitButton.disabled = false;
+							__form.disabled = false;
 							formParams[formID]["submitted"] = false;
 						}, 3000); // timeout needed to process a form on a back-end
-					}, { submitButton: submitButton}));
+					}, {
+						submitButton: submitButton,
+						form: this
+					}));
+				}
+
+				var activeTab = window.SBPETabs.getInstance().active;
+				if (BX.type.isNotEmptyString(activeTab))
+				{
+					var actionUrl = BX(formID).action;
+					actionUrl = BX.util.remove_url_param(actionUrl, [ 'b24statTab' ]);
+					actionUrl = BX.util.add_url_param(actionUrl, {
+						b24statTab: activeTab
+					});
+					BX(formID).action = actionUrl;
 				}
 
 				BX.submit(BX(formID), value);
 
 				formParams[formID]["submitted"] = true;
 			}
-		};
+		}, this);
 
 		var onHandlerInited = function(obj, form) {
 				if (form == formID)
@@ -1792,7 +1742,14 @@
 							{
 								if (!!div[ii])
 								{
-									BX.adjust(div[ii], { style : { display : "block", height : "auto", opacity : 1 } } );
+									BX.adjust(div[ii], {
+										style : {
+											display : "block",
+											height : "auto",
+											opacity : 1
+										}
+									});
+									div[ii].style.padding = null;
 								}
 							}
 							if(formParams[formID]["showTitle"])
@@ -1809,7 +1766,14 @@
 							{
 								if (!!div[ii])
 								{
-									BX.adjust(div[ii], {style:{display:"block",height:"0px", opacity:0}});
+									BX.adjust(div[ii], {
+										style: {
+											display: "block",
+											height: "0",
+											opacity: 0,
+											padding: 0
+										}
+									});
 								}
 							}
 							if(formParams[formID]["showTitle"])
@@ -1827,6 +1791,11 @@
 			},
 			onEditorInited = function(editor)
 			{
+				if (BX.util.in_array(editor.id, window.SBPEFullForm.getInstance().initedEditorsList))
+				{
+					return;
+				}
+
 				if (editor.id == formParams[formID]["editorID"])
 				{
 					formParams[formID]["editor"] = editor;
@@ -1911,6 +1880,7 @@
 						editor.SetContent(content);
 						editor.Focus();
 					}
+					window.SBPEFullForm.getInstance().initedEditorsList.push(editor.id);
 				}
 			};
 
@@ -1919,7 +1889,9 @@
 			onHandlerInited(formParams[formID]["handler"], formID);
 		BX.addCustomEvent(window, 'OnEditorInitedAfter', onEditorInited);
 		if (formParams[formID]["editor"])
+		{
 			onEditorInited(formParams[formID]["editor"]);
+		}
 
 		BX.addCustomEvent(window, 'onSocNetLogMoveBody', function(p){ if(p == 'sonet_log_microblog_container') { reinit(formID); } } );
 

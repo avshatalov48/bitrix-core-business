@@ -106,6 +106,8 @@ class BizprocDocumentLists extends \BizprocDocument
 					{
 						if($property['MULTIPLE'] == 'Y')
 						{
+							$result = self::setArray($result, 'PROPERTY_'.$propertyId);
+							$result = self::setArray($result, 'PROPERTY_'.$propertyId.'_PRINTABLE');
 							$result['PROPERTY_'.$propertyId][] = 'user_'.intval($user['ID']);
 							$result['PROPERTY_'.$propertyId.'_PRINTABLE'][] = '('.$user['LOGIN'].')'.
 								((strlen($user['NAME']) > 0 || strlen($user['LAST_NAME']) > 0) ? ' ' : '').$user['NAME'].
@@ -126,6 +128,8 @@ class BizprocDocumentLists extends \BizprocDocument
 					$userType = \CIBlockProperty::getUserType($property['USER_TYPE']);
 					if(is_array($diskValues))
 					{
+						$result = self::setArray($result, 'PROPERTY_'.$propertyId);
+						$result = self::setArray($result, 'PROPERTY_'.$propertyId.'_PRINTABLE');
 						foreach($diskValues as $attachedId)
 						{
 							$fileId = null;
@@ -162,6 +166,7 @@ class BizprocDocumentLists extends \BizprocDocument
 					}
 					else
 					{
+						$result = self::setArray($result, 'PROPERTY_'.$propertyId);
 						foreach($property['VALUE'] as $htmlValue)
 						{
 							if($htmlValue['TYPE'] == 'HTML')
@@ -180,6 +185,8 @@ class BizprocDocumentLists extends \BizprocDocument
 					$userType = \CIBlockProperty::getUserType($property['USER_TYPE']);
 					if(is_array($property['VALUE']))
 					{
+						$result = self::setArray($result, 'PROPERTY_'.$propertyId);
+						$result = self::setArray($result, 'PROPERTY_'.$propertyId.'_PRINTABLE');
 						foreach($property['VALUE'] as $moneyValue)
 						{
 							$result['PROPERTY_'.$propertyId][] = $moneyValue;
@@ -239,14 +246,14 @@ class BizprocDocumentLists extends \BizprocDocument
 
 				foreach ($propertyArray as $v)
 				{
-					$userArray = \CFile::getFileArray($v);
-					if ($userArray)
+					$fileArray = \CFile::getFileArray($v);
+					if ($fileArray)
 					{
-						$result['PROPERTY_'.$propertyId][intval($v)] = $userArray['SRC'];
-						$result['PROPERTY_'.$propertyId.'_printable'][intval($v)] =
+						$result['PROPERTY_'.$propertyId][] = intval($v);
+						$result['PROPERTY_'.$propertyId.'_printable'][] =
 							"[url=/bitrix/tools/bizproc_show_file.php?f=".
-							urlencode($userArray["FILE_NAME"])."&i=".$v."&h=".md5($userArray["SUBDIR"])."]".
-							htmlspecialcharsbx($userArray["ORIGINAL_NAME"])."[/url]";
+							urlencode($fileArray["FILE_NAME"])."&i=".$v."&h=".md5($fileArray["SUBDIR"])."]".
+							htmlspecialcharsbx($fileArray["ORIGINAL_NAME"])."[/url]";
 					}
 				}
 			}
@@ -416,6 +423,12 @@ class BizprocDocumentLists extends \BizprocDocument
 			elseif ($property["PROPERTY_TYPE"] == "S")
 			{
 				$result[$key]["Type"] = "string";
+			}
+			elseif ($property["PROPERTY_TYPE"] == "E")
+			{
+				$result[$key]["Type"] = "E:EList";
+				$result[$key]["Options"] = $property["LINK_IBLOCK_ID"];
+				$result[$key]["DefaultValue"] = $property["DEFAULT_VALUE"];
 			}
 			else
 			{

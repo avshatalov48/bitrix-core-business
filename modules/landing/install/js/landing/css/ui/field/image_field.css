@@ -61,6 +61,9 @@
 	opacity: 0;
 	transition: opacity 200ms ease;
 	pointer-events: none;
+}
+
+.landing-ui-field-image-action-button-clear:not(.landing-ui-show) {
 	display: none!important;
 }
 
@@ -169,6 +172,10 @@
 	line-height: 0;
 }
 
+.landing-ui-field-image-preview-icon span {
+	position: static!important;
+	transform: none!important;
+}
 
 .landing-ui-field-image-alt {
 	max-width: 314px;

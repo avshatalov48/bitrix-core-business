@@ -7,7 +7,7 @@ $MESS ['mnu_sender_sect_title1'] = "Маркетинг 24";
 
 $MESS ['mnu_sender_segments'] = "Сегменты";
 $MESS ['mnu_sender_blacklist'] = "Черный список";
-$MESS ['mnu_sender_blacklist_alt'] = "Исключенные адреса для рассылок всех компаний";
+$MESS ['mnu_sender_blacklist_alt'] = "Исключенные адреса для рассылок всех кампаний";
 $MESS ['mnu_sender_letters'] = "Рассылки";
 $MESS ['mnu_sender_letters_alt'] = "Управление рассылками";
 $MESS ['mnu_sender_campaigns'] = "Кампании";

@@ -21,12 +21,18 @@ class OrderPropsVariantTable extends DataManager
 	public static function getMap()
 	{
 		return array(
-			new IntegerField('ID'            , array('primary' => true, 'autocomplete' => true)),
+			new IntegerField('ID', array('primary' => true, 'autocomplete' => true)),
 			new IntegerField('ORDER_PROPS_ID', array('required' => true)),
-			new StringField ('NAME'          , array('required' => true)),
-			new StringField ('VALUE'        ),
-			new IntegerField('SORT'          , array('default_value' => 100)),
-			new StringField ('DESCRIPTION'  ),
+			new StringField ('NAME', array('required' => true)),
+			new StringField ('VALUE'),
+			new IntegerField('SORT', array('default_value' => 100)),
+			new StringField ('DESCRIPTION'),
+			new StringField ('XML_ID'),
 		);
+	}
+
+	public static function generateXmlId()
+	{
+		return uniqid('bx_');
 	}
 }

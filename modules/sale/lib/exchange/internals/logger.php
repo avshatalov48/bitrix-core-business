@@ -12,8 +12,6 @@ class Logger
 	/** @var  Fields */
 	protected $fields;
 
-	const INTERVAL_DAY_OPTION = "SALE_EXCHANGE_DEBUG_INTERVAL_DAY";
-
 	public function __construct()
 	{
 		$this->fields = new Fields();
@@ -46,15 +44,6 @@ class Logger
 	}
 
 	/**
-	 * @return int
-	 */
-	static public function getInterval()
-	{
-		$interval = Option::get('sale', static::INTERVAL_DAY_OPTION, 1);
-		return intval($interval)>0 ? $interval:1;
-	}
-
-	/**
 	 * @return \Bitrix\Main\Entity\AddResult|null
 	 */
 	public function save()
@@ -68,7 +57,7 @@ class Logger
 		$params['DESCRIPTION'] = $this->getField('DESCRIPTION');
 		$params['MESSAGE'] = $this->getField('MESSAGE');
 		$params['DIRECTION'] = $this->getField('DIRECTION');
-		$params['MARKED'] = $this->getField('MARKED');
+		$params['MARKED'] = $this->getField('MARKED') === 'Y' ? 'Y' : 'N';
 		$params['DATE_INSERT'] = new DateTime();
 
 		return static::log($params);

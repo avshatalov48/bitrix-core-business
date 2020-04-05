@@ -71,7 +71,11 @@ $arComponentParameters = array(
 			"TYPE" => "STRING",
 			"DEFAULT" => "",
 		),
-
+		"DISALLOW_CANCEL" => Array(
+			"NAME" => GetMessage("SPO_DISALLOW_CANCEL"),
+			"TYPE" => "CHECKBOX",
+			"DEFAULT" => "N",
+		),
 		"CACHE_TIME"  =>  Array("DEFAULT"=>3600),
 		"CACHE_GROUPS" => array(
 			"PARENT" => "CACHE_SETTINGS",

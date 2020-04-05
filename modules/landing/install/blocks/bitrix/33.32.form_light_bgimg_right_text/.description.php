@@ -74,7 +74,7 @@ return array(
 				'.landing-block-node-bgimg' =>
 					array(
 						'name' => Loc::getMessage('LANDING_BLOCK_33.32.FORM_LIGHT_BGIMG_RIGHT_TEXT_NODES_LANDINGBLOCKNODE_BGIMG'),
-						'type' => 'background-overlay',
+						'type' => array('background-overlay', 'background-attachment')
 					),
 				'.landing-block-node-form' =>
 					array(

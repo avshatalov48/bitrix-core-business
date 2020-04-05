@@ -104,7 +104,7 @@ else
 								<div class="col-md-4 col-sm-6 sale-order-detail-about-order-inner-container-name">
 									<div class="sale-order-detail-about-order-inner-container-name-title">
 										<?
-										$userName = $arResult["USER"]["NAME"] ." ". $arResult["USER"]["SECOND_NAME"] ." ". $arResult["USER"]["LAST_NAME"];
+										$userName = $arResult["USER_NAME"];
 										if (strlen($userName) || strlen($arResult['FIO']))
 										{
 											echo Loc::getMessage('SPOD_LIST_FIO').':';
@@ -326,6 +326,21 @@ else
 												<?=Loc::getMessage('SPOD_ORDER_PRICE_FULL')?>:
 												<span><?=$arResult["PRICE_FORMATED"]?></span>
 											</div>
+											<?
+											if (!empty($arResult["SUM_REST"]) && !empty($arResult["SUM_PAID"]))
+											{
+												?>
+												<div class="sale-order-detail-payment-options-info-total-price">
+													<?=Loc::getMessage('SPOD_ORDER_SUM_PAID')?>:
+													<span><?=$arResult["SUM_PAID_FORMATED"]?></span>
+												</div>
+												<div class="sale-order-detail-payment-options-info-total-price">
+													<?=Loc::getMessage('SPOD_ORDER_SUM_REST')?>:
+													<span><?=$arResult["SUM_REST_FORMATED"]?></span>
+												</div>
+												<?
+											}
+											?>
 										</div>
 									</div>
 								</div><!--sale-order-detail-payment-options-info-->
@@ -442,7 +457,7 @@ else
 														?>
 													</div>
 													<?
-													if ($payment['PAY_SYSTEM']["IS_CASH"] !== "Y")
+													if ($payment['PAY_SYSTEM']['IS_CASH'] !== 'Y' && $payment['PAY_SYSTEM']['ACTION_FILE'] !== 'cash')
 													{
 														?>
 														<div class="col-md-2 col-sm-12 col-xs-12 sale-order-detail-payment-options-methods-button-container">
@@ -486,6 +501,7 @@ else
 												<?
 												if ($payment["PAID"] !== "Y"
 													&& $payment['PAY_SYSTEM']["IS_CASH"] !== "Y"
+													&& $payment['PAY_SYSTEM']['ACTION_FILE'] !== 'cash'
 													&& $payment['PAY_SYSTEM']['PSA_NEW_WINDOW'] !== 'Y'
 													&& $arResult['CANCELED'] !== 'Y'
 													&& $arResult["IS_ALLOW_PAY"] !== "N")
@@ -1059,6 +1075,7 @@ else
 	$javascriptParams = array(
 		"url" => CUtil::JSEscape($this->__component->GetPath().'/ajax.php'),
 		"templateFolder" => CUtil::JSEscape($templateFolder),
+		"templateName" => $this->__component->GetTemplateName(),
 		"paymentList" => $paymentData
 	);
 	$javascriptParams = CUtil::PhpToJSObject($javascriptParams);

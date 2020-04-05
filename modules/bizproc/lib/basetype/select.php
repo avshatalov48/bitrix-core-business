@@ -141,22 +141,33 @@ class Select extends Base
 
 		foreach ($value as $v)
 		{
-			if (\CBPActivity::isExpression($v))
+			if ($allowSelection && \CBPActivity::isExpression($v))
+			{
 				$selectorValue = $v;
+			}
 			else
+			{
 				$typeValue[] = (string)$v;
+			}
 		}
+
 		// need to show at least one control
 		if (empty($typeValue))
+		{
 			$typeValue[] = null;
+		}
+
+		$className = static::generateControlClassName($fieldType, $field);
 
 		$renderResult = '<select id="'.htmlspecialcharsbx(static::generateControlId($field))
-			.'" class="'.htmlspecialcharsbx(static::generateControlClassName($fieldType, $field))
+			.'" class="'.htmlspecialcharsbx($className)
 			.'" name="'.htmlspecialcharsbx(static::generateControlName($field))
 			.($fieldType->isMultiple() ? '[]' : '').'"'.($fieldType->isMultiple() ? ' size="5" multiple' : '').'>';
 
-		if (!$fieldType->isRequired() || $allowSelection)
+		if (!$fieldType->isMultiple()) //TODO: watch this
+		{
 			$renderResult .= '<option value="">['.Loc::getMessage('BPCGHLP_NOT_SET').']</option>';
+		}
 
 		$settings = static::getFieldSettings($fieldType);
 		$groups = $settings['Groups'] ? $settings['Groups'] : null;
@@ -238,6 +249,11 @@ class Select extends Base
 	 */
 	public static function renderControlSingle(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
 	{
+		if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
+		{
+			$allowSelection = false;
+		}
+
 		return static::renderControl($fieldType, $field, $value, $allowSelection, $renderMode);
 	}
 
@@ -251,6 +267,11 @@ class Select extends Base
 	 */
 	public static function renderControlMultiple(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
 	{
+		if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
+		{
+			$allowSelection = false;
+		}
+
 		return static::renderControl($fieldType, $field, $value, $allowSelection, $renderMode);
 	}
 

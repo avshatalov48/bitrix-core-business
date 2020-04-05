@@ -266,11 +266,14 @@ class CWizardUtil
 		if ((!is_dir($filePath) && !is_file($filePath)) || !is_array($arReplace))
 			return;
 
+		$root = (defined("WIZARD_SITE_ROOT_PATH")? WIZARD_SITE_ROOT_PATH : $_SERVER["DOCUMENT_ROOT"]);
+		$root = trim($root, "/");
+
 		if ($handle = @opendir($filePath))
 		{
 			while (($file = readdir($handle)) !== false)
 			{
-				if ($file == "." || $file == ".." || (trim($filePath, "/") == trim($_SERVER["DOCUMENT_ROOT"], "/") && ($file == "bitrix" || $file == "upload"))) 
+				if ($file == "." || $file == ".." || (trim($filePath, "/") == $root && ($file == "bitrix" || $file == "upload")))
 					continue;
 					
 				if (is_dir($filePath."/".$file))

@@ -13,6 +13,7 @@ use Bitrix\Main\Type as MainType;
 
 use Bitrix\Sender\Posting\Builder as PostingBuilder;
 use Bitrix\Sender\Integration;
+use Bitrix\Sender\Internals\Model;
 
 
 Loc::loadMessages(__FILE__);
@@ -372,13 +373,13 @@ class PostingReadTable extends Entity\DataManager
 		$data = $data['fields'];
 
 		// update read flag of recipient
-		PostingRecipientTable::update(array('ID' => $data['RECIPIENT_ID']), array('IS_READ' => 'Y'));
+		Model\Posting\RecipientTable::update($data['RECIPIENT_ID'], ['IS_READ' => 'Y']);
 
 		// update read counter of posting
 		$resultDb = static::getList(array('filter' => array('RECIPIENT_ID' => $data['RECIPIENT_ID'])));
 		if($resultDb->getSelectedRowsCount() == 1)
 		{
-			PostingTable::update(array('ID' => $data['POSTING_ID']), array(
+			Model\PostingTable::update($data['POSTING_ID'], array(
 				'COUNT_READ' => new \Bitrix\Main\DB\SqlExpression('?# + 1', 'COUNT_READ')
 			));
 		}
@@ -444,13 +445,13 @@ class PostingClickTable extends Entity\DataManager
 		$data = $data['fields'];
 
 		// update click flag of recipient
-		PostingRecipientTable::update(array('ID' => $data['RECIPIENT_ID']), array('IS_CLICK' => 'Y'));
+		Model\Posting\RecipientTable::update($data['RECIPIENT_ID'], ['IS_CLICK' => 'Y']);
 
 		// update click counter of posting
 		$resultDb = static::getList(array('filter' => array('RECIPIENT_ID' => $data['RECIPIENT_ID'])));
 		if($resultDb->getSelectedRowsCount() == 1)
 		{
-			PostingTable::update(array('ID' => $data['POSTING_ID']), array(
+			Model\PostingTable::update($data['POSTING_ID'], array(
 				'COUNT_CLICK' => new \Bitrix\Main\DB\SqlExpression('?# + 1', 'COUNT_CLICK')
 			));
 		}
@@ -516,13 +517,13 @@ class PostingUnsubTable extends Entity\DataManager
 		$data = $data['fields'];
 
 		// update unsub flag of recipient
-		PostingRecipientTable::update(array('ID' => $data['RECIPIENT_ID']), array('IS_UNSUB' => 'Y'));
+		Model\Posting\RecipientTable::update($data['RECIPIENT_ID'], ['IS_UNSUB' => 'Y']);
 
 		// update unsub counter of posting
 		$resultDb = static::getList(array('filter' => array('RECIPIENT_ID' => $data['RECIPIENT_ID'])));
 		if($resultDb->getSelectedRowsCount() == 1)
 		{
-			PostingTable::update(array('ID' => $data['POSTING_ID']), array(
+			Model\PostingTable::update($data['POSTING_ID'], array(
 				'COUNT_UNSUB' => new \Bitrix\Main\DB\SqlExpression('?# + 1', 'COUNT_UNSUB')
 			));
 		}

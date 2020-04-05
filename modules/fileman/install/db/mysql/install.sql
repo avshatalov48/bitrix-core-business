@@ -49,18 +49,18 @@ create table b_medialib_type
 	NAME varchar(255) null,
 	CODE varchar(255) not null,
 	EXT varchar(255) not null,
-	SYSTEM char(1) not null default 'N',
+	`SYSTEM` char(1) not null default 'N',
 	DESCRIPTION text null,
 	primary key (ID)
 );
 
-INSERT INTO b_medialib_type (NAME,CODE,EXT,SYSTEM,DESCRIPTION)
+INSERT INTO b_medialib_type (NAME,CODE,EXT,`SYSTEM`,DESCRIPTION)
 VALUES ('image_name', 'image', 'jpg,jpeg,gif,png', 'Y', 'image_desc');
 
-INSERT INTO b_medialib_type (NAME,CODE,EXT,SYSTEM,DESCRIPTION)
+INSERT INTO b_medialib_type (NAME,CODE,EXT,`SYSTEM`,DESCRIPTION)
 VALUES ('video_name','video','flv,mp4,wmv','Y','video_desc');
 
-INSERT INTO b_medialib_type (NAME,CODE,EXT,SYSTEM,DESCRIPTION)
+INSERT INTO b_medialib_type (NAME,CODE,EXT,`SYSTEM`,DESCRIPTION)
 VALUES ('sound_name','sound','mp3,wma,aac','Y','sound_desc');
 
 create table b_file_search

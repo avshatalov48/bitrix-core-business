@@ -22,6 +22,11 @@ class SaleAccountPay extends \CBitrixComponent
 	protected $errorCollection;
 
 	/**
+	 * @var Sale\Registry registry
+	 */
+	protected $registry = null;
+
+	/**
 	 * Function checks and prepares all the parameters passed. Everything about $arParam modification is here.
 	 * @param mixed[] $params List of unchecked parameters
 	 * @return mixed[] Checked and valid parameters
@@ -240,7 +245,7 @@ class SaleAccountPay extends \CBitrixComponent
 
 		foreach ($paySystemList as $paySystemElement)
 		{
-			if (!empty($paySystemElement['PAY_SYSTEM_ID']) && !in_array($paySystemElement['ID'], $this->arParams['ELIMINATED_PAY_SYSTEMS']))
+			if (!in_array($paySystemElement['ID'], $this->arParams['ELIMINATED_PAY_SYSTEMS']))
 			{
 				if (!empty($paySystemElement["LOGOTIP"]))
 				{
@@ -299,6 +304,7 @@ class SaleAccountPay extends \CBitrixComponent
 				$APPLICATION->SetTitle(Loc::getMessage('SAP_TITLE'));
 			}
 
+			$this->setRegistry();
 			if ($this->arParams['AJAX_DISPLAY'] === 'Y')
 			{
 				$this->orderPayment($request);
@@ -324,6 +330,17 @@ class SaleAccountPay extends \CBitrixComponent
 
 		$this->formatResultErrors();
 		$this->includeComponentTemplate($templateName);
+	}
+
+	/**
+	 * Return current class registry
+	 *
+	 * @param mixed[] array that date conversion performs in
+	 * @return void
+	 */
+	protected function setRegistry()
+	{
+		$this->registry = Sale\Registry::getInstance(Sale\Order::getRegistryType());
 	}
 
 	/**
@@ -371,7 +388,9 @@ class SaleAccountPay extends \CBitrixComponent
 	protected function initBasket($requestValue, $savePropertyCharge = true)
 	{
 		$productId = (int)($requestValue * 100);
-		$basket = Sale\Basket::create(SITE_ID);
+		$basketClassName = $this->registry->getBasketClassName();
+		/** @var Sale\Basket $basket */
+		$basket = $basketClassName::create(SITE_ID);
 
 		$basketItem = $basket->createItem('sale', $productId);
 
@@ -418,7 +437,9 @@ class SaleAccountPay extends \CBitrixComponent
 	{
 		global $USER;
 
-		$order = Sale\Order::create(SITE_ID, $USER->GetID(), $this->arParams['SELL_CURRENCY']);
+		$orderClassName = $this->registry->getOrderClassName();
+		/** @var Sale\Order $order */
+		$order = $orderClassName::create(SITE_ID, $USER->GetID(), $this->arParams['SELL_CURRENCY']);
 
 		/** @var Main\Result $result */
 		$result = $order->setBasket($basket);
@@ -472,7 +493,9 @@ class SaleAccountPay extends \CBitrixComponent
 				"PAY_CALLBACK_FUNC" => $this->arParams["CALLBACK_NAME"]
 			);
 
-			$basket = Sale\Basket::loadItemsForFUser(Sale\Fuser::getId(), Main\Context::getCurrent()->getSite());
+			$basketClassName = $this->registry->getBasketClassName();
+			/** @var Sale\Basket $basket */
+			$basket = $basketClassName::loadItemsForFUser(Sale\Fuser::getId(), Main\Context::getCurrent()->getSite());
 
 			$item = $basket->getExistsItem('sale', $productId);
 			if ($item)
@@ -677,7 +700,7 @@ class SaleAccountPay extends \CBitrixComponent
 				"ORDER_ID"=>$order->getId(),
 				"ORDER_DATE"=>$order->getDateInsert()->toString(),
 				"PAYMENT_ID"=>$payment->getId(),
-				"IS_CASH" => $paySystemObject->isCash(),
+				"IS_CASH" => $paySystemObject->isCash() || $paySystemObject->getField("ACTION_FILE") === 'cash',
 				"NAME_CONFIRM_TEMPLATE"=>$this->arParams['NAME_CONFIRM_TEMPLATE']
 			);
 

@@ -11,6 +11,7 @@ Loc::loadMessages(
 	'/bitrix/modules/landing/blocks/.sections.php'
 );
 
+
 return array(
 	'last' => Loc::getMessage('LD_BLOCK_SECTION_LAST'),
 	'cover' => Loc::getMessage('LD_BLOCK_SECTION_COVER'),
@@ -23,7 +24,8 @@ return array(
 	'title' => Loc::getMessage('LD_BLOCK_SECTION_TITLE'),
 	'columns' => Loc::getMessage('LD_BLOCK_SECTION_COLUMNS'),
 	
-	'tiles' => Loc::getMessage('LD_BLOCK_SECTION_TILES_NEW'),
+	'tiles' => Loc::getMessage('LD_BLOCK_SECTION_TILES_NEW2'),
+	'countdowns' => Loc::getMessage('LD_BLOCK_SECTION_COUNTDOWNS'),
 	
 	'separator' => Loc::getMessage('LD_BLOCK_SECTION_SEPARATOR'),
 	

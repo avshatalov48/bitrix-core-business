@@ -475,61 +475,61 @@ class CCalendarLiveFeed
 		CCalendar::UpdateUFRights($arFilesIds, $arAccessCodes, $UF["UF_FORUM_MESSAGE_DOC"]);
 	}
 
-	public static function EditCalendarEventEntry($arFields = array(), $arUFFields = array(), $arAccessCodes = array(), $params = array())
+	public static function EditCalendarEventEntry($entryFields = array(), $userFieldData = array(), $accessCodes = array(), $params = array())
 	{
 		global $DB;
 
-		if (!$arFields['SKIP_TIME'])
+		if (!$entryFields['SKIP_TIME'])
 		{
-			$arFields['DATE_FROM'] .= ' '.$arFields['TIME_FROM'];
-			$arFields['DATE_TO'] .= ' '.$arFields['TIME_TO'];
+			$entryFields['DATE_FROM'] .= ' '.$entryFields['TIME_FROM'];
+			$entryFields['DATE_TO'] .= ' '.$entryFields['TIME_TO'];
 		}
 
 		// Timezone
-		if (!$arFields['TZ_FROM'] && isset($arFields['DEFAULT_TZ']))
+		if (!$entryFields['TZ_FROM'] && isset($entryFields['DEFAULT_TZ']))
 		{
-			$arFields['TZ_FROM'] = $arFields['DEFAULT_TZ'];
+			$entryFields['TZ_FROM'] = $entryFields['DEFAULT_TZ'];
 		}
-		if (!$arFields['TZ_TO'] && isset($arFields['DEFAULT_TZ']))
+		if (!$entryFields['TZ_TO'] && isset($entryFields['DEFAULT_TZ']))
 		{
-			$arFields['TZ_TO'] = $arFields['DEFAULT_TZ'];
-		}
-
-		if (isset($arFields['DEFAULT_TZ']) && $arFields['DEFAULT_TZ'] != '')
-		{
-			CCalendar::SaveUserTimezoneName($params["userId"], $arFields['DEFAULT_TZ']);
+			$entryFields['TZ_TO'] = $entryFields['DEFAULT_TZ'];
 		}
 
-		if ($arFields['SECTION'])
-			$arFields['SECTIONS'] = array($arFields['SECTION']);
+		if (isset($entryFields['DEFAULT_TZ']) && $entryFields['DEFAULT_TZ'] != '')
+		{
+			CCalendar::SaveUserTimezoneName($params["userId"], $entryFields['DEFAULT_TZ']);
+		}
 
-		$arFields["OWNER_ID"] = $params["userId"];
-		$arFields["CAL_TYPE"] = $params["type"];
+		if ($entryFields['SECTION'])
+			$entryFields['SECTIONS'] = array($entryFields['SECTION']);
+
+		$entryFields["OWNER_ID"] = $params["userId"];
+		$entryFields["CAL_TYPE"] = $params["type"];
 
 		// Add author for new event
-		if (!$arFields["ID"])
-			$arAccessCodes[] = 'U'.$params["userId"];
+		if (!$entryFields["ID"])
+			$accessCodes[] = 'U'.$params["userId"];
 
-		$arAccessCodes = array_unique($arAccessCodes);
-		$arAttendees = CCalendar::GetDestinationUsers($arAccessCodes);
+		$accessCodes = array_unique($accessCodes);
+		$attendeeList = CCalendar::GetDestinationUsers($accessCodes);
 
-		if (trim($arFields["NAME"]) === '')
-			$arFields["NAME"] = GetMessage('EC_DEFAULT_EVENT_NAME');
+		if (trim($entryFields["NAME"]) === '')
+			$entryFields["NAME"] = GetMessage('EC_DEFAULT_EVENT_NAME');
 
-		$arFields['IS_MEETING'] = !empty($arAttendees) && $arAttendees != array($params["userId"]);
+		$entryFields['IS_MEETING'] = !empty($attendeeList) && $attendeeList != array($params["userId"]);
 
-		if (isset($arFields['RRULE']) && !empty($arFields['RRULE']))
+		if (isset($entryFields['RRULE']) && !empty($entryFields['RRULE']))
 		{
-			if (is_array($arFields['RRULE']['BYDAY']))
-				$arFields['RRULE']['BYDAY'] = implode(',', $arFields['RRULE']['BYDAY']);
+			if (is_array($entryFields['RRULE']['BYDAY']))
+				$entryFields['RRULE']['BYDAY'] = implode(',', $entryFields['RRULE']['BYDAY']);
 		}
 
-		if ($arFields['IS_MEETING'])
+		if ($entryFields['IS_MEETING'])
 		{
-			$arFields['ATTENDEES_CODES'] = $arAccessCodes;
-			$arFields['ATTENDEES'] = $arAttendees;
-			$arFields['MEETING_HOST'] = $params["userId"];
-			$arFields['MEETING'] = array(
+			$entryFields['ATTENDEES_CODES'] = $accessCodes;
+			$entryFields['ATTENDEES'] = $attendeeList;
+			$entryFields['MEETING_HOST'] = $params["userId"];
+			$entryFields['MEETING'] = array(
 				'HOST_NAME' => CCalendar::GetUserName($params["userId"]),
 				'TEXT' => '',
 				'OPEN' => false,
@@ -539,42 +539,42 @@ class CCalendarLiveFeed
 		}
 		else
 		{
-			$arFields['ATTENDEES'] = false;
+			$entryFields['ATTENDEES'] = false;
 		}
 
 		$eventId = CCalendar::SaveEvent(
 			array(
-				'arFields' => $arFields,
+				'arFields' => $entryFields,
 				'autoDetectSection' => true
 			)
 		);
 
 		if ($eventId > 0)
 		{
-			if (count($arUFFields) > 0)
-				CCalendarEvent::UpdateUserFields($eventId, $arUFFields);
+			if (count($userFieldData) > 0)
+				CCalendarEvent::UpdateUserFields($eventId, $userFieldData);
 
-			foreach($arAccessCodes as $key => $value)
+			foreach($accessCodes as $key => $value)
 				if ($value == "UA")
 				{
-					unset($arAccessCodes[$key]);
-					$arAccessCodes[] = "G2";
+					unset($accessCodes[$key]);
+					$accessCodes[] = "G2";
 					break;
 				}
 
-			if ($arFields['IS_MEETING'] && !empty($arUFFields['UF_WEBDAV_CAL_EVENT']))
+			if ($entryFields['IS_MEETING'] && !empty($userFieldData['UF_WEBDAV_CAL_EVENT']))
 			{
 				$UF = $GLOBALS['USER_FIELD_MANAGER']->GetUserFields("CALENDAR_EVENT", $eventId, LANGUAGE_ID);
-				CCalendar::UpdateUFRights($arUFFields['UF_WEBDAV_CAL_EVENT'], $arAccessCodes, $UF['UF_WEBDAV_CAL_EVENT']);
+				CCalendar::UpdateUFRights($userFieldData['UF_WEBDAV_CAL_EVENT'], $accessCodes, $UF['UF_WEBDAV_CAL_EVENT']);
 			}
 
-			$arSoFields = Array(
+			$socnetLogFields = Array(
 				"ENTITY_TYPE" => SONET_SUBSCRIBE_ENTITY_USER,
 				"ENTITY_ID" => $params["userId"],
 				"USER_ID" => $params["userId"],
 				"=LOG_DATE" => $DB->CurrentTimeFunction(),
 				"TITLE_TEMPLATE" => "#TITLE#",
-				"TITLE" => $arFields["NAME"],
+				"TITLE" => $entryFields["NAME"],
 				"MESSAGE" => '',
 				"TEXT_MESSAGE" => ''
 			);
@@ -590,26 +590,26 @@ class CCalendarLiveFeed
 				array("ID")
 			);
 
-			$arCodes = array();
-			foreach($arAccessCodes as $value)
+			$codes = array();
+			foreach($accessCodes as $value)
 			{
 				if (substr($value, 0, 2) === 'SG')
-					$arCodes[] = $value.'_K';
-				$arCodes[] = $value;
+					$codes[] = $value.'_K';
+				$codes[] = $value;
 			}
-			$arCodes = array_unique($arCodes);
+			$codes = array_unique($codes);
 
 
 
 			if ($arRes = $dbRes->Fetch())
 			{
-				CSocNetLog::Update($arRes["ID"], $arSoFields);
+				CSocNetLog::Update($arRes["ID"], $socnetLogFields);
 				CSocNetLogRights::DeleteByLogID($arRes["ID"]);
-				CSocNetLogRights::Add($arRes["ID"], $arCodes);
+				CSocNetLogRights::Add($arRes["ID"], $codes);
 			}
 			else
 			{
-				$arSoFields = array_merge($arSoFields, array(
+				$socnetLogFields = array_merge($socnetLogFields, array(
 					"EVENT_ID" => "calendar",
 					"SITE_ID" => SITE_ID,
 					"SOURCE_ID" => $eventId,
@@ -617,8 +617,8 @@ class CCalendarLiveFeed
 					"CALLBACK_FUNC" => false
 				));
 
-				$logID = CSocNetLog::Add($arSoFields, false);
-				CSocNetLogRights::Add($logID, $arCodes);
+				$logId = CSocNetLog::Add($socnetLogFields, false);
+				CSocNetLogRights::Add($logId, $codes);
 			}
 		}
 	}
@@ -650,35 +650,39 @@ class CCalendarLiveFeed
 		$arFields = $params['arFields'];
 		$attendeesCodes = $params['attendeesCodes'];
 
-		$folowersList = array();
-		$unfolowersList = array();
+		$folowersList = [];
+		$unfolowersList = [];
 
-		if ($currentEvent['IS_MEETING'] && is_array($currentEvent['~ATTENDEES']))
+		if ($currentEvent['IS_MEETING'] && is_array($currentEvent['ATTENDEE_LIST']))
 		{
-			foreach($currentEvent['~ATTENDEES'] as $att)
+			foreach($currentEvent['ATTENDEE_LIST'] as $attendee)
 			{
-				if ($att['STATUS'] !== 'N')
+				if ($attendee['status'] !== 'N')
 				{
-					$folowersList[] = $att['USER_ID'];
+					$folowersList[] = $attendee['id'];
 				}
 				else
 				{
-					$unfolowersList[] = $att['USER_ID'];
+					$unfolowersList[] = $attendee['id'];
 				}
 			}
 		}
 
 		if (isset($attendeesCodes) && !is_array($attendeesCodes))
+		{
 			$attendeesCodes = explode(',', $attendeesCodes);
+		}
 		if (!is_array($attendeesCodes))
-			$attendeesCodes = array();
+		{
+			$attendeesCodes = [];
+		}
 
 		$newlogId = false;
 
 		if ($eventId > 0)
 		{
 			$arSoFields = Array(
-				"ENTITY_ID" => ($arFields["OWNER_ID"] > 0 ? $arFields["OWNER_ID"] : 1),
+				"ENTITY_ID" => $arFields["CREATED_BY"],
 				"USER_ID" => $arFields["CREATED_BY"],
 				"=LOG_DATE" =>$DB->CurrentTimeFunction(),
 				"TITLE_TEMPLATE" => "#TITLE#",
@@ -958,16 +962,16 @@ class CCalendarLiveFeed
 
 		if(isset($params['event']))
 		{
-			if ($params['event']['IS_MEETING'] && is_array($params['event']['~ATTENDEES']))
+			if ($params['event']['IS_MEETING'] && is_array($params['event']['ATTENDEE_LIST']))
 			{
-				foreach($params['event']['~ATTENDEES'] as $att)
+				foreach($params['event']['ATTENDEE_LIST'] as $attendee)
 				{
-					if ($att['USER_ID'] == $params['userId'] && $params['status'] === 'N'
+					if ($attendee['id'] == $params['userId'] && $params['status'] === 'N'
 						||
-						($att['USER_ID'] !== $params['userId'] && $att['STATUS'] === 'N')
+						($attendee['id'] !== $params['userId'] && $attendee['status'] === 'N')
 					)
 					{
-						$unfolowersList[] = $att['USER_ID'];
+						$unfolowersList[] = $attendee['id'];
 					}
 				}
 			}
@@ -1007,6 +1011,20 @@ class CCalendarLiveFeed
 					CSocNetLogFollow::Set(intval($value), "L".$logEntry['ID'], 'N');
 				}
 				CSocNetLogFollow::Set(intval($params['userId']), "L".$logEntry['ID'], $params['status']);
+
+				if (
+					$params['status'] == 'Y'
+					&& method_exists('\Bitrix\Socialnetwork\ComponentHelper','userLogSubscribe')
+				)
+				{
+					\Bitrix\Socialnetwork\ComponentHelper::userLogSubscribe(array(
+						'logId' => $logEntry['ID'],
+						'userId' => $value,
+						'typeList' => array(
+							'COUNTER_COMMENT_PUSH'
+						)
+					));
+				}
 
 				if (!empty($codesList))
 				{

@@ -1,0 +1,3 @@
+<?php
+$MESS['LANDING_BLOCK_HEADER_35_4__SOCIALS__PRESET_VK'] = 'ВКонтакте';
+$MESS['LANDING_BLOCK_HEADER_35_4__SOCIALS__PRESET_OK'] = 'Одноклассники';

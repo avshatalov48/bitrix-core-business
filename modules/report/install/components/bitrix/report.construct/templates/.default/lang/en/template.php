@@ -3,6 +3,7 @@ $MESS["REPORT_CONSTRUCT"] = "Report Wizard";
 $MESS["REPORT_TITLE"] = "Report name";
 $MESS["REPORT_DEFAULT_TITLE"] = "New report";
 $MESS["REPORT_PERIOD"] = "Reporting period";
+$MESS["REPORT_PERIOD_HIDDEN"] = "Don't show in report";
 $MESS["REPORT_COLUMNS"] = "Columns";
 $MESS["REPORT_CALC_COLUMN"] = "Calculate column";
 $MESS["REPORT_ADD_SELECT_COLUMN"] = "Add";

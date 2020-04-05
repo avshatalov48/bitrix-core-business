@@ -14,5 +14,4 @@ $MESS["PLAYLIST_STREAMING_VIDEO_NOT_SUPPORTED"] = "Player does not support strea
 $MESS["NO_SUPPORTED_FILES"] = "There are no supported files.";
 $MESS["PLAYLIST_FILE_NOT_FOUND"] = "is not supported";
 $MESS["VIDEOJS_NOT_SUPPORTED_MESSAGE"] = "No suitable playback mode was found.";
-$MESS["VIDEOJS_ERROR_MESSAGE_4"] = 'The media could not be loaded, either because the server or network failed or because the format is not supported.';
 ?>

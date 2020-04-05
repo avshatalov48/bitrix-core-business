@@ -90,6 +90,13 @@
 	left:0;
 	font: normal 11px "HelveticaNeue", Arial, Helvetica, sans-serif;
 }
+
+.calendar-planner-fulldaymode .calendar-planner-time-hour-item i {
+	max-width: 98px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 .calendar-planner-day-start i{margin-left: 8px;}
 .calendar-planner-day-start:before {
 	content: "";
@@ -117,6 +124,10 @@
 
 .calendar-planner-user {
 	position: relative;
+}
+
+.calendar-planner-user-tooltip {
+	z-index: 10000;
 }
 
 .calendar-planner-user-container {

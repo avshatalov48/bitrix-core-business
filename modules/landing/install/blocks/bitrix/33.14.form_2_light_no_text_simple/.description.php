@@ -11,7 +11,6 @@ return array(
 		array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.14'),
 			'section' => array('forms'),
-			'type' => 'store',
 			'subtype' => 'form',
 		),
 	'nodes' => array(

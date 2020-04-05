@@ -63,17 +63,17 @@ if (!empty($event_feed_action) && check_bitrix_sessid())
 
 				if ($ajaxParams["MOBILE"] == "Y")
 				{
-					$result = array(
-						'ACCEPTED_ATTENDEES_COUNT' => 0,
-						'DECLINED_ATTENDEES_COUNT' => 0
-					);
+					$result = ['ACCEPTED_ATTENDEES_COUNT' => 0,'DECLINED_ATTENDEES_COUNT' => 0];
 
-					foreach ($events[0]['~ATTENDEES'] as $i => $att)
+					if (is_array($events[0]['ATTENDEE_LIST']))
 					{
-						if ($att['STATUS'] == "Y")
-							$result['ACCEPTED_ATTENDEES_COUNT']++;
-						elseif($att['STATUS'] == "N")
-							$result['DECLINED_ATTENDEES_COUNT']++;
+						foreach($events[0]['ATTENDEE_LIST'] as $i => $attendee)
+						{
+							if($attendee['status'] == "Y")
+								$result['ACCEPTED_ATTENDEES_COUNT']++;
+							elseif($attendee['STATUS'] == "N")
+								$result['DECLINED_ATTENDEES_COUNT']++;
+						}
 					}
 
 					if ($result['ACCEPTED_ATTENDEES_COUNT'] > 0)
@@ -90,18 +90,19 @@ if (!empty($event_feed_action) && check_bitrix_sessid())
 						'DECLIINED_PARAMS' => array("prefix" => "n")
 					);
 
-					foreach ($events[0]['~ATTENDEES'] as $i => $att)
+					if (is_array($events[0]['ATTENDEE_LIST']))
 					{
-						if ($att['STATUS'] != "Q")
+						$userIndex = CCalendarEvent::getUserIndex();
+						foreach($events[0]['ATTENDEE_LIST'] as $i => $attendee)
 						{
-							$att['AVATAR_SRC'] = CCalendar::GetUserAvatar($att);
-							$att['URL'] = CCalendar::GetUserUrl($att["USER_ID"], $arParams["PATH_TO_USER"]);
+							if (isset($userIndex[$attendee["id"]]))
+							{
+								if($attendee['status'] == "Y")
+									$result['ACCEPTED_ATTENDEES'][] = $userIndex[$attendee["id"]];
+								elseif($attendee['status'] == "N")
+									$result['DECLINED_ATTENDEES'][] = $userIndex[$attendee["id"]];
+							}
 						}
-
-						if ($att['STATUS'] == "Y")
-							$result['ACCEPTED_ATTENDEES'][] = $att;
-						elseif($att['STATUS'] == "N")
-							$result['DECLINED_ATTENDEES'][] = $att;
 					}
 					$moreCountAcc = count($result['ACCEPTED_ATTENDEES']) - $ajaxParams['ATTENDEES_SHOWN_COUNT'];
 					$moreCountDec = count($result['DECLINED_ATTENDEES']) - $ajaxParams['ATTENDEES_SHOWN_COUNT'];

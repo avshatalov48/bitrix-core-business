@@ -18,13 +18,19 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.3_NODE_BGIMG'),
 			'type' => 'img',
 			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'allowInlineEdit' => false,
 		),
 	),
 	'style' => array(
 		'block' => array(
 			'type' => array('block-default-background-overlay'),
 		),
-		'nodes' => array(),
+		'nodes' => array(
+			'.landing-block-node-bgimg' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.3_NODE_BGIMG'),
+				'type' => 'background-attachment',
+			),
+		),
 	),
 	'assets' => array(
 		'ext' => array('landing_form'),

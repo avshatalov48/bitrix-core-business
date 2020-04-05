@@ -1,4 +1,5 @@
 <?
+$MESS["EC_ADD_APPLICATION"] = "Add an app";
 $MESS["EC_ADD"] = "Add";
 $MESS["EC_VIEW"] = "Open";
 $MESS["EC_ADD_EVENT"] = "Add event";
@@ -18,28 +19,28 @@ $MESS["EC_DEFAULT_ENTRY_NAME"] = "New Event";
 $MESS["EC_ENTRY_NAME"] = "Event name";
 $MESS["EC_REMIND"] = "Remind";
 $MESS["EC_REMIND_LABEL"] = "Reminder";
-$MESS["EC_REMIND_NO"] = "don't remind";
-$MESS["EC_REMIND_0"] = "When event starts";
-$MESS["EC_REMIND_5"] = "In 5 minutes";
-$MESS["EC_REMIND_10"] = "In 10 minutes";
-$MESS["EC_REMIND_15"] = "In 15 minutes";
-$MESS["EC_REMIND_30"] = "In 30 minutes";
-$MESS["EC_REMIND_60"] = "In 1 hour";
-$MESS["EC_REMIND_120"] = "In 2 hours";
-$MESS["EC_REMIND_1440"] = "Day before";
-$MESS["EC_REMIND_2880"] = "Two days before";
-$MESS["EC_REMIND_SHORT_0"] = "When event starts";
-$MESS["EC_REMIND_SHORT_5"] = "In 5 minutes";
-$MESS["EC_REMIND_SHORT_10"] = "In 10 minutes";
-$MESS["EC_REMIND_SHORT_15"] = "In 15 minutes";
-$MESS["EC_REMIND_SHORT_30"] = "In 30 minutes";
-$MESS["EC_REMIND_SHORT_60"] = "In 1 hour";
-$MESS["EC_REMIND_SHORT_120"] = "In 2 hours";
-$MESS["EC_REMIND_SHORT_1440"] = "Day before";
-$MESS["EC_REMIND_SHORT_2880"] = "Two days before";
-$MESS["EC_REMIND_MIN_COUNT"] = "In #COUNT# minite(s)";
-$MESS["EC_REMIND_HOUR_COUNT"] = "In #COUNT# hour(s)";
-$MESS["EC_REMIND_DAY_COUNT"] = "#COUNT# day(s) before";
+$MESS["EC_REMIND1_NO"] = "None";
+$MESS["EC_REMIND1_0"] = "When event starts";
+$MESS["EC_REMIND1_5"] = "5 minutes before event";
+$MESS["EC_REMIND1_10"] = "10 minutes before event";
+$MESS["EC_REMIND1_15"] = "15 minutes before event";
+$MESS["EC_REMIND1_30"] = "30 minutes before event";
+$MESS["EC_REMIND1_60"] = "1 hour before event";
+$MESS["EC_REMIND1_120"] = "2 hours before event";
+$MESS["EC_REMIND1_1440"] = "Day before event";
+$MESS["EC_REMIND1_2880"] = "Two days before event";
+$MESS["EC_REMIND1_SHORT_0"] = "When event starts";
+$MESS["EC_REMIND1_SHORT_5"] = "5 minutes before";
+$MESS["EC_REMIND1_SHORT_10"] = "10 minutes before";
+$MESS["EC_REMIND1_SHORT_15"] = "15 minutes before";
+$MESS["EC_REMIND1_SHORT_30"] = "30 minutes before";
+$MESS["EC_REMIND1_SHORT_60"] = "1 hour before";
+$MESS["EC_REMIND1_SHORT_120"] = "2 hours before";
+$MESS["EC_REMIND1_SHORT_1440"] = "Day before";
+$MESS["EC_REMIND1_SHORT_2880"] = "Two days before";
+$MESS["EC_REMIND1_MIN_COUNT"] = "#COUNT# minite(s) before";
+$MESS["EC_REMIND1_HOUR_COUNT"] = "#COUNT# hour(s) before";
+$MESS["EC_REMIND1_DAY_COUNT"] = "#COUNT# day(s) before";
 $MESS["EC_ALL_DAY"] = "all day";
 $MESS["EC_EVENT"] = "Event";
 $MESS["EC_TASK"] = "Task";
@@ -59,6 +60,7 @@ $MESS["EC_EVENT_TZ_DEF_HINT"] = "Select your time zone. Your preference will be 
 $MESS["EC_EVENT_TZ_HINT"] = "If the event is going to take place in a different time zone, select one in the list. Different time zones for event start and end times are possible.";
 $MESS["EC_ATTENDEES_LABEL"] = "Attendees";
 $MESS["EC_ATTENDEES_MORE"] = "#COUNT# more";
+$MESS["EC_ATTENDEES_TOTAL_COUNT"] = "invited #COUNT#";
 $MESS["EC_ATTENDEES_EDIT"] = "change";
 $MESS["EC_SOCNET_DESTINATION_3"] = "To all employees";
 $MESS["EC_SOCNET_DESTINATION_4"] = "To all users";
@@ -139,9 +141,11 @@ $MESS["EC_CAL_CONNECT_MORE"] = "connect #COUNT# more";
 $MESS["EC_CAL_SYNC_TITLE"] = "Synchronize";
 $MESS["EC_VIEW_DESIDE_BUT_Y"] = "Attend";
 $MESS["EC_VIEW_DESIDE_BUT_N"] = "Decline";
+$MESS["EC_VIEW_DESIDE_BUT_I"] = "Maybe";
 $MESS["EC_VIEW_STATUS_BUT_H"] = "Attending (organizer)";
 $MESS["EC_VIEW_STATUS_BUT_Y"] = "Attending";
 $MESS["EC_VIEW_STATUS_BUT_N"] = "Won't attent";
+$MESS["EC_VIEW_STATUS_BUT_I"] = "Undecided";
 $MESS["EC_DEL_REC_EVENT"] = "Delete recurring event";
 $MESS["EC_EDIT_REC_EVENT"] = "Edit recurring event";
 $MESS["EC_REC_EV_ONLY_THIS_EVENT"] = "Only this event";
@@ -169,51 +173,6 @@ $MESS["EC_TILL_TIME"] = "until #TIME#";
 $MESS["EC_DAY_LENGTH"] = "#COUNT# days";
 $MESS["EC_CREATE_EVENT"] = "Create Event";
 $MESS["EC_BUSY_ALERT"] = "One or more participants are not available during hours specified and cannot be invited.";
-$MESS["EC_MOBILE_HELP_IPHONE"] = "<p>To set up your Apple device to support CalDAV:</p>
-<ol>
-<li>On your Apple device, open the menu <b>Settings</b> &gt; <b>Contacts</b> &gt; <b>Accounts</b>.</li>
-<li>Select <b>Add Account</b> under the account list.</li>
-<li>Select CalDAV as account type (<b>Other</b> &gt; <b>CalDAV Account</b>).</li>
-<li>Specify this website address as server (#SERVER#). Use your login and password.</li>
-<li>If you are using two-step authentication, use the password specified in the user profile: <b>Application passwords</b>
-  &gt; <b>Calendar</b>.</li>
-<li>To specify the port number, save the account, then open it for editing again and proceed to the <b>More</b>  area.</li>
-</ol>
-<p>Your calendars will appear in the Calendar app.</p>";
-$MESS["EC_MOBILE_HELP_MAC"] = "<p>To connect calendars in iCal:</p>
-<ol>
-		<li>Open Caneldar > Settings and tap the Accounts tab.</li>
-		<li>Select Add Account.</li>
-		<li>Select CalDAV.</li>
-		<li>Set the account type to manual.</li>
-		<li>Specify this website address as server (<span class=\"bxec-link\">#CALENDAR_LINK#</span>). Use your login and password.</li>
-		<li>If you are using two-step authentication, use the password specified in the user profile (\"Application passwords\").</li>
-		<li>To specify the port number, save the account, then open it for editing again.</li>
-</ol>
-<p>Your calendars will appear in the iCal app.</p>";
-$MESS["EC_MOBILE_HELP_ANDROID"] = "<p>To connect your calendars, follow these steps on your mobile device.
-<ol>
-<li>Open GooglePlay and install Bitrix24 app.</li>
-<li>Select the menu Settings > Accounts > \"Bitrix24\"
-If there is no account present, create a new one and select Bitrix24.
-<ul>
-	<li>Specify your Bitrix24's address (e.g. <i>company.bitrix24.ru</i>)</li>
-	<li>Enter your login (email)</li>
-	<li>Enter your password</li>
-</ul>
-<li>If you are using two-step authentication, use the password specified in the user profile (\"Application passwords\").</li>
-</li>
-<li>Click the account and select a calendar and/or contacts to synchronize and save them to your phone.</li>
-
-<li>Click Synchronize.</li>
-</ol>
-Your Bitrix24 calendar is now available in your mobile device's calendar, all events synchronized.</p>";
-$MESS["EC_MOBILE_SYNC_TITLE_MACOSX"] = "Mac OSX Synchronization Parameters";
-$MESS["EC_MOBILE_SYNC_TITLE_IPHONE"] = "Apple iPhone/iPad Synchronization Parameters";
-$MESS["EC_MOBILE_SYNC_TITLE_ANDROID"] = "Android Synchronization Parameters";
-$MESS["EC_VIEW_STATUS_BUT_I"] = "Undecided";
-$MESS["EC_ATTENDEES_TOTAL_COUNT"] = "invited #COUNT#";
-$MESS["EC_VIEW_DESIDE_BUT_I"] = "Maybe";
 $MESS["EC_REPEAT"] = "Repeat";
 $MESS["EC_HOST"] = "Organizer";
 $MESS["EC_EVENT_IS_MINE"] = "My event";
@@ -248,6 +207,47 @@ $MESS["EC_EXP_TEXT"] = "Export calendar to third-party applications (in iCal for
 $MESS["EC_JS_EXPORT_TILE"] = "Export in iCal format";
 $MESS["EC_EDEV_EXP_WARN"] = "Note! The export data check failed. Please ensure your access permissions are valid.";
 $MESS["CALENDAR_TIP_TEMPLATE_LINK_COPIED"] = "Event link has been copied to the Clipboard.";
+$MESS["EC_MOBILE_HELP_IPHONE"] = "<p>To set up your Apple device to support CalDAV:</p>
+<ol>
+	<li>On your Apple device, open the menu <b>Settings</b> &gt; <b>Accounts & Passwords</b>.</li>
+	<li>Select <b>Add Account</b> under the account list.</li>
+	<li>Select CalDAV as account type (<b>Other</b> &gt; <b>CalDAV Account</b>).</li>
+	<li>Specify this website address as server (<span class=\"bxec-link\">#CALENDAR_LINK#</span>). Use your login and password.</li>
+	<li>If you are using two-step authentication, use the password specified in the user profile: <b>Application passwords</b> &gt; <b>Calendar</b>.</li>
+	<li>To specify the port number, save the account, then open it for editing again and proceed to the <b>More</b>  area.</li>
+</ol>
+<p>Your calendars will appear in the Calendar app.</p>";
+$MESS["EC_MOBILE_HELP_MAC"] = "<p>To connect calendars in iCal:</p>
+<ol>
+		<li>Open Caneldar > Settings and tap the Accounts tab.</li>
+		<li>Select Add Account.</li>
+		<li>Select CalDAV.</li>
+		<li>Set the account type to manual.</li>
+		<li>Specify this website address as server (<span class=\"bxec-link\">#CALENDAR_LINK#</span>). Use your login and password.</li>
+		<li>If you are using two-step authentication, use the password specified in the user profile (\"Application passwords\").</li>
+		<li>To specify the port number, save the account, then open it for editing again.</li>
+</ol>
+<p>Your calendars will appear in the iCal app.</p>";
+$MESS["EC_MOBILE_HELP_ANDROID"] = "<p>To connect your calendars, follow these steps on your mobile device.
+<ol>
+<li>Open GooglePlay and install Bitrix24 app.</li>
+<li>Select the menu Settings > Accounts > \"Bitrix24\"
+If there is no account present, create a new one and select Bitrix24.
+<ul>
+	<li>Specify your Bitrix24's address (e.g. <i>company.bitrix24.ru</i>)</li>
+	<li>Enter your login (email)</li>
+	<li>Enter your password</li>
+</ul>
+<li>If you are using two-step authentication, use the password specified in the user profile (\"Application passwords\").</li>
+</li>
+<li>Click the account and select a calendar and/or contacts to synchronize and save them to your phone.</li>
+
+<li>Click Synchronize.</li>
+</ol>
+Your Bitrix24 calendar is now available in your mobile device's calendar, all events synchronized.</p>";
+$MESS["EC_MOBILE_SYNC_TITLE_MACOSX"] = "Mac OSX Synchronization Parameters";
+$MESS["EC_MOBILE_SYNC_TITLE_IPHONE"] = "Apple iPhone/iPad Synchronization Parameters";
+$MESS["EC_MOBILE_SYNC_TITLE_ANDROID"] = "Android Synchronization Parameters";
 $MESS["EC_B24_LOCATION_LIMITATION_TITLE"] = "Create and Select Location";
 $MESS["EC_B24_LOCATION_LIMITATION"] = "<span>You can create and select event locations on Professional plan only. Upgrade now and enjoy more useful features:
 <ol>
@@ -262,4 +262,6 @@ $MESS["EC_WEEK_TITLE"] = "<span class='calendar-day-of-week'>#DAY_OF_WEEK#</span
 $MESS["EC_LOCATION_RESERVE_ERROR"] = "The location is not available at the specified time.";
 $MESS["EC_VIEW_MODE_SHOW_BY"] = "Sort by";
 $MESS["EC_DESCRIPTION"] = "Description";
+$MESS["EC_REQUEST_APP_FAILURE"] = "Error loading or running application <strong>\"#APPNAME#\"</strong>";
+$MESS["EC_REQUEST_APP_NONAME_TAB"] = "- untitled -";
 ?>

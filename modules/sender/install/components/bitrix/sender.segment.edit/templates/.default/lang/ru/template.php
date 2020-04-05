@@ -1,5 +1,6 @@
 <?
 $MESS["SENDER_SEGMENT_EDIT_TMPL_PATTERN_TITLE"] = "%name% от %date%";
+$MESS["SENDER_SEGMENT_EDIT_TMPL_PATTERN_TITLE1"] = "%name% от %date%";
 $MESS["SENDER_SEGMENT_EDIT_TMPL_NEW_TITLE"] = "Сегмент";
 $MESS["SENDER_SEGMENT_EDIT_TMPL_FIELD_NAME"] = "Название";
 $MESS["SENDER_SEGMENT_EDIT_TMPL_BTN_ADD"] = "Добавить фильтр";
@@ -12,7 +13,7 @@ $MESS["SENDER_SEGMENT_EDIT_TMPL_DYNAMIC_HINT"] = "Рассчитывается �
 $MESS["SENDER_SEGMENT_EDIT_TMPL_LIST"] = "Свой список";
 $MESS["SENDER_SEGMENT_EDIT_TMPL_LIST1"] = "Свой набор адресов";
 $MESS["SENDER_SEGMENT_EDIT_TMPL_LIST_DESC"] = "Статический список получателей.";
-$MESS["SENDER_SEGMENT_EDIT_TMPL_LIST_HINT"] = "Список меняется только при загрузке или удалении адресов вручную.";
+$MESS["SENDER_SEGMENT_EDIT_TMPL_LIST_HINT1"] = "Список меняется только при загрузке или удалении адресов вручную.";
 $MESS["SENDER_SEGMENT_EDIT_TMPL_BTN_HIDE_IN_LIST"] = "Показывать только в этой рассылке";
 $MESS["SENDER_SEGMENT_EDIT_TMPL_BTN_HIDDEN"] = "Скрытый";
 $MESS["SENDER_SEGMENT_EDIT_TMPL_BTN_HIDDEN_HINT"] = "Если эта настройка установлена, то сегмент не будет выводиться для выбора в рассылках.";

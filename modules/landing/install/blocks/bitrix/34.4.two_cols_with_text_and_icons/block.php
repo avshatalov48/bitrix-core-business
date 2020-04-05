@@ -2,12 +2,12 @@
 	<div class="container">
 		<!-- Icon Blocks -->
 		<div class="row">
-			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-40">
+			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-40 g-px-20">
 				<!-- Icon Blocks -->
 				<div class="media">
-					<div class="d-flex g-mt-25 g-mr-40">
-                  <span class="d-block g-font-size-48 g-line-height-1">
-                    <i class="landing-block-node-card-icon g-color-primary fa fa-user-secret"></i>
+					<div class="d-flex g-mt-25 g-mr-40 g-width-64 justify-content-center">
+                  <span class="landing-block-node-card-icon-container g-color-primary d-block g-font-size-48 g-line-height-1">
+                    <i class="landing-block-node-card-icon fa fa-user-secret"></i>
                   </span>
 					</div>
 
@@ -26,12 +26,12 @@
 				<!-- End Icon Blocks -->
 			</div>
 
-			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-40">
+			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-40 g-px-20">
 				<!-- Icon Blocks -->
 				<div class="media">
-					<div class="d-flex g-mt-25 g-mr-40">
-                  <span class="d-block g-font-size-48 g-line-height-1">
-                    <i class="landing-block-node-card-icon g-color-primary fa fa-institution"></i>
+					<div class="d-flex g-mt-25 g-mr-40 g-width-64 justify-content-center">
+                  <span class="landing-block-node-card-icon-container g-color-primary d-block g-font-size-48 g-line-height-1">
+                    <i class="landing-block-node-card-icon fa fa-institution"></i>
                   </span>
 					</div>
 
@@ -47,12 +47,12 @@
 				<!-- End Icon Blocks -->
 			</div>
 
-			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-40">
+			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-40 g-px-20">
 				<!-- Icon Blocks -->
 				<div class="media">
-					<div class="d-flex g-mt-25 g-mr-40">
-                  <span class="d-block g-font-size-48 g-line-height-1">
-                    <i class="landing-block-node-card-icon g-color-primary fa fa-suitcase"></i>
+					<div class="d-flex g-mt-25 g-mr-40 g-width-64 justify-content-center">
+                  <span class="landing-block-node-card-icon-container g-color-primary d-block g-font-size-48 g-line-height-1">
+                    <i class="landing-block-node-card-icon fa fa-suitcase"></i>
                   </span>
 					</div>
 
@@ -70,12 +70,12 @@
 				<!-- End Icon Blocks -->
 			</div>
 
-			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-40">
+			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-40 g-px-20">
 				<!-- Icon Blocks -->
 				<div class="media">
-					<div class="d-flex g-mt-25 g-mr-40">
-                  <span class="d-block g-font-size-48 g-line-height-1">
-                    <i class="landing-block-node-card-icon g-color-primary fa fa-money"></i>
+					<div class="d-flex g-mt-25 g-mr-40 g-width-64 justify-content-center">
+                  <span class="landing-block-node-card-icon-container g-color-primary d-block g-font-size-48 g-line-height-1">
+                    <i class="landing-block-node-card-icon fa fa-money"></i>
                   </span>
 					</div>
 

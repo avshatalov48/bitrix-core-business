@@ -7,7 +7,14 @@ use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\ArgumentTypeException;
 use Bitrix\Main\Event;
+use Bitrix\Main\ObjectNotFoundException;
 
+/**
+ * Class Binder
+ * @package Bitrix\Main\Engine
+ * @deprecated
+ * @see \Bitrix\Main\Engine\AutoWire\Binder
+ */
 class Binder
 {
 	const ANY_PARAMETER_NAME = -1;
@@ -53,7 +60,7 @@ class Binder
 			$this->buildReflectionMethod();
 		}
 
-		$this->bindParams();
+//		$this->bindParams();
 	}
 
 	private static function registerDefaultAutoWirings()
@@ -75,17 +82,22 @@ class Binder
 
 	final public static function buildForFunction($callable, array $listSourceParameters)
 	{
-		return new static(null, $callable, $listSourceParameters);
+		return AutoWire\Binder::buildForFunction($callable)
+				->setSourcesParametersToMap($listSourceParameters);
 	}
 
 	final public static function buildForMethod($instance, $method, array $listSourceParameters)
 	{
-		return new static($instance, $method, $listSourceParameters);
+		return AutoWire\Binder::buildForMethod($instance, $method)
+				->setSourcesParametersToMap($listSourceParameters);
 	}
 
 	final public static function registerParameter($className, \Closure $constructObjectByClassAndId)
 	{
 		self::registerDefaultAutoWirings();
+
+		$dependsOnParameter = new AutoWire\Parameter($className, $constructObjectByClassAndId);
+		AutoWire\Binder::registerGlobalAutoWiredParameter($dependsOnParameter);
 
 		self::$autoWiredHandlers[$className] = array(
 			'onConstructObjectByClassAndId' => $constructObjectByClassAndId,
@@ -97,12 +109,11 @@ class Binder
 	{
 		self::registerDefaultAutoWirings();
 
-		if ($constructIdParameterName === null)
-		{
-			$constructIdParameterName = function(\ReflectionParameter $parameter){
-				return $parameter->getName() . 'Id';
-			};
-		}
+		$dependsOnParameter = new AutoWire\Parameter(
+			$className, $constructObjectByClassAndId, $constructIdParameterName
+		);
+		AutoWire\Binder::registerGlobalAutoWiredParameter($dependsOnParameter);
+
 		self::$autoWiredHandlers[$className] = array(
 			'onConstructObjectByClassAndId' => $constructObjectByClassAndId,
 			'onConstructIdParameterName' => $constructIdParameterName,
@@ -178,6 +189,11 @@ class Binder
 	 */
 	final public function getMethodParams()
 	{
+		if ($this->methodParams === null)
+		{
+			$this->bindParams();
+		}
+
 		return $this->methodParams;
 	}
 
@@ -201,6 +217,11 @@ class Binder
 	 */
 	final public function getArgs()
 	{
+		if ($this->args === null)
+		{
+			$this->bindParams();
+		}
+
 		return $this->args;
 	}
 
@@ -210,13 +231,57 @@ class Binder
 	 */
 	final public function invoke()
 	{
-		if($this->reflectionFunctionAbstract instanceof \ReflectionMethod)
+		try
 		{
-			return $this->reflectionFunctionAbstract->invokeArgs($this->instance, $this->getArgs());
+			if($this->reflectionFunctionAbstract instanceof \ReflectionMethod)
+			{
+				return $this->reflectionFunctionAbstract->invokeArgs($this->instance, $this->getArgs());
+			}
+			elseif ($this->reflectionFunctionAbstract instanceof \ReflectionFunction)
+			{
+				return $this->reflectionFunctionAbstract->invokeArgs($this->getArgs());
+			}
 		}
-		elseif ($this->reflectionFunctionAbstract instanceof \ReflectionFunction)
+		catch (\TypeError $exception)
 		{
-			return $this->reflectionFunctionAbstract->invokeArgs($this->getArgs());
+			$this->processException($exception);
+		}
+		catch (\ErrorException $exception)
+		{
+			$this->processException($exception);
+		}
+
+		return null;
+	}
+
+	private function processException($exception)
+	{
+		if (!($exception instanceof \TypeError) && !($exception instanceof \ErrorException))
+		{
+			return;
+		}
+
+		if (
+			stripos($exception->getMessage(), 'must be an instance of') === false ||
+			stripos($exception->getMessage(), 'null given') === false
+		)
+		{
+			throw $exception;
+		}
+
+		$message = $this->extractParameterClassName($exception->getMessage());
+
+		throw new ObjectNotFoundException(
+			"Could not find value for class {{$message}} to build auto wired argument",
+			$exception instanceof \TypeError? null : $exception //fix it. When we will use php7.1
+		);
+	}
+
+	private function extractParameterClassName($message)
+	{
+		if (preg_match('%must be an instance of ([a-zA-Z0-9_\\\\]+), null given%', $message, $m))
+		{
+			return $m[1];
 		}
 
 		return null;
@@ -242,7 +307,8 @@ class Binder
 					}
 
 					throw new ArgumentException(
-						"Could not find value for parameter {{$parameterName}} to build auto wired argument {{$parameter->getClass()->name} {$parameter->getName()}}"
+						"Could not find value for parameter {{$parameterName}} to build auto wired argument {{$parameter->getClass()->name} {$parameter->getName()}}",
+						$parameter
 					);
 				}
 			}
@@ -263,7 +329,8 @@ class Binder
 			else
 			{
 				throw new ArgumentException(
-					"Could not find value for parameter {{$parameter->getName()}}"
+					"Could not find value for parameter {{$parameter->getName()}}",
+					$parameter
 				);
 			}
 		}
@@ -274,6 +341,17 @@ class Binder
 		}
 
 		return $value;
+	}
+
+	/**
+	 * @param array $listSourceParameters
+	 */
+	public function setListSourceParameters($listSourceParameters)
+	{
+		$this->listSourceParameters = $listSourceParameters;
+		$this->args = $this->methodParams = null;
+
+		return $this;
 	}
 
 	private function findParameterInSourceList($name, &$status)

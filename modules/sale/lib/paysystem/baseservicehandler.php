@@ -32,6 +32,15 @@ abstract class BaseServiceHandler
 	/**
 	 * @param Payment $payment
 	 * @param Request|null $request
+	 */
+	public function preInitiatePay(Payment $payment, Request $request = null)
+	{
+		return;
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @param Request|null $request
 	 * @return ServiceResult
 	 */
 	abstract public function initiatePay(Payment $payment, Request $request = null);

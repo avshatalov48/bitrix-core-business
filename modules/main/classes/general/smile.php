@@ -944,12 +944,14 @@ class CSmileGallery
 				continue;
 
 			$result['SMILE'][$smile['ID']] = Array(
-				'SET_ID' => $smile['SET_ID'],
+				'ID' => (int)$smile['ID'],
+				'SET_ID' => (int)$smile['SET_ID'],
 				'NAME' => $smile['NAME'],
 				'IMAGE' => CSmile::PATH_TO_SMILE.$smile["SET_ID"]."/".$smile["IMAGE"],
 				'TYPING' => $typing[0],
-				'WIDTH' => $smile['IMAGE_WIDTH'],
-				'HEIGHT' => $smile['IMAGE_HEIGHT'],
+				'WIDTH' => (int)$smile['IMAGE_WIDTH'],
+				'HEIGHT' => (int)$smile['IMAGE_HEIGHT'],
+				'DEFINITION' => $smile['IMAGE_DEFINITION'],
 			);
 			$userSets[$smile['SET_ID']] = true;
 		}
@@ -958,12 +960,15 @@ class CSmileGallery
 			if (!$userSets[$value['ID']])
 				continue;
 
-			unset($value['STRING_ID']);
-			unset($value['SORT']);
 			if (empty($value['NAME']))
 				$value['NAME'] = GetMessage('MAIN_SMILE_SET_NAME', Array('#ID#' => $key));
 
-			$result['SMILE_SET'][] = $value;
+			$result['SMILE_SET'][] = Array(
+				'ID' => (int)$value['ID'],
+				'PARENT_ID' => (int)$value['PARENT_ID'],
+				'NAME' => $value['NAME'],
+				'TYPE' => $value['TYPE'],
+			);
 		}
 
 		return $result;

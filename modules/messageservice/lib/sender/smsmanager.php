@@ -23,6 +23,10 @@ class SmsManager
 			{
 				self::$senders[] = new Sms\SmsRu();
 			}
+			if (Sms\SmsAssistentBy::isSupported())
+			{
+				self::$senders[] = new Sms\SmsAssistentBy();
+			}
 			if (Sms\Twilio::isSupported())
 			{
 				self::$senders[] = new Sms\Twilio();
@@ -30,6 +34,27 @@ class SmsManager
 			if (Sms\Rest::isSupported())
 			{
 				self::$senders[] = new Sms\Rest();
+			}
+
+			foreach (Main\EventManager::getInstance()->findEventHandlers(
+				'messageservice', 'onGetSmsSenders'
+				) as $event
+			)
+			{
+				$result = (array) ExecuteModuleEventEx($event);
+				foreach ($result as $sender)
+				{
+					if (
+						$sender instanceof Base
+						&&
+						$sender->getType() === MessageType::SMS
+						&&
+						$sender::isSupported()
+					)
+					{
+						self::$senders[] = $sender;
+					}
+				}
 			}
 		}
 		return self::$senders;

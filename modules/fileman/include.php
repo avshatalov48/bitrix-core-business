@@ -27,7 +27,8 @@ include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/properties.php")
 
 CJSCore::RegisterExt('file_input', array(
 	'js' => '/bitrix/js/fileman/core_file_input.js',
-	'lang' => '/bitrix/modules/fileman/lang/'.LANGUAGE_ID.'/classes/general/file_input.php'
+	'lang' => '/bitrix/modules/fileman/lang/'.LANGUAGE_ID.'/classes/general/file_input.php',
+	'rel' => array('window') //BX.COpener
 ));
 
 CJSCore::RegisterExt('map_google', array(
@@ -77,6 +78,16 @@ CJSCore::RegisterExt('userfield_address', array(
 	'lang' => '/bitrix/modules/fileman/lang/'.LANGUAGE_ID.'/js_userfield_address.php',
 	'rel' => array('uf', 'google_map', 'google_geocoder', 'google_autocomplete', 'popup'),
 ));
+
+CJSCore::RegisterExt('player', [
+	'js' => [
+		'/bitrix/js/fileman/player/fileman_player.js',
+		'/bitrix/js/fileman/player/videojs/video.js',
+	],
+	'css' => [
+		'/bitrix/js/fileman/player/videojs/video-js.css',
+	],
+]);
 
 //on update method still not exist
 if(method_exists($GLOBALS["APPLICATION"], 'AddJSKernelInfo'))

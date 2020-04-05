@@ -27,6 +27,8 @@ $arColumns = array(
 	"PRICE_FORMATED" => GetMessage("SBB_BPRICE"),
 	"QUANTITY_FORMATED" => GetMessage("SBB_BQUANTITY"),
 	"SUM" => GetMessage("SBB_BSUM"),
+	"DETAIL_PICTURE" => GetMessage("SBB_DETAIL_PICTURE"),
+	"PREVIEW_PICTURE" => GetMessage("SBB_PREVIEW_PICTURE")
 );
 
 if (CModule::IncludeModule("catalog"))

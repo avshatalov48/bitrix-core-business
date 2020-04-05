@@ -1658,6 +1658,7 @@ function BXBlockEditorStatusManager(params)
 
 	BX.addCustomEvent(this.caller, 'onBlockCreateAfter', BX.delegate(this.setBlockStatusContent, this.caller));
 	BX.addCustomEvent(this.caller, 'onBlockMoveAfter', BX.delegate(this.setBlockStatusContent, this.caller));
+	BX.addCustomEvent(this.caller, 'onBlockRemoveAfter', BX.delegate(this.onBlockRemoveAfter, this));
 	BX.addCustomEvent(this.caller, 'onBlockClone', BX.delegate(this.setBlockStatusContent, this.caller));
 	BX.addCustomEvent(this.caller, 'onBlockEditEnd', BX.delegate(this.onBlockEditEnd, this.caller));
 }
@@ -1685,6 +1686,10 @@ BXBlockEditorStatusManager.prototype.setBlockStatusContent = function(block)
 {
 	block.node.setAttribute(this.CONST_ATTR_BLOCK_STATUS, 'content');
 };
+BXBlockEditorStatusManager.prototype.onBlockRemoveAfter = function(placeNode)
+{
+	this.onPlaceInitBlocksContent.call(this.caller, placeNode, true);
+};
 BXBlockEditorStatusManager.prototype.onBlockEditEnd = function(block, hasChanges)
 {
 	if(hasChanges)
@@ -1706,10 +1711,7 @@ BXBlockEditorStatusManager.prototype.onPlaceInitBlocksContent = function(placeNo
 	for(var i in blockNodeList)
 	{
 		var blockNode = blockNodeList[i];
-		if(!blockNode.hasAttribute(this.CONST_ATTR_BLOCK_STATUS))
-		{
-			blockNode.setAttribute(this.CONST_ATTR_BLOCK_STATUS, status);
-		}
+		blockNode.setAttribute(this.CONST_ATTR_BLOCK_STATUS, status);
 	}
 
 };

@@ -18,8 +18,7 @@ if (isset($arResult["LIST_COPY_ELEMENT_URL"]))
 		$listAction[] = array(
 			"id" => "copyElement",
 			"text" => GetMessage("CT_BLEE_TOOLBAR_COPY_ELEMENT"),
-			"url" => $arResult["LIST_COPY_ELEMENT_URL"],
-			"action" => 'document.location.href="'.$arResult["LIST_COPY_ELEMENT_URL"].'"',
+			"url" => $arResult["LIST_COPY_ELEMENT_URL"]
 		);
 	}
 }
@@ -182,17 +181,24 @@ if(CModule::IncludeModule("bizproc") && CBPRuntime::isFeatureEnabled() && $arRes
 				"type" => "section",
 			);
 
-			if(strlen($arDocumentState["ID"]) && CIBlockElementRights::UserHasRightTo($arResult["IBLOCK_ID"],
-					$arResult["ELEMENT_ID"], "element_edit") && strlen($arDocumentState["WORKFLOW_STATUS"]))
+			if (strlen($arDocumentState["ID"]) && strlen($arDocumentState["WORKFLOW_STATUS"]))
 			{
-				$arTab2Fields[] = array(
-					"id" => "BIZPROC_STOP".$bizProcIndex,
-					"name" => GetMessage("CT_BLEE_BIZPROC_STOP_LABEL"),
-					"type" => "label",
-					"value" => '<a href="javascript:void(0)"
+				if (CBPDocument::CanUserOperateDocument(
+					CBPCanUserOperateOperation::StartWorkflow,
+					$GLOBALS["USER"]->GetID(),
+					BizProcDocument::getDocumentComplexId($arParams["IBLOCK_TYPE_ID"], $arResult["ELEMENT_ID"]),
+					array("UserGroups" => $arCurrentUserGroups)
+				))
+				{
+					$arTab2Fields[] = array(
+						"id" => "BIZPROC_STOP".$bizProcIndex,
+						"name" => GetMessage("CT_BLEE_BIZPROC_STOP_LABEL"),
+						"type" => "label",
+						"value" => '<a href="javascript:void(0)"
 						onclick="BX.Lists[\''.$jsClass.'\'].completeWorkflow(\''.$arDocumentState["ID"].'\',
 						\'stop\')">'.GetMessage("CT_BLEE_BIZPROC_STOP").'</a>'
-				);
+					);
+				}
 			}
 
 			$arTab2Fields[] = array(
@@ -243,10 +249,10 @@ if(CModule::IncludeModule("bizproc") && CBPRuntime::isFeatureEnabled() && $arRes
 								$arDocumentState["STATE_TITLE"] : $arDocumentState["STATE_NAME"]).'</a>',
 					);
 
-					$canDeleteWorkflow = CBPDocument::CanUserOperateDocumentType(
+					$canDeleteWorkflow = CBPDocument::CanUserOperateDocument(
 						CBPCanUserOperateOperation::CreateWorkflow,
 						$GLOBALS["USER"]->GetID(),
-						BizProcDocument::getDocumentComplexId($arParams["IBLOCK_TYPE_ID"], $arResult["IBLOCK_ID"]),
+						BizProcDocument::getDocumentComplexId($arParams["IBLOCK_TYPE_ID"], $arResult["ELEMENT_ID"]),
 						array("UserGroups" => $arCurrentUserGroups)
 					);
 
@@ -320,7 +326,7 @@ if(CModule::IncludeModule("bizproc") && CBPRuntime::isFeatureEnabled() && $arRes
 						"name" => $arParameter["Name"],
 						"title" => $arParameter["Description"],
 						"type" => "label",
-						"value" => $html,
+						"value" => '<div>' . $html . '</div>',
 					);
 				}
 

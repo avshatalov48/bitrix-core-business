@@ -209,12 +209,19 @@ if($user_id > 0 && $user_id == IntVal($arParams["USER_ID"]))
 		{
 			$arPost["perms"] = BLOG_PERMS_FULL;
 			$arPost["urlToPub"] = htmlspecialcharsex($APPLICATION->GetCurPageParam("pub_id=".$arPost["ID"]."&".bitrix_sessid_get(), Array("del_id", "sessid", "success", "pub_id")));
+			$arPost["urlToEdit"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST_EDIT"], array("post_id" => $arPost["ID"], "user_id" => $arParams["USER_ID"]));
 			$arPost["urlToDelete"] = htmlspecialcharsex($APPLICATION->GetCurPageParam("del_id=".$arPost["ID"]."&".bitrix_sessid_get(), Array("del_id", "sessid", "success", "pub_id")));
 			$arPost["ADIT_MENU"][6] = Array(
 				"text_php" => GetMessage("BLOG_DR_PUB"),
 				"href" => $arPost["urlToPub"],
 				);
+
 			$arPost["ADIT_MENU"][7] = Array(
+				"text_php" => GetMessage("BLOG_DR_EDIT"),
+				"href" => $arPost["urlToEdit"],
+			);
+
+			$arPost["ADIT_MENU"][8] = Array(
 				"text_php" => GetMessage("BLOG_DR_DELETE"),
 				"onclick" => "function() { if(confirm('".GetMessage("BLOG_DR_DELETE_CONFIRM")."')) window.location='".$arPost["urlToDelete"]."';  this.popupWindow.close();}",
 				);

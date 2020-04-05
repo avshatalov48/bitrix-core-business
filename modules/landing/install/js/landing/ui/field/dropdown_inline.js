@@ -3,6 +3,8 @@
 
 	BX.namespace("BX.Landing.UI.Field");
 
+	var Menu = BX.Landing.UI.Tool.Menu;
+
 	/**
 	 * Implements interface for works with inline dropdown
 	 *
@@ -38,10 +40,10 @@
 		{
 			if (!this.popup)
 			{
-				this.popup = BX.PopupMenu.create(
-					this.selector+"_dropdown_popup",
-					this.input,
-					this.items.map(function(item) {
+				this.popup = new Menu({
+					id: this.selector+"_dropdown_popup_",
+					bindElement: this.input,
+					items: this.items.map(function(item) {
 						return {
 							text: item.name,
 							onclick: function() {
@@ -49,7 +51,7 @@
 							}.bind(this)
 						}
 					}, this)
-				);
+				});
 
 				this.layout.appendChild(this.popup.popupWindow.popupContainer);
 			}

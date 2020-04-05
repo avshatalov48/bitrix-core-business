@@ -165,7 +165,7 @@ class CAllSaleLocation
 				//"JS_CONTROL_DEFERRED_INIT" => "soa_deferred"
 			), $additionalParams);
 
-			if(strlen($parameters['SITE_ID']) || ADMIN_SECTION != 'Y')
+			if(strlen($parameters['SITE_ID']) || !defined('ADMIN_SECTION') || ADMIN_SECTION != 'Y')
 			{
 				$parametersProxed["FILTER_BY_SITE"] = "Y";
 				$parametersProxed["FILTER_SITE_ID"] = strlen($parameters['SITE_ID']) ? $parameters['SITE_ID'] : SITE_ID;

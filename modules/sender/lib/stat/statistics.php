@@ -771,10 +771,12 @@ class Statistics
 	protected function getAuthorList()
 	{
 		$listDb = MailingChainTable::getList(array(
-			'select' => array('CREATED_BY'),
-			'group' => array('CREATED_BY'),
+			'select' => ['CREATED_BY', 'MAX_DATE_INSERT'],
+			'group' => ['CREATED_BY'],
+			'runtime' => [new ExpressionField('MAX_DATE_INSERT', 'MAX(%s)', 'DATE_INSERT'),],
 			'limit' => 100,
-			'cache' => array('ttl' => $this->getCacheTtl(), 'cache_joins' => true)
+			'order' => ['MAX_DATE_INSERT' => 'DESC'],
+			'cache' => ['ttl' => $this->getCacheTtl(), 'cache_joins' => true]
 		));
 		$userList = array();
 		while ($item = $listDb->fetch())

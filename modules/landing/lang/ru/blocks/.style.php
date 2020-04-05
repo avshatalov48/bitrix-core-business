@@ -7,7 +7,9 @@ $MESS["LANDING_BLOCK_STYLE_BACKGROUND_GRADIENT"] = "Цвет фона (град�
 $MESS["LANDING_BLOCK_STYLE_BORDER_COLOR"] = "Цвет рамки";
 $MESS["LANDING_BLOCK_STYLE_FONT_SIZE"] = "Размер шрифта";
 $MESS["LANDING_BLOCK_STYLE_FONT_FAMILY"] = "Шрифт";
-$MESS["LANDING_BLOCK_STYLE_TEXT_TRANSFORM"] = "Начертание";
+$MESS["LANDING_BLOCK_STYLE_TEXT_WEIGHT"] = "Начертание";
+$MESS["LANDING_BLOCK_STYLE_TEXT_TRANSFORM2"] = "Регистр";
+$MESS["LANDING_BLOCK_STYLE_TEXT_DECORATION"] = "Оформление";
 $MESS["LANDING_BLOCK_STYLE_LINE_HEIGHT"] = "Интерлиньяж";
 $MESS["LANDING_BLOCK_STYLE_LETTER_SPACING"] = "Разрядка";
 $MESS["LANDING_BLOCK_STYLE_TEXT_SHADOW"] = "Тень текста";
@@ -22,12 +24,14 @@ $MESS["LANDING_BLOCK_STYLE_PADDING_BOTTOM"] = "Внутренний отступ
 $MESS["LANDING_BLOCK_STYLE_PADDING_LEFT"] = "Внутренний отступ слева";
 $MESS["LANDING_BLOCK_STYLE_PADDING_RIGHT"] = "Внутренний отступ справа";
 $MESS["LANDING_BLOCK_STYLE_MARGIN_TOP"] = "Внешний отступ сверху";
+$MESS["LANDING_BLOCK_STYLE_MARGIN_BOTTOM"] = "Внешний отступ снизу";
 $MESS["LANDING_BLOCK_STYLE_HEIGHT"] = "Высота";
 $MESS["LANDING_STYLE_DEFAULT"] = "По умолчанию";
 $MESS["LANDING_STYLE_UPPERCASE"] = "Прописные";
 $MESS["LANDING_STYLE_LOWERCASE"] = "Строчные";
-$MESS["LANDING_STYLE_UNDERLINE"] = "Подчеркнутые";
-$MESS["LANDING_STYLE_STRIKE"] = "Зачеркнутые";
+$MESS["LANDING_STYLE_CAPITALIZE"] = "С заглавной буквы";
+$MESS["LANDING_STYLE_UNDERLINE2"] = "Подчеркнутый";
+$MESS["LANDING_STYLE_STRIKE2"] = "Зачеркнутый";
 $MESS["LANDING_BLOCK_STYLE_COLUMNS_ON_ROW"] = "Колонок в одной строке";
 $MESS["LANDING_BLOCK_STYLE_DEVICE_DISPLAY"] = "Видимость на устройствах";
 $MESS["LANDING_TEXT_STYLE_WITHOUT_SHADOW"] = "Без тени";
@@ -43,19 +47,25 @@ $MESS["LANDING_BLOCK_STYLE_ANIMATION"] = "Анимация появления";
 $MESS["LANDING_BLOCK_STYLE_ANIMATION_NONE"] = "Без анимации";
 $MESS["LANDING_BLOCK_STYLE_BG_COLOR_BEFORE"] = "Цвет элемента";
 $MESS["LANDING_BLOCK_STYLE_BG_COLOR_BEFORE"] = "Цвет";
+$MESS["LANDING_BLOCK_STYLE_ALIGN_ITEMS"] = "Вертикальное выравнивание";
+
+$MESS["LANDING_BLOCK_STYLE_BACKGROUND_ATTACHMENT"] = "Положение фоновой картинки";
+$MESS["LANDING_BLOCK_STYLE_BACKGROUND_ATTACHMENT_FIXED"] = "Закрепить";
+$MESS["LANDING_BLOCK_STYLE_BACKGROUND_ATTACHMENT_SCROLL"] = "Прокручивать";
+
+$MESS["LANDING_BLOCK_STYLE_BACKGROUND_SIZE"] = "Отображение картинки";
+$MESS["LANDING_BLOCK_STYLE_BACKGROUND_SIZE_COVER"] = "Заполнение";
+$MESS["LANDING_BLOCK_STYLE_BACKGROUND_SIZE_CONTAIN"] = "По размеру";
 
 $MESS["LANDING_STYLE_AUTO"] = "Авто";
 
-//$MESS["LANDING_BLOCK_STYLE_SOCIAL"] = "Соцсеть";
-//$MESS["LANDING_BLOCK_STYLE_SOCIAL__TWITTER"] = "Twitter";
-//$MESS["LANDING_BLOCK_STYLE_SOCIAL__SKYPE"] = "Skype";
-//$MESS["LANDING_BLOCK_STYLE_SOCIAL__FACEBOOK"] = "Facebook";
-//$MESS["LANDING_BLOCK_STYLE_SOCIAL__PINTEREST"] = "Pinterest";
-//$MESS["LANDING_BLOCK_STYLE_SOCIAL__VINE"] = "Vine";
-//$MESS["LANDING_BLOCK_STYLE_SOCIAL__YOUTUBE"] = "Youtube";
-//$MESS["LANDING_BLOCK_STYLE_SOCIAL__GOOGLE-PLUS"] = "Google-plus";
-//$MESS["LANDING_BLOCK_STYLE_SOCIAL__DRIBBBLE"] = "Dribbble";
-//$MESS["LANDING_BLOCK_STYLE_SOCIAL__VK"] = "Vk";
-//$MESS["LANDING_BLOCK_STYLE_SOCIAL__INSTAGRAM"] = "Instagram";
-//$MESS["LANDING_BLOCK_STYLE_SOCIAL__LINKEDIN"] = "LinkedIn";
-//$MESS["LANDING_BLOCK_STYLE_SOCIAL__ODNOKLASSNIKI"] = "Odnoklassniki";
+$MESS["LANDING_BLOCK_STYLE_NAVBAR_COLOR"] = "Цвет ссылок";
+$MESS["LANDING_BLOCK_STYLE_NAVBAR_COLOR_HOVER"] = "Цвет активных ссылок";
+$MESS["LANDING_BLOCK_STYLE_NAVBAR_COLOR_FIX_MOMENT"] = "Цвет ссылок (при прокрутке)";
+$MESS["LANDING_BLOCK_STYLE_NAVBAR_COLOR_FIX_MOMENT_HOVER"] = "Цвет активных ссылок (при прокрутке)";
+$MESS["LANDING_BLOCK_STYLE_NAVBAR_ALIGN"] = "Выравнивание ссылок";
+
+$MESS["LANDING_STYLE_WEIGHT_BOLD"] = "Полужирный";
+//$MESS["LANDING_STYLE_WEIGHT_LIGHT"] = "Тонкий";
+$MESS["LANDING_STYLE_ITALIC"] = "Курсив";
+

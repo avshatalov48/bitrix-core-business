@@ -5,6 +5,10 @@ global $APPLICATION;
 global $DB;
 global $USER;
 
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+$listUrl = $selfFolderUrl."cat_measure_list.php?lang=".LANGUAGE_ID;
+$listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
+
 if(!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_store')))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 CModule::IncludeModule("catalog");
@@ -35,7 +39,10 @@ if($_REQUEST["OKEI"] == "Y")
 	$classifierMode = true;
 	$arMeasureClassifier = CCatalogMeasureClassifier::getMeasureClassifier();
 	if(!is_array($arMeasureClassifier))
-		LocalRedirect("/bitrix/admin/cat_measure_list.php?lang=".LANGUAGE_ID."&".GetFilterParams("filter_", false));
+	{
+		$adminSidePanelHelper->localRedirect($listUrl);
+		LocalRedirect($listUrl);
+	}
 	if(isset($_REQUEST["main_section"]) && intval($_REQUEST["main_section"] < count($arMeasureClassifier)))
 		$mainSectionId = intval($_REQUEST["main_section"]);
 	if(isset($_REQUEST["sub_section"]) && intval($_REQUEST["sub_section"] <= 6))
@@ -160,12 +167,14 @@ $userId = intval($USER->GetID());
 		var mainSectionId = BX('CLASSIFIER_MAIN_SECTION').value;
 		var subSectionId = BX('CLASSIFIER_SUB_SECTION').value;
 
-		window['<?=$sTableID?>'].GetAdminList("/bitrix/admin/cat_measure_edit.php?OKEI=Y&main_section=" + mainSectionId + "&sub_section=" + subSectionId + '&lang=<? echo LANGUAGE_ID;?>');
+		window['<?=$sTableID?>'].GetAdminList("<?=$selfFolderUrl?>cat_measure_edit.php?OKEI=Y&main_section=" + mainSectionId + "&sub_section=" + subSectionId + '&lang=<? echo LANGUAGE_ID;?>' + '&public=y');
 	}
 </script>
 <?
 if($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_REQUEST["Update"]) > 0 && !$bReadOnly && check_bitrix_sessid())
 {
+	$adminSidePanelHelper->decodeUriComponent();
+
 	$IS_DEFAULT = ($_REQUEST["IS_DEFAULT"] == 'Y') ? 'Y' : 'N';
 
 	if(intval($_REQUEST["CODE"]) <= 0)
@@ -187,6 +196,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_REQUEST["Update"]) > 0 && !$
 		$ID = $res;
 		$DB->Commit();
 
+		$adminSidePanelHelper->sendSuccessResponse("apply", array("ID" => $ID));
+
 		if(strlen($_REQUEST["apply"])<=0)
 			LocalRedirect("/bitrix/admin/cat_measure_list.php?lang=".LANG."&".GetFilterParams("filter_", false));
 		else
@@ -196,10 +207,20 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_REQUEST["Update"]) > 0 && !$
 	{
 		$ID = $res;
 		$DB->Commit();
-		if(strlen($_REQUEST["apply"]) <= 0)
-			LocalRedirect("/bitrix/admin/cat_measure_list.php?lang=".LANG."&".GetFilterParams("filter_", false));
+
+		if (strlen($_REQUEST["apply"]) <= 0)
+		{
+			$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
+			$adminSidePanelHelper->localRedirect($listUrl);
+			LocalRedirect($listUrl);
+		}
 		else
-			LocalRedirect("/bitrix/admin/cat_measure_edit.php?lang=".LANG."&ID=".$ID."&".GetFilterParams("filter_", false));
+		{
+			$applyUrl = $selfFolderUrl."cat_measure_edit.php?lang=".LANGUAGE_ID."&ID=".$ID;
+			$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
+			$adminSidePanelHelper->sendSuccessResponse("apply", array("reloadUrl" => $applyUrl));
+			LocalRedirect($applyUrl);
+		}
 	}
 	else
 	{
@@ -209,6 +230,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_REQUEST["Update"]) > 0 && !$
 		}
 		$bVarsFromForm = true;
 		$DB->Rollback();
+
+		$adminSidePanelHelper->sendJsonErrorResponse($errorMessage);
 	}
 }
 
@@ -245,24 +268,31 @@ $aMenu = array(
 	array(
 		"TEXT" => GetMessage("CAT_MEASURE_LIST"),
 		"ICON" => "btn_list",
-		"LINK" => "/bitrix/admin/cat_measure_list.php?lang=".LANG."&".GetFilterParams("filter_", false)
+		"LINK" => $listUrl
 	)
 );
 
 if($ID > 0 && !$bReadOnly)
 {
 	$aMenu[] = array("SEPARATOR" => "Y");
-
+	$addUrl = $selfFolderUrl."cat_measure_edit.php?lang=".LANGUAGE_ID;
+	$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
 	$aMenu[] = array(
 		"TEXT" => GetMessage("CAT_MEASURE_ADD"),
 		"ICON" => "btn_new",
-		"LINK" => "/bitrix/admin/cat_measure_edit.php?lang=".LANG."&".GetFilterParams("filter_", false)
+		"LINK" => $addUrl
 	);
-
+	$deleteUrl = $selfFolderUrl."cat_measure_list.php?action=delete&ID[]=".$ID."&lang=".LANG."&".bitrix_sessid_get()."#tb";
+	$buttonAction = "LINK";
+	if ($adminSidePanelHelper->isPublicFrame())
+	{
+		$deleteUrl = $adminSidePanelHelper->editUrlToPublicPage($deleteUrl);
+		$buttonAction = "ONCLICK";
+	}
 	$aMenu[] = array(
 		"TEXT" => GetMessage("CAT_MEASURE_DELETE"),
 		"ICON" => "btn_delete",
-		"LINK" => "javascript:if(confirm('".GetMessage("CAT_MEASURE_DELETE_CONFIRM")."')) window.location='/bitrix/admin/cat_measure_list.php?action=delete&ID[]=".$ID."&lang=".LANG."&".bitrix_sessid_get()."#tb';",
+		$buttonAction => "javascript:if(confirm('".GetMessage("CAT_MEASURE_DELETE_CONFIRM")."')) top.window.location.href='".$deleteUrl."';",
 		"WARNING" => "Y"
 	);
 }
@@ -271,8 +301,11 @@ $context->Show();
 ?>
 
 <?CAdminMessage::ShowMessage($errorMessage);?>
-
-<form enctype="multipart/form-data" method="POST" action="<?echo $APPLICATION->GetCurPage()?>?" name="catalog_measure_edit">
+<?
+$actionUrl = $APPLICATION->GetCurPage();
+$actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
+?>
+<form enctype="multipart/form-data" method="POST" action="<?=$actionUrl?>" name="catalog_measure_edit">
 	<?echo GetFilterHiddens("filter_");?>
 	<input type="hidden" name="Update" value="Y">
 	<input type="hidden" name="lang" value="<?echo LANG ?>">
@@ -373,12 +406,7 @@ $context->Show();
 $tabControl->EndTab();
 if(!$classifierMode)
 {
-	$tabControl->Buttons(
-		array(
-			"disabled" => $bReadOnly,
-			"back_url" => "/bitrix/admin/cat_measure_list.php?lang=".LANG."&".GetFilterParams("filter_", false)
-		)
-	);
+	$tabControl->Buttons(array("disabled" => $bReadOnly, "back_url" => $listUrl));
 }
 $tabControl->End();
 ?>

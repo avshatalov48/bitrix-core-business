@@ -51,6 +51,9 @@ class LogCommentTable extends Entity\DataManager
 			'LOG_DATE' => array(
 				'data_type' => 'datetime',
 			),
+			'SHARE_DEST' => array(
+				'data_type' => 'string',
+			),
 		);
 
 		return $fieldsMap;

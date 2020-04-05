@@ -339,6 +339,11 @@
 	margin-top: 0;
 	border-radius: 50%;
 }
+
+.bx-finder-box-item-t7-avatar-custom {
+	background: none!important;
+}
+
 .bx-finder-box-item-avatar-status {
 	width: 13px;
 	height: 13px;

@@ -744,25 +744,6 @@ body{
 .whsn{white-space:normal}
 .whsnw{white-space:nowrap}
 .w100p{width: 100%;}
-
-/* ===== Debug class ===== */
-.dbg1{background-color:rgba(0,0,255,.3)}
-.dbg2{background-color:rgba(0,255,0,.3)}
-.dbg3{background-color:rgba(255,0,0,.3)}
-.debug{
-	font-size:11px;
-	padding:5px;
-	color:#2d2d2d;
-	background:#f5ffdb;
-	border:1px solid #d0dbb1;
-}
-#debsizing{font-weight:bold}
-@media (min-width:1100px){#debsizing:before{content:"1100px < "}}
-@media (min-width:769px) and (max-width:1099px){#debsizing:before{content:"769px < "}#debsizing:after{content:" < 1099px"}}
-@media (min-width:641px) and (max-width:768px) {#debsizing:before{content:"641px < "}#debsizing:after{content:" < 768px" }}
-@media (min-width:481px) and (max-width:640px) {#debsizing:before{content:"481px < "}#debsizing:after{content:" < 640px" }}
-@media (min-width:280px) and (max-width:480px) {#debsizing:before{content:"280px < "}#debsizing:after{content:" < 480px" }}
-
 /******* by Wasil *******/
 .order_infoblock_order_green{
 	background: #d9f8d9;

@@ -198,7 +198,16 @@
 
 		onPictureChange: function(path)
 		{
-			this.onChange({link: path, ext: BX.util.getExtension(path)});
+			var url = BX.util.add_url_param("/bitrix/tools/landing/proxy.php", {
+				"sessid": BX.bitrix_sessid(),
+				"url": path
+			});
+
+			this.onChange({
+				link: url,
+				ext: BX.util.getExtension(path),
+				name: BX.Landing.Utils.getFileName(path)
+			});
 		},
 
 		createKeyError: function()

@@ -70,6 +70,7 @@ class SenderRcListComponent extends CBitrixComponent
 				'CODE' => $message->getCode(),
 				'NAME' => $message->getName(),
 				'IS_AVAILABLE' => $message->isAvailable(),
+				'IS_HIDDEN' => $message->isHidden(),
 				'URL' => str_replace(
 					array('#code#', urlencode('#code#')),
 					$message->getCode(),
@@ -123,7 +124,7 @@ class SenderRcListComponent extends CBitrixComponent
 
 		$this->arResult['STATE_LIST'] = Dispatch\State::getList();
 
-		$this->arResult['MESSAGES'] =$this->getSenderMessages();
+		$this->arResult['MESSAGES'] = $this->getSenderMessages();
 		$this->arResult['CAMPAIGNS'] = array();
 		$campaigns = Entity\Campaign::getList(array('select' => array('ID', 'NAME')));
 		foreach ($campaigns as $campaign)

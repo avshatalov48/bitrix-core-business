@@ -92,14 +92,16 @@ if (\Bitrix\Main\Context::getCurrent()->getRequest()->isAjaxRequest())
 
 <script>
 	BX(function() {
-		var actionPanel = new BX.UI.ActionPanel({
-			params: {
-				tileGridId: '<?=$arParams["GRID_ID"]?>'
-			},
-			renderTo: document.getElementById("<?= CUtil::JSEscape($arParams['TOP_ACTION_PANEL_RENDER_TO']) ?>"),
-			groupActions: <?= \Bitrix\Main\Web\Json::encode($arParams['ACTION_PANEL']) ?>
-		});
-		actionPanel.draw();
+		<? if(isset($arParams['TOP_ACTION_PANEL_RENDER_TO'])): ?>
+			var actionPanel = new BX.UI.ActionPanel({
+				params: {
+					tileGridId: '<?=$arParams["GRID_ID"]?>'
+				},
+				renderTo: document.querySelector("<?= CUtil::JSEscape($arParams['TOP_ACTION_PANEL_RENDER_TO']) ?>"),
+				groupActions: <?= \Bitrix\Main\Web\Json::encode($arParams['ACTION_PANEL']) ?>
+			});
+			actionPanel.draw();
+		<? endif; ?>
 
 		var gridTile = new BX.Main.TileGrid(
 			{
@@ -107,6 +109,7 @@ if (\Bitrix\Main\Context::getCurrent()->getRequest()->isAjaxRequest())
 				tileSize: '<?= $arParams['TILE_SIZE']?>',
 				container: document.getElementById('<?= $arParams['GRID_ID'] ?>_tile_grid_container'),
 				items: <?= \Bitrix\Main\Web\Json::encode($arResult['TILE_GRID_ITEMS']) ?>,
+				checkBoxing: true,
 				itemType: '<?= CUtil::JSEscape($arParams['JS_CLASS_TILE_GRID_ITEM']) ?>',
 				userOptions: <?=\Bitrix\Main\Web\Json::encode($arResult['OPTIONS'])?>,
 				userOptionsActions: <?=\Bitrix\Main\Web\Json::encode($arResult['OPTIONS_ACTIONS'])?>,

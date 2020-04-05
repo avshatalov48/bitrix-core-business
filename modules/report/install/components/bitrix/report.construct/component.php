@@ -3,6 +3,8 @@
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
+$arParams['REPORT_ID'] = isset($arParams['REPORT_ID']) ? (int)$arParams['REPORT_ID'] : 0;
+
 $requiredModules = array('report');
 
 foreach ($requiredModules as $requiredModule)
@@ -14,7 +16,10 @@ foreach ($requiredModules as $requiredModule)
 	}
 }
 
-if (!isset($arParams['REPORT_HELPER_CLASS']) || strlen($arParams['REPORT_HELPER_CLASS']) < 1)
+if (!isset($arParams['REPORT_HELPER_CLASS'])
+	|| strlen($arParams['REPORT_HELPER_CLASS']) < 1
+	|| !class_exists($arParams['REPORT_HELPER_CLASS'])
+	|| !is_subclass_of($arParams['REPORT_HELPER_CLASS'], 'CReportHelper'))
 {
 	ShowError(GetMessage("REPORT_HELPER_NOT_DEFINED"));
 	return 0;
@@ -54,17 +59,17 @@ if ($arParams['USE_CHART'])
 		array('id' => 'line', 'name' => GetMessage('REPORT_CHART_TYPE_LINE1'), 'value_types' => array(
 			/*'boolean', 'date', 'datetime', */
 			'float', 'integer'/*, 'string', 'text', 'enum', 'file', 'disk_file', 'employee', 'crm', 'crm_status',
-			'iblock_element', 'iblock_section'*/
+			'iblock_element', 'iblock_section', 'money'*/
 		)),
 		array('id' => 'bar', 'name' => GetMessage('REPORT_CHART_TYPE_BAR1'), 'value_types' => array(
 			/*'boolean', 'date', 'datetime', */
 			'float', 'integer'/*, 'string', 'text', 'enum', 'file', 'disk_file', 'employee', 'crm', 'crm_status',
-			'iblock_element', 'iblock_section'*/
+			'iblock_element', 'iblock_section', 'money'*/
 		)),
 		array('id' => 'pie', 'name' => GetMessage('REPORT_CHART_TYPE_PIE'), 'value_types' => array(
 			/*'boolean', 'date', 'datetime', */
 			'float', 'integer'/*, 'string', 'text', 'enum', 'file', 'disk_file', 'employee', 'crm', 'crm_status',
-			'iblock_element', 'iblock_section'*/
+			'iblock_element', 'iblock_section', 'money'*/
 		))
 	);
 }
@@ -80,8 +85,6 @@ try
 	$ownerId = call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'getOwnerId'));
 	$entityName = call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'getEntityName'));
 	$entityFields = call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'getColumnList'));
-	$arResult['ufEnumerations'] = call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'getUFEnumerations'));
-
 	// customize entity
 	$initEntity = clone Entity\Base::getInstance($entityName);
 	call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'setRuntimeFields'), $initEntity, '');
@@ -248,6 +251,7 @@ try
 		// </editor-fold>
 
 		// <editor-fold defaultstate="collapsed" desc="preapre period">
+		$period = [];
 		if (!empty($_POST['F_DATE_TYPE']) && in_array($_POST['F_DATE_TYPE'], $periodTypes, true))
 		{
 			$period = array('type' => $_POST['F_DATE_TYPE']);
@@ -290,6 +294,10 @@ try
 		else
 		{
 			$period = array('type' => 'month', 'value' => null);
+		}
+		if (isset($_POST['period_hidden']))
+		{
+			$period['hidden'] = ($_POST['period_hidden'] === 'Y' ? 'Y' : 'N');
 		}
 		// </editor-fold>
 

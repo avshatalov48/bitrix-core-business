@@ -118,14 +118,18 @@
 	}
 	Configuration.prototype =
 	{
-		getInputs: function ()
+		getInputs: function (options)
 		{
+			options = options || {};
+			options.disableChecked = options.disableChecked || false;
+			var checked = options.disableChecked ? '' : ':checked';
+
 			var inputs = this.manager.context.querySelectorAll(
 				'select, textarea, ' +
 				'input[type="text"], ' +
 				'input[type="hidden"], ' +
-				'input[type="radio"]:checked, ' +
-				'input[type="checkbox"]:checked'
+				'input[type="radio"]' + checked + ', ' +
+				'input[type="checkbox"]' + checked
 			);
 			inputs = BX.convert.nodeListToArray(inputs);
 
@@ -146,11 +150,20 @@
 		},
 		set: function (data)
 		{
-			this.getInputs().forEach(function (input) {
+			this.getInputs({disableChecked: true}).forEach(function (input) {
 				var name = this.getInputName(input);
 				if (data[name])
 				{
-					input.value = data[name];
+					switch (input.type)
+					{
+						case 'checkbox':
+							input.checked = input.value === data[name];
+							break;
+
+						default:
+							input.value = data[name];
+					}
+
 					BX.fireEvent(input, 'change');
 				}
 			}, this);

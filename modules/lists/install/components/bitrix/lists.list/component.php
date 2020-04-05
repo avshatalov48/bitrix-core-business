@@ -383,6 +383,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['error']))
 	}
 }
 
+$arResult["GRID_MESSAGES"] = array();
+if ($strError <> "")
+{
+	$arResult["GRID_MESSAGES"] = array(
+		array(
+			"TYPE" => Bitrix\Main\Grid\MessageType::ERROR,
+			"TEXT" => $strError
+		)
+	);
+}
+
 $grid_options = new Bitrix\Main\Grid\Options($arResult["GRID_ID"]);
 $grid_columns = $grid_options->GetVisibleColumns();
 $grid_sort = $grid_options->GetSorting(array("sort"=>array("name"=>"asc")));
@@ -631,16 +642,16 @@ if(!empty($filterData["list_section_id"]))
 
 $arFilter["IBLOCK_ID"] = $arIBlock["ID"];
 $arFilter["CHECK_PERMISSIONS"] = ($lists_perm >= CListPermissions::CAN_READ? "N": "Y");
-if(!$arResult["ANY_SECTION"])
+$listChildSection = array();
+if (!$arResult["ANY_SECTION"])
 {
-	$listChildSection = array();
 	CLists::getChildSection($arResult["SECTION_ID"], $arResult["SECTIONS"], $listChildSection);
 	$arFilter["SECTION_ID"] = $listChildSection;
 }
 
 $arResult["ELEMENTS_ROWS"] = array();
 $arResult["SHOW_SECTION_GRID"] = CUserOptions::getOption("lists_show_section_grid", $arResult["GRID_ID"], "N");
-if($arResult["SHOW_SECTION_GRID"] == "Y")
+if ($arResult["SHOW_SECTION_GRID"] == "Y")
 {
 	foreach($arResult["SECTIONS"] as $section)
 	{
@@ -694,6 +705,15 @@ if($arResult["SHOW_SECTION_GRID"] == "Y")
 				<td class="lists-section-text">'.$section["NAME_HTML_LABLE"].'</td></tr></table>',
 			),
 		);
+	}
+
+	if ($arResult["ANY_SECTION"])
+	{
+		$arFilter["SECTION_ID"] = false;
+	}
+	else
+	{
+		$arFilter["SECTION_ID"] = $arResult["SECTION_ID"];
 	}
 }
 
@@ -1002,25 +1022,29 @@ while($obElement = $rsElements->GetNextElement())
 					continue;
 
 				/* Stop workflow */
-				if(
-					strlen($documentState["ID"]) &&
-					CIBlockElementRights::userHasRightTo($arIBlock["ID"], $data["ID"], "element_edit") &&
-					strlen($documentState["WORKFLOW_STATUS"])
-				)
+				if (strlen($documentState["ID"]) && strlen($documentState["WORKFLOW_STATUS"]))
 				{
-					$actionsProcess[] = array(
-						"TEXT" => GetMessage("CT_BLL_BIZPROC_STOP"),
-						"ONCLICK" => "javascript:BX.Lists['".$arResult['JS_OBJECT']."']
+					if (CBPDocument::CanUserOperateDocument(
+						CBPCanUserOperateOperation::StartWorkflow,
+						$GLOBALS["USER"]->GetID(),
+						BizprocDocument::getDocumentComplexId($arIBlock["IBLOCK_TYPE_ID"], $data["ID"]),
+						array("UserGroups" => $currentUserGroups))
+					)
+					{
+						$actionsProcess[] = array(
+							"TEXT" => GetMessage("CT_BLL_BIZPROC_STOP"),
+							"ONCLICK" => "javascript:BX.Lists['".$arResult['JS_OBJECT']."']
 							.performActionBp('".$documentState['ID']."', ".$data["ID"].", 'stop');",
-					);
+						);
+					}
 				}
 				/* Removal workflow */
-				if(strlen($documentState["STATE_NAME"]) && strlen($documentState["ID"]))
+				if (strlen($documentState["STATE_NAME"]) && strlen($documentState["ID"]))
 				{
-					if(CBPDocument::CanUserOperateDocumentType(
+					if (CBPDocument::CanUserOperateDocument(
 						CBPCanUserOperateOperation::CreateWorkflow,
 						$GLOBALS["USER"]->GetID(),
-						BizprocDocument::getDocumentComplexId($arIBlock["IBLOCK_TYPE_ID"], $arResult["IBLOCK_ID"]),
+						BizprocDocument::getDocumentComplexId($arIBlock["IBLOCK_TYPE_ID"], $data["ID"]),
 						array("UserGroups" => $currentUserGroups))
 					)
 					{
@@ -1061,12 +1085,6 @@ while($obElement = $rsElements->GetNextElement())
 					$listProcesses[] = array(
 						"TEXT" => $documentState["TEMPLATE_NAME"] ." (". $documentState["STARTED"].")",
 						"MENU" => $actionsProcess,
-					);
-				}
-				else
-				{
-					$listProcesses[] = array(
-						"TEXT" => $documentState["TEMPLATE_NAME"] ." (". $documentState["STARTED"].")",
 					);
 				}
 			}

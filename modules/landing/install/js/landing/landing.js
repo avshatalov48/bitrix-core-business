@@ -27,13 +27,13 @@
 	var PlusButton = BX.Landing.UI.Button.Plus;
 	var ContentPanel = BX.Landing.UI.Panel.Content;
 
-	var ZONE_RU = ".ru";
-	var ZONE_BY = ".by";
-	var ZONE_KZ = ".kz";
-	var ZONE_ES = ".es";
-	var ZONE_DE = ".de";
-	var ZONE_COM_BR = ".com.br";
-	var ZONE_UA = ".ua";
+	var LANG_RU = "ru";
+	var LANG_BY = "by";
+	var LANG_KZ = "kz";
+	var LANG_LA = "la";
+	var LANG_DE = "de";
+	var LANG_BR = "br";
+	var LANG_UA = "ua";
 
 
 	/**
@@ -84,6 +84,22 @@
 		BX.addCustomEvent("Landing.Block:onAfterDelete", this.onBlockDelete);
 
 		this.adjustEmptyAreas();
+
+		if (this.options.blocks)
+		{
+			if (!this.blocksPanel)
+			{
+				this.blocksPanel = this.createBlocksPanel();
+				this.onBlocksListCategoryChange("last");
+				this.blocksPanel.layout.hidden = true;
+				append(this.blocksPanel.layout, document.body);
+			}
+
+			this.blocksPanel.content.hidden = false;
+		}
+
+		BX.Landing.UI.Panel.StatusPanel.setLastModified(options.lastModified);
+		BX.Landing.UI.Panel.StatusPanel.getInstance().show();
 	};
 
 	/** @type {string} */
@@ -183,10 +199,87 @@
 		 */
 		createInsertBlockButton: function(area)
 		{
-			return new PlusButton("insert_first_block", {
-				text: BX.message("ACTION_BUTTON_CREATE"),
-				onClick: this.showBlocksPanel.bind(this, null, area)
+			var button = new PlusButton("insert_first_block", {
+				text: BX.message("ACTION_BUTTON_CREATE")
 			});
+
+			button.on("click", this.showBlocksPanel.bind(this, null, area, button));
+			button.on("mouseover", this.onCreateButtonMouseover.bind(this, area, button));
+			button.on("mouseout", this.onCreateButtonMouseout.bind(this, area, button));
+
+			return button;
+		},
+
+		onCreateButtonMouseover: function(area, button)
+		{
+			if (hasClass(area, "landing-header") ||
+				hasClass(area, "landing-footer"))
+			{
+				var areas = this.getLayoutAreas();
+
+				if (areas.length > 1)
+				{
+					switch (true)
+					{
+						case hasClass(area, "landing-main"):
+							button.setText([
+								BX.message("ACTION_BUTTON_CREATE"),
+								BX.message("LANDING_ADD_BLOCK_TO_MAIN")
+							].join(" "));
+							break;
+						case hasClass(area, "landing-header"):
+							button.setText([
+								BX.message("ACTION_BUTTON_CREATE"),
+								BX.message("LANDING_ADD_BLOCK_TO_HEADER")
+							].join(" "));
+							break;
+						case hasClass(area, "landing-sidebar"):
+							button.setText([
+								BX.message("ACTION_BUTTON_CREATE"),
+								BX.message("LANDING_ADD_BLOCK_TO_SIDEBAR")
+							].join(" "));
+							break;
+						case hasClass(area, "landing-footer"):
+							button.setText([
+								BX.message("ACTION_BUTTON_CREATE"),
+								BX.message("LANDING_ADD_BLOCK_TO_FOOTER")
+							].join(" "));
+							break;
+					}
+
+					clearTimeout(this.fadeTimeout);
+
+					this.fadeTimeout = setTimeout(function() {
+						addClass(area, "landing-area-highlight");
+						areas.forEach(function(currentArea) {
+							if (currentArea !== area)
+							{
+								addClass(currentArea, "landing-area-fade");
+							}
+						}, this);
+					}.bind(this), 400);
+				}
+			}
+		},
+
+		onCreateButtonMouseout: function(area, button)
+		{
+			clearTimeout(this.fadeTimeout);
+
+			if (hasClass(area, "landing-header") ||
+				hasClass(area, "landing-footer"))
+			{
+				var areas = this.getLayoutAreas();
+
+				if (areas.length > 1)
+				{
+					button.setText(BX.message("ACTION_BUTTON_CREATE"));
+					areas.forEach(function(currentArea) {
+						removeClass(currentArea, "landing-area-highlight");
+						removeClass(currentArea, "landing-area-fade");
+					}, this);
+				}
+			}
 		},
 
 		/**
@@ -314,21 +407,18 @@
 		 * Shows blocks list panel
 		 * @param {BX.Landing.Block} block
 		 * @param {HTMLElement} [area]
+		 * @param [button]
 		 */
-		showBlocksPanel: function(block, area)
+		showBlocksPanel: function(block, area, button)
 		{
 			this.currentBlock = block;
 			this.currentArea = area;
-
-			if (!this.blocksPanel)
-			{
-				this.blocksPanel = this.createBlocksPanel();
-				this.onBlocksListCategoryChange("last");
-				append(this.blocksPanel.layout, document.body);
-			}
-
-			this.blocksPanel.content.hidden = false;
 			this.blocksPanel.show();
+
+			if (!!area && !!button)
+			{
+				this.onCreateButtonMouseout(area, button);
+			}
 		},
 
 
@@ -343,7 +433,8 @@
 
 			var panel = new ContentPanel("blocks_panel", {
 				title: BX.message("LANDING_CONTENT_BLOCKS_TITLE"),
-				className: "landing-ui-panel-block-list"
+				className: "landing-ui-panel-block-list",
+				scrollAnimation: true
 			});
 
 			categories.forEach(function(categoryId) {
@@ -385,8 +476,7 @@
 					className: "landing-ui-panel-feedback"
 				});
 				append(this.sliderFeedback.layout, document.body);
-				this.sliderFormLoader = new BX.Landing.UI.Card.Loader();
-				append(this.sliderFormLoader.layout, this.sliderFeedback.content);
+				this.sliderFormLoader = new BX.Loader({target: this.sliderFeedback.content});
 				this.sliderFormLoader.show();
 				this.initFeedbackForm();
 			}
@@ -396,6 +486,7 @@
 			data.siteId = this.options.site_id;
 			data.siteUrl = this.options.url;
 			data.siteTemplate = this.options.xml_id;
+			data.productType = this.options.productType || "Undefined";
 
 			var form = this.getFeedbackFormOptions();
 
@@ -416,46 +507,31 @@
 
 
 		/**
-		 * Gets current domain zone
-		 * @return {?string}
-		 */
-		getDomainZone: function()
-		{
-			var hostName = window.location.hostname;
-
-			return [ZONE_RU, ZONE_BY, ZONE_KZ, ZONE_ES, ZONE_DE, ZONE_COM_BR, ZONE_UA]
-				.find(function(zone) {
-					return hostName.includes(zone);
-				});
-		},
-
-
-		/**
 		 * Gets feedback form options
 		 * @return {{id: string, sec: string, lang: string}}
 		 */
 		getFeedbackFormOptions: function()
 		{
-			var currentDomainZone = this.getDomainZone();
+			var currentLanguage = BX.message("LANGUAGE_ID");
 			var options = {"id": "16", "sec": "3h483y", "lang": "en"};
 
-			switch (currentDomainZone)
+			switch (currentLanguage)
 			{
-				case ZONE_RU:
-				case ZONE_BY:
-				case ZONE_KZ:
+				case LANG_RU:
+				case LANG_BY:
+				case LANG_KZ:
 					options = {"id": "8", "sec": "x80yjw", "lang": "ru"};
 					break;
-				case ZONE_ES:
+				case LANG_LA:
 					options = {"id": "14", "sec": "wu561i", "lang": "la"};
 					break;
-				case ZONE_DE:
+				case LANG_DE:
 					options = {"id": "10", "sec": "eraz2q", "lang": "de"};
 					break;
-				case ZONE_COM_BR:
+				case LANG_BR:
 					options = {"id": "12", "sec": "r6wvge", "lang": "br"};
 					break;
-				case ZONE_UA:
+				case LANG_UA:
 					options = {"id": "18", "sec": "d9e09o", "lang": "ua"};
 					break;
 			}
@@ -549,6 +625,13 @@
 				var block = this.options.blocks[category].items[blockKey];
 				this.blocksPanel.appendCard(this.createBlockCard(blockKey, block));
 			}, this);
+
+			if (this.blocksPanel.content.scrollTop)
+			{
+				requestAnimationFrame(function() {
+					this.blocksPanel.content.scrollTop = 0;
+				}.bind(this));
+			}
 		},
 
 		getBlockFromRepository: function(code)
@@ -575,6 +658,17 @@
 			window.localStorage.landingBlockId = block.id;
 			window.localStorage.landingBlockName = block.manifest.block.name;
 			window.localStorage.landingBlockAction = "copy";
+
+			try
+			{
+				window.localStorage.requiredUserAction = JSON.stringify(
+					block.requiredUserActionOptions
+				);
+			}
+			catch(err)
+			{
+				window.localStorage.requiredUserAction = "";
+			}
 		},
 
 
@@ -587,6 +681,17 @@
 			window.localStorage.landingBlockId = block.id;
 			window.localStorage.landingBlockName = block.manifest.block.name;
 			window.localStorage.landingBlockAction = "cut";
+
+			try
+			{
+				window.localStorage.requiredUserAction = JSON.stringify(
+					block.requiredUserActionOptions
+				);
+			}
+			catch(err)
+			{
+				window.localStorage.requiredUserAction = "";
+			}
 
 			top.BX.Landing.Block.storage.remove(block);
 			remove(block.node);

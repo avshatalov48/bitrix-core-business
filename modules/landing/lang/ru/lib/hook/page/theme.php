@@ -12,7 +12,7 @@ $MESS['LANDING_HOOK_THEMECODE-ARCHITECTURE'] = 'Закат солнца';
 $MESS['LANDING_HOOK_THEMECODE-CHARITY'] = 'Желтый';
 $MESS['LANDING_HOOK_THEMECODE-CONSULTING'] = 'Светло-зелёное море';
 $MESS['LANDING_HOOK_THEMECODE-COURSES'] = 'Умеренный аквамариновый';
-$MESS['LANDING_HOOK_THEMECODE-EVENT-NEW'] = 'Амарантовый';
+$MESS['LANDING_HOOK_THEMECODE-EVENT'] = 'Амарантовый';
 $MESS['LANDING_HOOK_THEMECODE-GYM'] = 'Индиго Крайола';
 $MESS['LANDING_HOOK_THEMECODE-LAWYER'] = 'Карминно-розовый';
 $MESS['LANDING_HOOK_THEMECODE-MUSIC'] = 'Дикий арбуз';
@@ -24,6 +24,7 @@ $MESS['LANDING_HOOK_THEMECODE-SPA'] = 'Цитрусовый';
 $MESS['LANDING_HOOK_THEMECODE-TRAVEL'] = 'Киноварь';
 $MESS['LANDING_HOOK_THEMECODE-WEDDING'] = 'Клюквенный';
 
+//this messages not use anywhere. If they will be needed - may change text without change message code
 $MESS['LANDING_HOOK_THEMETYPO'] = 'Настройки шрифтов';
 $MESS['LANDING_HOOK_THEMETYPO_BUSINESS_NEW'] = 'Business';
 $MESS['LANDING_HOOK_THEMETYPO_CONSTRUCTION_NEW'] = 'Construction';

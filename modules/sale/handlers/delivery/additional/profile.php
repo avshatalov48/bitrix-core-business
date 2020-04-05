@@ -13,6 +13,7 @@ use Bitrix\Sale\Delivery\Services\Manager;
 use Bitrix\Sale\Delivery\CalculationResult;
 use Bitrix\Sale\ShipmentCollection;
 use Sale\Handlers\Delivery\Additional\RestClient;
+use Sale\Handlers\Delivery\Additional\RusPost\Helper;
 
 Loc::loadMessages(__FILE__);
 
@@ -63,18 +64,29 @@ class AdditionalProfile extends \Bitrix\Sale\Delivery\Services\Base
 					$this->logotip = $profileParams['LOGOTIP'];
 			}
 
-			$parentConfig = $this->additionalHandler->getConfigValues();
-
-			if($parentConfig['MAIN']['SERVICE_TYPE'] == "RUSPOST")
+			if($this->isRusPost())
 			{
-				if(isset($profileParams['IS_OTPRAVKA_SUPPORTED']) && $profileParams['IS_OTPRAVKA_SUPPORTED'] == 'Y')
-					$this->config['MAIN']['IS_OTPRAVKA_SUPPORTED'] = 'Y';
-				else
-					$this->config['MAIN']['IS_OTPRAVKA_SUPPORTED'] = 'N';
+				if(empty($this->config['MAIN']['IS_OTPRAVKA_SUPPORTED']))
+				{
+					if(isset($profileParams['IS_OTPRAVKA_SUPPORTED']) && $profileParams['IS_OTPRAVKA_SUPPORTED'] == 'Y')
+					{
+						$this->config['MAIN']['IS_OTPRAVKA_SUPPORTED'] = 'Y';
+					}
+					else
+					{
+						$this->config['MAIN']['IS_OTPRAVKA_SUPPORTED'] = 'N';
+					}
+				}
 			}
 		}
 
 		$this->inheritParams();
+	}
+
+	protected function isRusPost()
+	{
+		$parentConfig = $this->additionalHandler->getConfigValues();
+		return $parentConfig['MAIN']['SERVICE_TYPE'] == "RUSPOST";
 	}
 
 	/**
@@ -122,7 +134,11 @@ class AdditionalProfile extends \Bitrix\Sale\Delivery\Services\Base
 		$this->trackingClass = $this->additionalHandler->getTrackingClass();
 		$this->trackingTitle = $this->additionalHandler->getTrackingClassTitle();
 		$this->trackingDescription = $this->additionalHandler->getTrackingClassDescription();
-		$this->deliveryRequestHandler = $this->additionalHandler->getDeliveryRequestHandler();
+
+		if(!$this->isRusPost() || $this->config['MAIN']['IS_OTPRAVKA_SUPPORTED'] == 'Y')
+		{
+			$this->deliveryRequestHandler = $this->additionalHandler->getDeliveryRequestHandler();
+		}
 
 		$parentES = \Bitrix\Sale\Delivery\ExtraServices\Manager::getExtraServicesList($this->parentId);
 
@@ -352,5 +368,39 @@ class AdditionalProfile extends \Bitrix\Sale\Delivery\Services\Base
 	public function isTrackingInherited()
 	{
 		return true;
+	}
+
+	public function execAdminAction()
+	{
+		$result = new \Bitrix\Sale\Result();
+
+		if($this->isRusPost() && !empty($this->config['MAIN']['OTPRAVKA_RPO']))
+		{
+			$parentConfig = $this->getParentService()->getConfigValues();
+
+			if(empty($parentConfig['MAIN']['SHIPPING_POINT']['VALUE']))
+			{
+				return $result;
+			}
+
+			$selectedShippingPoint = $parentConfig['MAIN']['SHIPPING_POINT']['VALUE'];
+			$shippingPoints = Helper::getEnabledShippingPointsList($this->id);
+
+			if(isset($shippingPoints[$selectedShippingPoint]))
+			{
+				if(in_array($this->config['MAIN']['OTPRAVKA_RPO'], $shippingPoints[$selectedShippingPoint]['available-mail-types']))
+				{
+					$this->config['MAIN']['IS_OTPRAVKA_SUPPORTED'] = 'Y';
+					$this->config['MAIN']['IS_OTPRAVKA_SUPPORTED_LABEL'] = Loc::getMessage('SALE_DLVRS_ADDP_Y');
+				}
+				else
+				{
+					$this->config['MAIN']['IS_OTPRAVKA_SUPPORTED'] = 'N';
+					$this->config['MAIN']['IS_OTPRAVKA_SUPPORTED_LABEL'] = Loc::getMessage('SALE_DLVRS_ADDP_N');
+				}
+			}
+		}
+
+		return $result;
 	}
 }

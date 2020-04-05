@@ -9,9 +9,10 @@ namespace Bitrix\Main\UserConsent;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UserConsent\Internals\FieldTable;
+use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Type\DateTime;
-use Bitrix\Main\Entity\Result as EntityResult;
+use Bitrix\Main\ORM;
 
 Loc::loadLanguageFile(__FILE__);
 
@@ -106,12 +107,14 @@ class Agreement
 		$this->id = null;
 		if (!$id)
 		{
+			$this->errors->setError(new Error('Parameter `Agreement ID` required.'));
 			return false;
 		}
 
 		$data = Internals\AgreementTable::getRowById($id);
 		if (!$data)
 		{
+			$this->errors->setError(new Error("Agreement with id `$id` not found."));
 			return false;
 		}
 
@@ -126,17 +129,18 @@ class Agreement
 	 * Set replace.
 	 *
 	 * @param array $replace Replace data.
-	 * @return string
+	 * @return $this
 	 */
 	public function setReplace(array $replace)
 	{
-		return $this->replace = $replace;
+		$this->replace = $replace;
+		return $this;
 	}
 
 	/**
 	 * Get errors.
 	 *
-	 * @return array
+	 * @return Error[]
 	 */
 	public function getErrors()
 	{
@@ -156,7 +160,7 @@ class Agreement
 	/**
 	 * Get agreement ID.
 	 *
-	 * @return string
+	 * @return int
 	 */
 	public function getId()
 	{
@@ -166,7 +170,7 @@ class Agreement
 	/**
 	 * Get agreement data.
 	 *
-	 * @return string
+	 * @return array
 	 */
 	public function getData()
 	{
@@ -246,7 +250,7 @@ class Agreement
 		//$fields = $data['FIELDS'];
 		unset($data['FIELDS']);
 
-		$result = new EntityResult;
+		$result = new ORM\Data\Result;
 		Internals\AgreementTable::checkFields($result, $this->id, $data);
 		if (!$result->isSuccess())
 		{

@@ -99,8 +99,13 @@ $context->Show();
 if (!empty($arSetupErrors))
 	ShowError(implode('<br />', $arSetupErrors));
 
+$actionParams = "";
+if ($adminSidePanelHelper->isSidePanel())
+{
+	$actionParams = "?IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER";
+}
 ?>
-<form method="post" action="<? echo $APPLICATION->GetCurPage(); ?>" name="froogle_setup_form" id="froogle_setup_form">
+<form method="post" action="<? echo $APPLICATION->GetCurPage().$actionParams; ?>" name="froogle_setup_form" id="froogle_setup_form">
 <?
 
 $aTabs = array(

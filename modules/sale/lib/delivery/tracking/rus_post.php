@@ -298,7 +298,7 @@ class RusPostSingle
 	}
 
 	/**
-	 * @param $lastOperation
+	 * @param string $trackingNumber
 	 * @return string
 	 */
 	protected function createDescription($trackingNumber)

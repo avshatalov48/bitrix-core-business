@@ -296,6 +296,11 @@ $arComponentParameters = array(
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "N"
 		),
+		"EMPTY_BASKET_HINT_PATH" => array(
+			"NAME" => GetMessage('SOA_EMPTY_BASKET_HINT_PATH'),
+			"TYPE" => "STRING",
+			"DEFAULT" => "/"
+		),
 		"USE_PHONE_NORMALIZATION" => array(
 			"NAME" => GetMessage("SOA_USE_PHONE_NORMALIZATION"),
 			"TYPE" => "CHECKBOX",

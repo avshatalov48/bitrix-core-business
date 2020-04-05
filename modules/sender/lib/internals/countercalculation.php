@@ -11,6 +11,7 @@ namespace Bitrix\Sender\Internals;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Sender\Runtime;
+use Bitrix\Sender\Internals\Model;
 
 class CounterCalculation
 {
@@ -221,7 +222,7 @@ class CounterCalculation
 				return true;
 			}
 
-			\Bitrix\Sender\PostingRecipientTable::update(array('ID' => $item['RECIPIENT_ID']), array('IS_' . $type => 'Y'));
+			Model\Posting\RecipientTable::update($item['RECIPIENT_ID'], ['IS_' . $type => 'Y']);
 		}
 
 		return false;
@@ -268,7 +269,7 @@ class CounterCalculation
 				$updateFields = self::getPostingStatusUpdateFields($lastPostingId, $statusList);
 				if($updateFields)
 				{
-					\Bitrix\Sender\PostingTable::update(array('ID' => $lastPostingId), $updateFields);
+					Model\PostingTable::update($lastPostingId, $updateFields);
 				}
 
 
@@ -324,7 +325,7 @@ class CounterCalculation
 				return true;
 			}
 
-			\Bitrix\Sender\PostingTable::update(array('ID' => $item['POSTING_ID']), array('COUNT_' . $type => $item['CNT']));
+			Model\PostingTable::update($item['POSTING_ID'], array('COUNT_' . $type => $item['CNT']));
 		}
 
 		return false;
@@ -439,20 +440,67 @@ class CounterCalculation
 		$hasData = false;
 		if ($conn->isTableExists('b_sender_posting_rcpnt_old'))
 		{
-			$limit = 100;
+			$limit = 1000;
 			$timer = new Runtime\Timer(Runtime\Env::getJobExecutionTimeout(), 100);
 			while (!$timer->isElapsed())
 			{
 				$hasData = true;
-				$sql = "INSERT IGNORE INTO b_sender_posting_recipient "
-					. "(CONTACT_ID, POSTING_ID, STATUS, USER_ID, FIELDS, ROOT_ID, IS_READ, IS_CLICK, IS_UNSUB, DATE_DENY, DATE_SENT) "
-					. "SELECT c.ID as CONTACT_ID, "
-					. "ro.POSTING_ID, ro.STATUS, ro.USER_ID, ro.FIELDS, ro.ROOT_ID, ro.IS_READ, ro.IS_CLICK, ro.IS_UNSUB, ro.DATE_DENY, ro.DATE_SENT "
-					. "FROM b_sender_posting_rcpnt_old ro, b_sender_posting p, b_sender_contact c "
-					. "WHERE ro.POSTING_ID=p.ID "
-					. "and c.TYPE_ID=1 and c.CODE=ro.EMAIL "
-					. "order by ro.ID ASC "
-					. "limit $limit";
+				$sql = "INSERT IGNORE 
+					INTO b_sender_posting_recipient 
+					(
+						CONTACT_ID, 
+						POSTING_ID, 
+						STATUS, 
+						USER_ID, 
+						FIELDS, 
+						ROOT_ID, 
+						IS_READ, 
+						IS_CLICK, 
+						IS_UNSUB, 
+						DATE_DENY, 
+						DATE_SENT
+					) 
+					SELECT
+						c.ID as CONTACT_ID,
+						ro2.POSTING_ID,
+						ro2.STATUS,
+						ro2.USER_ID,
+						ro2.FIELDS,
+						ro2.ROOT_ID,
+						ro2.IS_READ,
+						ro2.IS_CLICK,
+						ro2.IS_UNSUB,
+						ro2.DATE_DENY,
+						ro2.DATE_SENT
+					FROM
+						(
+							SELECT
+								ro.ID,
+								ro.POSTING_ID,
+								ro.STATUS,
+								ro.USER_ID,
+								ro.FIELDS,
+								ro.ROOT_ID,
+								ro.IS_READ,
+								ro.IS_CLICK,
+								ro.IS_UNSUB,
+								ro.DATE_DENY,
+								ro.EMAIL,
+								ro.DATE_SENT
+							FROM
+								b_sender_posting_rcpnt_old ro
+							order by
+								ro.ID ASC
+							limit $limit
+						) ro2,
+						b_sender_posting p,
+						b_sender_contact c
+					WHERE
+						ro2.POSTING_ID = p.ID
+						and c.TYPE_ID = 1
+						and c.CODE = ro2.EMAIL
+					order by ro2.ID ASC 
+					limit $limit";
 				$conn->query($sql);
 				$conn->query("delete from b_sender_posting_rcpnt_old order by ID asc limit $limit");
 				if (!$conn->query('select ID from b_sender_posting_rcpnt_old limit 1')->fetch())

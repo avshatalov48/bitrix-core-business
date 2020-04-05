@@ -43,7 +43,7 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 	}
 
 	/**
-	 * Exec hook. Show or not any copiright.
+	 * Exec hook. Show or not any copyright.
 	 * @return boolean
 	 */
 	public function exec()

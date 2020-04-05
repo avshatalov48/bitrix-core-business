@@ -78,31 +78,34 @@
 	function adjustPanelSize(panel)
 	{
 		BX.DOM.read(function() {
-			var cardRect = rect(panel.layout.parentNode);
-			var sizeClassName = "landing-ui-size-lg";
-
-			if (isXS(cardRect))
+			if (panel.layout && panel.layout.parentNode)
 			{
-				sizeClassName = "landing-ui-size-xs";
-			}
+				var cardRect = rect(panel.layout.parentNode);
+				var sizeClassName = "landing-ui-size-lg";
 
-			BX.DOM.write(function() {
-				panel.layout.classList.add(sizeClassName);
+				if (isXS(cardRect))
+				{
+					sizeClassName = "landing-ui-size-xs";
+				}
 
-				BX.DOM.read(function() {
-					var panelRect = rect(panel.layout);
-					var left = "auto";
+				BX.DOM.write(function() {
+					panel.layout.classList.add(sizeClassName);
 
-					if (isLeft(cardRect, panelRect))
-					{
-						left = -(diffRect(cardRect, panelRect).width / 2)
-					}
+					BX.DOM.read(function() {
+						var panelRect = rect(panel.layout);
+						var left = "auto";
 
-					BX.DOM.write(function() {
-						panel.layout.style.left = left + "px";
+						if (isLeft(cardRect, panelRect))
+						{
+							left = -(diffRect(cardRect, panelRect).width / 2)
+						}
+
+						BX.DOM.write(function() {
+							panel.layout.style.left = left + "px";
+						});
 					});
 				});
-			});
+			}
 		});
 	}
 

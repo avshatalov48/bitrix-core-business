@@ -278,7 +278,7 @@ else
 
 									</div>
 									<?
-									if ($payment['PAID'] === 'N' && $payment['IS_CASH'] !== 'Y')
+									if ($payment['PAID'] === 'N' && $payment['IS_CASH'] !== 'Y' && $payment['ACTION_FILE'] !== 'cash')
 									{
 										if ($order['ORDER']['IS_ALLOW_PAY'] == 'N')
 										{
@@ -432,15 +432,22 @@ else
 						?>
 						<div class="row sale-order-list-inner-row">
 							<div class="sale-order-list-top-border"></div>
-							<div class="col-md-8  col-sm-12 sale-order-list-about-container">
+							<div class="col-md-<?=($order['ORDER']['CAN_CANCEL'] !== 'N') ? 8 : 10?>  col-sm-12 sale-order-list-about-container">
 								<a class="sale-order-list-about-link" href="<?=htmlspecialcharsbx($order["ORDER"]["URL_TO_DETAIL"])?>"><?=Loc::getMessage('SPOL_TPL_MORE_ON_ORDER')?></a>
 							</div>
 							<div class="col-md-2 col-sm-12 sale-order-list-repeat-container">
 								<a class="sale-order-list-repeat-link" href="<?=htmlspecialcharsbx($order["ORDER"]["URL_TO_COPY"])?>"><?=Loc::getMessage('SPOL_TPL_REPEAT_ORDER')?></a>
 							</div>
-							<div class="col-md-2 col-sm-12 sale-order-list-cancel-container">
-								<a class="sale-order-list-cancel-link" href="<?=htmlspecialcharsbx($order["ORDER"]["URL_TO_CANCEL"])?>"><?=Loc::getMessage('SPOL_TPL_CANCEL_ORDER')?></a>
-							</div>
+							<?
+							if ($order['ORDER']['CAN_CANCEL'] !== 'N')
+							{
+								?>
+								<div class="col-md-2 col-sm-12 sale-order-list-cancel-container">
+									<a class="sale-order-list-cancel-link" href="<?=htmlspecialcharsbx($order["ORDER"]["URL_TO_CANCEL"])?>"><?=Loc::getMessage('SPOL_TPL_CANCEL_ORDER')?></a>
+								</div>
+								<?
+							}
+							?>
 						</div>
 					</div>
 				</div>
@@ -558,6 +565,7 @@ else
 		$javascriptParams = array(
 			"url" => CUtil::JSEscape($this->__component->GetPath().'/ajax.php'),
 			"templateFolder" => CUtil::JSEscape($templateFolder),
+			"templateName" => $this->__component->GetTemplateName(),
 			"paymentList" => $paymentChangeData
 		);
 		$javascriptParams = CUtil::PhpToJSObject($javascriptParams);

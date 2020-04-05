@@ -2,6 +2,8 @@
 namespace Bitrix\Sale\Exchange;
 
 
+use Bitrix\Sale\Exchange\Entity\EntityImportFactory;
+use Bitrix\Sale\Exchange\OneC\Converter;
 use Bitrix\Sale\Exchange\OneC\ConverterFactory;
 use Bitrix\Sale\Exchange\OneC\DocumentBase;
 use Bitrix\Sale\Exchange\OneC\DocumentImportFactory;
@@ -20,10 +22,19 @@ trait BaseTrait
 
 	/**
 	 * @param $typeId
-	 * @return IConverter
+	 * @return Converter
 	 */
 	protected function converterFactoryCreate($typeId)
 	{
 		return ConverterFactory::create($typeId);
+	}
+
+	/**
+	 * @param $typeId
+	 * @return ImportBase
+	 */
+	protected function entityFactoryCreate($typeId)
+	{
+		return EntityImportFactory::create($typeId);
 	}
 }

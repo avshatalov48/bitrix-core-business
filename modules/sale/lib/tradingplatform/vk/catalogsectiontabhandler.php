@@ -63,10 +63,14 @@ class CatalogSectionTabHandler extends TabHandler
 			$dataToDelete += $preparedChilds['TO_DELETE'] ? $preparedChilds['TO_DELETE'] : array();
 
 			if (!empty($dataToMapping))
+			{
 				Map::updateSectionsMapping($dataToMapping, $export["ID"], 'ONLY_INTERNAL');
+			}
 
 			if (!empty($dataToDelete))
+			{
 				Map::removeSectionsMapping($dataToDelete, $export["ID"], 'ONLY_INTERNAL');
+			}
 		}
 		
 		return true;
@@ -180,7 +184,7 @@ class CatalogSectionTabHandler extends TabHandler
 		$resultHtml .= '<tr><td colspan="2">';
 		$resultHtml .= '
 				<table class="internal" id="table_EXPORT_PROFILES"
-				style="border-left: none !important; border-right: none !important;">';
+				style="border-left: none !important; border-right: none !important; width: 100%;">';
 		
 		$resultHtml .= '
 			<tr
@@ -192,14 +196,13 @@ class CatalogSectionTabHandler extends TabHandler
 				left_margin="-1"
 					>
 				<td align="left" class="internal-left">' . Loc::getMessage("SALE_VK_EXPORT_SETTINGS__EXPORT_ID") . '</td>
-				<td>' . Loc::getMessage("SALE_VK_EXPORT_SETTINGS__INHERIT") . '</td>
-				<td>' . Loc::getMessage("SALE_VK_EXPORT_SETTINGS__ENABLE") . '</td>
+				<td style="width: 220px">' . Loc::getMessage("SALE_VK_EXPORT_SETTINGS__INHERIT") . '</td>
+				<td style="width: 100px">' . Loc::getMessage("SALE_VK_EXPORT_SETTINGS__ENABLE") . '</td>
 				<td align="left">' .
 			Loc::getMessage("SALE_VK_EXPORT_SETTINGS__TO_ALBUM") .
 			ShowJSHint(Loc::getMessage("SALE_VK_EXPORT_SETTINGS__TO_ALBUM_HELP"), array('return'=>true)) . '
-				</td>
-				<td align="left">' . Loc::getMessage("SALE_VK_EXPORT_SETTINGS__TO_ALBUM_ALIAS") . '</td>
-				<td>' .
+				</td>' .
+				'<td style="width: 220px">' .
 			Loc::getMessage("SALE_VK_EXPORT_SETTINGS__INCLUDE_CHILDS") .
 			ShowJSHint(Loc::getMessage("SALE_VK_EXPORT_SETTINGS__INCLUDE_CHILDS_HELP"), array('return'=>true)) . '
 				</td>
@@ -217,7 +220,7 @@ class CatalogSectionTabHandler extends TabHandler
 			$currSettings = $this->compareSettingsWithPost($currSettings, $export["ID"]);
 			$currSettings = $sectionsList->prepareSettingsVisibility($currSettings, $sectionId);
 
-			$resultHtml .= '<tr id="tr_EXPORT__' . $export["ID"] . '" mode="both" left_margin="124" >';
+			$resultHtml .= '<tr id="tr_EXPORT__' . $export["ID"] . ' class="vk_export_row" mode="both" left_margin="124" >';
 
 //			EXPORT settings - profile
 			$resultHtml .= '
@@ -233,7 +236,7 @@ class CatalogSectionTabHandler extends TabHandler
 //			INHERIT from parent
 			$resultHtml .= '
 			<td align="center">
-				<input ' . $currSettings["INHERIT"] . $currSettings['INHERIT__DISPLAY'] . '
+				<input ' . $currSettings["INHERIT"] . ' ' . $currSettings['INHERIT__DISPLAY'] . '
 					id="vk_export_inherit_' . $export["ID"] . '"
 					type="checkbox" 
 					name="VK_EXPORT[' . $export["ID"] . '][INHERIT]" 
@@ -243,7 +246,7 @@ class CatalogSectionTabHandler extends TabHandler
 //			ENDABLE export
 			$resultHtml .= '
 			<td align="center">
-				<input ' . $currSettings["ENABLE"] . $currSettings["ENABLE__DISPLAY"] . '
+				<input ' . $currSettings["ENABLE"] . ' ' . $currSettings["ENABLE__DISPLAY"] . '
 					id="vk_export_enable_' . $export["ID"] . '" 
 					type="checkbox" 
 					name="VK_EXPORT[' . $export["ID"] . '][ENABLE]" 
@@ -253,7 +256,7 @@ class CatalogSectionTabHandler extends TabHandler
 			</td>';
 
 //			TO ALBUM
-			$sectionsSelector = $sectionsList->getSectionsSelector($currSettings["TO_ALBUM"]);
+			$sectionsSelector = $sectionsList->getSectionsSelector($currSettings["TO_ALBUM"], false);
 			$resultHtml .= '
 			<td>
 				<input 
@@ -264,31 +267,36 @@ class CatalogSectionTabHandler extends TabHandler
 				<input type="hidden" id="vk_export_to_album_parent_' . $export["ID"] . '"  value="' . $currSettings["TO_ALBUM__PARENT"] . '">
 
 				<select ' . $currSettings["TO_ALBUM__DISPLAY"] . '
+					style="width: 100%"
 					id="vk_export_to_album_' . $export["ID"] . '" 
 					class="vk_sale_export_category_to_album" 
 					name="VK_EXPORT[' . $export["ID"] . '][TO_ALBUM]">' .
 				$sectionsSelector . '
-				</select>
-			</td>';
-
-//			album ALIAS
-			$resultHtml .= '
-			<td>
-				<input ' . $currSettings["TO_ALBUM_ALIAS__DISPLAY"] . ' 
-					id="vk_export_to_album_alias_' . $export["ID"] . '" 
-					type="text" 
-					name="VK_EXPORT[' . $export["ID"] . '][TO_ALBUM_ALIAS]" 
-					size="25" maxlength="255" 
-					value="' . $currSettings["TO_ALBUM_ALIAS"] . '"
-				>
-				<input type="hidden" id="vk_export_to_album_alias_parent_' . $export["ID"] . '" value="' . $currSettings["TO_ALBUM_ALIAS__PARENT"] . '">
-
-			</td>';
+				</select>' .
+				
+//				alias
+				'<div id="vk_export_to_album_alias_container_'. $export["ID"] .'"
+					style="margin-top: 6px; '. $currSettings["TO_ALBUM_ALIAS__DISPLAY"] .'">' .
+					'<i>'.Loc::getMessage("SALE_VK_EXPORT_SETTINGS__TO_ALBUM_ALIAS").': </i>'.
+					'<input ' .
+						'id="vk_export_to_album_alias_' . $export["ID"] . '"' .
+						'type="text"' .
+						'name="VK_EXPORT[' . $export["ID"] . '][TO_ALBUM_ALIAS]"'.
+						'size="25" maxlength="255"' .
+						'value="' . $currSettings["TO_ALBUM_ALIAS"] . '"'.
+					'>' .
+					'<input '.
+						'type="hidden"'.
+						'id="vk_export_to_album_alias_parent_' . $export["ID"] . '"'.
+						'value="' . $currSettings["TO_ALBUM_ALIAS__PARENT"] . '"'.
+					'>'.
+				'</div>' .
+			'</td>';
 
 //			include CHILDS
 			$resultHtml .= '
 			<td align="center">
-				<input ' . $currSettings["INCLUDE_CHILDS__DISPLAY"] . $currSettings["INCLUDE_CHILDS"] . ' 
+				<input ' . $currSettings["INCLUDE_CHILDS__DISPLAY"] . ' ' . $currSettings["INCLUDE_CHILDS"] . '
 					id="vk_export_include_childs_' . $export["ID"] . '" 
 					type="checkbox" 
 					name="VK_EXPORT[' . $export["ID"] . '][INCLUDE_CHILDS]" 
@@ -319,93 +327,8 @@ class CatalogSectionTabHandler extends TabHandler
 		$resultHtml .= '</td></tr>';
 
 
-//		SCRIPTS for beauty
-		$resultHtml .= "
-			<script type=\"text/javascript\">
-				BX.ready(function(){
-				
-					var exportIds = BX.findChild(BX('table_EXPORT_PROFILES'), {class: 'vk_export__profile_id'}, true, true);
-					exportIds.forEach(function(element){
-						var exportId = element.getAttribute('value');
-					
-						var items = new Array();
-						items.vkExportInherit = BX('vk_export_inherit_' + exportId);
-						items.vkExportEnable = BX('vk_export_enable_' + exportId);
-						items.vkExportEnableParent = BX('vk_export_enable_parent_' + exportId);
-						items.vkExportToAlbumCurrent = BX('vk_export_to_album_current_' + exportId);
-						items.vkExportToAlbum = BX('vk_export_to_album_' + exportId);
-						items.vkExportToAlbumParent = BX('vk_export_to_album_parent_' + exportId);
-						items.vkExportToAlbumAlias = BX('vk_export_to_album_alias_' + exportId);
-						items.vkExportToAlbumAliasParent = BX('vk_export_to_album_alias_parent_' + exportId);
-						items.vkExportIncludeChilds = BX('vk_export_include_childs_' + exportId);
-						items.vkExportIncludeChildsParent = BX('vk_export_include_childs_parent_' + exportId);
-						items.vkExportVkCategory = BX('vk_export_vk_category_' + exportId);
-						items.vkExportVkCategoryParent = BX('vk_export_vk_category_parent_' + exportId);
-					
-						/* if inherit - hide all, if not - show other */
-						BX.bind(items.vkExportInherit, 'change', function(){
-							checkSettingsVisible(items);
-						});
-						
-						/* if disable - hide all, if enable - check visible */
-						BX.bind(items.vkExportEnable, 'change', function(){
-							checkSettingsVisible(items);
-						});
-						
-						/* if export to current album - show alias field */
-						/* if change album to add - we can adding childs products to this album */
-						BX.bind(items.vkExportToAlbum, 'change', function(){
-							checkSettingsVisibleAlbums(items);
-						});
-					});
-					
-					function checkSettingsVisible(items) {
-						if(items.vkExportInherit.checked) {
-							BX.adjust(items.vkExportEnable, {props: {disabled: true}});
-							hideSettings(items);
-							setParentValues(items);
-						} 
-						else {
-							BX.adjust(items.vkExportEnable, {props: {disabled: false}});
-							if(!items.vkExportEnable.checked) {
-								hideSettings(items);
-							} else {
-								BX.adjust(items.vkExportToAlbum, {props: {disabled: false}});
-								BX.adjust(items.vkExportVkCategory, {props: {disabled: false}});
-								checkSettingsVisibleAlbums(items);
-							}
-							
-						}
-					}
-					
-					function setParentValues(items) {
-						//checkboxes
-						BX.adjust(items.vkExportEnable, {props: {checked: items.vkExportEnableParent.value}});
-						BX.adjust(items.vkExportIncludeChilds, {props: {checked: items.vkExportIncludeChildsParent.value}});
-						//values fields
-						items.vkExportToAlbum.value = items.vkExportToAlbumParent.value;
-						items.vkExportToAlbumAlias.value = items.vkExportToAlbumAliasParent.value;
-						items.vkExportVkCategory.value = items.vkExportVkCategoryParent.value;
-					}
-					
-					function hideSettings(items) {
-						BX.adjust(items.vkExportToAlbum, {props: {disabled: true}});
-						BX.adjust(items.vkExportToAlbumAlias, {props: {disabled: true}});
-						BX.adjust(items.vkExportIncludeChilds, {props: {disabled: true}});
-						BX.adjust(items.vkExportVkCategory, {props: {disabled: true}});
-					}
-					
-					function checkSettingsVisibleAlbums(items) {
-						/* only if change NOT main album */
-						var toAlbumAliasVisible = 
-							(items.vkExportToAlbum.value == items.vkExportToAlbumCurrent.value && items.vkExportToAlbum.value > 0) ? 
-								false : true;
-						BX.adjust(items.vkExportToAlbumAlias, {props: {disabled: toAlbumAliasVisible}});
-						BX.adjust(items.vkExportIncludeChilds, {props: {disabled: (items.vkExportToAlbum.value > 0 ? false : true)}});
-					}
-				});
-			</script>
-		";
+//		SCRIPT for beauty
+		\Bitrix\Main\Page\Asset::getInstance()->addJs("/bitrix/js/sale/vk_section_edit.js", true);
 
 		return $resultHtml;
 	}

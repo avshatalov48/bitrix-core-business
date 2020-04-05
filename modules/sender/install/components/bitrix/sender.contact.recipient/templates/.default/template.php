@@ -70,6 +70,10 @@ $APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' 
 			'type' => 'abuses',
 			'href' => $arParams['PATH_TO_ABUSES'],
 		],
+		[
+			'type' => 'settings',
+			'items' => ['import']
+		],
 	]),
 )));
 

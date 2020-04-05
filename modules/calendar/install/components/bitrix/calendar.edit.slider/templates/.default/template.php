@@ -53,65 +53,13 @@ if (empty($event['UF_WEBDAV_CAL_EVENT']['VALUE']))
 
 $userId = CCalendar::GetCurUserId();
 
-$arHost = CCalendar::GetUser($userId, true);
-$arHost['AVATAR_SRC'] = CCalendar::GetUserAvatarSrc($arHost);
-$arHost['URL'] = CCalendar::GetUserUrl($event['MEETING_HOST'], $arParams["PATH_TO_USER"]);
-$arHost['DISPLAY_NAME'] = CCalendar::GetUserName($arHost);
-$arParams['host'] = $arHost;
-
-if ($event['IS_MEETING'])
-{
-	$attendees = array(
-		'y' => array(
-			'users' => array(),
-			'count' => 4,
-			'countMax' => 8,
-			'title' => GetMessage('EC_ATT_Y'),
-			'id' => "bxview-att-cont-y-".$event['ID']
-		),
-		'n' => array(
-			'users' => array(),
-			'count' => 2,
-			'countMax' => 3,
-			'title' => GetMessage('EC_ATT_N'),
-			'id' => "bxview-att-cont-n-".$event['ID']
-		),
-		'q' => array(
-			'users' => array(),
-			'count' => 2,
-			'countMax' => 3,
-			'title' => GetMessage('EC_ATT_Q'),
-			'id' => "bxview-att-cont-q-".$event['ID']
-		)
-	);
-
-	$userIds = array();
-	if (is_array($event['~ATTENDEES']) && count($event['~ATTENDEES']) > 0)
-	{
-		foreach ($event['~ATTENDEES'] as $i => $att)
-		{
-			$userIds[] = $att["USER_ID"];
-			if ($userId == $att["USER_ID"])
-				$curUserStatus = $att['STATUS'];
-			$att['AVATAR_SRC'] = CCalendar::GetUserAvatarSrc($att);
-			$att['URL'] = CCalendar::GetUserUrl($att["USER_ID"], $arParams["PATH_TO_USER"]);
-			$attendees[strtolower($att['STATUS'])]['users'][] = $att;
-		}
-	}
-}
-
 if ($event['IS_MEETING'] && empty($event['ATTENDEES_CODES']))
+{
 	$event['ATTENDEES_CODES'] = CCalendarEvent::CheckEndUpdateAttendeesCodes($event);
+}
 
 $arParams['event'] = $event;
 $arParams['UF'] = $UF;
-
-$arTabs = array(
-	array('name' => GetMessage('EC_EDEV_EVENT'), 'title' => GetMessage('EC_EDEV_EVENT_TITLE'), 'id' => $id."ed-tab-0", 'active' => true),
-	array('name' => GetMessage('EC_T_DESC'), 'title' => GetMessage('EC_T_DESC_TITLE'), 'id' => $id."ed-tab-1"),
-	array('name' => GetMessage('EC_EDEV_GUESTS'), 'title' => GetMessage('EC_EDEV_GUESTS_TITLE'), 'id' => $id."ed-tab-2", "show" => !!$arParams['bSocNet']),
-	array('name' => GetMessage('EC_EDEV_ADD_TAB'), 'title' => GetMessage('EC_EDEV_ADD_TAB_TITLE'), 'id' => $id."ed-tab-3")
-);
 
 if($isSocialnetworkEnabled)
 {
@@ -121,10 +69,10 @@ if($isSocialnetworkEnabled)
 ?>
 <div class="webform-buttons calendar-form-buttons-fixed">
 	<div class="calendar-form-footer-container">
-							<span id="<?=$id?>_save" class="webform-small-button webform-small-button-blue">
-								<?= Loc::getMessage('EC_EDIT_SLIDER_SAVE_EVENT_BUTTON')?> <span id="<?=$id?>_save_cmd"></span>
-							</span>
-		<span  id="<?=$id?>_close" class="webform-button-link"><?= Loc::getMessage('EC_EDIT_SLIDER_CANCEL_BUTTON')?></span>
+		<button id="<?=$id?>_save" class="ui-btn ui-btn-success">
+			<?= Loc::getMessage('EC_EDIT_SLIDER_SAVE_EVENT_BUTTON')?> <span id="<?=$id?>_save_cmd"></span>
+		</button>
+		<button  id="<?=$id?>_close" class="ui-btn ui-btn-link"><?= Loc::getMessage('EC_EDIT_SLIDER_CANCEL_BUTTON')?></button>
 	</div>
 </div>
 <div class="calendar-slider-calendar-wrap calendar-slider-calendar-wrap-edit">
@@ -575,6 +523,9 @@ if($isSocialnetworkEnabled)
 
 						<!--region Destination-->
 						<div class="calendar-options-item calendar-options-item-border calendar-options-item-destination" style="border-bottom: none;">
+							<?if ($event['IS_MEETING'] && is_array($event['ATTENDEES_CODES'])):?>
+							<input id="<?=$id?>_attendees_codes" type="hidden" value="<?= implode($event['ATTENDEES_CODES'], ',')?>" />
+							<?endif;?>
 							<div class="calendar-options-item-column-left">
 								<div class="calendar-options-item-name js-calendar-field-name"  id="<?=$id?>_attendees_title_wrap"><?= Loc::getMessage('EC_EDIT_SLIDER_ATTENDEES_COLUMN')?></div>
 							</div>

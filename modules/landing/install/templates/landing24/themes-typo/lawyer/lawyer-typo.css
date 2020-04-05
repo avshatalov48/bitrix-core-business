@@ -25,6 +25,11 @@ h6, .h6 {
   font-family: "Open Sans", Helvetica, Arial, sans-serif;
 }
 
+small,
+.small {
+  font-size: 0.71429rem;
+}
+
 /* Revolution slider */
 .tp-caption.NotGeneric-Title,
 .NotGeneric-Title,

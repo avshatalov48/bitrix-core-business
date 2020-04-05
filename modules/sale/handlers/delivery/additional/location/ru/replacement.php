@@ -58,4 +58,9 @@ class Replacement
 	{
 		return 'РОССИЯ';
 	}
+
+	public static function getCountryName()
+	{
+		return self::getNameRussia();
+	}
 }

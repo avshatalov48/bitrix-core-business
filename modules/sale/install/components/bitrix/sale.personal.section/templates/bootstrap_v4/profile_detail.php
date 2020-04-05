@@ -22,6 +22,7 @@ $APPLICATION->IncludeComponent(
 		"USE_AJAX_LOCATIONS" => $arParams['USE_AJAX_LOCATIONS_PROFILE'],
 		"COMPATIBLE_LOCATION_MODE" => $arParams['COMPATIBLE_LOCATION_MODE_PROFILE'],		
 		"ID" => $arResult["VARIABLES"]["ID"],
+		"AUTH_FORM_IN_TEMPLATE" => 'Y',
 	),
 	$component
 );

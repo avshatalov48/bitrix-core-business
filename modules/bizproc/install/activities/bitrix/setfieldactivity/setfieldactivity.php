@@ -12,7 +12,8 @@ class CBPSetFieldActivity
 		parent::__construct($name);
 		$this->arProperties = array(
 			"Title" => "",
-			"FieldValue" => null
+			"FieldValue" => null,
+			"ModifiedBy" => null
 		);
 	}
 
@@ -35,7 +36,6 @@ class CBPSetFieldActivity
 			return CBPActivityExecutionStatus::Executing;
 		}
 
-		$documentService = $rootActivity->workflow->GetService("DocumentService");
 		$documentFields = $documentService->GetDocumentFields($documentService->GetDocumentType($documentId));
 		$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFields);
 		if ($documentFieldsAliasesMap)
@@ -53,7 +53,7 @@ class CBPSetFieldActivity
 			$fieldValue = $fixedFields;
 		}
 
-		$documentService->UpdateDocument($documentId, $fieldValue);
+		$documentService->UpdateDocument($documentId, $fieldValue, $this->ModifiedBy);
 
 		return CBPActivityExecutionStatus::Closed;
 	}
@@ -108,6 +108,7 @@ class CBPSetFieldActivity
 
 		$arFieldTypes = $documentService->GetDocumentFieldTypes($documentType);
 		unset($arFieldTypes[FieldType::INTERNALSELECT]);
+		$modifiedBy = null;
 
 		if (!is_array($arCurrentValues))
 		{
@@ -126,12 +127,23 @@ class CBPSetFieldActivity
 					$arCurrentValues[$k] = $v;
 				}
 			}
+
+			if ($arCurrentActivity["Properties"]['ModifiedBy'])
+			{
+				$modifiedBy = $arCurrentActivity["Properties"]['ModifiedBy'];
+			}
 		}
 		else
 		{
 			$arErrors = array();
 			foreach ($arCurrentValues as $key => $fieldKey)
 			{
+				if ($key === 'modified_by')
+				{
+					$modifiedBy = CBPHelper::UsersStringToArray($fieldKey, $documentType, $arErrors);
+					continue;
+				}
+
 				if (strpos($key, 'document_field_') !== 0)
 					continue;
 
@@ -184,6 +196,9 @@ class CBPSetFieldActivity
 				$arDocumentFields,
 				$arFieldTypes
 			),
+			"canSetModifiedBy" => $documentService->isFeatureEnabled($documentType, CBPDocumentService::FEATURE_SET_MODIFIED_BY),
+			"modifiedBy" => $modifiedBy,
+			"modifiedByString" => CBPHelper::UsersArrayToString($modifiedBy, $arWorkflowTemplate, $documentType),
 			"documentType" => $documentType,
 			"popupWindow" => &$popupWindow,
 		));
@@ -191,18 +206,16 @@ class CBPSetFieldActivity
 		return $dialog;
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$arErrors)
+	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$errors)
 	{
-		$arErrors = array();
-
+		$errors = [];
 		$runtime = CBPRuntime::GetRuntime();
-
-		$arProperties = array("FieldValue" => array());
+		$properties = ["FieldValue" => []];
 
 		/** @var CBPDocumentService $documentService */
 		$documentService = $runtime->GetService("DocumentService");
 
-		$arNewFieldsMap = array();
+		$arNewFieldsMap = [];
 		if (array_key_exists("new_field_name", $arCurrentValues) && is_array($arCurrentValues["new_field_name"]))
 		{
 			$arNewFieldKeys = array_keys($arCurrentValues["new_field_name"]);
@@ -245,18 +258,17 @@ class CBPSetFieldActivity
 				$property,
 				$value,
 				$arCurrentValues,
-				$arErrors
+				$errors
 			);
 
-			if (count($arErrors) > 0)
-				return false;
-
-			if (
-				CBPHelper::getBool($property['Required'])
-				&& CBPHelper::isEmptyValue($r)
-			)
+			if (count($errors) > 0)
 			{
-				$arErrors[] = array(
+				return false;
+			}
+
+			if (CBPHelper::getBool($property['Required']) && CBPHelper::isEmptyValue($r))
+			{
+				$errors[] = array(
 					"code" => "NotExist",
 					"parameter" => $fieldKey,
 					"message" => GetMessage("BPSFA_ARGUMENT_NULL", array('#PARAM#' => $property['Name']))
@@ -264,17 +276,32 @@ class CBPSetFieldActivity
 				return false;
 			}
 
-			$arProperties["FieldValue"][$fieldKey] = $r;
+			$properties["FieldValue"][$fieldKey] = $r;
 		}
 
-		$arErrors = self::ValidateProperties($arProperties, new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser));
-		if (count($arErrors) > 0)
-			return false;
+		if (isset($arCurrentValues['modified_by']))
+		{
+			$properties['ModifiedBy'] = CBPHelper::UsersStringToArray(
+				$arCurrentValues["modified_by"],
+				$documentType,
+				$errors
+			);
 
-		$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-		$arCurrentActivity["Properties"] = $arProperties;
+			if (count($errors) > 0)
+			{
+				return false;
+			}
+		}
+
+		$errors = self::ValidateProperties($properties, new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser));
+		if (count($errors) > 0)
+		{
+			return false;
+		}
+
+		$currentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
+		$currentActivity["Properties"] = $properties;
 
 		return true;
 	}
 }
-?>

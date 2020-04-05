@@ -7,9 +7,9 @@
  */
 namespace Bitrix\Main;
 
+use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Engine\Binder;
 use Bitrix\Main\Engine\Controller;
-use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Engine\Response\AjaxJson;
 use Bitrix\Main\Engine\Router;
 use Bitrix\Main\UI\PageNavigation;
@@ -94,33 +94,74 @@ class HttpApplication extends Application
 	 * Runs controller and its action and sends response to the output.
 	 *
 	 * @return void
-	 * @throws SystemException
 	 */
 	public function run()
 	{
-		$router = new Router($this->context->getRequest());
-
-		/** @var Controller $controller */
-		/** @var string $actionName */
-		list($controller, $actionName) = $router->getControllerAndAction();
-		if (!$controller)
+		try
 		{
-			throw new SystemException('Could not find controller for the request');
+			$e = null;
+			$result = null;
+			$errorCollection = new ErrorCollection();
+
+			$router = new Router($this->context->getRequest());
+
+			/** @var Controller $controller */
+			/** @var string $actionName */
+			list($controller, $actionName) = $router->getControllerAndAction();
+			if (!$controller)
+			{
+				throw new SystemException('Could not find controller for the request');
+			}
+
+			$this->registerAutoWirings();
+
+			$result = $controller->run($actionName, $this->getSourceParametersList());
+			$errorCollection->add($controller->getErrors());
 		}
+		catch (\Exception $e)
+		{
+			$errorCollection[] = new Error($e->getMessage(), $e->getCode());
+		}
+		catch (\Error $e)
+		{
+			//todo add work with debug mode to show extend errors and exceptions
+			$errorCollection[] = new Error($e->getMessage(), $e->getCode());
+		}
+		finally
+		{
+			$exceptionHandling = Configuration::getValue('exception_handling');
+			if ($e && !empty($exceptionHandling['debug']))
+			{
+				$errorCollection[] = new Error(Diag\ExceptionHandlerFormatter::format($e));
+				if ($e->getPrevious())
+				{
+					$errorCollection[] = new Error(Diag\ExceptionHandlerFormatter::format($e->getPrevious()));
+				}
+			}
 
-		$this->registerAutoWirings();
+			if ($e instanceof \Exception || $e instanceof \Error)
+			{
+				$exceptionHandler = $this->getExceptionHandler();
+				$exceptionHandler->writeToLog($e);
+			}
 
-		$result = $controller->run($actionName, $this->getSourceParametersList());
-		$response = $this->buildResponse($result, $controller->getErrors());
-		$this->context->setResponse($response);
+			$response = $this->buildResponse($result, $errorCollection);
+			$this->clonePreviousHeadersAndCookies($this->context->getResponse(), $response);
+			if (isset($controller))
+			{
+				$controller->finalizeResponse($response);
+			}
 
-		global $APPLICATION;
-		$APPLICATION->restartBuffer();
+			$this->context->setResponse($response);
 
-		$response->send();
+			global $APPLICATION;
+			$APPLICATION->restartBuffer();
 
-		//todo exit code in Response?
-		$this->terminate(0);
+			$response->send();
+
+			//todo exit code in Response?
+			$this->terminate(0);
+		}
 	}
 
 	private function registerAutoWirings()
@@ -130,7 +171,10 @@ class HttpApplication extends Application
 			'\\Bitrix\\Main\\UI\\PageNavigation',
 			function() {
 				$pageNavigation = new PageNavigation('nav');
-				$pageNavigation->initFromUri();
+				$pageNavigation
+					->setPageSizes(range(1, 50))
+					->initFromUri()
+				;
 
 				return $pageNavigation;
 			}
@@ -142,19 +186,19 @@ class HttpApplication extends Application
 	 * If an action returns non subclass of HttpResponse then the method tries to create Response\StandardJson.
 	 *
 	 * @param mixed $actionResult
-	 * @param Error[] $errors
+	 * @param ErrorCollection $errorCollection
+	 *
 	 * @return HttpResponse
 	 */
-	private function buildResponse($actionResult, $errors)
+	private function buildResponse($actionResult, ErrorCollection $errorCollection)
 	{
 		if ($actionResult instanceof HttpResponse)
 		{
 			return $actionResult;
 		}
 
-		if ($errors)
+		if (!$errorCollection->isEmpty())
 		{
-			$errorCollection = new ErrorCollection($errors);
 			//todo There is opportunity to create DenyError() and recognize AjaxJson::STATUS_DENIED by this error.
 
 			return new AjaxJson(
@@ -165,5 +209,48 @@ class HttpApplication extends Application
 		}
 
 		return new AjaxJson($actionResult);
+	}
+
+	private function clonePreviousHeadersAndCookies(HttpResponse $previousResponse, HttpResponse $response)
+	{
+		$httpHeaders = $response->getHeaders();
+
+		$status = $response->getStatus();
+		$previousStatus = $previousResponse->getStatus();
+		foreach ($previousResponse->getHeaders() as $headerName => $values)
+		{
+			if ($this->shouldIgnoreHeaderToClone($headerName))
+			{
+				continue;
+			}
+
+			if ($status && $headerName === $previousStatus)
+			{
+				continue;
+			}
+
+			if ($httpHeaders->get($headerName))
+			{
+				continue;
+			}
+
+			$httpHeaders->add($headerName, $values);
+		}
+
+		foreach ($previousResponse->getCookies() as $cookie)
+		{
+			$response->addCookie($cookie, false);
+		}
+
+		return $response;
+	}
+
+	private function shouldIgnoreHeaderToClone($headerName)
+	{
+		return in_array(strtolower($headerName), [
+			'content-encoding',
+			'content-length',
+			'content-type',
+		]);
 	}
 }

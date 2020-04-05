@@ -1,6 +1,13 @@
 <?
+use Bitrix\Catalog;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
+
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+$listUrl = $selfFolderUrl."cat_group_admin.php?lang=".LANGUAGE_ID;
+$listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
+
 if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_group')))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 CModule::IncludeModule("catalog");
@@ -25,8 +32,7 @@ $arFields = array();
 
 $ID = intval($ID);
 
-$dbCatGroup = CCatalogGroup::GetList(array("ID" => "ASC"), array(), false, array("nTopCount" => 1), array("ID"));
-if ($dbCatGroup->Fetch() && $ID == 0 && !CBXFeatures::IsFeatureEnabled('CatMultiPrice'))
+if (Catalog\Config\State::isExceededPriceTypeLimit())
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
@@ -47,17 +53,30 @@ while ($arPriceLang = $rsPriceLangs->Fetch())
 }
 
 $arUserGroupList = array();
-$rsUserGroups = CGroup::GetList(($by="sort"), ($order="asc"));
-while ($arGroup = $rsUserGroups->Fetch())
+
+if ($adminSidePanelHelper->isPublicSidePanel())
 {
-	$arUserGroupList[] = array(
-		'ID' => intval($arGroup['ID']),
-		'NAME' => $arGroup['NAME'],
-	);
+	if (\Bitrix\Main\Loader::includeModule('crm'))
+	{
+		$arUserGroupList = \Bitrix\Crm\Order\BuyerGroup::getPublicList();
+	}
+}
+else
+{
+	$rsUserGroups = CGroup::GetList(($by="sort"), ($order="asc"));
+	while ($arGroup = $rsUserGroups->Fetch())
+	{
+		$arUserGroupList[] = array(
+			'ID' => intval($arGroup['ID']),
+			'NAME' => $arGroup['NAME'],
+		);
+	}
 }
 
 if (!$bReadOnly && 'POST' == $_SERVER['REQUEST_METHOD'] && (strlen($save)>0 || strlen($apply)>0) && check_bitrix_sessid())
 {
+	$adminSidePanelHelper->decodeUriComponent();
+
 	$arGroupID = array();
 	if (isset($_POST['USER_GROUP']) && is_array($_POST['USER_GROUP']))
 	{
@@ -86,6 +105,32 @@ if (!$bReadOnly && 'POST' == $_SERVER['REQUEST_METHOD'] && (strlen($save)>0 || s
 		}
 		if (isset($intValue))
 			unset($intValue);
+	}
+
+	if ($adminSidePanelHelper->isPublicSidePanel() && \Bitrix\Main\Loader::includeModule('crm'))
+	{
+		$groupUserBuyList = [];
+		$groupUserList = [];
+
+		$rsGroups = CCatalogGroup::GetGroupsList(array("CATALOG_GROUP_ID" => $ID));
+		while ($arGroup = $rsGroups->Fetch())
+		{
+			$arGroup['GROUP_ID'] = intval($arGroup['GROUP_ID']);
+
+			if ($arGroup['BUY'] === 'Y')
+			{
+				$groupUserBuyList[] = $arGroup['GROUP_ID'];
+			}
+			else
+			{
+				$groupUserList[] = $arGroup['GROUP_ID'];
+			}
+		}
+
+		$arGroupID = \Bitrix\Crm\Order\BuyerGroup::prepareGroupIds($groupUserList, $arGroupID);
+		$arGroupBuyID = \Bitrix\Crm\Order\BuyerGroup::prepareGroupIds($groupUserBuyList, $arGroupBuyID);
+
+		unset($groupUserBuyList, $groupUserList);
 	}
 
 	$arUserLang = array();
@@ -120,19 +165,35 @@ if (!$bReadOnly && 'POST' == $_SERVER['REQUEST_METHOD'] && (strlen($save)>0 || s
 	if (!$bVarsFromForm)
 	{
 		$DB->Commit();
-		if (strlen($save)>0)
-			LocalRedirect("cat_group_admin.php?lang=".LANGUAGE_ID);
-		elseif (strlen($apply)>0)
-			LocalRedirect("cat_group_edit.php?lang=".LANGUAGE_ID.'&ID='.$ID);
+		if ($adminSidePanelHelper->isAjaxRequest())
+		{
+			$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
+		}
+		else
+		{
+			if (strlen($save) > 0)
+			{
+				$adminSidePanelHelper->localRedirect($listUrl);
+				LocalRedirect($listUrl);
+			}
+			elseif (strlen($apply) > 0)
+			{
+				$applyUrl = $selfFolderUrl."cat_group_edit.php?lang=".$lang."&ID=".$ID;
+				$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
+				LocalRedirect($applyUrl);
+			}
+		}
 	}
 	else
 	{
 		if ($ex = $APPLICATION->GetException())
 			$strError = $ex->GetString()."<br>";
 		else
-			$strError = (0 < $ID ? GetMessage("ERROR_UPDATING_TYPE") : GetMessage("ERROR_ADDING_TYPE"))."<br>";;
+			$strError = (0 < $ID ? GetMessage("ERROR_UPDATING_TYPE") : GetMessage("ERROR_ADDING_TYPE"))."<br>";
 
 		$DB->Rollback();
+
+		$adminSidePanelHelper->sendJsonErrorResponse($strError);
 	}
 }
 
@@ -194,29 +255,37 @@ $aMenu = array(
 	array(
 		"TEXT" => GetMessage("CGEN_2FLIST"),
 		"ICON" => "btn_list",
-		"LINK" => "/bitrix/admin/cat_group_admin.php?lang=".LANGUAGE_ID."&".GetFilterParams("filter_", false)
+		"LINK" => $listUrl
 	)
 );
 
 if ($ID > 0 && !$bReadOnly)
 {
-	if (CBXFeatures::IsFeatureEnabled('CatMultiPrice'))
+	if (Catalog\Config\Feature::isMultiPriceTypesEnabled())
 	{
 		$aMenu[] = array("SEPARATOR" => "Y");
-
+		$addUrl = $selfFolderUrl."cat_group_edit.php?lang=".LANGUAGE_ID;
+		$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
 		$aMenu[] = array(
 			"TEXT" => GetMessage("CGEN_NEW_GROUP"),
 			"ICON" => "btn_new",
-			"LINK" => "/bitrix/admin/cat_group_edit.php?lang=".LANGUAGE_ID."&".GetFilterParams("filter_", false)
+			"LINK" => $addUrl
 		);
 	}
 
-	if (CBXFeatures::IsFeatureEnabled('CatMultiPrice') || !$boolRealBase)
+	if (Catalog\Config\Feature::isMultiPriceTypesEnabled() || !$boolRealBase)
 	{
+		$deleteUrl = $selfFolderUrl."cat_group_admin.php?action=delete&ID[]=".$ID."&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."#tb";
+		$buttonAction = "LINK";
+		if ($adminSidePanelHelper->isPublicFrame())
+		{
+			$deleteUrl = $adminSidePanelHelper->editUrlToPublicPage($deleteUrl);
+			$buttonAction = "ONCLICK";
+		}
 		$aMenu[] = array(
 			"TEXT" => GetMessage("CGEN_DELETE_GROUP"),
 			"ICON" => "btn_delete",
-			"LINK" => "javascript:if(confirm('".GetMessage("CGEN_DELETE_GROUP_CONFIRM")."')) window.location='/bitrix/admin/cat_group_admin.php?action=delete&ID[]=".$ID."&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."#tb';",
+			$buttonAction => "javascript:if(confirm('".GetMessage("CGEN_DELETE_GROUP_CONFIRM")."')) top.window.location.href='".$deleteUrl."';",
 			"WARNING" => "Y"
 		);
 	}
@@ -228,7 +297,11 @@ if (!empty($strError))
 	CAdminMessage::ShowMessage($strError);
 
 ?>
-<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?" name="catalog_edit">
+<?
+$actionUrl = $APPLICATION->GetCurPage();
+$actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
+?>
+<form method="POST" action="<?=$actionUrl?>" name="catalog_edit">
 <?echo GetFilterHiddens("filter_");?>
 <input type="hidden" name="Update" value="Y">
 <input type="hidden" name="lang" value="<?echo LANGUAGE_ID ?>">
@@ -338,14 +411,7 @@ $tabControl->BeginNextTab();
 	</tr>
 <?
 $tabControl->EndTab();
-
-$tabControl->Buttons(
-		array(
-				"disabled" => $bReadOnly,
-				"back_url" => "/bitrix/admin/cat_group_admin.php?lang=".LANGUAGE_ID."&".GetFilterParams("filter_", false)
-			)
-	);
-
+$tabControl->Buttons(array("disabled" => $bReadOnly, "back_url" => $listUrl));
 $tabControl->End();
 ?>
 </form>

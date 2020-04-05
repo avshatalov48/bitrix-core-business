@@ -63,17 +63,12 @@ class CRestServer
 	public function __construct($params)
 	{
 		$this->class = $params['CLASS'];
-		$this->method = $params['METHOD'];
+		$this->method = ToLower($params['METHOD']);
 		$this->query = $params['QUERY'];
 
 		$this->transport = $params['TRANSPORT'];
 
 		$this->securityClientState = $params['STATE'];
-
-		$this->tokenCheck = in_array($this->method, array(
-			\CRestUtil::METHOD_DOWNLOAD,
-			\CRestUtil::METHOD_UPLOAD,
-		));
 
 		if(!$this->transport)
 		{
@@ -118,6 +113,8 @@ class CRestServer
 				/* @var IRestService $handler */
 				$this->arServiceDesc = $handler->getDescription();
 
+				$this->tokenCheck = $this->isTokenCheck();
+
 				if($this->checkScope())
 				{
 					$APPLICATION->RestartBuffer();
@@ -125,6 +122,8 @@ class CRestServer
 					if($this->checkAuth())
 					{
 						\Bitrix\Rest\StatTable::log($this);
+
+
 						if($this->tokenCheck)
 						{
 							return $this->processTokenCheckCall();
@@ -165,6 +164,22 @@ class CRestServer
 		{
 			return $this->outputError();
 		}
+
+		return null;
+	}
+
+	protected function isTokenCheck()
+	{
+		$methodDescription = $this->getMethodDescription();
+		if(!$methodDescription)
+		{
+			throw new RestException('Method not found!', RestException::ERROR_METHOD_NOT_FOUND, self::STATUS_NOT_FOUND);
+		}
+
+		return in_array($this->method, array(
+			\CRestUtil::METHOD_DOWNLOAD,
+			\CRestUtil::METHOD_UPLOAD,
+		)) || isset($this->query['token']);
 	}
 
 	protected function processTokenCheckCall()
@@ -355,10 +370,21 @@ class CRestServer
 
 	public function getTokenCheckSignature($method, $queryString)
 	{
+		if(!\Bitrix\Rest\OAuthService::getEngine()->isRegistered())
+		{
+			try
+			{
+				\Bitrix\Rest\OAuthService::register();
+			}
+			catch(\Bitrix\Main\SystemException $e)
+			{
+			}
+		}
+
 		$key = \Bitrix\Rest\OAuthService::getEngine()->getClientSecret();
 
-		$signatureState = $method
-			.\CRestUtil::TOKEN_DELIMITER.$this->scope
+		$signatureState = ToLower($method)
+			.\CRestUtil::TOKEN_DELIMITER.($this->scope === \CRestUtil::GLOBAL_SCOPE ? '' : $this->scope)
 			.\CRestUtil::TOKEN_DELIMITER.$queryString
 			.\CRestUtil::TOKEN_DELIMITER.implode(\CRestUtil::TOKEN_DELIMITER, $this->auth);
 
@@ -536,7 +562,7 @@ class CRestServer
 		{
 			if(isset($this->query["token"]) && strlen($this->query["token"]) > 0)
 			{
-				list($scope, $t) = explode(\CRestUtil::TOKEN_DELIMITER, $this->query["token"], 2);
+				list($scope) = explode(\CRestUtil::TOKEN_DELIMITER, $this->query["token"], 2);
 				$this->scope = $scope == "" ? \CRestUtil::GLOBAL_SCOPE : $scope;
 			}
 		}
@@ -629,8 +655,6 @@ class CRestServer
 
 	private function outputError()
 	{
-		$this->status = $this->error->getStatus();
-
 		$res = array_merge(array(
 			'error' => $this->error->getErrorCode(),
 			'error_description' => $this->error->getMessage(),
@@ -694,6 +718,7 @@ class CRestServer
 				return $this->outputXml(array('response' => $data));
 			break;
 		}
+		return null;
 	}
 
 	protected function appendDebugInfo(array $data)
@@ -866,8 +891,20 @@ class IRestService
 		return $arResult;
 	}
 
-	protected static function sanitizeFilterInternal($valueCallback, array $filter, array $availableFields, array $availableOperations = array('', '=', '>', '<', '>=', '<=', '@'))
+	protected static function sanitizeFilter($filter, array $availableFields = null, $valueCallback = null, array $availableOperations = null)
 	{
+		static $defaultOperations = array('', '=', '>', '<', '>=', '<=', '@', '%');
+
+		if($availableOperations === null)
+		{
+			$availableOperations = $defaultOperations;
+		}
+
+		if(!is_array($filter))
+		{
+			throw new RestException('The filter is not an array.', RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
 		$filter = array_change_key_case($filter, CASE_UPPER);
 
 		$resultFilter = array();
@@ -883,7 +920,7 @@ class IRestService
 					throw new RestException('Filter operation not allowed: '.$operation, RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
 				}
 
-				if(!in_array($field, $availableFields))
+				if($availableFields !== null && !in_array($field, $availableFields))
 				{
 					throw new RestException('Filter field not allowed: '.$field, RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
 				}
@@ -900,30 +937,32 @@ class IRestService
 		return $resultFilter;
 	}
 
-	protected static function sanitizeOrderInternal($order, array $availableFields)
+	protected static function sanitizeOrder($order, array $availableFields = null)
 	{
-		if(is_array($order))
+		if(!is_array($order))
 		{
-			$order = array_change_key_case($order, CASE_UPPER);
+			throw new RestException('The order is not an array.', RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
+		}
 
-			foreach($order as $key => $value)
+		$order = array_change_key_case($order, CASE_UPPER);
+
+		foreach($order as $key => $value)
+		{
+			if(!is_numeric($key))
 			{
-				if(!is_numeric($key))
+				if($availableFields !== null && !in_array($key, $availableFields))
 				{
-					if(!in_array($key, $availableFields))
-					{
-						throw new RestException('Order field not allowed: '.$key, RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
-					}
+					throw new RestException('Order field not allowed: '.$key, RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
+				}
 
-					if(!in_array(ToUpper($value), array('ASC', 'DESC')))
-					{
-						throw new RestException('Order direction should be one of {ASC|DESC}', RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
-					}
-				}
-				elseif(!in_array($value, $availableFields))
+				if(!in_array(ToUpper($value), array('ASC', 'DESC')))
 				{
-					throw new RestException('Order field not allowed: '.$value, RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
+					throw new RestException('Order direction should be one of {ASC|DESC}', RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
 				}
+			}
+			elseif($availableFields !== null && !in_array($value, $availableFields))
+			{
+				throw new RestException('Order field not allowed: '.$value, RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
 			}
 		}
 
@@ -931,4 +970,3 @@ class IRestService
 	}
 
 }
-?>

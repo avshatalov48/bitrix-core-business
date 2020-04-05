@@ -337,7 +337,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['Update']) && !$bReadO
 
 	if (!$useSaleDiscountOnly)
 	{
-		if (CBXFeatures::IsFeatureEnabled('CatDiscountSave'))
+		if (Catalog\Config\Feature::isCumulativeDiscountsEnabled())
 		{
 			$strDiscSaveApply = '';
 			if (isset($_REQUEST['discsave_apply']))
@@ -401,6 +401,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['Update']) && !$bReadO
 	while ($arCatalog = $catalogIterator->fetch())
 	{
 		$arCatalog['IBLOCK_ID'] = (int)$arCatalog['IBLOCK_ID'];
+		if (!isset($arCurrentIBlocks[$arCatalog['IBLOCK_ID']]))
+			continue;
 		$arCatalog['PRODUCT_IBLOCK_ID'] = (int)$arCatalog['PRODUCT_IBLOCK_ID'];
 		$arCatalog['SKU_PROPERTY_ID'] = (int)$arCatalog['SKU_PROPERTY_ID'];
 		$arCatalog['VAT_ID'] = (int)$arCatalog['VAT_ID'];
@@ -1410,7 +1412,7 @@ if ($saleIsInstalled && Loader::includeModule('sale'))
 }
 if (!$useSaleDiscountOnly)
 {
-	if (CBXFeatures::IsFeatureEnabled('CatDiscountSave'))
+	if (Catalog\Config\Feature::isCumulativeDiscountsEnabled())
 	{
 	?>
 <tr class="heading">
@@ -1767,6 +1769,9 @@ $catalogIterator = Catalog\CatalogIblockTable::getList(array(
 while ($arOneCatalog = $catalogIterator->fetch())
 {
 	$arOneCatalog['IBLOCK_ID'] = (int)$arOneCatalog['IBLOCK_ID'];
+	if (!isset($arIBlockFullInfo[$arOneCatalog['IBLOCK_ID']]))
+		continue;
+
 	$arOneCatalog['VAT_ID'] = (int)$arOneCatalog['VAT_ID'];
 	$arOneCatalog['PRODUCT_IBLOCK_ID'] = (int)$arOneCatalog['PRODUCT_IBLOCK_ID'];
 	$arOneCatalog['SKU_PROPERTY_ID'] = (int)$arOneCatalog['SKU_PROPERTY_ID'];
@@ -2047,13 +2052,30 @@ $catalogCount = (isset($catalogData['CNT']) ? (int)$catalogData['CNT'] : 0);
 unset($catalogData);
 ?><h2><?=Loc::getMessage("COP_SYS_ROU"); ?></h2>
 <?
-$aTabs = array(
-	array("DIV" => "fedit2", "TAB" => Loc::getMessage("COP_TAB2_AGENT"), "ICON" => "catalog_settings", "TITLE" => Loc::getMessage("COP_TAB2_AGENT_TITLE")),
-	array("DIV" => "fedit4", "TAB" => Loc::getMessage("COP_TAB_RECALC"), "ICON" => "catalog_settings", "TITLE" => Loc::getMessage("COP_TAB_RECALC_TITLE")),
-);
+$aTabs = [];
+$aTabs[] = [
+	"DIV" => "fedit2",
+	"TAB" => Loc::getMessage("COP_TAB2_AGENT"),
+	"ICON" => "catalog_settings",
+	"TITLE" => Loc::getMessage("COP_TAB2_AGENT_TITLE")
+];
+if (!$useSaleDiscountOnly || $catalogCount > 0)
+{
+	$aTabs[] = [
+		"DIV" => "fedit4",
+		"TAB" => Loc::getMessage("COP_TAB_RECALC"),
+		"ICON" => "catalog_settings",
+		"TITLE" => Loc::getMessage("COP_TAB_RECALC_TITLE")
+	];
+}
 if ($strUseStoreControl === 'N' && $catalogCount > 0)
 {
-	$aTabs[] = array("DIV" => "fedit3", "TAB" => Loc::getMessage("CAT_QUANTITY_CONTROL_TAB"), "ICON" => "catalog_settings", "TITLE" => Loc::getMessage("CAT_QUANTITY_CONTROL"));
+	$aTabs[] = [
+		"DIV" => "fedit3",
+		"TAB" => Loc::getMessage("CAT_QUANTITY_CONTROL_TAB"),
+		"ICON" => "catalog_settings",
+		"TITLE" => Loc::getMessage("CAT_QUANTITY_CONTROL")
+	];
 ?>
 <script type="text/javascript">
 	function catClearQuantity(el, action)
@@ -2168,32 +2190,33 @@ else
 echo Loc::getMessage('CAT_AGENT_EVENT_LOG').':&nbsp;';
 
 ?><a href="/bitrix/admin/event_log.php?lang=<? echo LANGUAGE_ID; ?>&set_filter=Y<? echo CCatalogEvent::GetYandexAgentFilter(); ?>"><? echo Loc::getMessage('CAT_AGENT_EVENT_LOG_SHOW_ERROR')?></a>
-</td></tr>
-<?
-$systemTabControl->BeginNextTab();
-?><tr><td align="left"><?
-$firstTop = ' style="margin-top: 0;"';
-if (!$useSaleDiscountOnly)
-{
-	?><h4<? echo $firstTop; ?>><? echo Loc::getMessage('CAT_PROC_REINDEX_DISCOUNT'); ?></h4>
-	<input class="adm-btn-save" type="button" id="discount_reindex" value="<? echo Loc::getMessage('CAT_PROC_REINDEX_DISCOUNT_BTN'); ?>">
-	<p><? echo Loc::getMessage('CAT_PROC_REINDEX_DISCOUNT_ALERT'); ?></p><?
-	$firstTop = '';
-}
-if ($catalogCount > 0)
-{
-	?><h4<? echo $firstTop; ?>><? echo Loc::getMessage('CAT_PROC_REINDEX_CATALOG'); ?></h4>
-	<input class="adm-btn-save" type="button" id="catalog_reindex" value="<? echo Loc::getMessage('CAT_PROC_REINDEX_CATALOG_BTN'); ?>">
-	<p><? echo Loc::getMessage('CAT_PROC_REINDEX_CATALOG_ALERT'); ?></p><?
-	if (CBXFeatures::IsFeatureEnabled('CatCompleteSet') && CCatalogProductSetAvailable::getAllCounter() > 0)
-	{
-		?><h4><? echo Loc::getMessage('CAT_PROC_REINDEX_SETS_AVAILABLE'); ?></h4>
-		<input class="adm-btn-save" type="button" id="sets_reindex" value="<? echo Loc::getMessage('CAT_PROC_REINDEX_SETS_AVAILABLE_BTN'); ?>">
-		<p><? echo Loc::getMessage('CAT_PROC_REINDEX_SETS_AVAILABLE_ALERT'); ?></p><?
-	}
-}
-?>
 </td></tr><?
+if (!$useSaleDiscountOnly || $catalogCount > 0)
+{
+	$systemTabControl->BeginNextTab();
+	?><tr><td align="left"><?
+	$firstTop = ' style="margin-top: 0;"';
+	if (!$useSaleDiscountOnly)
+	{
+		?><h4<?=$firstTop; ?>><?=Loc::getMessage('CAT_PROC_REINDEX_DISCOUNT'); ?></h4>
+		<input class="adm-btn-save" type="button" id="discount_reindex" value="<?=Loc::getMessage('CAT_PROC_REINDEX_DISCOUNT_BTN'); ?>">
+		<p><?=Loc::getMessage('CAT_PROC_REINDEX_DISCOUNT_ALERT'); ?></p><?
+		$firstTop = '';
+	}
+	if ($catalogCount > 0)
+	{
+		?><h4<?=$firstTop; ?>><?=Loc::getMessage('CAT_PROC_REINDEX_CATALOG'); ?></h4>
+		<input class="adm-btn-save" type="button" id="catalog_reindex" value="<?=Loc::getMessage('CAT_PROC_REINDEX_CATALOG_BTN'); ?>">
+		<p><?=Loc::getMessage('CAT_PROC_REINDEX_CATALOG_ALERT'); ?></p><?
+		if (Catalog\Config\Feature::isProductSetsEnabled() && CCatalogProductSetAvailable::getAllCounter() > 0)
+		{
+			?><h4><?=Loc::getMessage('CAT_PROC_REINDEX_SETS_AVAILABLE'); ?></h4>
+			<input class="adm-btn-save" type="button" id="sets_reindex" value="<?=Loc::getMessage('CAT_PROC_REINDEX_SETS_AVAILABLE_BTN'); ?>">
+			<p><?=Loc::getMessage('CAT_PROC_REINDEX_SETS_AVAILABLE_ALERT'); ?></p><?
+		}
+	}
+	?></td></tr><?
+}
 	if ($strUseStoreControl === 'N' && $catalogCount > 0)
 	{
 		$userListID = array();

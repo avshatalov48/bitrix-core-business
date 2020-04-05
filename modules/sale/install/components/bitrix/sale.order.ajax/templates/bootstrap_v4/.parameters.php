@@ -13,22 +13,13 @@ if ($eshop = \Bitrix\Main\ModuleManager::isModuleInstalled('bitrix.eshop'))
 {
 	$arThemes['site'] = GetMessage('THEME_SITE');
 }
-$arThemesList = array(
+
+$arThemes = array(
 	'blue' => GetMessage('THEME_BLUE'),
 	'green' => GetMessage('THEME_GREEN'),
 	'red' => GetMessage('THEME_RED'),
 	'yellow' => GetMessage('THEME_YELLOW')
 );
-$dir = $_SERVER["DOCUMENT_ROOT"]."/bitrix/css/main/themes/";
-if (is_dir($dir))
-{
-	foreach ($arThemesList as $themeID => $themeName)
-	{
-		if (!is_file($dir.$themeID.'/style.css'))
-			continue;
-		$arThemes[$themeID] = $themeName;
-	}
-}
 
 $arTemplateParameters = array(
 	"TEMPLATE_THEME" => array(
@@ -214,6 +205,12 @@ $arTemplateParameters = array(
 		"VALUES" => array(),
 		"DEFAULT" => array(),
 		"ADDITIONAL_VALUES" => "N",
+		"PARENT" => "ADDITIONAL_SETTINGS"
+	),
+	"HIDE_ORDER_DESCRIPTION" => array(
+		"NAME" => GetMessage("HIDE_ORDER_DESCRIPTION"),
+		"TYPE" => "CHECKBOX",
+		"DEFAULT" => "N",
 		"PARENT" => "ADDITIONAL_SETTINGS"
 	),
 	"ALLOW_USER_PROFILES" => array(

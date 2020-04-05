@@ -2,6 +2,11 @@
 
 namespace Bitrix\Seo\Retargeting\Services;
 
+use Bitrix\Main\Engine\Response\Converter;
+use Bitrix\Main\Error;
+use Bitrix\Main\Result;
+use Bitrix\Main\Type\Date;
+use Bitrix\Main\Web\Json;
 use \Bitrix\Seo\Retargeting\Account;
 
 class AccountFacebook extends Account

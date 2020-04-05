@@ -22,7 +22,6 @@ BX.UI.Tooltip = {
 };
 
 BX.ready(function () {
-
 	if (
 		BX.browser.IsAndroid()
 		|| BX.browser.IsIOS()
@@ -38,7 +37,7 @@ BX.ready(function () {
 		var userId = node.getAttribute('bx-tooltip-user-id');
 		var loader = node.getAttribute('bx-tooltip-loader');
 
-		var tooltipId = userId;
+		var tooltipId = userId; // don't use integer value!
 		if(BX.type.isNotEmptyString(loader))
 		{
 			var loaderHash = 0;
@@ -50,13 +49,14 @@ BX.ready(function () {
 			tooltipId = loaderHash + userId;
 		}
 
-		if (parseInt(userId) > 0)
+		if (BX.type.isNotEmptyString(userId))
 		{
 			if (null == BX.UI.Tooltip.tooltipsList[tooltipId])
 			{
 				BX.UI.Tooltip.tooltipsList[tooltipId] = new BX.UI.TooltipBalloon({
-					userId: parseInt(userId),
-					node: node
+					userId: userId,
+					node: node,
+					loader: loader
 				});
 			}
 			else
@@ -75,18 +75,28 @@ BX.UI.TooltipBalloon = function(params)
 {
 	this.node = params.node;
 	this.userId = params.userId;
+	this.loader = (BX.type.isNotEmptyString(params.loader) ? params.loader : '');
+
+	this.version = (
+		typeof params.version != 'undefined'
+		&& parseInt(params.version) > 0
+			? parseInt(params.version)
+			: (BX.type.isNotEmptyString(this.loader) ? 2 : 3)
+	);
 
 	this.tracking = false;
 	this.active = false;
 
-	this.width = 393;
-	this.height = 302;
+	this.width = 364; // 393
+	this.height = 215; // 302
 
 	this.realAnchor = null;
 	this.coordsLeft = 0;
 	this.coordsTop = 0;
 	this.anchorRight = 0;
-	this.anchorBottom = 0;
+	this.anchorTop = 0;
+	this.hMirror = false;
+	this.vMirror = false;
 
 	this.rootClassName = this.node.getAttribute('bx-tooltip-classname');
 
@@ -132,12 +142,16 @@ BX.UI.TooltipBalloon.prototype.startTrackMouse = function()
 		var _this = this;
 
 		var elCoords = BX.pos(this.node);
-
 		this.realAnchor = this.node;
-		this.coordsLeft = elCoords.left + 0;
-		this.coordsTop = elCoords.top - 325;
+
+		this.coordsLeft = (
+			elCoords.width < 40
+				? (elCoords.left - 35)
+				: (elCoords.left + 0)
+		);
+		this.coordsTop = elCoords.top - 245; // 325
 		this.anchorRight = elCoords.right;
-		this.anchorBottom = elCoords.bottom;
+		this.anchorTop = elCoords.top;
 
 		this.tracking = true;
 
@@ -233,21 +247,16 @@ BX.UI.TooltipBalloon.prototype.hideTooltip = function()
 {
 	if (!this.tracking)
 	{
-		this.showOpacityEffect({func: this.SetInVisible, obj: this.DIV, arParams: []}, 1);
+		this.showOpacityEffect(1);
 	}
 };
 
-BX.UI.TooltipBalloon.prototype.showOpacityEffect = function(oCallback, bFade)
+BX.UI.TooltipBalloon.prototype.showOpacityEffect = function(bFade)
 {
 	var steps = 3;
 	var period = 1;
 	var delta = 1 / steps;
 	var i = 0, op, _this = this;
-
-	if (BX.browser.IsIE() && _this.DIV)
-	{
-		_this.DIV.className = _this.classNameAnim;
-	}
 
 	var show = function()
 	{
@@ -255,17 +264,6 @@ BX.UI.TooltipBalloon.prototype.showOpacityEffect = function(oCallback, bFade)
 		if (i > steps)
 		{
 			clearInterval(intId);
-
-			if (!oCallback.arParams)
-			{
-				oCallback.arParams = [];
-			}
-
-			if (oCallback.func && oCallback.obj)
-			{
-				oCallback.func.apply(oCallback.obj, oCallback.arParams);
-			}
-
 			return;
 		}
 		op = bFade ? 1 - i * delta : i * delta;
@@ -274,10 +272,7 @@ BX.UI.TooltipBalloon.prototype.showOpacityEffect = function(oCallback, bFade)
 		{
 			try
 			{
-				_this.DIV.style.filter = 'progid:DXImageTransform.Microsoft.Alpha(opacity=' + (op * 100) + ')';
 				_this.DIV.style.opacity = op;
-				_this.DIV.style.MozOpacity = op;
-				_this.DIV.style.KhtmlOpacity = op;
 			}
 			catch(e)
 			{
@@ -286,39 +281,15 @@ BX.UI.TooltipBalloon.prototype.showOpacityEffect = function(oCallback, bFade)
 			{
 				if (!bFade && i == 1)
 				{
+					_this.DIV.classList.add("ui-tooltip-info-shadow-show");
 					_this.DIV.style.display = 'block';
 				}
 
 				if (bFade && i == steps && _this.DIV)
 				{
-					_this.DIV.style.display = 'none';
-				}
-
-
-				if (
-					BX.browser.IsIE()
-					&& i == 1
-					&& bFade
-					&& _this.IFRAME
-				)
-				{
-					_this.IFRAME.style.display = 'none';
-				}
-
-				if (
-					BX.browser.IsIE()
-					&& i == steps
-					&& _this.DIV
-				)
-				{
-					if (!bFade)
-					{
-						_this.IFRAME.style.display = 'block';
-					}
-
-					_this.DIV.style.filter = _this.filterFixed;
-					_this.DIV.className = _this.classNameFixed;
-					_this.DIV.innerHTML = '' + _this.DIV.innerHTML;
+					_this.DIV.classList.remove("ui-tooltip-info-shadow-show");
+					_this.DIV.classList.add("ui-tooltip-info-shadow-hide");
+					setTimeout(BX.delegate(function() {_this.DIV.style.display = 'none'}, this), 500);
 				}
 
 				if(bFade)
@@ -343,7 +314,7 @@ BX.UI.TooltipBalloon.prototype.showTooltip = function()
 		BX.UI.Tooltip.getDisabledStatus()
 		|| (
 			old
-			&& old.style.display == 'block'
+			&& old.classList.contains('ui-tooltip-info-shadow-show')
 		)
 	)
 	{
@@ -359,7 +330,7 @@ BX.UI.TooltipBalloon.prototype.showTooltip = function()
 		_this.DIV.className = 'bx-ui-tooltip-info-shadow';
 
 		_this.DIV.style.width = _this.width + 'px';
-		_this.DIV.style.height = _this.height + 'px';
+//		_this.DIV.style.height = _this.height + 'px';
 	}
 
 	var left = _this.coordsLeft;
@@ -367,76 +338,185 @@ BX.UI.TooltipBalloon.prototype.showTooltip = function()
 	var arScroll = BX.GetWindowScrollPos();
 	var body = document.body;
 
-	var h_mirror = false;
-	var v_mirror = false;
+	_this.hMirror = false;
+	_this.vMirror = ((top - arScroll.scrollTop) < 0);
 
 	if((body.clientWidth + arScroll.scrollLeft) < (left + _this.width))
 	{
 		left = _this.anchorRight - _this.width;
-		h_mirror = true;
-	}
-
-	if((top - arScroll.scrollTop) < 0)
-	{
-		top = _this.anchorBottom - 5;
-		v_mirror = true;
-		_this.v_delta = 40;
-	}
-	else
-	{
-		_this.v_delta = 0;
+		_this.hMirror = true;
 	}
 
 	_this.ROOT_DIV.style.left = parseInt(left) + "px";
 	_this.ROOT_DIV.style.top = parseInt(top) + "px";
-	_this.ROOT_DIV.style.zIndex = 1200;
+	_this.ROOT_DIV.style.zIndex = 3200;
 
 	BX.bind(BX(_this.ROOT_DIV), "click", BX.eventCancelBubble);
 
-	if (
-		this.rootClassName != 'undefined'
-		&& this.rootClassName != null
-		&& this.rootClassName.length > 0
-	)
+	if (BX.type.isNotEmptyString(this.rootClassName))
 	{
 		_this.ROOT_DIV.className = this.rootClassName;
 	}
 
-	var loader = BX.UI.Tooltip.getLoader();
+	var loader = (BX.type.isNotEmptyString(_this.loader) ? _this.loader : BX.UI.Tooltip.getLoader());
+
+	// create stub
+	var stubCreated = false;
 
 	if ('' == _this.DIV.innerHTML)
 	{
-		var url = loader +
-			(loader.indexOf('?') >= 0 ? '&' : '?') +
-			'MODE=UI&MUL_MODE=INFO&USER_ID=' + _this.userId +
-			'&site=' + (BX.message('SITE_ID') || '') +
-			(
-				typeof _this.params != 'undefined'
-				&& typeof _this.params.entityType != 'undefined'
-				&& _this.params.entityType.length > 0
-					? '&entityType=' + _this.params.entityType
-					: ''
-			) +
-			(
-				typeof _this.params != 'undefined'
-				&& typeof _this.params.entityId != 'undefined'
-				&& parseInt(_this.params.entityId) > 0
-					? '&entityId=' + parseInt(_this.params.entityId)
-					: ''
-			);
+		stubCreated = true;
 
-		BX.ajax.get(url, BX.delegate(_this.insertData, _this));
+		if (_this.version >= 3)
+		{
+			BX.ajax.runComponentAction('bitrix:ui.tooltip', 'getData', {
+				mode: 'ajax',
+				data: {
+					userId: _this.userId,
+					params: (typeof _this.params != 'undefined' ? _this.params : {})
+				}
+			}).then(function (response) {
+
+				var detailUrl = ((BX.type.isNotEmptyString(response.data.user.detailUrl)) ? response.data.user.detailUrl : '');
+				var cardUserName = '';
+
+				if (BX.type.isNotEmptyString(response.data.user.nameFormatted))
+				{
+					if (BX.type.isNotEmptyString(detailUrl))
+					{
+						cardUserName = '<a href="' + detailUrl + '">' + response.data.user.nameFormatted + '</a>';
+					}
+					else
+					{
+						cardUserName = response.data.user.nameFormatted;
+					}
+				}
+
+				var cardFields = '<div class="bx-ui-tooltip-info-data-info">';
+				for (var fieldCode in response.data.user.cardFields)
+				{
+					if (response.data.user.cardFields.hasOwnProperty(fieldCode))
+					{
+						cardFields += '<span class="bx-ui-tooltip-field-row bx-ui-tooltip-field-row-' + fieldCode.toLowerCase() + '"><span class="bx-ui-tooltip-field-name">' + response.data.user.cardFields[fieldCode].name + '</span>: <span class="bx-ui-tooltip-field-value">' + response.data.user.cardFields[fieldCode].value + '</span></span>';
+					}
+				}
+				cardFields += '</div>';
+
+				var cardFieldsClassName = (
+					parseInt(BX.message('USER_ID')) > 0
+					&& response.data.currentUserPerms.operations.videocall
+						? 'bx-ui-tooltip-info-data-cont-video'
+						: 'bx-ui-tooltip-info-data-cont'
+				);
+				cardFields = '<div id="bx_user_info_data_cont_' + response.data.user.id + '" class="' + cardFieldsClassName + '">' + cardFields + '</div>';
+
+				var photo = '';
+				var photoClassName = 'bx-ui-tooltip-info-data-photo no-photo';
+
+				if (BX.type.isNotEmptyString(response.data.user.photo))
+				{
+					photo = response.data.user.photo;
+					photoClassName = 'bx-ui-tooltip-info-data-photo';
+				}
+
+				photo = (
+					BX.type.isNotEmptyString(detailUrl)
+						? '<a href="' + detailUrl + '" class="' + photoClassName + '">' + photo + '</a>'
+						: '<span class="' + photoClassName + '">' + photo + '</span>'
+				);
+
+				var toolbar = toolbar2 = '';
+
+				if (
+					parseInt(BX.message('USER_ID')) > 0
+					&& response.data.user.active
+					&& response.data.user.id != BX.message('USER_ID')
+					&& response.data.currentUserPerms.operations.message
+				)
+				{
+					toolbar2 += '<li class="bx-icon bx-icon-message"><span onclick="return BX.tooltip.openIM(' + response.data.user.id +');">' + BX.message('MAIN_UL_TOOLBAR_MESSAGES_CHAT') + '</span></li>';
+					toolbar2 += '<li id="im-video-call-button' + response.data.user.id + '" class="bx-icon bx-icon-video"><span onclick="return BX.tooltip.openCallTo(' + response.data.user.id +');">' + BX.message('MAIN_UL_TOOLBAR_VIDEO_CALL') + '</span></li>';
+					toolbar2 += '<script type="text/javascript">BX.ready(function() {BX.tooltip.checkCallTo("im-video-call-button' + response.data.user.id + '"); };</script>';
+				}
+
+				toolbar2 = (BX.type.isNotEmptyString(toolbar2) ? '<div class="bx-ui-tooltip-info-data-separator"></div><ul>' + toolbar2 + '</ul>' : '');
+
+				if (response.data.user.hasBirthday)
+				{
+					toolbar += '<li class="bx-icon bx-icon-birth">' + BX.message('MAIN_UL_TOOLBAR_BIRTHDAY') + '</li>';
+				}
+
+				if (response.data.user.hasHonour)
+				{
+					toolbar += '<li class="bx-icon bx-icon-featured">' + BX.message('MAIN_UL_TOOLBAR_HONORED') + '</li>';
+				}
+
+				if (response.data.user.hasAbsence)
+				{
+					toolbar += '<li class="bx-icon bx-icon-away">' + BX.message('MAIN_UL_TOOLBAR_ABSENT') + '</li>';
+				}
+
+				toolbar = (BX.type.isNotEmptyString(toolbar) ? '<ul>' + toolbar + '</ul>' : '');
+
+				_this.insertData({
+					RESULT: {
+						Name: cardUserName,
+						Position: (BX.type.isNotEmptyString(response.data.user.position) ? response.data.user.position : ''),
+						Card: cardFields,
+						Photo: photo,
+						Toolbar: toolbar,
+						Toolbar2: toolbar2
+					}
+				});
+				_this.adjustPosition();
+
+			}, function (response) {
+				/**
+				 {
+					 "status": "error",
+					 "errors": [...]
+				 }
+				 **/
+			});
+		}
+		else
+		{
+			var url = loader +
+				(loader.indexOf('?') >= 0 ? '&' : '?') +
+				'MODE=UI&MUL_MODE=INFO&USER_ID=' + _this.userId +
+				'&site=' + (BX.message('SITE_ID') || '') +
+				'&version=' + _this.version +
+				(
+					typeof _this.params != 'undefined'
+					&& typeof _this.params.entityType != 'undefined'
+					&& _this.params.entityType.length > 0
+						? '&entityType=' + _this.params.entityType
+						: ''
+				) +
+				(
+					typeof _this.params != 'undefined'
+					&& typeof _this.params.entityId != 'undefined'
+					&& parseInt(_this.params.entityId) > 0
+						? '&entityId=' + parseInt(_this.params.entityId)
+						: ''
+				);
+
+			BX.ajax.get(url, BX.proxy(function(data) {
+				_this.insertData(data);
+				_this.adjustPosition();
+			}, _this));
+		}
 
 		_this.DIV.id = BX.UI.Tooltip.getIdPrefix() + _this.userId;
 
 		_this.DIV.innerHTML = '<div class="bx-ui-tooltip-info-wrap">'
 			+ '<div class="bx-ui-tooltip-info-leftcolumn">'
 			+ '<div class="bx-ui-tooltip-photo" id="' + BX.UI.Tooltip.getIdPrefix() + 'photo-' + _this.userId + '"><div class="bx-ui-tooltip-info-data-loading">' + BX.message('JS_CORE_LOADING') + '</div></div>'
-			+ '<div class="bx-ui-tooltip-tb-control bx-ui-tooltip-tb-control-left" id="' + BX.UI.Tooltip.getIdPrefix() + 'toolbar-' + _this.userId + '"></div>'
 			+ '</div>'
 			+ '<div class="bx-ui-tooltip-info-data">'
 			+ '<div id="' + BX.UI.Tooltip.getIdPrefix() + 'data-card-' + _this.userId + '"></div>'
 			+ '<div class="bx-ui-tooltip-info-data-tools">'
+			+ '<div class="bx-ui-tooltip-tb-control bx-ui-tooltip-tb-control-left" id="' + BX.UI.Tooltip.getIdPrefix() + 'toolbar-' + _this.userId + '"></div>'
 			+ '<div class="bx-ui-tooltip-tb-control bx-ui-tooltip-tb-control-right" id="' + BX.UI.Tooltip.getIdPrefix() + 'toolbar2-' + _this.userId + '"></div>'
 			+ '<div class="bx-ui-tooltip-info-data-clear"></div>'
 			+ '</div>'
@@ -448,56 +528,38 @@ BX.UI.TooltipBalloon.prototype.showTooltip = function()
 	_this.classNameAnim = 'bx-ui-tooltip-info-shadow-anim';
 	_this.classNameFixed = 'bx-ui-tooltip-info-shadow';
 
-	_this.filterFixed = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/bitrix/components/bitrix/main.user.link/templates/.default/images/cloud-left-top.png', sizingMethod = 'crop' );";
-
-	if (h_mirror && v_mirror)
+	if (_this.hMirror && _this.vMirror)
 	{
 		_this.DIV.className = 'bx-ui-tooltip-info-shadow-hv';
 		_this.classNameAnim = 'bx-ui-tooltip-info-shadow-hv-anim';
 		_this.classNameFixed = 'bx-ui-tooltip-info-shadow-hv';
-		_this.filterFixed = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/bitrix/components/bitrix/main.user.link/templates/.default/images/cloud-right-bottom.png', sizingMethod = 'crop' );";
 	}
 	else
 	{
-		if (h_mirror)
+		if (_this.hMirror)
 		{
 			_this.DIV.className = 'bx-ui-tooltip-info-shadow-h';
 			_this.classNameAnim = 'bx-ui-tooltip-info-shadow-h-anim';
 			_this.classNameFixed = 'bx-ui-tooltip-info-shadow-h';
-			_this.filterFixed = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/bitrix/components/bitrix/main.user.link/templates/.default/images/cloud-right-top.png', sizingMethod = 'crop' );";
 		}
 
-		if (v_mirror)
+		if (_this.vMirror)
 		{
 			_this.DIV.className = 'bx-ui-tooltip-info-shadow-v';
 			_this.classNameAnim = 'bx-ui-tooltip-info-shadow-v-anim';
 			_this.classNameFixed = 'bx-ui-tooltip-info-shadow-v';
-
-			_this.filterFixed = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/bitrix/components/bitrix/main.user.link/templates/.default/images/cloud-left-bottom.png', sizingMethod = 'crop' );";
 		}
 	}
 
-	if (BX.browser.IsIE() && null == _this.IFRAME)
+	_this.DIV.style.display = 'block';
+
+	if (!stubCreated)
 	{
-		_this.IFRAME = document.body.appendChild(document.createElement('IFRAME'));
-		_this.IFRAME.id = _this.DIV.id + "_frame";
-		_this.IFRAME.style.position = 'absolute';
-		_this.IFRAME.style.width = (_this.width - 60) + 'px';
-		_this.IFRAME.style.height = (_this.height - 100) + 'px';
-		_this.IFRAME.style.borderStyle = 'solid';
-		_this.IFRAME.style.borderWidth = '0px';
-		_this.IFRAME.style.zIndex = 550;
-		_this.IFRAME.style.display = 'none';
+		_this.adjustPosition();
 	}
 
-	if (BX.browser.IsIE())
-	{
-		_this.IFRAME.style.left = (parseInt(left) + 25) + "px";
-		_this.IFRAME.style.top = (parseInt(top) + 30 + _this.v_delta) + "px";
-	}
-
-	_this.DIV.style.display = 'none';
-	_this.showOpacityEffect({func: _this.SetVisible, obj: _this.DIV, arParams: []}, 0);
+//	_this.DIV.style.display = 'none';
+	_this.showOpacityEffect(0);
 
 	BX(BX.UI.Tooltip.getIdPrefix() + _this.userId).onmouseover = function() {
 		_this.startTrackMouse(this);
@@ -510,16 +572,54 @@ BX.UI.TooltipBalloon.prototype.showTooltip = function()
 	BX.onCustomEvent('onTooltipShow', [this]);
 };
 
+BX.UI.TooltipBalloon.prototype.adjustPosition = function()
+{
+	var tooltipCoords = BX.pos(this.DIV);
+
+	if (this.vMirror)
+	{
+		this.ROOT_DIV.style.top = parseInt(this.anchorTop + 13) + "px";
+	}
+	else
+	{
+		this.ROOT_DIV.style.top = parseInt(this.anchorTop - tooltipCoords.height - 13 + 12) + "px"; // 12 - bottom block
+	}
+};
+
 BX.UI.TooltipBalloon.prototype.insertData = function(data)
 {
 	var _this = this;
 
-	if (null != data && data.length > 0)
+	if (
+		null != data
+		&& (
+			_this.version >= 3
+			|| data.length > 0
+		)
+	)
 	{
-		eval('_this.INFO = ' + data);
+		if (_this.version >= 3)
+		{
+			_this.INFO = data;
+		}
+		else
+		{
+			eval('_this.INFO = ' + data);
+		}
 
 		var cardEl = BX(BX.UI.Tooltip.getIdPrefix() + 'data-card-' + _this.userId);
-		cardEl.innerHTML = _this.INFO.RESULT.Card;
+		cardEl.innerHTML = '';
+		if (BX.type.isNotEmptyString(_this.INFO.RESULT.Name))
+		{
+			cardEl.innerHTML += '<div class="bx-ui-tooltip-user-name">' + _this.INFO.RESULT.Name + '</div>';
+		}
+		if (BX.type.isNotEmptyString(_this.INFO.RESULT.Position))
+		{
+			cardEl.innerHTML += '<div class="bx-ui-tooltip-user-position">' + _this.INFO.RESULT.Position + '</div>';
+		}
+		cardEl.innerHTML += _this.INFO.RESULT.Card;
+
+		// use _this.INFO.RESULT.Position
 
 		var photoEl = BX(BX.UI.Tooltip.getIdPrefix() + 'photo-' + _this.userId);
 		photoEl.innerHTML = _this.INFO.RESULT.Photo;

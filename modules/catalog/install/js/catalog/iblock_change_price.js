@@ -123,35 +123,85 @@ BX.Catalog.Admin.IblockChangePrice = function()
 
 					if (elements.inputEl.valuePrice.value !== "" || elements.inputEl.valuePrice.value != 0)
 					{
-						var diffValue = 0;
-						var initialPriceId = 0;
 						var checkedRadio = document.querySelector('input[name="formatResultRadio"]:checked');
-						document.getElementsByName("chprice_format_result")[0].value = checkedRadio.value;
-						document.getElementsByName("chprice_result_mask")[0].value = elements.selectEl.resultMask.options[elements.selectEl.resultMask.selectedIndex].value;
-						if (elements.checkboxEl.difference.checked)
-						{
-							diffValue = elements.inputEl.difference.value;
-						}
-						document.getElementsByName("chprice_difference_value")[0].value = diffValue;
+						var diffValue = (elements.checkboxEl.difference.checked ? elements.inputEl.difference.value : 0);
+						var initialPriceId = (elements.checkboxEl.priceType.checked ?
+							elements.selectEl.priceType.options[elements.selectEl.priceType.selectedIndex].value : 0);
+						var chPriceValueChangingPrice = ((elements.selectEl.changing.value === "add") ?
+							elements.inputEl.valuePrice.value : (-1)*elements.inputEl.valuePrice.value);
 
-						if (elements.checkboxEl.priceType.checked)
+						if (BX(tableId))
 						{
-							initialPriceId = elements.selectEl.priceType.options[elements.selectEl.priceType.selectedIndex].value;
+							[].slice.call(BX(tableId).children).forEach(function (node) {
+								if (node.tagName == "FORM")
+								{
+									node.appendChild(BX.create("div", {
+										children: [
+											BX.create("input", {
+												props: {
+													type: "hidden",
+													name: "action",
+													value: "change_price"
+												}
+											}),
+											BX.create("input", {
+												props: {
+													type: "hidden",
+													name: "chprice_value_changing_price",
+													value: BX.util.htmlspecialchars(chPriceValueChangingPrice)
+												}
+											}),
+											BX.create("input", {
+												props: {
+													type: "hidden",
+													name: "chprice_units",
+													value: BX.util.htmlspecialchars(elements.selectEl.unit.options[
+														elements.selectEl.unit.selectedIndex].value)
+												}
+											}),
+											BX.create("input", {
+												props: {
+													type: "hidden",
+													name: "chprice_id_price_type",
+													value: BX.util.htmlspecialchars(elements.selectEl.priceTypeInitial.options[
+														elements.selectEl.priceTypeInitial.selectedIndex].value)
+												}
+											}),
+											BX.create("input", {
+												props: {
+													type: "hidden",
+													name: "chprice_format_result",
+													value: BX.util.htmlspecialchars(checkedRadio.value)
+												}
+											}),
+											BX.create("input", {
+												props: {
+													type: "hidden",
+													name: "chprice_result_mask",
+													value: BX.util.htmlspecialchars(elements.selectEl.resultMask.options[
+														elements.selectEl.resultMask.selectedIndex].value)
+												}
+											}),
+											BX.create("input", {
+												props: {
+													type: "hidden",
+													name: "chprice_initial_price_type",
+													value: BX.util.htmlspecialchars(initialPriceId)
+												}
+											}),
+											BX.create("input", {
+												props: {
+													type: "hidden",
+													name: "chprice_difference_value",
+													value: BX.util.htmlspecialchars(diffValue)
+												}
+											})
+										]
+									}));
+									BX.submit(node);
+								}
+							});
 						}
-						document.getElementsByName("chprice_initial_price_type")[0].value = initialPriceId;
-
-						if(elements.selectEl.changing.value === "add")
-						{
-							document.getElementsByName("chprice_value_changing_price")[0].value = elements.inputEl.valuePrice.value;
-						}
-						else
-						{
-							document.getElementsByName("chprice_value_changing_price")[0].value = (-1)*elements.inputEl.valuePrice.value;
-						}
-						document.getElementsByName("chprice_units")[0].value = elements.selectEl.unit.options[elements.selectEl.unit.selectedIndex].value;
-						document.getElementsByName("chprice_id_price_type")[0].value = elements.selectEl.priceTypeInitial.options[elements.selectEl.priceTypeInitial.selectedIndex].value;
-						document.getElementsByName("action_button")[0].value = "change_price";
-						BX.submit(top[tableId].FORM, "change_price");
 						top.BX.WindowManager.Get().Close();
 					}
 					else

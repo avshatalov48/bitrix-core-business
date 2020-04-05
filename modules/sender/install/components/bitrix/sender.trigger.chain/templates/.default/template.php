@@ -126,7 +126,7 @@ $getSenderItemContainer = function (array $letter = []) use ($arParams)
 				</span>
 
 				<a data-role="letter-btn-edit"
-					onclick="BX.Sender.Page.open('<?=$letter['URLS']['EDIT']?>');"
+					onclick="BX.Sender.Page.open('<?=CUtil::JSEscape($letter['URLS']['EDIT'])?>');"
 					class="ui-btn ui-btn-sm ui-btn-light-border"
 				>
 					<?if($arParams['CAN_EDIT']):?>
@@ -203,7 +203,7 @@ $getSenderItemContainer = function (array $letter = []) use ($arParams)
 	</div>
 	<div class="sender-trigger-add-letter">
 		<a class="ui-btn ui-btn-primary ui-btn-icon-add"
-			onclick="BX.Sender.Page.open('<?=$arParams['PATH_TO_LETTER_ADD']?>');"
+			onclick="BX.Sender.Page.open('<?=CUtil::JSEscape($arParams['PATH_TO_LETTER_ADD'])?>');"
 		><?=Loc::getMessage("SENDER_TRIGGER_CHAIN_LIST_ADD")?></a>
 	</div>
 

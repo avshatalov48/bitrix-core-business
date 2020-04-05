@@ -6,6 +6,9 @@ use Bitrix\Main,
 	Bitrix\Currency,
 	Bitrix\Catalog;
 
+$selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
+$publicMode = (defined("SELF_FOLDER_URL") ? true : false);
+
 if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_price') || $USER->CanDoOperation('catalog_view'))
 {
 	IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/templates/product_edit.php');
@@ -23,8 +26,9 @@ if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_pric
 
 	$bDiscount = $USER->CanDoOperation('catalog_discount');
 	$bStore = $USER->CanDoOperation('catalog_store');
-	$bUseStoreControl = (COption::GetOptionString('catalog', 'default_use_store_control') == 'Y');
+	$bUseStoreControl = Catalog\Config\State::isUsedInventoryManagement();
 	$bEnableReservation = (COption::GetOptionString('catalog', 'enable_reservation') != 'N');
+	$enableQuantityRanges = Catalog\Config\Feature::isPriceQuantityRangesEnabled();
 
 	$availQuantityTrace = COption::GetOptionString("catalog", "default_quantity_trace");
 	$availCanBuyZero = COption::GetOptionString("catalog", "default_can_buy_zero");
@@ -44,8 +48,8 @@ if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_pric
 			'QUANTITY_RESERVED' => '',
 			'VAT_ID' => 0,
 			'VAT_INCLUDED' => $vatInclude,
-			'QUANTITY_TRACE_ORIG' => Catalog\ProductTable::STATUS_DEFAULT,
-			'CAN_BUY_ZERO_ORIG' => Catalog\ProductTable::STATUS_DEFAULT,
+			'QUANTITY_TRACE_ORIG' => Catalog\ProductTable::STATUS_NO,
+			'CAN_BUY_ZERO_ORIG' => Catalog\ProductTable::STATUS_NO,
 			'SUBSCRIBE_ORIG' => Catalog\ProductTable::STATUS_DEFAULT,
 			'SUBSCRIBE' => $strGlobalSubscribe,
 			'PURCHASING_PRICE' => '',
@@ -114,6 +118,11 @@ if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_pric
 			$arBaseProduct['QUANTITY'] = '';
 			$arBaseProduct['QUANTITY_RESERVED'] = '';
 		}
+		if (!empty($arBaseProduct) && $arMainCatalog['SUBSCRIPTION'] == 'Y')
+		{
+			$arBaseProduct['QUANTITY_TRACE_ORIG'] = Catalog\ProductTable::STATUS_NO;
+			$arBaseProduct['CAN_BUY_ZERO_ORIG'] = Catalog\ProductTable::STATUS_NO;
+		}
 	}
 	else
 	{
@@ -124,7 +133,7 @@ if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_pric
 		$arBaseProduct = $arDefProduct;
 	}
 	$productIsSet = (
-		CBXFeatures::IsFeatureEnabled('CatCompleteSet')
+		Catalog\Config\Feature::isProductSetsEnabled()
 		&& (
 			$arBaseProduct['TYPE'] == CCatalogProduct::TYPE_SET
 			|| $arShowTabs['product_set']
@@ -194,7 +203,12 @@ function checkForm(e)
 jsUtils.addEvent(window, 'load', function () {
 	var obForm = getElementForm();
 	jsUtils.addEvent(obForm, 'submit', checkForm);
-	jsUtils.addEvent(obForm.dontsave, 'click', function() {window.BX_CANCEL = true; setTimeout('window.BX_CANCEL = false', 10);});
+	if (obForm.dontsave)
+	{
+		jsUtils.addEvent(obForm.dontsave, 'click', function() {
+			window.BX_CANCEL = true; setTimeout('window.BX_CANCEL = false', 10);
+		});
+	}
 });
 
 function checkBarCode()
@@ -319,7 +333,7 @@ function togglePriceType()
 	// Define boundaries
 	$usedRanges = false;
 	$arProductFilter = array("PRODUCT_ID" => $PRODUCT_ID);
-	if (!CBXFeatures::IsFeatureEnabled('CatMultiPrice'))
+	if (!Catalog\Config\Feature::isMultiPriceTypesEnabled())
 	{
 		$arProductFilter['BASE'] = 'Y';
 	}
@@ -408,18 +422,32 @@ function togglePriceType()
 // prices tab
 	$tabControl1->BeginNextTab();
 	$arCatPricesExist = array(); // attr for exist prices for range
-	$bUseExtendedPrice = $bVarsFromForm ? $price_useextform == 'Y' : $usedRanges;
+	if ($enableQuantityRanges)
+		$bUseExtendedPrice = $bVarsFromForm ? $price_useextform == 'Y' : $usedRanges;
+	else
+		$bUseExtendedPrice = false;
 	$str_CAT_VAT_ID = $bVarsFromForm ? $CAT_VAT_ID : ($arBaseProduct['VAT_ID'] == 0 ? $arMainCatalog['VAT_ID'] : $arBaseProduct['VAT_ID']);
 	$str_CAT_VAT_INCLUDED = $bVarsFromForm ? $CAT_VAT_INCLUDED : $arBaseProduct['VAT_INCLUDED'];
 	?>
 <input type="hidden" name="price_useextform" id="price_useextform_N" value="N" />
 <table border="0" cellspacing="0" cellpadding="0" width="100%" class="edit-table" id="catalog_vat_table">
+<?
+if ($enableQuantityRanges)
+{
+	?>
 	<tr>
 		<td width="40%"><label for="price_useextform"><? echo GetMessage('C2IT_PRICES_USEEXT'); ?>:</label></td>
 		<td width="60%">
-			<input type="checkbox" name="price_useextform" id="price_useextform" value="Y" onclick="togglePriceType()" <?=$bUseExtendedPrice ? 'checked="checked"' : ''?> <? echo ($bReadOnly ? ' disabled readonly' : ''); ?>/>
+			<input type="checkbox" name="price_useextform" id="price_useextform" value="Y" onclick="togglePriceType()" <?= $bUseExtendedPrice ? 'checked="checked"' : '' ?> <? echo($bReadOnly ? ' disabled readonly' : ''); ?>/>
 		</td>
 	</tr>
+	<?
+}
+else
+{
+	?><input type="hidden" value="N" name="price_useextform"><?
+}
+?>
 	<tr>
 		<td width="40%">
 			<?echo GetMessage("CAT_VAT")?>:
@@ -768,7 +796,7 @@ function OnChangePriceExist()
 	</span>
 		<?
 	}
-	if (CBXFeatures::IsFeatureEnabled('CatMultiPrice'))
+	if (Catalog\Config\Feature::isMultiPriceTypesEnabled())
 	{
 		$bFirst = true;
 		$dbCatalogGroups = CCatalogGroup::GetList(
@@ -1536,7 +1564,7 @@ function CloneBarcodeField()
 </script>
 	<?
 
-	if (CBXFeatures::IsFeatureEnabled('CatMultiPrice'))
+	if (Catalog\Config\Feature::isMultiPriceTypesEnabled())
 	{
 
 	$dbCatalogGroups = CCatalogGroup::GetList(
@@ -1807,7 +1835,9 @@ function CloneBarcodeField()
 						?>
 					</select>
 				<?else:
-					echo GetMessage("C2IT_MEASURE_NO_MEASURE"); ?> <a href="/bitrix/admin/cat_measure_list.php?lang=<? echo LANGUAGE_ID; ?>"><? echo GetMessage("C2IT_MEASURES"); ?></a><br><?
+					$measureListUrl = $selfFolderUrl.'cat_measure_list.php?lang='.LANGUAGE_ID;
+					$measureListUrl = $adminSidePanelHelper->editUrlToPublicPage($measureListUrl);
+					echo GetMessage("C2IT_MEASURE_NO_MEASURE"); ?> <a target="_top" href="<?=$measureListUrl?>"><?=GetMessage("C2IT_MEASURES"); ?></a><br><?
 				endif;?>
 			</td>
 		</tr>
@@ -1832,7 +1862,8 @@ function CloneBarcodeField()
 					if ($str_CAT_MEASURE_RATIO === null || $ar_CAT_MEASURE_RATIO['IS_DEFAULT'] == 'Y')
 					{
 						$str_CAT_MEASURE_RATIO = $ar_CAT_MEASURE_RATIO["RATIO"];
-						$CAT_MEASURE_RATIO_ID = $ar_CAT_MEASURE_RATIO["ID"];
+						if (!$bCopy)
+							$CAT_MEASURE_RATIO_ID = $ar_CAT_MEASURE_RATIO["ID"];
 						if ($ar_CAT_MEASURE_RATIO['IS_DEFAULT'] == 'Y')
 							break;
 					}
@@ -2195,9 +2226,15 @@ if ('Y' == $arMainCatalog['SUBSCRIPTION']):
 
 	if ($bNoAvailGroups)
 	{
+		$textForSettingsNotify = "<a href=\"".$selfFolderUrl."settings.php?mid=catalog&lang=".LANGUAGE_ID."\">".
+			GetMessage("C2IT_NO_USER_GROUPS2")."</a>";
+		if ($adminSidePanelHelper->isPublicSidePanel())
+		{
+			$textForSettingsNotify = GetMessage("C2IT_NO_USER_GROUPS2");
+		}
 		?>
 		<tr>
-			<td colspan="3"><? echo GetMessage("C2IT_NO_USER_GROUPS1")?> <a href="/bitrix/admin/settings.php?mid=catalog&lang=<? echo LANGUAGE_ID; ?>"><?echo GetMessage("C2IT_NO_USER_GROUPS2")?></a>.</td>
+			<td colspan="3"><?=GetMessage("C2IT_NO_USER_GROUPS1")?><?=" ".$textForSettingsNotify?></td>
 		</tr>
 		<?
 	}
@@ -2228,11 +2265,11 @@ if ('Y' == $arMainCatalog['SUBSCRIPTION']):
 	else
 	{
 		$showDiscountUrl = $bDiscount;
-		$discountUrl = '/bitrix/admin/cat_discount_edit.php?ID=';
+		$discountUrl = $selfFolderUrl.'cat_discount_edit.php?ID=';
 		if (Main\ModuleManager::isModuleInstalled('sale') && (string)Main\Config\Option::get('sale', 'use_sale_discount_only') == 'Y')
 		{
 			$showDiscountUrl = ($APPLICATION->GetGroupRight('sale') >= 'W');
-			$discountUrl = '/bitrix/admin/sale_discount_edit.php?ID=';
+			$discountUrl = $selfFolderUrl.'sale_discount_edit.php?ID=';
 		}
 		?><table border="0" cellspacing="0" cellpadding="0" class="internal" align="center" width="100%">
 		<tr class="heading">
@@ -2358,8 +2395,10 @@ if ('Y' == $arMainCatalog['SUBSCRIPTION']):
 			if ($bStore)
 			{
 				$storeId = $row['ID'];
-				$address = ('' != $row['ADDRESS'] ? htmlspecialcharsbx($row['ADDRESS']) : '<a href="/bitrix/admin/cat_store_edit.php?ID='.$row['ID'].'&lang='.LANGUAGE_ID.'">'.GetMessage("C2IT_EDIT").'</a>');
-				$storeUrl = '<a href="/bitrix/admin/cat_store_edit.php?ID='.$row['ID'].'&lang='.LANGUAGE_ID.'">'.$storeUrl.'</a>';
+				$storeEditUrl = $selfFolderUrl.'cat_store_edit.php?ID='.$row['ID'].'&lang='.LANGUAGE_ID;
+				$storeEditUrl = ($publicMode ? str_replace(".php", "/", $storeEditUrl) : $storeEditUrl);
+				$address = ('' != $row['ADDRESS'] ? htmlspecialcharsbx($row['ADDRESS']) : '<a href="'.$storeEditUrl.'">'.GetMessage("C2IT_EDIT").'</a>');
+				$storeUrl = '<a href="'.$storeEditUrl.'">'.$storeUrl.'</a>';
 			}
 			?><tr>
 			<td style="text-align:center;"><?=$storeUrl; ?></td>
@@ -2381,7 +2420,9 @@ if ('Y' == $arMainCatalog['SUBSCRIPTION']):
 	{
 		if ($bStore)
 		{
-			?><b><? echo GetMessage("C2IT_STORE_NO_STORE"); ?> <a href="/bitrix/admin/cat_store_list.php?lang=<? echo LANGUAGE_ID; ?>"><? echo GetMessage("C2IT_STORE"); ?></a></b><br><?
+			$storeListUrl = $selfFolderUrl.'cat_store_list.php?lang='.LANGUAGE_ID;
+			$storeListUrl = $adminSidePanelHelper->editUrlToPublicPage($storeListUrl);
+			?><b><? echo GetMessage("C2IT_STORE_NO_STORE"); ?> <a target="_top" href="<?=$storeListUrl?>"><? echo GetMessage("C2IT_STORE"); ?></a></b><br><?
 		}
 	}
 	if (!$bUseStoreControl)
@@ -2522,8 +2563,11 @@ if ('Y' == $arMainCatalog['SUBSCRIPTION']):
 				<tr>
 					<td width="40%" class="field-name"><?=GetMessage('C2IT_LIST_SUBSCRIPTIONS')?></td>
 					<td width="60%">
-						<a href="/bitrix/admin/cat_subscription_list.php?ITEM_ID=<?=htmlspecialcharsbx($PRODUCT_ID)?>
-							&lang=<?=LANGUAGE_ID?>" target="_blank">
+						<?
+						$subscriptionUrl = $selfFolderUrl."cat_subscription_list.php?ITEM_ID=".htmlspecialcharsbx($PRODUCT_ID)."&lang=".LANGUAGE_ID;
+						$subscriptionUrl = ($publicMode ? str_replace(".php", "/", $subscriptionUrl) : $subscriptionUrl);
+						?>
+						<a href="<?=$subscriptionUrl?>" target="_top">
 							<?=GetMessage('C2IT_LIST_SUBSCRIPTIONS_TEXT')?>
 						</a>
 					</td>

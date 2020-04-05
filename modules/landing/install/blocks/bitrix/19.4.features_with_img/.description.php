@@ -76,17 +76,6 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_19.4.FEATURES_WITH_IMG_NODES_LANDINGBLOCKNODEIMG'),
 				'type' => 'animation',
 			),
-			//dbg: del?
-			//			'.landing-block-node-card:nth-child(odd)' =>
-			//				array(
-			//					'name' => Loc::getMessage('LANDING_BLOCK_19.4.FEATURES_WITH_IMG_NODES_LANDINGBLOCKNODECARDTITLE_ODD'),
-			//					'type' => 'box',
-			//				),
-			//			'.landing-block-node-card:nth-child(even)' =>
-			//				array(
-			//					'name' => Loc::getMessage('LANDING_BLOCK_19.4.FEATURES_WITH_IMG_NODES_LANDINGBLOCKNODECARDTITLE_EVEN'),
-			//					'type' => 'box',
-			//				),
 			'.landing-block-node-card-title' =>
 				array(
 					'name' => Loc::getMessage('LANDING_BLOCK_19.4.FEATURES_WITH_IMG_NODES_LANDINGBLOCKNODECARD_TITLE'),
@@ -96,6 +85,11 @@ return array(
 				array(
 					'name' => Loc::getMessage('LANDING_BLOCK_19.4.FEATURES_WITH_IMG_NODES_LANDINGBLOCKNODECARD_TEXT'),
 					'type' => 'typo',
+				),
+			'.landing-block-node-text-container' =>
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_19.4.FEATURES_WITH_IMG_NODES_LANDINGBLOCKNODETEXTCONTAINER'),
+					'type' => 'align-items',
 				),
 		),
 );

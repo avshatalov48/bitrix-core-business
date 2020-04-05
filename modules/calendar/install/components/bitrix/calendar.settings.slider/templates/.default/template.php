@@ -18,8 +18,8 @@ $showAccess = $showGeneralSettings;
 $showPersonalTitle = $showGeneralSettings && $isPersonal;
 ?>
 <div class="webform-buttons calendar-form-buttons-fixed">
-	<span id="<?= $id?>_save" class="webform-small-button webform-small-button-blue"><?= Loc::getMessage('EC_T_SAVE')?></span>
-	<span id="<?= $id?>_close" class="webform-button-link"><?= Loc::getMessage('EC_T_CLOSE')?></span>
+	<span id="<?= $id?>_save" class="ui-btn ui-btn-success"><?= Loc::getMessage('EC_T_SAVE')?></span>
+	<span id="<?= $id?>_close" class="ui-btn ui-btn-link"><?= Loc::getMessage('EC_T_CLOSE')?></span>
 </div>
 <div class="calendar-slider-calendar-wrap">
 	<div class="calendar-slider-header">

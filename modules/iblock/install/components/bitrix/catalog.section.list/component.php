@@ -33,12 +33,28 @@ if($arParams["TOP_DEPTH"] <= 0)
 $arParams["COUNT_ELEMENTS"] = $arParams["COUNT_ELEMENTS"]!="N";
 $arParams["ADD_SECTIONS_CHAIN"] = $arParams["ADD_SECTIONS_CHAIN"]!="N"; //Turn on by default
 
+if(empty($arParams["FILTER_NAME"]) || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
+{
+	$arrFilter = array();
+}
+else
+{
+	global ${$arParams["FILTER_NAME"]};
+	$arrFilter = ${$arParams["FILTER_NAME"]};
+	if(!is_array($arrFilter))
+		$arrFilter = array();
+}
+
+$arParams["CACHE_FILTER"] = isset($arParams["CACHE_FILTER"]) && $arParams["CACHE_FILTER"] == "Y";
+if(!$arParams["CACHE_FILTER"] && !empty($arrFilter))
+	$arParams["CACHE_TIME"] = 0;
+
 $arResult["SECTIONS"]=array();
 
 /*************************************************************************
 			Work with cache
 *************************************************************************/
-if($this->startResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER->GetGroups())))
+if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==="N"? false: $USER->GetGroups()))))
 {
 	if(!Loader::includeModule("iblock"))
 	{
@@ -162,22 +178,12 @@ if($this->startResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 		"left_margin"=>"asc",
 	);
 	//EXECUTE
-	$rsSections = CIBlockSection::GetList($arSort, $arFilter, $arParams["COUNT_ELEMENTS"], $arSelect);
+	$rsSections = CIBlockSection::GetList($arSort, array_merge($arrFilter, $arFilter), $arParams["COUNT_ELEMENTS"], $arSelect);
 	$rsSections->SetUrlTemplates("", $arParams["SECTION_URL"]);
 	while($arSection = $rsSections->GetNext())
 	{
-		$ipropValues = new \Bitrix\Iblock\InheritedProperty\SectionValues($arSection["IBLOCK_ID"], $arSection["ID"]);
-		$arSection["IPROPERTY_VALUES"] = $ipropValues->getValues();
+		\Bitrix\Iblock\InheritedProperty\SectionValues::queue($arSection["IBLOCK_ID"], $arSection["ID"]);
 
-		if ($boolPicture)
-		{
-			Iblock\Component\Tools::getFieldImageData(
-				$arSection,
-				array('PICTURE'),
-				Iblock\Component\Tools::IPROPERTY_ENTITY_SECTION,
-				'IPROPERTY_VALUES'
-			);
-		}
 		$arSection['RELATIVE_DEPTH_LEVEL'] = $arSection['DEPTH_LEVEL'] - $intSectionDepth;
 
 		$arButtons = CIBlock::GetPanelButtons(
@@ -191,6 +197,23 @@ if($this->startResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 
 		$arResult["SECTIONS"][]=$arSection;
 	}
+
+	foreach ($arResult["SECTIONS"] as &$arSection)
+	{
+		$ipropValues = new \Bitrix\Iblock\InheritedProperty\SectionValues($arSection["IBLOCK_ID"], $arSection["ID"]);
+		$arSection["IPROPERTY_VALUES"] = $ipropValues->getValues();
+
+		if ($boolPicture)
+		{
+			\Bitrix\Iblock\Component\Tools::getFieldImageData(
+				$arSection,
+				array('PICTURE'),
+				\Bitrix\Iblock\Component\Tools::IPROPERTY_ENTITY_SECTION,
+				'IPROPERTY_VALUES'
+			);
+		}
+	}
+	unset($arSection);
 
 	$arResult["SECTIONS_COUNT"] = count($arResult["SECTIONS"]);
 

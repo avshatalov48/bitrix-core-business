@@ -216,7 +216,7 @@ function TabAction(action, param, showWait)
 	BX.ajax.post(
 		'php_command_line.php?lang=' + phpVars.LANGUAGE_ID + '&sessid=' + phpVars.bitrix_sessid, data,
 		function(result){
-			if (result && result != 'saved')
+			if (result && BX.util.trim(result) != 'saved')
 			{
 				document.getElementById('whole_form').innerHTML = result;
 				queries = [];

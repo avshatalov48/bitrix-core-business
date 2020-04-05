@@ -163,6 +163,11 @@ class CIMMessageParam
 
 		foreach($arToInsert as $parameterInfo)
 		{
+			if (in_array($parameterInfo["PARAM_NAME"], Array('KEYBOARD', 'MENU', 'ATTACH', 'NAME',	'IMOL_VOTE_TEXT', 'IMOL_VOTE_LIKE', 'IMOL_VOTE_DISLIKE')))
+			{
+				$parameterInfo['PARAM_VALUE'] = \Bitrix\Im\Text::encodeEmoji($parameterInfo['PARAM_VALUE']);
+			}
+
 			IM\Model\MessageParamTable::add($parameterInfo);
 		}
 
@@ -239,7 +244,7 @@ class CIMMessageParam
 			return false;
 
 		$arPullMessage = Array(
-			'id' => $messageId,
+			'id' => (int)$messageId,
 			'type' => $messageData['MESSAGE_TYPE'] == IM_MESSAGE_PRIVATE? 'private': 'chat',
 		);
 
@@ -254,13 +259,14 @@ class CIMMessageParam
 					$arFields['TO_USER_ID'] = $rel['USER_ID'];
 			}
 
-			$arPullMessage['fromUserId'] = $arFields['FROM_USER_ID'];
-			$arPullMessage['toUserId'] = $arFields['TO_USER_ID'];
+			$arPullMessage['fromUserId'] = (int)$arFields['FROM_USER_ID'];
+			$arPullMessage['toUserId'] = (int)$arFields['TO_USER_ID'];
+			$arPullMessage['chatId'] = (int)$messageData['CHAT_ID'];
 		}
 		else
 		{
-			$arPullMessage['chatId'] = $messageData['CHAT_ID'];
-			$arPullMessage['senderId'] = $messageData['AUTHOR_ID'];
+			$arPullMessage['chatId'] = (int)$messageData['CHAT_ID'];
+			$arPullMessage['senderId'] = (int)$messageData['AUTHOR_ID'];
 
 			if ($messageData['CHAT_ENTITY_TYPE'] == 'LINES')
 			{
@@ -405,6 +411,11 @@ class CIMMessageParam
 		));
 		while($ar = $messageParameters->fetch())
 		{
+			if (in_array($ar["PARAM_NAME"], Array('KEYBOARD', 'MENU', 'ATTACH', 'NAME',	'IMOL_VOTE_TEXT', 'IMOL_VOTE_LIKE', 'IMOL_VOTE_DISLIKE', 'IMOL_COMMENT_HEAD')))
+			{
+				$ar['PARAM_VALUE'] = \Bitrix\Im\Text::decodeEmoji($ar['PARAM_VALUE']);
+			}
+
 			if (strlen($ar["PARAM_JSON"]))
 			{
 				$value = \Bitrix\Main\Web\Json::decode($ar["PARAM_JSON"]);
@@ -492,7 +503,11 @@ class CIMMessageParam
 			}
 			else if (in_array($key, Array('CHAT_LAST_DATE')))
 			{
-				if (is_object($value[0]) && $value[0] instanceof \Bitrix\Main\Type\DateTime)
+				if (is_object($value) && $value instanceof \Bitrix\Main\Type\DateTime)
+				{
+					$arValues[$key] = $value;
+				}
+				else if (is_object($value[0]) && $value[0] instanceof \Bitrix\Main\Type\DateTime)
 				{
 					$arValues[$key] = $value[0];
 				}
@@ -566,7 +581,7 @@ class CIMMessageParam
 					$arValues[$key] = $arDefault[$key];
 				}
 			}
-			else if ($key == 'CLASS' || $key == 'IMOL_VOTE' || $key == 'IMOL_VOTE_TEXT' ||  $key == 'IMOL_VOTE_LIKE' ||  $key == 'IMOL_VOTE_DISLIKE' ||  $key == 'IMOL_FORM')
+			else if ($key == 'TYPE' || $key == 'COMPONENT_ID' || $key == 'CLASS' || $key == 'IMOL_VOTE' || $key == 'IMOL_VOTE_TEXT' ||  $key == 'IMOL_VOTE_LIKE' ||  $key == 'IMOL_VOTE_DISLIKE' ||  $key == 'IMOL_FORM' ||  $key == 'IMOL_COMMENT_HEAD')
 			{
 				$arValues[$key] = isset($value[0])? $value[0]: '';
 			}
@@ -634,6 +649,8 @@ class CIMMessageParam
 	public static function GetDefault()
 	{
 		$arDefault = Array(
+			'TYPE' => '',
+			'COMPONENT_ID' => '',
 			'CODE' => '',
 			'FAVORITE' => Array(),
 			'LIKE' => Array(),
@@ -670,6 +687,7 @@ class CIMMessageParam
 			'IMOL_VOTE_SID' => '',
 			'IMOL_VOTE_USER' => '',
 			'IMOL_VOTE_HEAD' => '',
+			'IMOL_COMMENT_HEAD' => '',
 			'IMOL_QUOTE_MSG' => 'N',
 			'IMOL_SID' => 0,
 			'IMOL_FORM' => '',
@@ -808,7 +826,7 @@ class CIMMessageParamAttach
 		{
 			$sanitizer = new CBXSanitizer();
 			$sanitizer->SetLevel(CBXSanitizer::SECURE_LEVEL_MIDDLE);
-			$sanitizer->ApplyHtmlSpecChars(false);
+			$sanitizer->ApplyDoubleEncode(false);
 
 			$add['HTML'] = $sanitizer->SanitizeHtml($params['HTML']);
 		}
@@ -862,7 +880,7 @@ class CIMMessageParamAttach
 		{
 			$sanitizer = new CBXSanitizer();
 			$sanitizer->SetLevel(CBXSanitizer::SECURE_LEVEL_MIDDLE);
-			$sanitizer->ApplyHtmlSpecChars(false);
+			$sanitizer->ApplyDoubleEncode(false);
 
 			$add['HTML'] = $sanitizer->SanitizeHtml($params['HTML']);
 		}
@@ -883,7 +901,7 @@ class CIMMessageParamAttach
 
 		$sanitizer = new CBXSanitizer();
 		$sanitizer->SetLevel(CBXSanitizer::SECURE_LEVEL_LOW);
-		$sanitizer->ApplyHtmlSpecChars(false);
+		$sanitizer->ApplyDoubleEncode(false);
 
 		$html = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', "", $html);
 

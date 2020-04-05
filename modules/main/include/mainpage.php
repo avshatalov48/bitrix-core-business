@@ -23,7 +23,7 @@ class CMainPage
 			"FROM b_lang L, b_lang_domain LD ".
 			"WHERE L.ACTIVE='Y' ".
 			"	AND L.LID=LD.LID ".
-			"	AND '".$DB->ForSql($CURR_DOMAIN, 255)."' LIKE ".$DB->Concat("'%'", "LD.DOMAIN")." ".
+			"	AND '".$DB->ForSql(".".$CURR_DOMAIN, 255)."' LIKE ".$DB->Concat("'%.'", "LD.DOMAIN")." ".
 			"ORDER BY ".$DB->Length("LD.DOMAIN")." DESC, L.SORT";
 
 		$res = $DB->Query($strSql);

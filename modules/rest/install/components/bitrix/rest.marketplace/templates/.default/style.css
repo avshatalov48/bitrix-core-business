@@ -1,5 +1,6 @@
-.mp_wrap
-{
+.mp_wrap {
+	border-top: 1px solid rgba(255,255,255,.4);
+	padding-top: 15px;
 }
 
 .mp_top_nav
@@ -333,11 +334,6 @@
 	right: 10px;
 	top: 6px;
 	width: 16px;
-}
-
-.mp_section
-{
-	padding: 0 20px;
 }
 
 .mp_dt_title_icon
@@ -773,10 +769,21 @@
 	margin: 10px;
 }
 
+.mp_install_confirm
+{
+	margin: 20px;
+}
+
 .mp_delete_confirm_text
 {
 	font-weight: bold;
 	margin-bottom: 8px;
+}
+
+.mp_install_confirm_text
+{
+	margin-bottom: 8px;
+	text-align: center;
 }
 
 .bt_popup_arrow, .bt_green

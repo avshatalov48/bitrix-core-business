@@ -7,19 +7,18 @@ BX.Sale.OrderPaymentChange = (function()
 		this.paymentNumber = params.paymentNumber || {};
 		this.wrapperId = params.wrapperId || "";
 		this.onlyInnerFull = params.onlyInnerFull || "";
+		this.templateName = params.templateName || "";
 		this.pathToPayment = params.pathToPayment || "";
 		this.refreshPrices = params.refreshPrices || "N";
 		this.inner = params.inner || "";
 		this.templateFolder = params.templateFolder;
 		this.wrapper = document.getElementById('bx-sopc'+ this.wrapperId);
 
-		this.paySystemsContainer = this.wrapper.getElementsByClassName('sale-order-payment-change-pp')[0];
 		BX.ready(BX.proxy(this.init, this));
 	};
 	
 	classDescription.prototype.init = function()
 	{
-
 		var listPaySystems = this.wrapper.getElementsByClassName('sale-order-payment-change-pp-list')[0];
 		new BX.easing(
 		{
@@ -38,46 +37,47 @@ BX.Sale.OrderPaymentChange = (function()
 			}
 		}).animate();
 
-		BX.bindDelegate(this.paySystemsContainer, 'click', { 'className': 'sale-order-payment-change-pp-company' }, BX.proxy(
+		BX.bindDelegate(listPaySystems, 'click', { 'className': 'sale-order-payment-change-pp-company' }, BX.proxy(
 			function(event)
 			{
 				var targetParentNode = event.target.parentNode;
 				var hidden = targetParentNode.getElementsByClassName("sale-order-payment-change-pp-company-hidden")[0];
-				BX.ajax(
+				BX.ajax({
+					method: 'POST',
+					dataType: 'html',
+					url: this.ajaxUrl,
+					data:
 					{
-						method: 'POST',
-						dataType: 'html',
-						url: this.ajaxUrl,
-						data:
+						sessid: BX.bitrix_sessid(),
+						paySystemId: hidden.value,
+						accountNumber: this.accountNumber,
+						paymentNumber: this.paymentNumber,
+						templateName: this.templateName,
+						inner: this.inner,
+						refreshPrices: this.refreshPrices,
+						onlyInnerFull: this.onlyInnerFull,
+						pathToPayment: this.pathToPayment
+					},
+					onsuccess: BX.proxy(function(result)
+					{
+						listPaySystems.innerHTML = "";
+						var title = this.wrapper.getElementsByClassName('sale-order-payment-change-payment-title')[0];
+						title.innerHTML = "";
+						var templateHtml = BX.create("DIV", {
+							props: {className: 'col sale-order-payment-change-pp'},
+							html: result
+						});
+						BX.append(templateHtml,listPaySystems);
+						if (this.wrapper.parentNode.previousElementSibling)
 						{
-							sessid: BX.bitrix_sessid(),
-							paySystemId: hidden.value,
-							accountNumber: this.accountNumber,
-							paymentNumber: this.paymentNumber,
-							inner: this.inner,
-							refreshPrices: this.refreshPrices,
-							onlyInnerFull: this.onlyInnerFull,
-							pathToPayment: this.pathToPayment
-						},
-						onsuccess: BX.proxy(function(result)
-						{
-							this.paySystemsContainer.innerHTML = result;
-							if (this.wrapper.parentNode.previousElementSibling)
+							var detailPaymentImage = this.wrapper.parentNode.previousElementSibling.getElementsByClassName("sale-order-detail-payment-options-methods-image-element")[0];
+							if (detailPaymentImage !== undefined)
 							{
-								var detailPaymentImage = this.wrapper.parentNode.previousElementSibling.getElementsByClassName("sale-order-detail-payment-options-methods-image-element")[0];
-								if (detailPaymentImage !== undefined)
-								{
-									detailPaymentImage.style.backgroundImage = event.target.style.backgroundImage;
-								}
+								detailPaymentImage.style.backgroundImage = event.target.style.backgroundImage;
 							}
-						},this),
-						onfailure: BX.proxy(function()
-						{
-							return this;
-						}, this)
-					}, this
-				);
-				return this;
+						}
+					},this)
+				});
 			}, this)
 		);
 		return this;

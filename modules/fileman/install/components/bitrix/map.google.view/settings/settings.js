@@ -32,7 +32,7 @@ JCEditorOpener.prototype.Close = function(e)
 	{
 		window.jsPopup_google_map.Close();
 	}
-}
+};
 
 JCEditorOpener.prototype.btnClick = function ()
 {
@@ -40,26 +40,23 @@ JCEditorOpener.prototype.btnClick = function ()
 	if (!this.arElements)
 		return false;
 
-	if (null == window.jsPopup_google_map)
-	{
-		var strUrl = '/bitrix/components/bitrix/map.google.view/settings/settings.php'
-			+ '?lang=' + this.jsOptions[0]
-			+ '&INIT_MAP_TYPE=' + BX.util.urlencode(this.arElements.INIT_MAP_TYPE.value),
-		
-		strUrlPost = 'MAP_DATA=' + BX.util.urlencode(this.arParams.oInput.value);
+	var strUrl = '/bitrix/components/bitrix/map.google.view/settings/settings.php'
+		+ '?lang=' + this.jsOptions[0]
+		+ '&INIT_MAP_TYPE=' + BX.util.urlencode(this.arElements.INIT_MAP_TYPE.value),
 
-		window.jsPopup_google_map = new BX.CDialog({
-			'content_url': strUrl,
-			'content_post': strUrlPost,
-			'width':800, 'height':500, 
-			'resizable':false
-		});
-	}
+	strUrlPost = 'MAP_DATA=' + BX.util.urlencode(this.arParams.oInput.value);
+
+	window.jsPopup_google_map = new BX.CDialog({
+		'content_url': strUrl,
+		'content_post': strUrlPost,
+		'width':800, 'height':500,
+		'resizable':false
+	});
 	
 	window.jsPopup_google_map.Show();
 	window.jsPopup_google_map.PARAMS.content_url = '';
 	return false;
-}
+};
 
 JCEditorOpener.prototype.__saveData = function(strData, view)
 {
@@ -75,4 +72,4 @@ JCEditorOpener.prototype.__saveData = function(strData, view)
 	}
 	
 	this.Close(false);
-}
+};

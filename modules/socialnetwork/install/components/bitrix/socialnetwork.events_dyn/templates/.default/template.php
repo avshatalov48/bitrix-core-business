@@ -1,5 +1,9 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
+use Bitrix\Main\UI;
+
+UI\Extension::load("ui.tooltip");
+
 if (IsModuleInstalled("im")) 
 { 
 	$APPLICATION->IncludeComponent("bitrix:im.messenger", "", Array(), null, array("HIDE_ICONS" => "Y")); 
@@ -7,10 +11,7 @@ if (IsModuleInstalled("im"))
 }
 
 CAjax::Init();
-if (!array_key_exists("USE_TOOLTIP", $arResult) || $arResult["USE_TOOLTIP"])
-	CUtil::InitJSCore(array("ajax", "window", "fx",  "tooltip"));
-else
-	CUtil::InitJSCore(array("ajax", "window", "fx"));
+CUtil::InitJSCore(array("ajax", "window", "fx"));
 
 $GLOBALS["APPLICATION"]->AddHeadScript("/bitrix/js/main/utils.js");
 $GLOBALS["APPLICATION"]->AddHeadScript("/bitrix/components/bitrix/socialnetwork.events_dyn/templates/.default/script_ed.js");

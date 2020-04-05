@@ -48,7 +48,10 @@ class SellReturnCheck extends SellCheck
 		if (isset($result['PAYMENTS']))
 		{
 			foreach ($result['PAYMENTS'] as $i => $payment)
+			{
 				$result['PAYMENTS'][$i]['IS_CASH'] = 'N';
+				$result['PAYMENTS'][$i]['TYPE'] = static::PAYMENT_TYPE_CASHLESS;
+			}
 
 		}
 

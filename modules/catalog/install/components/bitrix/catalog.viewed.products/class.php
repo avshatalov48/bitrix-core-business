@@ -410,6 +410,11 @@ class CCatalogViewedProductsComponent extends CBitrixComponent
 	 */
 	public function onPrepareComponentParams($params)
 	{
+		if (isset($params['CUSTOM_SITE_ID']))
+		{
+			$this->setSiteId($params['CUSTOM_SITE_ID']);
+		}
+
 		$params["DETAIL_URL"] = trim($params["DETAIL_URL"]);
 		$params["BASKET_URL"] = trim($params["BASKET_URL"]);
 
@@ -436,7 +441,7 @@ class CCatalogViewedProductsComponent extends CBitrixComponent
 			$params["PRODUCT_PROPS_VARIABLE"] = "prop";
 
 		$params['ADD_PROPERTIES_TO_BASKET'] = (isset($params['ADD_PROPERTIES_TO_BASKET']) && $params['ADD_PROPERTIES_TO_BASKET'] == 'N' ? 'N' : 'Y');
-		$arParams['PARTIAL_PRODUCT_PROPERTIES'] = (isset($arParams['PARTIAL_PRODUCT_PROPERTIES']) && $arParams['PARTIAL_PRODUCT_PROPERTIES'] === 'Y' ? 'Y' : 'N');
+		$params['PARTIAL_PRODUCT_PROPERTIES'] = (isset($params['PARTIAL_PRODUCT_PROPERTIES']) && $params['PARTIAL_PRODUCT_PROPERTIES'] === 'Y' ? 'Y' : 'N');
 		$params["SET_TITLE"] = $params["SET_TITLE"] != "N";
 		$params["DISPLAY_COMPARE"] = $params["DISPLAY_COMPARE"] == "Y";
 
@@ -991,12 +996,60 @@ class CCatalogViewedProductsComponent extends CBitrixComponent
 
 		$defaultMeasure = $this->data['DEFAULT_MEASURE'];
 
+		$usePropertyFeatures = Iblock\Model\PropertyFeature::isEnabledFeatures();
 		$items = array();
 		foreach (array_keys($this->arParams['SHOW_PRODUCTS']) as $iblock)
 		{
 			$this->linkItems = array();
 			if (empty($this->iblockItems[$iblock]))
 				continue;
+
+			if ($usePropertyFeatures)
+			{
+				$list = Iblock\Model\PropertyFeature::getListPageShowPropertyCodes(
+					$iblock,
+					['CODE' => 'Y']
+				);
+				if (!empty($list))
+					$this->arParams['PROPERTY_CODE'][$iblock] = $list;
+				if ($this->arParams['ADD_PROPERTIES_TO_BASKET'] == 'Y')
+				{
+					$list = Catalog\Product\PropertyCatalogFeature::getBasketPropertyCodes(
+						$iblock,
+						['CODE' => 'Y']
+					);
+					if (!empty($list))
+						$this->arParams['CART_PROPERTIES'][$iblock] = $list;
+				}
+				$sku = \CCatalogSku::GetInfoByProductIBlock($iblock);
+				if (!empty($sku))
+				{
+					$offersId = $sku['IBLOCK_ID'];
+					$list = Iblock\Model\PropertyFeature::getListPageShowPropertyCodes(
+						$offersId,
+						['CODE' => 'Y']
+					);
+					if (!empty($list))
+						$this->arParams['PROPERTY_CODE'][$offersId] = $list;
+					if ($this->arParams['ADD_PROPERTIES_TO_BASKET'] == 'Y')
+					{
+						$list = Catalog\Product\PropertyCatalogFeature::getBasketPropertyCodes(
+							$offersId,
+							['CODE' => 'Y']
+						);
+						if (!empty($list))
+							$this->arParams['CART_PROPERTIES'][$offersId] = $list;
+					}
+					$list = Catalog\Product\PropertyCatalogFeature::getOfferTreePropertyCodes(
+						$offersId,
+						['CODE' => 'Y']
+					);
+					if (!empty($list))
+						$params['OFFER_TREE_PROPS'][$offersId] = $list;
+				}
+				unset($list);
+			}
+
 			$filter = $this->filter;
 			$filter['IBLOCK_ID'] = $iblock;
 			$filter['ID'] = $this->iblockItems[$iblock];
@@ -1389,8 +1442,6 @@ class CCatalogViewedProductsComponent extends CBitrixComponent
 	 */
 	protected function prepareFilter()
 	{
-		$prices = $this->data['CATALOG_PRICES'];
-
 		$this->filter = array(
 			"ID" => empty($this->productIdsMap) ? -1 : array_values($this->productIdsMap),
 			"IBLOCK_LID" => $this->getSiteId(),
@@ -1405,12 +1456,18 @@ class CCatalogViewedProductsComponent extends CBitrixComponent
 		if ($this->arParams['HIDE_NOT_AVAILABLE'] == 'Y')
 			$this->filter['CATALOG_AVAILABLE'] = 'Y';
 
-		foreach ($prices as $value)
+		$prices = $this->data['CATALOG_PRICES'];
+		if (!empty($prices) && is_array($prices))
 		{
-			if (!$value['CAN_VIEW'] && !$value['CAN_BUY'])
-				continue;
-			$this->filter["CATALOG_SHOP_QUANTITY_" . $value["ID"]] = $this->arParams["SHOW_PRICE_COUNT"];
+			foreach ($prices as $value)
+			{
+				if (!$value['CAN_VIEW'] && !$value['CAN_BUY'])
+					continue;
+				$this->filter["CATALOG_SHOP_QUANTITY_".$value["ID"]] = $this->arParams["SHOW_PRICE_COUNT"];
+			}
+			unset($value);
 		}
+		unset($prices);
 	}
 
 	/**

@@ -30,9 +30,7 @@
 		this.pseudoContent.style.marginLeft = "20px";
 		this.body.appendChild(this.pseudoContent);
 
-		this.loader = new BX.Landing.UI.Card.Loader();
-		this.loader.layout.classList.add("landing-ui-card-loader-style");
-		this.pseudoContent.appendChild(this.loader.layout);
+		this.loader = new BX.Loader({target: this.pseudoContent, offset: {top: "-10%"}});
 
 		this.switcher = new BX.Landing.UI.Field.Switch({
 			title: BX.message("LANDING_STYLE_PANEL_SELECT_GROUP_SWITCH"),

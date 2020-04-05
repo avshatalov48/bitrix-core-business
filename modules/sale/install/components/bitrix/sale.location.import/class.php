@@ -41,6 +41,17 @@ class CBitrixSaleLocationImportComponent extends CBitrixComponent
 	{
 		self::tryParseInt($arParams['INITIAL_TIME']);
 
+		if (
+			isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y" &&
+			isset($_REQUEST["IFRAME_TYPE"]) && $_REQUEST["IFRAME_TYPE"] === "SIDE_SLIDER" &&
+			isset($_REQUEST["publicSidePanel"]) && $_REQUEST["publicSidePanel"] === "Y"
+		)
+		{
+			$arParams['PATH_TO_IMPORT'] = \CHTTP::urlAddParams($arParams['PATH_TO_IMPORT'], array(
+				"IFRAME" => "Y", "IFRAME_TYPE" => "Y", "publicSidePanel" => "Y"
+			));
+		}
+
 		return $arParams;
 	}
 

@@ -25,6 +25,11 @@
 	user-select: none;
 }
 
+.bx-firefox .bx-ilike-wrap-block-react .bx-ilike-popup,
+.bx-ie .bx-ilike-wrap-block-react .bx-ilike-popup {
+	min-width: 220px;
+}
+
 /*
 .bx-ilike-bottom_scroll {background:url("images/i-like-sprite.png") repeat-x 0 -148px; display:block; height:13px; position:absolute; left:0; bottom:-1px; width:170px}
 * html .bx-ilike-bottom_scroll {display:none;}
@@ -91,19 +96,29 @@
 	display: block;
 	max-height: 100%;
 	overflow-y: auto;
+	-webkit-scrollbar-track-color: #F9FAFB;
 	scrollbar-track-color: #F9FAFB;
+	-webkit-scrollbar-base-color: #D4D7D9;
+	-webkit-scrollbar-base-color: #D4D7D9;
 	scrollbar-base-color: #D4D7D9;
+	-webkit-scrollbar-shadow-color: #D4D7D9;
 	scrollbar-shadow-color: #D4D7D9;
+	-webkit-scrollbar-highlight-color: #D4D7D9;
 	scrollbar-highlight-color: #D4D7D9;
 }
 .bx-ilike-wrap-block-react .bx-ilike-popup-content-container .bx-ilike-popup-content {
 	display: block;
 	padding: 0 17px 0 0;
 	min-height: 26px;
-	max-height: 159px;
+	max-height: 160px;
+	-webkit-scrollbar-track-color: #F9FAFB;
 	scrollbar-track-color: #F9FAFB;
+	-webkit-scrollbar-base-color: #D4D7D9;
+	-webkit-scrollbar-base-color: #D4D7D9;
 	scrollbar-base-color: #D4D7D9;
+	-webkit-scrollbar-shadow-color: #D4D7D9;
 	scrollbar-shadow-color: #D4D7D9;
+	-webkit-scrollbar-highlight-color: #D4D7D9;
 	scrollbar-highlight-color: #D4D7D9;
 	overflow-y: auto;
 }
@@ -182,6 +197,9 @@
 	overflow: hidden;
 }
 .bx-ilike-wrap-block-react .bx-ilike-popup-user-name {
+	flex-grow: 1;
+	flex-shrink: 1;
+	flex-basis: 0;
 	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	color: #525C69;
 	white-space: nowrap;

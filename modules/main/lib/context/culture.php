@@ -68,4 +68,13 @@ class Culture
 			return $this->fields["CHARSET"];
 		throw new Main\ObjectPropertyException("charset");
 	}
+
+	public function getNameFormat()
+	{
+		if(isset($this->fields["FORMAT_NAME"]))
+		{
+			return $this->fields["FORMAT_NAME"];
+		}
+		throw new Main\ObjectPropertyException("nameFormat");
+	}
 }

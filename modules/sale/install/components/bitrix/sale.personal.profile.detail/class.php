@@ -22,6 +22,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 class PersonalProfileDetail extends CBitrixComponent
 {
 	const E_SALE_MODULE_NOT_INSTALLED = 10000;
+	const E_NOT_AUTHORIZED = 10001;
 
 	/** @var  Main\ErrorCollection $errorCollection*/
 	protected $errorCollection;
@@ -44,6 +45,11 @@ class PersonalProfileDetail extends CBitrixComponent
 		if (isset($params['ID']) && $params['ID'] > 0)
 		{
 			$this->idProfile = (int)$params['ID'];
+		}
+		else
+		{
+			$request = Main\Application::getInstance()->getContext()->getRequest();
+			$this->idProfile = (int)($request->get('ID'));
 		}
 
 		if (isset($params['PATH_TO_LIST']))
@@ -99,7 +105,14 @@ class PersonalProfileDetail extends CBitrixComponent
 
 		if (!$USER->IsAuthorized())
 		{
-			$APPLICATION->AuthForm(Loc::getMessage("SALE_ACCESS_DENIED"), false, false, 'N', false);
+			if(!$this->arParams['AUTH_FORM_IN_TEMPLATE'])
+			{
+				$APPLICATION->AuthForm(Loc::getMessage("SALE_ACCESS_DENIED"), false, false, 'N', false);
+			}
+			else
+			{
+				$this->errorCollection->setError(new Main\Error(Loc::getMessage("SALE_ACCESS_DENIED"), self::E_NOT_AUTHORIZED));
+			}
 		}
 
 		$request = Main\Application::getInstance()->getContext()->getRequest();
@@ -116,34 +129,44 @@ class PersonalProfileDetail extends CBitrixComponent
 
 		if ($this->idProfile <= 0 || $request->get('reset'))
 		{
-			LocalRedirect($this->arParams["PATH_TO_LIST"]);
-		}
-
-		$userProperties = Sale\OrderUserProperties::getList(
-			array(
-				'order' => array("DATE_UPDATE" => "DESC"),
-				'filter' => array(
-					"ID" => $this->idProfile,
-					"USER_ID" => (int)($USER->GetID())
-				),
-				"select" => array("*")
-			)
-		);
-
-		$htmlConvector = \Bitrix\Main\Text\Converter::getHtmlConverter();
-
-		if ($userOrderProperties = $userProperties->fetch($htmlConvector))
-		{
-			if ($request->isPost() && ($request->get("save") || $request->get("apply"))	&& check_bitrix_sessid())
+			if (!empty($this->arParams["PATH_TO_LIST"]))
 			{
-				$this->updateProfileProperties($request, $userOrderProperties);
+				LocalRedirect($this->arParams["PATH_TO_LIST"]);
 			}
-
-			$this->fillResultArray($userOrderProperties);
+			else
+			{
+				$this->errorCollection->setError(new Main\Error(Loc::getMessage("SALE_NO_PROFILE")));
+			}
 		}
-		else
+
+		if ($this->errorCollection->isEmpty())
 		{
-			$this->errorCollection->setError(new Main\Error(Loc::getMessage("SALE_NO_PROFILE")));
+			$userProperties = Sale\OrderUserProperties::getList(
+				array(
+					'order' => array("DATE_UPDATE" => "DESC"),
+					'filter' => array(
+						"ID" => $this->idProfile,
+						"USER_ID" => (int)($USER->GetID())
+					),
+					"select" => array("*")
+				)
+			);
+
+			$htmlConvector = \Bitrix\Main\Text\Converter::getHtmlConverter();
+
+			if ($userOrderProperties = $userProperties->fetch($htmlConvector))
+			{
+				if ($request->isPost() && ($request->get("save") || $request->get("apply"))	&& check_bitrix_sessid())
+				{
+					$this->updateProfileProperties($request, $userOrderProperties);
+				}
+
+				$this->fillResultArray($userOrderProperties);
+			}
+			else
+			{
+				$this->errorCollection->setError(new Main\Error(Loc::getMessage("SALE_NO_PROFILE")));
+			}
 		}
 
 		$this->formatResultErrors();
@@ -387,6 +410,11 @@ class PersonalProfileDetail extends CBitrixComponent
 			foreach ($this->errorCollection->toArray() as $error)
 			{
 				$this->arResult['ERROR_MESSAGE'] .= $error->getMessage();
+
+				if ($error->getCode())
+					$this->arResult['ERRORS'][$error->getCode()] = $error->getMessage();
+				else
+					$this->arResult['ERRORS'][] = $error->getMessage();
 			}
 		}
 	}

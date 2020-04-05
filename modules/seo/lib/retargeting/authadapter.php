@@ -16,6 +16,9 @@ class AuthAdapter
 	protected $transport;
 	protected $requestCodeParamName;
 	protected $data;
+	
+	/** @var array $parameters Parameters. */
+	protected $parameters = ['URL_PARAMETERS' => []];
 
 	public function __construct($type)
 	{
@@ -43,6 +46,12 @@ class AuthAdapter
 		return $this;
 	}
 
+	public function setParameters(array $parameters = [])
+	{
+		$this->parameters = $parameters + $this->parameters;
+		return $this;
+	}
+
 	public function getAuthUrl()
 	{
 		if (!SeoService::isRegistered())
@@ -53,6 +62,10 @@ class AuthAdapter
 		$authorizeUrl = SeoService::getAuthorizeLink();
 		$authorizeData = SeoService::getAuthorizeData($this->getEngineCode());
 		$uri = new Uri($authorizeUrl);
+		if (!empty($this->parameters['URL_PARAMETERS']))
+		{
+			$authorizeData['urlParameters'] = $this->parameters['URL_PARAMETERS'];
+		}
 		$uri->addParams($authorizeData);
 		return $uri->getLocator();
 	}

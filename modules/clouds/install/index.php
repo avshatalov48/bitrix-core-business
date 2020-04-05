@@ -87,7 +87,7 @@ Class clouds extends CModule
 			RegisterModule("clouds");
 			CModule::IncludeModule("clouds");
 			RegisterModuleDependences("main", "OnEventLogGetAuditTypes", "clouds", "CCloudStorage", "GetAuditTypes");
-			RegisterModuleDependences("main", "OnBeforeProlog", "clouds", "CCloudStorage", "OnBeforeProlog");
+			RegisterModuleDependences("main", "OnBeforeProlog", "clouds", "CCloudStorage", "OnBeforeProlog", 90);
 			RegisterModuleDependences("main", "OnAdminListDisplay", "clouds", "CCloudStorage", "OnAdminListDisplay");
 			RegisterModuleDependences("main", "OnBuildGlobalMenu", "clouds", "CCloudStorage", "OnBuildGlobalMenu");
 			RegisterModuleDependences("main", "OnFileSave", "clouds", "CCloudStorage", "OnFileSave");

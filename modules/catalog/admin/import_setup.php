@@ -43,6 +43,8 @@ if ($ex = $APPLICATION->GetException())
 
 IncludeModuleLangFile(__FILE__);
 
+$publicMode = $adminPage->publicMode;
+
 set_time_limit(0);
 $strErrorMessage = "";
 $strOKMessage = "";
@@ -433,7 +435,9 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 				{
 					$randVal = rand(1, 1000);
 					$_SESSION["COMMERCEML_IMPORT_".$randVal] = $strOKMessage;
-					LocalRedirect("/bitrix/admin/cat_import_setup.php?lang=".LANGUAGE_ID."&success_import=Y&message_sess_id=".$randVal);
+					$redirectUrl = "/bitrix/admin/cat_import_setup.php?lang=".LANGUAGE_ID."&success_import=Y&message_sess_id=".$randVal;
+					$adminSidePanelHelper->reloadPage($redirectUrl, "save");
+					LocalRedirect($redirectUrl);
 				}
 			}
 			//////////////////////////////////////////////
@@ -481,7 +485,9 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 
 				if (strlen($strErrorMessage)<=0)
 				{
-					LocalRedirect($APPLICATION->GetCurPage()."?lang=".urlencode(LANGUAGE_ID)."&success_import=Y");
+					$redirectUrl = "/bitrix/admin/cat_import_setup.php?lang=".urlencode(LANGUAGE_ID)."&success_import=Y";
+					$adminSidePanelHelper->reloadPage($redirectUrl, "save");
+					LocalRedirect($redirectUrl);
 				}
 			}
 			//////////////////////////////////////////////
@@ -566,7 +572,9 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 
 				if (strlen($strErrorMessage)<=0)
 				{
-					LocalRedirect($APPLICATION->GetCurPage()."?lang=".urlencode(LANGUAGE_ID)."&success_import=Y");
+					$redirectUrl = "/bitrix/admin/cat_import_setup.php?lang=".urlencode(LANGUAGE_ID)."&success_import=Y";
+					$adminSidePanelHelper->reloadPage($redirectUrl, "save");
+					LocalRedirect($redirectUrl);
 				}
 			}
 			//////////////////////////////////////////////
@@ -747,7 +755,9 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 
 				if (strlen($strErrorMessage)<=0)
 				{
-					LocalRedirect($APPLICATION->GetCurPage()."?lang=".urlencode(LANGUAGE_ID)."&success_import=Y");
+					$redirectUrl = "/bitrix/admin/cat_import_setup.php?lang=".urlencode(LANGUAGE_ID)."&success_import=Y";
+					$adminSidePanelHelper->reloadPage($redirectUrl, "save");
+					LocalRedirect($redirectUrl);
 				}
 			}
 			//////////////////////////////////////////////
@@ -881,7 +891,9 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 				}
 				if (strlen($strErrorMessage)<=0)
 				{
-					LocalRedirect($APPLICATION->GetCurPage()."?lang=".urlencode(LANGUAGE_ID)."&success_import=Y");
+					$redirectUrl = "/bitrix/admin/cat_import_setup.php?lang=".urlencode(LANGUAGE_ID)."&success_import=Y";
+					$adminSidePanelHelper->reloadPage($redirectUrl, "save");
+					LocalRedirect($redirectUrl);
 				}
 			}
 			elseif ($bCanEdit && ($_REQUEST["ACTION"]=="IMPORT_EDIT" || $_REQUEST["ACTION"]=="IMPORT_COPY"))
@@ -1016,7 +1028,9 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 				}
 				if (strlen($strErrorMessage)<=0)
 				{
-					LocalRedirect($APPLICATION->GetCurPage()."?lang=".urlencode(LANGUAGE_ID)."&success_import=Y");
+					$redirectUrl = "/bitrix/admin/cat_import_setup.php?lang=".urlencode(LANGUAGE_ID)."&success_import=Y";
+					$adminSidePanelHelper->reloadPage($redirectUrl, "save");
+					LocalRedirect($redirectUrl);
 				}
 			}
 		}
@@ -1043,7 +1057,7 @@ if (strtoupper(substr($strCurrentOS, 0, 3)) === "WIN")
 
 $sTableID = "import_setup";
 
-$lAdmin = new CAdminList($sTableID);
+$lAdmin = new CAdminUiList($sTableID);
 
 $lAdmin->AddHeaders(array(
 	array("id"=>"ID", "content"=>"ID", "align" => "right", "default"=>true),
@@ -1073,7 +1087,7 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 		$arContextMenu[] = array(
 			"TEXT" => htmlspecialcharsbx($arReportParams["TITLE"]),
 			"TITLE" => GetMessage("import_setup_script").' "'.$strReportFile.'"',
-			"ACTION"=>"window.location='".addslashes($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&ACTION=IMPORT_SETUP"."&".bitrix_sessid_get())."';"
+			"LINK" => "/bitrix/admin/cat_import_setup.php?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&ACTION=IMPORT_SETUP"."&".bitrix_sessid_get()
 		);
 	}
 
@@ -1103,11 +1117,13 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 		{
 			if ($boolNeedEdit)
 			{
-				$strProfileLink = '<a href="'.$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&amp;ACT_FILE=".urlencode($strReportFile)."&amp;ACTION=IMPORT_EDIT&amp;PROFILE_ID=".$arProfile["ID"]."&amp;".bitrix_sessid_get().'" title="'.GetMessage("CES_EDIT_PROPFILE_DESCR").'"><i>'.GetMessage("CES_DEFAULT").'</i></a><br /><i>('.GetMessage('CES_NEED_EDIT').')</i>';
+				$url = "/bitrix/admin/cat_import_setup.php?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&ACTION=IMPORT_EDIT&PROFILE_ID=".$arProfile["ID"]."&".bitrix_sessid_get();
+				$strProfileLink = '<a href="'.CHTTP::URN2URI($url).'" title="'.GetMessage("CES_EDIT_PROPFILE_DESCR").'"><i>'.GetMessage("CES_DEFAULT").'</i></a><br /><i>('.GetMessage('CES_NEED_EDIT').')</i>';
 			}
 			else
 			{
-				$strProfileLink = '<a href="'.('Y' == $arProfile["IN_MENU"] ? '/bitrix/admin/cat_exec_imp.php' : $APPLICATION->GetCurPage()).'?lang='.LANGUAGE_ID."&amp;ACT_FILE=".urlencode($strReportFile)."&amp;ACTION=IMPORT&amp;PROFILE_ID=".$arProfile["ID"]."&amp;".bitrix_sessid_get().'" title="'.GetMessage("import_setup_begin").'"><i>'.GetMessage("CES_DEFAULT").'</i></a>';
+				$url = ('Y' == $arProfile["IN_MENU"] ? '/bitrix/admin/cat_exec_imp.php' : "/bitrix/admin/cat_import_setup.php").'?lang='.LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&ACTION=IMPORT&PROFILE_ID=".$arProfile["ID"]."&".bitrix_sessid_get();
+				$strProfileLink = '<a href="'.CHTTP::URN2URI($url).'" title="'.GetMessage("import_setup_begin").'"><i>'.GetMessage("CES_DEFAULT").'</i></a>';
 			}
 		}
 		else
@@ -1139,7 +1155,14 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 				if ($arOneUser = $rsUsers->Fetch())
 				{
 					$arOneUser['ID'] = (int)$arOneUser['ID'];
-					$arUserList[$arOneUser['ID']] = '<a href="/bitrix/admin/user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arProfile['MODIFIED_BY'].'">'.CUser::FormatName($strNameFormat, $arOneUser).'</a>';
+					if ($publicMode)
+					{
+						$arUserList[$arOneUser['ID']] = CUser::FormatName($strNameFormat, $arOneUser);
+					}
+					else
+					{
+						$arUserList[$arOneUser['ID']] = '<a href="/bitrix/admin/user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arProfile['MODIFIED_BY'].'">'.CUser::FormatName($strNameFormat, $arOneUser).'</a>';
+					}
 				}
 			}
 			if (isset($arUserList[$arProfile['MODIFIED_BY']]))
@@ -1159,19 +1182,16 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 				"DEFAULT"=>true,
 				"TEXT"=>GetMessage("CES_RUN_IMPORT"),
 				"TITLE"=>GetMessage("CES_RUN_IMPORT_DESCR"),
-				"ACTION"=>$lAdmin->ActionRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&".bitrix_sessid_get()."&ACTION=IMPORT&PROFILE_ID=".$arProfile['ID']),
+				"ACTION"=>$lAdmin->ActionRedirect("/bitrix/admin/cat_import_setup.php?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&".bitrix_sessid_get()."&ACTION=IMPORT&PROFILE_ID=".$arProfile['ID']),
 			);
 			$arActions[] = array(
 				"TEXT" => GetMessage('CES_ADD_PROFILE'),
 				"TITLE" => GetMessage('CES_ADD_PROFILE_DESCR'),
-				"ACTION" => $lAdmin->ActionRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&ACTION=IMPORT_SETUP"."&".bitrix_sessid_get()),
+				"ACTION" => $lAdmin->ActionRedirect("/bitrix/admin/cat_import_setup.php?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&ACTION=IMPORT_SETUP"."&".bitrix_sessid_get()),
 			);
 		}
 
-		if ($bCanEdit || $bCanExec)
-			$arActions[] = array("SEPARATOR"=>true);
-
-		if ($bCanEdit)
+		if ($bCanEdit && !$publicMode)
 		{
 			if ('Y' == $arProfile["IN_MENU"])
 			{
@@ -1198,7 +1218,7 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 				$arActions[] = array(
 					"TEXT" => GetMessage("CES_TO_AGENT_DEL"),
 					"TITLE" => GetMessage("CES_TO_AGENT_DESCR_DEL"),
-					"ACTION" => $lAdmin->ActionRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($ReportFile)."&".bitrix_sessid_get()."&ACTION=AGENT&PROFILE_ID=".$ar_prof_res["ID"]),
+					"ACTION" => $lAdmin->ActionRedirect("/bitrix/admin/cat_import_setup.php?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($ReportFile)."&".bitrix_sessid_get()."&ACTION=AGENT&PROFILE_ID=".$ar_prof_res["ID"]),
 				);
 			}
 			else
@@ -1206,7 +1226,7 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 				$arActions[] = array(
 					"TEXT" => GetMessage("CES_TO_AGENT"),
 					"TITLE" => GetMessage("CES_TO_AGENT_DESCR"),
-					"ACTION" => "ShowAgentForm('".$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&amp;ACT_FILE=".$strReportFile."&amp;".bitrix_sessid_get()."&amp;ACTION=AGENT&amp;PROFILE_ID=".$arProfile["ID"]."');",
+					"ACTION" => "ShowAgentForm('".$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ACT_FILE=".$strReportFile."&".bitrix_sessid_get()."&ACTION=AGENT&PROFILE_ID=".$arProfile["ID"]."');",
 				);
 			}
 
@@ -1216,7 +1236,7 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 					"DISABLED" => $bWindowsHosting,
 					"TEXT" => GetMessage("CES_TO_CRON_DEL"),
 					"TITLE" => GetMessage("CES_TO_CRON_DESCR_DEL"),
-					"ACTION" => ($bWindowsHosting ? '' : "ShowCronForm('".$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&amp;ACT_FILE=".$strReportFile."&amp;".bitrix_sessid_get()."&amp;ACTION=CRON&amp;PROFILE_ID=".$arProfile["ID"]."', false);"),
+					"ACTION" => ($bWindowsHosting ? '' : "ShowCronForm('".$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ACT_FILE=".$strReportFile."&".bitrix_sessid_get()."&ACTION=CRON&PROFILE_ID=".$arProfile["ID"]."', false);"),
 				);
 			}
 			else
@@ -1225,7 +1245,7 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 					"DISABLED" => $bWindowsHosting,
 					"TEXT" => GetMessage("CES_TO_CRON"),
 					"TITLE" => GetMessage("CES_TO_CRON_DESCR"),
-					"ACTION" => ($bWindowsHosting ? '' : "ShowCronForm('".$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&amp;ACT_FILE=".$strReportFile."&amp;".bitrix_sessid_get()."&amp;ACTION=CRON&amp;PROFILE_ID=".$arProfile["ID"]."', true);"),
+					"ACTION" => ($bWindowsHosting ? '' : "ShowCronForm('".$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ACT_FILE=".$strReportFile."&".bitrix_sessid_get()."&ACTION=CRON&PROFILE_ID=".$arProfile["ID"]."', true);"),
 				);
 			}
 		}
@@ -1244,7 +1264,8 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 		$strProfileLink = '<i>'.GetMessage("CES_DEFAULT").'</i>';
 		if ($bCanEdit)
 		{
-			$strProfileLink = '<a href="'.$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&amp;ACT_FILE=".urlencode($strReportFile)."&amp;".bitrix_sessid_get()."&amp;ACTION=IMPORT&amp;PROFILE_ID=0".'" title="'.GetMessage("export_setup_begin").'"><i>'.GetMessage("CES_DEFAULT").'</i></a>';
+			$url = "/bitrix/admin/cat_import_setup.php?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&".bitrix_sessid_get()."&ACTION=IMPORT&PROFILE_ID=0";
+			$strProfileLink = '<a href="'.CHTTP::URN2URI($url).'" title="'.GetMessage("export_setup_begin").'"><i>'.GetMessage("CES_DEFAULT").'</i></a>';
 		}
 		$row->AddViewField('PROFILE', $strProfileLink);
 
@@ -1267,18 +1288,16 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 				"DEFAULT" => true,
 				"TEXT" => GetMessage("CES_RUN_IMPORT"),
 				"TITLE" => GetMessage("CES_RUN_IMPORT_DESCR"),
-				"ACTION" => $lAdmin->ActionRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&".bitrix_sessid_get()."&ACTION=IMPORT&PROFILE_ID=0"),
+				"ACTION" => $lAdmin->ActionRedirect("/bitrix/admin/cat_import_setup.php?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&".bitrix_sessid_get()."&ACTION=IMPORT&PROFILE_ID=0"),
 			);
 			$arActions[] = array(
 				"TEXT" => GetMessage('CES_ADD_PROFILE'),
 				"TITLE" => GetMessage('CES_ADD_PROFILE_DESCR'),
-				"ACTION" => $lAdmin->ActionRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&ACTION=IMPORT_SETUP"."&".bitrix_sessid_get()),
+				"ACTION" => $lAdmin->ActionRedirect("/bitrix/admin/cat_import_setup.php?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&ACTION=IMPORT_SETUP"."&".bitrix_sessid_get()),
 			);
 		}
-		if (!empty($arActions))
-			$arActions[] = array("SEPARATOR"=>true);
 
-		if ($bCanEdit)
+		if ($bCanEdit && !$publicMode)
 		{
 			$arActions[] = array(
 				"TEXT" => GetMessage("CES_TO_LEFT_MENU"),
@@ -1292,13 +1311,13 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 			$arActions[] = array(
 				"TEXT" => GetMessage("CES_TO_AGENT"),
 				"TITLE" => GetMessage("CES_TO_AGENT_DESCR"),
-				"ACTION" => "ShowAgentForm('".$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&amp;ACT_FILE=".$strReportFile."&amp;".bitrix_sessid_get()."&amp;ACTION=AGENT&amp;PROFILE_ID=0');",
+				"ACTION" => "ShowAgentForm('".$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ACT_FILE=".$strReportFile."&".bitrix_sessid_get()."&ACTION=AGENT&PROFILE_ID=0');",
 			);
 			$arActions[] = array(
 				"DISABLED" => $bWindowsHosting,
 				"TEXT" => GetMessage("CES_TO_CRON"),
 				"TITLE" => GetMessage("CES_TO_CRON_DESCR"),
-				"ACTION" => ($bWindowsHosting ? '' : "ShowCronForm('".$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&amp;ACT_FILE=".$strReportFile."&amp;".bitrix_sessid_get()."&amp;ACTION=CRON&amp;PROFILE_ID=0', true);"),
+				"ACTION" => ($bWindowsHosting ? '' : "ShowCronForm('".$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ACT_FILE=".$strReportFile."&".bitrix_sessid_get()."&ACTION=CRON&PROFILE_ID=0', true);"),
 			);
 		}
 
@@ -1329,12 +1348,14 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 		{
 			if ($boolNeedEdit)
 			{
-				$strProfileLink = '<a href="'.$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&amp;ACT_FILE=".urlencode($strReportFile)."&amp;ACTION=IMPORT_EDIT&amp;PROFILE_ID=".$arProfile["ID"]."&amp;".bitrix_sessid_get().'" title="'.GetMessage("CES_EDIT_PROPFILE_DESCR").'">'.htmlspecialcharsbx($arProfile["NAME"]).'</a>'.
+				$url = "/bitrix/admin/cat_import_setup.php?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&ACTION=IMPORT_EDIT&PROFILE_ID=".$arProfile["ID"]."&".bitrix_sessid_get();
+				$strProfileLink = '<a href="'.CHTTP::URN2URI($url).'" title="'.GetMessage("CES_EDIT_PROPFILE_DESCR").'">'.htmlspecialcharsbx($arProfile["NAME"]).'</a>'.
 					'<br /><i>('.GetMessage('CES_NEED_EDIT').')</i>';
 			}
 			else
 			{
-				$strProfileLink = '<a href="'.('Y' == $arProfile["IN_MENU"] ? "/bitrix/admin/cat_exec_imp.php" : $APPLICATION->GetCurPage())."?lang=".LANGUAGE_ID."&amp;ACT_FILE=".urlencode($strReportFile)."&amp;ACTION=IMPORT&amp;PROFILE_ID=".$arProfile["ID"]."&amp;".bitrix_sessid_get().'" title="'.GetMessage("export_setup_begin").'">'.htmlspecialcharsbx($arProfile["NAME"]).'</a>';
+				$url = ('Y' == $arProfile["IN_MENU"] ? "/bitrix/admin/cat_exec_imp.php" : "/bitrix/admin/cat_import_setup.php")."?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&ACTION=IMPORT&PROFILE_ID=".$arProfile["ID"]."&".bitrix_sessid_get();
+				$strProfileLink = '<a href="'.CHTTP::URN2URI($url).'" title="'.GetMessage("export_setup_begin").'">'.htmlspecialcharsbx($arProfile["NAME"]).'</a>';
 			}
 		}
 		else
@@ -1370,7 +1391,14 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 				if ($arOneUser = $rsUsers->Fetch())
 				{
 					$arOneUser['ID'] = (int)$arOneUser['ID'];
-					$arUserList[$arOneUser['ID']] = '<a href="/bitrix/admin/user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arProfile['CREATED_BY'].'">'.CUser::FormatName($strNameFormat, $arOneUser).'</a>';
+					if ($publicMode)
+					{
+						$arUserList[$arOneUser['ID']] = CUser::FormatName($strNameFormat, $arOneUser);
+					}
+					else
+					{
+						$arUserList[$arOneUser['ID']] = '<a href="/bitrix/admin/user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arProfile['MODIFIED_BY'].'">'.CUser::FormatName($strNameFormat, $arOneUser).'</a>';
+					}
 				}
 			}
 			if (isset($arUserList[$arProfile['CREATED_BY']]))
@@ -1392,7 +1420,14 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 				if ($arOneUser = $rsUsers->Fetch())
 				{
 					$arOneUser['ID'] = (int)$arOneUser['ID'];
-					$arUserList[$arOneUser['ID']] = '<a href="/bitrix/admin/user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arProfile['MODIFIED_BY'].'">'.CUser::FormatName($strNameFormat, $arOneUser).'</a>';
+					if ($publicMode)
+					{
+						$arUserList[$arOneUser['ID']] = CUser::FormatName($strNameFormat, $arOneUser);
+					}
+					else
+					{
+						$arUserList[$arOneUser['ID']] = '<a href="/bitrix/admin/user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arProfile['MODIFIED_BY'].'">'.CUser::FormatName($strNameFormat, $arOneUser).'</a>';
+					}
 				}
 			}
 			if (isset($arUserList[$arProfile['MODIFIED_BY']]))
@@ -1410,7 +1445,7 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 				"DEFAULT" => false,
 				"TEXT" => GetMessage("CES_RUN_IMPORT"),
 				"TITLE" => GetMessage("CES_RUN_IMPORT_DESCR"),
-				"ACTION" => $lAdmin->ActionRedirect(('Y' == $arProfile["IN_MENU"] ? "/bitrix/admin/cat_exec_imp.php" : $APPLICATION->GetCurPage())."?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&".bitrix_sessid_get()."&ACTION=IMPORT&PROFILE_ID=".$arProfile["ID"]),
+				"ACTION" => $lAdmin->ActionRedirect(('Y' == $arProfile["IN_MENU"] ? "/bitrix/admin/cat_exec_imp.php" : "/bitrix/admin/cat_import_setup.php")."?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&".bitrix_sessid_get()."&ACTION=IMPORT&PROFILE_ID=".$arProfile["ID"]),
 			);
 
 		if ($bCanEdit)
@@ -1431,19 +1466,16 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 				"DEFAULT" => true,
 				"TEXT" => GetMessage("CES_EDIT_PROFILE"),
 				"TITLE" => GetMessage("CES_EDIT_PROPFILE_DESCR"),
-				"ACTION" => $lAdmin->ActionRedirect($APPLICATION->GetCurPage()."?lang=".urlencode(LANGUAGE_ID)."&ACT_FILE=".urlencode($strReportFile)."&ACTION=IMPORT_EDIT&PROFILE_ID=".$arProfile['ID']."&".bitrix_sessid_get()),
+				"ACTION" => $lAdmin->ActionRedirect("/bitrix/admin/cat_import_setup.php?lang=".urlencode(LANGUAGE_ID)."&ACT_FILE=".urlencode($strReportFile)."&ACTION=IMPORT_EDIT&PROFILE_ID=".$arProfile['ID']."&".bitrix_sessid_get()),
 			);
 			$arActions[] = array(
 				"TEXT" => GetMessage("CES_COPY_PROFILE"),
 				"TITLE" => GetMessage("CES_COPY_PROPFILE_DESCR"),
-				"ACTION" => $lAdmin->ActionRedirect($APPLICATION->GetCurPage()."?lang=".urlencode(LANGUAGE_ID)."&ACT_FILE=".urlencode($strReportFile)."&ACTION=IMPORT_COPY&PROFILE_ID=".$arProfile['ID']."&".bitrix_sessid_get()),
+				"ACTION" => $lAdmin->ActionRedirect("/bitrix/admin/cat_import_setup.php?lang=".urlencode(LANGUAGE_ID)."&ACT_FILE=".urlencode($strReportFile)."&ACTION=IMPORT_COPY&PROFILE_ID=".$arProfile['ID']."&".bitrix_sessid_get()),
 			);
 		}
 
-		if (!empty($arActions))
-			$arActions[] = array("SEPARATOR" => true);
-
-		if ($bCanEdit)
+		if ($bCanEdit && !$publicMode)
 		{
 			if ('Y' == $arProfile["IN_MENU"])
 			{
@@ -1470,7 +1502,7 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 				$arActions[] = array(
 					"TEXT" => GetMessage("CES_TO_AGENT_DEL"),
 					"TITLE" => GetMessage("CES_TO_AGENT_DESCR_DEL"),
-					"ACTION" => $lAdmin->ActionRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&".bitrix_sessid_get()."&ACTION=AGENT&PROFILE_ID=".$arProfile["ID"]),
+					"ACTION" => $lAdmin->ActionRedirect("/bitrix/admin/cat_import_setup.php?lang=".LANGUAGE_ID."&ACT_FILE=".urlencode($strReportFile)."&".bitrix_sessid_get()."&ACTION=AGENT&PROFILE_ID=".$arProfile["ID"]),
 				);
 			}
 			else
@@ -1478,7 +1510,7 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 				$arActions[] = array(
 					"TEXT" => GetMessage("CES_TO_AGENT"),
 					"TITLE" => GetMessage("CES_TO_AGENT_DESCR"),
-					"ACTION" => "ShowAgentForm('".$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&amp;ACT_FILE=".$strReportFile."&amp;".bitrix_sessid_get()."&amp;ACTION=AGENT&amp;PROFILE_ID=".$arProfile["ID"]."');",
+					"ACTION" => "ShowAgentForm('/bitrix/admin/cat_import_setup.php?lang=".LANGUAGE_ID."&ACT_FILE=".$strReportFile."&".bitrix_sessid_get()."&ACTION=AGENT&PROFILE_ID=".$arProfile["ID"]."');",
 				);
 			}
 
@@ -1488,7 +1520,7 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 					"DISABLED" => $bWindowsHosting,
 					"TEXT" => GetMessage("CES_TO_CRON_DEL"),
 					"TITLE" => GetMessage("CES_TO_CRON_DESCR_DEL"),
-					"ACTION" => ($bWindowsHosting ? '' : "ShowCronForm('".$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&amp;ACT_FILE=".$strReportFile."&amp;".bitrix_sessid_get()."&amp;ACTION=CRON&amp;PROFILE_ID=".$arProfile["ID"]."', false);"),
+					"ACTION" => ($bWindowsHosting ? '' : "ShowCronForm('".$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ACT_FILE=".$strReportFile."&".bitrix_sessid_get()."&ACTION=CRON&PROFILE_ID=".$arProfile["ID"]."', false);"),
 				);
 			}
 			else
@@ -1497,14 +1529,13 @@ foreach($arReportsList as $strReportFile => $arReportParams)
 					"DISABLED" => $bWindowsHosting,
 					"TEXT" => GetMessage("CES_TO_CRON"),
 					"TITLE" => GetMessage("CES_TO_CRON_DESCR"),
-					"ACTION" => ($bWindowsHosting ? '' : "ShowCronForm('".$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&amp;ACT_FILE=".$strReportFile."&amp;".bitrix_sessid_get()."&amp;ACTION=CRON&amp;PROFILE_ID=".$arProfile["ID"]."', true);"),
+					"ACTION" => ($bWindowsHosting ? '' : "ShowCronForm('".$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ACT_FILE=".$strReportFile."&".bitrix_sessid_get()."&ACTION=CRON&PROFILE_ID=".$arProfile["ID"]."', true);"),
 				);
 			}
 		}
 
 		if($bCanEdit)
 		{
-			$arActions[] = array("SEPARATOR" => true);
 			$arActions[] = array(
 				"TEXT" => GetMessage("CES_DELETE_PROFILE"),
 				"TITLE" => GetMessage("CES_DELETE_PROFILE_DESCR"),
@@ -1522,6 +1553,7 @@ if (!empty($arContextMenu))
 		"TEXT" => GetMessage("CES_ADD_PROFILE"),
 		"TITLE" => GetMessage("CES_ADD_PROFILE_DESCR"),
 		"ICON" => "btn_new",
+		"DISABLE" => true,
 		"MENU" => $arContextMenu,
 	);
 }

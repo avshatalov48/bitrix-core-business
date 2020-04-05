@@ -1,5 +1,9 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?
+<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
+use Bitrix\Main\UI;
+
+UI\Extension::load("ui.tooltip");
+
 $GLOBALS["APPLICATION"]->AddHeadScript("/bitrix/js/main/utils.js");
 
 CAjax::Init();

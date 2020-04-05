@@ -11,7 +11,6 @@ use Bitrix\Main\Application;
 use \Bitrix\Main\Entity;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Type\DateTime;
-use \Bitrix\Seo\Retargeting\Audience;
 use Bitrix\Seo\Retargeting\Service;
 
 Loc::loadMessages(__FILE__);
@@ -262,6 +261,15 @@ class QueueTable extends Entity\DataManager
 						}
 						static::addQueueAutoRemoveAgent();
 					}
+				}
+				else
+				{
+					Application::getConnection()->query(
+						"DELETE FROM " . self::getTableName() .
+						" WHERE TYPE = '" . Application::getConnection()->getSqlHelper()->forSql($type) . "'" .
+						" AND ACTION in ('" . implode("', '", [self::ACTION_IMPORT, self::ACTION_IMPORT_AND_AUTO_REMOVE, self::ACTION_REMOVE]) . "')" .
+						" AND DATE_INSERT < '" . (new DateTime())->add('-1 day')->format("Y-m-d H:i:s") . "'"
+					);
 				}
 			}
 		}

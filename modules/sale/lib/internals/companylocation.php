@@ -27,7 +27,7 @@ final class CompanyLocationTable extends Sale\Location\Connector
 
 	public function getTargetEntityName()
 	{
-		return 'Bitrix\Sale\Company\Company';
+		return '\Bitrix\Sale\Internals\CompanyTable';
 	}
 
 	public static function getMap()

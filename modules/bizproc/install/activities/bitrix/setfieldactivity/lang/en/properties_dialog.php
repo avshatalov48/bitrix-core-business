@@ -1,4 +1,5 @@
 <?
+$MESS["BPSFA_PD_MODIFIED_BY"] = "Change on behalf of";
 $MESS["BPSFA_PD_ADD"] = "Add Condition";
 $MESS["BPSFA_PD_CALENDAR"] = "Calendar";
 $MESS["BPSFA_PD_DELETE"] = "Delete";

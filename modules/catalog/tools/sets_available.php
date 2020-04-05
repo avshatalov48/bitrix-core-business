@@ -7,13 +7,14 @@ define('PUBLIC_AJAX_MODE', true);
 
 use Bitrix\Main,
 	Bitrix\Main\Localization\Loc,
-	Bitrix\Main\Loader;
+	Bitrix\Main\Loader,
+	Bitrix\Catalog;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 
 Loc::loadMessages(__FILE__);
 
-if (!$USER->CanDoOperation('catalog_price') || !Loader::includeModule('catalog') || !CBXFeatures::IsFeatureEnabled('CatCompleteSet'))
+if (!$USER->CanDoOperation('catalog_price') || !Loader::includeModule('catalog') || !Catalog\Config\Feature::isProductSetsEnabled())
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	ShowError(Loc::getMessage('CAT_SETS_AVAILABLE_ERRORS_FATAL'));

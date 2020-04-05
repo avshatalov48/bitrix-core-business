@@ -25,15 +25,15 @@ class Consent
 	/**
 	 * Add user consent by context data.
 	 *
-	 * @param integer $id Agreement ID.
+	 * @param integer $agreementId Agreement ID.
 	 * @param integer|null $originatorId Originator ID.
 	 * @param integer|null $originId Origin ID.
-	 * @param array $data Data.
+	 * @param array $params Extra params like IP, URL or USER_ID.
 	 * @return integer|null
 	 */
-	public static function addByContext($id, $originatorId = null, $originId = null, array $data = array())
+	public static function addByContext($agreementId, $originatorId = null, $originId = null, array $params = array())
 	{
-		$agreement = new Agreement($id);
+		$agreement = new Agreement($agreementId);
 		if (!$agreement->isExist() || !$agreement->isActive())
 		{
 			return null;
@@ -41,23 +41,31 @@ class Consent
 
 		$request = Context::getCurrent()->getRequest();
 		$parameters = array(
-			'AGREEMENT_ID' => $id
+			'AGREEMENT_ID' => $agreementId
 		);
 
-		/**@var \CAllUser */
-		if (isset($GLOBALS['USER']) && is_object($GLOBALS['USER']) && $GLOBALS['USER']->GetID())
+		if (isset($params['USER_ID']) && intval($params['USER_ID']) > 0)
+		{
+			$parameters['USER_ID'] = intval($params['USER_ID']);
+		}
+		else if (isset($GLOBALS['USER']) && is_object($GLOBALS['USER']) && $GLOBALS['USER']->GetID())
 		{
 			$parameters['USER_ID'] = $GLOBALS['USER']->GetID();
 		}
 
-		$parameters['IP'] = (isset($data['IP']) && $data['IP']) ? $data['IP'] : $request->getRemoteAddress();
-		if (isset($data['URL']) && $data['URL'])
+		$parameters['IP'] = (isset($params['IP']) && $params['IP']) ? $params['IP'] : $request->getRemoteAddress();
+		if (isset($params['URL']) && $params['URL'])
 		{
-			$parameters['URL'] = $data['URL'];
+			$parameters['URL'] = $params['URL'];
 		}
 		else
 		{
-			$parameters['URL'] = $request->getHttpHost() . $request->getRequestUri();
+			$parameters['URL'] = ($request->isHttps() ? "https" : "http")."://".$request->getHttpHost() . $request->getRequestUri();
+		}
+
+		if (strlen($parameters['URL']) > 4000)
+		{
+			$parameters['URL'] = substr($parameters['URL'], 0, 4000);
 		}
 
 		if ($originatorId && $originId)
@@ -74,6 +82,49 @@ class Consent
 		{
 			return null;
 		}
+	}
+
+	/**
+	 * Get user consent added by context data.
+	 *
+	 * @param integer $agreementId Agreement ID.
+	 * @param integer|null $originatorId Originator ID.
+	 * @param integer|null $originId Origin ID.
+	 * @param array $params Extra params.
+	 * @return array|null
+	 */
+	public static function getByContext($agreementId, $originatorId = null, $originId = null, $params = Array())
+	{
+		$agreement = new Agreement($agreementId);
+		if (!$agreement->isExist() || !$agreement->isActive())
+		{
+			return null;
+		}
+
+		$filter = array(
+			'=AGREEMENT_ID' => $agreementId
+		);
+
+		if (isset($params['USER_ID']) && intval($params['USER_ID']) > 0)
+		{
+			$filter['=USER_ID'] = intval($params['USER_ID']);
+		}
+		else if (isset($GLOBALS['USER']) && is_object($GLOBALS['USER']) && $GLOBALS['USER']->GetID())
+		{
+			$filter['=USER_ID'] = $GLOBALS['USER']->GetID();
+		}
+
+		if ($originatorId && $originId)
+		{
+			$filter['=ORIGINATOR_ID'] = $originatorId;
+			$filter['=ORIGIN_ID'] = $originId;
+		}
+
+		$addResult = Internals\ConsentTable::getList(Array(
+			'filter' => $filter
+		))->fetch();
+
+		return $addResult?: null;
 	}
 
 	/**

@@ -7,6 +7,7 @@ if (!!BX.BXSGD)
 
 BX.BXSGD = {
 	groupId: null,
+	groupType: null,
 	errorBlock: null
 };
 
@@ -28,6 +29,11 @@ BX.BXSGD.init = function(params) {
 		)
 		{
 			this.groupId = parseInt(params.groupId);
+		}
+
+		if (BX.type.isNotEmptyString(params.groupType))
+		{
+			this.groupType = params.groupType;
 		}
 	}
 
@@ -51,8 +57,22 @@ BX.BXSGD.submitForm = function() {
 	BX.SocialnetworkUICommon.hideError(this.errorBlock);
 	BX.SocialnetworkUICommon.showButtonWait(BX('sonet_group_delete_button_submit'));
 
+
+	var actionUrl = BX('sonet-group-delete-form').getAttribute('action');
+	actionUrl = BX.util.add_url_param(actionUrl, {
+		b24statAction: 'deleteSonetGroup'
+	});
+
+
+	if (BX.type.isNotEmptyString(this.groupType))
+	{
+		actionUrl = BX.util.add_url_param(actionUrl, {
+			b24statType: this.groupType
+		});
+	}
+
 	BX.ajax({
-		url: BX('sonet-group-delete-form').getAttribute('action'),
+		url: actionUrl,
 		method: 'POST',
 		dataType: 'json',
 		data: {

@@ -10,12 +10,14 @@ unset($defaultParams);
 if ($arParams['POSITION_FIXED'] != 'N')
 	$arParams['POSITION_FIXED'] = 'Y';
 
-$arParams['POSITION'] = trim($arParams['POSITION']);
-$arParams['POSITION'] = explode(' ', $arParams['POSITION']);
+if (!isset($arParams['POSITION']))
+	$arParams['POSITION'] = '';
+if (!is_array($arParams['POSITION']))
+	$arParams['POSITION'] = explode(' ', trim($arParams['POSITION']));
+
 if (empty($arParams['POSITION']) || count($arParams['POSITION']) != 2)
 	$arParams['POSITION'] = array('top', 'left');
 if ($arParams['POSITION'][0] != 'bottom')
 	$arParams['POSITION'][0] = 'top';
 if ($arParams['POSITION'][1] != 'right')
 	$arParams['POSITION'][1] = 'left';
-?>

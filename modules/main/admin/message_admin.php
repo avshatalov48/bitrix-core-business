@@ -13,6 +13,8 @@
  * @global CDatabase $DB
  */
 
+use Bitrix\Main\Mail\Internal\EventTypeTable;
+
 require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
 define("HELP_FILE", "settings/mail_events/message_admin.php");
@@ -210,10 +212,11 @@ $lAdmin->AddHeaders(array(
 ));
 
 $arText_HTML = Array("text"=>GetMessage("MAIN_TEXT"), "html"=>GetMessage("MAIN_HTML"));
+
 $arEventTypes = Array();
-$eventTypeDb = \Bitrix\Main\Mail\Internal\EventTypeTable::getList(array(
+$eventTypeDb = EventTypeTable::getList(array(
 	'select' => array('EVENT_NAME', 'NAME'),
-	'filter' => array('=LID' => LANGUAGE_ID),
+	'filter' => array('=LID' => LANGUAGE_ID, "=EVENT_TYPE" => EventTypeTable::TYPE_EMAIL),
 	'order' => array('EVENT_NAME' => 'ASC')
 ));
 while($eventType = $eventTypeDb->fetch())
@@ -222,10 +225,13 @@ while($eventType = $eventTypeDb->fetch())
 }
 
 $langOptions = array("" => "");
-$languages = \Bitrix\Main\Localization\LanguageTable::getList(array("filter" => array("ACTIVE" => "Y"), "order" => array("SORT" => "ASC", "NAME" => "ASC")));
+$languages = \Bitrix\Main\Localization\LanguageTable::getList(array(
+	"select" => array('LID', 'NAME'),
+	"filter" => array("=ACTIVE" => "Y"),
+	"order" => array("SORT" => "ASC", "NAME" => "ASC")));
 while($language = $languages->fetch())
 {
-	$langOptions[$language["LID"]] = \Bitrix\Main\Text\HtmlFilter::encode($language["NAME"]);
+	$langOptions[$language["LID"]] = $language["NAME"];
 }
 
 // Body
@@ -329,7 +335,10 @@ $oFilter->Begin();
 		$event_type_ref = array();
 		$event_type_ref_id = array();
 		$ref_en = array();
-		$rsType = CEventType::GetList(array("LID"=>LANGUAGE_ID), array("name"=>"asc"));
+		$rsType = CEventType::GetList(
+			array("LID"=>LANGUAGE_ID, "EVENT_TYPE"=>EventTypeTable::TYPE_EMAIL),
+			array("name"=>"asc")
+		);
 		while($arType = $rsType->Fetch())
 		{
 			$event_type_ref[] = $arType["NAME"].($arType["NAME"] == ''? '' : ' ')."[".$arType["EVENT_NAME"]."]";
@@ -358,7 +367,7 @@ $oFilter->Begin();
 				?>
 				<? foreach($langOptions as $language_id => $name): ?>
 					<option value="<?=$language_id?>"<? if($find_language_id == $language_id) echo " selected" ?>>
-						<?=$name?>
+						<?=\Bitrix\Main\Text\HtmlFilter::encode($name)?>
 					</option>
 				<? endforeach ?>
 			</select>

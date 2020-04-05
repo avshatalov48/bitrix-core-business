@@ -1,5 +1,29 @@
 <?
+$MESS["SALE_CHECK_PRINT_ERROR_HTML_TEXT"] = "Cannot print receipt ##CHECK_ID# for order ##ORDER_ACCOUNT_NUMBER# dated #ORDER_DATE#.
+
+Click here to fix the problem:
+http://#SERVER_NAME#/bitrix/admin/sale_order_view.php?ID=#ORDER_ID#
+";
+$MESS["SALE_CHECK_PRINT_ERROR_TYPE_NAME"] = "Receipt printout error notification";
+$MESS["SALE_CHECK_PRINT_ERROR_TYPE_DESC"] = "#ORDER_ACCOUNT_NUMBER# - order id
+#ORDER_DATE# - order date
+#ORDER_ID# - order id
+#CHECK_ID# - receipt id";
+$MESS["SALE_CHECK_PRINT_ERROR_SUBJECT"] = "Error printing receipt";
+$MESS["SALE_CHECK_PRINT_ERROR_HTML_TITLE"] = "Error printing receipt";
+$MESS["SALE_CHECK_PRINT_ERROR_HTML_SUB_TITLE"] = "Welcome!";
 $MESS["SALE_NEW_ORDER_NAME"] = "New order";
+$MESS["SALE_NEW_ORDER_DESC"] = "#ORDER_ID# - order ID
+#ORDER_ACCOUNT_NUMBER_ENCODE# - order ID (for URL's)
+#ORDER_REAL_ID# - real order ID
+#ORDER_DATE# - order date
+#ORDER_USER# - customer
+#PRICE# - order amount
+#EMAIL# - customer e-mail
+#BCC# - BCC e-mail
+#ORDER_LIST# - order contents
+#ORDER_PUBLIC_URL# - order view link for unauthorized users (requires configuration in the e-Store module settings)
+#SALE_EMAIL# - sales dept. e-mail";
 $MESS["SALE_NEW_ORDER_SUBJECT"] = "#SITE_NAME#: New order N#ORDER_ID#";
 $MESS["SALE_NEW_ORDER_MESSAGE"] = "Order confirmation from #SITE_NAME#
 ------------------------------------------
@@ -27,6 +51,16 @@ when requesting any information from site administration at  #SITE_NAME#.
 Thanks for ordering!
 ";
 $MESS["SALE_ORDER_CANCEL_NAME"] = "Cancel order";
+$MESS["SALE_ORDER_CANCEL_DESC"] = "#ORDER_ID# - order ID
+#ORDER_ACCOUNT_NUMBER_ENCODE# - order ID (for URL's)
+#ORDER_REAL_ID# - real order ID
+#ORDER_DATE# - order date
+#EMAIL# - customer e-mail
+#ORDER_LIST# - order contents
+#ORDER_CANCEL_DESCRIPTION# - reason for cancellation
+#ORDER_PUBLIC_URL# - order view link for unauthorized users (requires configuration in the e-Store module settings)
+#SALE_EMAIL# - sales dept. e-mail
+";
 $MESS["SALE_ORDER_CANCEL_SUBJECT"] = "#SITE_NAME#: Order N#ORDER_ID# was canceled";
 $MESS["SALE_ORDER_CANCEL_MESSAGE"] = "Informational message from #SITE_NAME#
 ------------------------------------------
@@ -38,6 +72,13 @@ Order ##ORDER_ID# from #ORDER_DATE# is canceled.
 #SITE_NAME#
 ";
 $MESS["SALE_ORDER_PAID_NAME"] = "Paid order";
+$MESS["SALE_ORDER_PAID_DESC"] = "#ORDER_ID# - order ID
+#ORDER_ACCOUNT_NUMBER_ENCODE# - order ID (for URL's)
+#ORDER_REAL_ID# - real order ID
+#ORDER_DATE# - order date
+#EMAIL# - customer e-mail
+#ORDER_PUBLIC_URL# - order view link for unauthorized users (requires configuration in the e-Store module settings)
+#SALE_EMAIL# - sales dept. e-mail";
 $MESS["SALE_ORDER_PAID_SUBJECT"] = "#SITE_NAME#: Order N#ORDER_ID# was paid";
 $MESS["SALE_ORDER_PAID_MESSAGE"] = "Informational message from #SITE_NAME#
 ------------------------------------------
@@ -47,6 +88,13 @@ Order ##ORDER_ID# from #ORDER_DATE# was paid.
 #SITE_NAME#
 ";
 $MESS["SALE_ORDER_DELIVERY_NAME"] = "Order delivery allowed";
+$MESS["SALE_ORDER_DELIVERY_DESC"] = "#ORDER_ID# - order ID
+#ORDER_ACCOUNT_NUMBER_ENCODE# - order ID (for URL's)
+#ORDER_REAL_ID# - real order ID
+#ORDER_DATE# - order date
+#EMAIL# - customer e-mail
+#ORDER_PUBLIC_URL# - order view link for unauthorized users (requires configuration in the e-Store module settings)
+#SALE_EMAIL# - sales dept. e-mail";
 $MESS["SALE_ORDER_DELIVERY_SUBJECT"] = "#SITE_NAME#: Delivery of order N#ORDER_ID# is allowed";
 $MESS["SALE_ORDER_DELIVERY_MESSAGE"] = "Informational message from #SITE_NAME#
 ------------------------------------------
@@ -56,6 +104,13 @@ Delivery of order ##ORDER_ID# from #ORDER_DATE# is allowed.
 #SITE_NAME#
 ";
 $MESS["SALE_RECURRING_CANCEL_NAME"] = "Recurring payment canceled";
+$MESS["SALE_RECURRING_CANCEL_DESC"] = "#ORDER_ID# - order ID
+#ORDER_ACCOUNT_NUMBER_ENCODE# - order ID (for URL's)
+#ORDER_REAL_ID# - real order ID
+#ORDER_DATE# - order date
+#EMAIL# - customer e-mail
+#CANCELED_REASON# - reason for cancellation
+#SALE_EMAIL# - sales dept. e-mail";
 $MESS["SALE_RECURRING_CANCEL_SUBJECT"] = "#SITE_NAME#: Recurring payment was canceled";
 $MESS["SALE_RECURRING_CANCEL_MESSAGE"] = "Informational message from #SITE_NAME#
 ------------------------------------------
@@ -66,9 +121,30 @@ Recurring payment was canceled
 #SITE_NAME#
 ";
 $MESS["SALE_NEW_ORDER_RECURRING_NAME"] = "New Order for Subscription Renewal";
+$MESS["SALE_NEW_ORDER_RECURRING_DESC"] = "#ORDER_ID# - order ID
+#ORDER_ACCOUNT_NUMBER_ENCODE# - order ID (for URL's)
+#ORDER_REAL_ID# - real order ID
+#ORDER_DATE# - order date
+#ORDER_USER# - customer
+#PRICE# - order amount
+#EMAIL# - customer e-mail
+#BCC# - BCC e-mail
+#ORDER_LIST# - order contents
+#SALE_EMAIL# - sales dept. e-mail";
 $MESS["SALE_NEW_ORDER_RECURRING_SUBJECT"] = "#SITE_NAME#: New order ##ORDER_ID# for subscription renewal";
 $MESS["SALE_NEW_ORDER_RECURRING_MESSAGE"] = "Information from #SITE_NAME#\\r\\n------------------------------------------\\r\\n\\r\\nDear #ORDER_USER#,\\r\\n\\r\\nYour order ##ORDER_ID# of #ORDER_DATE# for subscription renewal has been accepted.\\r\\n\\r\\nOrder amount: #PRICE#.\\r\\n\\r\\nOrder items:\\r\\n#ORDER_LIST#\\r\\n\\r\\nYou can track the status of your order in your private area at #SITE_NAME#. Note that you will have to enter your login and password you usually use to log in to #SITE_NAME#.\\r\\n\\r\\nYou can cancel your order in your private area at #SITE_NAME#.\\r\\n\\r\\nYou are kindly asked to include your order number #ORDER_ID# in all messages you send to the #SITE_NAME# administration.\\r\\n\\r\\nThank you for you purchase!";
 $MESS["SALE_ORDER_REMIND_PAYMENT_NAME"] = "Order Payment Reminder";
+$MESS["SALE_ORDER_REMIND_PAYMENT_DESC"] = "#ORDER_ID# - order ID
+#ORDER_ACCOUNT_NUMBER_ENCODE# - order ID (for URL's)
+#ORDER_REAL_ID# - real order ID
+#ORDER_DATE# - order date
+#ORDER_USER# - customer
+#PRICE# - order amount
+#EMAIL# - customer e-mail
+#BCC# - BCC e-mail
+#ORDER_LIST# - order contents
+#ORDER_PUBLIC_URL# - order view link for unauthorized users (requires configuration in the e-Store module settings)
+#SALE_EMAIL# - sales dept. e-mail";
 $MESS["SALE_ORDER_REMIND_PAYMENT_SUBJECT"] = "#SITE_NAME#: Payment reminder for order ##ORDER_ID#";
 $MESS["SALE_ORDER_REMIND_PAYMENT_MESSAGE"] = "Information from #SITE_NAME#
 ------------------------------------------
@@ -168,7 +244,33 @@ This message was sent by the robot; don't reply to it.
 Thank you for shopping with us!
 ";
 $MESS["SKGS_STATUS_MAIL_HTML_TITLE"] = "Order updated at #SITE_NAME#";
+$MESS["SALE_CHECK_PRINT_TYPE_NAME"] = "Receipt printout notification";
+$MESS["SALE_CHECK_PRINT_TYPE_DESC"] = "#ORDER_ID# - order ID
+#ORDER_DATE# - order date
+#ORDER_USER# - customer
+#ORDER_ACCOUNT_NUMBER_ENCODE# - order Id for use in links
+#ORDER_PUBLIC_URL# - order view link for unauthorized users (requires configuration in the e-Store module settings)
+#CHECK_LINK# - receipt link";
+$MESS["SALE_CHECK_PRINT_SUBJECT"] = "Receipt link";
+$MESS["SALE_CHECK_PRINT_HTML_TITLE"] = "Your payment for order with #SITE_NAME#";
+$MESS["SALE_CHECK_PRINT_HTML_SUB_TITLE"] = "Dear #ORDER_USER#,";
+$MESS["SALE_CHECK_PRINT_HTML_TEXT"] = "your payment has been processed and a respective receipt has been created. To view the receipt, use the link:
+
+#CHECK_LINK#
+
+To get more details on your order ##ORDER_ID# or #ORDER_DATE# please follow this link: http://#SERVER_NAME#/personal/order/detail/#ORDER_ACCOUNT_NUMBER_ENCODE#/
+";
 $MESS["SALE_ORDER_TRACKING_NUMBER_TYPE_NAME"] = "Notification of change in tracking number ";
+$MESS["SALE_ORDER_TRACKING_NUMBER_TYPE_DESC"] = "#ORDER_ID# - order ID
+#ORDER_ACCOUNT_NUMBER_ENCODE# - order ID (for URL's)
+#ORDER_REAL_ID# - real order ID
+#ORDER_DATE# - order date
+#ORDER_USER# - customer
+#ORDER_TRACKING_NUMBER# - tracking number
+#ORDER_PUBLIC_URL# - order view link for unauthorized users (requires configuration in the e-Store module settings)
+#EMAIL# - customer e-mail
+#BCC# - BCC e-mail
+#SALE_EMAIL# - sales dept. e-mail";
 $MESS["SALE_ORDER_TRACKING_NUMBER_SUBJECT"] = "Tracking number for your order from #SITE_NAME#";
 $MESS["SALE_ORDER_TRACKING_NUMBER_MESSAGE"] = "Order N #ORDER_ID# from #ORDER_DATE# has been shipped by mail.
 
@@ -187,96 +289,6 @@ The tracking number is: #ORDER_TRACKING_NUMBER#.
 For detailed information about the order, see: http://#SERVER_NAME#/personal/order/detail/#ORDER_ID#/
 
 E-mail: #SALE_EMAIL#
-";
-$MESS["SALE_NEW_ORDER_DESC"] = "#ORDER_ID# - order ID
-#ORDER_ACCOUNT_NUMBER_ENCODE# - order ID (for URL's)
-#ORDER_REAL_ID# - real order ID
-#ORDER_DATE# - order date
-#ORDER_USER# - customer
-#PRICE# - order amount
-#EMAIL# - customer e-mail
-#BCC# - BCC e-mail
-#ORDER_LIST# - order contents
-#ORDER_PUBLIC_URL# - order view link for unauthorized users (requires configuration in the e-Store module settings)
-#SALE_EMAIL# - sales dept. e-mail";
-$MESS["SALE_ORDER_CANCEL_DESC"] = "#ORDER_ID# - order ID
-#ORDER_ACCOUNT_NUMBER_ENCODE# - order ID (for URL's)
-#ORDER_REAL_ID# - real order ID
-#ORDER_DATE# - order date
-#EMAIL# - customer e-mail
-#ORDER_LIST# - order contents
-#ORDER_CANCEL_DESCRIPTION# - reason for cancellation
-#ORDER_PUBLIC_URL# - order view link for unauthorized users (requires configuration in the e-Store module settings)
-#SALE_EMAIL# - sales dept. e-mail
-";
-$MESS["SALE_ORDER_PAID_DESC"] = "#ORDER_ID# - order ID
-#ORDER_ACCOUNT_NUMBER_ENCODE# - order ID (for URL's)
-#ORDER_REAL_ID# - real order ID
-#ORDER_DATE# - order date
-#EMAIL# - customer e-mail
-#ORDER_PUBLIC_URL# - order view link for unauthorized users (requires configuration in the e-Store module settings)
-#SALE_EMAIL# - sales dept. e-mail";
-$MESS["SALE_ORDER_DELIVERY_DESC"] = "#ORDER_ID# - order ID
-#ORDER_ACCOUNT_NUMBER_ENCODE# - order ID (for URL's)
-#ORDER_REAL_ID# - real order ID
-#ORDER_DATE# - order date
-#EMAIL# - customer e-mail
-#ORDER_PUBLIC_URL# - order view link for unauthorized users (requires configuration in the e-Store module settings)
-#SALE_EMAIL# - sales dept. e-mail";
-$MESS["SALE_RECURRING_CANCEL_DESC"] = "#ORDER_ID# - order ID
-#ORDER_ACCOUNT_NUMBER_ENCODE# - order ID (for URL's)
-#ORDER_REAL_ID# - real order ID
-#ORDER_DATE# - order date
-#EMAIL# - customer e-mail
-#CANCELED_REASON# - reason for cancellation
-#SALE_EMAIL# - sales dept. e-mail";
-$MESS["SALE_NEW_ORDER_RECURRING_DESC"] = "#ORDER_ID# - order ID
-#ORDER_ACCOUNT_NUMBER_ENCODE# - order ID (for URL's)
-#ORDER_REAL_ID# - real order ID
-#ORDER_DATE# - order date
-#ORDER_USER# - customer
-#PRICE# - order amount
-#EMAIL# - customer e-mail
-#BCC# - BCC e-mail
-#ORDER_LIST# - order contents
-#SALE_EMAIL# - sales dept. e-mail";
-$MESS["SALE_ORDER_REMIND_PAYMENT_DESC"] = "#ORDER_ID# - order ID
-#ORDER_ACCOUNT_NUMBER_ENCODE# - order ID (for URL's)
-#ORDER_REAL_ID# - real order ID
-#ORDER_DATE# - order date
-#ORDER_USER# - customer
-#PRICE# - order amount
-#EMAIL# - customer e-mail
-#BCC# - BCC e-mail
-#ORDER_LIST# - order contents
-#ORDER_PUBLIC_URL# - order view link for unauthorized users (requires configuration in the e-Store module settings)
-#SALE_EMAIL# - sales dept. e-mail";
-$MESS["SALE_ORDER_TRACKING_NUMBER_TYPE_DESC"] = "#ORDER_ID# - order ID
-#ORDER_ACCOUNT_NUMBER_ENCODE# - order ID (for URL's)
-#ORDER_REAL_ID# - real order ID
-#ORDER_DATE# - order date
-#ORDER_USER# - customer
-#ORDER_TRACKING_NUMBER# - tracking number
-#ORDER_PUBLIC_URL# - order view link for unauthorized users (requires configuration in the e-Store module settings)
-#EMAIL# - customer e-mail
-#BCC# - BCC e-mail
-#SALE_EMAIL# - sales dept. e-mail";
-$MESS["SALE_CHECK_PRINT_TYPE_NAME"] = "Receipt printout notification";
-$MESS["SALE_CHECK_PRINT_TYPE_DESC"] = "#ORDER_ID# - order ID
-#ORDER_DATE# - order date
-#ORDER_USER# - customer
-#ORDER_ACCOUNT_NUMBER_ENCODE# - order Id for use in links
-#ORDER_PUBLIC_URL# - order view link for unauthorized users (requires configuration in the e-Store module settings)
-#CHECK_LINK# - receipt link";
-$MESS["SALE_CHECK_PRINT_SUBJECT"] = "Receipt link";
-$MESS["SALE_CHECK_PRINT_HTML_TITLE"] = "Your payment for order with #SITE_NAME#";
-$MESS["SALE_CHECK_PRINT_HTML_SUB_TITLE"] = "Dear #ORDER_USER#,";
-$MESS["SALE_CHECK_PRINT_HTML_TEXT"] = "
-your payment has been processed and a respective receipt has been created. To view the receipt, use the link:
-
-#CHECK_LINK#
-
-To get more details on your order ##ORDER_ID# or #ORDER_DATE# please follow this link: http://#SERVER_NAME#/personal/order/detail/#ORDER_ACCOUNT_NUMBER_ENCODE#/
 ";
 $MESS["SALE_ORDER_SHIPMENT_STATUS_CHANGED_SUBJECT"] = "Status of your shipment from #SITE_NAME# has updated";
 $MESS["SALE_ORDER_SHIPMENT_STATUS_CHANGED_HTML_TITLE"] = "Tracking information for your shipment from #SITE_NAME# has been updated";

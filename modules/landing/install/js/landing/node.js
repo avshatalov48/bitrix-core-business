@@ -3,6 +3,13 @@
 
 	BX.namespace("BX.Landing.Block");
 
+	var isFunction = BX.Landing.Utils.isFunction;
+	var isString = BX.Landing.Utils.isString;
+	var isPlainObject = BX.Landing.Utils.isPlainObject;
+	var isArray = BX.Landing.Utils.isArray;
+	var bind = BX.Landing.Utils.bind;
+	var proxy = BX.Landing.Utils.proxy;
+	var data = BX.Landing.Utils.data;
 
 	/**
 	 * Implements base interface for works with block node
@@ -18,18 +25,18 @@
 	BX.Landing.Block.Node = function(options)
 	{
 		this.node = options.node;
-		this.manifest = typeof options.manifest === "object" ? options.manifest : {};
-		this.selector = typeof options.selector === "string" ? options.selector : "";
-		this.onChangeHandler = typeof options.onChange === "function" ? options.onChange : (function() {});
-		this.onDesignShow = typeof options.onDesignShow === "function" ? options.onDesignShow : (function() {});
-		this.changeOptionsHandler = typeof options.onChangeOptions === "function" ? options.onChangeOptions : (function() {});
+		this.manifest = isPlainObject(options.manifest) ? options.manifest : {};
+		this.selector = isString(options.selector) ? options.selector : "";
+		this.onChangeHandler = isFunction(options.onChange) ? options.onChange : (function() {});
+		this.onDesignShow = isFunction(options.onDesignShow) ? options.onDesignShow : (function() {});
+		this.changeOptionsHandler = isFunction(options.onChangeOptions) ? options.onChangeOptions : (function() {});
 
-		this.onDocumentClick = this.onDocumentClick.bind(this);
-		this.onDocumentKeydown = this.onDocumentKeydown.bind(this);
+		this.onDocumentClick = proxy(this.onDocumentClick, this);
+		this.onDocumentKeydown = proxy(this.onDocumentKeydown, this);
 
 		// Bind on document events
-		document.addEventListener("click", this.onDocumentClick);
-		document.addEventListener("keydown", this.onDocumentKeydown);
+		bind(document, "click", this.onDocumentClick);
+		bind(document, "keydown", this.onDocumentKeydown);
 
 		// Make manifest as reed only
 		Object.freeze(this.manifest);
@@ -164,6 +171,24 @@
 
 
 		/**
+		 * Gets additional values
+		 * @return {*}
+		 */
+		getAdditionalValue: function()
+		{
+			if (isPlainObject(this.manifest.extend) &&
+				isArray(this.manifest.extend.attrs))
+			{
+				return this.manifest.extend.attrs.reduce(function(accumulator, key) {
+					return (accumulator[key] = data(this.node, key)), accumulator;
+				}.bind(this), {});
+			}
+
+			return {};
+		},
+
+
+		/**
 		 * Handles content change event and calls external onChange handler
 		 */
 		onChange: function()
@@ -201,6 +226,16 @@
 		isSavePrevented: function()
 		{
 			return !!this.isSavePreventedValue;
+		},
+
+
+		/**
+		 * Gets current block
+		 * @return {number|*}
+		 */
+		getBlock: function()
+		{
+			return top.BX.Landing.Block.storage.getByChildNode(this.node);
 		}
 	};
 })();

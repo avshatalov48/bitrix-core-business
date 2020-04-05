@@ -385,6 +385,15 @@ if($bEdit)
 else
 	$APPLICATION->SetTitle(GetMessage("FILEMAN_NEWFILEEDIT_TITLE"));
 
+if(count($arParsedPath["AR_PATH"]) == 1)
+{
+	$adminChain->AddItem(
+		array(
+			"TEXT" => htmlspecialcharsex($DOC_ROOT),
+			"LINK" => "fileman_admin.php?lang=".LANGUAGE_ID."&site=".urlencode($site)."&path=/"
+		)
+	);
+}
 
 foreach ($arParsedPath["AR_PATH"] as $chainLevel)
 {

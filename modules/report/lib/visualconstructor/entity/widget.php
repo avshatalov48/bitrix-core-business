@@ -185,9 +185,11 @@ class Widget extends ConfigurableModel
 	}
 
 	/**
+	 * @param bool $isRuntime
+	 *
 	 * @return BaseWidget
 	 */
-	public function getWidgetHandler()
+	public function getWidgetHandler($isRuntime = false)
 	{
 		if (!$this->widgetHandler)
 		{
@@ -197,13 +199,18 @@ class Widget extends ConfigurableModel
 			if ($widgetHandlerFromEvent)
 			{
 				$this->widgetHandler = new $widgetHandlerFromEvent;
-				$this->loadAttribute('configurations');
+				if (!$isRuntime)
+				{
+					$this->loadAttribute('configurations');
+				}
 				$this->widgetHandler->fillWidget($this);
 			}
 		}
 
 		return $this->widgetHandler;
 	}
+
+
 
 	/**
 	 * Setter for widget handler.

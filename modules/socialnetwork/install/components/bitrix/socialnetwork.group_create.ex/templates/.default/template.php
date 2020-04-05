@@ -25,13 +25,15 @@ elseif (strlen($arResult["FatalError"])>0)
 }
 else
 {
-	$jsCoreExtensionList = array('socnetlogdest', 'popup', 'fx');
+	$jsCoreExtensionList = array('popup', 'fx');
 	if ($arResult["intranetInstalled"])
 	{
 		$jsCoreExtensionList = array_merge($jsCoreExtensionList, array('ui_date', 'date'));
 	}
 
 	CJSCore::Init($jsCoreExtensionList);
+	UI\Extension::load("ui.selector");
+
 	$APPLICATION->SetAdditionalCSS("/bitrix/components/bitrix/main.post.form/templates/.default/style.css");
 	$APPLICATION->SetAdditionalCSS("/bitrix/components/bitrix/socialnetwork.blog.post.edit/templates/.default/style.css");
 
@@ -43,7 +45,7 @@ else
 		$APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "")."social-group-create-body");
 
 		if (
-			$arResult["IS_IFRAME"] 
+			$arResult["IS_IFRAME"]
 			&& $arResult["CALLBACK"] == "REFRESH"
 		)
 		{
@@ -98,8 +100,6 @@ else
 				SONET_GROUP_TITLE_EDIT : '<?=CUtil::JSEscape(GetMessage("SONET_GCE_T_TITLE_EDIT"))?>',
 				SONET_GCE_T_DEST_EXTRANET_SELECTOR_INVITE : '<?=GetMessageJS("SONET_GCE_T_DEST_EXTRANET_SELECTOR_INVITE")?>',
 				SONET_GCE_T_DEST_EXTRANET_SELECTOR_ADD : '<?=GetMessageJS("SONET_GCE_T_DEST_EXTRANET_SELECTOR_ADD")?>',
-				SONET_GCE_T_DEST_LINK_1 : '<?=GetMessageJS("SONET_GCE_T_ADD_EMPLOYEE")?>',
-				SONET_GCE_T_DEST_LINK_2 : '<?=GetMessageJS('SONET_GCE_T_DEST_LINK_2')?>',
 				SONET_GCE_T_TAG_ADD: '<?=GetMessageJS("SONET_GCE_T_TAG_ADD")?>',
 				SONET_GCE_T_AJAX_ERROR:  '<?=GetMessageJS('SONET_GCE_T_AJAX_ERROR')?>'
 				<?
@@ -147,7 +147,17 @@ else
 			}
 		}
 
-		?><form method="post" name="sonet_group_create_popup_form" id="sonet_group_create_popup_form" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data"><?
+		$uri = new Bitrix\Main\Web\Uri(POST_FORM_ACTION_URI);
+		if (!empty($arResult["typeCode"]))
+		{
+			$uri->deleteParams(array("b24statAction", "b24statType"));
+			$uri->addParams(array(
+				"b24statType" => $arResult["typeCode"]
+			));
+		}
+		$actionUrl = $uri->getUri();
+
+		?><form method="post" name="sonet_group_create_popup_form" id="sonet_group_create_popup_form" action="<?=$actionUrl?>" enctype="multipart/form-data"><?
 			?><input type="hidden" name="ajax_request" value="Y"><?
 			?><input type="hidden" name="save" value="Y"><?
 			?><?=bitrix_sessid_post()?><?
@@ -303,97 +313,24 @@ else
 										// owner
 										$selectorName = "group_create_owner_".randString(6);
 
-										?><div class="social-group-create-control-inner social-group-create-form-field feed-add-post-destination-wrap<?=(in_array("OWNER", $arResult["ErrorFields"]) ? " sonet-group-create-tabs-text-error" : "")?>" id="cont_<?=$selectorName?>">
-											<span id="sonet_group_create_popup_users_item_post_<?=$selectorName?>"></span>
-											<span class="feed-add-destination-input-box" id="sonet_group_create_popup_users_input_box_post_<?=$selectorName?>">
-												<input type="text" value="" class="feed-add-destination-inp" id="sonet_group_create_popup_users_input_post_<?=$selectorName?>">
-											</span>
-											<a href="#" class="feed-add-destination-link" id="sonet_group_create_popup_users_tag_post_<?=$selectorName?>"><?=GetMessage("SONET_GCE_T_ADD_OWNER")?></a><?
-										?></div><?
-
-										?><script>
-											BX.ready(function () {
-												var instance = new BX.BXGCESelectorInstance({
-													single: true,
-													controlName: 'OWNER_CODE',
-													tagLinkText1: '<?=GetMessageJs("SONET_GCE_T_ADD_OWNER")?>',
-													tagLinkText2: '<?=GetMessageJs("SONET_GCE_T_ADD_OWNER")?>'
-												});
-												instance.init({
-													id: '<?=CUtil::JSEscape($selectorName)?>',
-													contId: 'cont_<?=CUtil::JSEscape($selectorName)?>',
-													bindId: 'cont_<?=CUtil::JSEscape($selectorName)?>',
-													tagId: 'sonet_group_create_popup_users_tag_post_<?=CUtil::JSEscape($selectorName)?>',
-													bindNode: BX('cont_<?=CUtil::JSEscape($selectorName)?>')
-												});
-												BX.BXGCESelectorManager.controls['<?=CUtil::JSEscape($selectorName)?>'] = instance;
-											});
-										</script><?
-
 										$APPLICATION->IncludeComponent(
-											"bitrix:main.ui.selector",
-											".default",
-											array(
-												'ID' => $selectorName,
-												'BIND_ID' => 'sonet_group_create_popup_users_input_post_'.$selectorName,
-												'ITEMS_SELECTED' => (!empty($arResult["POST"]) && !empty($arResult["POST"]["OWNER_ID"]) ? array('U'.$arResult["POST"]["OWNER_ID"] => 'users') : array('U'.$arResult["currentUserId"] => 'users')),
-												'CALLBACK' => array(
-													'select' => 'BX.BXGCE.selectCallback',
-													'unSelect' => 'BX.BXGCE.unSelectCallback',
-													'openDialog' => "BX.delegate(BX.BXGCE.openDialogCallback, {
-														inputBoxName: 'sonet_group_create_popup_users_input_box_post_".$selectorName."',
-														inputName: 'sonet_group_create_popup_users_input_post_".$selectorName."',
-														tagInputName: 'sonet_group_create_popup_users_tag_post_".$selectorName."'
-													})",
-													'closeDialog' => "BX.delegate(BX.BXGCE.closeDialogCallback, {
-														inputBoxName: 'sonet_group_create_popup_users_input_box_post_".$selectorName."',
-														inputName: 'sonet_group_create_popup_users_input_post_".$selectorName."',
-														tagInputName: 'sonet_group_create_popup_users_tag_post_".$selectorName."'
-													})",
-													'openSearch' => "BX.delegate(BX.BXGCE.openDialogCallback, {
-														inputBoxName: 'sonet_group_create_popup_users_input_box_post_".$selectorName."',
-														inputName: 'sonet_group_create_popup_users_input_post_".$selectorName."',
-														tagInputName: 'sonet_group_create_popup_users_tag_post_".$selectorName."'
-													})"
-												),
-												'OPTIONS' => array(
-													'useNewCallback' => 'Y',
-													'extranetContext' => ($arResult["bExtranetInstalled"] ? 'I' : false),
-													'eventInit' => 'BX.BXGCE:init',
-													'eventOpen' => 'BX.BXGCE:open',
-													'context' => $arResult['destinationContextOwner'],
+											"bitrix:main.user.selector",
+											"",
+											[
+												"ID" => $selectorName,
+												"INPUT_NAME" => 'OWNER_CODE',
+												"LIST" => (!empty($arResult["POST"]) && !empty($arResult["POST"]["OWNER_ID"]) ? array('U'.$arResult["POST"]["OWNER_ID"]) : array('U'.$arResult["currentUserId"])),
+												"USE_SYMBOLIC_ID" => "Y",
+												"BUTTON_SELECT_CAPTION" => GetMessage('SONET_GCE_T_ADD_OWNER'),
+												"API_VERSION" => 3,
+												"SELECTOR_OPTIONS" => array(
+													'userSearchArea' => ($arResult["bExtranetInstalled"] ? 'I' : false),
 													'contextCode' => 'U',
-													'useSearch' => 'N',
-													'userNameTemplate' => CUtil::JSEscape($arParams["NAME_TEMPLATE"]),
-													'useClientDatabase' => 'Y',
-													'allowEmailInvitation' => 'N',
-													'enableAll' => 'N',
-													'enableDepartments' => 'N',
-													'enableSonetgroups' => 'N',
-													'departmentSelectDisable' => 'Y',
-													'allowAddUser' => 'N',
-													'allowAddCrmContact' => 'N',
-													'allowAddSocNetGroup' => 'N',
-													'allowSearchEmailUsers' => 'N',
-													'allowSearchCrmEmailUsers' => 'N',
-													'allowSearchNetworkUsers' => 'N',
-													'allowSonetGroupsAjaxSearchFeatures' => 'N'
+													'context' => $arResult['destinationContextOwner'],
 												)
-											),
-											false,
-											array("HIDE_ICONS" => "Y")
+											]
 										);
 
-										?><script>
-											BX.ready(function () {
-												BX.onCustomEvent(window, 'BX.BXGCE:init', [ {
-													id: '<?=CUtil::JSEscape($selectorName)?>',
-													inputId: 'sonet_group_create_popup_users_input_post_<?=CUtil::JSEscape($selectorName)?>',
-													containerId: 'sonet_group_create_popup_users_input_box_post_<?=CUtil::JSEscape($selectorName)?>',
-													openDialogWhenInit: false
-												} ]);
-											});
-										</script><?
 										?><span id="GROUP_MODERATORS_SWITCH_LABEL_block" class="social-group-create-text<?=($arResult["POST"]["PROJECT"] == "Y" ? " sgcp-switch-project" : "")?>">
 											<a id="GROUP_MODERATORS_switch" href="#" class="social-group-create-text-link sgcp-inlineblock-nonproject"><?=GetMessage("SONET_GCE_T_MODERATORS_SWITCH")?></a>
 											<a id="GROUP_MODERATORS_PROJECT_switch" href="#" class="social-group-create-text-link sgcp-inlineblock-project"><?=GetMessage("SONET_GCE_T_MODERATORS_SWITCH_PROJECT")?></a>
@@ -410,35 +347,9 @@ else
 
 								<div class="social-group-create-options-item-column-right">
 									<div class="social-group-create-options-item-column-one social-group-create-form-control-block"><?
+
 										// moderators
 										$selectorName = "group_create_moderators_".randString(6);
-
-										?><div class="social-group-create-control-inner social-group-create-form-field feed-add-post-destination-wrap<?=(in_array("MODERATORS", $arResult["ErrorFields"]) ? " sonet-group-create-tabs-text-error" : "")?>" id="cont_<?=$selectorName?>">
-											<span id="sonet_group_create_popup_users_item_post_<?=$selectorName?>"></span>
-											<span class="feed-add-destination-input-box" id="sonet_group_create_popup_users_input_box_post_<?=$selectorName?>">
-												<input type="text" value="" class="feed-add-destination-inp" id="sonet_group_create_popup_users_input_post_<?=$selectorName?>">
-											</span>
-											<a href="#" class="feed-add-destination-link" id="sonet_group_create_popup_users_tag_post_<?=$selectorName?>"><?=GetMessage("SONET_GCE_T_ADD_EMPLOYEE")?></a><?
-										?></div><?
-
-										?><script>
-											BX.ready(function () {
-												var instance = new BX.BXGCESelectorInstance({
-													single: false,
-													controlName: 'MODERATOR_CODES[]',
-													tagLinkText1: '<?=GetMessageJs("SONET_GCE_T_ADD_EMPLOYEE")?>',
-													tagLinkText2: '<?=GetMessageJs("SONET_GCE_T_DEST_LINK_2")?>'
-												});
-												instance.init({
-													id: '<?=CUtil::JSEscape($selectorName)?>',
-													contId: 'cont_<?=CUtil::JSEscape($selectorName)?>',
-													bindId: 'cont_<?=CUtil::JSEscape($selectorName)?>',
-													tagId: 'sonet_group_create_popup_users_tag_post_<?=CUtil::JSEscape($selectorName)?>',
-													bindNode: BX('cont_<?=CUtil::JSEscape($selectorName)?>')
-												});
-												BX.BXGCESelectorManager.controls['<?=CUtil::JSEscape($selectorName)?>'] = instance;
-											});
-										</script><?
 
 										$moderatorsList = array();
 										if (
@@ -454,67 +365,22 @@ else
 										}
 
 										$APPLICATION->IncludeComponent(
-											"bitrix:main.ui.selector",
-											".default",
-											array(
-												'ID' => $selectorName,
-												'BIND_ID' => 'sonet_group_create_popup_users_input_post_'.$selectorName,
-												'ITEMS_SELECTED' => $moderatorsList,
-												'CALLBACK' => array(
-													'select' => 'BX.BXGCE.selectCallback',
-													'unSelect' => 'BX.BXGCE.unSelectCallback',
-													'openDialog' => "BX.delegate(BX.BXGCE.openDialogCallback, {
-														inputBoxName: 'sonet_group_create_popup_users_input_box_post_".$selectorName."',
-														inputName: 'sonet_group_create_popup_users_input_post_".$selectorName."',
-														tagInputName: 'sonet_group_create_popup_users_tag_post_".$selectorName."'
-													})",
-													'closeDialog' => "BX.delegate(BX.BXGCE.closeDialogCallback, {
-														inputBoxName: 'sonet_group_create_popup_users_input_box_post_".$selectorName."',
-														inputName: 'sonet_group_create_popup_users_input_post_".$selectorName."',
-														tagInputName: 'sonet_group_create_popup_users_tag_post_".$selectorName."'
-													})",
-													'openSearch' => "BX.delegate(BX.BXGCE.openDialogCallback, {
-														inputBoxName: 'sonet_group_create_popup_users_input_box_post_".$selectorName."',
-														inputName: 'sonet_group_create_popup_users_input_post_".$selectorName."',
-														tagInputName: 'sonet_group_create_popup_users_tag_post_".$selectorName."'
-													})"
-												),
-												'OPTIONS' => array(
-													'useNewCallback' => 'Y',
-													'eventInit' => 'BX.BXGCE:init',
-													'eventOpen' => 'BX.BXGCE:open',
-													'context' => $arResult['destinationContextModerators'],
+											"bitrix:main.user.selector",
+											"",
+											[
+												"ID" => $selectorName,
+												"INPUT_NAME" => 'MODERATOR_CODES[]',
+												"LIST" => $moderatorsList,
+												"USE_SYMBOLIC_ID" => "Y",
+												"BUTTON_SELECT_CAPTION" => ($arResult["intranetInstalled"] ? GetMessage('SONET_GCE_T_ADD_EMPLOYEE') : GetMessage('SONET_GCE_T_ADD_USER')),
+												"BUTTON_SELECT_CAPTION_MORE" => GetMessage('SONET_GCE_T_DEST_LINK_2'),
+												"API_VERSION" => 3,
+												"SELECTOR_OPTIONS" => array(
 													'contextCode' => 'U',
-													'useSearch' => 'N',
-													'userNameTemplate' => CUtil::JSEscape($arParams["NAME_TEMPLATE"]),
-													'useClientDatabase' => 'Y',
-													'allowEmailInvitation' => 'N',
-													'enableAll' => 'N',
-													'enableDepartments' => 'N',
-													'enableSonetgroups' => 'N',
-													'departmentSelectDisable' => 'Y',
-													'allowAddUser' => 'N',
-													'allowAddCrmContact' => 'N',
-													'allowAddSocNetGroup' => 'N',
-													'allowSearchEmailUsers' => 'N',
-													'allowSearchCrmEmailUsers' => 'N',
-													'allowSearchNetworkUsers' => 'N',
-													'allowSonetGroupsAjaxSearchFeatures' => 'N'
+													'context' => $arResult['destinationContextModerators'],
 												)
-											),
-											false,
-											array("HIDE_ICONS" => "Y")
+											]
 										);
-										?><script>
-											BX.ready(function () {
-												BX.onCustomEvent(window, 'BX.BXGCE:init', [ {
-													id: '<?=CUtil::JSEscape($selectorName)?>',
-													inputId: 'sonet_group_create_popup_users_input_post_<?=CUtil::JSEscape($selectorName)?>',
-													containerId: 'sonet_group_create_popup_users_input_box_post_<?=CUtil::JSEscape($selectorName)?>',
-													openDialogWhenInit: false
-												} ]);
-											});
-										</script><?
 
 									?></div>
 								</div>
@@ -530,185 +396,71 @@ else
 								$actionType = "invite";
 							}
 
-							$selectorName = randString(6);
-
 							?><div class="social-group-create-options-item">
 								<div class="social-group-create-options-item-column-left">
 									<div class="social-group-create-options-item-name"><?=Loc::getMessage($arResult["intranetInstalled"] ? "SONET_GCE_T_DEST_TITLE_EMPLOYEE2" : "SONET_GCE_T_DEST_TITLE_USER2")?></div>
 								</div>
 								<div class="social-group-create-options-item-column-right">
 									<div class="social-group-create-options-item-column-one social-group-create-form-control-block"><?
-										?><div class="social-group-create-control-inner social-group-create-form-field feed-add-post-destination-wrap<?=(in_array("USERS", $arResult["ErrorFields"]) ? " sonet-group-create-tabs-text-error" : "")?>" id="sonet_group_create_popup_users_container_post_<?=$selectorName?>">
-											<span id="sonet_group_create_popup_users_item_post_<?=$selectorName?>"></span>
-											<span class="feed-add-destination-input-box" id="sonet_group_create_popup_users_input_box_post_<?=$selectorName?>">
-												<input type="text" value="" class="feed-add-destination-inp" id="sonet_group_create_popup_users_input_post_<?=$selectorName?>">
-											</span>
-											<a href="#" class="feed-add-destination-link" id="sonet_group_create_popup_users_tag_post_<?=$selectorName?>"><?=GetMessage("SONET_GCE_T_ADD_EMPLOYEE")?></a><?
 
-											$arValue = ($arResult["POST"]["USER_CODES"] ? $arResult["POST"]["USER_CODES"] : array());
-											$arStructure = CSocNetLogDestination::GetStucture(array(
-												"LAZY_LOAD" => true,
-												"DEPARTMENT_ID" => (isset($arResult["siteDepartmentID"]) && intval($arResult["siteDepartmentID"]) > 0 ? intval($arResult["siteDepartmentID"]) : false)
-											));
+										// users
+										$selectorName = randString(6);
 
-											?><script>
+										?><script>
+											BX.ready(function () {
+												BX.BXGCE.arUserSelector.push('<?=$selectorName?>');
+											});
+										</script><?
 
-												var department = <?=($arStructure && !empty($arStructure['department']) ? CUtil::PhpToJSObject($arStructure['department']) : '{}')?>;
-												var lastUsers = <?=(empty($arResult["DEST_USERS_LAST"])? '{}': CUtil::PhpToJSObject($arResult["DEST_USERS_LAST"]))?>;
-												var departmentRelation = null;
+										$usersList = array();
+										if (
+											!empty($arResult["POST"])
+											&& !empty($arResult["POST"]["USER_CODES"])
+											&& is_array($arResult["POST"]["USER_CODES"])
+										)
+										{
+											foreach($arResult["POST"]["USER_CODES"] as $userCode)
+											{
+												$userLists[$userCode] = 'users';
+											}
+										}
 
-												<?
-												if (!$arStructure || empty($arStructure['department_relation']))
-												{
-													?>
-													var relation = {};
-													for(var iid in department)
-													{
-														var p = department[iid]['parent'];
-														if (!relation[p])
-															relation[p] = [];
-														relation[p][relation[p].length] = iid;
-													}
-
-													function makeDepartmentTree(id, relation)
-													{
-														var arRelations = {};
-
-														if (relation[id])
-														{
-															for (var x in relation[id])
-															{
-																var relId = relation[id][x];
-																var arItems = [];
-																if (relation[relId] && relation[relId].length > 0)
-																	arItems = makeDepartmentTree(relId, relation);
-
-																arRelations[relId] = {
-																	id: relId,
-																	type: 'category',
-																	items: arItems
-																};
-															}
-														}
-
-														return arRelations;
-													}
-
-													departmentRelation = makeDepartmentTree(<?=(isset($arResult["siteDepartmentID"]) && intval($arResult["siteDepartmentID"]) ? "department['DR".intval($arResult["siteDepartmentID"])."'].parent" : "'DR0'")?>, relation);
-													<?
-												}
-												else
-												{
-													?>
-													departmentRelation = <?=CUtil::PhpToJSObject($arStructure['department_relation'])?>;
-													<?
-												}
-												?>
-												BX.ready(function() {
-													BX.SocNetLogDestination.init({
-														name : '<?=$selectorName?>',
-														searchInput : BX('sonet_group_create_popup_users_input_post_<?=$selectorName?>'),
-														departmentSelectDisable : <?=(isset($arResult["GROUP_PROPERTIES"]["UF_SG_DEPT"]) && !$arResult["bExtranet"] ? 'false' : 'true')?>,
-														userSearchArea : <?=($arResult["bExtranetInstalled"] ? "'I'" : "false")?>,
-														extranetUser :  false, // ??
-														allowAddSocNetGroup: false,
-														allowSearchSelf: false,
-														siteDepartmentID : <?=(isset($arResult["siteDepartmentID"]) && intval($arResult["siteDepartmentID"]) > 0 ? intval($arResult["siteDepartmentID"]) : "false")?>,
-														bindMainPopup : {
-															node : BX('sonet_group_create_popup_users_container_post_<?=$selectorName?>'),
-															offsetTop : '5px',
-															offsetLeft: '15px'
-														},
-														bindSearchPopup : {
-															node : BX('sonet_group_create_popup_users_container_post_<?=$selectorName?>'),
-															offsetTop : '5px',
-															offsetLeft: '15px'
-														},
-														callback : {
-															select : BX.BXGCE.selectCallbackOld,
-															unSelect : BX.delegate(BX.BXGCE.unSelectCallbackOld, {
-																formName: '<?=$selectorName?>',
-																inputContainerName: 'sonet_group_create_popup_users_item_post_<?=$selectorName?>',
-																inputName: 'sonet_group_create_popup_users_input_post_<?=$selectorName?>',
-																tagInputName: 'sonet_group_create_popup_users_tag_post_<?=$selectorName?>',
-																tagLink1: BX.message('SONET_GCE_T_DEST_LINK_1'),
-																tagLink2: BX.message('SONET_GCE_T_DEST_LINK_2')
-															}),
-															openDialog : BX.delegate(BX.BXGCE.openDialogCallbackOld, {
-																inputBoxName: 'sonet_group_create_popup_users_input_box_post_<?=$selectorName?>',
-																inputName: 'sonet_group_create_popup_users_input_post_<?=$selectorName?>',
-																tagInputName: 'sonet_group_create_popup_users_tag_post_<?=$selectorName?>'
-															}),
-															closeDialog : BX.delegate(BX.SocNetLogDestination.BXfpCloseDialogCallback, {
-																inputBoxName: 'sonet_group_create_popup_users_input_box_post_<?=$selectorName?>',
-																inputName: 'sonet_group_create_popup_users_input_post_<?=$selectorName?>',
-																tagInputName: 'sonet_group_create_popup_users_tag_post_<?=$selectorName?>'
-															}),
-															openSearch : BX.delegate(BX.BXGCE.openDialogCallbackOld, {
-																inputBoxName: 'sonet_group_create_popup_users_input_box_post_<?=$selectorName?>',
-																inputName: 'sonet_group_create_popup_users_input_post_<?=$selectorName?>',
-																tagInputName: 'sonet_group_create_popup_users_tag_post_<?=$selectorName?>'
-															})
-														},
-														items : {
-															users : <?=(
-																$arResult["bExtranetInstalled"]
-																&& strlen(COption::GetOptionString("extranet", "extranet_site")) > 0
-																	? (is_array($arResult["POST"]["USERS_FOR_JS_I"]) && !empty($arResult["POST"]["USERS_FOR_JS_I"]) ? CUtil::PhpToJSObject($arResult["POST"]["USERS_FOR_JS_I"]) : '{}')
-																	: (is_array($arResult["POST"]["USERS_FOR_JS"]) && !empty($arResult["POST"]["USERS_FOR_JS"]) ? CUtil::PhpToJSObject($arResult["POST"]["USERS_FOR_JS"]) : '{}')
-															)?>,
-															groups : {},
-															sonetgroups : {},
-															department : department,
-															departmentRelation : departmentRelation
-														},
-														itemsLast : {
-															users : lastUsers,
-															sonetgroups : {},
-															department : {},
-															groups : {}
-														},
-														itemsSelected : <?=(empty($arValue)? '{}': CUtil::PhpToJSObject($arValue))?>,
-														destSort : <?=CUtil::PhpToJSObject($arResult["DEST_SORT"])?>
-													});
-													BX.BXGCE.arUserSelector.push('<?=$selectorName?>');
-													BX.bind(BX('sonet_group_create_popup_users_input_post_<?=$selectorName?>'), 'keyup', BX.delegate(BX.SocNetLogDestination.BXfpSearch, {
-														formName: '<?=$selectorName?>',
-														inputName: 'sonet_group_create_popup_users_input_post_<?=$selectorName?>',
-														tagInputName: 'sonet_group_create_popup_users_tag_post_<?=$selectorName?>'
-													}));
-													BX.bind(BX('sonet_group_create_popup_users_input_post_<?=$selectorName?>'), 'keydown', BX.delegate(BX.SocNetLogDestination.BXfpSearchBefore, {
-														formName: '<?=$selectorName?>',
-														inputName: 'sonet_group_create_popup_users_input_post_<?=$selectorName?>'
-													}));
-													BX.bind(BX('sonet_group_create_popup_users_input_post_<?=$selectorName?>'), 'blur', BX.delegate(BX.SocNetLogDestination.BXfpBlurInput, {
-														inputBoxName: 'sonet_group_create_popup_users_input_box_post_<?=$selectorName?>',
-														tagInputName: 'sonet_group_create_popup_users_tag_post_<?=$selectorName?>'
-													}));
-													BX.bind(BX('sonet_group_create_popup_users_input_post_<?=$selectorName?>'), 'click', function(e) {
-														BX.BXGCE.setSelector('<?=$selectorName?>');
-														BX.SocNetLogDestination.openDialog('<?=$selectorName?>');
-														BX.PreventDefault(e);
-													});
-													BX.bind(BX('sonet_group_create_popup_users_container_post_<?=$selectorName?>'), 'click', function(e) {
-														BX.BXGCE.setSelector('<?=$selectorName?>');
-														BX.SocNetLogDestination.openDialog('<?=$selectorName?>');
-														BX.PreventDefault(e);
-													});
-													<?
-													if (
+										$APPLICATION->IncludeComponent(
+											"bitrix:main.user.selector",
+											"",
+											[
+												"ID" => $selectorName,
+												"INPUT_NAME" => 'USER_CODES[]',
+												"LIST" => $userLists,
+												"USE_SYMBOLIC_ID" => "Y",
+												"OPEN_DIALOG_WHEN_INIT" => ($arResult["POST"]["IS_EXTRANET_GROUP"] != "Y" && $arResult["TAB"] == "invite"),
+												"FIRE_CLICK_EVENT" => (
 														$arResult["POST"]["IS_EXTRANET_GROUP"] != "Y"
 														&& $arResult["TAB"] == "invite"
-													)
-													{
-														?>
-														BX.SocNetLogDestination.openDialog('<?=$selectorName?>');
-														<?
-													}
-													?>
+															? "Y"
+															: "N"
+												),
+												"BUTTON_SELECT_CAPTION" => ($arResult["intranetInstalled"] ? GetMessage('SONET_GCE_T_ADD_EMPLOYEE') : GetMessage('SONET_GCE_T_ADD_USER')),
+												"BUTTON_SELECT_CAPTION_MORE" => GetMessage('SONET_GCE_T_DEST_LINK_2'),
+												"API_VERSION" => 3,
+												"SELECTOR_OPTIONS" => array(
+													'contextCode' => '',
+													'context' => $arResult['destinationContextUsers'],
+													'departmentSelectDisable' => (isset($arResult["GROUP_PROPERTIES"]["UF_SG_DEPT"]) && !$arResult["bExtranet"] ? 'N' : 'Y'),
+													'siteDepartmentId' => (isset($arResult["siteDepartmentID"]) && intval($arResult["siteDepartmentID"]) > 0 ? intval($arResult["siteDepartmentID"]) : ''),
+													'userSearchArea' => ($arResult["bExtranetInstalled"] ? 'I' : 'N')
+												)
+											]
+										);
+
+										?><script>
+											BX.ready(function () {
+												var instance = new BX.BXGCESelectorInstance({});
+												instance.init({
+													selectorId: '<?=CUtil::JSEscape($selectorName)?>'
 												});
-											</script>
-										</div><?
+											});
+										</script><?
 										?><input type="hidden" name="NEW_INVITE_FORM" value="Y">
 									</div><?
 
@@ -742,126 +494,39 @@ else
 									</div>
 									<div class="social-group-create-options-item-column-right">
 										<div class="social-group-create-options-item-column-one social-group-create-form-control-block flex-wrap"><?
-
-											$selectorName = randString(6);
-
 											?><div class="invite-dialog-inv-form">
-												<div class="sonet-group-create-popup-users-title"><?=GetMessage("SONET_GCE_T_DEST_TITLE_EXTRANET")?></div>
-												<div class="ocial-group-create-control-inner social-group-create-form-field feed-add-post-destination-wrap" id="sonet_group_create_popup_users_container_post_<?=$selectorName?>">
-													<span id="sonet_group_create_popup_users_item_post_<?=$selectorName?>"></span>
-													<span class="feed-add-destination-input-box" id="sonet_group_create_popup_users_input_box_post_<?=$selectorName?>">
-														<input type="text" value="" class="feed-add-destination-inp" id="sonet_group_create_popup_users_input_post_<?=$selectorName?>">
-													</span>
-													<a href="#" class="feed-add-destination-link" id="sonet_group_create_popup_users_tag_post_<?=$selectorName?>"><?=GetMessage("SONET_GCE_T_ADD_EXTRANET")?></a>
-													<script><?
-														$arStructure = array(
-															'department' => array(
-																'EX' => array(
-																	'id' => 'EX',
-																	'entityId' => 'EX',
-																	'name' => GetMessage('SONET_GCE_T_DEST_EXTRANET'),
-																	'parent' => 'DR0'
-																)
-															),
-															'department_relation' => array(
-																'EX' => array(
-																	'id' => 'EX',
-																	'items' => array(),
-																	'type' => 'category'
-																)
-															)
-														);
-														?>
-														var departmentExtranet = <?=CUtil::PhpToJSObject($arStructure['department'])?>;
-														var departmentRelationExtranet = <?=CUtil::PhpToJSObject($arStructure['department_relation'])?>;
+												<div class="sonet-group-create-popup-users-title"><?=GetMessage("SONET_GCE_T_DEST_TITLE_EXTRANET")?></div><?
 
-														BX.ready(function() {
-															BX.SocNetLogDestination.init({
-																name : '<?=$selectorName?>',
-																searchInput : BX('sonet_group_create_popup_users_input_post_<?=$selectorName?>'),
-																departmentSelectDisable : true,
-																userSearchArea : 'E',
-																extranetUser :  false, // ??
-																allowAddSocNetGroup: false,
-																bindMainPopup : {
-																	node : BX('sonet_group_create_popup_users_container_post_<?=$selectorName?>'),
-																	offsetTop : '5px',
-																	offsetLeft: '15px'
-																},
-																bindSearchPopup : {
-																	node : BX('sonet_group_create_popup_users_container_post_<?=$selectorName?>'),
-																	offsetTop : '5px',
-																	offsetLeft: '15px'
-																},
-																callback : {
-																	select : BX.BXGCE.selectCallbackOld,
-																	unSelect : BX.delegate(BX.BXGCE.unSelectCallbackOld, {
-																		formName: '<?=$selectorName?>',
-																		inputContainerName: 'sonet_group_create_popup_users_item_post_<?=$selectorName?>',
-																		inputName: 'sonet_group_create_popup_users_input_post_<?=$selectorName?>',
-																		tagInputName: 'sonet_group_create_popup_users_tag_post_<?=$selectorName?>',
-																		tagLink1: BX.message('SONET_GCE_T_DEST_LINK_1'),
-																		tagLink2: BX.message('SONET_GCE_T_DEST_LINK_2')
-																	}),
-																	openDialog : BX.delegate(BX.SocNetLogDestination.BXfpOpenDialogCallback, {
-																		inputBoxName: 'sonet_group_create_popup_users_input_box_post_<?=$selectorName?>',
-																		inputName: 'sonet_group_create_popup_users_input_post_<?=$selectorName?>',
-																		tagInputName: 'sonet_group_create_popup_users_tag_post_<?=$selectorName?>'
-																	}),
-																	closeDialog : BX.delegate(BX.SocNetLogDestination.BXfpCloseDialogCallback, {
-																		inputBoxName: 'sonet_group_create_popup_users_input_box_post_<?=$selectorName?>',
-																		inputName: 'sonet_group_create_popup_users_input_post_<?=$selectorName?>',
-																		tagInputName: 'sonet_group_create_popup_users_tag_post_<?=$selectorName?>'
-																	}),
-																	openSearch : BX.delegate(BX.SocNetLogDestination.BXfpOpenDialogCallback, {
-																		inputBoxName: 'sonet_group_create_popup_users_input_box_post_<?=$selectorName?>',
-																		inputName: 'sonet_group_create_popup_users_input_post_<?=$selectorName?>',
-																		tagInputName: 'sonet_group_create_popup_users_tag_post_<?=$selectorName?>'
-																	})
-																},
-																items : {
-																	users : <?=(is_array($arResult["POST"]["USERS_FOR_JS_E"]) && !empty($arResult["POST"]["USERS_FOR_JS_E"]) ? CUtil::PhpToJSObject($arResult["POST"]["USERS_FOR_JS_E"]) : '{}')?>,
-																	groups : {},
-																	sonetgroups : {},
-																	department : departmentExtranet,
-																	departmentRelation : departmentRelationExtranet
-																},
-																itemsLast : {
-																	users : lastUsers,
-																	sonetgroups : {},
-																	department : {},
-																	groups : {}
-																},
-																itemsSelected : <?=(empty($arValue)? '{}': CUtil::PhpToJSObject($arValue))?>
-															});
-															BX.BXGCE.arUserSelector.push('<?=$selectorName?>');
-															BX.bind(BX('sonet_group_create_popup_users_input_post_<?=$selectorName?>'), 'keyup', BX.delegate(BX.SocNetLogDestination.BXfpSearch, {
-																formName: '<?=$selectorName?>',
-																inputName: 'sonet_group_create_popup_users_input_post_<?=$selectorName?>',
-																tagInputName: 'sonet_group_create_popup_users_tag_post_<?=$selectorName?>'
-															}));
-															BX.bind(BX('sonet_group_create_popup_users_input_post_<?=$selectorName?>'), 'keydown', BX.delegate(BX.SocNetLogDestination.BXfpSearchBefore, {
-																formName: '<?=$selectorName?>',
-																inputName: 'sonet_group_create_popup_users_input_post_<?=$selectorName?>'
-															}));
-															BX.bind(BX('sonet_group_create_popup_users_input_post_<?=$selectorName?>'), 'blur', BX.delegate(BX.SocNetLogDestination.BXfpBlurInput, {
-																inputBoxName: 'sonet_group_create_popup_users_input_box_post_<?=$selectorName?>',
-																tagInputName: 'sonet_group_create_popup_users_tag_post_<?=$selectorName?>'
-															}));
-															BX.bind(BX('sonet_group_create_popup_users_input_post_<?=$selectorName?>'), 'click', function(e) {
-																BX.BXGCE.setSelector('<?=$selectorName?>');
-																BX.SocNetLogDestination.openDialog('<?=$selectorName?>');
-																BX.PreventDefault(e);
-															});
-															BX.bind(BX('sonet_group_create_popup_users_container_post_<?=$selectorName?>'), 'click', function(e) {
-																BX.BXGCE.setSelector('<?=$selectorName?>');
-																BX.SocNetLogDestination.openDialog('<?=$selectorName?>');
-																BX.PreventDefault(e);
-															});
-														});
-													</script>
-												</div>
-												<div id="sonet_group_create_popup_action_title" class="invite-dialog-inv-block"><?=GetMessage(
+												$selectorName = randString(6);
+
+												?><script>
+													BX.ready(function () {
+														BX.BXGCE.arUserSelector.push('<?=$selectorName?>');
+													});
+												</script><?
+
+												$APPLICATION->IncludeComponent(
+													"bitrix:main.user.selector",
+													"",
+													[
+														"ID" => $selectorName,
+														"INPUT_NAME" => 'USER_CODES[]',
+														"LIST" => $userLists,
+														"USE_SYMBOLIC_ID" => "Y",
+														"BUTTON_SELECT_CAPTION" => GetMessage('SONET_GCE_T_ADD_EXTRANET'),
+														"BUTTON_SELECT_CAPTION_MORE" => GetMessage('SONET_GCE_T_DEST_LINK_2'),
+														"API_VERSION" => 3,
+														"SELECTOR_OPTIONS" => array(
+															'contextCode' => 'U',
+															'context' => $arResult['destinationContextUsers'],
+															'departmentSelectDisable' => 'Y',
+															'siteDepartmentId' => 'EX',
+															'userSearchArea' => 'E',
+														)
+													]
+												);
+
+												?><div id="sonet_group_create_popup_action_title" class="invite-dialog-inv-block"><?=GetMessage(
 													'SONET_GCE_T_DEST_EXTRANET_SELECTOR',
 													array(
 														'#ACTION#' => '<a href="javascript:void(0);" id="sonet_group_create_popup_action_title_link" class="invite-dialog-inv-link" data-action="invite">'.GetMessage('SONET_GCE_T_DEST_EXTRANET_SELECTOR_INVITE').'</a>'
@@ -1038,15 +703,25 @@ else
 																$featureTitle = $arResult["POST"]["FEATURES"][$feature]["FeatureName"];
 															}
 
-															?><div class="social-group-create-form-field-list-item<?=($customTitle ? ' custom-value' : '')?>">
-																<input name="<?=htmlspecialcharsbx($feature)?>_active" type="checkbox" class="social-group-create-form-field-list-input" value="Y" <?=($arFeature["Active"] ? 'checked' : '')?>>
-																<span class="social-group-create-form-field-list-name"><label class="social-group-create-form-field-list-label"><?=htmlspecialcharsex($featureTitleOriginal)?></label></span>
-																<input type="text" name="<?=htmlspecialcharsbx($feature)?>_name" class="social-group-create-form-field-input-text" value="<?=($customTitle ? $featureTitle : '')?>">
-																<span class="social-group-create-form-pencil"></span>
-																<span class="social-group-create-form-field-cancel"></span>
-															</div><?
+															if (
+																$feature == 'search'
+																&& SITE_TEMPLATE_ID == 'bitrix24'
+															)
+															{
+																?><input type="hidden" name="<?=htmlspecialcharsbx($feature)?>_active"  value="<?=($arFeature["Active"] ? 'Y' : 'N')?>">
+																<input type="hidden" name="<?=htmlspecialcharsbx($feature)?>_name" value="<?=($customTitle ? $featureTitle : '')?>"><?
+															}
+															else
+															{
+																?><div class="social-group-create-form-field-list-item<?=($customTitle ? ' custom-value' : '')?>">
+																	<input name="<?=htmlspecialcharsbx($feature)?>_active" type="checkbox" class="social-group-create-form-field-list-input" value="Y" <?=($arFeature["Active"] ? 'checked' : '')?>>
+																	<span class="social-group-create-form-field-list-name"><label class="social-group-create-form-field-list-label"><?=htmlspecialcharsex($featureTitleOriginal)?></label></span>
+																	<input type="text" name="<?=htmlspecialcharsbx($feature)?>_name" class="social-group-create-form-field-input-text" value="<?=($customTitle ? $featureTitle : '')?>">
+																	<span class="social-group-create-form-pencil"></span>
+																	<span class="social-group-create-form-field-cancel"></span>
+																</div><?
+															}
 														}
-
 													?></div>
 												</div>
 											</div>
@@ -1177,21 +852,21 @@ else
 																	"SORT_BY_CNT" => "Y",
 																)
 															);
-															?>
-															<script>
-																new BX.BXGCETagsForm({
-																	containerNodeId: 'group-tags-container',
-																	hiddenFieldId: 'GROUP_KEYWORDS',
-																	addNewLinkId: 'group-tags-add-new',
-																	popupContentNodeId: 'sgcp-tags-popup-content'
-																});
-															</script>
-															<?
 														}
 														else
 														{
 															?><input type="text" name="GROUP_KEYWORDS" style="width:98%" value="<?= $arResult["POST"]["KEYWORDS"]; ?>"><?
 														}
+														?>
+														<script>
+															new BX.BXGCETagsForm({
+																containerNodeId: 'group-tags-container',
+																hiddenFieldId: 'GROUP_KEYWORDS',
+																addNewLinkId: 'group-tags-add-new',
+																popupContentNodeId: 'sgcp-tags-popup-content'
+															});
+														</script>
+														<?
 													?></div>
 												</div>
 											</div>

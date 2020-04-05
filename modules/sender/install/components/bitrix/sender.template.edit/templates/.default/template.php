@@ -104,7 +104,6 @@ $containerId = 'bx-sender-template-edit';
 									"TEMPLATE_ID" => '',
 									"CONTENT_URL" => $arResult['ROW']['CONTENT_URL'],
 									"IS_TEMPLATE_MODE" => false,
-									"USE_LIGHT_TEXT_EDITOR" => true,
 								),
 								null
 							);

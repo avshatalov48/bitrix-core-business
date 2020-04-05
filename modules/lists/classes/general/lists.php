@@ -265,6 +265,14 @@ class CLists
 		CListFieldList::DeleteFields($iblock_id);
 	}
 
+	public static function OnAfterIBlockUpdate(array &$fields)
+	{
+		if (!empty($fields["RESULT"]))
+		{
+			self::deleteListsCache('/lists/crm/attached/');
+		}
+	}
+
 	function OnAfterIBlockDelete($iblock_id)
 	{
 		if(CModule::includeModule('bizproc') && CBPRuntime::isFeatureEnabled())
@@ -1591,10 +1599,24 @@ class CLists
 							{
 								foreach($properties[$propertyId] as $value)
 								{
-									$explode = explode('_', $value);
-									$type = $explode[0];
-									$typeId = CCrmOwnerType::resolveID(CCrmOwnerTypeAbbr::resolveName($type));
-									$propertyValues[] = CCrmOwnerType::getCaption($typeId, $explode[1], false);
+									if (intval($value))
+									{
+										foreach($property["USER_TYPE_SETTINGS"] as $entityType => $marker)
+										{
+											if ($entityType != "VISIBLE" && $marker == "Y")
+											{
+												$typeId = CCrmOwnerType::resolveID($entityType);
+												$propertyValues[] = CCrmOwnerType::getCaption($typeId, $value, false);
+											}
+										}
+									}
+									else
+									{
+										$explode = explode('_', $value);
+										$type = $explode[0];
+										$typeId = CCrmOwnerType::resolveID(CCrmOwnerTypeAbbr::resolveName($type));
+										$propertyValues[] = CCrmOwnerType::getCaption($typeId, $explode[1], false);
+									}
 								}
 							}
 							break;

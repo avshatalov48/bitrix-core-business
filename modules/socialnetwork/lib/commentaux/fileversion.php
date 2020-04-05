@@ -101,7 +101,9 @@ final class FileVersion extends Base
 				{
 					$ratingVoteParams['ENTITY_LINK'] = $this->getRatingCommentLink(array(
 						'commentId' => $fields['ID'],
-						'commentAuthorId' => $ratingVoteParams['OWNER_ID']
+						'commentAuthorId' => $ratingVoteParams['OWNER_ID'],
+						'ratingEntityTypeId' => $ratingVoteParams['ENTITY_TYPE_ID'],
+						'ratingEntityId' => $ratingVoteParams['ENTITY_ID']
 					));
 
 					$ratingVoteParams["ENTITY_PARAM"] = 'COMMENT';

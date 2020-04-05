@@ -1601,6 +1601,11 @@ class CIBlockDocument
 				$arResult[$t]["BaseType"] = "string";
 				$arResult[$t]['typeClass'] = '\Bitrix\Iblock\BizprocType\Money';
 			}
+			elseif($t == 'N:Sequence')
+			{
+				$arResult[$t]["BaseType"] = "int";
+				$arResult[$t]['typeClass'] = '\Bitrix\Iblock\BizprocType\Sequence';
+			}
 		}
 
 		return $arResult;
@@ -2364,7 +2369,7 @@ class CIBlockDocument
 
 		$arFieldsPropertyValues = array();
 
-		$arDocumentFields = self::GetDocumentFields("iblock_".$arFields["IBLOCK_ID"]);
+		$arDocumentFields = static::GetDocumentFields("iblock_".$arFields["IBLOCK_ID"]);
 
 		$arKeys = array_keys($arFields);
 		foreach ($arKeys as $key)
@@ -2452,6 +2457,20 @@ class CIBlockDocument
 					}
 				}
 				$arFields[$key] = array("VALUE" => $arFields[$key], "DESCRIPTION" => "workflow");
+			}
+			elseif ($arDocumentFields[$key]["Type"] == "N:Sequence")
+			{
+				$queryObject = \CIBlockProperty::getByID($realKey, $arFields["IBLOCK_ID"]);
+				if ($property = $queryObject->fetch())
+				{
+					$propertyId = $property["ID"];
+					$sequence = new \CIBlockSequence($arFields["IBLOCK_ID"], $propertyId);
+					foreach ($arFields[$key] as &$value)
+					{
+						$value = ["VALUE" => $value];
+					}
+					$value = ["VALUE" => $sequence->getNext()];
+				}
 			}
 			elseif ($arDocumentFields[$key]["Type"] == "S:HTML")
 			{

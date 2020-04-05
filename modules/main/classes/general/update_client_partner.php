@@ -949,7 +949,7 @@ class CUpdateClientPartner
 				"&SUPD_STS=".urlencode(CUpdateClientPartner::__GetFooPath()).
 				"&SUPD_URS=".urlencode(CUpdateClientPartner::__GetFooPath1(0)).
 				"&SUPD_URSA=".urlencode(CUpdateClientPartner::__GetFooPath1(1)).
-				"&TYPENC=".((defined("DEMO") && DEMO=="Y") ? "D" : ((defined("ENCODE") && ENCODE=="Y") ? "E" : "F" )).
+				"&TYPENC=".((defined("DEMO") && DEMO=="Y") ? "D" : ((defined("ENCODE") && ENCODE=="Y") ? "E" : ((defined("TIMELIMIT_EDITION") && TIMELIMIT_EDITION=="Y") ? "T" : "F" ) )).
 				"&CLIENT_PHPVER=".urlencode(phpversion()).
 				"&NGINX=".urlencode(COption::GetOptionString("main", "update_use_nginx", "Y")).
 				"&dbv=".urlencode($dbv != false ? $dbv : "");

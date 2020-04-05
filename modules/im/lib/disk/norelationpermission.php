@@ -118,7 +118,7 @@ class NoRelationPermission
 				'cache'=>array('ttl'=>self::CACHE_TIME)
 			));
 
-		$filterRelation = array('LOGIC' => 'OR');
+		$filterRelation = array();
 		while($row = $raw->fetch())
 		{
 			$permissionDisk[$row['CHAT_ID']][$row['USER_ID']] = $row['USER_ID'];
@@ -129,15 +129,20 @@ class NoRelationPermission
 			);
 		}
 
-		$rawRelation = RelationTable::getList(array(
-			'select' => array('CHAT_ID', 'USER_ID'),
-			'filter' => $filterRelation,
-			'cache'=>array('ttl'=>self::CACHE_TIME)
-		));
-
-		while($rowRelation = $rawRelation->fetch())
+		if(!empty($filterRelation))
 		{
-			$relation[$rowRelation['CHAT_ID']][$rowRelation['USER_ID']] = $rowRelation['USER_ID'];
+			$filterRelation['LOGIC'] = 'OR';
+
+			$rawRelation = RelationTable::getList(array(
+				'select' => array('CHAT_ID', 'USER_ID'),
+				'filter' => $filterRelation,
+				'cache'=>array('ttl'=>self::CACHE_TIME)
+			));
+
+			while($rowRelation = $rawRelation->fetch())
+			{
+				$relation[$rowRelation['CHAT_ID']][$rowRelation['USER_ID']] = $rowRelation['USER_ID'];
+			}
 		}
 
 		if(!empty($deletePermissionDisk))
@@ -156,7 +161,7 @@ class NoRelationPermission
 
 				foreach ($userIds as $userId)
 				{
-					if(empty($relation['$chatId']['$userId']))
+					if(empty($relation[$chatId][$userId]))
 						$userDelete[] = $userId;
 				}
 

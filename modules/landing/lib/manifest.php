@@ -10,25 +10,51 @@ class Manifest extends \Bitrix\Landing\Internals\BaseTable
 	public static $internalClass = 'ManifestTable';
 
 	/**
-	 * dd new record.
+	 * Add new record.
 	 * @param array $fields Params for add.
-	 * @return \Bitrix\Main\Result
+	 * @return \Bitrix\Main\Result|null
 	 */
 	public static function add($fields)
 	{
+		if (!isset($fields['CONTENT']))
+		{
+			$fields['CONTENT'] = '';
+		}
+		if (!isset($fields['MANIFEST']))
+		{
+			$fields['MANIFEST'] = [];
+		}
+		$fields['CONTENT'] = trim($fields['CONTENT']);
+
 		if (isset($fields['CODE']))
 		{
-			$res = self::getList(array(
-				'select' => array(
-					'ID'
-				),
-				'filter' => array(
-					'=CODE' => $fields['CODE']
+			$res = self::getList(
+				array(
+					'select' => array(
+						'ID', 'CONTENT', 'MANIFEST'
+					),
+					'filter' => array(
+						'=CODE' => $fields['CODE']
+					)
 				)
-			));
+			);
 			if ($row = $res->fetch())
 			{
-				return parent::update($row['ID'], $fields);
+				if (
+					md5($row['CONTENT']) !=
+					md5($fields['CONTENT'])
+					||
+					md5(serialize($row['MANIFEST'])) !=
+					md5(serialize($fields['MANIFEST']))
+				)
+				{
+					return parent::update($row['ID'], $fields);
+				}
+				else
+				{
+					return null;
+				}
+
 			}
 		}
 

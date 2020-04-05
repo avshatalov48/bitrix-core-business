@@ -31,7 +31,8 @@ $containerId = 'sender-ui-mailbox-selector';
 	<span class="sender-ui-mailbox-icon" style="background-image: url(<?=htmlspecialcharsbx($arResult['CURRENT']['icon'])?>)"></span>
 	<span data-role="mailbox" class="sender-ui-mailbox-name">
 		<?=htmlspecialcharsbx($arResult['CURRENT']['name'])?>
-		<?=htmlspecialcharsbx('<' . $arResult['CURRENT']['email'] . '>')?>
+		<?=htmlspecialcharsbx(empty($arResult['CURRENT']['email']) ? '' : '<' . $arResult['CURRENT']['email'] . '>')?>
+		<?=(empty($arResult['LIST']) && empty($arResult['CURRENT']['email']) ? Loc::getMessage('SENDER_UI_MAILBOX_SELECTOR_SETUP') : '')?>
 	</span>
 	<input data-role="mailbox-input" type="hidden" name="<?=htmlspecialcharsbx($arParams['INPUT_NAME'])?>" value="<?=htmlspecialcharsbx($arResult['CURRENT']['sender'])?>">
 </div>

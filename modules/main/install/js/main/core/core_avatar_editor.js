@@ -556,13 +556,22 @@
 				onAfterPopupShow : BX.delegate(this.onAfterPopupShow, this),
 				onPopupClose : BX.delegate(this.onPopupClose, this)
 			};
-			if (webRTC === null && BX["webrtc"])
-				webRTC = new BX.webrtc();
 			params = (BX.type.isPlainObject(params) ? params : {});
 			this.params = { enableCamera : params["enableCamera"] !== false };
+
 			this.limitations = []; // TODO make control to work with file limits
 		};
 		d.prototype = {
+			isCameraEnabled : function() {
+				var res = false;
+				if (this.params.enableCamera === true)
+				{
+					if (webRTC === null && BX["webrtc"])
+						webRTC = new BX.webrtc();
+					res = ((window.location.protocol.indexOf("https") === 0) && webRTC && webRTC.enabled);
+				}
+				return res;
+			},
 			getLimitText : function() {
 				// TODO make text interface for limits
 				return '';
@@ -633,7 +642,7 @@
 					'</div>',
 				'</div>'
 				].join(''));
-				if (this.params.enableCamera && (window.location.protocol.indexOf("https") === 0) && webRTC && webRTC.enabled)
+				if (this.isCameraEnabled())
 				{
 					headers.push(
 						'<span class="main-file-input-tab-button-item main-file-input-tab-button-active" data-bx-role="tab-camera">' + BX.message("JS_AVATAR_EDITOR_CAMERA") + '</span>'
@@ -954,7 +963,7 @@
 				}
 				BX.onCustomEvent(this, "onEditorHasBeenShown", [this]);
 			},
-			show : function() {
+			show : function(activeTab) {
 				if (this.popup === null)
 				{
 					var editorNode = BX.create("DIV", {
@@ -993,6 +1002,15 @@
 				{
 					BX.onCustomEvent(this, "onEditorHasBeenShown", [this]);
 				}
+				if (activeTab === 'camera' || activeTab === 'file')
+				{
+					var f = BX.proxy(function(){ this.tabs.show(activeTab); }, this);
+					if (this.popup.isShown())
+						f();
+					else
+						BX.addCustomEvent(this, "onEditorHasBeenShown", f);
+				}
+
 				this.popup.show();
 				this.popup.adjustPosition();
 			},

@@ -5,12 +5,13 @@ namespace Bitrix\Sale\Exchange;
 use Bitrix\Sale\Exchange\Entity\PaymentImport;
 use Bitrix\Sale\Exchange\Entity\ShipmentImport;
 use Bitrix\Sale\Exchange\OneC\DocumentBase;
+use Bitrix\Sale\Exchange\OneC\DocumentType;
 use Bitrix\Sale\Exchange\OneC\PaymentDocument;
 use Bitrix\Sale\Exchange\OneC\ShipmentDocument;
 use Bitrix\Sale\Exchange\OneC\UserProfileDocument;
 use Bitrix\Sale\Result;
 
-final class ExportOneCPackageSale extends ExportOneCPackage
+class ExportOneCPackageSale extends ExportOneCPackage
 {
 	/**
 	 * @param DocumentBase[] $documents
@@ -44,7 +45,7 @@ final class ExportOneCPackageSale extends ExportOneCPackage
 		//endregion
 
 		//region order.fields delivery address
-		$documentOrder = $this->getDocumentByTypeId(EntityType::ORDER, $documents);
+		$documentOrder = $this->getDocumentByTypeId(DocumentType::ORDER, $documents);
 		$this->prepareDocumentFieldsDeliveryAddress($documentOrder, $documentProfile);
 		//endregion
 	}
@@ -55,7 +56,7 @@ final class ExportOneCPackageSale extends ExportOneCPackage
 	 */
 	protected function convertEntityFields(array $items)
 	{
-		$orderImport = $this->getEntityByTypeId(EntityType::ORDER, $items);
+		$orderImport = $this->getEntityByTypeId(static::getParentEntityTypeId(), $items);
 
 		//region order stories
 		$orderFields = $orderImport->getFieldValues();
@@ -93,12 +94,16 @@ final class ExportOneCPackageSale extends ExportOneCPackage
 		//endregion
 
 		//region order.shipment fields
-		$orderFields = $orderImport->getFieldValues();
-		$shipmentImport = $this->getEntityByTypeId(EntityType::SHIPMENT, $items);
-		$shipmentFields = $shipmentImport->getFieldValues();
-		$orderFields['TRAITS']['DELIVERY_SERVICE'] = $shipmentFields['TRAITS']['DELIVERY_NAME'];
-		$orderFields['TRAITS']['DELIVERY_ID'] = $shipmentFields['TRAITS']['DELIVERY_ID'];
-		$orderImport->setFields($orderFields);
+		$shipmentImport = $this->getEntityByTypeId(static::getShipmentEntityTypeId(), $items);
+		if($shipmentImport instanceof ShipmentImport)
+		{
+			$shipmentFields = $shipmentImport->getFieldValues();
+
+			$orderFields = $orderImport->getFieldValues();
+			$orderFields['TRAITS']['DELIVERY_SERVICE'] = $shipmentFields['TRAITS']['DELIVERY_NAME'];
+			$orderFields['TRAITS']['DELIVERY_ID'] = $shipmentFields['TRAITS']['DELIVERY_ID'];
+			$orderImport->setFields($orderFields);
+		}
 		//endregion
 
 		//region order.payment fields
@@ -177,6 +182,6 @@ final class ExportOneCPackageSale extends ExportOneCPackage
 	 */
 	protected function getShemVersion()
 	{
-		return self::SHEM_VERSION_3_1;
+		return static::SHEM_VERSION_3_1;
 	}
 }

@@ -1,0 +1,19 @@
+.catalog-filter {
+	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	background: #edf6fc;
+	padding: 15px;
+}
+
+.catalog-filter-title {
+	margin-bottom: 10px;
+	color: #000;
+	font-size: 18px;
+}
+
+.catalog-filter-block{ font-size:14px;}
+
+.catalog-filter-field-separator {
+	width: 20px;
+	min-width: 20px;
+	max-width: 20px;
+}

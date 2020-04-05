@@ -103,6 +103,8 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 
 	/**
 	 * Start.
+	 *
+	 * @return void
 	 */
 	public function start()
 	{
@@ -129,12 +131,23 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 		}
 		if ($unsubLink)
 		{
+			if (!preg_match('/^http:|https:/', $unsubLink))
+			{
+				$unsubLink = $this->getSenderLinkProtocol() . '://' . $message->getSiteServerName() . $unsubLink;
+			}
 			$headers['List-Unsubscribe'] = '<'.$unsubLink.'>';
 		}
+
+		$fields['SENDER_MAIL_CHARSET'] = $message->getCharset();
 
 		if (Integration\Bitrix24\Service::isCloud())
 		{
 			$headers['X-Bitrix-Mail-Count'] = $message->getTransport()->getSendCount() ?: 1;
+			$recipientData = $message->getRecipientData();
+			if ($recipientData['CONTACT_IS_SEND_SUCCESS'] !== 'Y')
+			{
+				$headers['X-Bitrix-Mail-Unverified'] = 1;
+			}
 		}
 
 		$linkParameters = $message->getConfiguration()->get('LINK_PARAMS');
@@ -174,6 +187,23 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 			unset($messageAttachment[$key]);
 		}
 
+		//set callback entity Id
+		if (Integration\Bitrix24\Service::isCloud())
+		{
+			if ($message->getRecipientId())
+			{
+				$this->getMailContext()->getCallback()
+					->setEntityType('rcpt')
+					->setEntityId($message->getRecipientId());
+			}
+			else
+			{
+				$this->getMailContext()->getCallback()
+					->setEntityType('test')
+					->setEntityId(time() . '.' . rand(100, 1000));
+			}
+		}
+
 		$mailMessageParams = array(
 			'EVENT' => null,
 			'FIELDS' => $fields,
@@ -207,10 +237,10 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 			'CONTENT_TYPE' => $mailMessage->getMailContentType(),
 			'MESSAGE_ID' => '',
 			'ATTACHMENT' => $mailAttachment,
-			'LINK_PROTOCOL' => Option::get('sender', 'link_protocol', Integration\Bitrix24\Service::isCloud() ? 'https' : 'http'),
+			'LINK_PROTOCOL' => $this->getSenderLinkProtocol(),
 			'LINK_DOMAIN' => $message->getSiteServerName(),
-			'TRACK_READ' => $message->getReadTracker()->getArray(),
-			'TRACK_CLICK' => $message->getClickTracker()->getArray(),
+			'TRACK_READ' => $this->canTrackMails() ? $message->getReadTracker()->getArray() : null,
+			'TRACK_CLICK' => $this->canTrackMails() ? $message->getClickTracker()->getArray() : null,
 			'CONTEXT' => $this->getMailContext(),
 		);
 
@@ -219,6 +249,8 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 
 	/**
 	 * End.
+	 *
+	 * @return void
 	 */
 	public function end()
 	{
@@ -248,6 +280,18 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 		return Integration\Bitrix24\Limitation\Limiter::getList();
 	}
 
+	protected function getSenderLinkProtocol()
+	{
+		$protocol = Option::get('sender', 'link_protocol', null);
+		$protocol = $protocol ?: (Integration\Bitrix24\Service::isCloud() ? 'https' : 'http');
+		return $protocol;
+	}
+
+	protected function canTrackMails()
+	{
+		return Option::get('sender', 'track_mails') === 'Y';
+	}
+
 	protected function getMailContext()
 	{
 		if (!$this->mailContext)
@@ -255,6 +299,12 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 			$this->mailContext = new Mail\Context();
 			$this->mailContext->setCategory(Mail\Context::CAT_EXTERNAL);
 			$this->mailContext->setPriority(Mail\Context::PRIORITY_LOW);
+			if (Integration\Bitrix24\Service::isCloud())
+			{
+				$this->mailContext->setCallback(
+					(new Mail\Callback\Config())->setModuleId('sender')
+				);
+			}
 		}
 
 		return $this->mailContext;

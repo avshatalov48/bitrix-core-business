@@ -123,10 +123,14 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && (strlen($save)>0 || strlen($apply)>0)
 		"USER_MANAGER_ATTR"	=>	$_REQUEST['USER_MANAGER_ATTR'],
 		"IMPORT_STRUCT"	=>	$_REQUEST['IMPORT_STRUCT'],
 		"STRUCT_HAVE_DEFAULT"	=>	$_REQUEST['STRUCT_HAVE_DEFAULT'],
+		"SET_DEPARTMENT_HEAD"	=>	$_REQUEST['SET_DEPARTMENT_HEAD'],
 		"ROOT_DEPARTMENT"	=>	$_REQUEST['ROOT_DEPARTMENT'],
 		"DEFAULT_DEPARTMENT_NAME"	=>	$_REQUEST['DEFAULT_DEPARTMENT_NAME'],
 		"FIELD_MAP"	=>	$arUserFieldMap,
 		"MAX_PAGE_SIZE" => $_REQUEST['MAX_PAGE_SIZE'],
+		"LDAP_OPT_TIMELIMIT" => $_REQUEST['LDAP_OPT_TIMELIMIT'],
+		"LDAP_OPT_TIMEOUT" => $_REQUEST['LDAP_OPT_TIMEOUT'],
+		"LDAP_OPT_NETWORK_TIMEOUT" => $_REQUEST['LDAP_OPT_NETWORK_TIMEOUT'],
 		"SYNC_USER_ADD" => $_REQUEST['SYNC_USER_ADD'],
 		"CONNECTION_TYPE" => $_REQUEST['CONNECTION_TYPE']
 	);
@@ -169,6 +173,7 @@ $ldp = false;
 $str_ACTIVE="Y";
 $str_IMPORT_STRUCT="Y";
 $str_STRUCT_HAVE_DEFAULT = "Y";
+$str_SET_DEPARTMENT_HEAD = "Y";
 $str_DEFAULT_DEPARTMENT_NAME = (GetMessage('LDAP_DEFAULT_DEPARTMENT')!=''? GetMessage('LDAP_DEFAULT_DEPARTMENT') : 'My company');
 $str_PORT="389";
 
@@ -205,6 +210,9 @@ if($ID>0)
 				"USER_DEPARTMENT_ATTR"	=>	$arFields['USER_DEPARTMENT_ATTR'],
 				"USER_MANAGER_ATTR"	=>	$arFields['USER_MANAGER_ATTR'],
 				"MAX_PAGE_SIZE"	=>	$arFields['MAX_PAGE_SIZE'],
+				"LDAP_OPT_TIMELIMIT"	=>	$arFields['LDAP_OPT_TIMELIMIT'],
+				"LDAP_OPT_TIMEOUT"	=>	$arFields['LDAP_OPT_TIMEOUT'],
+				"LDAP_OPT_NETWORK_TIMEOUT"	=>	$arFields['LDAP_OPT_NETWORK_TIMEOUT'],
 				"CONNECTION_TYPE" => $arFields['CONNECTION_TYPE'],
 			)
 		);
@@ -308,6 +316,9 @@ if(strlen($SERVER)>0)
 			"USER_GROUP_ATTR"=>	$USER_GROUP_ATTR,
 			"USER_GROUP_ACCESSORY"=>	$USER_GROUP_ACCESSORY,
 			"MAX_PAGE_SIZE"	=>	$MAX_PAGE_SIZE,
+			"LDAP_OPT_TIMELIMIT"	=>	$LDAP_OPT_TIMELIMIT,
+			"LDAP_OPT_TIMEOUT"	=>	$LDAP_OPT_TIMEOUT,
+			"LDAP_OPT_NETWORK_TIMEOUT"	=>	$LDAP_OPT_NETWORK_TIMEOUT,
 			//"USER_DEPARTMENT_ATTR"	=>	$USER_DEPARTMENT_ATTR,
 			//"USER_MANAGER_ATTR"	=>	$USER_MANAGER_ATTR,
 			"CONNECTION_TYPE" => $CONNECTION_TYPE
@@ -371,7 +382,7 @@ else
 	{
 		?>
 		<script type="text/javascript">
-			setTimeout("OutLDSDefParams('AD')", 10);
+			setTimeout("OutLDSDefParams('AD')", 500);
 		</script>
 		<?
 	}
@@ -521,6 +532,25 @@ else
 			<input type="text" name="BASE_DN" id="BASE_DN" size="53" maxlength="255" value="<?=$str_BASE_DN?>">
 		</td>
 	</tr>
+	<tr>
+		<td><?echo GetMessage("LDAP_EDIT_LDAP_OPT_TIMELIMIT")?></td>
+		<td>
+			<input type="text" name="LDAP_OPT_TIMELIMIT" id="LDAP_OPT_TIMELIMIT" size="15" maxlength="255" value="<?=(intval($str_LDAP_OPT_TIMELIMIT) > 0 ? intval($str_LDAP_OPT_TIMELIMIT) : 100)?>">
+		</td>
+	</tr>
+	<tr>
+		<td><?echo GetMessage("LDAP_EDIT_LDAP_OPT_TIMEOUT")?></td>
+		<td>
+			<input type="text" name="LDAP_OPT_TIMEOUT" id="LDAP_OPT_TIMEOUT" size="15" maxlength="255" value="<?=(intval($str_LDAP_OPT_TIMEOUT) > 0 ? intval($str_LDAP_OPT_TIMEOUT) : 5)?>">
+		</td>
+	</tr>
+	<tr>
+		<td><?echo GetMessage("LDAP_EDIT_LDAP_OPT_NETWORK_TIMEOUT")?></td>
+		<td>
+			<input type="text" name="LDAP_OPT_NETWORK_TIMEOUT" id="LDAP_OPT_NETWORK_TIMEOUT" size="15" maxlength="255" value="<?=(intval($str_LDAP_OPT_NETWORK_TIMEOUT) > 0 ? intval($str_LDAP_OPT_NETWORK_TIMEOUT) : 5)?>">
+		</td>
+	</tr>
+
 	<?if(CLdapUtil::isLdapPaginationAviable()):?>
 		<tr>
 			<td><?echo GetMessage("LDAP_EDIT_MAX_PAGE_SIZE")?></td>
@@ -589,7 +619,7 @@ else
 	</tr>
 	<tr class="adm-detail-required-field">
 		<td><?echo GetMessage("LDAP_EDIT_GROUP_FILTER")?></td>
-		<td><input type="text" id="GROUP_FILTER" name="GROUP_FILTER" size="30" maxlength="255" value="<?=$str_GROUP_FILTER?>"></td>
+		<td><textarea id="GROUP_FILTER" name="GROUP_FILTER" cols="50" rows="4" maxlength="2048"><?=$str_GROUP_FILTER?></textarea></td>
 	</tr>
 	<tr class="adm-detail-required-field">
 		<td><?echo GetMessage("LDAP_EDIT_GROUP_ATTR")?></td>
@@ -605,7 +635,7 @@ else
 	</tr>
 	<tr class="adm-detail-required-field">
 		<td><?echo GetMessage("LDAP_EDIT_USER_FILTER")?></td>
-		<td><input type="text" id="USER_FILTER" name="USER_FILTER" size="30" maxlength="255" value="<?=$str_USER_FILTER?>"></td>
+		<td><textarea id="USER_FILTER" name="USER_FILTER" cols="50" rows="4" maxlength="2048"><?=$str_USER_FILTER?></textarea></td>
 	</tr>
 	<tr class="adm-detail-required-field">
 		<td><?echo GetMessage("LDAP_EDIT_USER_ATTR")?></td>
@@ -771,6 +801,7 @@ else
 					document.getElementById('ROOT_DEPARTMENT').disabled = disabled;
 					document.getElementById('STRUCT_HAVE_DEFAULT').disabled = disabled;
 					document.getElementById('DEFAULT_DEPARTMENT_NAME').disabled = disabled;
+					document.getElementById('SET_DEPARTMENT_HEAD').disabled = disabled;
 				}
 			</script>
 
@@ -782,7 +813,7 @@ else
 				<td>
 				<?=GetMessage("LDAP_EDIT_IMPORT_STRUCT")?>: </td>
 				<td>
-					<input onClick="__importStateSwitch(!this.checked);" type="checkbox" id="IMPORT_STRUCT" name="IMPORT_STRUCT" value="Y"<?if($importEnabled)echo " checked"?>></input>
+					<input onClick="__importStateSwitch(!this.checked);" type="checkbox" id="IMPORT_STRUCT" name="IMPORT_STRUCT" value="Y"<?if($importEnabled)echo " checked"?>>
 				</td>
 			</tr>
 			<?
@@ -809,10 +840,16 @@ else
 				<td>
 				<?=GetMessage("LDAP_EDIT_STRUCT_HAVE_DEFAULT")?>: </td>
 				<td>
-					<input type="checkbox" id="STRUCT_HAVE_DEFAULT" name="STRUCT_HAVE_DEFAULT" <? if (!$importEnabled) echo 'disabled="1" '?>value="Y"<?if($str_STRUCT_HAVE_DEFAULT && $str_STRUCT_HAVE_DEFAULT=='Y')echo " checked"?>></input>
+					<input type="checkbox" id="STRUCT_HAVE_DEFAULT" name="STRUCT_HAVE_DEFAULT" <? if (!$importEnabled) echo 'disabled="1" '?>value="Y"<?if($str_STRUCT_HAVE_DEFAULT && $str_STRUCT_HAVE_DEFAULT=='Y')echo " checked"?>>
 				</td>
 			</tr>
-
+			<tr>
+				<td>
+					<?=GetMessage("LDAP_EDIT_SET_DEPARTMENT_HEAD")?>: </td>
+				<td>
+					<input type="checkbox" id="SET_DEPARTMENT_HEAD" name="SET_DEPARTMENT_HEAD"<?=(!$importEnabled ? ' disabled="1" ' : '')?>value="Y"<?=($str_SET_DEPARTMENT_HEAD != 'N' ? " checked" : "")?>>
+				</td>
+			</tr>
 			<tr>
 				<td>
 				<?=GetMessage("LDAP_EDIT_STRUCT_DEFAULT_VAL")?>: </td>

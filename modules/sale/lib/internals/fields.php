@@ -24,6 +24,15 @@ class Fields
 	}
 
 	/**
+	 * @param $name
+	 * @return bool
+	 */
+	public function isChanged($name)
+	{
+		return isset($this->changedValues[$name]);
+	}
+
+	/**
 	 * Returns any variable by its name. Null if variable is not set.
 	 *
 	 * @param string $name

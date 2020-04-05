@@ -216,6 +216,7 @@
 				this.navParams.NavPageNomer++;
 				this.processItems(result.items);
 				this.processPagination(result.pagination);
+				this.processEpilogue(result.epilogue);
 				this.checkButton();
 			}
 		},
@@ -307,6 +308,15 @@
 					pagination[k].innerHTML = paginationHtml;
 				}
 			}
+		},
+
+		processEpilogue: function(epilogueHtml)
+		{
+			if (!epilogueHtml)
+				return;
+
+			var processed = BX.processHTML(epilogueHtml, false);
+			BX.ajax.processScripts(processed.SCRIPT);
 		},
 
 		showHeader: function(animate)

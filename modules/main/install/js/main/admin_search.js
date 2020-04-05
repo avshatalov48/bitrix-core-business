@@ -279,9 +279,12 @@ function JCAdminTitleSearch(arParams)
 	this.Init = function()
 	{
 		this.CONTAINER = document.getElementById(this.arParams.CONTAINER_ID);
-		this.RESULT = document.getElementById("bx-panel").appendChild(document.createElement("DIV"));
-		this.RESULT.className = 'adm-search-result-wrap';
-		this.RESULT.style.display = 'none';
+		if (document.getElementById("bx-panel"))
+		{
+			this.RESULT = document.getElementById("bx-panel").appendChild(document.createElement("DIV"));
+			this.RESULT.className = 'adm-search-result-wrap';
+			this.RESULT.style.display = 'none';
+		}
 
 		this.INPUT = document.getElementById(this.arParams.INPUT_ID);
 		this.startText = this.oldValue = this.INPUT.value;

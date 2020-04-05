@@ -9,6 +9,7 @@
 		this.reportCategories = options.reportCategories;
 		this.configurationButton = options.configurationButton;
 		this.boardId = options.boardId;
+		this.demoToggle = options.demoToggle;
 
 		this.init();
 	};
@@ -92,60 +93,48 @@
 		},
 		getConfigurationButtonLayout: function()
 		{
+			var menuPoints = [];
+			menuPoints.push(BX.create('div', {
+				attrs: {
+					className: 'visualconsructor-configuration-popup-item'
+				},
+				children: [
+					BX.create('div', {
+						text: this.getToggleBoardTitle(),
+						attrs: {
+							className: 'visualconsructor-configuration-popup-item-text'
+						}
+					})
+				],
+				events: {
+					click: BX.delegate(this.toggleBoard, this)
+				}
+			}));
+			if (this.demoToggle)
+			{
+				menuPoints.push(BX.create('div', {
+					attrs: {
+						className: 'visualconsructor-configuration-popup-item'
+					},
+					children: [
+						BX.create('div', {
+							text: this.getDemoModeToggleButtonTitle(),
+							attrs: {
+								className: 'visualconsructor-configuration-popup-item-text'
+							}
+						})
+					],
+					events: {
+						click: BX.delegate(this.toggleDemoMode, this)
+					}
+				}));
+			}
+
 			return BX.create('div', {
 				attrs: {
 					className: 'visualconsructor-configuration-popup-container'
 				},
-				children: [
-					BX.create('div', {
-						attrs: {
-							className: 'visualconsructor-configuration-popup-item'
-						},
-						children: [
-							BX.create('div', {
-								text: this.getToggleBoardTitle(),
-								attrs: {
-									className: 'visualconsructor-configuration-popup-item-text'
-								}
-							})
-						],
-						events: {
-							click: BX.delegate(this.toggleBoard, this)
-						}
-					}),
-					// BX.create('div', {
-					// 	attrs: {
-					// 		className: 'visualconsructor-configuration-popup-item'
-					// 	},
-					// 	children: [
-					// 		BX.create('div', {
-					// 			text: this.getDesignerModeToggleButtonTitle(),
-					// 			attrs: {
-					// 				className: 'visualconsructor-configuration-popup-item-text'
-					// 			}
-					// 		})
-					// 	],
-					// 	events: {
-					// 		click: BX.delegate(this.toggleBoardDesignerMode, this)
-					// 	}
-					// }),
-					BX.create('div', {
-						attrs: {
-							className: 'visualconsructor-configuration-popup-item'
-						},
-						children: [
-							BX.create('div', {
-								text: this.getDemoModeToggleButtonTitle(),
-								attrs: {
-									className: 'visualconsructor-configuration-popup-item-text'
-								}
-							})
-						],
-						events: {
-							click: BX.delegate(this.toggleDemoMode, this)
-						}
-					})
-				]
+				children: menuPoints
 			});
 		},
 		getToggleBoardTitle: function()

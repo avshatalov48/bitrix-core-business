@@ -8,6 +8,9 @@
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
+$publicMode = $adminPage->publicMode;
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions=="D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
@@ -18,30 +21,59 @@ IncludeModuleLangFile(__FILE__);
 
 $sTableID = "tbl_sale_account";
 
-
 $oSort = new CAdminSorting($sTableID, "ID", "asc");
 
-$lAdmin = new CAdminList($sTableID, $oSort);
+$lAdmin = new CAdminUiList($sTableID, $oSort);
 
+$listCurrency = array();
+$currencyList = Bitrix\Currency\CurrencyManager::getCurrencyList();
+foreach ($currencyList as $currencyId => $currencyName)
+{
+	$listCurrency[$currencyId] = $currencyName;
+}
 
-$arFilterFields = array(
-	"filter_user_id",
-	"filter_login",
-	"filter_user",
-	"filter_currency",
-	"filter_locked"
+$filterFields = array(
+	array(
+		"id" => "USER_USER",
+		"name" => GetMessage('SAA_USER'),
+		"filterable" => "%",
+		"quickSearch" => "%",
+		"default" => true
+	),
+	array(
+		"id" => "USER_ID",
+		"name" => GetMessage('SAA_USER_ID'),
+		"type" => "custom_entity",
+		"selector" => array("type" => "user"),
+		"filterable" => ""
+	),
+	array(
+		"id" => "USER_LOGIN",
+		"name" => GetMessage("SAA_USER_LOGIN"),
+		"filterable" => ""
+	),
+	array(
+		"id" => "CURRENCY",
+		"name" => GetMessage("SAA_CURRENCY"),
+		"type" => "list",
+		"items" => $listCurrency,
+		"filterable" => ""
+	),
+	array(
+		"id" => "LOCKED",
+		"name" => GetMessage("SAA_LOCKED"),
+		"type" => "list",
+		"items" => array(
+			"Y" => GetMessage("SAA_YES"),
+			"N" => GetMessage("SAA_NO")
+		),
+		"filterable" => ""
+	),
 );
-
-$lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
 
-if (IntVal($filter_user_id) > 0) $arFilter["USER_ID"] = IntVal($filter_user_id);
-if (strlen($filter_login) > 0) $arFilter["USER_LOGIN"] = $filter_login;
-if (strlen($filter_user) > 0) $arFilter["%USER_USER"] = $filter_user;
-if (strlen($filter_currency) > 0) $arFilter["CURRENCY"] = $filter_currency;
-if (strlen($filter_locked) > 0) $arFilter["LOCKED"] = $filter_locked;
-
+$lAdmin->AddFilter($filterFields, $arFilter);
 
 if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "U")
 {
@@ -128,22 +160,24 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "U")
 				break;
 		}
 	}
+	if ($lAdmin->hasGroupErrors())
+	{
+		$adminSidePanelHelper->sendJsonErrorResponse($lAdmin->getGroupErrors());
+	}
+	else
+	{
+		$adminSidePanelHelper->sendSuccessResponse();
+	}
 }
 
-$dbResultList = CSaleUserAccount::GetList(
-	array($by => $order),
-	$arFilter,
-	false,
-	array("nPageSize"=>CAdminResult::GetNavSize($sTableID)),
-	array("*")
-);
+global $by, $order;
 
-$dbResultList = new CAdminResult($dbResultList, $sTableID);
+$dbResultList = CSaleUserAccount::GetList(array($by => $order), $arFilter, false, false, array("*"));
+
+$dbResultList = new CAdminUiResult($dbResultList, $sTableID);
 $dbResultList->NavStart();
 
-
-$lAdmin->NavText($dbResultList->GetNavPrint(GetMessage("SAA_NAV")));
-
+$lAdmin->SetNavigationParams($dbResultList, array("BASE_LINK" => $selfFolderUrl."sale_account_admin.php"));
 
 $lAdmin->AddHeaders(array(
 	array("id"=>"ID", "content"=>"ID", 	"sort"=>"id", "default"=>true),
@@ -155,17 +189,27 @@ $lAdmin->AddHeaders(array(
 
 $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 
-
-while ($arAccount = $dbResultList->NavNext(true, "f_"))
+while ($arAccount = $dbResultList->NavNext(false))
 {
-	$row =& $lAdmin->AddRow($f_ID, $arAccount, "sale_account_edit.php?ID=".$f_ID."&lang=".LANG.GetFilterParams("filter_"), GetMessage("SAA_UPDATE_ALT"));
+	$editUrl = $selfFolderUrl."sale_account_edit.php?ID=".$arAccount['ID']."&lang=".LANGUAGE_ID;
+	$editUrl = $adminSidePanelHelper->editUrlToPublicPage($editUrl);
+	$row =& $lAdmin->AddRow($arAccount["ID"], $arAccount, $editUrl, GetMessage("SAA_UPDATE_ALT"));
 
-	$row->AddField("ID", $f_ID);
+	$row->AddField("ID", $arAccount["ID"]);
 
-	$fieldValue = "[<a href=\"/bitrix/admin/user_edit.php?ID=".$f_USER_ID."&lang=".LANG."\" title=\"".GetMessage("SAA_USER_INFO")."\">".$f_USER_ID."</a>] ";
-	$fieldValue .= htmlspecialcharsEx($arAccount["USER_NAME"].((strlen($arAccount["USER_NAME"])<=0 || strlen($arAccount["USER_LAST_NAME"])<=0) ? "" : " ").$arAccount["USER_LAST_NAME"])."<br>";
+	$urlToUser = $selfFolderUrl."user_edit.php?ID=".$arAccount["USER_ID"]."&lang=".LANGUAGE_ID;
+	if ($publicMode)
+	{
+		$urlToUser = $selfFolderUrl."sale_buyers_profile.php?USER_ID=".$arAccount["USER_ID"]."&lang=".LANGUAGE_ID;
+		$urlToUser = $adminSidePanelHelper->editUrlToPublicPage($urlToUser);
+	}
+	$fieldValue = "[<a href=\"".$urlToUser."\" title=\"".GetMessage("SAA_USER_INFO")."\">".$arAccount["USER_ID"]."</a>] ";
+
+	$fieldValue .= htmlspecialcharsEx($arAccount["USER_NAME"].((strlen($arAccount["USER_NAME"])<=0 ||
+		strlen($arAccount["USER_LAST_NAME"])<=0) ? "" : " ").$arAccount["USER_LAST_NAME"])."<br>";
 	$fieldValue .= htmlspecialcharsEx($arAccount["USER_LOGIN"])."&nbsp;&nbsp;&nbsp; ";
-	$fieldValue .= "<a href=\"mailto:".htmlspecialcharsbx($arAccount["USER_EMAIL"])."\" title=\"".GetMessage("SAA_MAILTO")."\">".htmlspecialcharsEx($arAccount["USER_EMAIL"])."</a>";
+	$fieldValue .= "<a href=\"mailto:".htmlspecialcharsbx($arAccount["USER_EMAIL"])."\" title=\"".
+		GetMessage("SAA_MAILTO")."\">".htmlspecialcharsEx($arAccount["USER_EMAIL"])."</a>";
 	$row->AddField("USER_ID", $fieldValue);
 
 	$row->AddField("CURRENT_BUDGET", SaleFormatCurrency($arAccount["CURRENT_BUDGET"], $arAccount["CURRENCY"]));
@@ -177,14 +221,26 @@ while ($arAccount = $dbResultList->NavNext(true, "f_"))
 		$numTrans = CSaleUserTransact::GetList(
 			array(),
 			array(
-				"USER_ID" => $f_USER_ID,
-				"CURRENCY" => $f_CURRENCY
+				"USER_ID" => $arAccount["USER_ID"],
+				"CURRENCY" => $arAccount["CURRENCY"]
 			),
 			array()
 		);
 		if (IntVal($numTrans) > 0)
 		{
-			$fieldValue .= "<a href=\"sale_transact_admin.php?lang=".LANG."&filter_user_id=".$f_USER_ID."&filter_currency=".$f_CURRENCY."&set_filter=Y\" title=\"".GetMessage("SAA_TRANS_TITLE")."\">";
+			$urlToTransact = "sale_transact_admin.php?lang=".LANGUAGE_ID;
+			if ($publicMode)
+			{
+				$urlToTransact = $selfFolderUrl."sale_transact_admin/";
+			}
+			$urlToTransact = CHTTP::urlAddParams($urlToTransact,
+				array(
+					"USER_ID" => $arAccount["USER_ID"],
+					"CURRENCY" => $arAccount["CURRENCY"],
+					"apply_filter" => "Y"
+				)
+			);
+			$fieldValue .= "<a href=\"".$urlToTransact."\" title=\"".GetMessage("SAA_TRANS_TITLE")."\">";
 			$fieldValue .= IntVal($numTrans);
 			$fieldValue .= "</a>";
 		}
@@ -196,11 +252,18 @@ while ($arAccount = $dbResultList->NavNext(true, "f_"))
 	$row->AddField("TRANSACT", $fieldValue);
 
 	$arActions = Array();
-	$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("SAA_UPDATE_ALT"), "ACTION"=>$lAdmin->ActionRedirect("sale_account_edit.php?ID=".$f_ID."&lang=".LANG.GetFilterParams("filter_")), "DEFAULT"=>true);
+	$arActions[] = array(
+		"ICON" => "edit",
+		"TEXT" => GetMessage("SAA_UPDATE_ALT"),
+		"LINK" => $editUrl,
+		"DEFAULT" => true
+	);
 	if ($saleModulePermissions >= "W")
 	{
-		$arActions[] = array("SEPARATOR" => true);
-		$arActions[] = array("ICON"=>"delete", "TEXT"=>GetMessage("SAA_DELETE_ALT"), "ACTION"=>"if(confirm('".GetMessage('SAA_DELETE_CONFIRM')."')) ".$lAdmin->ActionDoGroup($f_ID, "delete"));
+		$arActions[] = array(
+			"ICON" => "delete",
+			"TEXT" => GetMessage("SAA_DELETE_ALT"),
+			"ACTION" => "javascript:if(confirm('".GetMessage('SAA_DELETE_CONFIRM')."')) ".$lAdmin->ActionDoGroup($arAccount["ID"], "delete"));
 	}
 
 	$row->AddActions($arActions);
@@ -244,90 +307,31 @@ $lAdmin->AddGroupActionTable(
 	)
 );
 
-$aContext = Array();
+$aContext = array();
 if ($saleModulePermissions >= "W")
 {
+	$addUrl = $selfFolderUrl."sale_account_edit.php?lang=".LANGUAGE_ID;
+	$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
 	$aContext = array(
 		array(
 			"TEXT" => GetMessage("SAAN_ADD_NEW"),
-			"LINK" => "sale_account_edit.php?lang=".LANG.GetFilterParams("filter_"),
+			"LINK" => $addUrl,
 			"TITLE" => GetMessage("SAAN_ADD_NEW_ALT"),
 			"ICON" => "btn_new"
 		),
 	);
 }
+$lAdmin->setContextSettings(array("pagePath" => $selfFolderUrl."sale_account_admin.php"));
 $lAdmin->AddAdminContextMenu($aContext);
 
-
 $lAdmin->CheckListMode();
-
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
 $APPLICATION->SetTitle(GetMessage("SAA_TITLE"));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-?>
-<form name="find_form" method="GET" action="<?echo $APPLICATION->GetCurPage()?>?">
-<?
-$oFilter = new CAdminFilter(
-	$sTableID."_filter",
-	array(
-		GetMessage("SAA_USER_ID"),
-		GetMessage("SAA_USER_LOGIN"),
-		GetMessage("SAA_CURRENCY"),
-		GetMessage("SAA_LOCKED"),
-	)
-);
 
-$oFilter->Begin();
-?>
-	<tr>
-		<td><?echo GetMessage("SAA_USER")?>:</td>
-		<td>
-			<input type="text" name="filter_user" size="50" value="<?= htmlspecialcharsbx($filter_user) ?>">&nbsp;<?=ShowFilterLogicHelp()?>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SAA_USER_ID")?>:</td>
-		<td>
-			<?echo FindUserID("filter_user_id", $filter_user_id, "", "find_form");?>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SAA_USER_LOGIN")?>:</td>
-		<td>
-			<input type="text" name="filter_login" size="50" value="<?= htmlspecialcharsbx($filter_login) ?>">
-		</td>
-	</tr>
-	<tr>
-		<td nowrap><?echo GetMessage("SAA_CURRENCY")?>:</td>
-		<td align="left" nowrap>
-			<?= CCurrency::SelectBox("filter_currency", $filter_currency, GetMessage("SAA_ALL"), true, "", ""); ?>
-		</td>
-	</tr>
-	<tr>
-		<td nowrap><?echo GetMessage("SAA_LOCKED")?>:</td>
-		<td>
-			<select name="filter_locked">
-				<option value=""><?echo GetMessage("SAA_ALL")?></option>
-				<option value="Y"<?if ($filter_locked=="Y") echo " selected"?>><?= htmlspecialcharsEx(GetMessage("SAA_YES")) ?></option>
-				<option value="N"<?if ($filter_locked=="N") echo " selected"?>><?= htmlspecialcharsEx(GetMessage("SAA_NO")) ?></option>
-			</select>
-		</td>
-	</tr>
-<?
-$oFilter->Buttons(
-	array(
-		"table_id" => $sTableID,
-		"url" => $APPLICATION->GetCurPage(),
-		"form" => "find_form"
-	)
-);
-$oFilter->End();
-?>
-</form>
-<?
-
+$lAdmin->DisplayFilter($filterFields);
 $lAdmin->DisplayList();
 
 echo BeginNote();

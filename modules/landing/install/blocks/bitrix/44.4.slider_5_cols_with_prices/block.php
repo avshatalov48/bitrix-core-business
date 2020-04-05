@@ -28,7 +28,7 @@
                }
              }]'>
 		<div class="landing-block-node-card js-slide g-px-7">
-			<div class="g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
+			<div class="landing-block-node-card-container g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
 				 href="#">
 				<img class="landing-block-node-card-img img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x600/img1.jpg"
 					 alt="">
@@ -38,10 +38,6 @@
 						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
 							Crete</h3>
 
-						<div hidden class="js-rating info-v5-6__rating g-transition-0_3 g-color-primary g-theme-color-black-v1--parent-hover g-font-size-default g-mb-10"
-							 data-rating="2.5"
-							 data-spacing="5"></div>
-
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
@@ -55,7 +51,7 @@
 		</div>
 
 		<div class="landing-block-node-card js-slide g-px-7">
-			<div class="g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
+			<div class="landing-block-node-card-container g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
 				 href="#">
 				<img class="landing-block-node-card-img img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x600/img2.jpg"
 					 alt="">
@@ -65,10 +61,6 @@
 						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
 							Langkawi</h3>
 
-						<div hidden class="js-rating info-v5-6__rating g-transition-0_3 g-color-primary g-theme-color-black-v1--parent-hover g-font-size-default g-mb-10"
-							 data-rating="3"
-							 data-spacing="5"></div>
-
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
@@ -82,7 +74,7 @@
 		</div>
 
 		<div class="landing-block-node-card js-slide g-px-7">
-			<div class="g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
+			<div class="landing-block-node-card-container g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
 				 href="#">
 				<img class="landing-block-node-card-img img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x600/img3.jpg"
 					 alt="">
@@ -92,10 +84,6 @@
 						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
 							Paris</h3>
 
-						<div hidden class="js-rating info-v5-6__rating g-transition-0_3 g-color-primary g-theme-color-black-v1--parent-hover g-font-size-default g-mb-10"
-							 data-rating="5"
-							 data-spacing="5"></div>
-
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
@@ -109,7 +97,7 @@
 		</div>
 
 		<div class="landing-block-node-card js-slide g-px-7">
-			<div class="g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
+			<div class="landing-block-node-card-container g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
 				 href="#">
 				<img class="landing-block-node-card-img img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x600/img4.jpg"
 					 alt="">
@@ -119,10 +107,6 @@
 						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
 							Venice</h3>
 
-						<div hidden class="js-rating info-v5-6__rating g-transition-0_3 g-color-primary g-theme-color-black-v1--parent-hover g-font-size-default g-mb-10"
-							 data-rating="3.5"
-							 data-spacing="5"></div>
-
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
@@ -136,7 +120,7 @@
 		</div>
 
 		<div class="landing-block-node-card js-slide g-px-7">
-			<div class="g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
+			<div class="landing-block-node-card-container g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
 				 href="#">
 				<img class="landing-block-node-card-img img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x600/img	5.jpg"
 					 alt="">
@@ -146,10 +130,6 @@
 						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
 							London</h3>
 
-						<div hidden class="js-rating info-v5-6__rating g-transition-0_3 g-color-primary g-theme-color-black-v1--parent-hover g-font-size-default g-mb-10"
-							 data-rating="4"
-							 data-spacing="5"></div>
-
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
@@ -163,7 +143,7 @@
 		</div>
 
 		<div class="landing-block-node-card js-slide g-px-7">
-			<div class="g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
+			<div class="landing-block-node-card-container g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
 				 href="#">
 				<img class="landing-block-node-card-img img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x600/img1.jpg"
 					 alt="">
@@ -173,10 +153,6 @@
 						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
 							Rome</h3>
 
-						<div hidden class="js-rating info-v5-6__rating g-transition-0_3 g-color-primary g-theme-color-black-v1--parent-hover g-font-size-default g-mb-10"
-							 data-rating="3.5"
-							 data-spacing="5"></div>
-
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
@@ -190,7 +166,7 @@
 		</div>
 
 		<div class="landing-block-node-card js-slide g-px-7">
-			<div class="g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
+			<div class="landing-block-node-card-container g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
 				 href="#">
 				<img class="landing-block-node-card-img img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x600/img1.jpg"
 					 alt="">
@@ -200,10 +176,6 @@
 						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
 							Crete</h3>
 
-						<div hidden class="js-rating info-v5-6__rating g-transition-0_3 g-color-primary g-theme-color-black-v1--parent-hover g-font-size-default g-mb-10"
-							 data-rating="2.5"
-							 data-spacing="5"></div>
-
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
@@ -217,7 +189,7 @@
 		</div>
 
 		<div class="landing-block-node-card js-slide g-px-7">
-			<div class="g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
+			<div class="landing-block-node-card-container g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
 				 href="#">
 				<img class="landing-block-node-card-img img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x600/img2.jpg"
 					 alt="">
@@ -227,10 +199,6 @@
 						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
 							Langkawi</h3>
 
-						<div hidden class="js-rating info-v5-6__rating g-transition-0_3 g-color-primary g-theme-color-black-v1--parent-hover g-font-size-default g-mb-10"
-							 data-rating="3"
-							 data-spacing="5"></div>
-
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
@@ -244,7 +212,7 @@
 		</div>
 
 		<div class="landing-block-node-card js-slide g-px-7">
-			<div class="g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
+			<div class="landing-block-node-card-container g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
 				 href="#">
 				<img class="landing-block-node-card-img img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x600/img3.jpg"
 					 alt="">
@@ -254,10 +222,6 @@
 						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
 							Paris</h3>
 
-						<div hidden class="js-rating info-v5-6__rating g-transition-0_3 g-color-primary g-theme-color-black-v1--parent-hover g-font-size-default g-mb-10"
-							 data-rating="5"
-							 data-spacing="5"></div>
-
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
@@ -271,7 +235,7 @@
 		</div>
 
 		<div class="landing-block-node-card js-slide g-px-7">
-			<div class="g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
+			<div class="landing-block-node-card-container g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
 				 href="#">
 				<img class="landing-block-node-card-img img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x600/img4.jpg"
 					 alt="">
@@ -281,10 +245,6 @@
 						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
 							Venice</h3>
 
-						<div hidden class="js-rating info-v5-6__rating g-transition-0_3 g-color-primary g-theme-color-black-v1--parent-hover g-font-size-default g-mb-10"
-							 data-rating="3.5"
-							 data-spacing="5"></div>
-
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
@@ -298,7 +258,7 @@
 		</div>
 
 		<div class="landing-block-node-card js-slide g-px-7">
-			<div class="g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
+			<div class="landing-block-node-card-container g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
 				 href="#">
 				<img class="landing-block-node-card-img img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x600/img1.jpg"
 					 alt="">
@@ -308,10 +268,6 @@
 						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
 							London</h3>
 
-						<div hidden class="js-rating info-v5-6__rating g-transition-0_3 g-color-primary g-theme-color-black-v1--parent-hover g-font-size-default g-mb-10"
-							 data-rating="4"
-							 data-spacing="5"></div>
-
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
@@ -325,7 +281,7 @@
 		</div>
 
 		<div class="landing-block-node-card js-slide g-px-7">
-			<div class="g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
+			<div class="landing-block-node-card-container g-pos-rel g-text-underline--none--hover g-parent g-theme-travel-bg-black-v1 g-bg-primary--hover g-color-white g-transition-0_3"
 				 href="#">
 				<img class="landing-block-node-card-img img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x600/img1.jpg"
 					 alt="">
@@ -334,10 +290,6 @@
 					<div class="g-mb-20">
 						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
 							Rome</h3>
-
-						<div hidden class="js-rating info-v5-6__rating g-transition-0_3 g-color-primary g-theme-color-black-v1--parent-hover g-font-size-default g-mb-10"
-							 data-rating="3.5"
-							 data-spacing="5"></div>
 
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>

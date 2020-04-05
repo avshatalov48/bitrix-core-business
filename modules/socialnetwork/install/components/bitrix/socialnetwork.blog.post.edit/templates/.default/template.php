@@ -7,6 +7,7 @@
 /** @global CMain $APPLICATION */
 
 use \Bitrix\Main\UI;
+use \Bitrix\Main\Localization\Loc;
 
 $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css');
 $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.blog.blog/templates/.default/style.css');
@@ -86,6 +87,7 @@ if(!empty($arResult["FATAL_MESSAGE"]))
 	</div><?
 
 	$strFullForm = ob_get_contents();
+	ob_end_clean();
 
 	if ($_POST["action"] == "SBPE_get_full_form")
 	{
@@ -492,9 +494,19 @@ HTML;
 		{
 			$APPLICATION->ShowAjaxHead();
 		}
-		?>
-		<div id="microblog-form">
-		<form action="<?=(isset($arParams["POST_FORM_ACTION_URI"]) ? htmlspecialcharsbx($arParams["POST_FORM_ACTION_URI"]) : POST_FORM_ACTION_URI)?>" id="blogPostForm" name="blogPostForm" method="POST" enctype="multipart/form-data" target="_self">
+
+		$postFormActionUri = (isset($arParams["POST_FORM_ACTION_URI"]) ? htmlspecialcharsbx($arParams["POST_FORM_ACTION_URI"]) : POST_FORM_ACTION_URI);
+		$uri = new Bitrix\Main\Web\Uri($postFormActionUri);
+		$uri->deleteParams(array("b24statAction", "b24statTab"));
+		$uri->addParams(array(
+			"b24statAction" => ($arParams["ID"] > 0 ? "editLogEntry" : "addLogEntry"),
+		));
+		$postFormActionUri = $uri->getUri();
+
+		$selectorId = randString(6);
+
+		?><div id="microblog-form">
+		<form action="<?=$postFormActionUri?>" id="blogPostForm" name="blogPostForm" method="POST" enctype="multipart/form-data" target="_self" data-bx-selector-id="<?=htmlspecialcharsbx($selectorId)?>">
 			<input type="hidden" name="show_title" id="show_title" value="<?=($bShowTitle ? "Y" : "N")?>">
 			<?=bitrix_sessid_post();?>
 			<div class="feed-add-post-form-wrap"><?
@@ -522,6 +534,7 @@ HTML;
 						"",
 						($formParams = Array(
 							"FORM_ID" => "blogPostForm",
+							"DEST_SELECTOR_ID" => $selectorId,
 							"SHOW_MORE" => "Y",
 							"PARSER" => Array("Bold", "Italic", "Underline", "Strike", "ForeColor",
 								"FontList", "FontSizeList", "RemoveFormat", "Quote", "Code",
@@ -549,7 +562,7 @@ HTML;
 								"VideoMessage",
 	//						,"Important"
 							),
-							"BUTTONS_HTML" => Array("VideoMessage" => '<span class="feed-add-post-form-but-cnt feed-add-videomessage" onclick="BX.VideoRecorder.start(\''.$arParams["FORM_ID"].'\');">'.GetMessage('BLOG_VIDEO_RECORD_BUTTON').'</span>'),
+							"BUTTONS_HTML" => Array("VideoMessage" => '<span class="feed-add-post-form-but-cnt feed-add-videomessage" onclick="BX.VideoRecorder.start(\''.$arParams["FORM_ID"].'\', \'post\');">'.GetMessage('BLOG_VIDEO_RECORD_BUTTON').'</span>'),
 							"ADDITIONAL" => array(
 								"<span title=\"".GetMessage("BLOG_TITLE")."\" ".
 								"onclick=\"showPanelTitle_".$arParams["FORM_ID"]."(this);\" ".
@@ -560,7 +573,7 @@ HTML;
 
 							"TEXT" => Array(
 								"NAME" => "POST_MESSAGE",
-								"VALUE" => htmlspecialcharsBack($arResult["PostToShow"]["~DETAIL_TEXT"]),
+								"VALUE" => \Bitrix\Main\Text\Emoji::decode(htmlspecialcharsBack($arResult["PostToShow"]["~DETAIL_TEXT"])),
 								"HEIGHT" => "120px"),
 
 							"PROPERTIES" => array(
@@ -591,7 +604,7 @@ HTML;
 								"SHOW" => "Y"
 							),
 							"DEST_SORT" => $arResult["DEST_SORT"],
-
+							"SELECTOR_CONTEXT" => "BLOG_POST",
 							"TAGS" => Array(
 								"ID" => "TAGS",
 								"NAME" => "TAGS",
@@ -599,11 +612,6 @@ HTML;
 								"USE_SEARCH" => "Y",
 								"FILTER" => "blog",
 							),
-							/*
-							"IMPORTANT" => Array(
-								"INPUT_NAME" => "UF_BLOG_POST_IMPRTNT"
-							),
-							*/
 							"SMILES" => COption::GetOptionInt("blog", "smile_gallery_id", 0),
 							"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 							"AT_THE_END_HTML" => $htmlAfterTextarea,
@@ -744,6 +752,7 @@ HTML;
 						</div>
 						<input type="hidden" name="GRAT_TYPE" value="<?=htmlspecialcharsbx($grat_type)?>" id="feed-add-post-grat-type-input">
 						<script type="text/javascript">
+
 							var arGrats = [];
 							var	BXSocNetLogGratFormName = '<?=$this->randString(6)?>';
 							<?
@@ -774,152 +783,43 @@ HTML;
 									BX.PreventDefault(e);
 								});
 							});
+
 						</script>
 						<div class="feed-add-grat-right">
 							<div class="feed-add-grat-label"><?=GetMessage("BLOG_TITLE_GRAT")?></div>
-							<div class="feed-add-grat-form">
-								<div class="feed-add-post-grat-wrap feed-add-post-destination-wrap" id="feed-add-post-grat-container">
-									<span id="feed-add-post-grat-item"></span>
-									<span class="feed-add-grat-input-box" id="feed-add-post-grat-input-box">
-										<input type="text" value="" class="feed-add-grat-inp" id="feed-add-post-grat-input">
-									</span>
-									<a href="#" class="feed-add-grat-link" id="bx-grat-tag"><?
-										if (
-											!is_array($arResult["PostToShow"]["GRAT_CURRENT"])
-											|| count($arResult["PostToShow"]["GRAT_CURRENT"]) <= 0
+							<div class="feed-add-grat-form"><?
+
+								$APPLICATION->IncludeComponent(
+									"bitrix:main.user.selector",
+									"",
+									[
+										"ID" => 'grat_'.randString(6),
+										"LAZYLOAD" => 'Y',
+										"LIST" => (($arGratCurrentUsers && is_array($arGratCurrentUsers)) ? $arGratCurrentUsers : array()),
+										"INPUT_NAME" => 'GRAT_DEST_CODES[]',
+										"USE_SYMBOLIC_ID" => "Y",
+										"BUTTON_SELECT_CAPTION" => Loc::getMessage("BLOG_GRATMEDAL_1"),
+										"BUTTON_SELECT_CAPTION_MORE" => Loc::getMessage("BLOG_GRATMEDAL_1"),
+										"API_VERSION" => 3,
+										"SELECTOR_OPTIONS" => array(
+											'lazyLoad' => 'Y',
+											'context' => 'GRATITUDE',
+											'contextCode' => '',
+											'enableSonetgroups' => 'N',
+											'departmentSelectDisable' => 'Y',
+											'showVacations' => 'N',
+											'disableLast' => 'Y',
+											'enableAll' => 'N',
+											'lheName' => $jsObjName
 										)
-											echo GetMessage("BLOG_GRATMEDAL_1");
-									?></a>
-								<script type="text/javascript">
-									var department = <?=(empty($arResult["PostToShow"]["FEED_DESTINATION"]['DEPARTMENT'])? '{}': CUtil::PhpToJSObject($arResult["PostToShow"]["FEED_DESTINATION"]['DEPARTMENT']))?>;
-									<?if(empty($arResult["PostToShow"]["FEED_DESTINATION"]['DEPARTMENT_RELATION']))
-									{
-										?>
-										var relation = {};
-										for(var iid in department)
-										{
-											var p = department[iid]['parent'];
-											if (!relation[p])
-												relation[p] = [];
-											relation[p][relation[p].length] = iid;
-										}
-										function makeDepartmentTree(id, relation)
-										{
-											var arRelations = {};
-											if (relation[id])
-											{
-												for (var x in relation[id])
-												{
-													var relId = relation[id][x];
-													var arItems = [];
-													if (relation[relId] && relation[relId].length > 0)
-														arItems = makeDepartmentTree(relId, relation);
-
-													arRelations[relId] = {
-														id: relId,
-														type: 'category',
-														items: arItems
-													};
-												}
-											}
-
-											return arRelations;
-										}
-										var departmentRelation = makeDepartmentTree('DR0', relation);
-										<?
-									}
-									else
-									{
-										?>var departmentRelation = <?=CUtil::PhpToJSObject($arResult["PostToShow"]["FEED_DESTINATION"]['DEPARTMENT_RELATION'])?>;<?
-									}
-									?>
-
+									]
+								);
+								?>
+								<script>
 									BX.message({
-										'BX_FPGRATMEDAL_LINK_1': '<?=GetMessageJS("BLOG_GRATMEDAL_1")?>',
-										'BX_FPGRATMEDAL_LINK_2': '<?=GetMessageJS("BLOG_GRATMEDAL_2")?>',
 										'BLOG_GRAT_POPUP_TITLE': '<?=GetMessageJS("BLOG_GRAT_POPUP_TITLE")?>'
 									});
-
-									BX.ready(function(){
-										BX.SocNetLogDestination.init({
-											name : BXSocNetLogGratFormName,
-											searchInput : BX('feed-add-post-grat-input'),
-											pathToAjax : '/bitrix/components/bitrix/socialnetwork.blog.post.edit/post.ajax.php',
-											extranetUser : false,
-											bindMainPopup : {
-												node : BX('feed-add-post-grat-container'),
-												offsetTop : '-5px',
-												offsetLeft: '15px'
-											},
-											bindSearchPopup : {
-												node : BX('feed-add-post-grat-container'),
-												offsetTop : '-5px',
-												offsetLeft: '15px'
-											},
-											departmentSelectDisable : true,
-											lastTabDisable : true,
-											callback : {
-												select : BXfpGratSelectCallback,
-												unSelect : BX.delegate(BX.SocNetLogDestination.BXfpUnSelectCallback, {
-													formName: window['BXSocNetLogGratFormName'],
-													inputContainerName: 'feed-add-post-grat-item',
-													inputName: 'feed-add-post-grat-input',
-													tagInputName: 'bx-grat-tag',
-													tagLink1: BX.message('BX_FPGRATMEDAL_LINK_1'),
-													tagLink2: BX.message('BX_FPGRATMEDAL_LINK_2')
-												}),
-												openDialog : BX.delegate(BX.SocNetLogDestination.BXfpOpenDialogCallback, {
-													inputBoxName: 'feed-add-post-grat-input-box',
-													inputName: 'feed-add-post-grat-input',
-													tagInputName: 'bx-grat-tag'
-												}),
-												closeDialog : BX.delegate(BX.SocNetLogDestination.BXfpOpenDialogCallback, {
-													inputBoxName: 'feed-add-post-grat-input-box',
-													inputName: 'feed-add-post-grat-input',
-													tagInputName: 'bx-grat-tag'
-												}),
-												openSearch : BX.delegate(BX.SocNetLogDestination.BXfpOpenDialogCallback, {
-													inputBoxName: 'feed-add-post-grat-input-box',
-													inputName: 'feed-add-post-grat-input',
-													tagInputName: 'bx-grat-tag'
-												}),
-												closeSearch : BX.delegate(BX.SocNetLogDestination.BXfpCloseSearchCallback, {
-													inputBoxName: 'feed-add-post-grat-input-box',
-													inputName: 'feed-add-post-grat-input',
-													tagInputName: 'bx-grat-tag'
-												})
-											},
-											items : {
-												users : <?=((array_key_exists("GRAT_CURRENT", $arResult["PostToShow"]) && is_array($arResult["PostToShow"]["GRAT_CURRENT"]["USERS_FOR_JS"])) ? CUtil::PhpToJSObject($arResult["PostToShow"]["GRAT_CURRENT"]["USERS_FOR_JS"]) : '{}')?>,
-												groups : {},
-												sonetgroups : {},
-												department : department,
-												departmentRelation : departmentRelation
-											},
-											itemsLast : {
-												users : {},
-												sonetgroups : {},
-												department : {},
-												groups : {}
-											},
-											itemsSelected : <?=(($arGratCurrentUsers && is_array($arGratCurrentUsers)) ? CUtil::PhpToJSObject($arGratCurrentUsers) : '{}')?>,
-											LHEObjName : '<?=CUtil::JSEscape($jsObjName)?>',
-											userNameTemplate: '<?=CUtil::JSEscape($arParams['NAME_TEMPLATE'])?>'
-										});
-										BX.bind(BX('feed-add-post-grat-input'), 'keyup', BX.delegate(BX.SocNetLogDestination.BXfpSearch, {
-											formName: window["BXSocNetLogGratFormName"],
-											inputName: 'feed-add-post-grat-input',
-											tagInputName: 'bx-grat-tag'
-										}));
-										BX.bind(BX('feed-add-post-grat-input'), 'keydown', BX.delegate(BX.SocNetLogDestination.BXfpSearchBefore, {
-											formName: window["BXSocNetLogGratFormName"],
-											inputName: 'feed-add-post-grat-input'
-										}));
-										BX.bind(BX('bx-grat-tag'), 'click', function(e){BX.SocNetLogDestination.openDialog(BXSocNetLogGratFormName); BX.PreventDefault(e); });
-										BX.bind(BX('feed-add-post-grat-container'), 'click', function(e){BX.SocNetLogDestination.openDialog(BXSocNetLogGratFormName); BX.PreventDefault(e); });
-									});
 								</script>
-							</div>
 						</div>
 					</div>
 					</div><?
@@ -1113,7 +1013,7 @@ HTML;
 				$arButtons = Array(
 					Array(
 						"NAME" => "save",
-						"TEXT" => GetMessage("BLOG_BUTTON_SEND"),
+						"TEXT" => GetMessage(!empty($arResult["Post"]) && !empty($arResult["Post"]["PUBLISH_STATUS"]) && $arResult["Post"]["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_DRAFT ? "BLOG_BUTTON_PUBLISH" : "BLOG_BUTTON_SEND"),
 						"CLICK" => "submitBlogPostForm();",
 					),
 				);

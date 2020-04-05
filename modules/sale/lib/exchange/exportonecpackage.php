@@ -3,6 +3,7 @@ namespace Bitrix\Sale\Exchange;
 
 
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Error;
 use Bitrix\Sale\BasketItem;
 use Bitrix\Sale\Exchange\Entity\EntityImport;
 use Bitrix\Sale\Exchange\Entity\OrderImport;
@@ -12,6 +13,7 @@ use Bitrix\Sale\Exchange\Entity\UserImportBase;
 use Bitrix\Sale\Exchange\OneC\Converter;
 use Bitrix\Sale\Exchange\OneC\ConverterFactory;
 use Bitrix\Sale\Exchange\OneC\DocumentBase;
+use Bitrix\Sale\Exchange\OneC\DocumentType;
 use Bitrix\Sale\Exchange\OneC\UserProfileDocument;
 use Bitrix\Sale\IBusinessValueProvider;
 use Bitrix\Sale\Internals\CollectionBase;
@@ -47,6 +49,45 @@ abstract class ExportOneCPackage extends ExportOneCBase
 	private function __clone() {}
 	private function __construct() {}
 
+
+	public static function configuration()
+	{
+		ManagerExport::registerInstance(static::getParentEntityTypeId(), OneC\ExportSettings::getCurrent());
+		ManagerExport::registerInstance(static::getShipmentEntityTypeId(), OneC\ExportSettings::getCurrent());
+		ManagerExport::registerInstance(static::getPaymentCashEntityTypeId(), OneC\ExportSettings::getCurrent());
+		ManagerExport::registerInstance(static::getPaymentCashLessEntityTypeId(), OneC\ExportSettings::getCurrent());
+		ManagerExport::registerInstance(static::getPaymentCardEntityTypeId(), OneC\ExportSettings::getCurrent());
+		ManagerExport::registerInstance(EntityType::USER_PROFILE, OneC\ExportSettings::getCurrent());
+	}
+
+	/**
+	 * @return int
+	 */
+	static protected function getParentEntityTypeId()
+	{
+		return EntityType::ORDER;
+	}
+
+	static protected function getShipmentEntityTypeId()
+	{
+		return EntityType::SHIPMENT;
+	}
+
+	static protected function getPaymentCardEntityTypeId()
+	{
+		return EntityType::PAYMENT_CARD_TRANSACTION;
+	}
+
+	static protected function getPaymentCashEntityTypeId()
+	{
+		return EntityType::PAYMENT_CASH;
+	}
+
+	static protected function getPaymentCashLessEntityTypeId()
+	{
+		return EntityType::PAYMENT_CASH_LESS;
+	}
+
 	/**
 	 * @param array $fields
 	 * @return Result
@@ -57,25 +98,35 @@ abstract class ExportOneCPackage extends ExportOneCBase
 
 		$orderId = $fields['ORDER_ID'];
 
-		$orderImport = ManagerExport::create(EntityType::ORDER);
-		self::load($orderImport, array('ID'=>$orderId));
+		$orderImport = $this->entityFactoryCreate(static::getParentEntityTypeId());
+		ManagerExport::configure($orderImport);
+		static::load($orderImport, array('ID'=>$orderId));
 
 		/** @var \Bitrix\Sale\Order $order */
 		$order = $orderImport->getEntity();
 
-		$profileImport = ManagerExport::create(EntityType::USER_PROFILE);
-		self::load($profileImport, array('ID'=>$order->getUserId()));
+		if($order !== null)
+		{
+			$profileImport = $this->entityFactoryCreate(EntityType::USER_PROFILE);
+			ManagerExport::configure($profileImport);
+			static::load($profileImport, array('ID'=>$order->getUserId()));
 
-		$list = array_merge(
-			$this->loadItemsByCollection($order->getPaymentCollection(), $order),
-			$this->loadItemsByCollection($order->getShipmentCollection(), $order));
+			$list = array_merge(
+				$this->loadItemsByCollection($order->getPaymentCollection(), $order),
+				$this->loadItemsByCollection($order->getShipmentCollection(), $order));
 
-		$list[] = $orderImport;
-		$list[] = $profileImport;
+			$list[] = $orderImport;
+			$list[] = $profileImport;
 
-		$this->initLogger($list);
+			$this->initLogger($list);
 
-		$result->setData($list);
+			$result->setData($list);
+		}
+		else
+		{
+			$result->addError(new Error(str_replace('#ID#',$orderId, DocumentBase::getLangByCodeField("ORDER_NOT_FOUND"))));
+		}
+
 		return $result;
 	}
 
@@ -101,8 +152,10 @@ abstract class ExportOneCPackage extends ExportOneCBase
 				$typeId = $this->resolveEntityTypeId($entity);
 
 				/** @var EntityImport $entityExport */
-				$entityExport = ManagerExport::create($typeId);
-				self::load($entityExport, array('ID'=>$entity->getId()), $order);
+				$entityExport = $this->entityFactoryCreate($typeId);
+				ManagerExport::configure($entityExport);
+				static::load($entityExport, array('ID'=>$entity->getId()), $order);
+
 				$list[] = $entityExport;
 			}
 		}
@@ -160,11 +213,11 @@ abstract class ExportOneCPackage extends ExportOneCBase
 	 */
 	protected function convertDocumentFields(array $documents)
 	{
-		$documentOrder = $this->getDocumentByTypeId(EntityType::ORDER, $documents);
+		$documentOrder = $this->getDocumentByTypeId(DocumentType::ORDER, $documents);
 		$orderFields = $documentOrder->getFieldValues();
 
 		/** @var UserProfileDocument $documentProfile */
-		$documentProfile = $this->getDocumentByTypeId(EntityType::USER_PROFILE, $documents);
+		$documentProfile = $this->getDocumentByTypeId(DocumentType::USER_PROFILE, $documents);
 		$orderFields['AGENT'] = $documentProfile->getFieldValues();
 
 		$documentOrder->setFields($orderFields);
@@ -178,7 +231,7 @@ abstract class ExportOneCPackage extends ExportOneCBase
 	{
 		$result = new Result();
 
-		$orderImport = $this->getEntityByTypeId(EntityType::ORDER, $items);
+		$orderImport = $this->getEntityByTypeId(static::getParentEntityTypeId(), $items);
 		/** @var ProfileImport $profileImport */
 		$profileImport = $this->getEntityByTypeId(EntityType::USER_PROFILE, $items);
 
@@ -233,7 +286,7 @@ abstract class ExportOneCPackage extends ExportOneCBase
 	 */
 	protected function addItemOrderDelivery(array $items)
 	{
-		$orderImport = $this->getEntityByTypeId(EntityType::ORDER, $items);
+		$orderImport = $this->getEntityByTypeId(static::getParentEntityTypeId(), $items);
 
 		//region shipment.items ORDER_DELIVERY
 		$orderFields = $orderImport->getFieldValues();
@@ -450,17 +503,55 @@ abstract class ExportOneCPackage extends ExportOneCBase
 	{
 		$params = $item->getFieldValues();
 
+		$documentTypeId = $this->resolveDocumentTypeId($item->getOwnerTypeId());
 		$settings = ManagerImport::getSettingsByType($item->getOwnerTypeId());
 
 		$convertor = $this->converterFactoryCreate($item->getOwnerTypeId());
-		$convertor->loadSettings($settings);
+		$convertor->init(
+			$settings,
+			$item->getOwnerTypeId(),
+			$documentTypeId
+		);
 
 		$fields = $convertor->externalize($params);
 
-		$document = $this->documentFactoryCreate($item->getOwnerTypeId());
+		$document = $this->documentFactoryCreate($documentTypeId);
 		$document->setFields($fields);
 
 		return $document;
+	}
+
+	/**
+	 * @param $typeId
+	 * @return int
+	 */
+	protected function resolveDocumentTypeId($typeId)
+	{
+		$documentTypeId = DocumentType::UNDEFINED;
+
+		switch ($typeId)
+		{
+			case static::getParentEntityTypeId():
+				$documentTypeId = DocumentType::ORDER;
+				break;
+			case static::getPaymentCardEntityTypeId():
+				$documentTypeId = OneC\DocumentType::PAYMENT_CARD_TRANSACTION;
+				break;
+			case static::getPaymentCashEntityTypeId():
+				$documentTypeId = OneC\DocumentType::PAYMENT_CASH;
+				break;
+			case static::getPaymentCashLessEntityTypeId():
+				$documentTypeId = DocumentType::PAYMENT_CASH_LESS;
+				break;
+			case static::getShipmentEntityTypeId():
+				$documentTypeId = OneC\DocumentType::SHIPMENT;
+				break;
+			case EntityType::USER_PROFILE:
+			case EntityType::PROFILE:
+				$documentTypeId = $typeId;
+				break;
+		}
+		return $documentTypeId;
 	}
 
 	/**
@@ -491,7 +582,11 @@ abstract class ExportOneCPackage extends ExportOneCBase
 	protected static function load(ImportBase $item, array $fields, $order=null)
 	{
 		static::load_AliasTrait($item, $fields, $order);
-		$item->initFields();
+
+		if($item->getEntity() !== null)
+		{
+			$item->initFields();
+		}
 	}
 
 	/**
@@ -501,7 +596,7 @@ abstract class ExportOneCPackage extends ExportOneCBase
 	protected function logger(array $items)
 	{
 		/** @var OrderImport $orderItem */
-		$orderItem = $this->getEntityByTypeId(EntityType::ORDER, $items);
+		$orderItem = $this->getEntityByTypeId(static::getParentEntityTypeId(), $items);
 		return $this->loggerEntitiesPackage($items, $orderItem);
 	}
 }

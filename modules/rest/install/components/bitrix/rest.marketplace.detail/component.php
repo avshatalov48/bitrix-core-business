@@ -14,7 +14,6 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
  * @global CUser $USER
  */
 
-
 if(!CModule::IncludeModule("rest"))
 {
 	return;
@@ -43,6 +42,16 @@ if (isset($_GET["ver"]) && intval($_GET["ver"]) && isset($_GET["check_hash"]) &&
 	}
 }
 
+$dbApp = \Bitrix\Rest\AppTable::getList(array(
+	'filter' => array("=CODE" => $arParams["APP"])
+));
+$ar = $dbApp->fetch();
+
+if($ver === false && $ar['ACTIVE'] === 'N' && $ar['STATUS'] === \Bitrix\Rest\AppTable::STATUS_PAID)
+{
+	$ver = intval($ar['VERSION']);
+}
+
 $arApp = \Bitrix\Rest\Marketplace\Client::getApp($arParams['APP'], $ver, $arResult['CHECK_HASH'], $arResult['INSTALL_HASH']);
 
 if($arApp)
@@ -51,10 +60,6 @@ if($arApp)
 
 	$APPLICATION->SetTitle(htmlspecialcharsbx($arApp["NAME"]));
 
-	$dbApp = \Bitrix\Rest\AppTable::getList(array(
-		'filter' => array("=CODE" => $arApp["CODE"])
-	));
-	$ar = $dbApp->fetch();
 
 	if($ar)
 	{
@@ -94,6 +99,7 @@ if($arApp)
 }
 
 $arResult["ADMIN"] = \CRestUtil::isAdmin();
+$arResult["CAN_INSTALL"] = $arResult['ADMIN'] || \CRestUtil::canInstallApplication($arApp);
 
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 
@@ -101,7 +107,7 @@ if($request->isPost() && $request['install'] && check_bitrix_sessid())
 {
 	$APPLICATION->RestartBuffer();
 
-	if(!$arResult['ADMIN'])
+	if(!$arResult['CAN_INSTALL'])
 	{
 		ShowError(GetMessage("RMP_ACCESS_DENIED"));
 	}

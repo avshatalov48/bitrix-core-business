@@ -95,7 +95,7 @@ if($dbr_arr = $dbr->ExtractFields("str_")):
 
 	if($_REQUEST['show']=='original' && COption::GetOptionString("mail", "save_src", B_MAIL_SAVE_SRC)=="Y")
 	{
-		echo "<pre>".nl2br(htmlspecialcharsbx($dbr_arr["FULL_TEXT"]))."</pre>";
+		echo "<pre>".htmlspecialcharsbx($dbr_arr["FULL_TEXT"])."</pre>";
 		die();
 	}
 

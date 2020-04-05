@@ -1,6 +1,6 @@
 <section class="landing-block g-pt-50 g-pb-50">
 	<div class="container">
-		<div class="row">
+		<div class="row landing-block-node-block">
 			<div class="landing-block-node-text-container js-animation slideInLeft col-md-6 g-pb-20 g-pb-0--md">
 				<h2 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-26 mb-0 g-mb-15">
 					Quality results with us
@@ -30,7 +30,7 @@
 
 			<div class="col-md-6">
 				<img class="landing-block-node-img js-animation slideInRight img-fluid"
-					 src="https://cdn.bitrix24.site/bitrix/images/landing/business/540x356/img1.jpg" alt="Image description">
+					 src="https://cdn.bitrix24.site/bitrix/images/landing/business/540x356/img1.jpg">
 			</div>
 		</div>
 	</div>

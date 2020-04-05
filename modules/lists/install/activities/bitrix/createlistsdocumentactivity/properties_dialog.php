@@ -1,76 +1,75 @@
 <? if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-$runtime = CBPRuntime::GetRuntime();
+/** @var \Bitrix\Bizproc\Activity\PropertiesDialog $dialog */
+/** @var \CBPDocumentService $documentService */
+$docType = $dialog->getMap()['DocumentType'];
 ?>
 <tr>
-	<td align="right" width="40%" valign="top"><span class="adm-required-field"><?=GetMessage('BPCLDA_PD_DT')?>:</span></td>
-	<td width="60%">
-		<select name="lists_document_type" onchange="BPCLDA_changeDocumentType(this.value)">
-			<option value=""><?=GetMessage('BPCLDA_PD_CHOOSE_DT')?></option>
-			<?php
-			$processesType = COption::getOptionString("lists", "livefeed_iblock_type_id", 'bitrix_processes');
-			$types = array(
-				'lists' => GetMessage('BPCLDA_PD_LISTS'),
-				$processesType => GetMessage('BPCLDA_PD_PROCESSES'),
-				'lists_socnet' => GetMessage('BPCLDA_PD_LISTS_SOCNET'),
-			);
-			// other lists
-			$typesResult = CLists::GetIBlockTypes();
-			while ($typeRow = $typesResult->fetch())
-			{
-				$types[$typeRow['IBLOCK_TYPE_ID']] = $typeRow['NAME'];
-			}
-
-			foreach ($types as $type => $label): ?>
-			<optgroup label="<?=htmlspecialcharsbx($label)?>">
-			<?
-			$iterator = CIBlock::GetList(array('SORT'=>'ASC', 'NAME' => 'ASC'), array(
-				'ACTIVE' => 'Y',
-				'TYPE' => $type,
-				'CHECK_PERMISSIONS' => 'N',
-			));
-			while ($row = $iterator->fetch()):
-				$value = 'lists@'.($type == $processesType ? 'BizprocDocument' : 'Bitrix\Lists\BizprocDocumentLists').'@iblock_'.$row['ID'];
-				$selected = ($value == $documentType);
-			?>
-				<option value="<?=$value?>" <?=$selected?'selected':''?>>[<?=$row['LID']?>] <?=htmlspecialcharsbx($row['NAME'])?></option>
-			<? endwhile;?>
-			</optgroup>
-			<?endforeach;?>
-		</select>
+	<td align="right" width="40%" valign="top">
+		<span class="adm-required-field"><?=htmlspecialcharsbx($docType['Name'])?>:</span>
+	</td>
+	<td width="60%" id="doctype_container">
+		<?=$dialog->renderFieldControl($docType, null, false, \Bitrix\Bizproc\FieldType::RENDER_MODE_DESIGNER)?>
 	</td>
 </tr>
 <tbody id="lists_document_fields">
-<?=$documentFieldsRender?>
+<?foreach ($documentFields as $fieldKey => $fieldValue):?>
+	<tr>
+		<td align="right" width="40%" class="adm-detail-content-cell-l">
+			<?if ($fieldValue["Required"]):?><span class="adm-required-field"><?endif;?>
+			<?=htmlspecialcharsbx($fieldValue["Name"])?>:
+			<?if ($fieldValue["Required"]):?></span><?endif;?>
+		</td>
+		<td width="60%" class="adm-detail-content-cell-r"><?=$documentService->GetFieldInputControl(
+			$listsDocumentType,
+			$fieldValue,
+			array($dialog->getFormName(), $fieldKey),
+			$dialog->getCurrentValue($fieldKey),
+			true
+			)?>
+		</td>
+	</tr>
+<?endforeach;?>
 </tbody>
 
 <script>
-
-	var BPCLDA_changeDocumentType = function(documentType)
+	BX.ready(function()
 	{
-		var container = BX('lists_document_fields');
-		container.innerHTML = '';
+		var container = BX('doctype_container');
+		var select = container ? container.querySelector('[name="lists_document_type"]') : null;
+		if (select)
+		{
+			BX.bind(select, 'change', function()
+				{
+					var documentType = this.value;
+					var container = BX('lists_document_fields');
+					BX.cleanNode(container);
 
-		if (!documentType)
-			return;
+					if (!documentType)
+					{
+						return;
+					}
 
-		BX.ajax.post(
-			'/bitrix/tools/bizproc_activity_ajax.php',
-			{
-				'site_id': BX.message('SITE_ID'),
-				'sessid' : BX.bitrix_sessid(),
-				'document_type' : <?=Cutil::PhpToJSObject($paramDocumentType)?>,
-				'activity': 'CreateListsDocumentActivity',
-				'lists_document_type': documentType,
-				'form_name': <?=Cutil::PhpToJSObject($formName)?>,
-				'content_type': 'html'
-			},
-			function(response)
-			{
-				if (response)
-					container.innerHTML = response;
-			}
-		);
-	};
+					BX.ajax.post(
+						'/bitrix/tools/bizproc_activity_ajax.php',
+						{
+							'site_id': BX.message('SITE_ID'),
+							'sessid' : BX.bitrix_sessid(),
+							'document_type' : <?=Cutil::PhpToJSObject($dialog->getDocumentType())?>,
+							'activity': 'CreateListsDocumentActivity',
+							'lists_document_type': documentType,
+							'form_name': <?=Cutil::PhpToJSObject($dialog->getFormName())?>,
+							'content_type': 'html'
+						},
+						function(response)
+						{
+							if (response)
+							{
+								container.innerHTML = response;
+							}
+						}
+					);
+				}
+			);
+		}
+	});
 </script>
-
-

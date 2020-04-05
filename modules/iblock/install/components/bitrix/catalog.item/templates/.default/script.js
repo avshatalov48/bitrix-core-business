@@ -975,17 +975,15 @@
 
 						this.checkPriceRange(curValue);
 
+						intCount = Math.floor(
+							Math.round(curValue * this.precisionFactor / this.stepQuantity) / this.precisionFactor
+						) || 1;
+						curValue = (intCount <= 1 ? this.stepQuantity : intCount * this.stepQuantity);
+						curValue = Math.round(curValue * this.precisionFactor) / this.precisionFactor;
+
 						if (curValue < this.minQuantity)
 						{
 							curValue = this.minQuantity;
-						}
-						else
-						{
-							intCount = Math.round(
-									Math.round(curValue * this.precisionFactor / this.stepQuantity) / this.precisionFactor
-								) || 1;
-							curValue = (intCount <= 1 ? this.stepQuantity : intCount * this.stepQuantity);
-							curValue = Math.round(curValue * this.precisionFactor) / this.precisionFactor;
 						}
 
 						this.obQuantity.value = curValue;

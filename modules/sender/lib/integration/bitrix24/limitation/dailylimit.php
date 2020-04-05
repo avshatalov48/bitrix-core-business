@@ -89,4 +89,14 @@ class DailyLimit
 	{
 		Model\DailyCounterTable::incrementFieldValue('SENT_CNT');
 	}
+
+	/**
+	 * Increment error mails.
+	 *
+	 * @return void
+	 */
+	public static function incrementError()
+	{
+		Model\DailyCounterTable::incrementFieldValue('ERROR_CNT');
+	}
 }

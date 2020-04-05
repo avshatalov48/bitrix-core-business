@@ -1,5 +1,5 @@
 <section class="landing-block">
-	<div class="landing-block-node-bgimg g-min-height-100vh u-bg-overlay g-flex-centered g-bg-img-hero g-bg-black-opacity-0_2--after g-mb-minus-140"
+	<div class="landing-block-node-bgimg g-height-100vh u-bg-overlay g-flex-centered g-bg-img-hero g-bg-black-opacity-0_2--after g-mb-minus-140"
 		 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1080/img6.jpg);">
 		<div class="u-bg-overlay__inner w-100">
 			<div class="container g-pos-rel g-z-index-1 g-mt-50--md">
@@ -12,7 +12,7 @@
 						<div class="row">
 							<div class="landing-block-node-card col-md-6 g-mb-10 g-mb-30--md">
 								<div class="media">
-                      <span class="d-flex u-icon-v1 g-width-50 g-height-50 g-color-white g-bg-white-opacity-0_1 g-font-size-26 g-line-height-1 rounded-circle g-pos-rel g-pa-12 mr-3">
+                      <span class="landing-block-node-card-icon-container d-flex u-icon-v1 g-width-50 g-height-50 g-color-white g-bg-white-opacity-0_1 g-font-size-26 g-line-height-1 rounded-circle g-pos-rel g-pa-12 mr-3">
                         <i class="landing-block-node-card-icon icon-communication-114 u-line-icon-pro"></i>
                       </span>
 									<div class="media-body">
@@ -27,7 +27,7 @@
 
 							<div class="landing-block-node-card col-md-6 g-mb-10 g-mb-30--md">
 								<div class="media">
-                      <span class="d-flex u-icon-v1 g-width-50 g-height-50 g-color-white g-bg-white-opacity-0_1 g-font-size-26 g-line-height-1 rounded-circle g-pos-rel g-pa-12 mr-3">
+                      <span class="landing-block-node-card-icon-container d-flex u-icon-v1 g-width-50 g-height-50 g-color-white g-bg-white-opacity-0_1 g-font-size-26 g-line-height-1 rounded-circle g-pos-rel g-pa-12 mr-3">
                         <i class="landing-block-node-card-icon icon-communication-116 u-line-icon-pro"></i>
                       </span>
 									<div class="media-body">
@@ -42,7 +42,7 @@
 
 							<div class="landing-block-node-card col-md-6 g-mb-10 g-mb-30--md">
 								<div class="media">
-                      <span class="d-flex u-icon-v1 g-width-50 g-height-50 g-color-white g-bg-white-opacity-0_1 g-font-size-26 g-line-height-1 rounded-circle g-pos-rel g-pa-12 mr-3">
+                      <span class="landing-block-node-card-icon-container d-flex u-icon-v1 g-width-50 g-height-50 g-color-white g-bg-white-opacity-0_1 g-font-size-26 g-line-height-1 rounded-circle g-pos-rel g-pa-12 mr-3">
                         <i class="landing-block-node-card-icon icon-finance-091 u-line-icon-pro"></i>
                       </span>
 									<div class="media-body">
@@ -57,7 +57,7 @@
 
 							<div class="landing-block-node-card col-md-6 g-mb-10 g-mb-30--md">
 								<div class="media">
-                      <span class="d-flex u-icon-v1 g-width-50 g-height-50 g-color-white g-bg-white-opacity-0_1 g-font-size-26 g-line-height-1 rounded-circle g-pos-rel g-pa-12 mr-3">
+                      <span class="landing-block-node-card-icon-container d-flex u-icon-v1 g-width-50 g-height-50 g-color-white g-bg-white-opacity-0_1 g-font-size-26 g-line-height-1 rounded-circle g-pos-rel g-pa-12 mr-3">
                         <i class="landing-block-node-card-icon icon-education-085 u-line-icon-pro"></i>
                       </span>
 									<div class="media-body">

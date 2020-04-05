@@ -2,10 +2,10 @@
 
 namespace Sale\Handlers\DiscountPreset;
 
-
 use Bitrix\Main;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale;
 use Bitrix\Sale\Discount\Actions;
 use Bitrix\Sale\Discount\CumulativeCalculator;
 use Bitrix\Sale\Discount\Preset\ArrayHelper;
@@ -43,7 +43,7 @@ final class Cumulative extends BasePreset
 	 */
 	public function isAvailable()
 	{
-		return \CBXFeatures::isFeatureEnabled('CatDiscountSave');
+		return Sale\Config\Feature::isCumulativeDiscountsEnabled();
 	}
 
 	/**

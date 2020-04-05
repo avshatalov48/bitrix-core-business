@@ -94,7 +94,7 @@ $this->setFrameMode(true);
 				"CACHE_TIME" => $parent->arParams["CACHE_TIME"],
 				"DISPLAY_AS_RATING" => $parent->arParams["DISPLAY_AS_RATING"],
 			),
-			$component->GetParent()
+			$component
 		);?>
 		<?endif?>
 	</p>

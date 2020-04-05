@@ -31,6 +31,9 @@ class Selector
 	/** @var  integer $typeId Type ID. */
 	private $typeId = null;
 
+	/** @var  bool $includeTriggers Include triggers. */
+	private $includeTriggers = true;
+
 	/** @var  integer $id Template ID. */
 	private $id = null;
 
@@ -103,6 +106,18 @@ class Selector
 	public function withId($id)
 	{
 		$this->id = $id;
+		return $this;
+	}
+
+	/**
+	 * With triggers.
+	 *
+	 * @param bool $include Include triggers.
+	 * @return $this
+	 */
+	public function withTriggers($include)
+	{
+		$this->includeTriggers = $include;
 		return $this;
 	}
 
@@ -235,7 +250,8 @@ class Selector
 		$providers = array(
 			array('\Bitrix\Sender\Templates\Recent', 'onPresetTemplateList'),
 			array('\Bitrix\Sender\Preset\Templates\Mail', 'onPresetTemplateList'),
-			array('\Bitrix\Sender\Preset\Templates\Sms', 'onPresetTemplateList')
+			array('\Bitrix\Sender\Preset\Templates\Sms', 'onPresetTemplateList'),
+			array('\Bitrix\Sender\Preset\Templates\Rc', 'onPresetTemplateList')
 		);
 		foreach ($providers as $provider)
 		{
@@ -294,6 +310,11 @@ class Selector
 			return false;
 		}
 
+		if (!$this->includeTriggers && $template['IS_TRIGGER'])
+		{
+			return false;
+		}
+
 		if (!in_array($template['TYPE'], Type::getCodes()))
 		{
 			return false;
@@ -319,6 +340,11 @@ class Selector
 		{
 			$template['TYPE'] = Type::getCode(Type::ADDITIONAL);
 		}
+		// type
+		if (!isset($template['IS_TRIGGER']))
+		{
+			$template['IS_TRIGGER'] = false;
+		}
 
 		// type
 		if (!isset($template['ID']))
@@ -329,7 +355,19 @@ class Selector
 		// fields of template
 		if (!isset($template['FIELDS']) || !is_array($template['FIELDS']))
 		{
-			$template['FIELDS'] = array();
+			$template['FIELDS'] = [];
+		}
+
+		// segments of template
+		if (!isset($template['SEGMENTS']) || !is_array($template['SEGMENTS']))
+		{
+			$template['SEGMENTS'] = [];
+		}
+
+		// dispatch of template
+		if (!isset($template['DISPATCH']) || !is_array($template['DISPATCH']))
+		{
+			$template['DISPATCH'] = [];
 		}
 
 		// compatibility for mail templates
@@ -350,6 +388,11 @@ class Selector
 		if (!isset($template['VERSION']) || !$template['VERSION'])
 		{
 			$template['VERSION'] = 2;
+		}
+
+		if (!isset($template['HINT']) || !$template['HINT'])
+		{
+			$template['HINT'] = '';
 		}
 
 		if (!isset($template['HOT']) || !$template['HOT'])

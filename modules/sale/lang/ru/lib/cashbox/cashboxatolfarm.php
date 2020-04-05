@@ -28,4 +28,9 @@ $MESS["SALE_CASHBOX_ATOL_REQUEST_STATUS_WAIT"] = "Повторите запро�
 $MESS["SALE_CASHBOX_ATOL_CHECK_REG_ERROR"] = "Ошибка при регистрации чека";
 $MESS["SALE_CASHBOX_ATOL_ERR_EMPTY_PHONE_EMAIL"] = "АТОЛ.Онлайн: невалидные данные. Не указан ни телефон, ни email покупателя.";
 $MESS["SALE_CASHBOX_ATOL_ERR_EMPTY_TAX"] = "АТОЛ.Онлайн: некорректные настройки налоговой ставки";
+$MESS["SALE_CASHBOX_ATOL_FARM_SETTINGS_CLIENT"] = "Информация о клиенте";
+$MESS["SALE_CASHBOX_ATOL_FARM_SETTINGS_CLIENT_INFO"] = "Данные о клиенте, передаваемые в Атол.Онлайн";
+$MESS["SALE_CASHBOX_ATOL_FARM_SETTINGS_CLIENT_NONE"] = "По умолчанию";
+$MESS["SALE_CASHBOX_ATOL_FARM_SETTINGS_CLIENT_PHONE"] = "Телефон";
+$MESS["SALE_CASHBOX_ATOL_FARM_SETTINGS_CLIENT_EMAIL"] = "Email";
 ?>

@@ -144,6 +144,14 @@ div.bx-popup-menu td.popupmenu div.popupitem td.gutter div.grid-views {backgroun
 .bx-bizproc.bx-bizproc-grid-head .bx-bizproc-actions-col a.bx-bizproc-action{
 	opacity:.4;
 }
+.bx-bizproc-sorted > a {
+	display: inline-block;
+	overflow: hidden;
+	vertical-align: middle;
+	max-width: 350px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
 .bx-head-advanced-more{
 	display:inline-block;
 	width:16px;

@@ -7,13 +7,28 @@ BX.namespace('BX.UI');
 BX.UI.ActionPanel.Item = function(options)
 {
 	this.id = options.id;
+	this.type = options.type;
 	this.text = options.text;
 	this.icon = options.icon;
+	this.submenuOptions = {};
+	if (options.submenuOptions && BX.type.isString(options.submenuOptions))
+	{
+		try
+		{
+			this.submenuOptions = JSON.parse(options.submenuOptions);
+		}
+		catch (e)
+		{
+		}
+	}
+	this.buttonIconClass = options.buttonIconClass;
 	this.onclick = options.onclick;
 	this.href = options.href;
 	this.items = options.items;
 	this.actionPanel = options.actionPanel;
 	this.options = options;
+	this.attributes = BX.prop.getObject(options, 'attributes');
+	this.disabled = options.disabled;
 	this.layout = {
 		container: null,
 		icon: null,
@@ -29,14 +44,24 @@ BX.UI.ActionPanel.Item.prototype =
 
 		this.href ? selectorType = "a" : selectorType = "div";
 
+		var className = "ui-action-panel-item " + (this.disabled ? 'ui-action-panel-item-is-disabled' : '');
+		if (this.buttonIconClass)
+		{
+			className = 'ui-btn ui-btn-lg ui-btn-link ' + this.buttonIconClass;
+		}
+
 		this.layout.container = BX.create(selectorType, {
-			attrs: {
-				className: "ui-action-panel-item"
+			props: {
+				className: className
 			},
 			children: [
 				this.icon ? '<span class="ui-action-panel-item-icon"><img src="' + this.icon + '" title=" "></span>' : null,
-				this.text ? '<span class="ui-action-panel-item-title">' + this.text + '</span>' : null
+				(this.text && !this.buttonIconClass) ? '<span class="ui-action-panel-item-title">' + this.text + '</span>' : this.text
 			],
+			attrs: this.attributes,
+			dataset: {
+				role: 'action-panel-item'
+			},
 			events: {
 				click: this.handleClick.bind(this)
 			}
@@ -44,24 +69,6 @@ BX.UI.ActionPanel.Item.prototype =
 
 		this.href ? this.layout.container.setAttribute('href', this.href) : null;
 		this.href ? this.layout.container.setAttribute('title', this.text) : null;
-
-		BX.bind(window, "resize", BX.throttle(function()
-		{
-			if(this.layout.container.offsetTop > 8)
-			{
-				this.actionPanel.addHiddenItem(this);
-				!this.actionPanel.layout.more ? this.actionPanel.appendMoreBlock() : null;
-
-				return
-			}
-
-			if(this.layout.container.offsetTop <= 8)
-			{
-				this.actionPanel.removeHiddenItem(this);
-				this.actionPanel.layout.more ? this.actionPanel.removeMoreBlock() : null;
-			}
-
-		}.bind(this), 20));
 
 		if (this.options.hide)
 		{
@@ -96,8 +103,19 @@ BX.UI.ActionPanel.Item.prototype =
 		return true;
 	},
 
+	isNotFit: function()
+	{
+		return this.layout.container.offsetHeight > 0 && !this.isVisible();
+	},
+
 	handleClick: function (event)
 	{
+		if (this.isDisabled())
+		{
+			event.preventDefault();
+
+			return;
+		}
 		if (this.items)
 		{
 			this.openSubMenu();
@@ -115,6 +133,31 @@ BX.UI.ActionPanel.Item.prototype =
 		}
 	},
 
+	isDisabled: function()
+	{
+		return this.disabled;
+	},
+
+	disable: function()
+	{
+		this.disabled = true;
+		if (this.layout && this.layout.container)
+		{
+			BX.data(this.layout.container, 'slider-ignore-autobinding', true);
+			this.layout.container.classList.add('ui-action-panel-item-is-disabled');
+		}
+	},
+
+	enable: function()
+	{
+		this.disabled = false;
+		if (this.layout && this.layout.container)
+		{
+			BX.data(this.layout.container, 'slider-ignore-autobinding', false);
+			this.layout.container.classList.remove('ui-action-panel-item-is-disabled');
+		}
+	},
+
 	openSubMenu: function()
 	{
 		if(!this.items)
@@ -123,9 +166,10 @@ BX.UI.ActionPanel.Item.prototype =
 		}
 
 		var bindElement = this.layout.container;
-		var popupMenu = BX.PopupMenu.create("ui-action-panel-item-popup-menu", bindElement, this.items, {
+		var popupMenuOptions = {
 			className: "ui-action-panel-item-popup-menu",
 			angle: true,
+			zIndex: this.actionPanel.zIndex? this.actionPanel.zIndex + 1 : null,
 			offsetLeft: bindElement.offsetWidth / 2,
 			closeByEsc: true,
 			events: {
@@ -134,7 +178,9 @@ BX.UI.ActionPanel.Item.prototype =
 					BX.removeClass(bindElement, "ui-action-panel-item-active");
 				}
 			}
-		});
+		};
+		popupMenuOptions = BX.mergeEx(popupMenuOptions, this.submenuOptions);
+		var popupMenu = BX.PopupMenu.create("ui-action-panel-item-popup-menu", bindElement, this.items, popupMenuOptions);
 
 		popupMenu.layout.menuContainer.setAttribute("data-tile-grid", "tile-grid-stop-close");
 		popupMenu.show();

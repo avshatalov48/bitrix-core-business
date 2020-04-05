@@ -98,10 +98,12 @@ function ShowFilterPopup(bindElement)
 					]
 				});
 
-				if (filterCreatedByPopup.popupContainer.style.display != "block")
+				if (!filterCreatedByPopup.isShown())
+				{
 					filterCreatedByPopup.show();
+				}
 
-				return BX.PreventDefault(e);
+				return e.preventDefault();
 			});
 
 			BX.bind(BX.findNextSibling(BX("filter-field-created-by"), {tagName : "a"}), "click", function(e){

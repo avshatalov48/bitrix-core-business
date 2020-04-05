@@ -85,6 +85,12 @@ $arComponentParameters = array(
 			"ADDITIONAL_VALUES" => "Y",
 			"VALUES" => $arProperty_UF,
 		),
+		"FILTER_NAME" => array(
+			"PARENT" => "DATA_SOURCE",
+			"NAME" => GetMessage('CP_BCSL_FILTER_NAME_IN'),
+			"TYPE" => "STRING",
+			"DEFAULT" => "sectionsFilter",
+		),
 		"ADD_SECTIONS_CHAIN" => Array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("CP_BCSL_ADD_SECTIONS_CHAIN"),
@@ -98,6 +104,11 @@ $arComponentParameters = array(
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "Y",
 		),
+		"CACHE_FILTER" => array(
+			"PARENT" => "CACHE_SETTINGS",
+			"NAME" => GetMessage("CP_BCSL_CACHE_FILTER"),
+			"TYPE" => "CHECKBOX",
+			"DEFAULT" => "N",
+		),
 	),
 );
-?>

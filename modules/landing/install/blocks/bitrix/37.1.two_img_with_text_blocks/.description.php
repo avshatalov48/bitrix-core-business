@@ -10,7 +10,7 @@ return array(
 	'block' =>
 		array(
 			'name' => Loc::getMessage('LANDING_BLOCK_37.1.TWO_IMG_WITH_TEXT_BLOCKS_NAME'),
-			'section' => array('image', 'tiles', 'columns'),
+			'section' => array('tiles'),
 		),
 	'cards' =>
 		array(),
@@ -43,7 +43,7 @@ return array(
 			'.landing-block-node-block' =>
 				array(
 					'name' => Loc::getMessage('LANDING_BLOCK_37.1.TWO_IMG_WITH_TEXT_BLOCKS_STYLE_LANDINGBLOCKNODE_BLOCK'),
-					'type' => 'box',
+					'type' => array('box', 'paddings'),
 				),
 			'.landing-block-node-title' =>
 				array(
@@ -69,6 +69,11 @@ return array(
 				array(
 					'name' => Loc::getMessage('LANDING_BLOCK_37.1.TWO_IMG_WITH_TEXT_BLOCKS_NODES_LANDINGBLOCKNODEBUTTON'),
 					'type' => 'text-align',
+				),
+			'.landing-block-node-img' =>
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_37.1.TWO_IMG_WITH_TEXT_BLOCKS_NODES_LANDINGBLOCKNODE_IMG'),
+					'type' => array('background-size', 'bg')
 				),
 		),
 );

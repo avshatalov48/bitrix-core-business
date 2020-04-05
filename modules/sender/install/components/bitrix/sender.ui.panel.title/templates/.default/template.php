@@ -72,6 +72,41 @@ foreach ($arParams['LIST'] as $item):
 					<?=htmlspecialcharsbx($button['caption'])?>
 				</div>
 			<?
+			elseif ($button['type'] == 'settings'):
+				$button['id'] = $button['id'] ?: 'sender-ui-buttons-settings';
+				$button['class'] = $button['class'] ?: 'ui-btn-light-border ui-btn-icon-setting';
+			?>
+				<script>
+					BX.ready(function () {
+						var button = BX('<?=CUtil::JSEscape(htmlspecialcharsbx($button['id']))?>');
+						var popup = BX.PopupMenu.create(
+							'<?=CUtil::JSEscape(htmlspecialcharsbx($button['id']))?>',
+							button,
+							[{
+								'id': 'export',
+								'text': '<?=CUtil::JSEscape(htmlspecialcharsbx(Loc::getMessage('SENDER_UI_BUTTON_PANEL_EXPORT')))?>',
+								'onclick': function () {
+									var s = window.location.href;
+									s += window.location.href.indexOf('?') > -1 ? '&' : '?';
+									s +='export=csv&ncc=1';
+									window.location = s;
+									popup.close();
+								}
+							}],
+							{
+								autoHide: false,
+								autoClose: true
+							}
+						);
+						BX.bind(button, 'click', popup.show.bind(popup));
+					});
+				</script>
+				<span id="<?=htmlspecialcharsbx($button['id'])?>"
+					href="<?=htmlspecialcharsbx($button['href'])?>"
+					class="ui-btn <?=htmlspecialcharsbx($button['class'])?>"
+					style="<?=($button['visible'] ? '' : 'display: none;')?>"
+				><?=htmlspecialcharsbx($button['caption'])?></span>
+			<?
 			elseif ($button['type'] == 'add'):
 				$button['class'] = $button['class'] ?: 'ui-btn-primary ui-btn-icon-add';
 			?>
@@ -106,7 +141,7 @@ foreach ($arParams['LIST'] as $item):
 			?>
 				<a id="<?=htmlspecialcharsbx($button['id'])?>" title="<?=htmlspecialcharsbx($button['caption'])?>"
 					href="<?=htmlspecialcharsbx($button['href'])?>"
-					onclick="BX.Sender.Page.open('<?=htmlspecialcharsbx($button['href'])?>'); return false;"
+					onclick="BX.Sender.Page.open('<?=CUtil::JSEscape(htmlspecialcharsbx($button['href']))?>'); return false;"
 					class="ui-btn <?=htmlspecialcharsbx($button['class'])?>"
 				><?
 					if ($button['counter']):
@@ -139,7 +174,7 @@ foreach ($arParams['LIST'] as $item):
 			?>
 				<a id="<?=htmlspecialcharsbx($button['id'])?>"
 					<?if($button['href']):?>href="<?=htmlspecialcharsbx($button['href'])?>"<?endif;?>
-					<?if($button['href'] && !empty($button['sliding'])):?>onclick="BX.Sender.Page.open('<?=htmlspecialcharsbx($button['href'])?>'); return false;"<?endif;?>
+					<?if($button['href'] && !empty($button['sliding'])):?>onclick="BX.Sender.Page.open('<?=CUtil::JSEscape(htmlspecialcharsbx($button['href']))?>'); return false;"<?endif;?>
 					class="ui-btn <?=htmlspecialcharsbx($button['class'])?>"
 					style="<?=($button['visible'] ? '' : 'display: none;')?>"
 				>

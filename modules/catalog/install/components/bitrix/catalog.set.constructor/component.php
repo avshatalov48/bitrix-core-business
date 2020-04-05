@@ -15,7 +15,7 @@ use Bitrix\Main,
 	Bitrix\Main\Application,
 	Bitrix\Catalog;
 
-if (!CBXFeatures::IsFeatureEnabled('CatCompleteSet'))
+if (!Catalog\Config\Feature::isProductSetsEnabled())
 	return;
 
 $arParams['IBLOCK_ID'] = isset($arParams['IBLOCK_ID']) ? (int)$arParams['IBLOCK_ID'] : 0;
@@ -217,11 +217,16 @@ if($this->startResultCache(false, array($elementID, ($arParams["CACHE_GROUPS"]==
 	);
 	while ($item = $itemsIterator->GetNext())
 	{
-		if (
-			$item['CATALOG_TYPE'] != Catalog\ProductTable::TYPE_PRODUCT
-			&& $item['CATALOG_TYPE'] != Catalog\ProductTable::TYPE_SET
-			&& $item['CATALOG_TYPE'] != Catalog\ProductTable::TYPE_OFFER
-		)
+		$correct = (
+			$item['CATALOG_TYPE'] == Catalog\ProductTable::TYPE_PRODUCT
+			|| $item['CATALOG_TYPE'] == Catalog\ProductTable::TYPE_SET
+			|| $item['CATALOG_TYPE'] == Catalog\ProductTable::TYPE_OFFER
+			|| (
+				$item['CATALOG_TYPE'] == Catalog\ProductTable::TYPE_SKU
+				&& $item['ID'] == $arResult['ELEMENT_ID']
+			)
+		);
+		if (!$correct)
 			continue;
 
 		$item['ID'] = (int)$item['ID'];
@@ -232,7 +237,7 @@ if($this->startResultCache(false, array($elementID, ($arParams["CACHE_GROUPS"]==
 		if ($item['ID'] == $arResult['ELEMENT_ID'])
 			$foundMain = true;
 	}
-	unset($select, $item, $itemsIterator);
+	unset($correct, $select, $item, $itemsIterator);
 	if (!$foundMain || count($itemsList) < 2)
 	{
 		$this->abortResultCache();

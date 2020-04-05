@@ -1026,7 +1026,7 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 							'POTENTIAL_PRODUCT_TO_BUY' => array(
 								'ID' => isset($arResult['ID']) ? $arResult['ID'] : null,
 								'MODULE' => isset($arResult['MODULE']) ? $arResult['MODULE'] : 'catalog',
-								'PRODUCT_PROVIDER_CLASS' => isset($arResult['PRODUCT_PROVIDER_CLASS']) ? $arResult['PRODUCT_PROVIDER_CLASS'] : 'CCatalogProductProvider',
+								'PRODUCT_PROVIDER_CLASS' => isset($arResult['~PRODUCT_PROVIDER_CLASS']) ? $arResult['~PRODUCT_PROVIDER_CLASS'] : '\Bitrix\Catalog\Product\CatalogProvider',
 								'QUANTITY' => isset($arResult['QUANTITY']) ? $arResult['QUANTITY'] : null,
 								'IBLOCK_ID' => isset($arResult['IBLOCK_ID']) ? $arResult['IBLOCK_ID'] : null,
 
@@ -1125,7 +1125,7 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 								'POTENTIAL_PRODUCT_TO_BUY' => array(
 									'ID' => isset($arResult['ID']) ? $arResult['ID'] : null,
 									'MODULE' => isset($arResult['MODULE']) ? $arResult['MODULE'] : 'catalog',
-									'PRODUCT_PROVIDER_CLASS' => isset($arResult['PRODUCT_PROVIDER_CLASS']) ? $arResult['PRODUCT_PROVIDER_CLASS'] : 'CCatalogProductProvider',
+									'PRODUCT_PROVIDER_CLASS' => isset($arResult['~PRODUCT_PROVIDER_CLASS']) ? $arResult['~PRODUCT_PROVIDER_CLASS'] : '\Bitrix\Catalog\Product\CatalogProvider',
 									'QUANTITY' => isset($arResult['QUANTITY']) ? $arResult['QUANTITY'] : null,
 									'IBLOCK_ID' => isset($arResult['IBLOCK_ID']) ? $arResult['IBLOCK_ID'] : null,
 
@@ -1616,7 +1616,7 @@ if ($haveOffers)
 				? $arResult['DISPLAY_PROPERTIES'][$arParams['BRAND_PROPERTY']]['DISPLAY_VALUE']
 				: null
 		),
-		'PRODUCT_TYPE' => $arResult['CATALOG_TYPE'],
+		'PRODUCT_TYPE' => $arResult['PRODUCT']['TYPE'],
 		'VISUAL' => $itemIds,
 		'DEFAULT_PICTURE' => array(
 			'PREVIEW_PICTURE' => $arResult['DEFAULT_PICTURE'],
@@ -1749,7 +1749,7 @@ else
 				: null
 		),
 		'VISUAL' => $itemIds,
-		'PRODUCT_TYPE' => $arResult['CATALOG_TYPE'],
+		'PRODUCT_TYPE' => $arResult['PRODUCT']['TYPE'],
 		'PRODUCT' => array(
 			'ID' => $arResult['ID'],
 			'ACTIVE' => $arResult['ACTIVE'],
@@ -1813,7 +1813,7 @@ if ($arParams['DISPLAY_COMPARE'])
 		PRICE_TOTAL_PREFIX: '<?=GetMessageJS('CT_BCE_CATALOG_MESS_PRICE_TOTAL_PREFIX')?>',
 		RELATIVE_QUANTITY_MANY: '<?=CUtil::JSEscape($arParams['MESS_RELATIVE_QUANTITY_MANY'])?>',
 		RELATIVE_QUANTITY_FEW: '<?=CUtil::JSEscape($arParams['MESS_RELATIVE_QUANTITY_FEW'])?>',
-		SITE_ID: '<?=$component->getSiteId()?>'
+		SITE_ID: '<?=CUtil::JSEscape($component->getSiteId())?>'
 	});
 
 	var <?=$obName?> = new JCCatalogElement(<?=CUtil::PhpToJSObject($jsParams, false, true)?>);

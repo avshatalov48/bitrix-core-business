@@ -22,7 +22,7 @@ return array(
 		'.landing-block-node-card-img' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_01.BIG_WITH_TEXT_BLOCKS_NODES_LANDINGBLOCKNODECARD_IMG'),
 			'type' => 'img',
-			'dimensions' => array('width' => 1900, 'height' => 1265),
+			'dimensions' => array('width' => 1920, 'height' => 1080),
 			'allowInlineEdit' => false,
 		),
 		'.landing-block-node-card-title' => array(

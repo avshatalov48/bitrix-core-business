@@ -13,36 +13,6 @@ class Text extends \Bitrix\Landing\Node
 	}
 
 	/**
-	 * Sanitize bad html.
-	 * @param string $str Very bad html.
-	 * @return string
-	 */
-	private static function sanitize($str)
-	{
-		static $sanitizer = null;
-
-		if ($sanitizer === null)
-		{
-			$sanitizer = new \CBXSanitizer;
-			$sanitizer->addTags(array(
-				'b' => array(),
-				'i' => array(),
-				'u' => array(),
-				'br' => array(),
-				'li' => array('class'),
-				'p' => array('style'),
-				'a' => array('href', 'target', 'data-embed', 'data-url'),
-				'span' => array('style'),
-				'font' => array('color')
-			));
-			$sanitizer->deleteSanitizedTags(false);
-			$sanitizer->applyHtmlSpecChars(true);
-		}
-
-		return $sanitizer->sanitizeHtml($str);
-	}
-
-	/**
 	 * Save data for this node.
 	 * @param \Bitrix\Landing\Block &$block Block instance.
 	 * @param string $selector Selector.
@@ -59,9 +29,14 @@ class Text extends \Bitrix\Landing\Node
 			$value = trim($value);
 			if (isset($resultList[$pos]))
 			{
-				$value = self::sanitize($value);
+				$value = \Bitrix\Landing\Manager::sanitize($value, $bad);
 				// clear some amp
 				$value = preg_replace('/&amp;([^\s]{1})/is', '&$1', $value);
+				$value = str_replace(
+					' bxstyle="',
+					' style="',
+					$value
+				);
 				$resultList[$pos]->setInnerHTML(!$value ? ' ' : $value);
 			}
 		}
@@ -82,6 +57,11 @@ class Text extends \Bitrix\Landing\Node
 		foreach ($resultList as $pos => $res)
 		{
 			$data[$pos] = $res->getInnerHTML();
+			$data[$pos] = str_replace(
+				' style="',
+				' bxstyle="',
+				$data[$pos]
+			);
 		}
 
 		return $data;

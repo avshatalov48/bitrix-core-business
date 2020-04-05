@@ -15,6 +15,7 @@ use \Bitrix\Main\Localization\Loc;
  * @var bool $showSubscribe
  * @var array $morePhoto
  * @var bool $showSlider
+ * @var bool $itemHasDetailUrl
  * @var string $imgTitle
  * @var string $productTitle
  * @var string $buttonSizeClass
@@ -40,12 +41,22 @@ else
 <div class="row product-item">
 	<div class="col-xs-12">
 		<div class="product-item-title">
-			<a href="<?=$item['DETAIL_PAGE_URL']?>" title="<?=$productTitle?>"><?=$productTitle?></a>
+			<? if ($itemHasDetailUrl): ?>
+			<a href="<?=$item['DETAIL_PAGE_URL']?>" title="<?=$productTitle?>">
+			<? endif; ?>
+			<?=$productTitle?>
+			<? if ($itemHasDetailUrl): ?>
+			</a>
+			<? endif; ?>
 		</div>
 	</div>
 	<div class="col-xs-12 col-sm-6 col-md-3 col-lg-2">
+		<? if ($itemHasDetailUrl): ?>
 		<a class="product-item-image-wrapper" href="<?=$item['DETAIL_PAGE_URL']?>" title="<?=$imgTitle?>"
-			data-entity="image-wrapper">
+				data-entity="image-wrapper">
+		<? else: ?>
+		<span class="product-item-image-wrapper" data-entity="image-wrapper">
+		<? endif; ?>
 			<span class="product-item-image-slider-slide-container slide" id="<?=$itemIds['PICT_SLIDER']?>"
 				<?=($showSlider ? '' : 'style="display: none;"')?>
 				data-slider-interval="<?=$arParams['SLIDER_INTERVAL']?>" data-slider-wrap="true">
@@ -132,7 +143,11 @@ else
 				<?
 			}
 			?>
+		<? if ($itemHasDetailUrl): ?>
 		</a>
+		<? else: ?>
+		</span>
+		<? endif; ?>
 	</div>
 	<?
 	if (!$haveOffers)

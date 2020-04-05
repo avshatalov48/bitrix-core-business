@@ -416,7 +416,14 @@ class COffice365OAuthInterface extends CSocServOAuthTransport
 			"grant_type"=>"refresh_token",
 		));
 
-		$arResult = \Bitrix\Main\Web\Json::decode($result);
+		try
+		{
+			$arResult = \Bitrix\Main\Web\Json::decode($result);
+		}
+		catch(\Bitrix\Main\ArgumentException $e)
+		{
+			$arResult = array();
+		}
 
 		if(isset($arResult["access_token"]) && $arResult["access_token"] <> '')
 		{

@@ -77,6 +77,21 @@
 
 
 		/**
+		 * Sets cache entry
+		 * @param args
+		 * @param value
+		 */
+		set: function(args, value)
+		{
+			this.store = this.store.filter(function(entry) {
+				return !entry.has(args);
+			});
+
+			this.add(args, value);
+		},
+
+
+		/**
 		 * Checks that store has entry with args
 		 * @param args
 		 * @return {Boolean}

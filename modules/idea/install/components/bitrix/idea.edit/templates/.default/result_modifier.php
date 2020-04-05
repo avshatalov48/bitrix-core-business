@@ -22,6 +22,8 @@ if(is_array($arResult["POST_PROPERTIES"]["DATA"]) && !empty($arResult["POST_PROP
 		//UF prepare for display
 		$arResult["POST_PROPERTIES"]["DATA"][$FIELD_NAME]["UF_SHOW"] = true;
 		//Skip binded offical props
+		if($FIELD_NAME==CIdeaManagment::UFBlockPostDocField)
+			$arResult["POST_PROPERTIES"]["DATA"][$FIELD_NAME]["UF_SHOW"] = false;
 		if($FIELD_NAME==CIdeaManagment::UFAnswerIdField)
 			$arResult["POST_PROPERTIES"]["DATA"][$FIELD_NAME]["UF_SHOW"] = false;
 		//If not admin skip statusUFCategroryCodeField

@@ -12,7 +12,9 @@ $arC = array(
 	"<=" => GetMessage("BPFC_PD_LE"),
 	"!=" => GetMessage("BPFC_PD_NE"),
 	"in" => GetMessage("BPFC_PD_IN"),
-	"contain" => GetMessage("BPFC_PD_CONTAIN")
+	"contain" => GetMessage("BPFC_PD_CONTAIN"),
+	"!empty" => GetMessage("BPFC_PD_NOT_EMPTY"),
+	"empty" => GetMessage("BPFC_PD_EMPTY"),
 );
 
 $arVariableConditionCount = array(1);
@@ -75,7 +77,7 @@ foreach ($arVariableConditionCount as $i)
 	<tr>
 		<td align="right" width="40%" class="adm-detail-content-cell-l"><?= GetMessage("BPFC_PD_CONDITION") ?>:</td>
 		<td width="60%" class="adm-detail-content-cell-r">
-			<select name="variable_condition_condition_<?= $i ?>">
+			<select name="variable_condition_condition_<?= $i ?>" onchange="BWFVCChangeCondition(<?= $i ?>, this.options[this.selectedIndex].value)">
 				<?
 				foreach ($arC as $key => $value)
 				{
@@ -85,7 +87,8 @@ foreach ($arVariableConditionCount as $i)
 			</select>
 		</td>
 	</tr>
-	<tr>
+	<? $hidden = in_array($arCurrentValues["variable_condition_condition_".$i], ['empty', '!empty']);?>
+	<tr id="id_tr_variable_condition_value_<?= $i ?>" style="<?if ($hidden) echo 'display:none'?>">
 		<td align="right" width="40%" class="adm-detail-content-cell-l"><?= GetMessage("BPFC_PD_VALUE") ?>:</td>
 		<td width="60%" id="id_td_variable_condition_value_<?= $i ?>" class="adm-detail-content-cell-r">
 			<input type="text" name="variable_condition_value_<?= $i ?>" value="<?= htmlspecialcharsbx((string)$arCurrentValues["variable_condition_value_".$i]) ?>">
@@ -166,6 +169,18 @@ foreach ($arVariableConditionCount as $i)
 			);
 		}
 
+		function BWFVCChangeCondition(ind, value)
+		{
+			var tableRow = document.getElementById('id_tr_variable_condition_value_' + ind);
+			if (!tableRow)
+			{
+				return;
+			}
+
+			var hidden = (value === 'empty' || value === '!empty');
+			tableRow.style.display = hidden ? 'none' : '';
+		}
+
 		function BWFVCAddCondition()
 		{
 			var addrowTr = document.getElementById('bwfvc_addrow_tr');
@@ -236,6 +251,8 @@ foreach ($arVariableConditionCount as $i)
 				newCell.className="adm-detail-content-cell-r";
 				var newSelect = document.createElement("select");
 				newSelect.name = "variable_condition_condition_" + bwfvc_counter;
+				newSelect.setAttribute('bwfvc_counter', bwfvc_counter);
+				newSelect.onchange = function(){BWFVCChangeCondition(this.getAttribute("bwfvc_counter"), this.options[this.selectedIndex].value)};
 				<?
 				$i = -1;
 				foreach ($arC as $key => $value)
@@ -248,6 +265,7 @@ foreach ($arVariableConditionCount as $i)
 				newCell.appendChild(newSelect);
 
 				var newRow = parentAddrowTr.insertRow(i + 3);
+				newRow.id = 'id_tr_variable_condition_value_' + bwfvc_counter;
 				var newCell = newRow.insertCell(-1);
 				newCell.width="40%";
 				newCell.className="adm-detail-content-cell-l";

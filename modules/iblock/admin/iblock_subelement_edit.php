@@ -13,6 +13,9 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/prolog.php");
 
 Loader::includeModule('iblock');
 
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+$publicMode = (defined("SELF_FOLDER_URL") ? true : false);
+
 /*Change any language identifiers carefully*/
 /*because of user customized forms!*/
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/iblock/admin/iblock_element_edit_compat.php");
@@ -1353,8 +1356,14 @@ $tabControl->BeginNextFormTab();
 			<tr>
 				<td width="40%"><? echo $tabControl->GetCustomLabelHTML() ?></td>
 				<td width="60%"><? echo $str_DATE_CREATE ?><?
-					if (intval($str_CREATED_BY) > 0):
-						?>&nbsp;&nbsp;&nbsp;[<a href="user_edit.php?lang=<?=LANGUAGE_ID; ?>&amp;ID=<?=$str_CREATED_BY; ?>"><? echo $str_CREATED_BY ?></a>]<?
+					if (intval($str_CREATED_BY) > 0):?>
+						<?if ($publicMode):?>
+							[<?=$str_CREATED_BY ?>]
+						<?else:?>
+							[<a href="user_edit.php?lang=<?=LANGUAGE_ID; ?>&amp;ID=<?=$str_CREATED_BY; ?>">
+								<? echo $str_CREATED_BY ?></a>]
+						<?endif;?>
+						<?
 						$rsUser = CUser::GetByID($str_CREATED_BY);
 						$arUser = $rsUser->Fetch();
 						if ($arUser):
@@ -1373,8 +1382,12 @@ $tabControl->BeginNextFormTab();
 		?><tr>
 		<td width="40%"><? echo $tabControl->GetCustomLabelHTML() ?></td>
 		<td width="60%"><? echo $str_TIMESTAMP_X; ?><?
-			if (intval($str_MODIFIED_BY) > 0):
-				?>&nbsp;&nbsp;&nbsp;[<a href="user_edit.php?lang=<?=LANGUAGE_ID; ?>&amp;ID=<?=$str_MODIFIED_BY; ?>"><? echo $str_MODIFIED_BY ?></a>]<?
+			if (intval($str_MODIFIED_BY) > 0):?>
+				<?if ($publicMode):?>
+				[<?=$str_MODIFIED_BY ?>]
+				<?else:?>
+					[<a href="user_edit.php?lang=<?=LANGUAGE_ID; ?>&amp;ID=<?=$str_MODIFIED_BY; ?>"><?=$str_MODIFIED_BY ?></a>]
+				<?endif;
 				if (intval($str_CREATED_BY) != intval($str_MODIFIED_BY))
 				{
 					$rsUser = CUser::GetByID($str_MODIFIED_BY);
@@ -1863,7 +1876,12 @@ if($arShowTabs['workflow']):?>
 			<td width="40%"><?echo GetMessage("IBLOCK_CREATED")?></td>
 			<td width="60%"><?echo $pr["DATE_CREATE"]?><?
 			if (intval($pr["CREATED_BY"])>0):
-			?>&nbsp;&nbsp;&nbsp;[<a href="user_edit.php?lang=<?=LANGUAGE_ID?>&amp;ID=<?=$pr["CREATED_BY"]?>"><?echo $pr["CREATED_BY"]?></a>]&nbsp;<?=htmlspecialcharsex($pr["CREATED_USER_NAME"])?><?
+			?>
+			<?if ($publicMode):?>
+				[<?=$pr["CREATED_BY"]?>]&nbsp;<?=htmlspecialcharsex($pr["CREATED_USER_NAME"])?>
+			<?else:?>
+				[<a href="user_edit.php?lang=<?=LANGUAGE_ID?>&amp;ID=<?=$pr["CREATED_BY"]?>"><?=$pr["CREATED_BY"]?></a>]&nbsp;<?=htmlspecialcharsex($pr["CREATED_USER_NAME"])?><?
+			endif;
 			endif;
 			?></td>
 		</tr>
@@ -1873,7 +1891,12 @@ if($arShowTabs['workflow']):?>
 		<td><?echo GetMessage("IBLOCK_LAST_UPDATE")?></td>
 		<td><?echo $str_TIMESTAMP_X?><?
 		if (intval($str_MODIFIED_BY)>0):
-		?>&nbsp;&nbsp;&nbsp;[<a href="user_edit.php?lang=<?=LANGUAGE_ID?>&amp;ID=<?=$str_MODIFIED_BY?>"><?echo $str_MODIFIED_BY?></a>]&nbsp;<?=$str_USER_NAME?><?
+		?>
+		<?if ($publicMode):?>
+			[<?= $str_MODIFIED_BY?>]&nbsp;<?=$str_USER_NAME?>
+		<?else:?>
+			[<a href="user_edit.php?lang=<?=LANGUAGE_ID?>&amp;ID=<?=$str_MODIFIED_BY?>"><?echo $str_MODIFIED_BY?></a>]&nbsp;<?=$str_USER_NAME?>
+		<?endif;
 		endif;
 		?></td>
 	</tr>
@@ -1883,7 +1906,12 @@ if($arShowTabs['workflow']):?>
 		<td><?echo GetMessage("IBLOCK_DATE_LOCK")?></td>
 		<td><?echo $prn_WF_DATE_LOCK?><?
 		if (intval($prn_WF_LOCKED_BY)>0):
-		?>&nbsp;&nbsp;&nbsp;[<a href="user_edit.php?lang=<?=LANGUAGE_ID?>&amp;ID=<?=$prn_WF_LOCKED_BY?>"><?echo $prn_WF_LOCKED_BY?></a>]&nbsp;<?=$prn_LOCKED_USER_NAME?><?
+		?>
+		<?if ($publicMode):?>
+			[<?=$prn_WF_LOCKED_BY?>]&nbsp;<?=$prn_LOCKED_USER_NAME?>
+		<?else:?>
+			[<a href="user_edit.php?lang=<?=LANGUAGE_ID?>&amp;ID=<?=$prn_WF_LOCKED_BY?>"><?=$prn_WF_LOCKED_BY?></a>]&nbsp;<?=$prn_LOCKED_USER_NAME?><?
+		endif;
 		endif;
 		?></td>
 	</tr>
@@ -1983,10 +2011,11 @@ if ($arShowTabs['bizproc']):
 						</td>
 						<td width="1%" align="right">
 							<?if (strlen($arDocumentState["ID"]) > 0 && strlen($arDocumentState["WORKFLOW_STATUS"]) > 0):?>
-							(<a href="<?echo htmlspecialcharsbx("/bitrix/admin/".CIBlock::GetAdminElementEditLink($IBLOCK_ID, $ID, array(
+							(<a href="<?echo htmlspecialcharsbx($selfFolderUrl.CIBlock::GetAdminElementEditLink($IBLOCK_ID, $ID, array(
 								"WF"=>$WF,
 								"find_section_section" => $find_section_section,
 								"stop_bizproc" => $arDocumentState["ID"],
+								"replace_script_name" => true,
 							),  "&".bitrix_sessid_get()))?>"><?echo GetMessage("IBEL_BIZPROC_STOP")?></a>)
 							<?endif;?>
 						</td>
@@ -2013,7 +2042,7 @@ if ($arShowTabs['bizproc']):
 		<?if (strlen($arDocumentState["STATE_NAME"]) > 0):?>
 		<tr>
 			<td width="40%"><?echo GetMessage("IBEL_BIZPROC_STATE")?></td>
-			<td width="60%"><?if (strlen($arDocumentState["ID"]) > 0):?><a href="/bitrix/admin/bizproc_log.php?ID=<?= $arDocumentState["ID"] ?>"><?endif;?><?= strlen($arDocumentState["STATE_TITLE"]) > 0 ? $arDocumentState["STATE_TITLE"] : $arDocumentState["STATE_NAME"] ?><?if (strlen($arDocumentState["ID"]) > 0):?></a><?endif;?></td>
+			<td width="60%"><?if (strlen($arDocumentState["ID"]) > 0):?><a href="<?=$selfFolderUrl?>bizproc_log.php?ID=<?= $arDocumentState["ID"] ?>"><?endif;?><?= strlen($arDocumentState["STATE_TITLE"]) > 0 ? $arDocumentState["STATE_TITLE"] : $arDocumentState["STATE_NAME"] ?><?if (strlen($arDocumentState["ID"]) > 0):?></a><?endif;?></td>
 		</tr>
 		<?endif;?>
 		<?
@@ -2098,7 +2127,7 @@ if ($arShowTabs['bizproc']):
 			</tr>
 			<tr>
 				<td colspan="2" align="center">
-					<a href="/bitrix/admin/<?=MODULE_ID?>_start_bizproc.php?document_id=<?= $ID ?>&document_type=<?= DOCUMENT_TYPE ?>&back_url=<?= urlencode($APPLICATION->GetCurPageParam("", array())) ?>"><?echo GetMessage("IBEL_BIZPROC_START")?></a>
+					<a href="<?=$selfFolderUrl.MODULE_ID?>_start_bizproc.php?document_id=<?= $ID ?>&document_type=<?= DOCUMENT_TYPE ?>&back_url=<?= urlencode($APPLICATION->GetCurPageParam("", array())) ?>"><?echo GetMessage("IBEL_BIZPROC_START")?></a>
 				</td>
 			</tr>
 			<?

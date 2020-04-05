@@ -55,6 +55,8 @@
 			{
 				return BX.Landing.Utils.Show(this.layout);
 			}
+
+			return Promise.resolve();
 		},
 
 
@@ -67,6 +69,8 @@
 			{
 				return BX.Landing.Utils.Hide(this.layout);
 			}
+
+			return Promise.resolve();
 		},
 
 

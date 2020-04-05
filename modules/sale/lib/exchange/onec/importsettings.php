@@ -23,13 +23,22 @@ class ImportSettings  extends SettingsBase
 			self::$currentSettings['import']['SITE_ID'] = Option::get("sale", "1C_SITE_NEW_ORDERS");
 
 			self::$currentSettings['finalStatusId'][Exchange\EntityType::ORDER_NAME] = "F";
+			self::$currentSettings['finalStatusId'][Exchange\EntityType::INVOICE_NAME] = "F";
 			self::$currentSettings['finalStatusOnDelivery'][Exchange\EntityType::ORDER_NAME] = Option::get("sale", "1C_FINAL_STATUS_ON_DELIVERY", "");
+			self::$currentSettings['finalStatusOnDelivery'][Exchange\EntityType::INVOICE_NAME] = Option::get("sale", "1C_FINAL_STATUS_ON_DELIVERY", "");
 
 			self::$currentSettings['changeStatusFor'][Exchange\EntityType::ORDER_NAME] = Option::get("sale", "1C_CHANGE_STATUS_FROM_1C", "Y");
 			self::$currentSettings['changeStatusFor'][Exchange\EntityType::SHIPMENT_NAME] = '';
 			self::$currentSettings['changeStatusFor'][Exchange\EntityType::PAYMENT_CASH_NAME] = '';
 			self::$currentSettings['changeStatusFor'][Exchange\EntityType::PAYMENT_CASH_LESS_NAME] = '';
 			self::$currentSettings['changeStatusFor'][Exchange\EntityType::PAYMENT_CARD_TRANSACTION_NAME] = '';
+
+			self::$currentSettings['changeStatusFor'][Exchange\EntityType::INVOICE_NAME] = Option::get("sale", "1C_CHANGE_STATUS_FROM_1C", "Y");
+			self::$currentSettings['changeStatusFor'][Exchange\EntityType::INVOICE_SHIPMENT_NAME] = '';
+			self::$currentSettings['changeStatusFor'][Exchange\EntityType::INVOICE_PAYMENT_CASH_NAME] = '';
+			self::$currentSettings['changeStatusFor'][Exchange\EntityType::INVOICE_PAYMENT_CASH_LESS_NAME] = '';
+			self::$currentSettings['changeStatusFor'][Exchange\EntityType::INVOICE_PAYMENT_CARD_TRANSACTION_NAME] = '';
+
 
 			self::$currentSettings['importableFor'][Exchange\EntityType::USER_PROFILE_NAME] = Option::get("sale", "1C_IMPORT_NEW_ORDERS", "Y");
 			self::$currentSettings['importableFor'][Exchange\EntityType::PROFILE_NAME] = Option::get("sale", "1C_IMPORT_NEW_ORDERS", "Y");
@@ -39,22 +48,50 @@ class ImportSettings  extends SettingsBase
 			self::$currentSettings['importableFor'][Exchange\EntityType::PAYMENT_CASH_LESS_NAME] = Option::get("sale", "1C_IMPORT_NEW_PAYMENT", "Y");
 			self::$currentSettings['importableFor'][Exchange\EntityType::PAYMENT_CARD_TRANSACTION_NAME] = Option::get("sale", "1C_IMPORT_NEW_PAYMENT", "Y");
 
+			self::$currentSettings['importableFor'][Exchange\EntityType::INVOICE_NAME] = Option::get("sale", "1C_IMPORT_NEW_ORDERS", "Y");
+			self::$currentSettings['importableFor'][Exchange\EntityType::INVOICE_SHIPMENT_NAME] = Option::get("sale", "1C_IMPORT_NEW_SHIPMENT", "Y");;
+			self::$currentSettings['importableFor'][Exchange\EntityType::INVOICE_PAYMENT_CASH_NAME] = Option::get("sale", "1C_IMPORT_NEW_PAYMENT", "Y");;
+			self::$currentSettings['importableFor'][Exchange\EntityType::INVOICE_PAYMENT_CASH_LESS_NAME] = Option::get("sale", "1C_IMPORT_NEW_PAYMENT", "Y");;
+			self::$currentSettings['importableFor'][Exchange\EntityType::INVOICE_PAYMENT_CARD_TRANSACTION_NAME] = Option::get("sale", "1C_IMPORT_NEW_PAYMENT", "Y");;
+
+
 			self::$currentSettings['accountNumberPrefix'][Exchange\EntityType::ORDER_NAME] = Option::get("sale", "1C_SALE_ACCOUNT_NUMBER_SHOP_PREFIX", "");
 			self::$currentSettings['accountNumberPrefix'][Exchange\EntityType::SHIPMENT_NAME] = '';
 			self::$currentSettings['accountNumberPrefix'][Exchange\EntityType::PAYMENT_CASH_NAME] = '';
 			self::$currentSettings['accountNumberPrefix'][Exchange\EntityType::PAYMENT_CASH_LESS_NAME] = '';
 			self::$currentSettings['accountNumberPrefix'][Exchange\EntityType::PAYMENT_CARD_TRANSACTION_NAME] = '';
 
+			self::$currentSettings['accountNumberPrefix'][Exchange\EntityType::INVOICE_NAME] = Option::get("sale", "1C_SALE_ACCOUNT_NUMBER_SHOP_PREFIX", "");
+			self::$currentSettings['accountNumberPrefix'][Exchange\EntityType::INVOICE_SHIPMENT_NAME] = '';
+			self::$currentSettings['accountNumberPrefix'][Exchange\EntityType::INVOICE_PAYMENT_CASH_NAME] = '';
+			self::$currentSettings['accountNumberPrefix'][Exchange\EntityType::INVOICE_PAYMENT_CASH_LESS_NAME] = '';
+			self::$currentSettings['accountNumberPrefix'][Exchange\EntityType::INVOICE_PAYMENT_CARD_TRANSACTION_NAME] = '';
+
+
 			self::$currentSettings['paySystem'][Exchange\EntityType::PAYMENT_CASH_LESS_NAME] = Option::get("sale", "1C_IMPORT_DEFAULT_PS_B", "");
 			self::$currentSettings['paySystem'][Exchange\EntityType::PAYMENT_CASH_NAME] = Option::get("sale", "1C_IMPORT_DEFAULT_PS", "");
 			self::$currentSettings['paySystem'][Exchange\EntityType::PAYMENT_CARD_TRANSACTION_NAME] = Option::get("sale", "1C_IMPORT_DEFAULT_PS_A", "");
+
+			self::$currentSettings['paySystem'][Exchange\EntityType::INVOICE_PAYMENT_CASH_LESS_NAME] = Option::get("sale", "1C_IMPORT_DEFAULT_PS_B", "");
+			self::$currentSettings['paySystem'][Exchange\EntityType::INVOICE_PAYMENT_CASH_NAME] = Option::get("sale", "1C_IMPORT_DEFAULT_PS", "");
+			self::$currentSettings['paySystem'][Exchange\EntityType::INVOICE_PAYMENT_CARD_TRANSACTION_NAME] = Option::get("sale", "1C_IMPORT_DEFAULT_PS_A", "");
+
 
 			self::$currentSettings['paySystemDefault'][Exchange\EntityType::PAYMENT_CASH_LESS_NAME] = Manager::getInnerPaySystemId();
 			self::$currentSettings['paySystemDefault'][Exchange\EntityType::PAYMENT_CASH_NAME] = Manager::getInnerPaySystemId();
 			self::$currentSettings['paySystemDefault'][Exchange\EntityType::PAYMENT_CARD_TRANSACTION_NAME] = Manager::getInnerPaySystemId();
 
+			self::$currentSettings['paySystemDefault'][Exchange\EntityType::INVOICE_PAYMENT_CASH_NAME] = Manager::getInnerPaySystemId();
+			self::$currentSettings['paySystemDefault'][Exchange\EntityType::INVOICE_PAYMENT_CASH_LESS_NAME] = Manager::getInnerPaySystemId();
+			self::$currentSettings['paySystemDefault'][Exchange\EntityType::INVOICE_PAYMENT_CARD_TRANSACTION_NAME] = Manager::getInnerPaySystemId();
+
+
 			self::$currentSettings['shipmentService'][Exchange\EntityType::SHIPMENT_NAME] = Option::get("sale", "1C_IMPORT_DEFAULT_SHIPMENT_SERVICE", "");
 			self::$currentSettings['shipmentServiceDefault'][Exchange\EntityType::SHIPMENT_NAME] = EmptyDeliveryService::getEmptyDeliveryServiceId();
+
+			self::$currentSettings['shipmentService'][Exchange\EntityType::INVOICE_SHIPMENT_NAME] = Option::get("sale", "1C_IMPORT_DEFAULT_SHIPMENT_SERVICE", "");
+			self::$currentSettings['shipmentServiceDefault'][Exchange\EntityType::INVOICE_SHIPMENT_NAME] = EmptyDeliveryService::getEmptyDeliveryServiceId();
+
 
 			self::$currentSettings['canCreateOrder'][Exchange\EntityType::ORDER_NAME] = '';
 			self::$currentSettings['canCreateOrder'][Exchange\EntityType::SHIPMENT_NAME] = Option::get("sale", "1C_IMPORT_NEW_ORDER_NEW_SHIPMENT", "");
@@ -62,13 +99,29 @@ class ImportSettings  extends SettingsBase
 			self::$currentSettings['canCreateOrder'][Exchange\EntityType::PAYMENT_CASH_LESS_NAME] = '';
 			self::$currentSettings['canCreateOrder'][Exchange\EntityType::PAYMENT_CARD_TRANSACTION_NAME] = '';
 
+			self::$currentSettings['canCreateOrder'][Exchange\EntityType::INVOICE_NAME] = '';
+			self::$currentSettings['canCreateOrder'][Exchange\EntityType::INVOICE_SHIPMENT_NAME] = Option::get("sale", "1C_IMPORT_NEW_ORDER_NEW_SHIPMENT", "");
+			self::$currentSettings['canCreateOrder'][Exchange\EntityType::INVOICE_PAYMENT_CASH_NAME] = '';
+			self::$currentSettings['canCreateOrder'][Exchange\EntityType::INVOICE_PAYMENT_CASH_LESS_NAME] = '';
+			self::$currentSettings['canCreateOrder'][Exchange\EntityType::INVOICE_PAYMENT_CARD_TRANSACTION_NAME] = '';
+
+
 			//self::$currentSettings['shipmentBasketChangeQuantity'][EntityType::SHIPMENT_NAME] = Option::get("sale", "1C_IMPORT_UPDATE_BASKET_QUANTITY", "");
+
 
 			self::$currentSettings['collisionResolve'][Exchange\EntityType::ORDER_NAME] = Option::get("sale", "1C_IMPORT_COLLISION_RESOLVE", array(Exchange\EntityCollisionType::OrderFinalStatusName));
 			self::$currentSettings['collisionResolve'][Exchange\EntityType::SHIPMENT_NAME] = Option::get("sale", "1C_IMPORT_COLLISION_RESOLVE", array(Exchange\EntityCollisionType::ShipmentIsShippedName));
 			self::$currentSettings['collisionResolve'][Exchange\EntityType::PAYMENT_CASH_NAME] = Option::get("sale", "1C_IMPORT_COLLISION_RESOLVE", array(Exchange\EntityCollisionType::PaymentIsPayedName));
 			self::$currentSettings['collisionResolve'][Exchange\EntityType::PAYMENT_CASH_LESS_NAME] = Option::get("sale", "1C_IMPORT_COLLISION_RESOLVE", array(Exchange\EntityCollisionType::PaymentIsPayedName));
 			self::$currentSettings['collisionResolve'][Exchange\EntityType::PAYMENT_CARD_TRANSACTION_NAME] = Option::get("sale", "1C_IMPORT_COLLISION_RESOLVE", array(Exchange\EntityCollisionType::PaymentIsPayedName));
+
+			self::$currentSettings['collisionResolve'][Exchange\EntityType::INVOICE_NAME] = Option::get("sale", "1C_IMPORT_COLLISION_RESOLVE", array(Exchange\EntityCollisionType::OrderFinalStatusName));
+			self::$currentSettings['collisionResolve'][Exchange\EntityType::INVOICE_SHIPMENT_NAME] = Option::get("sale", "1C_IMPORT_COLLISION_RESOLVE", array(Exchange\EntityCollisionType::ShipmentIsShippedName));
+			self::$currentSettings['collisionResolve'][Exchange\EntityType::INVOICE_PAYMENT_CASH_NAME] = Option::get("sale", "1C_IMPORT_COLLISION_RESOLVE", array(Exchange\EntityCollisionType::PaymentIsPayedName));
+			self::$currentSettings['collisionResolve'][Exchange\EntityType::INVOICE_PAYMENT_CASH_LESS_NAME] = Option::get("sale", "1C_IMPORT_COLLISION_RESOLVE", array(Exchange\EntityCollisionType::PaymentIsPayedName));
+			self::$currentSettings['collisionResolve'][Exchange\EntityType::INVOICE_PAYMENT_CARD_TRANSACTION_NAME] = Option::get("sale", "1C_IMPORT_COLLISION_RESOLVE", array(Exchange\EntityCollisionType::PaymentIsPayedName));
+
+
 
 			if(!is_array(self::$currentSettings))
 			{

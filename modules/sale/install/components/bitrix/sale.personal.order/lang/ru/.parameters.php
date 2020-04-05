@@ -31,4 +31,5 @@ $MESS["SPO_USER_INFO_LOGIN"] = "Логин";
 $MESS["SPO_USER_INFO_EMAIL"] = "E-mail адрес";
 $MESS["SPO_USER_INFO_PERSON_TYPE_NAME"] = "Тип плательщика";
 $MESS["SPO_ORDER_HIDE_USER_INFO"] = "Не показывать в информации о пользователе";
+$MESS["SPO_DISALLOW_CANCEL"] = "Запретить отмену заказа";
 ?>

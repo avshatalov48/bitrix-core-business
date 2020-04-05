@@ -529,6 +529,7 @@ BX.Finder.initFinderDb = function(obDestination, entities, oContext, version)
 						obDestination.obClientDbData[this.entity] = {};
 						BX.addCustomEvent("findEntityByName", BX.Finder.findEntityByName);
 						BX.addCustomEvent("syncClientDb", BX.Finder.syncClientDb);
+						BX.addCustomEvent(BX.UI.SelectorManager, "syncClientDb", BX.Finder.syncClientDbNew);
 						BX.addCustomEvent("removeClientDbObject", BX.Finder.removeClientDbObject);
 					}
 
@@ -544,17 +545,23 @@ BX.Finder.initFinderDb = function(obDestination, entities, oContext, version)
 
 BX.Finder.addSearchIndex = function(obDestination, ob)
 {
-	var partsSearchText = ob.name.toLowerCase().split(" ");
-	for (var i in partsSearchText)
+	if (
+		BX.type.isNotEmptyObject(ob)
+		&& BX.type.isNotEmptyString(ob.name)
+	)
 	{
-		if (typeof obDestination.obClientDbDataSearchIndex[partsSearchText[i]] == 'undefined')
+		var partsSearchText = ob.name.toLowerCase().split(" ");
+		for (var i in partsSearchText)
 		{
-			obDestination.obClientDbDataSearchIndex[partsSearchText[i]] = [];
-		}
+			if (typeof obDestination.obClientDbDataSearchIndex[partsSearchText[i]] == 'undefined')
+			{
+				obDestination.obClientDbDataSearchIndex[partsSearchText[i]] = [];
+			}
 
-		if (!BX.util.in_array(ob.id, obDestination.obClientDbDataSearchIndex[partsSearchText[i]]))
-		{
-			obDestination.obClientDbDataSearchIndex[partsSearchText[i]].push(ob.id);
+			if (!BX.util.in_array(ob.id, obDestination.obClientDbDataSearchIndex[partsSearchText[i]]))
+			{
+				obDestination.obClientDbDataSearchIndex[partsSearchText[i]].push(ob.id);
+			}
 		}
 	}
 };
@@ -680,6 +687,34 @@ BX.Finder.syncClientDb = function(obDestination, name, oDbData, oAjaxData, store
 					obDestination.deleteItem(oDbData[key], store, name);
 				}
 			}
+		}
+	}
+};
+
+BX.Finder.syncClientDbNew = function(params)
+{
+	var
+		selectorInstance = (BX.type.isNotEmptyObject(params.selectorInstance) ? params.selectorInstance : false),
+		store = (BX.type.isNotEmptyString(params.store) ? params.store : 'users'),
+		clientDBData = (typeof params.clientDBData != 'undefined' ? params.clientDBData : []),
+		ajaxData = (typeof params.ajaxData != 'undefined' ? params.ajaxData : []);
+
+	if (!selectorInstance)
+	{
+		return;
+	}
+
+	for (var key = 0; key < clientDBData.length; key++)
+	{
+		if (!BX.util.in_array(clientDBData[key], ajaxData))
+		{
+			BX.indexedDB.deleteValueByIndex(selectorInstance.manager.obClientDb, store, 'id', clientDBData[key]);
+
+			delete selectorInstance.entities.USERS.items[clientDBData[key]];
+			selectorInstance.getRenderInstance().deleteItem({
+				itemId: clientDBData[key],
+				entityType: store
+			});
 		}
 	}
 };

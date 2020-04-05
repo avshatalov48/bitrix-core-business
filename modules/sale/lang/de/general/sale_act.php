@@ -1,4 +1,5 @@
 <?
+$MESS["BT_SALE_ACT_GROUP_BASKET_SELECT_TYPE_CLOSEOUT"] = "Fixierter Preis";
 $MESS["BT_SALE_ACT_GROUP_GLOBAL_PREFIX"] = "Aktionen ausführen:";
 $MESS["BT_SALE_ACT_DELIVERY_LABEL"] = "Versandkosten ändern";
 $MESS["BT_SALE_ACT_DELIVERY_DEF_TEXT"] = "Versandkosten";
@@ -64,8 +65,4 @@ $MESS["BT_SALE_GIFT_DISCOUNT_DESCR"] = "Geschenk";
 $MESS["BT_SALE_ACT_GROUP_BASKET_DESCR_EXT"] = "für Produkte, für die";
 $MESS["BT_SALE_ACT_MAX_DISCOUNT_GROUP_BASKET_DESCR"] = ", aber nicht mehr als";
 $MESS["BT_SALE_ACT_MAX_DISCOUNT_ON_GROUP_BASKET_ERROR_CONDITION"] = "Maximale Rabattgröße für den Gesamtbetrag der Bestellung kann nicht eingeschränkt werden.";
-$MESS["BT_MOD_SALE_ACT_BASKET_APPLIED_DISCOUNT_LABEL"] = "Rabatte wurden angewendet";
-$MESS["BT_MOD_SALE_ACT_BASKET_APPLIED_DISCOUNT_PREFIX"] = "Rabatte wurden angewendet";
-$MESS["BT_MOD_SALE_ACT_BASKET_APPLIED_DISCOUNT_Y"] = "ja";
-$MESS["BT_MOD_SALE_ACT_BASKET_APPLIED_DISCOUNT_N"] = "nein";
 ?>

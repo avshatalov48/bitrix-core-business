@@ -418,6 +418,7 @@ if($REQUEST_METHOD == "POST" && strlen($Update)>0 && $USER->CanDoOperation('file
 	COption::SetOptionString($module_id, "log_page", (isset($_POST['log_page']) ? 'Y' : 'N'));
 	COption::SetOptionString($module_id, "use_code_editor", (isset($_POST['use_code_editor']) ? 'Y' : 'N'));
 	COption::SetOptionString($module_id, "google_map_api_key", isset($_POST['google_map_api_key']) ? $_POST['google_map_api_key'] : '');
+	COption::SetOptionString($module_id, "yandex_map_api_key", isset($_POST['yandex_map_api_key']) ? $_POST['yandex_map_api_key'] : '');
 
 	//default groups
 	$sGroups = '';
@@ -612,6 +613,22 @@ if($USER->isAdmin())
 						"#A#" => '<a href="https://developers.google.com/maps/documentation/javascript/get-api-key">https://developers.google.com/maps/documentation/javascript/get-api-key</a>'
 					)
 				)?>
+			<?=EndNote();?>
+		</td>
+	</tr>
+
+	<tr>
+		<td valign="top"><label for="yandex_map_api_key"><?= GetMessage('FILEMAN_OPTION_YANDEX_MAP_API_KEY')?>:</label></td>
+		<td valign="top">
+			<a name="yandex_api_key"></a>
+			<input type="text" size="40" name="yandex_map_api_key" id="yandex_map_api_key" value="<?=htmlspecialcharsbx(COption::GetOptionString($module_id, "yandex_map_api_key", ""));?>">
+			<?=BeginNote();?>
+			<?=GetMessage(
+				"FILEMAN_OPTION_YANDEX_MAP_API_KEY_NOTE",
+				array(
+					"#A#" => '<a href="https://tech.yandex.ru/developer-help/doc/#new-key">https://tech.yandex.ru/developer-help/doc/#new-key</a>'
+				)
+			)?>
 			<?=EndNote();?>
 		</td>
 	</tr>

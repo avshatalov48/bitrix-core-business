@@ -39,7 +39,21 @@
 						<?endif?>
 					</td>
 				</tr>
-
+				<?
+				if (!empty($arResult["SUM_REST"]))
+				{
+					?>
+					<tr>
+						<td>
+							<?=GetMessage('SPOD_ORDER_SUM_REST')?>:
+						</td>
+						<td>
+							<?=$arResult["SUM_REST_FORMATED"]?>
+						</td>
+					</tr>
+					<?
+				}
+				?>
 				<?if($arResult["CANCELED"] == "Y" || $arResult["CAN_CANCEL"] == "Y"):?>
 					<tr>
 						<td><?=GetMessage('SPOD_ORDER_CANCELED')?>:</td>
@@ -140,97 +154,121 @@
 				<tr>
 					<td colspan="2"><?=GetMessage("SPOD_ORDER_PAYMENT")?></td>
 				</tr>
-				<tr>
-					<td><?=GetMessage('SPOD_PAY_SYSTEM')?>:</td>
-					<td>
-						<?if(intval($arResult["PAY_SYSTEM_ID"])):?>
-							<?=htmlspecialcharsbx($arResult["PAY_SYSTEM"]["NAME"])?>
-						<?else:?>
-							<?=GetMessage("SPOD_NONE")?>
-						<?endif?>
-					</td>
-				</tr>
-				<tr>
-					<td><?=GetMessage('SPOD_ORDER_PAYED')?>:</td>
-					<td>
-						<?if($arResult["PAYED"] == "Y"):?>
-							<?=GetMessage('SPOD_YES')?>
-							<?if(strlen($arResult["DATE_PAYED_FORMATED"])):?>
-								(<?=GetMessage('SPOD_FROM')?> <?=$arResult["DATE_PAYED_FORMATED"]?>)
+				<tr><td><br></td><td></td></tr>
+				<?
+				foreach ($arResult["PAYMENT"] as $payment)
+				{
+					$titleParams = [
+						"#ACCOUNT_NUMBER#" => htmlspecialcharsbx($payment['ACCOUNT_NUMBER']),
+						"#DATE_BILL#" => $payment['DATE_BILL_FORMATTED'],
+					];
+					?>
+					<tr>
+						<td colspan="2"><?=GetMessage("SPOD_ORDER_PAYMENT_TITLE", $titleParams)?></td>
+					</tr>
+					<tr>
+						<td><?=GetMessage('SPOD_PAY_SYSTEM')?>:</td>
+						<td>
+							<?if(intval($payment["PAY_SYSTEM_ID"])):?>
+								<?=htmlspecialcharsbx($payment["PAY_SYSTEM_NAME"])?>
+							<?else:?>
+								<?=GetMessage("SPOD_NONE")?>
 							<?endif?>
-						<?else:?>
-							<?=GetMessage('SPOD_NO')?>
-							<?if($arResult["CAN_REPAY"]=="Y" && $arResult["PAY_SYSTEM"]["PSA_NEW_WINDOW"] == "Y"):?>
-								&nbsp;&nbsp;&nbsp;[<a href="<?=$arResult["PAY_SYSTEM"]["PSA_ACTION_FILE"]?>" target="_blank"><?=GetMessage("SPOD_REPEAT_PAY")?></a>]
+						</td>
+					</tr>
+					<tr>
+						<td><?=GetMessage('SPOD_ORDER_PAYED')?>:</td>
+						<td>
+							<?if($payment["PAID"] == "Y"):?>
+								<?=GetMessage('SPOD_YES')?>
+								<?if(strlen($payment["DATE_PAID_FORMATTED"])):?>
+									(<?=GetMessage('SPOD_FROM')?> <?=$payment["DATE_PAID_FORMATTED"]?>)
+								<?endif?>
+							<?else:?>
+								<?=GetMessage('SPOD_NO')?>
+								<?if($arResult["CAN_REPAY"]=="Y" && $arResult["PAY_SYSTEM"]["PSA_NEW_WINDOW"] == "Y"):?>
+									&nbsp;&nbsp;&nbsp;[<a href="<?=$arResult["PAY_SYSTEM"]["PSA_ACTION_FILE"]?>" target="_blank"><?=GetMessage("SPOD_REPEAT_PAY")?></a>]
+								<?endif?>
 							<?endif?>
-						<?endif?>
-					</td>
-				</tr>
+						</td>
+					</tr>
+					<tr><td><br></td><td></td></tr>
+					<?
+				}
+				?>
+				<?
+				foreach ($arResult["SHIPMENT"] as $shipment)
+				{
+					$titleParams = [
+						"#ACCOUNT_NUMBER#" => htmlspecialcharsbx($shipment['ACCOUNT_NUMBER']),
+						"#DELIVERY_PRICE#" => $shipment['PRICE_DELIVERY_FORMATTED'],
+					];
+					?>
+					<tr>
+						<td colspan="2"><?=GetMessage("SPOD_ORDER_SHIPMENT_TITLE", $titleParams)?></td>
+					</tr>
+					<tr>
+						<td><?=GetMessage("SPOD_ORDER_DELIVERY")?>:</td>
+						<td>
+							<?if (intval($shipment["DELIVERY_ID"]) > 0):?>
+								<?=strlen($shipment["DELIVERY_NAME"]) ? htmlspecialcharsbx($shipment["DELIVERY_NAME"]) : GetMessage("SPOD_NONE")?>
+								<?if(isset($shipment['STORE_ID']) && !empty($arResult["DELIVERY"]["STORE_LIST"][(int)$shipment['STORE_ID']])):?>
 
-				<tr>
-					<td><?=GetMessage("SPOD_ORDER_DELIVERY")?>:</td>
-					<td>
-						<?if(strpos($arResult["DELIVERY_ID"], ":") !== false || intval($arResult["DELIVERY_ID"])):?>
-							<?=htmlspecialcharsbx($arResult["DELIVERY"]["NAME"])?>
+									<?$store = $arResult["DELIVERY"]["STORE_LIST"][$shipment['STORE_ID']];?>
+									<div class="bx_ol_store">
+										<div class="bx_old_s_row_title">
+											<?=GetMessage('SPOD_TAKE_FROM_STORE')?>: <b><?=htmlspecialcharsbx($store['TITLE'])?></b>
 
-							<?if(intval($arResult['STORE_ID']) && !empty($arResult["DELIVERY"]["STORE_LIST"][$arResult['STORE_ID']])):?>
+											<?if(!empty($store['DESCRIPTION'])):?>
+												<div class="bx_ild_s_desc">
+													<?=htmlspecialcharsbx($store['DESCRIPTION'])?>
+												</div>
+											<?endif?>
 
-								<?$store = $arResult["DELIVERY"]["STORE_LIST"][$arResult['STORE_ID']];?>
-								<div class="bx_ol_store">
-									<div class="bx_old_s_row_title">
-										<?=GetMessage('SPOD_TAKE_FROM_STORE')?>: <b><?=$store['TITLE']?></b>
+										</div>
 
-										<?if(!empty($store['DESCRIPTION'])):?>
-											<div class="bx_ild_s_desc">
-												<?=$store['DESCRIPTION']?>
+										<?if(!empty($store['ADDRESS'])):?>
+											<div class="bx_old_s_row">
+												<b><?=GetMessage('SPOD_STORE_ADDRESS')?></b>: <?=htmlspecialcharsbx($store['ADDRESS'])?>
 											</div>
 										<?endif?>
 
+										<?if(!empty($store['SCHEDULE'])):?>
+											<div class="bx_old_s_row">
+												<b><?=GetMessage('SPOD_STORE_WORKTIME')?></b>: <?=htmlspecialcharsbx($store['SCHEDULE'])?>
+											</div>
+										<?endif?>
+
+										<?if(!empty($store['PHONE'])):?>
+											<div class="bx_old_s_row">
+												<b><?=GetMessage('SPOD_STORE_PHONE')?></b>: <?=htmlspecialcharsbx($store['PHONE'])?>
+											</div>
+										<?endif?>
+
+										<?if(!empty($store['EMAIL'])):?>
+											<div class="bx_old_s_row">
+												<b><?=GetMessage('SPOD_STORE_EMAIL')?></b>: <a href="mailto:<?=htmlspecialcharsbx($store['EMAIL'])?>"><?=htmlspecialcharsbx($store['EMAIL'])?></a>
+											</div>
+										<?endif?>
 									</div>
-									
-									<?if(!empty($store['ADDRESS'])):?>
-										<div class="bx_old_s_row">
-											<b><?=GetMessage('SPOD_STORE_ADDRESS')?></b>: <?=$store['ADDRESS']?>
-										</div>
-									<?endif?>
 
-									<?if(!empty($store['SCHEDULE'])):?>
-										<div class="bx_old_s_row">
-											<b><?=GetMessage('SPOD_STORE_WORKTIME')?></b>: <?=$store['SCHEDULE']?>
-										</div>
-									<?endif?>
-
-									<?if(!empty($store['PHONE'])):?>
-										<div class="bx_old_s_row">
-											<b><?=GetMessage('SPOD_STORE_PHONE')?></b>: <?=$store['PHONE']?>
-										</div>
-									<?endif?>
-
-									<?if(!empty($store['EMAIL'])):?>
-										<div class="bx_old_s_row">
-											<b><?=GetMessage('SPOD_STORE_EMAIL')?></b>: <a href="mailto:<?=$store['EMAIL']?>"><?=$store['EMAIL']?></a>
-										</div>
-									<?endif?>
-								</div>
-
+								<?endif?>
+							<?else:?>
+								<?=GetMessage("SPOD_NONE")?>
 							<?endif?>
-
-						<?else:?>
-							<?=GetMessage("SPOD_NONE")?>
-						<?endif?>
-					</td>
-				</tr>
-
-				<?if($arResult["TRACKING_NUMBER"]):?>
-
-					<tr>
-						<td><?=GetMessage('SPOD_ORDER_TRACKING_NUMBER')?>:</td>
-						<td><?=$arResult["TRACKING_NUMBER"]?></td>
+						</td>
 					</tr>
 
+					<?if($shipment["TRACKING_NUMBER"]):?>
+						<tr>
+							<td><?=GetMessage('SPOD_ORDER_TRACKING_NUMBER')?>:</td>
+							<td><?=htmlspecialcharsbx($shipment["TRACKING_NUMBER"])?></td>
+						</tr>
+					<?endif?>
 					<tr><td><br></td><td></td></tr>
-
-				<?endif?>
+					<?
+				}
+				?>
 			<?endif?>
 			</tbody>
 		</table>
@@ -328,9 +366,8 @@
 							<?
 							
 						else:
-						
-							?><?=$prod[(strpos($headerId, 'PROPERTY_')===0 ? $headerId."_VALUE" : $headerId)]?><?
-						
+							$headerId = strtoupper($headerId);
+							echo $prod[(strpos($headerId, 'PROPERTY_')===0 ? $headerId."_VALUE" : $headerId)];
 						endif;
 						
 						?></td><?

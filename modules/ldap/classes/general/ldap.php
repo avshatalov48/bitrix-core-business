@@ -40,12 +40,16 @@ class CLDAP
 
 		if($this->conn = @ldap_connect($this->arFields["SERVER"], $this->arFields['PORT']))
 		{
+			$ldapOptTimelimit = isset($this->arFields["LDAP_OPT_TIMELIMIT"]) ? (int)$this->arFields["LDAP_OPT_TIMELIMIT"] : 100;
+			$ldapOptTimeout = isset($this->arFields["LDAP_OPT_TIMEOUT"]) ? (int)$this->arFields["LDAP_OPT_TIMEOUT"] : 5;
+			$ldapOptNetworkTimeout = isset($this->arFields["LDAP_OPT_NETWORK_TIMEOUT"]) ? (int)$this->arFields["LDAP_OPT_NETWORK_TIMEOUT"] : 5;
+
 			@ldap_set_option($this->conn, LDAP_OPT_PROTOCOL_VERSION, 3);
 			@ldap_set_option($this->conn, LDAP_OPT_REFERRALS, 0);
 			@ldap_set_option($this->conn, LDAP_OPT_SIZELIMIT, COption::GetOptionInt("ldap", "group_limit", 0));
-			@ldap_set_option($this->conn, LDAP_OPT_TIMELIMIT, 100);
-			@ldap_set_option($this->conn, LDAP_OPT_TIMEOUT, 5);
-			@ldap_set_option($this->conn, LDAP_OPT_NETWORK_TIMEOUT, 5);
+			@ldap_set_option($this->conn, LDAP_OPT_TIMELIMIT, $ldapOptTimelimit);
+			@ldap_set_option($this->conn, LDAP_OPT_TIMEOUT, $ldapOptTimeout);
+			@ldap_set_option($this->conn, LDAP_OPT_NETWORK_TIMEOUT, $ldapOptNetworkTimeout);
 
 			$login = isset($this->arFields["~ADMIN_LOGIN"]) ? $this->arFields["~ADMIN_LOGIN"] : $this->arFields["ADMIN_LOGIN"];
 			$pass = isset($this->arFields["~ADMIN_PASSWORD"]) ? $this->arFields["~ADMIN_PASSWORD"] : $this->arFields["ADMIN_PASSWORD"];
@@ -625,7 +629,9 @@ class CLDAP
 				$arFields['UF_DEPARTMENT'] = $arDepartment;
 			}
 			else
+			{
 				$arFields['UF_DEPARTMENT'] = array();
+			}
 
 			// at this point $arFields['UF_DEPARTMENT'] should be set to some value, even an empty array is ok
 		}
@@ -737,25 +743,35 @@ class CLDAP
 			$user = isset($matches[1]) ? str_replace('\\', '',$matches[1]) : "";
 			$userArr = $this->GetUserArray($user);
 
-			if (count($userArr)>0)
+			if (is_array($userArr) && count($userArr) > 0)
 			{
-				// contents of userArr are already in local encoding, no need for conversion here
-				$mgrDepartment = $userArr[0][$this->arFields['USER_DEPARTMENT_ATTR']];
-				if ($mgrDepartment && trim($mgrDepartment)!='')
+				foreach($userArr as $possibleManager)
 				{
-					// if manager's department name is set - then get it's id
-					$mgrManagerDN = $userArr[0][$this->arFields['USER_MANAGER_ATTR']];
-					$mgrUserName = $userArr[0][$this->arFields['USER_ID_ATTR']];
-					$arManagerDep = $this->GetDepartmentIdForADUser($mgrDepartment, $mgrManagerDN, $mgrUserName, $cache, $iblockId, $names);
-					// fill in cache
-					if ($cache && $arManagerDep)
-						$cache[$mgrUserName] = $arManagerDep;
+					if(!isset($possibleManager['dn']) || $managerDN != $possibleManager['dn'])
+					{
+						continue;
+					}
+
+					// contents of userArr are already in local encoding, no need for conversion here
+					$mgrDepartment = $possibleManager[$this->arFields['USER_DEPARTMENT_ATTR']];
+					if ($mgrDepartment && trim($mgrDepartment)!='')
+					{
+						// if manager's department name is set - then get it's id
+						$mgrManagerDN = $possibleManager[$this->arFields['USER_MANAGER_ATTR']];
+						$mgrUserName = $possibleManager[$this->arFields['USER_ID_ATTR']];
+						$arManagerDep = $this->GetDepartmentIdForADUser($mgrDepartment, $mgrManagerDN, $mgrUserName, $cache, $iblockId, $names);
+						// fill in cache
+						if ($cache && $arManagerDep)
+							$cache[$mgrUserName] = $arManagerDep;
+					}
 				}
 			}
 		}
 
 		// prepare result and create department (if needed)
-		$arResult = array('IS_HEAD'=>true); // by default, thinking of user as a head of the department
+		$arResult = array(
+			'IS_HEAD' => ($this->arFields['SET_DEPARTMENT_HEAD'] == 'Y')
+		);
 
 		if ($arManagerDep)
 		{
@@ -898,10 +914,13 @@ class CLDAP
 	function GetUserArray($cn)
 	{
 		$user_filter = $this->arFields['USER_FILTER'];
-		if(strlen(trim($user_filter))>0 && substr(trim($user_filter), 0, 1)!='(')
-			$user_filter = '('.trim($user_filter).')';
-		$query = '(&'.$user_filter.'('.$cn.'))';
 
+		if(strlen(trim($user_filter)) > 0 && substr(trim($user_filter), 0, 1) != '(')
+		{
+			$user_filter = '('.trim($user_filter).')';
+		}
+
+		$query = '(&'.$user_filter.'('.$cn.'))';
 		return $this->QueryArray($query);
 	}
 
@@ -926,7 +945,7 @@ class CLDAP
 		return $arResult;
 	}
 
-	function NTLMAuth()
+	static function NTLMAuth()
 	{
 		global $USER;
 
@@ -1093,6 +1112,7 @@ class CLDAP
 		{
 			$ldapUserID = 0;
 
+			/*
 			if (isset($_REQUEST['ldap_user_id']) && strlen($_REQUEST['ldap_user_id']) == 32)
 			{
 				$dbUser = CUser::GetList(
@@ -1107,6 +1127,7 @@ class CLDAP
 						$ldapUserID = $arUser['ID'];
 				}
 			}
+			*/
 
 			$bitrixUserId = 0;
 			$res = CUser::GetList(

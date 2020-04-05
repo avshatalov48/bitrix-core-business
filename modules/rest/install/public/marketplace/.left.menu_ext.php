@@ -17,6 +17,14 @@ if(SITE_TEMPLATE_ID == 'bitrix24' || \Bitrix\Main\ModuleManager::isModuleInstall
 		Array("menu_item_id" => "menu_marketplace"),
 		""
 	);
+
+	$arMenu[] = Array(
+		GetMessage("MENU_MARKETPLACE_INSTALLED"),
+		SITE_DIR."marketplace/installed/",
+		Array(),
+		Array("menu_item_id" => "menu_marketplace_installed"),
+		""
+	);
 }
 
 if(CModule::IncludeModule("rest"))

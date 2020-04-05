@@ -1,4 +1,5 @@
 <?
+$MESS["SUP_SU_UPD_HINT_CHECK_VERS"] = "Update channel: #NAME#";
 $MESS["SUP_MYSQL_LM1010"] = "As of June 30, 2019 only limited support will be provided for our products running on MySql MariaDB versions below 10.0.5. You are currently using MySql MariaDB #VERS#. Please update your MySql installation or contact your hosting service provider for assistance.";
 $MESS["SUP_MYSQL_L560"] = "As of June 30, 2019 only limited support will be provided for our products running on MySql versions below 5.6. MySql 5.7 or higher is recommended. You are currently using MySql #VERS#. Please update your MySql installation or contact your hosting service provider for assistance.";
 $MESS["SUP_TITLE_BASE"] = "SiteUpdate";

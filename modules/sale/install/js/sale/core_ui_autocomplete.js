@@ -94,7 +94,8 @@
 				allowHideErrors: 		false
 			},
 			ctrls: { // links to controls
-				displayedItems:			{}
+				displayedItems: {},
+				popup: null
 			},
 			sys: {
 				code:					'autocomplete'
@@ -102,7 +103,7 @@
 		});
 
 		this.handleInitStack(nf, BX.ui.autoComplete, opts);
-	}
+	};
 	BX.extend(BX.ui.autoComplete, BX.ui.widget);
 
 	// the following functions can be overrided with inheritance
@@ -248,6 +249,13 @@
 
 				if(so.paneHConstraint > 0 && so.paneHConstraintType != '')
 					BX.style(sc.pane, so.paneHConstraintType, so.paneHConstraint+'px');
+			}
+
+			if (so.usePopup)
+			{
+				BX.style(sc.pane, 'position', 'inherit');
+				BX.style(sc.pane, 'border', 'none');
+				BX.style(sc.pane, 'box-shadow', 'none');
 			}
 
 			// insert variants
@@ -900,6 +908,11 @@
 
 					//}catch(e){console.dir(e);}
 
+					if (sc.popup)
+					{
+						sc.popup.adjustPosition();
+					}
+
 				},
 				onfailure: function(e){
 
@@ -913,10 +926,14 @@
 					onComplete.call(ctx);
 					if(BX.type.isFunction(onError))
 						onError.call(ctx);
+
+					if (sc.popup)
+					{
+						sc.popup.adjustPosition();
+					}
 				}
 
 			});
-
 		},
 
 		getNavParams: function(){
@@ -1162,13 +1179,36 @@
 		},
 
 		whenDropdownToggle: function(way, upward, inputHeight, flip){
-
-			if(way){
+			if(way)
+			{
 				if(flip)
+				{
 					this.whenDecidePaneOrient(upward, inputHeight, flip);
+				}
+				if (this.opts.usePopup)
+				{
+					this.ctrls.popup = BX.PopupWindowManager.create(
+						'popup-location-search-list',
+						this.ctrls.scope.parentNode,
+						{
+							className: 'bx-sls',
+							content: this.ctrls.pane,
+							bindOptions: { forceBindPosition: true },
+							zIndex: 1020
+						}
+					);
+					this.ctrls.popup.show();
+				}
 				BX.show(this.ctrls.pane);
-			}else
+			}
+			else
+			{
+				if (this.opts.usePopup && this.ctrls.popup)
+				{
+					this.ctrls.popup.destroy();
+				}
 				BX.hide(this.ctrls.pane);
+			}
 
 			this.fireEvent('after-popup-toggled', [way]);
 		},

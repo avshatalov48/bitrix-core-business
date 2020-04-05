@@ -1,5 +1,6 @@
 <?
 use Bitrix\Bizproc\SchedulerEventTable;
+use Bitrix\Main\Loader;
 
 include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/classes/general/runtimeservice.php");
 
@@ -245,6 +246,22 @@ class CBPSchedulerService
 
 	public static function sendEvents($eventModule, $eventName, $entityKey)
 	{
+		if ($eventModule === 'bizproc' && $eventName === 'OnWorkflowComplete' && $entityKey === null)
+		{
+			//delete invalid subscription
+			UnRegisterModuleDependences(
+				$eventModule,
+				$eventName,
+				'bizproc',
+				'CBPSchedulerService',
+				'sendEvents',
+				'',
+				array($eventModule, $eventName, $entityKey)
+			);
+
+			return false;
+		}
+
 		$eventParameters = array(
 			'SchedulerService' => 'OnEvent',  // compatibility
 			'eventModule' => $eventModule,
@@ -288,7 +305,7 @@ class CBPSchedulerService
 		$iterator = SchedulerEventTable::getById($eventId);
 		$event = $iterator->fetch();
 
-		if ($event)
+		if ($event && Loader::includeModule($event['EVENT_MODULE']))
 		{
 			self::sendEventToWorkflow($event, $counter);
 		}

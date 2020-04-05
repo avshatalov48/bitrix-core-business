@@ -159,7 +159,7 @@ class SenderSegmentListComponent extends CBitrixComponent
 		}
 		if (isset($requestFilter['SYSTEM']) && $requestFilter['SYSTEM'])
 		{
-			$filter['=SYSTEM'] = true;
+			$filter['=IS_SYSTEM'] = true;
 		}
 
 		if (!isset($requestFilter['HIDDEN']) || !$requestFilter['HIDDEN'])

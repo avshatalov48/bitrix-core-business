@@ -64,7 +64,7 @@ div.bx-html-editor-absolute{
 }
 
 .bxhtmled-top-bar-btn i {
-	background: url(/bitrix/images/fileman/htmleditor/html-editor-sprite.png?v=1) no-repeat 100px 100px;
+	background: url(/bitrix/images/fileman/htmleditor/html-editor-sprite.png?v=2) no-repeat 100px 100px;
 	display: block;
 	height: 20px;
 	margin: 2px 0 0 2px;
@@ -365,6 +365,7 @@ span.bxhtmled-top-bar-dd-active:before {
 .bxhtmled-button-sup i {background-position: -3px -2374px;}
 .bxhtmled-button-sub i {background-position: -3px -2413px;}
 .bxhtmled-button-bbcode i {background-position: -3px -2574px;}
+.bxhtmled-button-htmlcode i {background-position: -3px -2662px;}
 
 .bxhtmled-button-smile i {background-position: center -2499px; width: 21px;}
 .bxhtmled-button-quote i {background-position: center -2541px;}
@@ -742,7 +743,7 @@ span.bxhtmled-top-bar-dd-active:before {
 .bxhtmled-textarea{
 	width: 100% !important;
 	height: 100% !important;
-	min-height: none!important;
+	min-height: unset!important;
 	max-height: none!important;
 	background-color: #fefefe !important;
 	color: #000000 !important;

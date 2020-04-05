@@ -26,7 +26,7 @@ class ByMaxSize extends Restrictions\Base
 	}
 
 	/**
-	 * @param $dimensions
+	 * @param array $dimensionsList
 	 * @param array $restrictionParams
 	 * @param int $deliveryId
 	 * @return bool

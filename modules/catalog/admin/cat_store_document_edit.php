@@ -10,6 +10,10 @@ use Bitrix\Currency\CurrencyTable;
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/prolog.php');
 
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+$listUrl = $selfFolderUrl."cat_store_document_list.php?lang=".LANGUAGE_ID;
+$listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
+
 if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_store')))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 Loader::includeModule('catalog');
@@ -74,6 +78,7 @@ unset($arStore, $rsStores);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_REQUEST["Update"]) > 0 && !$bReadOnly && check_bitrix_sessid())
 {
+	$adminSidePanelHelper->decodeUriComponent();
 	if (!$_REQUEST["cancellation"] && ($_REQUEST["save_document"] || $_REQUEST["save_and_conduct"]))
 	{
 		$contractorId = (isset($_REQUEST['CONTRACTOR_ID']) ? (int)$_REQUEST['CONTRACTOR_ID'] : 0);
@@ -155,7 +160,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_REQUEST["Update"]) > 0 && !
 		}
 
 		if ($_REQUEST["save_document"] && $docId)
-			LocalRedirect("/bitrix/admin/cat_store_document_edit.php?lang=".LANGUAGE_ID."&ID=".$docId.GetFilterParams("filter_", false));
+		{
+			$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $docId));
+			$saveDocumentUrl = $selfFolderUrl."cat_store_document_edit.php?lang=".LANGUAGE_ID."&ID=".$docId;
+			$saveDocumentUrl = $adminSidePanelHelper->editUrlToPublicPage($saveDocumentUrl);
+			$adminSidePanelHelper->localRedirect($listUrl);
+			LocalRedirect($saveDocumentUrl);
+		}
 	}
 
 	if ($_REQUEST["save_and_conduct"] || $_REQUEST["cancellation"])
@@ -180,16 +191,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_REQUEST["Update"]) > 0 && !
 				$APPLICATION->SetTitle(str_replace("#ID#", $ID, GetMessage("CAT_DOC_TITLE_VIEW")).". ".$TAB_TITLE.".");
 			else
 				$APPLICATION->SetTitle(str_replace("#ID#", $ID, GetMessage("CAT_DOC_TITLE_EDIT")).". ".$TAB_TITLE.".");
-			require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 			$strError = $ex->GetString();
 			if(!empty($result) && is_array($result))
 				$strError .= CCatalogStoreControlUtil::showErrorProduct($result);
+			$adminSidePanelHelper->sendJsonErrorResponse($strError);
+			require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 			CAdminMessage::ShowMessage($strError);
 			$bVarsFromForm = true;
 		}
 		else
 		{
-			LocalRedirect("/bitrix/admin/cat_store_document_list.php?lang=".LANGUAGE_ID.GetFilterParams("filter_", false));
+			$adminSidePanelHelper->sendSuccessResponse("base");
+			$adminSidePanelHelper->localRedirect($listUrl);
+			LocalRedirect($listUrl);
 		}
 	}
 }
@@ -222,12 +236,17 @@ if($ID > 0)
 if (!isset(CCatalogDocs::$types[$docType]))
 {
 	$docType = '';
-	LocalRedirect("/bitrix/admin/cat_store_document_list.php?lang=".LANGUAGE_ID.GetFilterParams("filter_", false));
+	$adminSidePanelHelper->localRedirect($listUrl);
+	LocalRedirect($listUrl);
 }
 
 $requiredFields = CCatalogStoreControlUtil::getFields($docType);
 if(!$requiredFields || $_REQUEST["dontsave"])
-	LocalRedirect("/bitrix/admin/cat_store_document_list.php?lang=".LANGUAGE_ID.GetFilterParams("filter_", false));
+{
+	$adminSidePanelHelper->sendSuccessResponse("close");
+	$adminSidePanelHelper->localRedirect($listUrl);
+	LocalRedirect($listUrl);
+}
 
 $sTableID = "b_catalog_store_docs_".$docType;
 $oSort = new CAdminSorting($sTableID, "ID", "ASC");
@@ -399,6 +418,12 @@ if($ID > 0 || isset($_REQUEST["AJAX_MODE"]))
 		$arResult["ELEMENT"][] = $arElement;
 	}
 }
+
+if (!$USER->CanDoOperation('catalog_store'))
+{
+	$isDocumentConduct = false;
+}
+
 $aContext = array();
 if(!$bReadOnly)
 {
@@ -547,7 +572,13 @@ if(is_array($arResult["ELEMENT"]))
 		}
 		$arRows[$arRes['ID']] = $row =& $lAdmin->AddRow($arRes['ID']);
 		$row->AddViewField("IMAGE", CFile::ShowImage($value['DETAIL_PICTURE'], 80, 80, "border=0", "", true));
-		$row->AddViewField("TITLE", '<a href ="'.$value['EDIT_PAGE_URL'].'"> '.$value['NAME'].'</a><input value="'.$value['ELEMENT_ID'].'" type="hidden" name="PRODUCT['.$arRes['ID'].'][PRODUCT_ID]" id="PRODUCT_ID_'.$arRes['ID'].'">');
+		if ($value['EDIT_PAGE_URL'])
+		{
+			$editPageUrl = $value['EDIT_PAGE_URL'];
+			$editPageUrl = $adminSidePanelHelper->editUrlToPublicPage($editPageUrl);
+			$value['EDIT_PAGE_URL'] = $editPageUrl;
+		}
+		$row->AddViewField("TITLE", '<a target="_top" href ="'.$value['EDIT_PAGE_URL'].'"> '.$value['NAME'].'</a><input value="'.$value['ELEMENT_ID'].'" type="hidden" name="PRODUCT['.$arRes['ID'].'][PRODUCT_ID]" id="PRODUCT_ID_'.$arRes['ID'].'">');
 		$row->AddViewField('XML_ID', $value['XML_ID']);
 		$readOnly = ($isMultiply && !$bReadOnly) ? ' readonly' : '';
 		if(isset($value['BARCODE']) && $isMultiply)
@@ -672,7 +703,7 @@ $aMenu = array(
 	array(
 		"TEXT" => GetMessage("CAT_DOC_LIST"),
 		"ICON" => "btn_list",
-		"LINK" => "/bitrix/admin/cat_store_document_list.php?lang=".LANGUAGE_ID."&".GetFilterParams("filter_", false)
+		"LINK" => $listUrl
 	)
 );
 
@@ -701,8 +732,10 @@ while ($currency = $currencyIterator->fetch())
 unset($currencyFormat, $currency, $currencyIterator);
 
 CAdminMessage::ShowMessage($errorMessage);
+$actionUrl = $APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&DOCUMENT_TYPE=".htmlspecialcharsbx($docType);
+$actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
 ?>
-<form enctype="multipart/form-data" method="POST" action="<?echo $APPLICATION->GetCurPage()?>?lang=<?=LANGUAGE_ID?>&DOCUMENT_TYPE=<?=htmlspecialcharsbx($docType)?>" id="form_b_catalog_store_docs" name="form_b_catalog_store_docs">
+<form enctype="multipart/form-data" method="POST" action="<?=$actionUrl?>" id="form_b_catalog_store_docs" name="form_b_catalog_store_docs">
 	<?echo GetFilterHiddens("filter_");?>
 	<input type="hidden" name="Update" value="Y">
 	<input type="hidden" name="lang" value="<?echo LANGUAGE_ID; ?>">
@@ -764,7 +797,11 @@ CAdminMessage::ShowMessage($errorMessage);
 									?>
 									</select>
 								<?else:?>
-									<a href="/bitrix/admin/cat_contractor_edit.php?lang=<? echo urlencode(LANGUAGE_ID); ?>"><?echo GetMessage("CAT_DOC_CONTRACTOR_ADD")?></a>
+									<?
+										$contractorEditUrl = $selfFolderUrl."cat_contractor_edit.php?lang=".LANGUAGE_ID;
+										$contractorEditUrl = $adminSidePanelHelper->editUrlToPublicPage($contractorEditUrl);
+									?>
+									<a target="_top" href="<?=$contractorEditUrl?>"><?=GetMessage("CAT_DOC_CONTRACTOR_ADD")?></a>
 								<?endif;?>
 							</td>
 						</tr>
@@ -800,28 +837,54 @@ $tabControl->Buttons(
 		"btnSave" => false,
 		"btnApply" => false,
 		"btnCancel" => false,
-		"back_url" => "/bitrix/admin/cat_store_document_list.php?lang=".LANGUAGE_ID.GetFilterParams("filter_", false),
+		"back_url" => $listUrl,
 	)
 );
-if(!$bReadOnly && !$isDocumentConduct)
+
+if ($adminSidePanelHelper->isSidePanelFrame())
 {
+	if(!$bReadOnly && !$isDocumentConduct)
+	{
+		?>
+		<span style="display:inline-block; width:20px; height: 22px;"></span>
+		<input type="button" class="adm-btn-save" name="save_and_conduct" value="<?echo GetMessage("CAT_DOC_ADD_CONDUCT") ?>">
+		<input type="button" class="adm-btn" name="save_document" value="<?echo GetMessage("CAT_DOC_SAVE") ?>">
+		<?
+	}
+	elseif($isDocumentConduct)
+	{
+		?>
+		<span class="hor-spacer"></span>
+		<input type="button" class="adm-btn" name="cancellation" value="<?echo GetMessage("CAT_DOC_CANCELLATION") ?>">
+		<?
+	}
 	?>
-	<span style="display:inline-block; width:20px; height: 22px;"></span>
-	<input type="submit" class="adm-btn-save" name="save_and_conduct" value="<?echo GetMessage("CAT_DOC_ADD_CONDUCT") ?>">
-	<input type="submit" class="adm-btn" name="save_document" value="<?echo GetMessage("CAT_DOC_SAVE") ?>">
-<?
-}
-elseif($isDocumentConduct)
-{
-	?>
-	<span class="hor-spacer"></span>
-	<input type="hidden" name="cancellation" id="cancellation" value = "0">
-	<input type="button" class="adm-btn" onclick="if(confirm('<?=GetMessage("CAT_DOC_CANCELLATION_CONFIRM")?>')) {BX('cancellation').value = 1; BX('form_b_catalog_store_docs').submit();}" value="<?echo GetMessage("CAT_DOC_CANCELLATION") ?>">
-<?
-}
-?>
-<input type="submit" class="adm-btn" name="dontsave" id="dontsave" value="<?echo GetMessage("CAT_DOC_CANCEL") ?>">
+	<input type="button" class="adm-btn" name="dontsave" value="<?echo GetMessage("CAT_DOC_CANCEL") ?>">
 	<?
+}
+else
+{
+	if(!$bReadOnly && !$isDocumentConduct)
+	{
+		?>
+		<span style="display:inline-block; width:20px; height: 22px;"></span>
+		<input type="submit" class="adm-btn-save" name="save_and_conduct" value="<?echo GetMessage("CAT_DOC_ADD_CONDUCT") ?>">
+		<input type="submit" class="adm-btn" name="save_document" value="<?echo GetMessage("CAT_DOC_SAVE") ?>">
+		<?
+	}
+	elseif($isDocumentConduct)
+	{
+		?>
+		<span class="hor-spacer"></span>
+		<input type="hidden" name="cancellation" id="cancellation" value = "0">
+		<input type="button" class="adm-btn" onclick="if(confirm('<?=GetMessage("CAT_DOC_CANCELLATION_CONFIRM")?>')) {BX('cancellation').value = 1; BX('form_b_catalog_store_docs').submit();}" value="<?echo GetMessage("CAT_DOC_CANCELLATION") ?>">
+		<?
+	}
+	?>
+	<input type="submit" class="adm-btn" name="dontsave" id="dontsave" value="<?echo GetMessage("CAT_DOC_CANCEL") ?>">
+	<?
+}
+
 $tabControl->End();
 ?></form>
 <script type="text/javascript">
@@ -932,7 +995,7 @@ if (typeof showTotalSum === 'undefined')
 			store_id = params.store_id || '0';
 
 		var popup = new BX.CDialog({
-			content_url: '/bitrix/admin/cat_product_search_dialog.php?lang='+lang+'&LID='+site_id+'&caller=' + caller + '&func_name='+callback+'&STORE_FROM_ID='+store_id,
+			content_url: '<?=$selfFolderUrl?>cat_product_search_dialog.php?lang='+lang+'&LID='+site_id+'&caller=' + caller + '&func_name='+callback+'&STORE_FROM_ID='+store_id,
 			height: Math.max(500, window.innerHeight-400),
 			width: Math.max(800, window.innerWidth-400),
 			draggable: true,
@@ -1009,7 +1072,7 @@ if (typeof showTotalSum === 'undefined')
 		var dateURL = '<?=bitrix_sessid_get()?>&BARCODE_AJAX=Y&BARCODE='+barcode+'&lang=<? echo LANGUAGE_ID; ?>';
 
 		BX.showWait();
-		BX.ajax.post('/bitrix/admin/cat_store_product_search.php', dateURL, fSearchProductResult);
+		BX.ajax.post('<?=$selfFolderUrl?>cat_store_product_search.php', dateURL, fSearchProductResult);
 	}
 
 	function fSearchProductResult(result)

@@ -94,6 +94,10 @@ class RestActivityTable extends Entity\DataManager
 			'USE_SUBSCRIPTION' => array(
 				'data_type' => 'string'
 			),
+			'USE_PLACEMENT' => array(
+				'data_type' => 'boolean',
+				'values' => ['Y', 'N']
+			),
 			'NAME' => array(
 				'data_type' => 'text',
 				'required' => true,

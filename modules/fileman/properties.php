@@ -94,7 +94,7 @@ class CIBlockPropertyMapGoogle extends CIBlockPropertyMapInterface
 	public static function GetSettingsHTML($arProperty, $strHTMLControlName, &$arPropertyFields)
 	{
 		$arPropertyFields = array(
-			'HIDE' => array('ROW_COUNT', 'COL_COUNT', 'SMART_FILTER', 'FILTRABLE', 'SEARCHABLE'),
+			'HIDE' => array('ROW_COUNT', 'COL_COUNT', 'SMART_FILTER', 'FILTRABLE', 'SEARCHABLE', 'WITH_DESCRIPTION'),
 			'SET' => array('SMART_FILTER' => 'N', 'FILTRABLE' => 'N', 'SEARCHABLE' => 'N')
 		);
 
@@ -757,7 +757,7 @@ function saveYandexKey(domain, input)
 	public static function GetSettingsHTML($arProperty, $strHTMLControlName, &$arPropertyFields)
 	{
 		$arPropertyFields = array(
-			'HIDE' => array('ROW_COUNT', 'COL_COUNT', 'SMART_FILTER', 'FILTRABLE', 'SEARCHABLE'),
+			'HIDE' => array('ROW_COUNT', 'COL_COUNT', 'SMART_FILTER', 'FILTRABLE', 'SEARCHABLE', 'WITH_DESCRIPTION'),
 			'SET' => array('SMART_FILTER' => 'N', 'FILTRABLE' => 'N', 'SEARCHABLE' => 'N')
 		);
 		
@@ -2198,7 +2198,7 @@ table.bx-video-prop-tbl img.spacer{display:block;float:left;height:1px;margin-to
 				<td class="bx-pr-title"><?= GetMessage('IBLOCK_PROP_VIDEO_FILE')?>:</td>
 				<td>
 					<div id="bx_video_path_div_<?= $id?>" class="bx-path-div">
-					<input type="hidden" value="<?= $path?>" name= "<?= $name?>[CUR_PATH]" />
+					<input type="hidden" value="<?= htmlspecialcharsEx($path)?>" name= "<?= $name?>[CUR_PATH]" />
 					<input id="bx_video_b_new_file_<?= $id?>" type="hidden" value="N" name= "<?= $name?>[B_NEW_FILE]" />
 					<input class="bx-path" readonly="readonly" value="<?= htmlspecialcharsex($path)?>" size="30" />
 					<br />
@@ -2470,16 +2470,26 @@ function ChangeOrLeaveFile<?= $id?>(bChange)
 
 	public static function BaseCheckFields($val)
 	{
-		$arErrors = array();
-
 		if (!is_array($val))
-			$val = array();
+			return [];
 
-		// Check uploaded file
-		if ($val["B_NEW_FILE"] != "N" && isset($val["FILE"])) //
+		$errors = [];
+
+		if ($val["B_NEW_FILE"] != "N" && isset($val["FILE"]) && $val['DEL_CUR_FILE'] != 'Y')
 		{
-			if($val["FILE"]["error"] == 1 || $val["FILE"]["error"] == 2)
-				$arErrors[] = GetMessage("IBLOCK_PROP_VIDEO_SIZE_ERROR", Array('#FILE_NAME#' => $pathto))."\n";
+			if(!empty($val["FILE"]["error"])) // !UPLOAD_ERR_OK
+			{
+				$fileName = isset($val["FILE"]["name"]) ? $val["FILE"]["name"] : '';
+
+				if($val["FILE"]["error"] === UPLOAD_ERR_INI_SIZE || $val["FILE"]["error"] === UPLOAD_ERR_FORM_SIZE)
+				{
+					$errors[] = GetMessage("IBLOCK_PROP_VIDEO_SIZE_ERROR", Array('#FILE_NAME#' => $fileName));
+				}
+				elseif($val["FILE"]["error"] !== UPLOAD_ERR_NO_FILE)
+				{
+					$errors[] = GetMessage("IBLOCK_PROP_VIDEO_UPLOAD_ERROR");
+				}
+			}
 
 			if(strlen($val["FILE"]["tmp_name"]) > 0)
 			{
@@ -2488,18 +2498,27 @@ function ChangeOrLeaveFile<?= $id?>(bChange)
 				$ext = GetFileExtension($name);
 
 				if(strlen($ext) == 0 || HasScriptExtension($name) || substr($name, 0, 1) == ".")
-					$arErrors[] = GetMessage("IBLOCK_PROP_VIDEO_INCORRECT_EXT", array("#EXT#" => strtoupper($ext)));
+				{
+					$errors[] = GetMessage("IBLOCK_PROP_VIDEO_INCORRECT_EXT", array("#EXT#" => strtoupper($ext)));
+				}
 				elseif (!is_uploaded_file($val["FILE"]["tmp_name"]))
-					$arErrors[] = GetMessage("IBLOCK_PROP_VIDEO_UPLOAD_ERROR");
+				{
+					$errors[] = GetMessage("IBLOCK_PROP_VIDEO_UPLOAD_ERROR");
+				}
 				else
 				{
+
 					$quota = new CDiskQuota();
+
 					if (!$quota->checkDiskQuota(array("FILE_SIZE" => $val["FILE"]["size"])))
-						$arErrors[] = GetMessage("IBLOCK_PROP_VIDEO_QUOTE_ERROR")."\n";
+					{
+						$errors[] = GetMessage("IBLOCK_PROP_VIDEO_QUOTE_ERROR");
+					}
 				}
 			}
 		}
-		return $arErrors;
+
+		return $errors;
 	}
 
 	public static function BaseGetAdminListViewHTML($val)
@@ -2562,16 +2581,27 @@ function ChangeOrLeaveFile<?= $id?>(bChange)
 
 	public static function BaseOnSearchContent($val)
 	{
-		$str = "";
-		if (strlen($val['path']) > 0)
+		if(!is_array($val) && is_string($val))
 		{
-			if (strlen($val['title']) > 0)
+			$val = unserialize($val);
+		}
+
+		if(!is_array($val))
+		{
+			return '';
+		}
+
+		$str = '';
+
+		if (!empty($val['path']))
+		{
+			if (!empty($val['title']))
 				$str .= $val['title']." \n";
 
-			if (strlen($val['author']) > 0)
+			if (!empty($val['author']))
 				$str .= $val['author']." \n";
 
-			if (strlen($val['desc']) > 0)
+			if (!empty($val['desc']))
 				$str .= $val['desc']." \n";
 		}
 
@@ -2719,7 +2749,7 @@ class CIBlockPropertyVideo extends CVideoProperty
 
 	public static function ConvertToDB($arProperty, $value)
 	{
-		return CIBlockPropertyVideo::BaseConvertToDB($value["VALUE"]);
+		return ["VALUE" => CIBlockPropertyVideo::BaseConvertToDB($value["VALUE"])];
 	}
 
 	public static function CheckFields($arProperty, $value)
@@ -2850,7 +2880,17 @@ class CUserTypeVideo extends CVideoProperty
 
 	public static function CheckFields($arUserField, $value)
 	{
-		return CUserTypeVideo::BaseCheckFields($value);
+		$result =  CUserTypeVideo::BaseCheckFields($value);
+
+		if(!empty($result) && is_array($result))
+		{
+			foreach($result as $idx => $message)
+			{
+				$result[$idx] = ['text' => $message];
+			}
+		}
+
+		return $result;
 	}
 
 	public static function OnSearchIndex($arUserField)

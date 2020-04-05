@@ -223,3 +223,14 @@ $MESS["MAIN_MAIL_CONFIRM_EVENT_TYPE_DESC"] = "
 #EMAIL_TO# - Email-адрес для подтверждения
 #MESSAGE_SUBJECT# - Тема сообщения
 #CONFIRM_CODE# - Код подтверждения";
+$MESS["main_install_sms_event_confirm_name"] = "Подтверждение номера телефона по СМС";
+$MESS["main_install_sms_event_confirm_descr"] = "#USER_PHONE# - номер телефона
+#CODE# - код подтверждения
+";
+$MESS["main_install_sms_event_restore_name"] = "Восстановление пароля через СМС";
+$MESS["main_install_sms_event_restore_descr"] = "#USER_PHONE# - номер телефона
+#CODE# - код для восстановления
+";
+$MESS["main_install_sms_template_confirm_mess"] = "Код подтверждения #CODE#";
+$MESS["main_install_sms_template_restore_mess"] = "Код для восстановления пароля #CODE#";
+?>

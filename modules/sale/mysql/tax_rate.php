@@ -25,7 +25,7 @@ class CSaleTaxRate extends CAllSaleTaxRate
 		return $ID;
 	}
 
-	function GetList($arOrder = array("APPLY_ORDER"=>"ASC"), $arFilter = array())
+	public static function GetList($arOrder = array("APPLY_ORDER"=>"ASC"), $arFilter = array())
 	{
 		global $DB;
 		$arSqlSearch = Array();

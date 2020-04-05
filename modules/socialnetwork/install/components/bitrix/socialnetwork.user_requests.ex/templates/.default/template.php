@@ -1,5 +1,15 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?
+<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+/** @var CBitrixComponentTemplate $this */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CDatabase $DB */
+/** @global CUser $USER */
+/** @global CMain $APPLICATION */
+
+use Bitrix\Main\UI;
+
+UI\Extension::load("ui.tooltip");
+
 if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
@@ -10,7 +20,7 @@ elseif (strlen($arResult["FatalError"])>0)
 }
 else
 {
-	CUtil::InitJSCore(array("tooltip", "popup"));
+	CUtil::InitJSCore(array("popup"));
 	if(strlen($arResult["ErrorMessage"])>0)
 	{
 		?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br /><?
@@ -60,7 +70,6 @@ else
 			$ind = 0;
 			foreach ($arResult["RequestsIn"]["List"] as $arRequest)
 			{
-				$tooltip_id = randString(8);
 				?><tr id="<?=$arRequest["EVENT_TYPE"]."_".$arRequest["ID"]?>">
 					<td class="invite-list-checkbox">
 						<div class="invite-active-block">
@@ -84,18 +93,15 @@ else
 						<div class="invite-active-block">
 						<? if ($arRequest["EVENT_TYPE"] == "INVITE_USER"): ?>
 							<? if ($arRequest["SHOW_PROFILE_LINK"]): ?>
-								<a id="anchor_<?=$tooltip_id?>" href="<?=htmlspecialcharsback($arRequest["USER_PROFILE_URL"])?>" class="invite-user-link"><?=$arRequest["USER_NAME_FORMATTED"]?></a>
+								<a href="<?=htmlspecialcharsback($arRequest["USER_PROFILE_URL"])?>" class="invite-user-link" bx-tooltip-user-id="<?=$arRequest["USER_ID"]?>"><?=$arRequest["USER_NAME_FORMATTED"]?></a>
 							<? else: ?>
-								<span id="anchor_<?=$tooltip_id?>" class="invite-user-link"><?=$arRequest["USER_NAME_FORMATTED"]?></span>
+								<span class="invite-user-link" bx-tooltip-user-id="<?=$arRequest["USER_ID"]?>"><?=$arRequest["USER_NAME_FORMATTED"]?></span>
 							<? endif; ?>
 							</div>
-							<script type="text/javascript">
-								BX.tooltip(<?=$arRequest["USER_ID"]?>, "anchor_<?=$tooltip_id?>");
-							</script>
 						<? else: ?>
 							<a href="<?=htmlspecialcharsback($arRequest["GROUP_URL"])?>" class="invite-user-link"><?=$arRequest["GROUP_NAME"]?></a>
 						<? endif; ?>
-					</td>					
+					</td>
 					<td class="invite-list-message"><div class="invite-active-block"><?=htmlspecialcharsback($arRequest["MESSAGE"])?><br /><i><?=$arRequest["DATE_CREATE"]?></i></div></td>
 				</tr><?
 
@@ -147,8 +153,6 @@ else
 			$ind = 0;
 			foreach ($arResult["RequestsOut"]["List"] as $arRequest)
 			{
-				$tooltip_id = randString(8);
-
 				?><tr id="<?=$arRequest["EVENT_TYPE"]."_".$arRequest["ID"]?>">
 					<td class="invite-list-checkbox">
 						<div class="invite-active-block">
@@ -170,14 +174,11 @@ else
 						<div class="invite-active-block">
 						<? if ($arRequest["EVENT_TYPE"] == "INVITE_USER"): ?>
 							<? if ($arRequest["SHOW_PROFILE_LINK"]): ?>
-								<a id="anchor_<?=$tooltip_id?>" href="<?=htmlspecialcharsback($arRequest["USER_PROFILE_URL"])?>" class="invite-user-link"><?=$arRequest["USER_NAME_FORMATTED"]?></a>
+								<a href="<?=htmlspecialcharsback($arRequest["USER_PROFILE_URL"])?>" class="invite-user-link" bx-tooltip-user-id="<?=$arRequest["USER_ID"]?>"><?=$arRequest["USER_NAME_FORMATTED"]?></a>
 							<? else: ?>
-								<span id="anchor_<?=$tooltip_id?>" class="invite-user-link"><?=$arRequest["USER_NAME_FORMATTED"]?></span>
+								<span class="invite-user-link" bx-tooltip-user-id="<?=$arRequest["USER_ID"]?>"><?=$arRequest["USER_NAME_FORMATTED"]?></span>
 							<? endif; ?>
 							</div>
-							<script type="text/javascript">
-								BX.tooltip(<?=$arRequest["USER_ID"]?>, "anchor_<?=$tooltip_id?>");
-							</script>
 						<? else: ?>
 							<a href="<?=htmlspecialcharsback($arRequest["GROUP_URL"])?>" class="invite-user-link"><?=$arRequest["GROUP_NAME"]?></a>
 						<? endif; ?>

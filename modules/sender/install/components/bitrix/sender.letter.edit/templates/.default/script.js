@@ -26,6 +26,7 @@
 		this.prettyDateFormat = params.prettyDateFormat;
 		this.isFrame = params.isFrame || false;
 		this.isSaved = params.isSaved || false;
+		this.isOutside = params.isOutside || false;
 		this.mess = params.mess;
 		this.letterTile = params.letterTile || {};
 
@@ -66,7 +67,24 @@
 		{
 			top.BX.onCustomEvent(top, 'sender-letter-edit-change', [this.letterTile]);
 			BX.Sender.Page.slider.close();
+
+			if (this.isOutside)
+			{
+				BX.UI.Notification.Center.notify({
+					content: this.mess.outsideSaveSuccess,
+					autoHideDelay: 5000
+				});
+			}
 		}
+
+		if (this.isMSBrowser())
+		{
+			this.context.classList.add('bx-sender-letter-ms-ie');
+		}
+	};
+	Letter.prototype.isMSBrowser = function ()
+	{
+		return window.navigator.userAgent.match(/(Trident\/|MSIE|Edge\/)/) !== null;
 	};
 	Letter.prototype.getPatternTitle = function (name)
 	{
@@ -91,6 +109,17 @@
 		if (this.templateIdNode)
 		{
 			this.templateIdNode.value = template.code;
+		}
+
+		if (template.dispatch)
+		{
+			Helper.getNodes('dispatch', this.context).forEach(function (node) {
+				var code = node.getAttribute('data-code');
+				if (template.dispatch[code])
+				{
+					node.value = template.dispatch[code];
+				}
+			});
 		}
 
 		this.titleNode.value = this.getPatternTitle(template.name);

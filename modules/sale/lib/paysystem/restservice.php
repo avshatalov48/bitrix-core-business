@@ -12,9 +12,14 @@ use Bitrix\Sale\BusinessValue;
 use Bitrix\Sale\Internals;
 use Bitrix\Sale\Order;
 use Bitrix\Sale\Payment;
+use Bitrix\Sale\Registry;
 use Bitrix\Sale\Services\PaySystem\Restrictions;
+use Bitrix\Crm\Invoice;
 
-Loader::includeModule('rest');
+if (!Loader::includeModule('rest'))
+{
+	return;
+}
 
 Loc::loadMessages(__FILE__);
 
@@ -35,6 +40,7 @@ class RestService extends \IRestService
 	const ERROR_INVOICE_NOT_FOUND = 'ERROR_INVOICE_NOT_FOUND';
 	const ERROR_INTERNAL_INVOICE_NOT_FOUND = 'ERROR_INTERNAL_INVOICE_NOT_FOUND';
 	const ERROR_PROCESS_REQUEST_RESULT = 'ERROR_PROCESS_REQUEST_RESULT';
+	const ERROR_PAY_INVOICE_NOT_SUPPORTED = 'ERROR_INVOICE_NO_SUPPORTED';
 
 	/**
 	 * @return array
@@ -87,6 +93,23 @@ class RestService extends \IRestService
 			'HAVE_RESULT_RECEIVE' => 'Y'
 		);
 
+		if (IsModuleInstalled('crm'))
+		{
+			if (!isset($params['ENTITY_REGISTRY_TYPE']))
+			{
+				$fields['ENTITY_REGISTRY_TYPE'] = REGISTRY_TYPE_CRM_INVOICE;
+			}
+			else
+			{
+				$fields['ENTITY_REGISTRY_TYPE'] = $params['ENTITY_REGISTRY_TYPE'];
+			}
+		}
+
+		if (!isset($fields['ENTITY_REGISTRY_TYPE']))
+		{
+			$fields['ENTITY_REGISTRY_TYPE'] = Registry::REGISTRY_TYPE_ORDER;
+		}
+
 		$result = Manager::add($fields);
 		if ($result->isSuccess())
 		{
@@ -128,7 +151,7 @@ class RestService extends \IRestService
 			'filter' => array(
 				"SERVICE_ID" => $serviceId,
 				"SERVICE_TYPE" => Restrictions\Manager::SERVICE_TYPE_PAYMENT,
-				"=CLASS_NAME" => '\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType'
+				"=CLASS_NAME" => '\\'.Restrictions\PersonType::class
 			)
 		);
 
@@ -326,12 +349,22 @@ class RestService extends \IRestService
 	 * @throws AccessException
 	 * @throws \Bitrix\Main\ArgumentException
 	 */
-	public static function getPaySystemList()
+	public static function getPaySystemList(array $params=[])
 	{
 		static::checkPaySystemPermission();
 
+		$select = isset($params['select']) && is_array($params['select']) ? $params['select']:['*'];
+		$filter = isset($params['filter']) && is_array($params['filter']) ? static::prepareParams($params['filter']):[];
+		$order = isset($params['order']) && is_array($params['order']) ? static::prepareParams($params['order']):[];
+
 		$result = array();
-		$dbRes = Manager::getList();
+		$dbRes = Manager::getList(
+			[
+				'select'=>$select,
+				'filter'=>$filter,
+				'order'=>$order
+			]
+		);
 		while ($item = $dbRes->fetch())
 		{
 			$result[] = $item;
@@ -367,10 +400,10 @@ class RestService extends \IRestService
 			throw new RestException('Pay system with handler '.$handlerCode.' not found!', self::ERROR_PAY_SYSTEM_NOT_FOUND);
 		}
 
-		$order = Order::load($invoiceId);
-		if ($order)
+		$invoice = Invoice\Invoice::load($invoiceId);
+		if ($invoice)
 		{
-			$paymentCollection = $order->getPaymentCollection();
+			$paymentCollection = $invoice->getPaymentCollection();
 			if ($paymentCollection)
 			{
 				/** @var Payment $payment */
@@ -395,6 +428,11 @@ class RestService extends \IRestService
 	 */
 	public static function payInvoice(array $params)
 	{
+		if (!Loader::includeModule('crm'))
+		{
+			throw new RestException('Pay invoice is not supported!', self::ERROR_PAY_INVOICE_NOT_SUPPORTED);
+		}
+		
 		static::checkOrderPermission();
 
 		$params = static::prepareParams($params);
@@ -404,7 +442,7 @@ class RestService extends \IRestService
 			throw new RestException('Invoice #'.$params['INVOICE_ID'].' not found!', self::ERROR_INVOICE_NOT_FOUND);
 		}
 
-		$dbRes = Payment::getList(array(
+		$dbRes = Invoice\Payment::getList(array(
 			'select' => array('ID'),
 			'filter' => array(
 				'ORDER_ID' => $params['INVOICE_ID'],
@@ -419,6 +457,8 @@ class RestService extends \IRestService
 		}
 
 		$params['PAYMENT_ID'] = $payment['ID'];
+		$params['ENTITY_REGISTRY_TYPE'] = REGISTRY_TYPE_CRM_INVOICE;
+
 		return static::payPayment($params);
 	}
 
@@ -445,7 +485,8 @@ class RestService extends \IRestService
 
 		$dbRes = Manager::getList(array(
 			'filter' => array(
-				'=ACTION_FILE' => $params['BX_REST_HANDLER']
+				'=ACTION_FILE' => $params['BX_REST_HANDLER'],
+				'=ENTITY_REGISTRY_TYPE' => $params['ENTITY_REGISTRY_TYPE']
 			)
 		));
 		$item = $dbRes->fetch();

@@ -43,9 +43,8 @@ class CListsLiveFeed
 					if ($ar = $db->GetNext())
 					{
 						$ix = randString(5);
-						return '<a class="feed-post-user-name" id="bp_'.$userId.'_'.$ix.'" href="/company/personal/user/'.$userId.'/"
-						bx-post-author-id="'.$userId.'" bx-post-author-gender="'.$ar['PERSONAL_GENDER'].'">'.CUser::FormatName(CSite::GetNameFormat(false), $ar, true, false).'</a>
-						<script type="text/javascript">if (BX.tooltip) BX.tooltip(\''.$userId.'\', "bp_'.$userId.'_'.$ix.'", "");</script>';
+						return '<a class="feed-post-user-name" href="/company/personal/user/'.$userId.'/"
+						bx-post-author-id="'.$userId.'" bx-post-author-gender="'.$ar['PERSONAL_GENDER'].'" bx-tooltip-user-id="'.$userId.'">'.CUser::FormatName(CSite::GetNameFormat(false), $ar, true, false).'</a>';
 					}
 					return $matches[0];
 				},
@@ -234,6 +233,8 @@ class CListsLiveFeed
 
 	public static function formatListsElement($fields, $params, $mail = false)
 	{
+		global $CACHE_MANAGER;
+
 		$element = array(
 			'EVENT' => $fields,
 			'CREATED_BY' => array(),
@@ -256,7 +257,9 @@ class CListsLiveFeed
 				}
 
 				if(defined('BX_COMP_MANAGED_CACHE'))
-					$GLOBALS['CACHE_MANAGER']->registerTag('LISTS_ELEMENT_LIVE_FEED');
+				{
+					$CACHE_MANAGER->registerTag('LISTS_ELEMENT_LIVE_FEED');
+				}
 
 				$componentResult = $APPLICATION->includeComponent(
 					'bitrix:bizproc.workflow.livefeed',
@@ -312,6 +315,8 @@ class CListsLiveFeed
 
 	public static function addCommentLists($fields)
 	{
+		global $DB, $USER_FIELD_MANAGER;
+
 		if (!CModule::IncludeModule('forum') || !CModule::IncludeModule('bizproc'))
 			return false;
 
@@ -362,7 +367,7 @@ class CListsLiveFeed
 						"NAME" => $GLOBALS["FORUM_STATUS_NAME"]["guest"]
 					);
 
-					$GLOBALS["DB"]->StartTransaction();
+					$DB->StartTransaction();
 					$topicFields = Array(
 						"TITLE" => $dataTopic["TITLE"],
 						"TAGS" => $dataTopic["TAGS"],
@@ -405,11 +410,11 @@ class CListsLiveFeed
 
 					if (intval($topicId) <= 0)
 					{
-						$GLOBALS["DB"]->Rollback();
+						$DB->Rollback();
 					}
 					else
 					{
-						$GLOBALS["DB"]->Commit();
+						$DB->Commit();
 					}
 				}
 
@@ -424,7 +429,7 @@ class CListsLiveFeed
 					);
 
 					$tmp = false;
-					$GLOBALS['USER_FIELD_MANAGER']->editFormAddFields('SONET_COMMENT', $tmp);
+					$USER_FIELD_MANAGER->editFormAddFields('SONET_COMMENT', $tmp);
 					if (is_array($tmp))
 					{
 						if (array_key_exists('UF_SONET_COM_DOC', $tmp))
@@ -455,8 +460,8 @@ class CListsLiveFeed
 						{
 							$ufFileId[] = $addedMessageFiles['FILE_ID'];
 						}
-						$ufDocId = $GLOBALS['USER_FIELD_MANAGER']->getUserFieldValue('FORUM_MESSAGE', 'UF_FORUM_MESSAGE_DOC', $messageId, LANGUAGE_ID);
-						$ufUrlPreview = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFieldValue("FORUM_MESSAGE", "UF_FORUM_MES_URL_PRV", $messageID, LANGUAGE_ID);
+						$ufDocId = $USER_FIELD_MANAGER->getUserFieldValue('FORUM_MESSAGE', 'UF_FORUM_MESSAGE_DOC', $messageId, LANGUAGE_ID);
+						$ufUrlPreview = $USER_FIELD_MANAGER->GetUserFieldValue("FORUM_MESSAGE", "UF_FORUM_MES_URL_PRV", $messageId, LANGUAGE_ID);
 					}
 				}
 			}
@@ -530,6 +535,20 @@ class CListsLiveFeed
 					CSocNetLogFollow::delete($userId, 'L'.$logId, false);
 					CSocNetLogFollow::set($userId, 'L'.$logId, $type,
 						ConvertTimeStamp(time() + CTimeZone::GetOffset(), "FULL", SITE_ID), SITE_ID, true);
+
+					if (
+						$type == 'Y'
+						&& method_exists('\Bitrix\Socialnetwork\ComponentHelper','userLogSubscribe')
+					)
+					{
+						\Bitrix\Socialnetwork\ComponentHelper::userLogSubscribe(array(
+							'logId' => $logId,
+							'userId' => $userId,
+							'typeList' => array(
+								'COUNTER_COMMENT_PUSH'
+							)
+						));
+					}
 				}
 			}
 		}
@@ -542,17 +561,32 @@ class CListsLiveFeed
 					$logFollowObject = CSocNetLogFollow::getList(
 						array('USER_ID' => $userId, 'REF_ID' => $logId), array('BY_WF'));
 					$logFollow = $logFollowObject->fetch();
-					if(!empty($logFollow) && ($logFollow['BY_WF'] == 'Y' || $addingComment))
+
+					if(
+						empty($logFollow)
+						|| ($logFollow['BY_WF'] == 'Y' || $addingComment)
+					)
 					{
 						CSocNetLogFollow::delete($userId, 'L'.$logId, false);
-						CSocNetLogFollow::set($userId, 'L'.$logId, $type,
-							ConvertTimeStamp(time() + CTimeZone::GetOffset(), "FULL", SITE_ID), SITE_ID, true);
-					}
-					elseif(empty($logFollow))
-					{
-						CSocNetLogFollow::delete($userId, 'L'.$logId, false);
-						CSocNetLogFollow::set($userId, 'L'.$logId, $type,
-							ConvertTimeStamp(time() + CTimeZone::GetOffset(), "FULL", SITE_ID), SITE_ID,  true);
+
+						if (method_exists('\Bitrix\Socialnetwork\ComponentHelper','userLogSubscribe'))
+						{
+							\Bitrix\Socialnetwork\ComponentHelper::userLogSubscribe(array(
+								'logId' => $logId,
+								'userId' => $userId,
+								'typeList' => array(
+									'FOLLOW',
+									'COUNTER_COMMENT_PUSH'
+								),
+								'followDate' => 'CURRENT',
+								'followByWF' => true
+							));
+						}
+						else
+						{
+							CSocNetLogFollow::set($userId, 'L'.$logId, 'Y',
+								ConvertTimeStamp(time() + CTimeZone::GetOffset(), "FULL", SITE_ID), SITE_ID, true);
+						}
 					}
 				}
 			}
@@ -563,13 +597,13 @@ class CListsLiveFeed
 					$logFollowObject = CSocNetLogFollow::getList(
 						array('USER_ID' => $userId, 'REF_ID' => $logId), array('BY_WF'));
 					$logFollow = $logFollowObject->fetch();
-					if(!empty($logFollow) && $logFollow['BY_WF'] == 'Y')
+
+					if(
+						empty($logFollow)
+						|| $logFollow['BY_WF'] == 'Y'
+					)
 					{
-						CSocNetLogFollow::set($userId, 'L'.$logId, $type, false, SITE_ID, true);
-					}
-					elseif(empty($logFollow))
-					{
-						CSocNetLogFollow::set($userId, 'L'.$logId, $type, false, SITE_ID, true);
+						CSocNetLogFollow::set($userId, 'L'.$logId, 'N', false, SITE_ID, true);
 					}
 				}
 			}

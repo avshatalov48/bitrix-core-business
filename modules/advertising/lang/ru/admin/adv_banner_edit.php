@@ -9,6 +9,7 @@ $MESS["AD_ACTIVE"] = "Активен:";
 $MESS["AD_NAME"] = "Название:";
 $MESS["AD_GROUP"] = "Группа баннеров:";
 $MESS["AD_TYPE"] = "Тип баннера:";
+$MESS["AD_TYPE_TEMPLATE"] = "Тип шаблона баннера:";
 $MESS["AD_WHEN"] = "Когда и как часто показывать баннер";
 $MESS["AD_SHOW_INTERVAL"] = "Интервал показа";
 $MESS["AD_WEIGHT"] = "Вес (приоритет):";

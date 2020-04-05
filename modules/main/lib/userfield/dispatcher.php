@@ -390,12 +390,14 @@ class Dispatcher
 			$currentFieldInfo = $this->getUserFieldInfo($fieldInfo['ENTITY_ID'], $fieldInfo['FIELD']);
 
 			$deletedEnum = array();
+			$storedEnum = array();
 			$updatedEnum = array();
 
 			if(is_array($currentFieldInfo['ENUM']))
 			{
 				foreach($currentFieldInfo['ENUM'] as $enumItem)
 				{
+					$storedEnum[$enumItem['ID']] = $enumItem;
 					$deletedEnum[$enumItem['ID']] = true;
 				}
 			}
@@ -407,9 +409,13 @@ class Dispatcher
 				{
 					if(array_key_exists('ID', $enumItem))
 					{
+						if(empty($enumItem['XML_ID']))
+						{
+							$enumItem['XML_ID'] = $storedEnum[$enumItem['ID']]['XML_ID'];
+						}
+
 						unset($deletedEnum[$enumItem['ID']]);
 					}
-
 					$itemKey = $enumItem['ID'] > 0
 						? $enumItem['ID']
 						: 'n'.($countAdded++);

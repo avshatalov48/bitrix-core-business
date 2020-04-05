@@ -88,7 +88,7 @@ class ResourceTable extends Main\Entity\DataManager
 			),
 			'UF_ID' => array(
 				'data_type' => 'integer',
-				'required' => true,
+				'required' => false,
 				'title' => Loc::getMessage('RESOURCE_ENTITY_UF_ID_FIELD'),
 			),
 			'DATE_FROM_UTC' => array(

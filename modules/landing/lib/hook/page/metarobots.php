@@ -45,7 +45,14 @@ class MetaRobots extends \Bitrix\Landing\Hook\Page
 	 */
 	public function exec()
 	{
-		$use = $this->fields['INDEX']->getValue();
+		if (\Bitrix\Landing\Landing::getPreviewMode())
+		{
+			$use = 'N';
+		}
+		else
+		{
+			$use = $this->fields['INDEX']->getValue();
+		}
 		\Bitrix\Main\Page\Asset::getInstance()->addString(
 			'<meta name="robots" content="' . ($use != 'N' ? 'all' : 'noindex') . '" />'
 		);

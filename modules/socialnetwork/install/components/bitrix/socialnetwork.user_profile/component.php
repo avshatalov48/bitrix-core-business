@@ -497,22 +497,30 @@ else
 		}
 		if (CModule::IncludeModule('mail'))
 		{
-			$dbMailbox = CMailbox::getList(
-				array(
-					'TIMESTAMP_X' => 'DESC'
+			$arResult['User']['MAILBOXES'] = array();
+
+			$dbMailbox = \Bitrix\Mail\MailboxTable::getList(array(
+				'filter' => array(
+					'=LID' => SITE_ID,
+					'=ACTIVE' => 'Y',
+					'=USER_ID' => $arParams['ID'],
+					'=SERVER_TYPE' => 'imap',
 				),
-				array(
-					'LID'     => SITE_ID,
-					'ACTIVE'  => 'Y',
-					'USER_ID' => intval($arParams['ID']),
-					'SERVER_TYPE' => 'imap|controller|domain'
-				)
-			);
-			$mailbox = $dbMailbox->fetch();
-			if (strpos($mailbox['LOGIN'], '@') !== false)
+				'order' => array(
+					'ID' => 'ASC',
+				),
+			));
+			while ($mailbox = $dbMailbox->fetch())
 			{
-				$arResult['User']['MAILBOX'] = $mailbox['LOGIN'];
+				// filter public
+				\Bitrix\Mail\MailboxTable::normalizeEmail($mailbox);
+				if (strpos($mailbox['EMAIL'], '@') !== false)
+				{
+					$arResult['User']['MAILBOXES'][] = $mailbox['EMAIL'];
+				}
 			}
+
+			$arResult['User']['MAILBOX'] = end($arResult['User']['MAILBOXES']);
 
 			if (
 				$arParams['ID'] == IntVal($USER->GetID())
@@ -672,8 +680,16 @@ else
 								$arEmails_tmp = array();
 								if (strlen($val) > 0)
 									$arEmails_tmp[] = '<a href="mailto:'.$val.'">'.$val.'</a>';
-								if (!empty($arResult['User']['MAILBOX']) && strtolower($arResult['User']['MAILBOX']) != strtolower($val))
-									$arEmails_tmp[] = '<a href="mailto:'.$arResult['User']['MAILBOX'].'">'.$arResult['User']['MAILBOX'].'</a>';
+								if (!empty($arResult['User']['MAILBOXES']))
+								{
+									foreach ($arResult['User']['MAILBOXES'] as $item)
+									{
+										if (strtolower($item) != strtolower($val))
+										{
+											$arEmails_tmp[] = '<a href="mailto:'.$item.'">'.$item.'</a>';
+										}
+									}
+								}
 								$val = join(', ', $arEmails_tmp);
 								break;
 

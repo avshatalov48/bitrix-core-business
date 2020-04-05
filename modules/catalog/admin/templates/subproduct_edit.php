@@ -5,6 +5,9 @@ use Bitrix\Main,
 	Bitrix\Currency,
 	Bitrix\Catalog;
 
+$selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
+$publicMode = (defined("SELF_FOLDER_URL") ? true : false);
+
 if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_price') || $USER->CanDoOperation('catalog_view'))
 {
 	IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/templates/product_edit.php');
@@ -22,8 +25,9 @@ if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_pric
 
 	$bDiscount = $USER->CanDoOperation('catalog_discount');
 	$bStore = $USER->CanDoOperation('catalog_store');
-	$bUseStoreControl = (COption::GetOptionString('catalog', 'default_use_store_control') == "Y");
+	$bUseStoreControl = Catalog\Config\State::isUsedInventoryManagement();
 	$bEnableReservation = ('N' != COption::GetOptionString('catalog', 'enable_reservation'));
+	$enableQuantityRanges = Catalog\Config\Feature::isPriceQuantityRangesEnabled();
 
 	$availQuantityTrace = COption::GetOptionString("catalog", "default_quantity_trace");
 	$availCanBuyZero = COption::GetOptionString("catalog", "default_can_buy_zero");
@@ -249,7 +253,7 @@ function toggleSubPriceType()
 		// Define boundaries
 		$usedRanges = false;
 		$arProductFilter = array("PRODUCT_ID" => $PRODUCT_ID);
-		if (!CBXFeatures::IsFeatureEnabled('CatMultiPrice'))
+		if (!Catalog\Config\Feature::isMultiPriceTypesEnabled())
 		{
 			$arProductFilter['BASE'] = 'Y';
 		}
@@ -339,7 +343,10 @@ function toggleSubPriceType()
 // prices tab
 		$subtabControl1->BeginNextTab();
 $arCatPricesExist = array(); // attr for exist prices for range
-$bUseExtendedPrice = $bVarsFromForm ? $subprice_useextform == 'Y' : $usedRanges;
+if ($enableQuantityRanges)
+	$bUseExtendedPrice = $bVarsFromForm ? $subprice_useextform == 'Y' : $usedRanges;
+else
+	$bUseExtendedPrice = false;
 $str_CAT_VAT_ID = $bVarsFromForm ? $SUBCAT_VAT_ID : ($arBaseProduct['VAT_ID'] == 0 ? $arCatalog['VAT_ID'] : $arBaseProduct['VAT_ID']);
 $str_CAT_VAT_INCLUDED = (string)($bVarsFromForm ? $SUBCAT_VAT_INCLUDED : $arBaseProduct['VAT_INCLUDED']);
 if ($str_CAT_VAT_INCLUDED != 'Y' && $str_CAT_VAT_INCLUDED != 'N')
@@ -347,12 +354,23 @@ if ($str_CAT_VAT_INCLUDED != 'Y' && $str_CAT_VAT_INCLUDED != 'N')
 		?>
 <input type="hidden" name="subprice_useextform" id="subprice_useextform_N" value="N" />
 <table border="0" cellspacing="0" cellpadding="0" width="100%" class="edit-table" id="subcatalog_vat_table">
+<?
+if ($enableQuantityRanges)
+{
+	?>
 	<tr>
 		<td width="40%"><label for="subprice_useextform"><? echo GetMessage('C2IT_PRICES_USEEXT'); ?>:</label></td>
 		<td width="60%">
-			<input type="checkbox" name="subprice_useextform" id="subprice_useextform" value="Y" onclick="toggleSubPriceType()" <?=$bUseExtendedPrice ? 'checked="checked"' : ''?> <? echo ($bReadOnly ? ' disabled readonly' : ''); ?> />
+			<input type="checkbox" name="subprice_useextform" id="subprice_useextform" value="Y" onclick="toggleSubPriceType()" <?= $bUseExtendedPrice ? 'checked="checked"' : '' ?> <? echo($bReadOnly ? ' disabled readonly' : ''); ?> />
 		</td>
 	</tr>
+	<?
+}
+else
+{
+	?><input type="hidden" name="subprice_useextform" value="N"><?
+}
+?>
 	<tr>
 		<td width="40%">
 			<?echo GetMessage("CAT_VAT")?>:
@@ -714,7 +732,7 @@ SetSubFieldsStyle('subcatalog_vat_table');
 			<?
 		}
 
-	if (CBXFeatures::IsFeatureEnabled('CatMultiPrice'))
+	if (Catalog\Config\Feature::isMultiPriceTypesEnabled())
 	{
 		$bFirst = true;
 		$dbCatalogGroups = CCatalogGroup::GetList(
@@ -1466,7 +1484,7 @@ function HideNotice()
 			catalogGroupsInd = 0;
 			</script>
 			<?
-	if (CBXFeatures::IsFeatureEnabled('CatMultiPrice'))
+	if (Catalog\Config\Feature::isMultiPriceTypesEnabled())
 	{
 
 			$dbCatalogGroups = CCatalogGroup::GetList(
@@ -1737,8 +1755,10 @@ function HideNotice()
 							unset($arMeasure);
 							?>
 						</select>
-					<?else:?>
-						<? echo GetMessage("C2IT_MEASURE_NO_MEASURE"); ?> <a href="/bitrix/admin/cat_measure_list.php?lang=<? echo LANGUAGE_ID; ?>"><? echo GetMessage("C2IT_MEASURES"); ?></a><br>
+					<?else:
+						$measureListUrl = $selfFolderUrl.'cat_measure_list.php?lang='.LANGUAGE_ID;
+						$measureListUrl = $adminSidePanelHelper->editUrlToPublicPage($measureListUrl);
+						echo GetMessage("C2IT_MEASURE_NO_MEASURE"); ?> <a target="_top" href="<?=$measureListUrl?>"><?=GetMessage("C2IT_MEASURES"); ?></a><br>
 					<?endif;?>
 				</td>
 			</tr>
@@ -1763,7 +1783,8 @@ function HideNotice()
 							if ($str_CAT_MEASURE_RATIO === null || $ar_CAT_MEASURE_RATIO['IS_DEFAULT'] == 'Y')
 							{
 								$str_CAT_MEASURE_RATIO = $ar_CAT_MEASURE_RATIO["RATIO"];
-								$SUBCAT_MEASURE_RATIO_ID = $ar_CAT_MEASURE_RATIO["ID"];
+								if (!$bSubCopy)
+									$SUBCAT_MEASURE_RATIO_ID = $ar_CAT_MEASURE_RATIO["ID"];
 								if ($ar_CAT_MEASURE_RATIO['IS_DEFAULT'] == 'Y')
 									break;
 							}
@@ -2132,9 +2153,15 @@ SetSubFieldsStyle('subcatalog_properties_table');
 
 				if ($bNoAvailGroups)
 				{
+					$textForSettingsNotify = "<a href=\"".$selfFolderUrl."settings.php?mid=catalog&lang=".LANGUAGE_ID."\">".
+						GetMessage("C2IT_NO_USER_GROUPS2")."</a>";
+					if ($adminSidePanelHelper->isPublicSidePanel())
+					{
+						$textForSettingsNotify = GetMessage("C2IT_NO_USER_GROUPS2");
+					}
 					?>
 					<tr>
-						<td colspan="3"><? echo GetMessage("C2IT_NO_USER_GROUPS1")?> <a href="/bitrix/admin/settings.php?mid=catalog&lang=<? echo LANGUAGE_ID; ?>"><?echo GetMessage("C2IT_NO_USER_GROUPS2")?></a>.</td>
+						<td colspan="3"><?=GetMessage("C2IT_NO_USER_GROUPS1")?><?=" ".$textForSettingsNotify?></td>
 					</tr>
 					<?
 				}
@@ -2162,11 +2189,11 @@ SetSubFieldsStyle('subcatalog_properties_table');
 		else
 		{
 			$showDiscountUrl = $bDiscount;
-			$discountUrl = '/bitrix/admin/cat_discount_edit.php?ID=';
+			$discountUrl = $selfFolderUrl.'cat_discount_edit.php?ID=';
 			if (Main\ModuleManager::isModuleInstalled('sale') && (string)Main\Config\Option::get('sale', 'use_sale_discount_only') == 'Y')
 			{
 				$showDiscountUrl = ($APPLICATION->GetGroupRight('sale') >= 'W');
-				$discountUrl = '/bitrix/admin/sale_discount_edit.php?ID=';
+				$discountUrl = $selfFolderUrl.'sale_discount_edit.php?ID=';
 			}
 			?><table border="0" cellspacing="0" cellpadding="0" class="internal" align="center" width="100%">
 				<tr class="heading">
@@ -2289,8 +2316,10 @@ SetSubFieldsStyle('subcatalog_properties_table');
 				if ($bStore)
 				{
 					$storeId = $row['ID'];
-					$address = ('' != $row['ADDRESS'] ? htmlspecialcharsbx($row['ADDRESS']) : '<a href="/bitrix/admin/cat_store_edit.php?ID='.$row['ID'].'&lang='.LANGUAGE_ID.'">'.GetMessage("C2IT_EDIT").'</a>');
-					$storeUrl = '<a href="/bitrix/admin/cat_store_edit.php?ID='.$row['ID'].'&lang='.LANGUAGE_ID.'">'.$storeUrl.'</a>';
+					$storeEditUrl = $selfFolderUrl.'cat_store_edit.php?ID='.$row['ID'].'&lang='.LANGUAGE_ID;
+					$storeEditUrl = ($publicMode ? str_replace(".php", "/", $storeEditUrl) : $storeEditUrl);
+					$address = ('' != $row['ADDRESS'] ? htmlspecialcharsbx($row['ADDRESS']) : '<a href="'.$storeEditUrl.'">'.GetMessage("C2IT_EDIT").'</a>');
+					$storeUrl = '<a href="'.$storeEditUrl.'">'.$storeUrl.'</a>';
 				}
 				?><tr>
 				<td style="text-align:center;"><?=$storeUrl; ?></td>
@@ -2312,7 +2341,9 @@ SetSubFieldsStyle('subcatalog_properties_table');
 		{
 			if ($bStore)
 			{
-				?><b><? echo GetMessage("C2IT_STORE_NO_STORE"); ?> <a href="/bitrix/admin/cat_store_list.php?lang=<? echo LANGUAGE_ID; ?>"><? echo GetMessage("C2IT_STORE"); ?></a></b><br><?
+				$storeListUrl = $selfFolderUrl.'cat_store_list.php?lang='.LANGUAGE_ID;
+				$storeListUrl = $adminSidePanelHelper->editUrlToPublicPage($storeListUrl);
+				?><b><? echo GetMessage("C2IT_STORE_NO_STORE"); ?> <a target="_top" href="<?=$storeListUrl?>"><?=GetMessage("C2IT_STORE"); ?></a></b><br><?
 			}
 		}
 		if (!$bUseStoreControl)
@@ -2426,8 +2457,11 @@ SetSubFieldsStyle('subcatalog_properties_table');
 					<tr>
 						<td width="40%" style="text-align:right;"><?=GetMessage('C2IT_LIST_SUBSCRIPTIONS')?></td>
 						<td width="60%">
-							<a href="/bitrix/admin/cat_subscription_list.php?ITEM_ID=<?=htmlspecialcharsbx($PRODUCT_ID)?>
-							&lang=<?=LANGUAGE_ID?>" target="_blank">
+							<?
+							$subscriptionUrl = $selfFolderUrl."cat_subscription_list.php?ITEM_ID=".htmlspecialcharsbx($PRODUCT_ID)."&lang=".LANGUAGE_ID;
+							$subscriptionUrl = ($publicMode ? str_replace(".php", "/", $subscriptionUrl) : $subscriptionUrl);
+							?>
+							<a target="_top" href="<?=$subscriptionUrl?>">
 								<?=GetMessage('C2IT_LIST_SUBSCRIPTIONS_TEXT')?>
 							</a>
 						</td>

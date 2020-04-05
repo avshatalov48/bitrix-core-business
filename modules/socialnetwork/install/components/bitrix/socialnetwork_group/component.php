@@ -126,6 +126,9 @@ $arDefaultUrlTemplates404 = array(
 	"group_log" => "group/#group_id#/log/",
 	"group_log_rss" => "group/#group_id#/log/rss/?bx_hit_hash=#sign#&events=#events#",
 	"group_log_rss_mask" => "group/#group_id#/log/rss/",
+
+	"group_app" => "group/#group_id#/app/#placement_id#/",
+	"group_marketplace" => "group/#group_id#/marketplace/",
 );
 
 $diskEnabled = (
@@ -151,6 +154,7 @@ if($diskEnabled)
 {
 	$arDefaultUrlTemplates404["group_disk"] = "group/#group_id#/disk/path/#PATH#";
 	$arDefaultUrlTemplates404["group_disk_file"] = "group/#group_id#/disk/file/#FILE_PATH#";
+	$arDefaultUrlTemplates404["group_disk_file_history"] = "group/#group_id#/disk/file-history/#FILE_ID#";
 	$arDefaultUrlTemplates404["group_trashcan_list"] = "group/#group_id#/disk/trashcan/#TRASH_PATH#";
 	$arDefaultUrlTemplates404["group_trashcan_file_view"] = "group/#group_id#/disk/trash/file/#TRASH_FILE_PATH#";
 	$arDefaultUrlTemplates404["group_external_link_list"] = "group/#group_id#/disk/external";
@@ -264,13 +268,16 @@ $arDefaultUrlTemplatesN404 = array(
 
 	"group_log" => "page=group_log&group_id=#group_id#",
 	"group_log_rss" => "page=group_log_rss&group_id=#group_id#&bx_hit_hash=#sign#&events=#events#",
-//	"group_log_rss_mask" => "page=group_log_rss&group_id=#group_id#"
+//	"group_log_rss_mask" => "page=group_log_rss&group_id=#group_id#",
+
+	"group_app" => "page=group_app&group_id=#group_id#&placement_id=#placement_id#",
+	"group_marketplace" => "page=group_marketplace&group_id=#group_id#"
 );
 
 $arDefaultVariableAliases404 = array();
 $arDefaultVariableAliases = array();
 $componentPage = "";
-$arComponentVariables = array("user_id", "group_id", "page", "message_id", "subject_id", "path", "section_id", "element_id", "action", "post_id", "category", "topic_id", "task_id", "view_id", "type", "report_id");
+$arComponentVariables = array("user_id", "group_id", "page", "message_id", "subject_id", "path", "section_id", "element_id", "action", "post_id", "category", "topic_id", "task_id", "view_id", "type", "report_id", "placement_id");
 
 if (
 	$_REQUEST["auth"]=="Y" 
@@ -671,6 +678,7 @@ $arResult = array_merge(
 		"ITEM_DETAIL_COUNT" => $arParams["ITEM_DETAIL_COUNT"],
 		"ITEM_MAIN_COUNT" => $arParams["ITEM_MAIN_COUNT"],
 		"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT"],
+		"DATE_TIME_FORMAT_WITHOUT_YEAR" => (isset($arParams["DATE_TIME_FORMAT_WITHOUT_YEAR"]) ? $arParams["DATE_TIME_FORMAT_WITHOUT_YEAR"] : false),
 		"USER_PROPERTY_MAIN" => $arParams["USER_PROPERTY_MAIN"],
 		"USER_PROPERTY_CONTACT" => $arParams["USER_PROPERTY_CONTACT"],
 		"USER_PROPERTY_PERSONAL" => $arParams["USER_PROPERTY_PERSONAL"],
@@ -845,6 +853,14 @@ if(strpos($componentPage, 'group_disk') !== false)
 	if(!CSocNetFeatures::isActiveFeature(SONET_ENTITY_GROUP, $arResult["VARIABLES"]["group_id"], "files"))
 	{
 		ShowError(GetMessage("SONET_FILES_IS_NOT_ACTIVE"));
+		return 0;
+	}
+}
+elseif (strpos($componentPage, 'group_app') !== false)
+{
+	if(!CSocNetFeatures::isActiveFeature(SONET_ENTITY_GROUP, $arResult["VARIABLES"]["group_id"], "placement_".$arResult["VARIABLES"]["placement_id"]))
+	{
+		ShowError(GetMessage("SONET_APP_IS_NOT_ACTIVE"));
 		return 0;
 	}
 }
@@ -1167,10 +1183,10 @@ if(\Bitrix\Main\ModuleManager::isModuleInstalled('tasks'))
 			'tasks',
 			'\Bitrix\Tasks\Ui\Preview\Task',
 			array(
-					'taskId' => '$task_id',
-					'groupId' => '$group_id',
-					'action' => '$action',
-					'PATH_TO_USER_PROFILE' => $arParams['SEF_FOLDER'].$arUrlTemplates['user'],
+				'taskId' => '$task_id',
+				'groupId' => '$group_id',
+				'action' => '$action',
+				'PATH_TO_USER_PROFILE' => $arParams['SEF_FOLDER'].$arUrlTemplates['user'],
 			)
 	);
 }

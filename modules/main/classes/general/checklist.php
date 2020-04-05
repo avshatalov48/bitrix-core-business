@@ -744,16 +744,32 @@ class CAutoCheck
 
 	public static function CheckKernel($arParams)
 	{
-
-		$time_start = time();
 		global $DB;
-		$arCompare = array(
+
+		$startTime = time();
+		$installFilesMapping = array(
 			"install/components/bitrix/" => "/bitrix/components/bitrix/",
 			"install/js/" => "/bitrix/js/",
 			"install/activities/" => "/bitrix/activities/",
 			"install/admin/" => "/bitrix/admin/",
 			"install/wizards/" => "/bitrix/wizards/",
 		);
+
+		$events = \Bitrix\Main\EventManager::getInstance()->findEventHandlers("main", "onKernelCheckInstallFilesMappingGet");
+		foreach ($events as $event)
+		{
+			$pathList = ExecuteModuleEventEx($event);
+			if(is_array($pathList))
+			{
+				foreach ($pathList as $pathFrom=>$pathTo)
+				{
+					if(!array_key_exists($pathFrom, $installFilesMapping))
+					{
+						$installFilesMapping[$pathFrom] = $pathTo;
+					}
+				}
+			}
+		}
 
 		if(!$_SESSION["BX_CHECKLIST"][$arParams["TEST_ID"]])
 			$_SESSION["BX_CHECKLIST"][$arParams["TEST_ID"]] = array();
@@ -772,22 +788,22 @@ class CAutoCheck
 			$NS["FILES_COUNT"] = 0;
 			$NS["MODFILES_COUNT"] = 0;
 		}
+
 		$arError = false;
-		$module_id = $NS["MLIST"][$NS["MNUM"]];
-		$module_folder = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/";
+		$moduleId = $NS["MLIST"][$NS["MNUM"]];
+		$moduleFolder = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$moduleId."/";
 		$dbtype = strtolower($DB->type);
-		$arFilesCount = 0;
-		$arModifiedFilesCount = 0;
+		$fileCount = 0;
+		$modifiedFileCount = 0;
 		$state = array();
-		$Skip = false;
+		$skip = false;
 
-		$ver = \Bitrix\Main\ModuleManager::getVersion($module_id);
-
+		$ver = \Bitrix\Main\ModuleManager::getVersion($moduleId);
 		if ($ver === false)
 		{
 			$state = array(
 				"STATUS" => false,
-				"MESSAGE" =>  GetMessage("CL_MODULE_VERSION_ERROR", array("#module_id#" => $module_id))."\n"
+				"MESSAGE" =>  GetMessage("CL_MODULE_VERSION_ERROR", array("#module_id#" => $moduleId))."\n"
 			);
 			$arError = true;
 		}
@@ -804,7 +820,7 @@ class CAutoCheck
 				$http = new \Bitrix\Main\Web\HttpClient();
 				$http->setProxy($proxyAddr, $proxyPort, $proxyUserName, $proxyPassword);
 
-				$data = $http->get("http://".$sHost."/bitrix/updates/checksum.php?check_sum=Y&module_id=".$module_id."&ver=".$ver."&dbtype=".$dbtype."&mode=2");
+				$data = $http->get("http://".$sHost."/bitrix/updates/checksum.php?check_sum=Y&module_id=".$moduleId."&ver=".$ver."&dbtype=".$dbtype."&mode=2");
 
 				$NS["FILE_LIST"] = $result = unserialize(gzinflate($data));
 				$NS["MODULE_FILES_COUNT"] = count($NS["FILE_LIST"]);
@@ -813,41 +829,47 @@ class CAutoCheck
 			{
 				$result = $NS["FILE_LIST"];
 			}
-			$arMessage = "";
+
+			$message = "";
 			$timeout = COption::GetOptionString("main", "update_load_timeout", "30");
 			if (is_array($result) && !$result["error"])
 			{
 				foreach($result as $file => $checksum)
 				{
-					$arFile = $module_folder.$file;
+					$filePath = $moduleFolder.$file;
 					unset($NS["FILE_LIST"][$file]);
-					if (!file_exists($arFile))
+
+					if (!file_exists($filePath))
 						continue;
-					$arFilesCount++;
-					if (md5_file($arFile)!=$checksum)
+
+					$fileCount++;
+					if (md5_file($filePath)!=$checksum)
 					{
-						$arMessage.= str_replace(array("//", "\\\\"), array("/", "\\"), $arFile)."\n";
-						$arModifiedFilesCount++;
+						$message.= str_replace(array("//", "\\\\"), array("/", "\\"), $filePath)."\n";
+						$modifiedFileCount++;
 					}
-					$arTmpCompare = $arCompare;
-					foreach ($arTmpCompare as $key => $value)
-					if (strpos($file, $key) === 0)
+
+					foreach ($installFilesMapping as $key => $value)
 					{
-						$arFile = str_replace($key, $_SERVER["DOCUMENT_ROOT"].$value, $file);
-						if (file_exists($arFile) && md5_file($arFile)!=$checksum)
+						if (strpos($file, $key) === 0)
 						{
-							$arModifiedFilesCount++;
-							$arMessage.= str_replace(array("//", "\\\\"), array("/", "\\"), $arFile)."\n";
+							$filePath = str_replace($key, $_SERVER["DOCUMENT_ROOT"].$value, $file);
+							if (file_exists($filePath) && md5_file($filePath)!=$checksum)
+							{
+								$modifiedFileCount++;
+								$message.= str_replace(array("//", "\\\\"), array("/", "\\"), $filePath)."\n";
+							}
+							$fileCount++;
 						}
-						$arFilesCount++;
 					}
-					if ((time()-$time_start)>=$timeout)
+
+					if ((time()-$startTime)>=$timeout)
 						break;
 				}
-				if (strlen($arMessage)> 0)
+				if (strlen($message)> 0)
 				{
 					$state = array(
-						"MESSAGE" => $arMessage,
+						"MESSAGE" => $message,
 						"STATUS" => false
 					);
 				}
@@ -856,28 +878,30 @@ class CAutoCheck
 			{
 				if($result["error"]!= "unknow module id")
 				{
-					$state["MESSAGE"] = GetMessage("CL_CANT_CHECK", array("#module_id#" => $module_id))."\n";
+					$state["MESSAGE"] = GetMessage("CL_CANT_CHECK", array("#module_id#" => $moduleId))."\n";
 					$arError = true;
 				}
 				else
-					$Skip = true;
+					$skip = true;
 			}
 		}
 		if ($state["MESSAGE"])
-			$NS["MESSAGE"][$module_id].=$state["MESSAGE"];
-		if (!$arError && !$Skip)
+		{
+			$NS["MESSAGE"][$moduleId].=$state["MESSAGE"];
+		}
+		if (!$arError && !$skip)
 		{
 			if (count($NS["FILE_LIST"]) == 0)
 			{
-				if (strlen($NS["MESSAGE"][$module_id]) == 0)
-					$NS["MESSAGE"][$module_id] = GetMessage("CL_NOT_MODIFIED", array("#module_id#" => $module_id))."\n";
+				if (strlen($NS["MESSAGE"][$moduleId]) == 0)
+					$NS["MESSAGE"][$moduleId] = GetMessage("CL_NOT_MODIFIED", array("#module_id#" => $moduleId))."\n";
 				else
-					$NS["MESSAGE"][$module_id] = GetMessage("CL_MODIFIED_FILES", array("#module_id#" => $module_id))."\n".$NS["MESSAGE"][$module_id];
+					$NS["MESSAGE"][$moduleId] = GetMessage("CL_MODIFIED_FILES", array("#module_id#" => $moduleId))."\n".$NS["MESSAGE"][$moduleId];
 			}
-			$NS["FILES_COUNT"]+=$arFilesCount;
-			$NS["MODFILES_COUNT"]+=$arModifiedFilesCount;
+			$NS["FILES_COUNT"]+=$fileCount;
+			$NS["MODFILES_COUNT"]+=$modifiedFileCount;
 		}
-		if ($state["STATUS"] === false || $arError == true || $Skip)
+		if ($state["STATUS"] === false || $arError == true || $skip)
 		{
 			if ($state["STATUS"] === false || $arError == true)
 				$NS["STATUS"] = false;

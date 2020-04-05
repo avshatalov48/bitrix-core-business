@@ -17,6 +17,7 @@
 	var isArray = BX.Landing.Utils.isArray;
 	var prepend = BX.Landing.Utils.prepend;
 	var data = BX.Landing.Utils.data;
+	var encodeDataValue = BX.Landing.Utils.encodeDataValue;
 
 	var TYPE_CATALOG_SECTION = "section";
 	var TYPE_CATALOG_ELEMENT = "element";
@@ -140,7 +141,7 @@
 			}
 
 			return [
-				{name: "", value: -1}
+				{name: "", value: ""}
 			];
 		},
 
@@ -153,6 +154,7 @@
 			var iBlockSwitcher = new BX.Landing.UI.Field.Dropdown({
 				title: BX.message("LANDING_STYLE_PANEL_CATALOG_IBLOCK_SWITCHER"),
 				items: this.getIblocks(),
+				content: isArray(this.getIblocks()) ? this.getIblocks()[0].value : "",
 				onChange: this.onIblockChange.bind(this)
 			});
 
@@ -231,9 +233,25 @@
 				remove(oldResult);
 			}
 
+			this.body.scrollTop = 0;
+
 			append(htmlToElement(
 				"<div class=\"landing-ui-panel-catalog-list\">" +
 					response.map(function(item) {
+						if (item.subType === TYPE_CATALOG_SECTION && !item.image)
+						{
+							item.image = "/bitrix/images/landing/folder.svg";
+						}
+
+						var chain = item.chain.reduce(function(accumulator, chainItem) {
+							if (chainItem)
+							{
+								accumulator.push(encodeDataValue(chainItem));
+							}
+
+							return accumulator;
+						}, []);
+
 						return (
 							"<div class='landing-ui-panel-catalog-list-row landing-ui-panel-catalog-list-row-"+item.subType+"'>" +
 								"<div class='landing-ui-panel-catalog-list-row-left'>" +
@@ -241,10 +259,10 @@
 								"</div>" +
 								"<div class='landing-ui-panel-catalog-list-row-right'>" +
 									"<div class='landing-ui-panel-catalog-list-cell-name'>" +
-										"<div>"+item.name+"</div>" +
+										"<div>"+encodeDataValue(item.name)+"</div>" +
 									"</div>" +
 									"<div class='landing-ui-panel-catalog-list-cell-chain'>" +
-										"<div>"+item.chain.join("&nbsp;/&nbsp;")+"</div>" +
+										"<div>"+(chain ? chain.join("&nbsp;/&nbsp;") : "")+"</div>" +
 									"</div>" +
 								"</div>" +
 							"</div>"

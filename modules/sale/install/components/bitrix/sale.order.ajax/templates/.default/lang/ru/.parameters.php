@@ -9,6 +9,7 @@ $MESS["SHOW_DELIVERY_LIST_NAMES"] = "Отображать названия в с
 $MESS["SHOW_DELIVERY_INFO_NAME"] = "Отображать название в блоке информации по доставке";
 $MESS["DELIVERY_PARENT_NAMES"] = "Показывать название родительской доставки";
 $MESS["ALLOW_USER_PROFILES"] = "Разрешить использование профилей покупателей";
+$MESS["HIDE_ORDER_DESCRIPTION"] = "Скрыть поле комментариев к заказу";
 $MESS["ALLOW_NEW_PROFILE"] = "Разрешить множество профилей покупателей";
 $MESS["SHOW_STORES_IMAGES"] = "Показывать изображения складов в окне выбора пункта выдачи";
 $MESS["SKIP_USELESS_BLOCK"] = "Пропускать шаги, в которых один элемент для выбора";

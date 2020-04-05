@@ -9,6 +9,9 @@
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/include.php");
 
+$publicMode = $adminPage->publicMode;
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions < "W")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
@@ -21,28 +24,85 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 $sTableID = "tbl_sale_tax_rate";
 
 $oSort = new CAdminSorting($sTableID, "ID", "asc");
-$lAdmin = new CAdminList($sTableID, $oSort);
+$lAdmin = new CAdminUiList($sTableID, $oSort);
 
-$arFilterFields = array(
-	"filter_tax_id",
-	"filter_person_type_id",
-	"filter_lang",
-	"filter_location"
+$listTax = array();
+$taxQueryObject = CSaleTax::GetList(array("NAME" => "ASC"), array());
+while ($taxData = $taxQueryObject->NavNext(false))
+{
+	$listTax[$taxData["ID"]] = $taxData["NAME"]." (".$taxData["LID"].")";
+}
+$listSites = array();
+$sitesQueryObject = CSite::GetList($bySite = "sort", $orderSite = "asc", array("ACTIVE" => "Y"));
+while ($site = $sitesQueryObject->fetch())
+{
+	$listSites[$site["LID"]] = "[".$site["LID"]."] ".$site["NAME"];
+}
+$listPersonType = array();
+$personTypeQueryObject = CSalePersonType::GetList(array("SORT" => "ASC", "NAME" => "ASC"));
+while ($personType = $personTypeQueryObject->fetch())
+{
+	$listPersonType[$personType["ID"]] = $personType["NAME"]." (".implode(", ", $personType["LIDS"]).")";
+}
+
+ob_start();
+$APPLICATION->IncludeComponent("bitrix:sale.location.selector.search", "", array(
+	"ID" => "LOCATION",
+	"CODE" => "",
+	"INPUT_NAME" => "LOCATION",
+	"PROVIDE_LINK_BY" => "id",
+	"SHOW_ADMIN_CONTROLS" => "N",
+	"SELECT_WHEN_SINGLE" => "N",
+	"FILTER_BY_SITE" => "N",
+	"SHOW_DEFAULT_LOCATIONS" => "N",
+	"SEARCH_BY_PRIMARY" => "Y",
+	"INITIALIZE_BY_GLOBAL_EVENT" => "onAdminFilterInited",
+	"GLOBAL_EVENT_SCOPE" => "window",
+	"UI_FILTER" => true
+),false);
+$locationInput = ob_get_clean();
+
+$filterFields = array(
+	array(
+		"id" => "ID",
+		"name" => "ID",
+		"filterable" => "",
+		"quickSearch" => ""
+	),
+	array(
+		"id" => "TAX_ID",
+		"name" => GetMessage("SALE_F_TAX"),
+		"type" => "list",
+		"items" => $listTax,
+		"filterable" => "",
+		"default" => true
+	),
+	array(
+		"id" => "LID",
+		"name" => GetMessage("SALE_F_LANG"),
+		"type" => "list",
+		"items" => $listSites,
+		"filterable" => ""
+	),
+	array(
+		"id" => "PERSON_TYPE_ID",
+		"name" => GetMessage("SALE_F_PERSON_TYPE"),
+		"type" => "list",
+		"items" => $listPersonType,
+		"filterable" => ""
+	),
+	array(
+		"id" => "LOCATION",
+		"name" => GetMessage("SALE_F_LOCATION"),
+		"type" => "custom",
+		"value" => $locationInput,
+		"filterable" => ""
+	),
 );
-
-$lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
 
-if (strlen($filter_lang) > 0 && $filter_lang != "NOT_REF")
-	$arFilter["LID"] = Trim($filter_lang);
-if (IntVal($filter_tax_id) > 0)
-	$arFilter["TAX_ID"] = IntVal($filter_tax_id);
-if (IntVal($filter_person_type_id) > 0)
-	$arFilter["PERSON_TYPE_ID"] = IntVal($filter_person_type_id);
-if (IntVal($filter_location) > 0)
-	$arFilter["LOCATION"] = IntVal($filter_location);
-
+$lAdmin->AddFilter($filterFields, $arFilter);
 
 if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 {
@@ -101,15 +161,24 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 				break;
 		}
 	}
+	if ($lAdmin->hasGroupErrors())
+	{
+		$adminSidePanelHelper->sendJsonErrorResponse($lAdmin->getGroupErrors());
+	}
+	else
+	{
+		$adminSidePanelHelper->sendSuccessResponse();
+	}
 }
 
+global $by, $order;
 
-$dbResultList = CSaleTaxRate::GetList(Array($by => $order), $arFilter);
+$dbResultList = CSaleTaxRate::GetList(array($by => $order), $arFilter);
 
-$dbResultList = new CAdminResult($dbResultList, $sTableID);
+$dbResultList = new CAdminUiResult($dbResultList, $sTableID);
 $dbResultList->NavStart();
 
-$lAdmin->NavText($dbResultList->GetNavPrint(GetMessage("SALE_TAX_RATE_LIST")));
+$lAdmin->SetNavigationParams($dbResultList, array("BASE_LINK" => $selfFolderUrl."sale_tax_rate.php"));
 
 $lAdmin->AddHeaders(array(
 	array("id"=>"ID", "content"=>"ID", "sort"=>"ID", "default"=>true),
@@ -128,28 +197,34 @@ $arPersonTypeList = array();
 $dbPersonType = CSalePersonType::GetList(array("SORT" => "ASC", "NAME" => "ASC"), array());
 while ($arPersonType = $dbPersonType->Fetch())
 {
-	$arPersonTypeList[$arPersonType["ID"]] = Array("ID" => $arPersonType["ID"], "NAME" => htmlspecialcharsEx($arPersonType["NAME"]), "LID" => implode(", ", $arPersonType["LIDS"]));
+	$arPersonTypeList[$arPersonType["ID"]] = array(
+		"ID" => $arPersonType["ID"],
+		"NAME" => htmlspecialcharsEx($arPersonType["NAME"]),
+		"LID" => implode(", ", $arPersonType["LIDS"])
+	);
 }
 
-while ($arTaxRate = $dbResultList->NavNext(true, "f_"))
+while ($arTaxRate = $dbResultList->NavNext(false))
 {
-	$row =& $lAdmin->AddRow($f_ID, $arTaxRate);
+	$editUrl = $selfFolderUrl."sale_tax_rate_edit.php?ID=".$arTaxRate["ID"]."&lang=".LANGUAGE_ID;
+	$editUrl = $adminSidePanelHelper->editUrlToPublicPage($editUrl);
+	$row =& $lAdmin->AddRow($arTaxRate["ID"], $arTaxRate, $editUrl);
 
-	$row->AddField("ID", $f_ID);
+	$row->AddField("ID", $arTaxRate["ID"]);
 
-	$row->AddField("ACTIVE", ($f_ACTIVE=="Y") ? GetMessage("RATE_YES") : GetMessage("RATE_NET"));
+	$row->AddField("ACTIVE", ($arTaxRate["ACTIVE"]=="Y") ? GetMessage("RATE_YES") : GetMessage("RATE_NET"));
 
-	$row->AddField("TIMESTAMP_X", $f_TIMESTAMP_X);
+	$row->AddField("TIMESTAMP_X", $arTaxRate["TIMESTAMP_X"]);
 
-	$fieldShow = '<a href="sale_tax_edit.php?ID='.$f_TAX_ID.'&lang='.LANGUAGE_ID.'" title="'.GetMessage('TAX_EDIT_DESCR').'">'.$f_NAME.'</a> ('.$f_LID.')';
+	$fieldShow = '<a href="'.$editUrl.'" title="'.GetMessage('TAX_EDIT_DESCR').'">'.htmlspecialcharsbx($arTaxRate["NAME"]).'</a> ('.$arTaxRate["LID"].')';
 	$row->AddField("NAME", $fieldShow);
 
 	$fieldShow = "";
 	if (in_array("PERSON_TYPE_ID", $arVisibleColumns))
 	{
-		if (IntVal($f_PERSON_TYPE_ID)>0)
+		if (IntVal($arTaxRate["PERSON_TYPE_ID"])>0)
 		{
-			$arPerType = $arPersonTypeList[$f_PERSON_TYPE_ID];
+			$arPerType = $arPersonTypeList[$arTaxRate["PERSON_TYPE_ID"]];
 			$fieldShow .= "[".$arPerType["ID"]."] ".$arPerType["NAME"]." (".htmlspecialcharsEx($arPerType["LID"]).")";
 		}
 		else
@@ -159,34 +234,28 @@ while ($arTaxRate = $dbResultList->NavNext(true, "f_"))
 	}
 	$row->AddField("PERSON_TYPE_ID", $fieldShow);
 
-	$row->AddField("VALUE", $f_VALUE.(($f_IS_PERCENT=="Y") ? "%" : " ".$f_CURRENCY));
-	$row->AddField("IS_IN_PRICE", ($f_IS_IN_PRICE=="Y") ? GetMessage("RATE_YES") : GetMessage("RATE_NET"));
-	$row->AddField("APPLY_ORDER", $f_APPLY_ORDER);
+	$row->AddField("VALUE", $arTaxRate["VALUE"].(($arTaxRate["IS_PERCENT"]=="Y") ? "%" : " ".$arTaxRate["CURRENCY"]));
+	$row->AddField("IS_IN_PRICE", ($arTaxRate["IS_IN_PRICE"]=="Y") ? GetMessage("RATE_YES") : GetMessage("RATE_NET"));
+	$row->AddField("APPLY_ORDER", $arTaxRate["APPLY_ORDER"]);
 
 	$arActions = array();
-	$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("RATE_EDIT_DESCR"), "ACTION"=>$lAdmin->ActionRedirect("sale_tax_rate_edit.php?ID=".$f_ID."&lang=".LANG.GetFilterParams("filter_").""), "DEFAULT"=>true);
+	$arActions[] = array(
+		"ICON" => "edit",
+		"TEXT" => GetMessage("RATE_EDIT_DESCR"),
+		"LINK" => $editUrl,
+		"DEFAULT" => true
+	);
 	if ($saleModulePermissions >= "W")
 	{
-		$arActions[] = array("SEPARATOR" => true);
-		$arActions[] = array("ICON"=>"delete", "TEXT"=>GetMessage("RATE_DELETE_DESCR"), "ACTION"=>"if(confirm('".GetMessage('TAX_RATE_DEL_CONF')."')) ".$lAdmin->ActionDoGroup($f_ID, "delete"));
+		$arActions[] = array(
+			"ICON" => "delete",
+			"TEXT" => GetMessage("RATE_DELETE_DESCR"),
+			"ACTION" => "if(confirm('".GetMessage('TAX_RATE_DEL_CONF')."')) ".$lAdmin->ActionDoGroup($arTaxRate["ID"], "delete")
+		);
 	}
 
 	$row->AddActions($arActions);
 }
-
-$lAdmin->AddFooter(
-	array(
-		array(
-			"title" => GetMessage("MAIN_ADMIN_LIST_SELECTED"),
-			"value" => $dbResultList->SelectedRowsCount()
-		),
-		array(
-			"counter" => true,
-			"title" => GetMessage("MAIN_ADMIN_LIST_CHECKED"),
-			"value" => "0"
-		),
-	)
-);
 
 $lAdmin->AddGroupActionTable(
 	array(
@@ -198,14 +267,17 @@ $lAdmin->AddGroupActionTable(
 
 if ($saleModulePermissions == "W")
 {
+	$addUrl = $selfFolderUrl."sale_tax_rate_edit.php?lang=".LANGUAGE_ID;
+	$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
 	$aContext = array(
 		array(
 			"TEXT" => GetMessage("STRAN_ADD_NEW"),
 			"ICON" => "btn_new",
-			"LINK" => "sale_tax_rate_edit.php?lang=".LANG,
+			"LINK" => $addUrl,
 			"TITLE" => GetMessage("STRAN_ADD_NEW_ALT")
 		),
 	);
+	$lAdmin->setContextSettings(array("pagePath" => $selfFolderUrl."sale_tax_rate.php"));
 	$lAdmin->AddAdminContextMenu($aContext);
 }
 
@@ -219,104 +291,8 @@ $lAdmin->CheckListMode();
 $APPLICATION->SetTitle(GetMessage("SALE_SECTION_TITLE"));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-?>
-<form name="find_form" method="GET" action="<?echo $APPLICATION->GetCurPage()?>?">
-<?
-$oFilter = new CAdminFilter(
-	$sTableID."_filter",
-	array(
-		GetMessage("SALE_F_LANG"),
-		GetMessage("SALE_F_PERSON_TYPE"),
-		GetMessage("SALE_F_LOCATION"),
-	)
-);
 
-$oFilter->Begin();
-?>
-	<tr>
-		<td><?echo GetMessage("SALE_F_TAX")?>:</td>
-		<td>
-			<?$db_TAX = CSaleTax::GetList(array("NAME" => "ASC"), array());?>
-			<select name="filter_tax_id">
-				<option value=""><?echo GetMessage("SALE_ALL") ?></option>
-				<?
-				while ($db_TAX_arr = $db_TAX->NavNext(true, "fp_"))
-				{
-					?><option value="<?echo $fp_ID ?>" <?if (IntVal($fp_ID)==IntVal($filter_tax_id)) echo "selected";?>><?echo $fp_NAME ?> (<?echo $fp_LID ?>)</option><?
-				}
-				?>
-			</select>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SALE_F_LANG");?>:</td>
-		<td>
-			<?echo CLang::SelectBox("filter_lang", $filter_lang, GetMessage("SALE_ALL")) ?>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SALE_F_PERSON_TYPE")?>:</td>
-		<td>
-			<?echo CSalePersonType::SelectBox("filter_person_type_id", $filter_person_type_id, GetMessage("SALE_ALL"), True, "", "")?>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SALE_F_LOCATION")?>:</td>
-		<td>
-			<?if(CSaleLocation::isLocationProEnabled()):?>
-
-				<div style="width: 100%; margin-left: 12px">
-
-					<?$APPLICATION->IncludeComponent("bitrix:sale.location.selector.search", "", array(
-						"ID" => $filter_location,
-						"CODE" => "",
-						"INPUT_NAME" => 'filter_location',
-						"PROVIDE_LINK_BY" => "id",
-						"SHOW_ADMIN_CONTROLS" => 'N',
-						"SELECT_WHEN_SINGLE" => 'N',
-						"FILTER_BY_SITE" => 'N',
-						"SHOW_DEFAULT_LOCATIONS" => 'N',
-						"SEARCH_BY_PRIMARY" => 'Y',
-						"INITIALIZE_BY_GLOBAL_EVENT" => 'onAdminFilterInited', // this allows js logic to be initialized after admin filter
-						"GLOBAL_EVENT_SCOPE" => 'window'
-						),
-						false
-					);?>
-
-				</div>
-
-				<style>
-					.adm-filter-item-center,
-					.adm-filter-content {
-						overflow: visible !important;
-					}
-				</style>
-
-			<?else:?>
-				<select name="filter_location">
-					<option value=""><?echo GetMessage("SALE_ALL")?></option>
-					<?$db_vars = CSaleLocation::GetList(Array("SORT"=>"ASC", "COUNTRY_NAME_LANG"=>"ASC", "CITY_NAME_LANG"=>"ASC"), array(), LANG)?>
-					<?while ($vars = $db_vars->Fetch()):?>
-						<option value="<?echo $vars["ID"]?>"<?if (IntVal($vars["ID"])==IntVal($filter_location)) echo " selected"?>><?echo htmlspecialcharsbx($vars["COUNTRY_NAME"]." - ".$vars["CITY_NAME"])?></option>
-					<?endwhile;?>
-				</select>
-			<?endif?>
-		</td>
-	</tr>
-<?
-$oFilter->Buttons(
-	array(
-		"table_id" => $sTableID,
-		"url" => $APPLICATION->GetCurPage(),
-		"form" => "find_form"
-	)
-);
-$oFilter->End();
-?>
-</form>
-
-<?
-
+$lAdmin->DisplayFilter($filterFields);
 $lAdmin->DisplayList();
 ?>
 

@@ -31,7 +31,7 @@ $MESS ['F_MANAGE_OPEN'] = "Открыть темы";
 $MESS ['F_MANAGE_CLOSE'] = "Закрыть темы";
 $MESS ['F_MANAGE_DELETE'] = "Удалить темы";
 $MESS ['JS_NO_ACTION'] = "Не выбрано действие для списка тем. Выберите действие.";
-$MESS ['F_CREATE_NEW_TOPIC'] = "<a href='#HREF#'>Создайте первую тему</a> в этом форуме.";
+$MESS ['F_CREATE_NEW_TOPIC'] = "<a href=\"#HREF#\">Создайте первую тему</a> в этом форуме.";
 $MESS ['F_NO_TOPICS_HERE'] = "Здесь пока нет ни одной темы.";
 $MESS ['F_TOPIC_START'] = "Тема начата";
 $MESS ['FTL_EMAIL_INTEGRATION'] = "Обсуждения по E-Mail:";

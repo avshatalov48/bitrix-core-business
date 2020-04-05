@@ -310,7 +310,7 @@ class HtmlDocument
 
 		foreach($elements[0] as $element)
 		{
-			preg_match_all('/(?:([\w-_]+)=([\'"])(.*?)\g{-2}\s*)/mis', $element, $matches);
+			preg_match_all('/(?:([\w\-_]+)=([\'"])(.*?)\g{-2}\s*)/mis', $element, $matches);
 
 			$elementAttributes = array();
 			foreach($matches[1] as $k => $attributeName)

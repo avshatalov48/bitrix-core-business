@@ -4,6 +4,8 @@ define("NOT_CHECK_PERMISSIONS", true);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 
+header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
+
 if(!check_bitrix_sessid())
 	die();
 

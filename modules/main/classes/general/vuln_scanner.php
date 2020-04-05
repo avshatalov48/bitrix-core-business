@@ -358,6 +358,7 @@ class CVulnScanner
 
 	public function process()
 	{
+		$this->objects = array();
 		for ($i = 0, $tokens_count = count($this->tokens); $i < $tokens_count; $i++)
 		{
 		
@@ -374,6 +375,14 @@ class CVulnScanner
 				{
 					if($this->tokens[$i + 1] === '=' || (is_array($this->tokens[$i + 1]) && in_array($this->tokens[$i + 1][0], $this->tokens_type['ASSIGNMENT'])))
 					{
+						if (
+							is_array($this->tokens[$i + 2]) && ($this->tokens[$i + 2][0] === T_NEW)
+							&& ($className = $this->getClassName($i + 3))
+						)
+						{
+							$this->objects[$token_value] = ltrim(strtoupper($className), '\\');
+							$i += $this->getBraceEnd($this->tokens, $i);
+						}
 						if(!(is_array($this->tokens[$i + 2]) && $this->tokens[$i + 2][0] === T_ARRAY))
 							$this->addVariable($this->tokens[$i], $i, $cur_line, $i, $this->getBraceEnd($this->tokens, $i), '');
 						else
@@ -571,11 +580,24 @@ class CVulnScanner
 						&& !(($this->tokens[$i + 1] === '(' && $this->tokens[$i + 2] === ')') || $this->tokens[$i + 1] === ';') //skip function with empty parameter list
 					)
 					{
-
-						if($this->tokens[$i + 1] === '(')
+						//check if query function is NOT belong to CHTTP object
+						if (
+							$token_value === 'query'
+							&& (is_array($this->tokens[$i-2]) && $this->tokens[$i-2][0] === T_VARIABLE)
+							&& isset($this->objects[$this->tokens[$i-2][1]])
+							&& $this->objects[$this->tokens[$i-2][1]] === 'CHTTP'
+						)
+						{
+							$result = false;
+						}
+						elseif($this->tokens[$i + 1] === '(')
+						{
 							$result = $this->getTokensInfo(array_slice($this->tokens, $i + 2, $this->getBraceEnd($this->tokens, $i + 2) - 1), false, $token_value);
+						}
 						else
+						{
 							$result = $this->getTokensInfo(array_slice($this->tokens, $i + 1, $this->getBraceEnd($this->tokens, $i + 1)), false, $token_value);
+						}
 
 						if($result !== false)
 						{
@@ -697,6 +719,23 @@ class CVulnScanner
 				$result .= $token[$i][1];
 		}
 		return $result;
+	}
+
+	private function getClassName($token)
+	{
+		$className = '';
+		while(
+			is_array($this->tokens[$token])
+			&& (
+				($this->tokens[$token][0] === T_STRING)
+				|| ($this->tokens[$token][0] === T_NS_SEPARATOR)
+			)
+		)
+		{
+			$className .= $this->tokens[$token][1];
+			$token++;
+		}
+		return $className;
 	}
 
 	private function getVarName($token, $level = -1)

@@ -16,8 +16,7 @@ abstract class ImportBase
 
     /** @var Sale\Internals\Fields */
     protected $fields;
-    /** @var ISettings */
-
+    /** @var ISettingsImport */
     protected $settings = null;
 
     /** @var Exchange\ICriterion */
@@ -368,7 +367,8 @@ abstract class ImportBase
 			false,
 			$paymentList,
 			$shipmentList,
-			$locationStreetPropertyValue
+			$locationStreetPropertyValue,
+			$order
 		);
 
 		$exportProfiles = static::getSaleExport();

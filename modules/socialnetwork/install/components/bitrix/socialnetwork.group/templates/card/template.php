@@ -26,6 +26,7 @@ else
 		BX.ready(function() {
 			SonetGroupCardSlider.getInstance().init({
 				groupId: <?=intval($arParams["GROUP_ID"])?>,
+				groupType: '<?=CUtil::JSEscape($arResult["groupTypeCode"])?>',
 				isProject: <?=($arResult['Group']['PROJECT'] == 'Y' ? 'true' : 'false')?>,
 				isOpened: <?=($arResult['Group']['OPENED'] == 'Y' ? 'true' : 'false')?>,
 				currentUserId: <?=($USER->isAuthorized() ? $USER->getid() : 0)?>,
@@ -35,6 +36,7 @@ else
 				initiatedByType: '<?=CUtil::JSUrlEscape($arResult["CurrentUserPerms"]["InitiatedByType"])?>',
 				favoritesValue: <?=($arResult["FAVORITES"] ? 'true' : 'false')?>,
 				canInitiate: <?=($arResult["CurrentUserPerms"]["UserCanInitiate"] && !$arResult["HideArchiveLinks"] ? 'true' : 'false')?>,
+				canProcessRequestsIn: <?=($arResult["CurrentUserPerms"]["UserCanProcessRequestsIn"] && !$arResult["HideArchiveLinks"] ? 'true' : 'false')?>,
 				canModify: <?=($arResult["CurrentUserPerms"]["UserCanModifyGroup"] ? 'true' : 'false')?>,
 				canModerate: <?=($arResult["CurrentUserPerms"]["UserCanModerateGroup"] ? 'true' : 'false')?>,
 				hideArchiveLinks: <?=($arResult["HideArchiveLinks"] ? 'true' : 'false')?>,
@@ -127,22 +129,28 @@ else
 			<div class="socialnetwork-group-right">
 				<div class="socialnetwork-group-user-box"><?
 					$counter = 0;
-					foreach($arResult["Moderators"]["List"] as $moderator)
+					if (
+						is_array($arResult["Moderators"]["List"])
+						&& !empty($arResult["Moderators"]["List"])
+					)
 					{
-						if ($counter >= $arParams['USER_LIMIT'])
+						foreach($arResult["Moderators"]["List"] as $moderator)
 						{
-							break;
+							if ($counter >= $arParams['USER_LIMIT'])
+							{
+								break;
+							}
+
+							$backgroundStyle = (
+								!empty($moderator["USER_PERSONAL_PHOTO_FILE"])
+								&& !empty($moderator["USER_PERSONAL_PHOTO_FILE"]["SRC"])
+									? "background-image: url('".htmlspecialcharsbx($moderator["USER_PERSONAL_PHOTO_FILE"]["SRC"])."'); background-size: cover;"
+									: ""
+							);
+
+							?><div bx-user-id="<?=intval($moderator['USER_ID'])?>" class="socialnetwork-group-user" title="<?=$moderator["NAME_FORMATTED"]?>" style="<?=$backgroundStyle?>"></div><?
+							$counter++;
 						}
-
-						$backgroundStyle = (
-							!empty($moderator["USER_PERSONAL_PHOTO_FILE"])
-							&& !empty($moderator["USER_PERSONAL_PHOTO_FILE"]["SRC"])
-								? "background-image: url('".htmlspecialcharsbx($moderator["USER_PERSONAL_PHOTO_FILE"]["SRC"])."'); background-size: cover;"
-								: ""
-						);
-
-						?><div bx-user-id="<?=intval($moderator['USER_ID'])?>" class="socialnetwork-group-user" title="<?=$moderator["NAME_FORMATTED"]?>" style="<?=$backgroundStyle?>"></div><?
-						$counter++;
 					}
 
 					if ($counter >= $arParams['USER_LIMIT'])
@@ -158,22 +166,28 @@ else
 			<div class="socialnetwork-group-right">
 				<div class="socialnetwork-group-user-box"><?
 					$counter = 0;
-					foreach($arResult["Members"]["List"] as $member)
+					if (
+						is_array($arResult["Members"]["List"])
+						&& !empty($arResult["Members"]["List"])
+					)
 					{
-						if ($counter >= $arParams['USER_LIMIT'])
+						foreach($arResult["Members"]["List"] as $member)
 						{
-							break;
-						}
+							if ($counter >= $arParams['USER_LIMIT'])
+							{
+								break;
+							}
 
-						$backgroundStyle = (
+							$backgroundStyle = (
 							!empty($member["USER_PERSONAL_PHOTO_FILE"])
 							&& !empty($member["USER_PERSONAL_PHOTO_FILE"]["SRC"])
 								? "background-image: url('".htmlspecialcharsbx($member["USER_PERSONAL_PHOTO_FILE"]["SRC"])."'); background-size: cover;"
 								: ""
-						);
+							);
 
-						?><div bx-user-id="<?=intval($member['USER_ID'])?>" class="socialnetwork-group-user" title="<?=$member["NAME_FORMATTED"]?>" style="<?=$backgroundStyle?>"></div><?
-						$counter++;
+							?><div bx-user-id="<?=intval($member['USER_ID'])?>" class="socialnetwork-group-user" title="<?=$member["NAME_FORMATTED"]?>" style="<?=$backgroundStyle?>"></div><?
+							$counter++;
+						}
 					}
 
 					if ($counter >= $arParams['USER_LIMIT'])

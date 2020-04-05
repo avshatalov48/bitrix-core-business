@@ -29,17 +29,6 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm
 		/** @var Main\Type\DateTime $dateTime */
 		$dateTime = $data['date_create'];
 
-		$phone = \NormalizePhone($data['client_phone']);
-		if (is_string($phone))
-		{
-			if ($phone[0] === '7')
-				$phone = substr($phone, 1);
-		}
-		else
-		{
-			$phone = '';
-		}
-
 		$serviceEmail = $this->getValueFromSettings('SERVICE', 'EMAIL');
 		if (!$serviceEmail)
 		{
@@ -53,10 +42,7 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm
 				'callback_url' => $this->getCallbackUrl(),
 			),
 			'receipt' => array(
-				'client' => array(
-					'email' => $data['client_email'] ?: '',
-					'phone' => $phone,
-				),
+				'client' => array(),
 				'company' => array(
 					'email' => $serviceEmail,
 					'sno' => $this->getValueFromSettings('TAX', 'SNO'),
@@ -69,6 +55,43 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm
 			)
 		);
 
+		$email = $data['client_email'] ?: '';
+
+		$phone = \NormalizePhone($data['client_phone']);
+		if (is_string($phone))
+		{
+			if ($phone[0] === '7')
+				$phone = substr($phone, 1);
+		}
+		else
+		{
+			$phone = '';
+		}
+
+		$clientInfo = $this->getValueFromSettings('CLIENT', 'INFO');
+		if ($clientInfo === 'PHONE')
+		{
+			$result['receipt']['client'] = ['phone' => $phone];
+		}
+		elseif ($clientInfo === 'EMAIL')
+		{
+			$result['receipt']['client'] = ['email' => $email];
+		}
+		else
+		{
+			$result['receipt']['client'] = [];
+
+			if ($email)
+			{
+				$result['receipt']['client']['email'] = $email;
+			}
+
+			if ($phone)
+			{
+				$result['receipt']['client']['phone'] = $phone;
+			}
+		}
+
 		$paymentTypeMap = $this->getPaymentTypeMap();
 		foreach ($data['payments'] as $payment)
 		{
@@ -79,6 +102,7 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm
 		}
 
 		$checkTypeMap = $this->getCheckTypeMap();
+		$paymentObjectMap = $this->getPaymentObjectMap();
 		foreach ($data['items'] as $i => $item)
 		{
 			$vat = $this->getValueFromSettings('VAT', $item['vat']);
@@ -91,7 +115,7 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm
 				'sum' => (float)$item['sum'],
 				'quantity' => $item['quantity'],
 				'payment_method' => $checkTypeMap[$check::getType()],
-				'payment_object' => 'commodity',
+				'payment_object' => $paymentObjectMap[$item['payment_object']],
 				'vat' => array(
 					'type' => $vat
 				),
@@ -99,6 +123,20 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getPaymentObjectMap()
+	{
+		return [
+			Check::PAYMENT_OBJECT_COMMODITY => 'commodity',
+			Check::PAYMENT_OBJECT_SERVICE => 'service',
+			Check::PAYMENT_OBJECT_JOB => 'job',
+			Check::PAYMENT_OBJECT_EXCISE => 'excise',
+			Check::PAYMENT_OBJECT_PAYMENT => 'payment',
+		];
 	}
 
 	/**
@@ -142,6 +180,12 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm
 			AdvancePaymentCheck::getType() => 'advance',
 			AdvanceReturnCashCheck::getType() => 'advance',
 			AdvanceReturnCheck::getType() => 'advance',
+			PrepaymentCheck::getType() => 'prepayment',
+			PrepaymentReturnCheck::getType() => 'prepayment',
+			PrepaymentReturnCashCheck::getType() => 'prepayment',
+			FullPrepaymentCheck::getType() => 'full_prepayment',
+			FullPrepaymentReturnCheck::getType() => 'full_prepayment',
+			FullPrepaymentReturnCashCheck::getType() => 'full_prepayment',
 			CreditCheck::getType() => 'credit',
 			CreditReturnCheck::getType() => 'credit',
 			CreditPaymentCheck::getType() => 'credit_payment',

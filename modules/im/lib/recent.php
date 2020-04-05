@@ -135,29 +135,11 @@ class Recent
 				{
 					$avatar = \CIMChat::GetAvatarImage($row['CHAT_AVATAR'], 100, false);
 					$color = strlen($row['CHAT_COLOR']) > 0? Color::getColor($row['CHAT_COLOR']): Color::getColorByNumber($row['ITEM_ID']);
-					if ($row["CHAT_TYPE"] == IM_MESSAGE_PRIVATE)
+					$chatType = \Bitrix\Im\Chat::getType($row);
+
+					if ($generalChatId == $row['ITEM_ID'])
 					{
-						$chatType = 'private';
-					}
-					else if ($row["CHAT_ENTITY_TYPE"] == 'CALL')
-					{
-						$chatType = 'call';
-					}
-					else if ($row["CHAT_ENTITY_TYPE"] == 'LINES')
-					{
-						$chatType = 'lines';
-					}
-					else if ($row["CHAT_ENTITY_TYPE"] == 'LIVECHAT')
-					{
-						$chatType = 'livechat';
-					}
-					else
-					{
-						if ($generalChatId == $row['ITEM_ID'])
-						{
-							$row["CHAT_ENTITY_TYPE"] = 'GENERAL';
-						}
-						$chatType = $row["CHAT_TYPE"] == IM_MESSAGE_OPEN? 'open': 'chat';
+						$row["CHAT_ENTITY_TYPE"] = 'GENERAL';
 					}
 
 					$muteList = Array();
@@ -351,7 +333,7 @@ class Recent
 		return $result;
 	}
 
-	public static function pin($dialogId, $action, $userId = null)
+	public static function pin($dialogId, $pin, $userId = null)
 	{
 		$userId = \Bitrix\Im\Common::getUserId($userId);
 		if (!$userId)
@@ -359,12 +341,12 @@ class Recent
 			return false;
 		}
 
-		$action = $action === true? 'Y': 'N';
+		$pin = $pin === true? 'Y': 'N';
 
 		$id = $dialogId;
 		if (substr($dialogId, 0, 4) == 'chat')
 		{
-			$itemTypes = \Bitrix\Im\Chat::getChatTypes();
+			$itemTypes = \Bitrix\Im\Chat::getTypes();
 			$id = substr($dialogId, 4);
 		}
 		else
@@ -384,7 +366,7 @@ class Recent
 		{
 			return false;
 		}
-		if ($element['PINNED'] == $action)
+		if ($element['PINNED'] == $pin)
 		{
 			return true;
 		}
@@ -393,7 +375,7 @@ class Recent
 			'USER_ID' => $element['USER_ID'],
 			'ITEM_TYPE' => $element['ITEM_TYPE'],
 			'ITEM_ID' => $element['ITEM_ID'],
-		), array('PINNED' => $action));
+		), array('PINNED' => $pin));
 
 		self::clearCache($element['USER_ID']);
 
@@ -406,7 +388,7 @@ class Recent
 				'expiry' => 3600,
 				'params' => Array(
 					'dialogId' => $dialogId,
-					'active' => $action == 'Y'
+					'active' => $pin == 'Y'
 				),
 				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));

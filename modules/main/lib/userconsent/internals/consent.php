@@ -54,6 +54,15 @@ class ConsentTable extends Entity\DataManager
 			'IP' => array(
 				'data_type' => 'string',
 				'required' => true,
+				'validation' => function()
+				{
+					return [
+						function ($value)
+						{
+							return filter_var($value, FILTER_VALIDATE_IP) !== false;
+						}
+					];
+				}
 			),
 			'URL' => array(
 				'data_type' => 'string',

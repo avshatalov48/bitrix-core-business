@@ -2023,10 +2023,10 @@ class CZip implements IBXArchive
 			{
 				//reading 1 byte
 				$byte = @fread($this->zipfile, 1);
-
+				//0x03000000504b0506 -> 0x504b0506
+				$bytes = ($bytes << (8*(PHP_INT_SIZE - 3))) >> (8*(PHP_INT_SIZE - 4));
 				//adding the byte
-				$bytes = ($bytes << 8) | ord($byte);
-
+				$bytes = $bytes | ord($byte);
 				//compare bytes
 				if ($bytes == 0x504b0506)
 				{

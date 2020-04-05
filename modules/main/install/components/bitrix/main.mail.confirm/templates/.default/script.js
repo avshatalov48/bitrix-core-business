@@ -5,11 +5,14 @@
 		return;
 
 	var BXMainMailConfirm = {
-		showForm: function(callback)
+		showForm: function(callback, params)
 		{
 			var step = 'email';
+			var senderId;
+
+			var mode = params && params.mode ? params.mode : 'add';
+
 			var dlg = new BX.PopupWindow('add_from_email', null, {
-				width: 480,
 				titleBar: BX.message('MAIN_MAIL_CONFIRM_TITLE'),
 				draggable: true,
 				closeIcon: true,
@@ -126,6 +129,17 @@
 									data.code = codeField.value;
 								}
 
+								if (params && params.data)
+								{
+									for (var i in params.data)
+									{
+										if (params.data.hasOwnProperty(i))
+										{
+											data[i] = params.data[i];
+										}
+									}
+								}
+
 								BX.ajax({
 									'url': '/bitrix/components/bitrix/main.mail.confirm/ajax.php?act=add',
 									'method': 'POST',
@@ -135,27 +149,17 @@
 									{
 										BX.removeClass(btn.buttonNode, 'popup-window-button-wait');
 
+										if(data.senderId)
+										{
+											senderId = data.senderId;
+										}
 										if (data.result == 'error')
 										{
 											dlg.showNotify(data.error);
 										}
-										else if (step == 'email')
+										else if ('email' == step || 'smtp' == step)
 										{
-											step = 'code';
-
-											emailBlock.style.height = emailBlock.offsetHeight+'px';
-											emailBlock.offsetHeight;
-											emailBlock.style.height = '0px';
-
-											codeBlock.style.position = 'absolute';
-											codeBlock.style.display = '';
-											var codeBlockHeight = codeBlock.offsetHeight;
-											codeBlock.style.height = '0px';
-											codeBlock.style.position = '';
-											codeBlock.offsetHeight;
-											codeBlock.style.height = codeBlockHeight+'px';
-
-											btn.setName(BX.message('MAIN_MAIL_CONFIRM_SAVE'));
+											dlg.switchBlock('code');
 										}
 										else
 										{
@@ -169,7 +173,8 @@
 												callback(
 													{
 														name: mailboxName,
-														email: emailField.value
+														email: emailField.value,
+														id: senderId
 													},
 													mailboxName.length > 0 ? mailboxName+' <'+emailField.value+'>' : emailField.value
 												);
@@ -191,7 +196,18 @@
 						events: {
 							click: function()
 							{
-								this.popupWindow.close();
+								if ('code' == step && 'confirm' != mode)
+								{
+									var smtpBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-smtp-block', true);
+
+									dlg.switchBlock(smtpBlock && smtpBlock.offsetHeight > 0 ? 'smtp' : 'email');
+
+									dlg.hideNotify();
+								}
+								else
+								{
+									this.popupWindow.close();
+								}
 							}
 						}
 					})
@@ -211,6 +227,59 @@
 				BX.show(error, 'block');
 			};
 
+			dlg.switchBlock = function(block, immediately)
+			{
+				var emailBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-email-block', true);
+				var codeBlock  = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-code-block', true);
+
+				var hideBlock, showBlock;
+				if ('code' != step && 'code' == block)
+				{
+					hideBlock = emailBlock;
+					showBlock = codeBlock;
+
+					dlg.buttons[0].setName(BX.message('MAIN_MAIL_CONFIRM_SAVE'));
+					dlg.buttons[1].setName(BX.message('MAIN_MAIL_CONFIRM_BACK'));
+				}
+				else if ('code' == step && 'code' != block)
+				{
+					hideBlock = codeBlock;
+					showBlock = emailBlock;
+
+					dlg.buttons[0].setName(BX.message('MAIN_MAIL_CONFIRM_GET_CODE'));
+					dlg.buttons[1].setName(BX.message('MAIN_MAIL_CONFIRM_CANCEL'));
+				}
+
+				step = block;
+
+				if (hideBlock && showBlock)
+				{
+					if (immediately)
+					{
+						showBlock.style.position = '';
+						showBlock.style.height = '';
+						showBlock.style.display = '';
+
+						hideBlock.style.display = 'none';
+					}
+					else
+					{
+						hideBlock.style.height = hideBlock.offsetHeight+'px';
+						hideBlock.offsetHeight;
+						hideBlock.style.height = '0px';
+
+						showBlock.style.position = 'absolute';
+						showBlock.style.height = '';
+						showBlock.style.display = '';
+						var showBlockHeight = showBlock.offsetHeight;
+						showBlock.style.height = '0px';
+						showBlock.style.position = '';
+						showBlock.offsetHeight;
+						showBlock.style.height = showBlockHeight+'px';
+					}
+				}
+			};
+
 			var smtpLink = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-smtp-link', true);
 			var smtpBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-smtp-block', true);
 
@@ -221,26 +290,32 @@
 					'click',
 					function (event)
 					{
+						var emailBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-email-block', true);
+
+						emailBlock.style.height = '';
+
 						if ('smtp' == step)
 						{
 							step = 'email';
 
 							BX.hide(smtpBlock, 'table-row-group');
-
-							dlg.buttons[0].setName(BX.message('MAIN_MAIL_CONFIRM_GET_CODE'));
 						}
 						else
 						{
 							step = 'smtp';
 
 							BX.show(smtpBlock, 'table-row-group');
-
-							dlg.buttons[0].setName(BX.message('MAIN_MAIL_CONFIRM_SAVE'));
 						}
 
 						event.preventDefault();
 					}
 				);
+			}
+
+			if ('confirm' == mode)
+			{
+				dlg.switchBlock('code', true);
+				dlg.setOverlay(true);
 			}
 
 			dlg.show();
@@ -257,6 +332,45 @@
 			else
 			{
 				nameField.focus();
+			}
+		},
+		deleteSender: function (senderId, callback)
+		{
+			if(senderId > 0)
+			{
+				if(confirm(BX.message('MAIN_MAIL_CONFIRM_DELETE_SENDER_CONFIRM')))
+				{
+					BX.ajax({
+						'url': '/bitrix/components/bitrix/main.mail.confirm/ajax.php?act=delete',
+						'method': 'POST',
+						'dataType': 'json',
+						'data': {
+							senderId: senderId
+						},
+						onsuccess: function(data)
+						{
+							if(data.result == 'error')
+							{
+								BX.UI.Notification.Center.notify({
+									content: BX.message('MAIN_MAIL_DELETE_SENDER_ERROR')
+								});
+							}
+							else
+							{
+								if (BX.type.isFunction(callback))
+								{
+									callback();
+								}
+							}
+						},
+						onfailure: function(data)
+						{
+							BX.UI.Notification.Center.notify({
+								content: BX.message('MAIN_MAIL_DELETE_SENDER_ERROR')
+							});
+						}
+					});
+				}
 			}
 		}
 	};

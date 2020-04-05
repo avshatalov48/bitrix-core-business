@@ -3,13 +3,14 @@
 
 	BX.namespace("BX.Landing.UI.Field");
 
-
 	var isPlainObject = BX.Landing.Utils.isPlainObject;
-	var isString = BX.Landing.Utils.isString;
+	var isNumber = BX.Landing.Utils.isNumber;
 	var isEmpty = BX.Landing.Utils.isEmpty;
+	var isString = BX.Landing.Utils.isString;
+	var decodeDataValue = BX.Landing.Utils.decodeDataValue;
+	var clone = BX.Landing.Utils.clone;
 	var create = BX.Landing.Utils.create;
 	var fireCustomEvent = BX.Landing.Utils.fireCustomEvent;
-
 
 	/**
 	 * Implements interface for works with image field in editor
@@ -26,10 +27,15 @@
 		this.dimensions = typeof data.dimensions === "object" ? data.dimensions : null;
 		this.uploadParams = typeof data.uploadParams === "object" ? data.uploadParams : {};
 		this.onValueChangeHandler = data.onValueChange ? data.onValueChange : (function() {});
- 		this.layout.classList.add("landing-ui-field-image");
+		this.layout.classList.add("landing-ui-field-image");
 		this.type = this.content.type || "image";
+		this.allowClear = data.allowClear;
 		this.input.innerText = this.content.src;
 		this.input.hidden = true;
+		this.input2x = this.createInput();
+		this.input2x.innerText = this.content.src2x;
+		this.input2x.hidden = true;
+
 		this.disableAltField = typeof data.disableAltField === "boolean" ? data.disableAltField : false;
 
 		this.fileInput = createFileInput(this.selector);
@@ -53,12 +59,15 @@
 		this.preview.style.backgroundImage = "url("+this.input.innerText.trim()+")";
 		this.preview.addEventListener("dragenter", this.onImageDragEnter.bind(this));
 
+		this.loader = new BX.Loader({target: this.preview});
+
 		this.icon = createIcon();
 
 		this.image = createImageLayout();
 		this.image.appendChild(this.preview);
 		this.image.appendChild(this.icon);
 		this.image.dataset.fileid = this.content.id;
+		this.image.dataset.fileid2x = this.content.id2x;
 
 		this.hiddenImage = create("img", {
 			props: {className: "landing-ui-field-image-hidden"}
@@ -72,8 +81,6 @@
 		this.altField = createAltField();
 		this.altField.setValue(this.content.alt);
 
-		this.loader = createLoader();
-
 		this.left = createLeftLayout();
 		this.left.appendChild(this.dropzone);
 		this.left.appendChild(this.image);
@@ -86,7 +93,6 @@
 
 		this.left.appendChild(this.altField.layout);
 		this.left.appendChild(this.linkInput.layout);
-		this.left.appendChild(this.loader.layout);
 
 		this.uploadButton = createUploadButton();
 		this.uploadButton.on("click", this.onUploadClick.bind(this));
@@ -115,6 +121,8 @@
 		if (this.disableAltField)
 		{
 			this.altField.layout.hidden = true;
+			this.altField.layout.style.display = "none";
+			this.altField.layout.classList.add("landing-ui-hide");
 		}
 
 		if (this.content.type === "icon")
@@ -144,13 +152,74 @@
 			this.altField.layout.hidden = true;
 		}
 
+		this.makeAsLinkWrapper = create("div", {
+			props: {className: "landing-ui-field-image-make-as-link-wrapper"},
+			children: [
+				create('div', {
+					props: {className: "landing-ui-field-image-make-as-link-button"},
+					children: [
+
+					]
+				})
+			]
+		});
+
+		this.url = new BX.Landing.UI.Field.Link({
+			content: this.content.url || {
+				text: '',
+				href: ''
+			},
+			options: {
+				siteId: BX.Landing.Main.getInstance().options.site_id,
+				landingId: BX.Landing.Main.getInstance().id
+			}
+		});
+
+		this.urlCheckbox = create("input", {
+			props: {type: "checkbox"},
+			attrs: {style: "margin-left: 4px;"}
+		});
+
+		function onCheckboxChange(checkbox, layout) {
+			if (checkbox.checked)
+			{
+				layout.querySelector(".landing-ui-field-link-right").classList.remove("landing-ui-disabled");
+				layout.querySelector(".landing-ui-field-link-url-grid").classList.remove("landing-ui-disabled");
+			}
+			else
+			{
+				layout.querySelector(".landing-ui-field-link-right").classList.add("landing-ui-disabled");
+				layout.querySelector(".landing-ui-field-link-url-grid").classList.add("landing-ui-disabled");
+			}
+		}
+
+		this.urlCheckbox.addEventListener('change', function() {
+			onCheckboxChange(this.urlCheckbox, this.url.layout);
+		}.bind(this));
+
+		this.urlCheckbox.checked = this.content.url && this.content.url.enabled;
+
+		onCheckboxChange(this.urlCheckbox, this.url.layout);
+
+		this.url.hrefInput.header.appendChild(this.urlCheckbox);
+		this.url.left.hidden = true;
+
+		this.makeAsLinkWrapper.appendChild(this.url.layout);
+
+		if (!data.disableLink)
+		{
+			this.layout.appendChild(this.makeAsLinkWrapper);
+		}
+
 		this.content = this.getValue();
 		BX.DOM.write(function() {
 			this.adjustPreviewBackgroundSize();
 		}.bind(this));
 
-		// Force init Image Editor
-		// BX.Landing.UI.Tool.ImageEditor.getInstance();
+		if (this.getValue().type === "background" || this.allowClear)
+		{
+			this.clearButton.layout.classList.add("landing-ui-show");
+		}
 	};
 
 
@@ -270,19 +339,6 @@
 
 
 	/**
-	 * Creates loader
-	 * @return {BX.Landing.UI.Card.Loader}
-	 */
-	function createLoader()
-	{
-		var loader = new BX.Landing.UI.Card.Loader();
-		loader.layout.hidden = true;
-		loader.layout.classList.add("landing-ui-loader-image");
-		return loader;
-	}
-
-
-	/**
 	 * Creates left layout
 	 * @return {Element}
 	 */
@@ -316,10 +372,10 @@
 		var field = new BX.Landing.UI.Button.BaseButton("edit", {
 			text: BX.message("LANDING_FIELD_IMAGE_EDIT_BUTTON"),
 			className: "landing-ui-field-image-action-button",
-			disabled: true
+			// disabled: true
 		});
 
-		field.layout.disabled = true;
+		// field.layout.disabled = true;
 
 		return field;
 	}
@@ -411,11 +467,11 @@
 		onFileChange: function(file)
 		{
 			this.showLoader();
-			BX.Landing.Backend.getInstance()
-				.uploadImage(this.form, file, this.dimensions, this.uploadParams)
-				.then(function(response) {
-					this.setValue(response);
-					this.edit();
+			this.upload(file)
+				.then(this.setValue.bind(this))
+				.then(this.hideLoader.bind(this))
+				.catch(function(err) {
+					console.error(err);
 					this.hideLoader();
 				}.bind(this));
 		},
@@ -445,10 +501,10 @@
 							text: BX.message("LANDING_IMAGE_UPLOAD_MENU_GOOGLE"),
 							onclick: this.onGoogleShow.bind(this)
 						},
-						{
-							text: BX.message("LANDING_IMAGE_UPLOAD_MENU_PARTNER"),
-							className: "landing-ui-disabled"
-						},
+						// {
+						// 	text: BX.message("LANDING_IMAGE_UPLOAD_MENU_PARTNER"),
+						// 	className: "landing-ui-disabled"
+						// },
 						{
 							text: BX.message("LANDING_IMAGE_UPLOAD_MENU_UPLOAD"),
 							onclick: this.onUploadShow.bind(this)
@@ -462,8 +518,12 @@
 						events: {
 							onPopupClose: function() {
 								this.bindElement.classList.remove("landing-ui-active");
-								this.uploadMenu.destroy();
-								this.uploadMenu = null;
+
+								if (this.uploadMenu)
+								{
+									this.uploadMenu.destroy();
+									this.uploadMenu = null;
+								}
 							}.bind(this)
 						}
 					}
@@ -483,26 +543,31 @@
 		onUnsplashShow: function()
 		{
 			this.uploadMenu.close();
-			BX.Landing.UI.Panel.Image.getInstance().show("unsplash", this.dimensions, this.loader, this.uploadParams).then(function(path) {
-				this.setValue(path);
-				this.edit();
-			}.bind(this));
+
+			BX.Landing.UI.Panel.Image.getInstance()
+				.show("unsplash", this.dimensions, this.loader, this.uploadParams)
+				.then(this.upload.bind(this))
+				.then(this.setValue.bind(this))
+				.then(this.hideLoader.bind(this))
+				.catch(function(err) {
+					console.error(err);
+					this.hideLoader();
+				}.bind(this));
 		},
 
 		onGoogleShow: function()
 		{
 			this.uploadMenu.close();
 
-			var self = this;
-			BX.Landing.UI.Panel.Image.getInstance().show(
-				"google",
-				self.dimensions,
-				self.loader,
-				self.uploadParams
-			).then(function(path) {
-				self.setValue(path);
-				self.edit();
-			});
+			BX.Landing.UI.Panel.Image.getInstance()
+				.show("google", this.dimensions, this.loader, this.uploadParams)
+				.then(this.upload.bind(this))
+				.then(this.setValue.bind(this))
+				.then(this.hideLoader.bind(this))
+				.catch(function(err) {
+					console.error(err);
+					this.hideLoader();
+				}.bind(this));
 		},
 
 		onUploadShow: function()
@@ -521,7 +586,7 @@
 		onEditClick: function(event)
 		{
 			event.preventDefault();
-			this.edit();
+			this.edit({src: this.hiddenImage.src});
 		},
 
 		onClearClick: function(event)
@@ -564,13 +629,18 @@
 			tmpImage.onload = function() {
 				this.showPreview();
 				this.setValue({src: value});
-				this.edit();
 			}.bind(this);
 		},
 
 		showLoader: function()
 		{
-			this.loader.show();
+			if (this.dropzone && !this.dropzone.hidden)
+			{
+				this.loader.show(this.dropzone);
+				return;
+			}
+
+			this.loader.show(this.preview);
 		},
 
 
@@ -596,7 +666,20 @@
 		 */
 		isChanged: function()
 		{
-			return JSON.stringify(this.content) !== JSON.stringify(this.getValue());
+			var lastValue = clone(this.content);
+			var currentValue = clone(this.getValue());
+
+			if (lastValue.url && isString(lastValue.url))
+			{
+				lastValue.url = decodeDataValue(lastValue.url);
+			}
+
+			if (currentValue.url && isString(currentValue.url))
+			{
+				currentValue.url = decodeDataValue(currentValue.url);
+			}
+
+			return JSON.stringify(lastValue) !== JSON.stringify(currentValue);
 		},
 
 
@@ -645,20 +728,16 @@
 				else
 				{
 					this.input.innerText = value.src;
-					this.preview.style.backgroundImage = "url(\""+value.src+"\")";
+					this.input2x.innerText = value.src2x;
+					this.preview.style.backgroundImage = "url(\""+(value.src2x || value.src)+"\")";
 					this.preview.id = BX.util.getRandomString();
-					this.hiddenImage.src = value.src;
+					this.hiddenImage.src = value.src2x || value.src;
 					this.showPreview();
 				}
 
-				if (!value || !value.id)
-				{
-					this.image.dataset.fileid = -1;
-				}
-				else
-				{
-					this.image.dataset.fileid = value.id;
-				}
+				this.image.dataset.fileid = value && value.id ? value.id : -1;
+				this.image.dataset.fileid2x = value && value.id2x ? value.id2x : -1;
+
 				this.classList = [];
 			}
 			else
@@ -671,6 +750,11 @@
 				this.altField.layout.hidden = true;
 				this.altField.setValue("");
 				this.input.innerText = "";
+			}
+
+			if (value.url)
+			{
+				this.url.setValue(value.url);
 			}
 
 			this.adjustPreviewBackgroundSize();
@@ -695,26 +779,33 @@
 
 		/**
 		 * Gets field value
-		 * @return {{src, [alt]: string, [title]: string}}
+		 * @return {{src, [alt]: string, [title]: string, [url]: string}}
 		 */
 		getValue: function()
 		{
 			var fileId = parseInt(this.image.dataset.fileid);
+			var fileId2x = parseInt(this.image.dataset.fileid2x);
 			fileId = fileId === fileId ? fileId : -1;
-			var value = {type: "", src: "", id: fileId, alt: ""};
+			fileId2x = fileId2x === fileId2x ? fileId2x : -1;
+
+			var value = {type: "", src: "", id: fileId, id2x: fileId2x, src2x: "", alt: "", url: ""};
 
 			if (this.type === "background")
 			{
 				value.type = "background";
 				value.src = this.input.innerText.trim();
+				value.src2x = this.input2x.innerText.trim();
 				value.id = fileId;
+				value.id2x = fileId2x;
 			}
 
 			if (this.type === "image")
 			{
 				value.type = "image";
 				value.src = this.input.innerText.trim();
+				value.src2x = this.input2x.innerText.trim();
 				value.id = fileId;
+				value.id2x = fileId2x;
 				value.alt = this.altField.getValue();
 			}
 
@@ -724,22 +815,254 @@
 				value.classList = this.classList;
 			}
 
+			value.url = Object.assign({}, this.url.getValue(), {enabled: this.urlCheckbox.checked});
+
 			return value;
 		},
 
-		edit: function()
+		edit: function(data)
 		{
-			// BX.Landing.UI.Tool.ImageEditor.getInstance()
-			// 	.edit({
-			// 		image: this.hiddenImage
-			// 	})
-			// 	.then(function(url) {
-			// 		var data = BX.clone(this.getValue());
-			// 		data.picture = url;
-			// 		BX.Landing.Backend.getInstance()
-			// 			.action("Block::uploadFile", data, {}, this.uploadParams)
-			// 			.then(this.setValue.bind(this));
-			// 	}.bind(this));
+			var editOptions = {
+				image: data.src,
+				proxy: "/bitrix/tools/landing/proxy.php"
+			};
+
+			this.hiddenImage.src = data.src;
+
+			var pathResolver = function(path) {
+				var res;
+
+				if (path.includes("sites_recommended_transform_default"))
+				{
+					res = path.split("sites_recommended_transform_default");
+					return "/bitrix/js/main/imageeditor/external/photoeditorsdk/assets/ui/desktop/editor/controls/transform/ratios/imgly_transform_common_4-3" + res[1];
+				}
+
+				if (path.includes("sites_recommended_transform_retina"))
+				{
+					res = path.split("sites_recommended_transform_retina");
+					return "/bitrix/js/main/imageeditor/external/photoeditorsdk/assets/ui/desktop/editor/controls/transform/ratios/imgly_transform_common_4-3" + res[1];
+				}
+
+				if (path.includes("landing-transform-3-4"))
+				{
+					res = path.split("landing-transform-3-4");
+					return "/bitrix/images/landing/imageeditor/assets/transform/ratios/landing-transform-3-4" + res[1];
+				}
+
+				if (path.includes("landing-transform-4-3"))
+				{
+					res = path.split("landing-transform-4-3");
+					return "/bitrix/images/landing/imageeditor/assets/transform/ratios/landing-transform-4-3" + res[1];
+				}
+
+				if (path.includes("landing-transform-9-16"))
+				{
+					res = path.split("landing-transform-9-16");
+					return "/bitrix/images/landing/imageeditor/assets/transform/ratios/landing-transform-9-16" + res[1];
+				}
+
+				if (path.includes("landing-transform-16-9"))
+				{
+					res = path.split("landing-transform-16-9");
+					return "/bitrix/images/landing/imageeditor/assets/transform/ratios/landing-transform-16-9" + res[1];
+				}
+
+				if (path.includes("landing-transform-1-1"))
+				{
+					res = path.split("landing-transform-1-1");
+					return "/bitrix/images/landing/imageeditor/assets/transform/ratios/landing-transform-1-1" + res[1];
+				}
+
+				if (path.includes("landing-transform-custom"))
+				{
+					res = path.split("landing-transform-custom");
+					return "/bitrix/images/landing/imageeditor/assets/transform/ratios/landing-transform-custom" + res[1];
+				}
+
+				return path;
+			};
+
+			var imageExtension = BX.util.getExtension(data.src);
+
+			if (!isEmpty(this.dimensions) &&
+				isNumber(this.dimensions.width) &&
+				this.dimensions.height)
+			{
+				var ratio = this.dimensions.width / this.dimensions.height;
+				var dimension = {width: this.dimensions.width, height: this.dimensions.height};
+
+				editOptions = {
+					image: data.src,
+					megapixels: 100,
+					proxy: "/bitrix/tools/landing/proxy.php",
+					defaultControl: "transform",
+					assets: {
+						resolver: pathResolver
+					},
+					"export": {
+						format: "image/" + (imageExtension === "jpg" ? "jpeg" : imageExtension),
+						type: BX.Main.ImageEditor.renderType.BLOB,
+						quality: 1
+					},
+					controlsOptions: {
+						transform: {
+							categories: [
+								{
+									identifier: "sites_recommended",
+									defaultName: BX.message("LANDING_IMAGE_EDITOR_RECOMMENDED_RATIOS"),
+									ratios: [
+										{
+											identifier: "sites_recommended_transform_retina",
+											defaultName: BX.message("LANDING_IMAGE_EDITOR_TRANSFORM_DEFAULT"),
+											ratio: ratio,
+											dimensions: dimension
+										},
+										{
+											identifier: "landing-transform-custom",
+											defaultName: BX.message("IMAGE_EDITOR_RATIOS_CUSTOM"),
+											ratio: "*",
+											dimensions: dimension
+										}
+									]
+								},
+								{
+									identifier: "sites_other",
+									defaultName: BX.message("LANDING_IMAGE_EDITOR_OTHER_RATIOS"),
+									ratios: [
+										{
+											identifier: "landing-transform-1-1",
+											defaultName: "1:1",
+											ratio: 1,
+											dimensions: dimension
+										},
+										{
+											identifier: "landing-transform-3-4",
+											defaultName: "3:4",
+											ratio: 3/4,
+											dimensions: dimension
+										},
+										{
+											identifier: "landing-transform-4-3",
+											defaultName: "4:3",
+											ratio: 4/3,
+											dimensions: dimension
+										},
+										{
+											identifier: "landing-transform-9-16",
+											defaultName: "9:16",
+											ratio: 9/16,
+											dimensions: dimension
+										},
+										{
+											identifier: "landing-transform-16-9",
+											defaultName: "16:9",
+											ratio: 16/9,
+											dimensions: dimension
+										}
+									]
+								}
+							],
+							replaceCategories: false,
+							availableRatios: [
+								"sites_recommended_transform_default",
+								"sites_recommended_transform_retina",
+								"landing-transform-3-4",
+								"landing-transform-4-3",
+								"landing-transform-9-16",
+								"landing-transform-16-9",
+								"landing-transform-1-1",
+								"landing-transform-custom"
+							]
+						}
+					}
+				};
+			}
+
+			BX.Main.ImageEditor.getInstance()
+				.edit(editOptions)
+				.then(function(file) {
+					this.showLoader();
+					BX.Main.ImageEditor.getInstance().SDKInstance = null;
+					file.name = BX.Landing.Utils.getFileName(data.src);
+					return file;
+				}.bind(this))
+				.then(function(file) {
+					return this.upload(file, {context: "imageEditor"});
+				}.bind(this))
+				.then(this.setValue.bind(this))
+				.then(this.hideLoader.bind(this))
+				.catch(function(err) {
+					console.error(err);
+					this.hideLoader();
+				}.bind(this));
+
+			var waitSDK = function() {
+				if (!BX.Main.ImageEditor.getInstance().SDKInstance)
+				{
+					return requestAnimationFrame(waitSDK);
+				}
+
+				BX.Main.ImageEditor.getInstance().SDKInstance._options.assets.resolver = pathResolver;
+			};
+
+			requestAnimationFrame(waitSDK);
+
+			// Analytics hack
+			var tmpImage = new Image();
+			var imageSrc = "/bitrix/images/landing/close.svg";
+
+			imageSrc = BX.util.add_url_param(imageSrc, {
+				action: "openImageEditor"
+			});
+
+			tmpImage.src = imageSrc + "?" + (+new Date());
+		},
+
+		/**
+		 * @param {File|Blob} file
+		 * @param {object} [additionalParams]
+		 */
+		upload: function(file, additionalParams)
+		{
+			this.showLoader();
+
+			return Promise.all([
+				BX.Landing.ImageCompressor
+					.compress(file, this.dimensions)
+					.then(function(blob) {
+						return BX.Landing.Backend.getInstance()
+							.upload(blob, Object.assign({}, this.uploadParams, additionalParams || {}))
+							.catch(console.error);
+					}.bind(this)),
+				BX.Landing.ImageCompressor
+					.compress(file, Object.assign({}, this.dimensions, {retina: true}))
+					.then(function(blob) {
+						if (blob instanceof File)
+						{
+							var name = blob.name;
+							Object.defineProperty(blob, 'name', {
+								get: function() {
+									return BX.Landing.Utils.rename2x(name);
+								},
+								configurable: true
+							});
+						}
+						else
+						{
+							blob.name = BX.Landing.Utils.rename2x(blob.name);
+						}
+						return BX.Landing.Backend.getInstance()
+							.upload(blob, this.uploadParams)
+							.catch(console.error);
+					}.bind(this))
+			])
+			.then(function(result) {
+				return Object.assign({}, result[0], {
+					src2x: result[1].src,
+					id2x: result[1].id
+				})
+			})
 		}
 	}
 })();

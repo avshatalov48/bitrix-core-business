@@ -9,6 +9,7 @@ BX.saleAccountPay = (function()
 		this.signedParams = params.signedParams || {};
 		this.wrapperId = params.wrapperId || "";
 		this.templateFolder = params.templateFolder;
+		this.templateName = params.templateName || "";
 		this.wrapper = document.getElementById('bx-sap'+ this.wrapperId);
 
 		this.changeInputContainer = this.wrapper.getElementsByClassName('sale-acountpay-fixedpay-container')[0];
@@ -77,6 +78,7 @@ BX.saleAccountPay = (function()
 						{
 							sessid: BX.bitrix_sessid(),
 							buyMoney: this.inputElement.value,
+							templateName: this.templateName,
 							paySystemId: this.wrapper.querySelector('.sale-acountpay-pp-company-checkbox:checked').value,
 							signedParamsString: this.signedParams
 						},

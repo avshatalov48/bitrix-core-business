@@ -30,17 +30,13 @@ if(strlen($_POST['Update'].$_GET['RestoreDefaults'])>0 && check_bitrix_sessid() 
 	elseif(strlen($_POST['Update'])>0)
 	{
 		$send = false;
-		if (CPullOptions::GetSignatureKey() != $_POST['signature_key'] && $_POST['nginx_version'] > 1)
+		if (CPullOptions::GetSignatureKey() != $_POST['signature_key'] && $_POST['nginx_version'] > 2)
 		{
 			CPullOptions::SetSignatureKey($_POST['signature_key']);
 		}
 		if ($_POST['path_to_publish'] != "" && CPullOptions::GetPublishUrl() != $_POST['path_to_publish'])
 		{
 			CPullOptions::SetPublishUrl($_POST['path_to_publish']);
-		}
-		if ($_POST['nginx_command_per_hit'] != "" && CPullOptions::GetCommandPerHit() != $_POST['nginx_command_per_hit'])
-		{
-			CPullOptions::SetCommandPerHit($_POST['nginx_command_per_hit']);
 		}
 		if ($_POST['path_to_modern_listener'] != "" && CPullOptions::GetListenUrl("") != $_POST['path_to_modern_listener'])
 		{
@@ -50,6 +46,16 @@ if(strlen($_POST['Update'].$_GET['RestoreDefaults'])>0 && check_bitrix_sessid() 
 		if ($_POST['path_to_modern_listener_secure'] != "" && CPullOptions::GetListenSecureUrl("") != $_POST['path_to_modern_listener_secure'])
 		{
 			CPullOptions::SetListenSecureUrl($_POST['path_to_modern_listener_secure']);
+			$send = true;
+		}
+		if ($_POST['path_to_publish_web'] != "" && CPullOptions::GetPublishWebUrl() != $_POST['path_to_publish_web'])
+		{
+			CPullOptions::SetPublishWebUrl($_POST['path_to_publish_web']);
+			$send = true;
+		}
+		if ($_POST['path_to_publish_web_secure'] != "" && CPullOptions::GetPublishWebSecureUrl() != $_POST['path_to_publish_web_secure'])
+		{
+			CPullOptions::SetPublishWebSecureUrl($_POST['path_to_publish_web_secure']);
 			$send = true;
 		}
 		if ($_POST['push_message_per_hit'] != "")
@@ -63,8 +69,9 @@ if(strlen($_POST['Update'].$_GET['RestoreDefaults'])>0 && check_bitrix_sessid() 
 			if (isset($_POST['websocket']))
 				$send = true;
 		}
+
 		$websocketEnabled = CPullOptions::GetWebSocket();
-		if (isset($_POST['websocket']))
+		if (isset($_POST['websocket']) || CPullOptions::GetQueueServerVersion() > 2)
 		{
 			CPullOptions::SetWebSocket('Y');
 			if (!$websocketEnabled)
@@ -87,6 +94,7 @@ if(strlen($_POST['Update'].$_GET['RestoreDefaults'])>0 && check_bitrix_sessid() 
 			CPullOptions::SetWebSocketSecureUrl($_POST['path_to_websocket_secure']);
 			$send = true;
 		}
+		CPullOptions::SetConfigTimestamp();
 
 		if ($send)
 			CPullOptions::SendConfigDie();
@@ -146,16 +154,6 @@ if(strlen($_POST['Update'].$_GET['RestoreDefaults'])>0 && check_bitrix_sessid() 
 			CPullOptions::SetExcludeSites($arSites);
 		}
 	}
-	if($send):
-	?>
-		<script type="text/javascript">
-			if (BX.PULL)
-			{
-				BX.PULL.clearChannelId();
-			}
-		</script>
-	<?
-	endif;
 }
 ?>
 <form method="post" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialcharsbx($mid)?>&lang=<?echo LANG?>">
@@ -226,12 +224,13 @@ $arExcludeSites = CPullOptions::GetExcludeSites();
 		<td width="40%"><nobr><?=GetMessage("PULL_OPTIONS_NGINX_VERSION")?></nobr>:</td>
 		<td width="60%">
 			<nobr><label><input type="radio" id="config_nginx_version_1" value="1" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 1?' checked':'')?> <?=(CPullOptions::GetQueueServerStatus()? '':'disabled="true"')?>><?=GetMessage("PULL_OPTIONS_NGINX_VERSION_034")?></label></nobr><br>
-			<nobr><label><input type="radio" id="config_nginx_version_2" value="2" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 2?' checked':'')?> <?=(CPullOptions::GetQueueServerStatus()? '':'disabled="true"')?>><?=GetMessage("PULL_OPTIONS_NGINX_VERSION_040")?></label></nobr>
-			<nobr><label><input type="radio" id="config_nginx_version_3" value="3" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 3?' checked':'')?> <?=(CPullOptions::GetQueueServerStatus()? '':'disabled="true"')?>><?=GetMessage("PULL_OPTIONS_NGINX_VERSION_710")?></label></nobr>
+			<nobr><label><input type="radio" id="config_nginx_version_2" value="2" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 2?' checked':'')?> <?=(CPullOptions::GetQueueServerStatus()? '':'disabled="true"')?>><?=GetMessage("PULL_OPTIONS_NGINX_VERSION_040")?></label></nobr><br>
+			<nobr><label><input type="radio" id="config_nginx_version_3" value="3" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 3?' checked':'')?> <?=(CPullOptions::GetQueueServerStatus()? '':'disabled="true"')?>><?=GetMessage("PULL_OPTIONS_NGINX_VERSION_710")?></label></nobr><br>
+			<nobr><label><input type="radio" id="config_nginx_version_4" value="4" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 4?' checked':'')?> <?=(CPullOptions::GetQueueServerStatus()? '':'disabled="true"')?>><?=GetMessage("PULL_OPTIONS_NGINX_VERSION_730")?></label></nobr><br>
 		</td>
 	</tr>
 	<tr class="heading">
-		<td colspan="2"><b><?=GetMessage('PULL_OPTIONS_HEAD_PUB')?></b></td>
+		<td colspan="2"><b><?=GetMessage('PULL_OPTIONS_HEAD_PUB_2')?></b></td>
 	</tr>
 	<tr>
 		<td><?=GetMessage("PULL_OPTIONS_PATH_TO_PUBLISH")?>:</td>
@@ -239,16 +238,27 @@ $arExcludeSites = CPullOptions::GetExcludeSites();
 	</tr>
 	<tr>
 		<td><?=GetMessage("PULL_OPTIONS_SIGNATURE_KEY")?>:</td>
-		<td><input id="config_signature_key" type="text" size="40" value="<?=htmlspecialcharsbx(CPullOptions::GetSignatureKey())?>" name="signature_key" <?=(CPullOptions::GetQueueServerStatus() && CPullOptions::GetQueueServerVersion() > 1? '':'disabled="true"')?>></td>
+		<td><input id="config_signature_key" type="text" size="40" value="<?=htmlspecialcharsbx(CPullOptions::GetSignatureKey())?>" name="signature_key" <?=(CPullOptions::GetQueueServerStatus() && CPullOptions::GetQueueServerVersion() > 2? '':'disabled="true"')?>></td>
 	</tr>
 	<tr>
-		<td align="right" width="50%"><?=GetMessage("PULL_OPTIONS_NGINX_BUFFER")?>:</td>
-		<td><input id="config_nginx_command_per_hit" type="text" size="10" value="<?=CPullOptions::GetCommandPerHit()?>" name="nginx_command_per_hit" <?=(CPullOptions::GetQueueServerStatus() && CPullOptions::GetQueueServerVersion() > 1? '':'disabled="true"')?>></td>
+		<td></td>
+		<td><div id="config_signature_key_error" style="color: darkred; font-weight: bold; <?=(CPullOptions::GetQueueServerStatus() && CPullOptions::GetQueueServerVersion() > 3 && !CPullOptions::GetSignatureKey()? '':'display: none')?>"><b><?=GetMessage('PULL_OPTIONS_SIGNATURE_KEY_ERROR')?></b></div></td>
+	</tr>
+	<tr class="heading">
+		<td colspan="2"><b><?=GetMessage('PULL_OPTIONS_PUBLISH_WEB_HEAD')?></b></td>
+	</tr>
+	<tr>
+		<td ><?=GetMessage("PULL_OPTIONS_PATH_TO_PUBLISH_WEB")?>:</td>
+		<td><input id="config_path_to_publish_web" type="text" size="40" value="<?=htmlspecialcharsbx(CPullOptions::GetPublishWebUrl())?>" name="path_to_publish_web" <?=(CPullOptions::GetQueueServerStatus() && CPullOptions::GetQueueServerVersion() > 3? '': 'disabled="true"')?>></td>
+	</tr>
+	<tr>
+		<td ><?=GetMessage("PULL_OPTIONS_PATH_TO_PUBLISH_WEB_SECURE")?>:</td>
+		<td><input id="config_path_to_publish_web_secure" type="text" size="40" value="<?=htmlspecialcharsbx(CPullOptions::GetPublishWebSecureUrl())?>" name="path_to_publish_web_secure"  <?=(CPullOptions::GetQueueServerStatus() && CPullOptions::GetQueueServerVersion() > 3? '': 'disabled="true"')?>></td>
 	</tr>
 	<tr>
 		<td width="40%"></td>
 		<td width="60%">
-			<?=GetMessage("PULL_OPTIONS_NGINX_BUFFERS_DESC")?>
+			<?=GetMessage("PULL_OPTIONS_PUBLISH_WEB_DESC")?>
 		</td>
 	</tr>
 	<tr class="heading">
@@ -262,18 +272,12 @@ $arExcludeSites = CPullOptions::GetExcludeSites();
 		<td ><?=GetMessage("PULL_OPTIONS_PATH_TO_LISTENER_SECURE")?>:</td>
 		<td><input id="config_path_to_modern_listener_secure" type="text" size="40" value="<?=htmlspecialcharsbx(CPullOptions::GetListenSecureUrl())?>" name="path_to_modern_listener_secure" <?=(CPullOptions::GetQueueServerStatus()? '':'disabled="true"')?>></td>
 	</tr>
-	<tr>
-		<td width="40%"></td>
-		<td width="60%">
-			<?=GetMessage("PULL_OPTIONS_PATH_TO_LISTENER_MODERN_DESC")?>
-		</td>
-	</tr>
 	<tr class="heading">
 		<td colspan="2"><b><?=GetMessage('PULL_OPTIONS_HEAD_SUB_WS')?></b></td>
 	</tr>
 	<tr>
 		<td align="right" width="50%"><?=GetMessage("PULL_OPTIONS_WEBSOCKET")?>:</td>
-		<td><input type="checkbox" size="40" value="Y" <?=(CPullOptions::GetWebSocket()?' checked':'')?> id="config_websocket" name="websocket" <?=(CPullOptions::GetQueueServerStatus() && CPullOptions::GetQueueServerVersion() > 1 ? '': 'disabled="true"')?>></td>
+		<td><input type="checkbox" size="40" value="Y" <?=(CPullOptions::GetWebSocket()?' checked':'')?> id="config_websocket" name="websocket" <?=(CPullOptions::GetQueueServerStatus() && CPullOptions::GetQueueServerVersion() == 2? '': 'disabled="true"')?>></td>
 	</tr>
 	<tr>
 		<td ><?=GetMessage("PULL_OPTIONS_PATH_TO_LISTENER")?>:</td>
@@ -319,39 +323,54 @@ BX.bind(BX('config_nginx'), 'change', function(){
 			BX('config_nginx_version_1').disabled = false;
 			BX('config_nginx_version_2').disabled = false;
 			BX('config_nginx_version_3').disabled = false;
+			BX('config_nginx_version_4').disabled = false;
 			BX('config_path_to_publish').disabled = false;
 			BX('config_path_to_modern_listener').disabled = false;
 			BX('config_path_to_modern_listener_secure').disabled = false;
 			BX('config_signature_key').disabled = false;
 
-			if (BX('config_nginx_version_2').checked || BX('config_nginx_version_3').checked)
+			if (BX('config_nginx_version_2').checked || BX('config_nginx_version_3').checked || BX('config_nginx_version_4').checked)
 			{
-				BX('config_nginx_command_per_hit').disabled = false;
 				BX('config_websocket').disabled = false;
-				BX('config_signature_key').disabled = false;
+				BX('config_signature_key').disabled = BX('config_nginx_version_2').checked;
 
 				if (BX('config_websocket').checked || BX('config_nginx_version_3').checked)
 				{
 					BX('config_path_to_websocket').disabled = false;
 					BX('config_path_to_websocket_secure').disabled = false;
 				}
-				if (BX('config_nginx_version_3').checked)
+				if (BX('config_nginx_version_3').checked || BX('config_nginx_version_4').checked)
 				{
 					BX('config_websocket').disabled = true;
+				}
+				if (BX('config_nginx_version_4').checked)
+				{
+					BX('config_path_to_publish_web').disabled = false;
+					BX('config_path_to_publish_web_secure').disabled = false;
+					BX.style(BX('config_signature_key_error'), 'display', BX('config_signature_key').value.toString().length>0? 'none': 'block');
+				}
+				else
+				{
+					BX('config_path_to_publish_web').disabled = true;
+					BX('config_path_to_publish_web_secure').disabled = true;
+					BX.style(BX('config_signature_key_error'), 'display', 'none');
 				}
 			}
 			else
 			{
-				BX('config_nginx_command_per_hit').disabled = true;
 				BX('config_websocket').disabled = true;
 				BX('config_signature_key').disabled = true;
 				BX('config_path_to_websocket').disabled = true;
 				BX('config_path_to_websocket_secure').disabled = true;
+				BX('config_path_to_publish_web').disabled = true;
+				BX('config_path_to_publish_web_secure').disabled = true;
+				BX.style(BX('config_signature_key_error'), 'display', 'none');
 			}
 		}
 		else
 		{
 			this.checked = false;
+			BX.style(BX('config_signature_key_error'), 'display', 'none');
 		}
 	}
 	else
@@ -359,84 +378,86 @@ BX.bind(BX('config_nginx'), 'change', function(){
 		BX('config_nginx_version_1').disabled = true;
 		BX('config_nginx_version_2').disabled = true;
 		BX('config_nginx_version_3').disabled = true;
+		BX('config_nginx_version_4').disabled = true;
 		BX('config_signature_key').disabled = true;
 		BX('config_path_to_publish').disabled = true;
 		BX('config_path_to_modern_listener').disabled = true;
 		BX('config_path_to_modern_listener_secure').disabled = true;
 
-		BX('config_nginx_command_per_hit').disabled = true;
 		BX('config_websocket').disabled = true;
 		BX('config_path_to_websocket').disabled = true;
 		BX('config_path_to_websocket_secure').disabled = true;
+		BX('config_path_to_publish_web').disabled = true;
+		BX('config_path_to_publish_web_secure').disabled = true;
+
+		BX.style(BX('config_signature_key_error'), 'display', 'none');
 	}
 });
 BX.bind(BX('config_nginx_version_1'), 'change', function(){
-	if (this.checked)
-	{
-		BX('config_nginx_command_per_hit').disabled = true;
-		BX('config_websocket').disabled = true;
-		BX('config_path_to_websocket').disabled = true;
-		BX('config_path_to_websocket_secure').disabled = true;
-		BX('config_signature_key').disabled = true;
-		BX('config_websocket').checked = false;
-	}
-	else
-	{
-		BX('config_nginx_command_per_hit').disabled = false;
-		BX('config_websocket').disabled = false;
-		if (BX('config_websocket').checked)
-		{
-			BX('config_path_to_websocket').disabled = false;
-			BX('config_path_to_websocket_secure').disabled = false;
-		}
-	}
+
+	BX('config_signature_key').disabled = true;
+
+	BX('config_path_to_publish_web').disabled = true;
+	BX('config_path_to_publish_web_secure').disabled = true;
+
+	BX('config_websocket').disabled = true;
+	BX('config_websocket').checked = false;
+	BX('config_path_to_websocket').disabled = true;
+	BX('config_path_to_websocket_secure').disabled = true;
+
+	BX.style(BX('config_signature_key_error'), 'display', 'none');
 });
 BX.bind(BX('config_nginx_version_2'), 'change', function(){
-	if (this.checked)
+
+	BX('config_signature_key').disabled = true;
+
+	BX('config_path_to_publish_web').disabled = true;
+	BX('config_path_to_publish_web_secure').disabled = true;
+
+	BX('config_websocket').disabled = false;
+	if (BX('config_websocket').checked)
 	{
-		BX('config_signature_key').disabled = false;
-		BX('config_nginx_command_per_hit').disabled = false;
-		BX('config_websocket').disabled = false;
-		if (BX('config_websocket').checked)
-		{
-			BX('config_path_to_websocket').disabled = false;
-			BX('config_path_to_websocket_secure').disabled = false;
-		}
+		BX('config_path_to_websocket').disabled = false;
+		BX('config_path_to_websocket_secure').disabled = false;
 	}
-	else
-	{
-		BX('config_nginx_command_per_hit').disabled = true;
-		BX('config_websocket').disabled = true;
-		BX('config_path_to_websocket').disabled = true;
-		BX('config_path_to_websocket_secure').disabled = true;
-	}
+
+	BX.style(BX('config_signature_key_error'), 'display', 'none');
 });
 BX.bind(BX('config_nginx_version_3'), 'change', function(){
-	if (this.checked)
-	{
-		BX('config_signature_key').disabled = false;
-		BX('config_nginx_command_per_hit').disabled = false;
-		BX('config_websocket').disabled = false;
-		if (BX('config_websocket').checked)
-		{
-			BX('config_path_to_websocket').disabled = false;
-			BX('config_path_to_websocket_secure').disabled = false;
-		}
-		if (BX('config_nginx_version_3').checked)
-		{
-			BX('config_websocket').disabled = true;
-			BX('config_websocket').checked = true;
-			BX('config_path_to_websocket').disabled = false;
-			BX('config_path_to_websocket_secure').disabled = false;
-		}
-	}
-	else
-	{
-		BX('config_nginx_command_per_hit').disabled = true;
-		BX('config_websocket').disabled = true;
-		BX('config_path_to_websocket').disabled = true;
-		BX('config_path_to_websocket_secure').disabled = true;
-	}
+
+	BX('config_signature_key').disabled = false;
+
+	BX('config_websocket').disabled = true;
+	BX('config_websocket').checked = true;
+	BX('config_path_to_websocket').disabled = false;
+	BX('config_path_to_websocket_secure').disabled = false;
+
+	BX('config_websocket').disabled = true;
+	BX('config_websocket').checked = true;
+	BX('config_path_to_websocket').disabled = false;
+	BX('config_path_to_websocket_secure').disabled = false;
+	BX('config_path_to_publish_web').disabled = true;
+	BX('config_path_to_publish_web_secure').disabled = true;
+
+	BX.style(BX('config_signature_key_error'), 'display', 'none');
+});
+
+BX.bind(BX('config_nginx_version_4'), 'change', function(){
+
+	BX('config_signature_key').disabled = false;
+
+	BX('config_websocket').disabled = true;
+	BX('config_websocket').checked = true;
+	BX('config_path_to_websocket').disabled = false;
+	BX('config_path_to_websocket_secure').disabled = false;
+
+	BX('config_path_to_websocket').disabled = false;
+	BX('config_path_to_websocket_secure').disabled = false;
+
+	BX('config_path_to_publish_web').disabled = false;
+	BX('config_path_to_publish_web_secure').disabled = false;
+
+	BX.style(BX('config_signature_key_error'), 'display', BX('config_signature_key').value.toString().length>0? 'none': 'block');
 });
 BX.bind(BX('config_websocket'), 'change', function(){
 	if (this.checked)
@@ -449,6 +470,9 @@ BX.bind(BX('config_websocket'), 'change', function(){
 		BX('config_path_to_websocket').disabled = true;
 		BX('config_path_to_websocket_secure').disabled = true;
 	}
+});
+BX.bind(BX('config_signature_key'), 'keyup', function() {
+	BX.style(BX('config_signature_key_error'), 'display', this.value.toString().length>0? 'none': 'block');
 });
 function RestoreDefaults()
 {

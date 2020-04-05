@@ -1,0 +1,7 @@
+@font-face {
+	font-family: 'rubleBitrix';
+	src: local('rubleBitrix'),
+	url('/bitrix/js/ui/fonts/ruble/bitrixrub-regular.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}

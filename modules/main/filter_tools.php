@@ -568,10 +568,15 @@ function EndFilter($sID="")
 
 function BeginNote($sParams="")
 {
-	return '
-<div class="adm-info-message-wrap" '.$sParams.'>
-	<div class="adm-info-message">
-';
+	if (defined("PUBLIC_MODE") && PUBLIC_MODE == 1)
+	{
+		\Bitrix\Main\UI\Extension::load("ui.alerts");
+		return '<div class="ui-alert ui-alert-warning" '.$sParams.'><div class="ui-btn-message">';
+	}
+	else
+	{
+		return '<div class="adm-info-message-wrap" '.$sParams.'><div class="adm-info-message">';
+	}
 }
 function EndNote()
 {

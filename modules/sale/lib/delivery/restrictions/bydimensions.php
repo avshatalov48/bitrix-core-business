@@ -26,7 +26,7 @@ class ByDimensions extends Restrictions\Base
 	}
 
 	/**
-	 * @param array $dimensions keys:(LENGTH, WIDTH, HEIGHT)
+	 * @param array $dimensionsList keys:(LENGTH, WIDTH, HEIGHT)
 	 * @param array $restrictionParams
 	 * @param int $deliveryId
 	 * @return bool

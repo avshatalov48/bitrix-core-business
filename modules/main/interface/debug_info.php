@@ -38,35 +38,35 @@ if($bShowExtTime)
 	$START_EXEC_CURRENT_TIME = microtime();
 
 	list($usec, $sec) = explode(" ", START_EXEC_PROLOG_AFTER_2);
-	$PROLOG_AFTER_2 = $sec + $usec;
+	$PROLOG_AFTER_2 = (float)$sec + (float)$usec;
 	list($usec, $sec) = explode(" ", START_EXEC_PROLOG_AFTER_1);
-	$PROLOG_AFTER_1 = $sec + $usec;
+	$PROLOG_AFTER_1 = (float)$sec + (float)$usec;
 	$PROLOG_AFTER = $PROLOG_AFTER_2 - $PROLOG_AFTER_1;
 
 	list($usec, $sec) = explode(" ", START_EXEC_AGENTS_2);
-	$AGENTS_2 = $sec + $usec;
+	$AGENTS_2 = (float)$sec + (float)$usec;
 	list($usec, $sec) = explode(" ", START_EXEC_AGENTS_1);
-	$AGENTS_1 = $sec + $usec;
+	$AGENTS_1 = (float)$sec + (float)$usec;
 	$AGENTS = $AGENTS_2 - $AGENTS_1;
 
 	list($usec, $sec) = explode(" ", START_EXEC_PROLOG_BEFORE_1);
-	$PROLOG_BEFORE_1 = $sec + $usec;
+	$PROLOG_BEFORE_1 = (float)$sec + (float)$usec;
 	$PROLOG_BEFORE = $PROLOG_AFTER_1 - $PROLOG_BEFORE_1 - $AGENTS;
 
 	$PROLOG = $PROLOG_AFTER_2 - $PROLOG_BEFORE_1;
 
 	list($usec, $sec) = explode(" ", START_EXEC_EPILOG_BEFORE_1);
-	$EPILOG_BEFORE_1 = $sec + $usec;
+	$EPILOG_BEFORE_1 = (float)$sec + (float)$usec;
 
 	$WORK_AREA = $EPILOG_BEFORE_1 - $PROLOG_AFTER_2;
 
 	list($usec, $sec) = explode(" ", START_EXEC_EPILOG_AFTER_1);
-	$EPILOG_AFTER_1 = $sec + $usec;
+	$EPILOG_AFTER_1 = (float)$sec + (float)$usec;
 
 	$EPILOG_BEFORE = $EPILOG_AFTER_1 - $EPILOG_BEFORE_1;
 
 	list($usec, $sec) = explode(" ", $START_EXEC_CURRENT_TIME);
-	$CURRENT_TIME = $sec + $usec;
+	$CURRENT_TIME = (float)$sec + (float)$usec;
 
 	$EPILOG_AFTER = $CURRENT_TIME - $EPILOG_AFTER_1;
 

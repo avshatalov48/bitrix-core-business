@@ -338,7 +338,7 @@ class CForumFormat
 						break;
 					case "d": $match = str_pad($arParsedDate["DD"], 2, "0", STR_PAD_LEFT); break;
 					case "m": $match = str_pad($arParsedDate["MM"], 2, "0", STR_PAD_LEFT); break;
-					case "j": $match = intVal($arParsedDate["MM"]); break;
+					case "j": $match = str_pad($arParsedDate["DD"], 2, "0", STR_PAD_LEFT); break;
 					case "Y": $match = str_pad($arParsedDate["YY"], 4, "0", STR_PAD_LEFT); break;
 					case "y": $match = substr($arParsedDate["YY"], 2);break;
 					case "H": $match = str_pad($arParsedDate["HH"], 2, "0", STR_PAD_LEFT); break;

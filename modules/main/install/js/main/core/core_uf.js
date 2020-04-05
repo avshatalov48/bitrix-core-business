@@ -506,9 +506,12 @@
 
 	BX.Main.UF.TypeEnumeration.prototype.focus = function(field)
 	{
-		if(fieldStack[field] && fieldStack[field].FIELD.SETTINGS.DISPLAY === 'UI')
+		if(fieldStack[field]
+			&& fieldStack[field].FIELD.SETTINGS.DISPLAY === 'UI'
+			&& BX.type.isElementNode(fieldStack[field].NODE)
+		)
 		{
-			BX.fireEvent(BX(fieldStack[field].FIELD.FIELD + '_control').firstChild, 'focus');
+			BX.fireEvent(fieldStack[field].NODE, 'focus');
 		}
 		else
 		{

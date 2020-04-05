@@ -69,6 +69,8 @@ class CCatalogProductSet extends CCatalogProductSetAll
 		if (!self::checkFields('UPDATE', $arFields, $intID))
 			return false;
 
+		$intID = (int)$intID;
+
 		if (!empty($arFields))
 		{
 			$arSet = $arFields;
@@ -453,6 +455,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 		if (!empty($setsID))
 		{
 			$productMap = array();
+			$productIds = [];
 			$query = 'select SET_ID, OWNER_ID, ITEM_ID, QUANTITY as QUANTITY_IN_SET from b_catalog_product_sets where SET_ID IN('.implode(',', $setsID).')';
 			$setIterator = $DB->Query($query, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
 			while ($setItem = $setIterator->Fetch())
@@ -468,26 +471,29 @@ class CCatalogProductSet extends CCatalogProductSetAll
 				if (!isset($productMap[$setItem['ITEM_ID']]))
 					$productMap[$setItem['ITEM_ID']] = array();
 				$productMap[$setItem['ITEM_ID']][] = $setItem['OWNER_ID'];
+				$productIds[$setItem['ITEM_ID']] = $setItem['ITEM_ID'];
 			}
 			unset($setItem, $setIterator, $query);
 
-			$productIterator = CCatalogProduct::GetList(
-				array(),
-				array('=ID' => array_keys($productMap)),
-				false,
-				false,
-				array('ID', 'QUANTITY', 'QUANTITY_TRACE', 'CAN_BUY_ZERO', 'WEIGHT')
-			);
-			while ($item = $productIterator->Fetch())
+			sort($productIds);
+			foreach (array_chunk($productIds, 500) as $rowIds)
 			{
-				$item['ID'] = (int)$item['ID'];
-				if (!isset($productMap[$item['ID']]))
-					continue;
-				foreach ($productMap[$item['ID']] as &$setKey)
-					$setsList[$setKey][$item['ID']] = array_merge($setsList[$setKey][$item['ID']], $item);
-				unset($setKey);
+				$iterator = Catalog\ProductTable::getList([
+					'select' => ['ID', 'QUANTITY', 'QUANTITY_TRACE', 'CAN_BUY_ZERO', 'WEIGHT'],
+					'filter' => ['@ID' => $rowIds]
+				]);
+				while ($item = $iterator->fetch())
+				{
+					$item['ID'] = (int)$item['ID'];
+					if (!isset($productMap[$item['ID']]))
+						continue;
+					foreach ($productMap[$item['ID']] as &$setKey)
+						$setsList[$setKey][$item['ID']] = array_merge($setsList[$setKey][$item['ID']], $item);
+					unset($setKey);
+				}
+				unset($item, $iterator);
 			}
-			unset($item, $productIterator);
+			unset($productIds);
 
 			$setsList = array_filter($setsList);
 			if (!empty($setsList))

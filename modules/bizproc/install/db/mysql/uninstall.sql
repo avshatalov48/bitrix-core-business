@@ -10,3 +10,5 @@ DROP TABLE if exists b_bp_workflow_state_identify;
 DROP TABLE if exists b_bp_rest_activity;
 DROP TABLE if exists b_bp_scheduler_event;
 DROP TABLE if exists b_bp_rest_provider;
+DROP TABLE if exists b_bp_automation_trigger;
+DROP TABLE if exists b_bp_global_const;

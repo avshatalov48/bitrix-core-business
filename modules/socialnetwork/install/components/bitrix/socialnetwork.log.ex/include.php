@@ -50,7 +50,7 @@ if (!function_exists('__SLLogGetIds'))
 		}
 
 		$cnt = 0;
-		while ($arEventsID = $dbEventsID->GetNext())
+		while ($arEventsID = $dbEventsID->getNext())
 		{
 			if ($arEventsID["MODULE_ID"] == "crm_shared")
 			{
@@ -58,22 +58,25 @@ if (!function_exists('__SLLogGetIds'))
 			}
 
 			if (
-				(
-					!empty($arEventsID["MODULE_ID"])
-					&& !IsModuleInstalled($arEventsID["MODULE_ID"])
-				)
-				||
-				(
-					in_array($arEventsID["EVENT_ID"], array("timeman_entry", "report"))
-					&& !IsModuleInstalled("timeman")
-				)
-				|| (
-					in_array($arEventsID["EVENT_ID"], array("tasks"))
-					&& !IsModuleInstalled("tasks")
-				)
-				|| (
-					in_array($arEventsID["EVENT_ID"], array("lists_new_element"))
-					&& !IsModuleInstalled("lists")
+				!\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24')
+				&& (
+					(
+						!empty($arEventsID["MODULE_ID"])
+						&& !IsModuleInstalled($arEventsID["MODULE_ID"])
+					)
+					||
+					(
+						in_array($arEventsID["EVENT_ID"], array("timeman_entry", "report"))
+						&& !IsModuleInstalled("timeman")
+					)
+					|| (
+						in_array($arEventsID["EVENT_ID"], array("tasks"))
+						&& !IsModuleInstalled("tasks")
+					)
+					|| (
+						in_array($arEventsID["EVENT_ID"], array("lists_new_element"))
+						&& !IsModuleInstalled("lists")
+					)
 				)
 			)
 			{

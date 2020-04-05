@@ -130,4 +130,6 @@ $MESS["FILEMAN_REPLACE_NEW_LINES_WITH_BR"] = "Автоматически зам�
 \"Текст/HTML/Визуальный редактор\"";
 $MESS["FILEMAN_OPTION_GOOGLE_MAP_API_KEY"] = "Ключ JavaScript API для Google Карт";
 $MESS["FILEMAN_OPTION_GOOGLE_MAP_API_KEY_NOTE"] = "Дополнительная информация как получить ключ: #A#";
+$MESS["FILEMAN_OPTION_YANDEX_MAP_API_KEY"] = "Ключ API для Yandex Карт";
+$MESS["FILEMAN_OPTION_YANDEX_MAP_API_KEY_NOTE"] = "Дополнительная информация как получить ключ: #A#";
 ?>

@@ -10,6 +10,8 @@ namespace Bitrix\Sender\Integration\Crm\Preset;
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\DB\SqlQueryException;
+
 use Bitrix\Sender\Preset;
 use Bitrix\Sender\Entity;
 use Bitrix\Sender\Integration\Crm\Connectors;
@@ -42,7 +44,7 @@ class Segment implements Preset\Installation\iInstallable
 		$list = Entity\Segment::getList(array(
 			'select' => array('ID'),
 			'filter' => array(
-				'=SYSTEM' => true,
+				'=IS_SYSTEM' => true,
 				'%CODE' => 'crm_%'
 			),
 			'limit' => 1
@@ -55,6 +57,7 @@ class Segment implements Preset\Installation\iInstallable
 	 * Install.
 	 *
 	 * @return bool
+	 * @throws SqlQueryException
 	 */
 	public function install()
 	{
@@ -66,10 +69,22 @@ class Segment implements Preset\Installation\iInstallable
 				continue;
 			}
 
-			$data['SYSTEM'] = 'Y';
+			$data['IS_SYSTEM'] = 'Y';
 
-			$segment = new Entity\Segment;
-			$segment->mergeData($data)->save();
+			try
+			{
+				$segment = new Entity\Segment;
+				$segment->mergeData($data)->save();
+			}
+			catch (SqlQueryException $exception)
+			{
+				if (strpos($exception->getDatabaseMessage(), '(1062)') === false)
+				{
+					throw $exception;
+				}
+			}
+
+
 		}
 
 		return true;
@@ -85,7 +100,7 @@ class Segment implements Preset\Installation\iInstallable
 		$segments = Entity\Segment::getList(array(
 			'select' => array('ID'),
 			'filter' => array(
-				'=SYSTEM' => true,
+				'=IS_SYSTEM' => true,
 				'%CODE' => 'crm_%'
 			)
 		));
@@ -115,18 +130,24 @@ class Segment implements Preset\Installation\iInstallable
 				continue;
 			}
 
+			$segmentCode = $code;
+			if (!empty($data['sender_segment_business_case']))
+			{
+				$segmentCode = "case_" . $segmentCode;
+			}
+
 			$fields = $data['fields'];
 			$fields['BX_PRESET_ID'] = $code;
 
 			$item = array(
-				'CODE' => $code,
+				'CODE' => $segmentCode,
 				'NAME' => $data['sender_segment_name'],
 				'SORT' => 100,
 				'ENDPOINTS' => array(
 					array(
 						'MODULE_ID' => 'sender',
 						'CODE' => $connector->getCode(),
-						'FIELDS' => $fields
+						'FIELDS' => self::convertPresetFields($fields)
 					)
 				)
 			);
@@ -147,18 +168,24 @@ class Segment implements Preset\Installation\iInstallable
 				continue;
 			}
 
+			$segmentCode = $code;
+			if (!empty($data['sender_segment_business_case']))
+			{
+				$segmentCode = "case_" . $segmentCode;
+			}
+
 			$fields = $data['fields'];
 			$fields['BX_PRESET_ID'] = $code;
 
 			$item = array(
-				'CODE' => $code,
+				'CODE' => $segmentCode,
 				'NAME' => $data['sender_segment_name'],
 				'SORT' => 100,
 				'ENDPOINTS' => array(
 					array(
 						'MODULE_ID' => 'sender',
 						'CODE' => $connector->getCode(),
-						'FIELDS' => $fields
+						'FIELDS' => self::convertPresetFields($fields)
 					)
 				)
 			);
@@ -183,10 +210,50 @@ class Segment implements Preset\Installation\iInstallable
 		return $list;
 	}
 
+	private static function convertPresetFields($fields)
+	{
+		if (!is_array($fields))
+		{
+			return $fields;
+		}
+
+		$codes = ['allow_year', 'datesel', 'from', 'to', 'days'];
+		$result = [];
+		foreach ($fields as $key => $value)
+		{
+			$baseKey = null;
+			foreach ($codes as $code)
+			{
+				$code = "_" . $code;
+				if (substr($key, -strlen($code)) == $code)
+				{
+					$baseKey = substr($key, 0, -strlen($code));
+					break;
+				}
+			}
+
+			if ($baseKey)
+			{
+				if (empty($result[$baseKey]))
+				{
+					$result[$baseKey] = [];
+				}
+
+				$result[$baseKey][$key] = $value;
+			}
+			else
+			{
+				$result[$key] = $value;
+			}
+		}
+
+		return $result;
+	}
+
 	private function getInstalledSegment($code = null)
 	{
 		$filter = array(
-			'=SYSTEM' => true,
+			'=IS_SYSTEM' => true,
 		);
 		if ($code)
 		{

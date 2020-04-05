@@ -263,6 +263,7 @@ else
 {
 	$rsData->NavStart();
 }
+
 // build list
 $lAdmin->NavText($rsData->GetNavPrint(GetMessage("PAGES")));
 while($arRes = $rsData->NavNext(true, "f_"))
@@ -270,10 +271,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	$row = $lAdmin->AddRow($f_ID, $arRes);
 	$row->AddViewField('ID', '<a href="' . 'highloadblock_row_edit.php?ENTITY_ID='.$hlblock['ID'].'&ID='.$f_ID.'&lang='.LANGUAGE_ID . '">'.$f_ID.'</a>');
 	
-	if ($canEdit)
-	{
-		$USER_FIELD_MANAGER->AddUserFields('HLBLOCK_'.$hlblock['ID'], $arRes, $row);
-	}
+	$USER_FIELD_MANAGER->AddUserFields('HLBLOCK_'.$hlblock['ID'], $arRes, $row);
 
 	$arActions = array();
 
@@ -304,6 +302,17 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	$row->AddActions($arActions);
 }
 
+// force disable edit
+if (!$canEdit)
+{
+	$eventManager = \Bitrix\Main\EventManager::getInstance();
+	$eventManager->addEventHandler('main', 'OnAdminListDisplay',
+		function(&$list)
+		{
+			$list->bCanBeEdited = false;
+		}
+	);
+}
 
 // view
 $menu = array();
@@ -329,7 +338,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 	?>
 	<tr>
 		<td>ID</td>
-		<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>"><?=ShowFilterLogicHelp()?></td>
+		<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>"></td>
 	</tr>
 	<?
 	$USER_FIELD_MANAGER->AdminListShowFilter($ufEntityId);

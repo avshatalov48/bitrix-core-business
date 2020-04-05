@@ -155,6 +155,13 @@ if(CModule::IncludeModule("sale"))
 		"PARENT" => "ADDITIONAL_SETTINGS",
 	);
 
+	$arComponentParameters['PARAMETERS']['DISALLOW_CANCEL'] = array(
+		"NAME" => GetMessage("SPOD_DISALLOW_CANCEL"),
+		"TYPE" => "CHECKBOX",
+		"DEFAULT" => "N",
+		"PARENT" => "ADDITIONAL_SETTINGS",
+	);
+
 	if (CBXFeatures::IsFeatureEnabled('SaleAccounts'))
 	{
 		$arComponentParameters['PARAMETERS']['ALLOW_INNER'] = array(

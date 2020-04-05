@@ -11,7 +11,6 @@
 				<td class="catalog-detail-image">
 					<div class="catalog-detail-image" id="catalog-detail-main-image">
 						<?echo CFile::ShowImage($arResult["IMAGE_ID"], 250, 200, "border=0", "", true);?>
-
 					</div>
 				</td>
 				<?
@@ -29,12 +28,12 @@
 			?>
 
 			<td class="catalog-detail-desc">
-				<?if($arResult["DESCRIPTION"]):?>
-				<span itemprop = "description"><?=$arResult["DESCRIPTION"];?></span>
-				<div class="catalog-detail-line"></div>
-				<?endif;?>
 				<?if($arResult["TITLE"]):?>
 				<span itemprop = "description"><?=GetMessage("S_NAME")." ".$arResult["TITLE"];?></span>
+				<div class="catalog-detail-line"></div>
+				<?endif;?>
+				<?if($arResult["DESCRIPTION"]):?>
+				<span itemprop = "description"><?=$arResult["DESCRIPTION"];?></span>
 				<div class="catalog-detail-line"></div>
 				<?endif;?>
 				<?if($arResult["ADDRESS"]):?>

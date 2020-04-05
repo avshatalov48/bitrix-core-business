@@ -14,6 +14,11 @@ use \Bitrix\Main\Entity;
 class LandingLandingsComponent extends LandingBaseComponent
 {
 	/**
+	 * Count items per page.
+	 */
+	const COUNT_PER_PAGE = 23;
+
+	/**
 	 * Copy some landing.
 	 * @param int $id Landing id.
 	 * @param array $additional Additional params.
@@ -47,7 +52,6 @@ class LandingLandingsComponent extends LandingBaseComponent
 	 */
 	protected function getFolderPreviews($folderId)
 	{
-		$b24 = \Bitrix\Landing\Manager::isB24();
 		$previews = array();
 		$pages = $this->getLandings(array(
 			'select' => array(
@@ -66,15 +70,7 @@ class LandingLandingsComponent extends LandingBaseComponent
 			$landing = Landing::createInstance($page['ID'], array(
 				'blocks_limit' => 1
 			));
-			$previews[$page['ID']] = !$b24 ? $landing->getPreview() : '';
-		}
-		if ($b24 && isset($landing) && !empty($previews))
-		{
-			$publicUrls = $landing->getPublicUrl(array_keys($previews));
-			foreach ($publicUrls as $id => $url)
-			{
-				$previews[$id] = $url . 'preview.jpg';
-			}
+			$previews[$page['ID']] = $landing->getPreview();
 		}
 		return $previews;
 	}
@@ -90,7 +86,7 @@ class LandingLandingsComponent extends LandingBaseComponent
 		if ($init)
 		{
 			$request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
-			$b24 = \Bitrix\Landing\Manager::isB24();
+			$deletedLTdays = Manager::getDeletedLT();
 
 			$this->checkParam('SITE_ID', 0);
 			$this->checkParam('TYPE', '');
@@ -98,6 +94,7 @@ class LandingLandingsComponent extends LandingBaseComponent
 			$this->checkParam('PAGE_URL_LANDING_EDIT', '');
 			$this->checkParam('PAGE_URL_LANDING_VIEW', '');
 
+			// make filter
 			$filter = LandingFilterComponent::getFilter(
 				LandingFilterComponent::TYPE_LANDING
 			);
@@ -115,7 +112,10 @@ class LandingLandingsComponent extends LandingBaseComponent
 				$filter['FOLDER_ID'] = false;
 			}
 
+			$this->arResult['IS_DELETED'] = LandingFilterComponent::isDeleted();
 			$this->arResult['SITES'] = $sites = $this->getSites();
+
+			// get list
 			$this->arResult['LANDINGS'] = $this->getLandings(array(
 				'select' => array(
 					'*',
@@ -124,10 +124,19 @@ class LandingLandingsComponent extends LandingBaseComponent
 				),
 				'filter' => $filter,
 				'runtime' => array(
-					new Entity\ExpressionField('DATE_MODIFY_UNIX', 'UNIX_TIMESTAMP(DATE_MODIFY)'),
-					new Entity\ExpressionField('DATE_PUBLIC_UNIX', 'UNIX_TIMESTAMP(DATE_PUBLIC)')
-				)
+					new Entity\ExpressionField('DATE_MODIFY_UNIX', 'UNIX_TIMESTAMP(%s)', array('DATE_MODIFY')),
+					new Entity\ExpressionField('DATE_PUBLIC_UNIX', 'UNIX_TIMESTAMP(%s)', array('DATE_PUBLIC'))
+				),
+				'order' => $this->arResult['IS_DELETED']
+					? array(
+						'DATE_MODIFY' => 'desc'
+					)
+					: array(
+						'ID' => 'desc'
+					),
+				'navigation' => $this::COUNT_PER_PAGE
 			));
+			$this->arResult['NAVIGATION'] = $this->getLastNavigation();
 
 			// base data
 			$firstItem = false;
@@ -146,7 +155,8 @@ class LandingLandingsComponent extends LandingBaseComponent
 					$firstItem = &$item;
 				}
 				$landing = Landing::createInstance($item['ID'], array(
-					'blocks_limit' => 1
+					'blocks_limit' => 1,
+					'force_deleted' => true
 				));
 				$item['PUBLIC_URL'] = '';
 				$item['PREVIEW'] = $landing->getPreview();
@@ -154,7 +164,22 @@ class LandingLandingsComponent extends LandingBaseComponent
 				{
 					$item['FOLDER_PREVIEW'] = $this->getFolderPreviews($item['ID']);
 				}
+				if ($item['DELETED'] == 'Y')
+				{
+					$item['DATE_DELETED_DAYS'] = $deletedLTdays - intval((time() - $item['DATE_MODIFY']->getTimeStamp()) / 86400);
+					$item['DELETE_FINISH'] = $item['DATE_DELETED_DAYS'] <= 0;//@tmp
+				}
 			}
+
+			// checking areas
+			$areas = \Bitrix\Landing\TemplateRef::landingIsArea(
+				array_keys($this->arResult['LANDINGS'])
+			);
+			foreach ($this->arResult['LANDINGS'] as &$landingItem)
+			{
+				$landingItem['IS_AREA'] = $areas[$landingItem['ID']] === true;
+			}
+			unset($landingItem);
 
 			// sort by homepage additional
 			uasort($this->arResult['LANDINGS'], function($a, $b)
@@ -172,7 +197,7 @@ class LandingLandingsComponent extends LandingBaseComponent
 				$publicUrls = $landing->getPublicUrl(array_keys($this->arResult['LANDINGS']));
 				foreach ($publicUrls as $id => $url)
 				{
-					$this->arResult['LANDINGS'][$id]['PUBLIC_URL'] = $url;
+					$this->arResult['LANDINGS'][$id]['PUBLIC_URL'] = $this->getTimestampUrl($url);
 				}
 			}
 

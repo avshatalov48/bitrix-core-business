@@ -135,6 +135,23 @@ class CAllCatalogDiscountCoupon
 	}
 
 	/**
+	 * @deprecated deprecated since catalog 17.6.7
+	 * @see \Bitrix\Catalog\DiscountCouponTable::deleteByDiscount()
+	 *
+	 * @param int $ID
+	 * @param bool $bAffectDataFile
+	 * @return bool
+	 */
+	public static function DeleteByDiscountID($ID, $bAffectDataFile = true)
+	{
+		$ID = (int)$ID;
+		if ($ID <= 0)
+			return false;
+		Catalog\DiscountCouponTable::deleteByDiscount($ID);
+		return true;
+	}
+
+	/**
 	* @deprecated deprecated since catalog 15.0.4
 	* @see \Bitrix\Sale\DiscountCouponsManager::add
 	*

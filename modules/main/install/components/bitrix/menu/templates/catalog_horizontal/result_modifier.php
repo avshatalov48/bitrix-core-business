@@ -84,6 +84,11 @@ if(!function_exists("FillAllPicturesAndDescriptions"))
 			}
 		}
 
+		$pictureLevel_1 = "";
+		$descriptionLevel_1 = "";
+		$pictureLevel_2 = "";
+		$descriptionLevel_2 = "";
+
 		foreach($arAllItems as $itemID=>$arItem)
 		{
 			if ($arItem["DEPTH_LEVEL"] == "1")

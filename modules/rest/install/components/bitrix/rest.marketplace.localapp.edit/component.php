@@ -232,6 +232,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 	$arResult['APP']['URL_INSTALL'] = $_POST['APP_URL_INSTALL'];
 }
 
-$arResult["SCOPE"] = \CRestUtil::getScopeList();
+$arResult["SCOPE"] = \Bitrix\Rest\AppTable::cleanLocalPermissionList(
+	\CRestUtil::getScopeList()
+);
 
 $this->IncludeComponentTemplate();

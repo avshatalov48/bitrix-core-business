@@ -31,10 +31,6 @@ $arComponentParameters = Array(
 		'CODE' => array(
 			'NAME' => getMessage('LANDING_CMP_PAR_CODE'),
 			'TYPE' => 'STRING'
-		),
-		'PAGE_URL_BACK' => array(
-			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_BACK'),
-			'TYPE' => 'STRING'
 		)
 	)
 );

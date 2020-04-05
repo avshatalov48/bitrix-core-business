@@ -18,6 +18,7 @@ class Address
 
 	/** @var string|null $email Email. */
 	protected $email = null;
+	private $checkingPunycode;
 
 	/**
 	 * Return true if is valid.
@@ -32,15 +33,53 @@ class Address
 
 	/**
 	 * Address constructor.
-	 *
-	 * @param string|null $address Address.
+	 * @param null $address
+	 * @param array $options - possible keys are:
+	 * 		checkingPunycode - converting domain with non-latin symbols into punycode before validation
 	 */
-	public function __construct($address = null)
+	public function __construct($address = null, $options = [])
 	{
+		if (array_key_exists('checkingPunycode', $options))
+		{
+			$this->setCheckingPunycode($options['checkingPunycode']);
+		}
 		if ($address)
 		{
 			$this->set($address);
 		}
+	}
+
+	public function setCheckingPunycode($checkingPunycode)
+	{
+		$this->checkingPunycode = (bool)$checkingPunycode;
+	}
+
+	/**
+	 * Get encoded address.
+	 *
+	 * @return null|string
+	 */
+	public function getEncoded()
+	{
+		if (!$this->email)
+		{
+			return null;
+		}
+
+		if ($this->name)
+		{
+			$address = sprintf(
+				'%s <%s>',
+				sprintf('=?%s?B?%s?=', SITE_CHARSET, base64_encode($this->name)),
+				$this->email
+			);
+		}
+		else
+		{
+			$address = "<{$this->email}>";
+		}
+
+		return $address;
 	}
 
 	/**
@@ -129,7 +168,7 @@ class Address
 	public function setEmail($email)
 	{
 		$email = strtolower(trim($email));
-		if (!check_email($email, true))
+		if (!$this->checkMail($email))
 		{
 			$email = null;
 		}
@@ -175,5 +214,45 @@ class Address
 		{
 			$this->setEmail($address);
 		}
+	}
+
+	private function checkMail($email)
+	{
+		if (check_email($email, true))
+		{
+			return true;
+		}
+		if ($this->checkingPunycode)
+		{
+			$addressWithPunycodeDomain = $this->convertAddressToPunycode($email);
+			if ($addressWithPunycodeDomain)
+			{
+				return check_email($addressWithPunycodeDomain, true);
+			}
+		}
+
+		return false;
+	}
+
+	/** Converts domain part to punycode
+	 * @param $email
+	 * @return bool|string
+	 */
+	private function convertAddressToPunycode($email)
+	{
+		if (count(explode('@', $email)) === 2)
+		{
+			$domainPart = array_pop(explode('@', $email));
+			if ($domainPart)
+			{
+				$emailAddressName = array_shift(explode('@', $email));
+				$encoder = new \CBXPunycode();
+				if ($encodedDomain = $encoder->encode($domainPart))
+				{
+					return $emailAddressName . '@' . $encodedDomain;
+				}
+			}
+		}
+		return false;
 	}
 }

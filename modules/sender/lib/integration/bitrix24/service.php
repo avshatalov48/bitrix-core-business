@@ -9,6 +9,7 @@
 namespace Bitrix\Sender\Integration\Bitrix24;
 
 use Bitrix\Bitrix24\Feature;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 
@@ -33,6 +34,24 @@ class Service
 	public static function isPortal()
 	{
 		return (ModuleManager::isModuleInstalled('bitrix24') || ModuleManager::isModuleInstalled('intranet'));
+	}
+
+	/**
+	 * Return true if some instrument is available.
+	 *
+	 * @return bool
+	 */
+	public static function isAvailable()
+	{
+		return
+			self::isMailingsAvailable()
+			||
+			self::isAdAvailable()
+			||
+			self::isRcAvailable()
+			||
+			self::isEmailAvailable()
+			;
 	}
 
 	/**
@@ -107,6 +126,49 @@ class Service
 	}
 
 	/**
+	 * Return true if email is available.
+	 *
+	 * @return bool
+	 */
+	public static function isEmailAvailable()
+	{
+		$dateCreate = Option::get("main", "~controller_date_create", "");
+
+		return !self::isCloud()
+			||
+			Feature::isFeatureEnabled('sender_email')
+			||
+			(
+				empty($dateCreate)
+				||
+				$dateCreate <= mktime(
+					0, 0, 0,
+					1, 9, 2019
+				)
+			);
+	}
+
+	/**
+	 * Get available mailing codes.
+	 *
+	 * @return array
+	 */
+	public static function getAvailableMailingCodes()
+	{
+		if (self::isMailingsAvailable())
+		{
+			return Message\Factory::getMailingMessageCodes();
+		}
+
+		if (self::isEmailAvailable())
+		{
+			return [Message\iBase::CODE_MAIL];
+		}
+
+		return [];
+	}
+
+	/**
 	 * Return true if portal is cloud.
 	 *
 	 * @return bool
@@ -173,6 +235,21 @@ class Service
 
 		\CBitrix24::initLicenseInfoPopupJS();
 		\CJSCore::init('sender_b24_license');
+	}
+
+	/**
+	 * Return true if plan is top.
+	 *
+	 * @return bool
+	 */
+	public static function isLicenceTop()
+	{
+		if (!self::isCloud())
+		{
+			return true;
+		}
+
+		return \CBitrix24::getLicenseType() === 'company';
 	}
 
 	/**

@@ -31,7 +31,16 @@ class CForumRestService extends IRestService
 			'FILES' => array(),
 		);
 
-		$userId = $USER->GetID();
+		$userId = (
+			isset($arParams["USER_ID"])
+			&& intval($arParams["USER_ID"]) > 0
+			&& self::isAdmin()
+				? $arParams["USER_ID"]
+				: $USER->getId()
+		);
+
+		$otherUserMode = ($userId != $USER->getId());
+
 		if ($userId <= 0)
 		{
 			throw new Bitrix\Rest\RestException("User ID can't be empty", "ID_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
@@ -89,7 +98,7 @@ class CForumRestService extends IRestService
 				'ID' => (int)$messageFields['ID'],
 				'MESSAGE_ID' => (int)$messageFields['ID'],
 				'DATE' => $messageFields['POST_DATE'],
-				'MESSAGE' => (string)$messageFields['POST_MESSAGE'],
+				'MESSAGE' => ($otherUserMode ? '' : (string)$messageFields['POST_MESSAGE']),
 				'ATTACH' => array()
 			);
 
@@ -132,8 +141,13 @@ class CForumRestService extends IRestService
 			));
 			while($attachedObjectFields = $res->fetch())
 			{
-				$attachedObjectList[$attachedObjectFields['ID']] = $attachedObjectFields['OBJECT_ID'];
-				$result['FILES'][] = $attachedObjectFields['OBJECT_ID'];
+				$diskObjectId = $attachedObjectFields['OBJECT_ID'];
+
+				if ($fileData = self::getFileData($diskObjectId))
+				{
+					$attachedObjectList[$attachedObjectFields['ID']] = $diskObjectId;
+					$result['FILES'][$diskObjectId] = $fileData;
+				}
 			}
 		}
 
@@ -157,7 +171,9 @@ class CForumRestService extends IRestService
 
 			$result['MESSAGES'][$key] = array_change_key_case($result['MESSAGES'][$key], CASE_LOWER);
 		}
+
 		$result['MESSAGES'] = array_values($result['MESSAGES']);
+		$result['FILES'] = self::convertFileData($result['FILES']);
 
 		return $result;
 	}
@@ -177,7 +193,7 @@ class CForumRestService extends IRestService
 		$currentUserId = (
 			isset($arFields["USER_ID"])
 			&& intval($arFields["USER_ID"]) > 0
-			&& $USER->isAdmin()
+			&& self::isAdmin()
 				? $arFields["USER_ID"]
 				: $USER->getId()
 		);
@@ -307,5 +323,117 @@ class CForumRestService extends IRestService
 		return $result;
 	}
 
+	private static function isAdmin()
+	{
+		global $USER;
+		return (
+			$USER->isAdmin()
+			|| (
+				Loader::includeModule('bitrix24')
+				&& \CBitrix24::isPortalAdmin($USER->getId())
+			)
+		);
+	}
+
+	private static function getFileData($diskObjectId)
+	{
+		$result = false;
+
+		$diskObjectId = intval($diskObjectId);
+		if ($diskObjectId <= 0)
+		{
+			return $result;
+		}
+
+		if ($fileModel = \Bitrix\Disk\File::getById($diskObjectId))
+		{
+			/** @var \Bitrix\Disk\File $fileModel */
+			$contentType = 'file';
+			$imageParams = false;
+			if (\Bitrix\Disk\TypeFile::isImage($fileModel->getName()))
+			{
+				$contentType = 'image';
+				$params = $fileModel->getFile();
+				$imageParams = Array(
+					'width' => (int)$params['WIDTH'],
+					'height' => (int)$params['HEIGHT'],
+				);
+			}
+			else if (\Bitrix\Disk\TypeFile::isVideo($fileModel->getName()))
+			{
+				$contentType = 'video';
+				$params = $fileModel->getView()->getPreviewData();
+				$imageParams = Array(
+					'width' => (int)$params['WIDTH'],
+					'height' => (int)$params['HEIGHT'],
+				);
+			}
+
+			$isImage = \Bitrix\Disk\TypeFile::isImage($fileModel);
+			$urlManager = \Bitrix\Disk\Driver::getInstance()->getUrlManager();
+
+			$result = array(
+				'id' => (int)$fileModel->getId(),
+				'date' => $fileModel->getCreateTime(),
+				'type' => $contentType,
+				'name' => $fileModel->getName(),
+				'size' => (int)$fileModel->getSize(),
+				'image' => $imageParams,
+				'authorId' => (int)$fileModel->getCreatedBy(),
+				'authorName' => CUser::FormatName(CSite::getNameFormat(false), $fileModel->getCreateUser(), true, true),
+				'urlPreview' => (
+					$fileModel->getPreviewId()
+						? $urlManager->getUrlForShowPreview($fileModel, [ 'width' => 640, 'height' => 640])
+						: (
+							$isImage
+								? $urlManager->getUrlForShowFile($fileModel, [ 'width' => 640, 'height' => 640])
+								: null
+						)
+				),
+				'urlShow' => ($isImage ? $urlManager->getUrlForShowFile($fileModel) : $urlManager->getUrlForDownloadFile($fileModel)),
+				'urlDownload' => $urlManager->getUrlForDownloadFile($fileModel)
+			);
+		}
+
+		return $result;
+	}
+
+	private static function convertFileData($fileData)
+	{
+		if (!is_array($fileData))
+		{
+			return array();
+		}
+
+		foreach ($fileData as $key => $value)
+		{
+			if ($value['date'] instanceof \Bitrix\Main\Type\DateTime)
+			{
+				$fileData[$key]['date'] = date('c', $value['date']->getTimestamp());
+			}
+
+			foreach (['urlPreview', 'urlShow', 'urlDownload'] as $field)
+			{
+				$url = $fileData[$key][$field];
+				if (is_string($url) && $url && strpos($url, 'http') !== 0)
+				{
+					$fileData[$key][$field] = self::getPublicDomain().$url;
+				}
+			}
+		}
+
+		return $fileData;
+	}
+
+	private static function getPublicDomain()
+	{
+		static $result = null;
+		if ($result === null)
+		{
+			$result = (\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".((defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0) ? SITE_SERVER_NAME : \Bitrix\Main\Config\Option::get("main", "server_name", $_SERVER['SERVER_NAME']));
+		}
+
+		return $result;
+	}
 }
 ?>

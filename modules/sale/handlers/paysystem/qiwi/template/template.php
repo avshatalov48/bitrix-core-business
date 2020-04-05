@@ -12,11 +12,15 @@ if (isset($_POST["SET_NEW_PHONE"]))
 ?>
 
 <?if (!preg_match('/^\+7\d{10}$/', $params['BUYER_PERSON_PHONE'])):?>
-	<form  action="<?=POST_FORM_ACTION_URI?>" method="post">
-		<p><strong><?=Loc::getMessage("SALE_HPS_QIWI_INCORRECT_PHONE_NUMBER")?></strong></p>
-		<p><?=htmlspecialcharsbx(Loc::getMessage("SALE_HPS_QIWI_INPUT_PHONE"))?></p>
-		<input type="text" name="NEW_PHONE" size="30" value="+7" placeholder="+7" />
-		<input type="submit" name="SET_NEW_PHONE" value="<?= Loc::getMessage("SALE_HPS_QIWI_SEND_PHONE")?>" />
+	<?if ($params['BUYER_PERSON_PHONE']):?>
+		<div class="alert alert-danger mb-3"><?=Loc::getMessage("SALE_HPS_QIWI_INCORRECT_PHONE_NUMBER")?></div>
+		<div class="mb-1"><?=htmlspecialcharsbx(Loc::getMessage("SALE_HPS_QIWI_INPUT_PHONE"))?></div>
+	<?endif;?>
+	<form  action="<?=POST_FORM_ACTION_URI?>" method="post" class="form-inline">
+		<div class="form-group mb-0 mr-3">
+			<input type="text" name="NEW_PHONE" size="30" value="+7" placeholder="+7" class="form-control"/>
+		</div>
+		<input type="submit" class="btn btn-primary" name="SET_NEW_PHONE" value="<?= Loc::getMessage("SALE_HPS_QIWI_SEND_PHONE")?>" />
 	</form>
 <?else:?>
 	<form action="<?=$params['URL']?>" method="post">
@@ -37,6 +41,6 @@ if (isset($_POST["SET_NEW_PHONE"]))
 		<input type="hidden" name="successUrl" value="<?=htmlspecialcharsbx($params['QIWI_SUCCESS_URL']);?>"/>
 		<input type="hidden" name="failUrl" value="<?=htmlspecialcharsbx($params['QIWI_FAIL_URL']);?>"/>
 		<input type="hidden" name="lifetime" value="<?=htmlspecialcharsbx($params['QIWI_BILL_LIFETIME']);?>"/>
-		<input type="submit" value="<?=Loc::getMessage("SALE_HPS_QIWI_DO_BILL");?>" />
+		<input type="submit" class="btn btn-primary" value="<?=Loc::getMessage("SALE_HPS_QIWI_DO_BILL");?>" />
 	</form>
 <?endif?>

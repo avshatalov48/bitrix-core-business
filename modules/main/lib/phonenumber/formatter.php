@@ -76,12 +76,22 @@ class Formatter
 
 		if($number->isInternational())
 		{
-			return ($number->hasPlus() ? '+' : '') . $number->getCountryCode() . ' ' . $formattedNationalNumber;
+			$formattedNumber = ($number->hasPlus() ? '+' : '') . $number->getCountryCode() . ' ' . $formattedNationalNumber;
 		}
 		else
 		{
-			return $formattedNationalNumber;
+			$formattedNumber = $formattedNationalNumber;
 		}
+
+		// If no digit was inserted/removed/altered in a process of formatting, return the formatted number;
+		$normalizedFormattedNumber = static::stripNonNumbers($formattedNumber);
+		$normalizedRawInput = static::stripNonNumbers($number->getRawNumber());
+		if ($normalizedFormattedNumber !== $normalizedRawInput)
+		{
+			$formattedNumber = $number->getRawNumber();
+		}
+
+		return $formattedNumber;
 	}
 
 	protected static function selectFormatForNumber(PhoneNumber $number, $formatType, $countryMetadata)
@@ -216,23 +226,39 @@ class Formatter
 		$patternRegex = '/' . $format['pattern'] . '/';
 		$nationalNumber = $number->getNationalNumber();
 		$countryMetadata = MetadataProvider::getInstance()->getCountryMetadata($number->getCountry());
-		$hasNationalPrefix = $number->getNationalPrefix() != '';
+		$nationalPrefix = static::getNationalPrefix($countryMetadata, true);
+		$hasNationalPrefix =  static::numberContainsNationalPrefix($number->getRawNumber(), $nationalPrefix, $countryMetadata);
 
 		if(!$isInternational && $hasNationalPrefix)
 		{
 			$nationalPrefixFormattingRule = static::getNationalPrefixFormattingRule($format, $countryMetadata);
 			if($nationalPrefixFormattingRule != '')
 			{
-				$nationalPrefixFormattingRule = str_replace(array('$NP', '$FG'), array($number->getNationalPrefix(), '$1'), $nationalPrefixFormattingRule);
+				$nationalPrefixFormattingRule = str_replace(array('$NP', '$FG'), array($nationalPrefix, '$1'), $nationalPrefixFormattingRule);
 				$replaceFormat = preg_replace('/(\\$\\d)/', $nationalPrefixFormattingRule, $replaceFormat, 1);
 			}
 			else
 			{
-				$replaceFormat = $number->getNationalPrefix() . ' ' . $replaceFormat;
+				$replaceFormat = $nationalPrefix . ' ' . $replaceFormat;
 			}
 		}
 
 		return preg_replace($patternRegex, $replaceFormat, $nationalNumber);
+	}
+
+	protected static function getNationalPrefix($countryMetadata, $stripNonDigits)
+	{
+		if(!isset($countryMetadata['nationalPrefix']))
+		{
+			return '';
+		}
+
+		$nationalPrefix = $countryMetadata['nationalPrefix'];
+		if ($stripNonDigits)
+		{
+			$nationalPrefix = static::stripNonNumbers($nationalPrefix);
+		}
+		return $nationalPrefix;
 	}
 
 	protected static function getNationalPrefixFormattingRule($format, $countryMetadata)
@@ -260,6 +286,37 @@ class Formatter
 			return $countryMetadata['nationalPrefixOptionalWhenFormatting'];
 		else
 			return false;
+	}
+
+	/**
+	 * Check if rawInput, which is assumed to be in the national format, has a national prefix. The
+	 * national prefix is assumed to be in digits-only form.
+	 * @param string $phoneNumber
+	 * @param string $nationalPrefix
+	 * @param array $countryMetadata
+	 * @return bool
+	 */
+	protected static function numberContainsNationalPrefix($phoneNumber, $nationalPrefix, $countryMetadata)
+	{
+		if($nationalPrefix == '')
+		{
+			return false;
+		}
+
+		if (strpos($phoneNumber, $nationalPrefix) === 0)
+		{
+			// Some Japanese numbers (e.g. 00777123) might be mistaken to contain the national prefix
+			// when written without it (e.g. 0777123) if we just do prefix matching. To tackle that, we
+			// check the validity of the number if the assumed national prefix is removed (777123 won't
+			// be valid in Japan).
+			$a = substr($phoneNumber, strlen($nationalPrefix));
+
+			return Parser::getInstance()->parse($a, $countryMetadata['id'])->isValid();
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	/**
@@ -294,5 +351,10 @@ class Formatter
 
 		$result = (!$nationalPrefixFormattingRule || preg_match('/\$NP/', $nationalPrefixFormattingRule));
 		return $result;
+	}
+
+	protected static function stripNonNumbers($string)
+	{
+		return preg_replace("/[^\d]/", "", $string);
 	}
 }

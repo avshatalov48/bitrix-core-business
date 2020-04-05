@@ -9,13 +9,17 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
+/** @global CCacheManager $CACHE_MANAGER */
+
+global $CACHE_MANAGER;
 
 use Bitrix\Socialnetwork\Livefeed;
+use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/socialnetwork.log.entry/include.php");
 
-if (!CModule::IncludeModule("socialnetwork"))
+if (!Loader::includeModule("socialnetwork"))
 {
 	ShowError(GetMessage("SONET_MODULE_NOT_INSTALL"));
 	return;
@@ -55,6 +59,16 @@ if (empty($arParams["COMMENT_PROPERTY"]))
 	$arParams["COMMENT_PROPERTY"][] = "UF_SONET_COM_URL_PRV";
 }
 
+if (empty($arParams["PATH_TO_LOG_TAG"]))
+{
+	$folderUsers = COption::GetOptionString("socialnetwork", "user_page", false, SITE_ID);
+	$arParams["PATH_TO_LOG_TAG"] = $folderUsers."log/?TAG=#tag#";
+	if (SITE_TEMPLATE_ID == 'bitrix24')
+	{
+		$arParams["PATH_TO_LOG_TAG"] .= "&apply_filter=Y";
+	}
+}
+
 CSocNetLogComponent::processDateTimeFormatParams($arParams);
 
 if (isset($arParams["CURRENT_PAGE_DATE"]))
@@ -72,12 +86,67 @@ $arResult["bReload"] = $arParams["bReload"];
 $arResult["bGetComments"] = $arParams["bGetComments"];
 $arResult["bIntranetInstalled"] = ModuleManager::isModuleInstalled("intranet");
 
+$arResult["bPublicPage"] = (isset($arParams["PUB"]) && $arParams["PUB"] == "Y");
+
+$arResult["bTasksInstalled"] = Loader::includeModule("tasks");
+$arResult["bTasksAvailable"] = (
+	!$arResult["bPublicPage"]
+	&& $arResult["bTasksInstalled"]
+	&& (
+		!Loader::includeModule('bitrix24')
+		|| CBitrix24BusinessTools::isToolAvailable($USER->getId(), "tasks")
+	)
+);
+
 $arResult["Event"] = false;
 $arCurrentUserSubscribe = array("TRANSPORT" => array());
 
 $arEvent = __SLEGetLogRecord($arParams["LOG_ID"], $arParams, $arCurrentUserSubscribe, $current_page_date);
 if ($arEvent)
 {
+	$contentId = Livefeed\Provider::getContentId($arEvent['EVENT']);
+
+	$arResult["canGetCommentContent"] = false;
+	$arResult["POST_CONTENT_TYPE_ID"] = false;
+	$arResult["COMMENT_CONTENT_TYPE_ID"] = false;
+
+	if (
+		!empty($contentId['ENTITY_TYPE'])
+		&& ($postProvider = \Bitrix\Socialnetwork\Livefeed\Provider::getProvider($contentId['ENTITY_TYPE']))
+	)
+	{
+		$postProviderClassName = get_class($postProvider);
+		$reflectionClass = new ReflectionClass($postProviderClassName);
+		$arResult["canGetPostContent"] = ($reflectionClass->getMethod('initSourceFields')->class == $postProviderClassName);
+		if ($arResult["canGetPostContent"])
+		{
+			$arResult["POST_CONTENT_TYPE_ID"] = $postProvider->getContentTypeId();
+			$arResult["POST_CONTENT_ID"] = $contentId['ENTITY_ID'];
+		}
+
+		if ($commentProvider = $postProvider->getCommentProvider())
+		{
+			$commentProviderClassName = get_class($commentProvider);
+			$reflectionClass = new ReflectionClass($commentProviderClassName);
+
+			$arResult["canGetCommentContent"] = (
+//				false &&
+				$reflectionClass->getMethod('initSourceFields')->class == $commentProviderClassName
+			);
+			if ($arResult["canGetCommentContent"])
+			{
+				$arResult["COMMENT_CONTENT_TYPE_ID"] = $commentProvider->getContentTypeId();
+			}
+
+			$commentProvider->setLogEventId($arEvent['EVENT']['EVENT_ID']);
+			$suffix = $commentProvider->getSuffix();
+			if (!empty($suffix))
+			{
+				$arParams['COMMENT_ENTITY_SUFFIX'] = $suffix;
+			}
+		}
+	}
+
 	if (
 		isset($arEvent["HAS_COMMENTS"])
 		&& $arEvent["HAS_COMMENTS"] == "Y"
@@ -170,7 +239,7 @@ if ($arEvent)
 
 			if (defined("BX_COMP_MANAGED_CACHE"))
 			{
-				$GLOBALS["CACHE_MANAGER"]->StartTagCache($cache_path);
+				$CACHE_MANAGER->startTagCache($cache_path);
 			}
 
 			$arFilter = array(
@@ -182,7 +251,7 @@ if ($arEvent)
 				$logCommentId = $arParams["COMMENT_ID"];
 				if (!empty($commentEvent))
 				{
-					$rsLogComment = CSocNetLogComments::GetList(
+					$rsLogComment = CSocNetLogComments::getList(
 						array(),
 						array(
 							"EVENT_ID" => $commentEvent['EVENT_ID'],
@@ -203,19 +272,15 @@ if ($arEvent)
 			}
 
 			$arSelect = array(
-				"ID", "LOG_ID", "SOURCE_ID", "ENTITY_TYPE", "ENTITY_ID", "USER_ID", "EVENT_ID", "LOG_DATE", "MESSAGE", "TEXT_MESSAGE", "URL", "MODULE_ID",
+				"ID", "LOG_ID", "SOURCE_ID", "ENTITY_TYPE", "ENTITY_ID", "USER_ID", "EVENT_ID", "LOG_DATE", "MESSAGE", "LOG_DATE_TS", "TEXT_MESSAGE", "URL", "MODULE_ID",
 				"GROUP_NAME", "GROUP_OWNER_ID", "GROUP_VISIBLE", "GROUP_OPENED", "GROUP_IMAGE_ID",
 				"USER_NAME", "USER_LAST_NAME", "USER_SECOND_NAME", "USER_LOGIN", "USER_PERSONAL_PHOTO", "USER_PERSONAL_GENDER",
 				"CREATED_BY_NAME", "CREATED_BY_LAST_NAME", "CREATED_BY_SECOND_NAME", "CREATED_BY_LOGIN", "CREATED_BY_PERSONAL_PHOTO", "CREATED_BY_PERSONAL_GENDER", "CREATED_BY_EXTERNAL_AUTH_ID",
+				"SHARE_DEST",
 				"LOG_SITE_ID", "LOG_SOURCE_ID",
 				"RATING_TYPE_ID", "RATING_ENTITY_ID",
 				"UF_*"
 			);
-
-			if ($GLOBALS["DB"]->type == "MYSQL")
-			{
-				$arSelect[] = "LOG_DATE_TS";
-			}
 
 			$arListParams = array(
 				"USE_SUBSCRIBE" => "N",
@@ -234,7 +299,7 @@ if ($arEvent)
 				"JS" => array()
 			);
 
-			$dbComments = CSocNetLogComments::GetList(
+			$dbComments = CSocNetLogComments::getList(
 				array("LOG_DATE" => "DESC"), // revert then
 				$arFilter,
 				false,
@@ -259,23 +324,57 @@ if ($arEvent)
 				}
 			}
 
-			while($arComments = $dbComments->GetNext())
+			$commentsList = $commentSourceIdList = array();
+			while($arComment = $dbComments->getNext())
 			{
 				if (defined("BX_COMP_MANAGED_CACHE"))
 				{
-					$GLOBALS["CACHE_MANAGER"]->RegisterTag("USER_NAME_".intval($arComments["USER_ID"]));
+					$CACHE_MANAGER->registerTag("USER_NAME_".intval($arComment["USER_ID"]));
 				}
 
-				$arComments["UF"] = $arUFMeta;
+				$arComment["UF"] = $arUFMeta;
 				foreach($arUFMeta as $field_name => $arUF)
 				{
-					if (array_key_exists($field_name, $arComments))
+					if (array_key_exists($field_name, $arComment))
 					{
-						$arComments["UF"][$field_name]["VALUE"] = $arComments[$field_name];
-						$arComments["UF"][$field_name]["ENTITY_VALUE_ID"] = $arComments["ID"];
+						$arComment["UF"][$field_name]["VALUE"] = $arComment[$field_name];
+						$arComment["UF"][$field_name]["ENTITY_VALUE_ID"] = $arComment["ID"];
 					}
 				}
-				$arCommentsFullList[] = __SLEGetLogCommentRecord($arComments, $arParams, $arAssets);
+				$commentsList[] = $arComment;
+				if (intval($arComment['SOURCE_ID']) > 0)
+				{
+					$commentSourceIdList[] = intval($arComment['SOURCE_ID']);
+				}
+			}
+
+			if (
+				!empty($commentSourceIdList)
+				&& !empty($commentProvider)
+			)
+			{
+				$sourceAdditonalData = $commentProvider->getAdditionalData(array(
+					'id' => $commentSourceIdList
+				));
+
+				if (!empty($sourceAdditonalData))
+				{
+					foreach($commentsList as $key => $comment)
+					{
+						if (
+							!empty($comment['SOURCE_ID'])
+							&& isset($sourceAdditonalData[$comment['SOURCE_ID']])
+						)
+						{
+							$commentsList[$key]['ADDITIONAL_DATA'] = $sourceAdditonalData[$comment['SOURCE_ID']];
+						}
+					}
+				}
+			}
+
+			foreach($commentsList as $arComment)
+			{
+				$arCommentsFullList[] = __SLEGetLogCommentRecord($arComment, $arParams, $arAssets);
 			}
 
 			if (is_object($cache))
@@ -287,18 +386,50 @@ if ($arEvent)
 				$cache->EndDataCache($arCacheData);
 				if(defined("BX_COMP_MANAGED_CACHE"))
 				{
-					$GLOBALS["CACHE_MANAGER"]->EndTagCache();
+					$CACHE_MANAGER->endTagCache();
 				}
 			}
 		}
 
 		$arCommentsFullListCut = array();
 		$arCommentID = array();
+
+		$handlerManager = new Bitrix\Socialnetwork\CommentAux\HandlerManager();
+
 		foreach ($arCommentsFullList as $key => $arCommentTmp)
 		{
 			if ($key === 0)
 			{
 				$rating_entity_type = $arCommentTmp["EVENT"]["RATING_TYPE_ID"];
+			}
+
+			if (
+				isset($arCommentTmp['EVENT_FORMATTED'])
+				&& isset($arCommentTmp['EVENT_FORMATTED']['MESSAGE'])
+				&& ($handler = $handlerManager->getHandlerByPostText($arCommentTmp['EVENT_FORMATTED']['MESSAGE']))
+			)
+			{
+				if ($handler->checkRecalcNeeded($arCommentTmp['EVENT'], array(
+					'bPublicPage' => $arResult["bPublicPage"]
+				)))
+				{
+					$commentAuxFields = $arCommentTmp['EVENT'];
+					$params = $handler->getParamsFromFields($commentAuxFields);
+					if (!empty($params))
+					{
+						$handler->setParams($params);
+					}
+
+					$handler->setOptions(array(
+						'mobile' => false,
+						'bPublicPage' => (isset($arParams["bPublicPage"]) && $arParams["bPublicPage"]),
+						'cache' => false,
+						'suffix' => (!empty($arParams['COMMENT_ENTITY_SUFFIX']) ? $arParams['COMMENT_ENTITY_SUFFIX'] : ''),
+						'logId' => $arParams["LOG_ID"],
+					));
+					$arCommentTmp['EVENT_FORMATTED']['FULL_MESSAGE_CUT']  = $handler->getText();
+					$arCommentTmp["AUX"] = $handler->getType();
+				}
 			}
 
 			if (
@@ -366,7 +497,6 @@ if ($arEvent)
 		}
 	}
 
-	$contentId = Livefeed\Provider::getContentId($arEvent['EVENT']);
 	$liveFeedEntity = Livefeed\Provider::init(array(
 		'ENTITY_TYPE' => $contentId['ENTITY_TYPE'],
 		'ENTITY_ID' => $contentId['ENTITY_ID'],

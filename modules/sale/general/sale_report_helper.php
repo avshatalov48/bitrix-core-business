@@ -671,7 +671,7 @@ abstract class CBaseSaleReportHelper extends CReportHelper
 						's:5:"alias";s:9:"xxxxxxxxx";s:4:"aggr";s:12:"GROUP_CONCAT";s:8:"grouping";'.
 						'b:1;}i:8;a:2:{s:4:"name";s:15:"NAME_WITH_IDENT";s:8:"grouping";b:1;}i:12;'.
 						'a:3:{s:4:"name";s:34:"ARRIVED_PRODUCTS_IN_PERIOD_BY_SHOP";s:5:"alias";s:6:"xxxxxx";'.
-						's:17:"grouping_subtotal";b:1;}i:6;a:3:{s:4:"name";s:32:"SALED_PRODUCTS_IN_PERIOD_BY_SHOP";'.
+						's:17:"grouping_subtotal";b:1;}i:6;a:3:{s:4:"name";s:35:"CONSUMED_PRODUCTS_IN_PERIOD_BY_SHOP";'.
 						's:5:"alias";s:6:"xxxxxx";s:17:"grouping_subtotal";b:1;}i:3;a:3:{s:4:"name";'.
 						's:8:"QUANTITY";s:5:"alias";s:16:"xxxxxxxx xxxxxxx";s:17:"grouping_subtotal";'.
 						'b:1;}i:11;a:1:{s:4:"name";s:22:"PRICE_IN_SITE_CURRENCY";}}s:6:"filter";'.
@@ -2919,6 +2919,7 @@ class CSaleReportSaleProductHelper extends CBaseSaleReportHelper
 	private static $goodsQuantityFields = array(
 		'QUANTITY',
 		'SALED_PRODUCTS_IN_PERIOD_BY_SHOP',
+		'CONSUMED_PRODUCTS_IN_PERIOD_BY_SHOP',
 		'ARRIVED_PRODUCTS_IN_PERIOD_BY_SHOP',
 		'ARRIVED_PRODUCTS_IN_PERIOD_BY_STORE',
 		'EXPENSE_PRODUCTS_IN_PERIOD_BY_STORE',
@@ -2979,6 +2980,7 @@ class CSaleReportSaleProductHelper extends CBaseSaleReportHelper
 			'ORDERS_IN_PERIOD_BY_SHOP',
 			'CONVERSION',
 			'SALED_PRODUCTS_IN_PERIOD_BY_SHOP',
+			'CONSUMED_PRODUCTS_IN_PERIOD_BY_SHOP',
 			'ARRIVED_PRODUCTS_IN_PERIOD_BY_SHOP',
 			'ARRIVED_PRODUCTS_IN_PERIOD_BY_STORE',
 			'EXPENSE_PRODUCTS_IN_PERIOD_BY_STORE',
@@ -3045,6 +3047,21 @@ class CSaleReportSaleProductHelper extends CBaseSaleReportHelper
 								AND b_sale_order.PAYED = \'Y\'
 								AND b_sale_order.DEDUCTED = \'Y\'
 								AND b_sale_order.DATE_INSERT '.$sqlTimeInterval.'
+								AND b_sale_basket.LID = \''.$DB->ForSql(self::getDefaultSiteId()).'\')', 0),
+				'ID'
+			)
+		), 'SALED_PRODUCTS_IN_PERIOD_BY_SHOP');
+
+		$entity->addField(array(
+			'data_type' => 'integer',
+			'expression' => array(
+				$DB->isNull('(SELECT  SUM(b_sale_basket.QUANTITY)
+							FROM b_sale_basket
+								INNER JOIN b_sale_order ON b_sale_basket.ORDER_ID = b_sale_order.ID
+							WHERE b_sale_basket.PRODUCT_ID = %s
+								AND b_sale_order.PAYED = \'Y\'
+								AND b_sale_order.DEDUCTED = \'Y\'
+								AND b_sale_order.DATE_INSERT '.$sqlTimeInterval.'
 								AND b_sale_basket.LID = \''.$DB->ForSql(self::getDefaultSiteId()).'\')', 0).'+'.
 				$DB->isNull('(SELECT  SUM(b_catalog_docs_element.AMOUNT)
 							FROM b_catalog_store_docs
@@ -3055,7 +3072,7 @@ class CSaleReportSaleProductHelper extends CBaseSaleReportHelper
 								AND b_catalog_docs_element.ELEMENT_ID = %s)', 0),
 				'ID', 'ID'
 			)
-		), 'SALED_PRODUCTS_IN_PERIOD_BY_SHOP');
+		), 'CONSUMED_PRODUCTS_IN_PERIOD_BY_SHOP');
 
 		$entity->addField(array(
 			'data_type' => 'float',
@@ -3337,7 +3354,7 @@ class CSaleReportSaleProductHelper extends CBaseSaleReportHelper
 				WHERE   b_catalog_price.PRODUCT_ID = %s
 					AND b_catalog_group.ID = '.$id.'
 					AND ( b_catalog_price.quantity_from <= 1 OR b_catalog_price.quantity_from IS NULL )
-					AND ( b_catalog_price.quantity_to >= 1 OR b_catalog_price.quantity_to IS NULL ))',
+					AND ( b_catalog_price.quantity_to >= 1 OR b_catalog_price.quantity_to IS NULL ) LIMIT 1)',
 							'ID'
 						),
 						'view_column' => array(

@@ -1,4 +1,5 @@
 <?
+$MESS["BT_CUR_LANG_ERR_DEC_POINT_EQUAL_THOUSANDS_SEP"] = "The decimal point is the same as the thousands separator specified for #LANG#";
 $MESS["BT_CUR_LANG_SEP_VARIANT_EMPTY"] = "Without separator";
 $MESS["BT_CUR_LANG_SEP_VARIANT_DOT"] = "Point";
 $MESS["BT_CUR_LANG_SEP_VARIANT_COMMA"] = "Comma";

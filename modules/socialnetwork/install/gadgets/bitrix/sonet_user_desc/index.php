@@ -1,6 +1,10 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
+use Bitrix\Main\UI;
+
+UI\Extension::load("ui.tooltip");
+
 if(!CModule::IncludeModule("socialnetwork"))
 {
 	return false;
@@ -77,12 +81,8 @@ if ($arGadgetParams['CAN_VIEW_PROFILE'])
 			<td width="60%"><?
 				foreach($arGadgetParams['MANAGERS'] as $manager)
 				{
-					$tooltip_id = randString(8);
 					?><div style="margin-bottom:4px;"><?
-						?><a id="anchor_<?=$tooltip_id?>" href="<?=CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_USER"], array("user_id" => $manager["ID"], "USER_ID" => $manager["ID"], "ID" => $manager["ID"]))?>"><?=CUser::FormatName($arParams["NAME_TEMPLATE"], $manager, ($arParams["SHOW_LOGIN"] != "N"))?></a><?
-						?><script type="text/javascript">
-							BX.tooltip(<?=$manager["ID"]?>, "anchor_<?=$tooltip_id?>");
-						</script><?
+						?><a href="<?=CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_USER"], array("user_id" => $manager["ID"], "USER_ID" => $manager["ID"], "ID" => $manager["ID"]))?>" bx-tooltip-user-id="<?=$manager["ID"]?>"><?=CUser::FormatName($arParams["NAME_TEMPLATE"], $manager, ($arParams["SHOW_LOGIN"] != "N"))?></a><?
 					?></div><?
 				}
 			?></td>

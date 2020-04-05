@@ -52,7 +52,7 @@ return array(
 				'.landing-block-card' =>
 					array(
 						'name' => Loc::getMessage('LANDING_BLOCK_7_FOUR_COLS_BIG_BGIMG_TITLE_TEXT_BUTTON_NODES_LANDINGBLOCK_CARD'),
-						'type' => array('columns', 'background-overlay'),
+						'type' => array('columns', 'background-overlay', 'animation'),
 					),
 				'.landing-block-node-title' =>
 					array(

@@ -72,6 +72,7 @@ include($_SERVER["DOCUMENT_ROOT"].$this->GetFolder()."/lang/".LANGUAGE_ID."/resu
 
 $arActiveFeatures = CSocNetFeatures::GetActiveFeaturesNames(SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"]);
 
+$arMenuTmp = array();
 $events = GetModuleEvents("socialnetwork", "OnFillSocNetMenu");
 while ($arEvent = $events->Fetch())
 {

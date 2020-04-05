@@ -23,7 +23,8 @@ $return = array(
 			'subtype' => 'component',
 			'subtype_params' => array(
 				'required' => 'catalog'
-			)
+			),
+			'namespace' => 'bitrix'
 		),
 	'assets' => array(
 		'css' => array(
@@ -58,6 +59,17 @@ $return = array(
 					'extra' => array(
 						'editable' => array(
 							'SECTION_ID' => array(
+								'title' => Loc::getMessage('LD_BLOCK_STORE_CATALOG_SECTION_ID'),
+								'type' => 'url',
+								'entityType' => 'section',
+								'disableCustomURL' => true,
+								'disallowType' => true,
+								'allowedTypes' => array(
+									'catalog'
+								),
+								'allowedCatalogEntityTypes' => array(
+									'section'
+								)
 							),
 							'HIDE_NOT_AVAILABLE' => array(
 							),
@@ -80,6 +92,8 @@ $return = array(
 							'PRICE_VAT_INCLUDE' => array(
 							),
 							// actions
+							'DISPLAY_COMPARE' => array(
+							),
 							'USE_PRODUCT_QUANTITY' => array(
 							),
 							'PRODUCT_SUBSCRIPTION' => array(
@@ -87,6 +101,8 @@ $return = array(
 							'SHOW_DISCOUNT_PERCENT' => array(
 							),
 							'SHOW_OLD_PRICE' => array(
+							),
+							'ADD_TO_BASKET_ACTION' => array(
 							),
 							// texts
 							'MESS_BTN_BUY' => array(
@@ -109,9 +125,9 @@ $return = array(
 							'PRODUCT_ROW_VARIANTS' => array(
 								'style' => true
 							),
-							'PROPERTY_CODE' => array(
+							/*'PROPERTY_CODE' => array(
 								'style' => true
-							),
+							),*/
 							'LABEL_PROP_POSITION' => array(
 								'style' => true
 							),
@@ -124,32 +140,7 @@ $return = array(
 						)
 					)
 				),
-		),
-	'style' =>
-		array(
-			'.landing-component' =>
-				array(
-					'name' => 'Header',
-					'type' => 'box',
-					'additional' => array(
-						array(
-							'name' => ' ',
-							'attrs' => array(
-								array(
-									'name' => 'Text field',
-									'type' => 'text',
-									'attribute' => 'data-text-field'
-								),
-								array(
-									'name' => 'Text field',
-									'type' => 'text',
-									'attribute' => 'data-text-field2'
-								),
-							)
-						)
-					)
-			)
-	)
+		)
 );
 
 $params =& $return['nodes']['bitrix:catalog.section']['extra']['editable'];
@@ -159,7 +150,10 @@ $extendedFields = \Bitrix\Landing\Hook\Page\Settings::getCodes(true);
 //if (!isset($extended) || $extended !== true)
 foreach ($params as $key => $item)
 {
-	if (in_array($key, $extendedFields))
+	if (
+		in_array($key, $extendedFields) &&
+		!in_array($key, ['SECTION_ID'])
+	)
 	{
 		$params[$key]['hidden'] = true;
 	}

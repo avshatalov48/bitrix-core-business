@@ -46,7 +46,7 @@ class GTM extends \Bitrix\Landing\Hook\Page
 		if ($counter)
 		{
 			Manager::setPageView('AfterHeadOpen',
-				'<!-- Google Tag Manager --><script>' .
+				'<!-- Google Tag Manager --><script data-skip-moving="true">' .
 				'(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({' .
 				'\'gtm.start\':new Date().getTime(),event:\'gtm.js\'});' .
 				'var f=d.getElementsByTagName(s)[0],j=d.createElement(s),' .

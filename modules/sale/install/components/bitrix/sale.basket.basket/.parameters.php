@@ -343,8 +343,15 @@ if (isset($templateProperties['LABEL_PROP']))
 	}
 	else
 	{
-		$templateProperties['LABEL_PROP_MOBILE']['HIDDEN'] = 'Y';
-		$templateProperties['LABEL_PROP_POSITION']['HIDDEN'] = 'Y';
+		if (!empty($templateProperties['LABEL_PROP_MOBILE']))
+		{
+			$templateProperties['LABEL_PROP_MOBILE']['HIDDEN'] = 'Y';
+		}
+
+		if (!empty($templateProperties['LABEL_PROP_POSITION']))
+		{
+			$templateProperties['LABEL_PROP_POSITION']['HIDDEN'] = 'Y';
+		}
 	}
 }
 
@@ -411,18 +418,6 @@ elseif($arCurrentValues["USE_GIFTS"] === null && $arComponentParameters['PARAMET
 				'NAME' => GetMessage('CVP_SHOW_DISCOUNT_PERCENT'),
 				'TYPE' => 'CHECKBOX',
 				'DEFAULT' => 'Y'
-			),
-			"GIFTS_SHOW_NAME" => array(
-				"PARENT" => "GIFTS",
-				"NAME" => GetMessage("CVP_SHOW_NAME"),
-				"TYPE" => "CHECKBOX",
-				"DEFAULT" => "Y",
-			),
-			"GIFTS_SHOW_IMAGE" => array(
-				"PARENT" => "GIFTS",
-				"NAME" => GetMessage("CVP_SHOW_IMAGE"),
-				"TYPE" => "CHECKBOX",
-				"DEFAULT" => "Y",
 			),
 			'GIFTS_MESS_BTN_BUY' => array(
 				'PARENT' => 'GIFTS',

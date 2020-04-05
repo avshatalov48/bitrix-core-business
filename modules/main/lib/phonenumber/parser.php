@@ -42,7 +42,7 @@ class Parser
 
 	/**
 	 * This class is a singleton and should not be constructed directly.
-	 * @see Parser::getInstance
+	 * @see HtmlParser::getInstance
 	 */
 	protected function __construct()
 	{
@@ -153,6 +153,15 @@ class Parser
 	}
 
 	/**
+	 * Return pattern string suitable to detect phone number in some string.
+	 * @return string
+	 */
+	public function getValidNumberPattern()
+	{
+		return $this->validPhoneNumber;
+	}
+
+	/**
 	 * Parses provided phone number.
 	 * @param string $phoneNumber Phone number to be parsed.
 	 * @param string $defaultCountry 2-symbol country code.
@@ -167,11 +176,11 @@ class Parser
 		$result = new PhoneNumber();
 		$result->setRawNumber($phoneNumber);
 
-		$formattedPhoneNumber = $this->extractFormattedPhoneNumber($phoneNumber);
-		if(!$this->isViablePhoneNumber($formattedPhoneNumber))
+		if(!$this->isViablePhoneNumber($phoneNumber))
 		{
 			return $result;
 		}
+		$formattedPhoneNumber = $this->extractFormattedPhoneNumber($phoneNumber);
 
 		list($extensionSeparator, $extension) = $this->stripExtension($formattedPhoneNumber);
 		$result->setNationalNumber($formattedPhoneNumber);

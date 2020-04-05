@@ -27,18 +27,21 @@
 		if (!!element && (element.dataset.isShown === "false" || !element.dataset.isShown))
 		{
 			var handler = function(event) {
-				promise.fulfill(event);
-				element.removeEventListener("animationend", handler);
-				element.removeEventListener("oAnimationEnd", handler);
-				element.removeEventListener("webkitAnimationEnd", handler);
+				if (event.animationName === "showMainLoader")
+				{
+					promise.fulfill(event);
+					element.removeEventListener("animationend", handler);
+					element.removeEventListener("oAnimationEnd", handler);
+					element.removeEventListener("webkitAnimationEnd", handler);
+				}
 			};
 
 			element.addEventListener("animationend", handler);
 			element.addEventListener("oAnimationEnd", handler);
 			element.addEventListener("webkitAnimationEnd", handler);
 
+			element.dataset.isShown = true;
 			requestAnimationFrame(function() {
-				element.dataset.isShown = true;
 				element.style.display = null;
 				element.classList.remove("main-ui-hide");
 				element.classList.add("main-ui-show");
@@ -65,19 +68,23 @@
 		if (!!element && element.dataset.isShown === "true")
 		{
 			var handler = function(event) {
-				element.style.display = "none";
-				element.removeEventListener("animationend", handler);
-				element.removeEventListener("oAnimationEnd", handler);
-				element.removeEventListener("webkitAnimationEnd", handler);
-				promise.fulfill(event);
+				if (event.animationName === "hideMainLoader")
+				{
+					element.style.display = "none";
+					element.removeEventListener("animationend", handler);
+					element.removeEventListener("oAnimationEnd", handler);
+					element.removeEventListener("webkitAnimationEnd", handler);
+					promise.fulfill(event);
+				}
 			};
 
 			element.addEventListener("animationend", handler);
 			element.addEventListener("oAnimationEnd", handler);
 			element.addEventListener("webkitAnimationEnd", handler);
 
+			element.dataset.isShown = false;
+
 			requestAnimationFrame(function() {
-				element.dataset.isShown = false;
 				element.classList.remove("main-ui-show");
 				element.classList.add("main-ui-hide");
 			});
@@ -167,7 +174,7 @@
 
 	/**
 	 * @typedef {object} loaderOptions
-	 * @property {HTMLElement} [target]
+	 * @property {Element|HTMLElement} [target]
 	 * @property {int} [size = 110] - Loader size
 	 * @property {string} [color = #BFC3C8]
 	 * @property {string} [mode = "absolute"] - absolute|inline|custom
@@ -180,7 +187,7 @@
 	 */
 	/**
 	 * Implements interface for works with loader
-	 * @param {loaderOptions} options
+	 * @param {loaderOptions} [options]
 	 * @constructor
 	 */
 	BX.Loader = function(options)
@@ -189,7 +196,7 @@
 		this.layout = this.createLayout();
 		this.circle = this.layout.querySelector(".main-ui-loader-svg-circle");
 		this.target = null;
-		applyOptions(this, options);
+		applyOptions(this, BX.type.isPlainObject(options) ? options : {});
 	};
 
 
@@ -211,7 +218,7 @@
 
 		/**
 		 * Shows loader
-		 * @param {HTMLElement} [target = this.target]
+		 * @param {Element|HTMLElement} [target = this.target]
 		 * @return {BX.Promise}
 		 */
 		show: function(target)

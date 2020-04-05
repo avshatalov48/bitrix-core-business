@@ -81,7 +81,7 @@ switch ($arResult["ACTION"])
 </div>
 <script type="text/javascript">
 
-	app.setPageTitle({title: "<?=(GetMessage('SMOD_ORDER_N').$arResult['ORDER']['ID'])?>"});
+	app.setPageTitle({title: "<?=(GetMessage('SMOD_ORDER_N').$arResult['ORDER']['ACCOUNT_NUMBER'])?>"});
 
 	var orderDetail = new __MASaleOrderDetail({id: "<?=$arResult['ORDER']['ID']?>",
 					dialogUrl: "<?=$arResult['CURRENT_PAGE']?>",
@@ -92,7 +92,7 @@ switch ($arResult["ACTION"])
 	orderDetail.messages = {
 		cancel: "<?=GetMessage('SMOD_CANCEL')?>",
 		cancelCancel: "<?=GetMessage('SMOD_CANCEL_CANCEL')?>"
-	}
+	};
 
 	<?if(!empty($arResult['MENU_ITEMS'])):?>
 		orderDetail.detailMenuItems = {items: []};

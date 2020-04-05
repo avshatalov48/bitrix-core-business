@@ -81,7 +81,7 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 			$moduleName = strtolower($tableParts[0]);
 			if (count($tableParts) > 1)
 				array_shift($tableParts);
-			$className = \Bitrix\Main\Entity\Base::snake2camel(implode("_", $tableParts));
+			$className = \Bitrix\Main\ORM\Entity::snake2camel(implode("_", $tableParts));
 
 			$obTable = new CPerfomanceTable;
 			$obTable->Init($table_name);
@@ -168,7 +168,7 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 				$parentTableParts = explode("_", $parentInfo["PARENT_TABLE"]);
 				array_shift($parentTableParts);
 				$parentModuleNamespace = ucfirst($parentTableParts[0]);
-				$parentClassName = \Bitrix\Main\Entity\Base::snake2camel(implode("_", $parentTableParts));
+				$parentClassName = \Bitrix\Main\ORM\Entity::snake2camel(implode("_", $parentTableParts));
 
 				$columnName = preg_replace("/_ID\$/", "", $columnName);
 				echo " * &lt;li&gt; ".$columnName
@@ -262,7 +262,7 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 				}
 				if ($columnInfo["length"] > 0 && $columnInfo["orm_type"] == "string")
 				{
-					$validateFunctionName = "validate".\Bitrix\Main\Entity\Base::snake2camel($columnName);
+					$validateFunctionName = "validate".\Bitrix\Main\ORM\Entity::snake2camel($columnName);
 					echo "\t\t\t\t'validation' => array(_"."_CLASS_"."_, '".$validateFunctionName."'),\n";
 					$arValidators[$validateFunctionName] = array(
 						"length" => $columnInfo["length"],
@@ -279,7 +279,7 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 				$parentTableParts = explode("_", $parentInfo["PARENT_TABLE"]);
 				array_shift($parentTableParts);
 				$parentModuleNamespace = ucfirst($parentTableParts[0]);
-				$parentClassName = \Bitrix\Main\Entity\Base::snake2camel(implode("_", $parentTableParts));
+				$parentClassName = \Bitrix\Main\ORM\Entity::snake2camel(implode("_", $parentTableParts));
 
 				$columnNameEx = preg_replace("/_ID\$/", "", $columnName);
 

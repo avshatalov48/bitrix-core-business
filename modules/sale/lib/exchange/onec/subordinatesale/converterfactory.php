@@ -7,11 +7,8 @@ use Bitrix\Main\ArgumentOutOfRangeException;
 use Bitrix\Main\NotSupportedException;
 use Bitrix\Sale\Exchange\EntityType;
 use Bitrix\Sale\Exchange\IConverter;
-use Bitrix\Sale\Exchange\OneC\ConverterDocumentPaymentCard;
-use Bitrix\Sale\Exchange\OneC\ConverterDocumentPaymentCash;
-use Bitrix\Sale\Exchange\OneC\ConverterDocumentPaymentCashLess;
+use Bitrix\Sale\Exchange\OneC\ConverterDocumentPayment;
 use Bitrix\Sale\Exchange\OneC\ConverterDocumentProfile;
-use Bitrix\Sale\Exchange\OneC\DocumentType;
 
 class ConverterFactory
 {
@@ -30,7 +27,7 @@ class ConverterFactory
 
 		if(!EntityType::IsDefined($typeId))
 		{
-			throw new ArgumentOutOfRangeException('documentTypeID', DocumentType::FIRST, DocumentType::LAST);
+			throw new ArgumentOutOfRangeException('documentTypeID', EntityType::FIRST, EntityType::LAST);
 		}
 
 		if($typeId === EntityType::ORDER)
@@ -41,17 +38,11 @@ class ConverterFactory
 		{
 			return new ConverterDocumentShipment();
 		}
-		elseif($typeId === EntityType::PAYMENT_CASH)
+		elseif($typeId === EntityType::PAYMENT_CASH ||
+			$typeId === EntityType::PAYMENT_CASH_LESS ||
+			$typeId === EntityType::PAYMENT_CARD_TRANSACTION)
 		{
-			return new ConverterDocumentPaymentCash();
-		}
-		elseif($typeId === EntityType::PAYMENT_CASH_LESS)
-		{
-			return new ConverterDocumentPaymentCashLess();
-		}
-		elseif($typeId === EntityType::PAYMENT_CARD_TRANSACTION)
-		{
-			return new ConverterDocumentPaymentCard();
+			return new ConverterDocumentPayment();
 		}
 		elseif($typeId == EntityType::PROFILE ||
 			$typeId == EntityType::USER_PROFILE)

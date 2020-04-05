@@ -68,6 +68,11 @@ class CListPermissions
 
 		$socnet_role = CSocNetUserToGroup::GetUserRole($USER->GetID(), $socnet_group_id);
 
+		if (CSocNetUser::IsCurrentUserModuleAdmin())
+		{
+			$socnet_role = "A";
+		}
+
 		if($socnet_role !== "A" && CIBlock::GetArrayByID($iblock_id, "RIGHTS_MODE") === "E")
 			return '';
 
@@ -102,6 +107,11 @@ class CListPermissions
 		if($iblock_type_id === COption::GetOptionString("lists", "socnet_iblock_type_id"))
 		{
 			$socnet_role = CSocNetUserToGroup::GetUserRole($USER->GetID(), $socnet_group_id);
+
+			if (CSocNetUser::IsCurrentUserModuleAdmin())
+			{
+				$socnet_role = "A";
+			}
 
 			if (
 				$socnet_role == "A"

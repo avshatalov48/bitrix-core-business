@@ -64,7 +64,11 @@ class CatalogElementComponent extends Element
 	{
 		parent::initAdditionalCacheKeys($resultCacheKeys);
 
-		if ($this->useCatalog)
+		if (
+			$this->useCatalog
+			&& !empty($this->storage['CATALOGS'][$this->arParams['IBLOCK_ID']])
+			&& is_array($this->storage['CATALOGS'][$this->arParams['IBLOCK_ID']])
+		)
 		{
 			$element =& $this->elements[0];
 

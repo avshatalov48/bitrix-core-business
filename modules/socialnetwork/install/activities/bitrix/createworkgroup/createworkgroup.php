@@ -214,7 +214,8 @@ class CBPCreateWorkGroup
 		$arMap = array(
 			"group_name" => "GroupName",
 			"owner_id" => "OwnerId",
-			"users" => "Users"
+			"users" => "Users",
+			"group_site" => "GroupSite"
 		);
 
 		$arProperties = array();
@@ -226,7 +227,9 @@ class CBPCreateWorkGroup
 		}
 
 		if (strlen($arProperties["GroupSite"]) <= 0)
+		{
 			$arProperties["GroupSite"] = $arCurrentValues["group_site_x"];
+		}
 
 		$userFieldsList = $USER_FIELD_MANAGER->getUserFields("SONET_GROUP", 0, LANGUAGE_ID);
 		foreach ($userFieldsList as $field)
@@ -289,4 +292,3 @@ class CBPCreateWorkGroup
 		return $fieldsList;
 	}
 }
-?>

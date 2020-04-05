@@ -8,6 +8,14 @@ if (!CModule::IncludeModule('sale'))
 	return;
 }
 
+$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
+
+if ($saleModulePermissions == "D")
+{
+	ShowError(GetMessage("SMOT_NO_PERMS2VIEW"));
+	return;
+}
+
 if (!CModule::IncludeModule('mobileapp'))
 {
 	ShowError("SMOT_MOBILEAPP_NOT_INSTALLED");
@@ -19,15 +27,16 @@ if (isset($_REQUEST['id']))
 else
 	return;
 
-$bUserCanViewOrder = CSaleOrder::CanUserViewOrder($orderId, $GLOBALS["USER"]->GetUserGroupArray(), $GLOBALS["USER"]->GetID());
+$arResult["ORDER"] = CSaleMobileOrderUtils::getOrderInfoDetail($orderId);
 
-if(!$bUserCanViewOrder)
+$allowedStatusesView = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations($USER->GetID(), array('view'));
+$isAllowView = in_array($arResult['ORDER']['STATUS_ID'], $allowedStatusesView);
+
+if(!$isAllowView)
 {
-	echo ShowError(GetMessage("SMOT_NO_PERMS2VIEW"));
+	ShowError(GetMessage("SMOT_NO_PERMS2VIEW"));
 	return;
 }
-
-$arResult["ORDER"] = CSaleMobileOrderUtils::getOrderInfoDetail($orderId);
 
 $arResult["TYPES"] = array(
 	"ORDER_PAY" => GetMessage("SMOT_TR_TYPE_PAYMENT"),

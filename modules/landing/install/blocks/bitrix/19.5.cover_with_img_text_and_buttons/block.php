@@ -1,4 +1,4 @@
-<section class="landing-block g-bg-gray-light-v5 g-pt-90 g-pb-0">
+<section class="landing-block g-bg-gray-light-v5 g-pt-0 g-pb-0">
 	<div class="container">
 		<div class="row">
 			<div class="col-md-6 col-lg-5 offset-lg-1 d-flex text-center text-md-left">

@@ -22,7 +22,7 @@ BX.SocialnetworkUICommon = {
 		var isProject = (typeof params.PROJECT != 'undefined' ? !!params.PROJECT : false);
 
 		var successPopup = new BX.PopupWindow('bx-group-join-successfull-request-popup', window, {
-			width: 400,
+			width: 420,
 			autoHide: true,
 			lightShadow: false,
 			zIndex: 1000,
@@ -237,11 +237,14 @@ BX.SocialnetworkUICommon = {
 
 			if (params.perms.canInitiate)
 			{
-				menu.push({
-					text: BX.message('SONET_EXT_COMMON_GROUP_MENU_REQ_IN'),
-					title: BX.message('SONET_EXT_COMMON_GROUP_MENU_REQ_IN'),
-					href: params.urls.requests
-				});
+				if (params.perms.canProcessRequestsIn)
+				{
+					menu.push({
+						text: BX.message('SONET_EXT_COMMON_GROUP_MENU_REQ_IN'),
+						title: BX.message('SONET_EXT_COMMON_GROUP_MENU_REQ_IN'),
+						href: params.urls.requests
+					});
+				}
 				menu.push({
 					text: BX.message(!!params.isProject ? 'SONET_EXT_COMMON_GROUP_MENU_REQ_OUT_PROJECT' : 'SONET_EXT_COMMON_GROUP_MENU_REQ_OUT'),
 					title: BX.message(!!params.isProject ? 'SONET_EXT_COMMON_GROUP_MENU_REQ_OUT_PROJECT' : 'SONET_EXT_COMMON_GROUP_MENU_REQ_OUT'),
@@ -363,8 +366,13 @@ BX.SocialnetworkUICommon = {
 
 	setFavoritesAjax: function(params)
 	{
+		var actionUrl = '/bitrix/components/bitrix/socialnetwork.group_menu/ajax.php';
+		actionUrl = BX.util.add_url_param(actionUrl, {
+			b24statAction: (params.favoritesValue ? 'removeFavSonetGroup' : 'addFavSonetGroup')
+		});
+
 		BX.ajax({
-			url: '/bitrix/components/bitrix/socialnetwork.group_menu/ajax.php',
+			url: actionUrl,
 			method: 'POST',
 			dataType: 'json',
 			data: {
@@ -398,7 +406,6 @@ BX.SocialnetworkUICommon = {
 		if (buttonNode)
 		{
 			BX.addClass(buttonNode, 'ui-btn-clock');
-			BX.addClass(buttonNode, 'ui-btn-disabled');
 			buttonNode.disabled = true;
 			buttonNode.style.cursor = 'auto';
 		}
@@ -410,7 +417,6 @@ BX.SocialnetworkUICommon = {
 		if (buttonNode)
 		{
 			BX.removeClass(buttonNode, 'ui-btn-clock');
-			BX.removeClass(buttonNode, 'ui-btn-disabled');
 			buttonNode.disabled = false;
 			buttonNode.style.cursor = 'cursor';
 		}

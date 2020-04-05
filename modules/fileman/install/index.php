@@ -1,9 +1,7 @@
-<?
-global $MESS;
-$strPath2Lang = str_replace("\\", "/", __FILE__);
-$strPath2Lang = substr($strPath2Lang, 0, strlen($strPath2Lang)-18);
-@include(GetLangFileName($strPath2Lang."/lang/", "/install/index.php"));
-IncludeModuleLangFile($strPath2Lang."/install/index.php");
+<?php
+
+use Bitrix\Main\Localization\Loc;
+Loc::loadMessages(__FILE__);
 
 Class fileman extends CModule
 {
@@ -15,7 +13,7 @@ Class fileman extends CModule
 	var $MODULE_CSS;
 	var $MODULE_GROUP_RIGHTS = "Y";
 
-	function fileman()
+	function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -34,8 +32,8 @@ Class fileman extends CModule
 			$this->MODULE_VERSION_DATE = FILEMAN_VERSION_DATE;
 		}
 
-		$this->MODULE_NAME = GetMessage("FILEMAN_MODULE_NAME");
-		$this->MODULE_DESCRIPTION = GetMessage("FILEMAN_MODULE_DESCRIPTION");
+		$this->MODULE_NAME = Loc::getMessage("FILEMAN_MODULE_NAME");
+		$this->MODULE_DESCRIPTION = Loc::getMessage("FILEMAN_MODULE_DESCRIPTION");
 	}
 
 	function InstallDB()
@@ -73,7 +71,7 @@ Class fileman extends CModule
 		// $id = $hkc->Add(array(
 			// CLASS_NAME => "admin_file_edit_apply",
 			// CODE => "if(top.AjaxApply && typeof top.AjaxApply == 'function'){top.AjaxApply();}",
-			// NAME => GetMessage("FILEMAN_HOTKEY_TITLE"),
+			// NAME => Loc::getMessage("FILEMAN_HOTKEY_TITLE"),
 			// IS_CUSTOM => "0"
 		// ));
 		// CHotKeys::getInstance()->Add(array("KEYS_STRING"=>"Ctrl+83", "CODE_ID"=>$id, "USER_ID" => 0)); //S
@@ -138,6 +136,12 @@ Class fileman extends CModule
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools", true, true);
 		}
+
+		if(\Bitrix\Main\Loader::includeModule('fileman'))
+		{
+			\CFileMan::decodePdfViewerLangFiles();
+		}
+
 		return true;
 	}
 
@@ -162,7 +166,7 @@ Class fileman extends CModule
 			$this->InstallDB();
 			$this->InstallFiles();
 
-			$APPLICATION->IncludeAdminFile(GetMessage("FILEMAN_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/install/step1.php");
+			$APPLICATION->IncludeAdminFile(Loc::getMessage("FILEMAN_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/install/step1.php");
 		}
 	}
 	function DoUninstall()
@@ -174,7 +178,7 @@ Class fileman extends CModule
 			$this->UnInstallDB();
 			$this->UnInstallFiles();
 
-			$APPLICATION->IncludeAdminFile(GetMessage("FILEMAN_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/install/unstep1.php");
+			$APPLICATION->IncludeAdminFile(Loc::getMessage("FILEMAN_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/install/unstep1.php");
 		}
 	}
 
@@ -183,9 +187,9 @@ Class fileman extends CModule
 		$arr = array(
 			"reference_id" => array("D","F","R"),
 			"reference" => array(
-				"[D] ".GetMessage("FILEMAN_DENIED"),
-				"[F] ".GetMessage("FILEMAN_ACCESSABLE_FOLDERS"),
-				"[R] ".GetMessage("FILEMAN_VIEW"))
+				"[D] ".Loc::getMessage("FILEMAN_DENIED"),
+				"[F] ".Loc::getMessage("FILEMAN_ACCESSABLE_FOLDERS"),
+				"[R] ".Loc::getMessage("FILEMAN_VIEW"))
 			);
 		return $arr;
 	}

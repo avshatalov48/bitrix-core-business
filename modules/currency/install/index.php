@@ -6,6 +6,7 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Localization\LanguageTable;
 use Bitrix\Main\SiteTable;
+use Bitrix\Currency\CurrencyClassifier;
 
 Loc::loadMessages(__FILE__);
 
@@ -20,7 +21,7 @@ class currency extends CModule
 	var $MODULE_GROUP_RIGHTS = 'Y';
 	var $errors = false;
 
-	function currency()
+	function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -32,11 +33,6 @@ class currency extends CModule
 		{
 			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
-		}
-		else
-		{
-			$this->MODULE_VERSION = CURRENCY_VERSION;
-			$this->MODULE_VERSION_DATE = CURRENCY_VERSION_DATE;
 		}
 
 		$this->MODULE_NAME = Loc::getMessage("CURRENCY_INSTALL_NAME");
@@ -170,8 +166,8 @@ class currency extends CModule
 		if (!Loader::includeModule('currency'))
 			return;
 
-		$bitrix24Path = $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/bitrix24/';
-		$bitrix24 = file_exists($bitrix24Path) && is_dir($bitrix24Path);
+		$bitrix24Path = Main\Application::getDocumentRoot().'/bitrix/modules/bitrix24/';
+		$bitrix24 = Main\IO\Directory::isDirectoryExists($bitrix24Path);
 		unset($bitrix24Path);
 
 		$currencyIterator = \Bitrix\Currency\CurrencyTable::getList(array(
@@ -191,171 +187,69 @@ class currency extends CModule
 		}
 		if ($baseCurrency == '')
 		{
-			$languageID = '';
+			$languageId = '';
 			$site = SiteTable::getList(array(
 				'select' => array('LID', 'LANGUAGE_ID'),
 				'filter' => array('=DEF' => 'Y', '=ACTIVE' => 'Y')
 			))->fetch();
 			if (!empty($site))
-				$languageID = (string)$site['LANGUAGE_ID'];
+				$languageId = (string)$site['LANGUAGE_ID'];
 			unset($site);
 
-			if ($languageID == '')
-				$languageID = 'en';
+			if ($languageId == '')
+				$languageId = 'en';
 
 			$currencyList = array();
-			switch ($languageID)
+			$distrCurrency = array(
+				'ua' => 'UAH',
+				'kz' => 'KZT',
+				'by' => 'BYN',
+				'de' => 'EUR',
+				'en' => 'USD',
+				'la' => 'USD',
+				'br' => 'BRL',
+				'tc' => 'TWD',
+				'sc' => 'CNY',
+				'in' => 'INR',
+				'hi' => 'INR',
+				'ja' => 'JPY',
+				'vn' => 'VND',
+				'id' => 'IDR',
+				'ms' => 'MYR',
+				'th' => 'THB'
+			);
+			if (isset($distrCurrency[$languageId]))
 			{
-				case 'ua':
-					$baseCurrency = 'UAH';
-					break;
-				case 'de':
-					$baseCurrency = 'EUR';
-					break;
-				case 'en':
-					$baseCurrency = 'USD';
-					break;
-				case 'la':
-					$baseCurrency = 'USD';
-					break;
-				case 'tc':
-				case 'sc':
-					$baseCurrency = 'CNY';
-					break;
-				case 'in':
-					$baseCurrency = 'INR';
-					break;
-				case 'kz':
-					$baseCurrency = 'KZT';
-					break;
-				case 'br':
-					$baseCurrency = 'BRL';
-					break;
-				case 'by':
-					$baseCurrency = 'BYN';
-					break;
-				case 'ru':
-					$languageList = array();
-					$languageIterator = LanguageTable::getList(array(
-						'select' => array('ID'),
-						'filter' => array('@ID' => array('kz', 'by', 'ua'), '=ACTIVE' => 'Y')
-					));
-					while ($language = $languageIterator->fetch())
-						$languageList[$language['ID']] = $language['ID'];
-					unset($language, $languageIterator);
-					if (isset($languageList['kz']))
-						$baseCurrency = 'KZT';
-					elseif (isset($languageList['by']))
-						$baseCurrency = 'BYN';
-					elseif (isset($languageList['ua']))
-						$baseCurrency = 'UAH';
-					else
-						$baseCurrency = 'RUB';
-					break;
-				default:
-					$baseCurrency = 'USD';
-					break;
+				$baseCurrency = $distrCurrency[$languageId];
 			}
-			unset($languageID);
+			elseif ($languageId == 'ru')
+			{
+				$languageList = array();
+				$languageIterator = LanguageTable::getList(array(
+					'select' => array('ID'),
+					'filter' => array('@ID' => array('kz', 'by', 'ua'), '=ACTIVE' => 'Y')
+				));
+				while ($language = $languageIterator->fetch())
+					$languageList[$language['ID']] = $language['ID'];
+				unset($language, $languageIterator);
+				if (isset($languageList['kz']))
+					$baseCurrency = 'KZT';
+				elseif (isset($languageList['by']))
+					$baseCurrency = 'BYN';
+				elseif (isset($languageList['ua']))
+					$baseCurrency = 'UAH';
+				else
+					$baseCurrency = 'RUB';
+				unset($languageList);
+			}
+			else
+			{
+				$baseCurrency = 'USD';
+			}
+			unset($distrCurrency, $languageId);
 		}
 		$datetimeEntity = new Main\DB\SqlExpression(Main\Application::getConnection()->getSqlHelper()->getCurrentDateTimeFunction());
-		switch ($baseCurrency)
-		{
-			case 'BYR':
-			case 'BYN':
-				$addCurrency = array(
-					array('CURRENCY' => 'BYN', 'NUMCODE' => '933', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1),
-					array('CURRENCY' => 'RUB', 'NUMCODE' => '643', 'AMOUNT' => 0.31, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.31),
-					array('CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 2.00, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 2.00),
-					array('CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 2.22, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 2.22)
-				);
-				break;
-			case 'KZT':
-				$addCurrency = array(
-					array('CURRENCY' => 'KZT', 'NUMCODE' => '398', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1),
-					array('CURRENCY' => 'RUB', 'NUMCODE' => '643', 'AMOUNT' => 4.67, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.67),
-					array('CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 350.58, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 350.58),
-					array('CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 390.37, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 390.37)
-				);
-				break;
-			case 'UAH':
-				$addCurrency = array(
-					array('CURRENCY' => 'UAH', 'NUMCODE' => '980', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1),
-					array('CURRENCY' => 'RUB', 'NUMCODE' => '643', 'AMOUNT' => 3.61, 'AMOUNT_CNT' => 10, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.361),
-					array('CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 2322.93, 'AMOUNT_CNT' => 100, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 23.2293),
-					array('CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 2548.19, 'AMOUNT_CNT' => 100, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 25.4819)
-				);
-				break;
-			case 'RUB':
-				$addCurrency = array(
-					array('CURRENCY' => 'RUB', 'NUMCODE' => '643', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1),
-					array('CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 64.81, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 64.81),
-					array('CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 71.71, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 71.71),
-					array('CURRENCY' => 'UAH', 'NUMCODE' => '980', 'AMOUNT' => 26.04, 'AMOUNT_CNT' => 10, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 2.604),
-					array('CURRENCY' => 'BYN', 'NUMCODE' => '933', 'AMOUNT' => 32.34, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 32.34)
-				);
-				break;
-			case 'EUR':
-				$addCurrency = array(
-					array('CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1),
-					array('CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 0.91, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.91),
-					array('CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 14.35, 'AMOUNT_CNT' => 100, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.1435),
-					array('CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 23.21, 'AMOUNT_CNT' => 100, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.2321),
-					array('CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 13.97, 'AMOUNT_CNT' => 1000, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.01397)
-				);
-				break;
-			case 'CNY':
-				$addCurrency = array(
-					array('CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1),
-					array('CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 6.36, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 6.36),
-					array('CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 6.97, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 6.97),
-					array('CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 1.61, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 1.61),
-					array('CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 9.74, 'AMOUNT_CNT' => 100, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.09737)
-				);
-				break;
-			case 'INR':
-				$addCurrency = array(
-					array('CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1),
-					array('CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 65.31, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 65.31),
-					array('CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 71.56, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 71.56),
-					array('CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 10.27, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 10.27),
-					array('CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 16.56, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 16.56)
-				);
-				break;
-			case 'BRL':
-				$addCurrency = array(
-					array('CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1),
-					array('CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 3.90, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3.90),
-					array('CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 4.29, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.29),
-					array('CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 61.44, 'AMOUNT_CNT' => 100, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.6144),
-					array('CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 5.99, 'AMOUNT_CNT' => 100, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.0599),
-				);
-				break;
-			case 'PLN':
-				$addCurrency = array(
-					array('CURRENCY' => 'PLN', 'NUMCODE' => '985', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1),
-					array('CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 3.77, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3.77),
-					array('CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 4.22, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.22),
-				);
-				break;
-			case 'TRY':
-				$addCurrency = array(
-					array('CURRENCY' => 'TRY', 'NUMCODE' => '949', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1),
-					array('CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 3.51, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3.51),
-					array('CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 3.92, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3.92),
-				);
-				break;
-			case 'USD':
-			default:
-				$addCurrency = array(
-					array('CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1),
-					array('CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 1.10, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 1.10),
-					array('CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 15.73, 'AMOUNT_CNT' => 100, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.1573),
-					array('CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 25.35, 'AMOUNT_CNT' => 100, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.2535),
-					array('CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 15.31, 'AMOUNT_CNT' => 1000, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.01531)
-				);
-				break;
-		}
+		$addCurrency = self::getCurrencyListForInstall($baseCurrency);
 		foreach ($addCurrency as $fields)
 		{
 			$fields['CREATED_BY'] = null;
@@ -367,40 +261,52 @@ class currency extends CModule
 				$currencyList[] = $fields['CURRENCY'];
 		}
 		unset($currencyResult, $fields);
+		unset($addCurrency);
 
 		if (!empty($currencyList))
 		{
 			Option::set('currency', 'installed_currencies', implode(',', $currencyList), '');
+			$languages = [];
 			$languageIterator = LanguageTable::getList(array(
 				'select' => array('ID'),
 				'filter' => array('=ACTIVE' => 'Y')
 			));
 			while ($existLanguage = $languageIterator->fetch())
+				$languages[$existLanguage['ID']] = strtoupper($existLanguage['ID']);
+			unset($existLanguage, $languageIterator);
+			$whiteList = [
+				'FULL_NAME' => true,
+				'FORMAT_STRING' => true,
+				'DEC_POINT' => true,
+				'THOUSANDS_VARIANT' => true,
+				'DECIMALS' => true
+			];
+			foreach($currencyList as $oneCurrency)
 			{
-				$messList = Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/currency/install_lang.php', $existLanguage['ID']);
-				foreach($currencyList as $oneCurrency)
+				$data = CurrencyClassifier::getCurrency($oneCurrency, array_keys($languages));
+				if (empty($data))
+					continue;
+				foreach ($languages as $languageId => $upperLanguageId)
 				{
-					$fields = array(
-						'LID' => $existLanguage['ID'],
+					if (empty($data[$upperLanguageId]))
+						continue;
+					$fields = [
+						'LID' => $languageId,
 						'CURRENCY' => $oneCurrency,
-						'THOUSANDS_SEP' => false,
-						'DECIMALS' => 2,
-						'HIDE_ZERO' => 'Y',
-						'FORMAT_STRING' => $messList['CUR_INSTALL_'.$oneCurrency.'_FORMAT_STRING'],
-						'FULL_NAME' => $messList['CUR_INSTALL_'.$oneCurrency.'_FULL_NAME'],
-						'DEC_POINT' => $messList['CUR_INSTALL_'.$oneCurrency.'_DEC_POINT'],
-						'THOUSANDS_VARIANT' => $messList['CUR_INSTALL_'.$oneCurrency.'_THOUSANDS_SEP'],
 						'CREATED_BY' => null,
 						'MODIFIED_BY' => null,
 						'DATE_CREATE' => $datetimeEntity,
-						'TIMESTAMP_X' => $datetimeEntity
-					);
+						'TIMESTAMP_X' => $datetimeEntity,
+						'HIDE_ZERO' => 'Y',
+						'THOUSANDS_SEP' => null
+					] + array_intersect_key($data[$upperLanguageId], $whiteList);
+					$fields['FORMAT_STRING'] = str_replace('#VALUE#', '#', $fields['FORMAT_STRING']);
 					$resultCurrencyLang = \Bitrix\Currency\CurrencyLangTable::add($fields);
 					unset($resultCurrencyLang);
 				}
-				unset($oneCurrency, $messList);
+				unset($languageId, $upperLanguageId);
 			}
-			unset($existLanguage, $languageIterator);
+			unset($oneCurrency);
 			if (!$bitrix24)
 			{
 				$checkDate = Main\Type\DateTime::createFromTimestamp(strtotime('tomorrow 00:01:00'));;
@@ -411,4 +317,174 @@ class currency extends CModule
 		}
 		unset($datetimeEntity);
 	}
+
+	/**
+	 * Returns currency list for install.
+	 *
+	 * @param string $baseCurrency
+	 * @return array
+	 */
+	private static function getCurrencyListForInstall($baseCurrency)
+	{
+		switch ($baseCurrency)
+		{
+			case 'BYN':
+				$result = [
+					['CURRENCY' => 'BYN', 'NUMCODE' => '933', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'RUB', 'NUMCODE' => '643', 'AMOUNT' => 0.31, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.31],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 2.14, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 2.14],
+					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 2.44, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 2.44]
+				];
+				break;
+			case 'KZT':
+				$result = [
+					['CURRENCY' => 'KZT', 'NUMCODE' => '398', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'RUB', 'NUMCODE' => '643', 'AMOUNT' => 5.40, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 5.40],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 371.27, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 371.27],
+					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 423.29, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 423.29]
+				];
+				break;
+			case 'UAH':
+				$result = [
+					['CURRENCY' => 'UAH', 'NUMCODE' => '980', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'RUB', 'NUMCODE' => '643', 'AMOUNT' => 3.98, 'AMOUNT_CNT' => 10, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.398],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 27.39, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 27.39],
+					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 31.22, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 31.22]
+				];
+				break;
+			case 'RUB':
+				$result = [
+					['CURRENCY' => 'RUB', 'NUMCODE' => '643', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 68.79, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 68.79],
+					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 78.32, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 78.32],
+					['CURRENCY' => 'UAH', 'NUMCODE' => '980', 'AMOUNT' => 25.11, 'AMOUNT_CNT' => 10, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 2.511],
+					['CURRENCY' => 'BYN', 'NUMCODE' => '933', 'AMOUNT' => 32.20, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 32.20]
+				];
+				break;
+			case 'EUR':
+				$result = [
+					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 0.88, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.88],
+					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 12.71, 'AMOUNT_CNT' => 100, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.1271],
+					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 22.47, 'AMOUNT_CNT' => 100, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.2247],
+					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 12.49, 'AMOUNT_CNT' => 1000, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.01249]
+				];
+				break;
+			case 'CNY':
+				$result = [
+					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'TWD', 'NUMCODE' => '901', 'AMOUNT' => 22.39, 'AMOUNT_CNT' => 100, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.2239],
+					['CURRENCY' => 'HKD', 'NUMCODE' => '344', 'AMOUNT' => 88.06, 'AMOUNT_CNT' => 100, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.8806],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 6.89, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 6.89],
+					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 7.86, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 7.86],
+					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 1.77, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 1.77],
+					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 9.85, 'AMOUNT_CNT' => 100, 'SORT' => 700, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.0985]
+				];
+				break;
+			case 'TWD':
+				$result = [
+					['CURRENCY' => 'TWD', 'NUMCODE' => '901', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 4.47, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.47],
+					['CURRENCY' => 'HKD', 'NUMCODE' => '344', 'AMOUNT' => 3.93, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3.93],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 30.81, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 30.81],
+					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 35.17, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 35.17],
+					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 7.89, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 7.89],
+					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 43.94, 'AMOUNT_CNT' => 100, 'SORT' => 700, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.4394]
+				];
+				break;
+			case 'INR':
+				$result = [
+					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 70.05, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 70.05],
+					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 79.92, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 79.92],
+					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 10.17, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 10.17],
+					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 17.94, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 17.94]
+				];
+				break;
+			case 'BRL':
+				$result = [
+					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 3.90, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3.90],
+					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 4.45, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.45],
+					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 56.69, 'AMOUNT_CNT' => 100, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.5669],
+					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 5.57, 'AMOUNT_CNT' => 100, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.0557]
+				];
+				break;
+			case 'PLN':
+				$result = [
+					['CURRENCY' => 'PLN', 'NUMCODE' => '985', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 3.76, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3.76],
+					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 4.29, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.29],
+				];
+				break;
+			case 'TRY':
+				$result = [
+					['CURRENCY' => 'TRY', 'NUMCODE' => '949', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 5.30, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 5.30],
+					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 6.05, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 6.05]
+				];
+				break;
+			case 'JPY':
+				$result = [
+					['CURRENCY' => 'JPY', 'NUMCODE' => '392', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 110.25, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 110.25],
+					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 125.56, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 125.56],
+					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 15.98, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 15.98],
+					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 28.24, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 28.24],
+					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 1.57, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 1.57]
+				];
+				break;
+			case 'VND':
+				$result = [
+					['CURRENCY' => 'VND', 'NUMCODE' => '704', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 23279.63, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 23279.63],
+					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 26523.81, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 26523.81],
+					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 3371.85, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3371.85],
+					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 5958.40, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 5958.40],
+					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 331.10, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 331.10]
+				];
+				break;
+			case 'IDR':
+				$result = [
+					['CURRENCY' => 'IDR', 'NUMCODE' => '360', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 6.88, 'AMOUNT_CNT' => 100000, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 688000],
+					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 6.03, 'AMOUNT_CNT' => 100000, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 603000],
+					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 47.48, 'AMOUNT_CNT' => 100000, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 47480],
+					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 26.87, 'AMOUNT_CNT' => 100000, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 26870],
+					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 4.83, 'AMOUNT_CNT' => 1000, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4830]
+				];
+				break;
+			case 'MYR':
+				$result = [
+					['CURRENCY' => 'MYR', 'NUMCODE' => '458', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 4.18, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.18],
+					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 4.77, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.77],
+					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 6.05, 'AMOUNT_CNT' => 10, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.605],
+					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 1.07, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 1.07],
+					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 0.06, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.06]
+				];
+				break;
+			case 'THB':
+				$result = [
+					['CURRENCY' => 'THB', 'NUMCODE' => '764', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 32.55, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 32.55],
+					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 37.16, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 37.16],
+					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 4.72, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.72],
+					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 8.34, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 8.34],
+					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 0.46, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.46]
+				];
+				break;
+			case 'USD':
+			default:
+				$result = [
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 1.14, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 1.14],
+					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 15.00, 'AMOUNT_CNT' => 100, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.15],
+					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 25.61, 'AMOUNT_CNT' => 100, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.2561],
+					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 14.28, 'AMOUNT_CNT' => 1000, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.01428]
+				];
+				break;
+		}
+		return $result;
+	}	
 }

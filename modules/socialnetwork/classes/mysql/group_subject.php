@@ -57,6 +57,12 @@ class CSocNetGroupSubject extends CAllSocNetGroupSubject
 					FROM b_lang
 					WHERE LID IN ('".implode("', '", $arSiteID)."')
 				", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+
+				$events = GetModuleEvents("socialnetwork", "OnSocNetGroupSubjectAdd");
+				while ($arEvent = $events->Fetch())
+				{
+					ExecuteModuleEventEx($arEvent, array($ID, &$arFields));
+				}
 			}
 
 			if (CACHED_b_sonet_group_subjects != false)

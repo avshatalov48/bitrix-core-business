@@ -13,11 +13,11 @@ $arData[] = array(
 			"ID" => "subs_2_all",
 			"BUTT_Y" => array(
 				"TITLE" => GetMessage("SMOP_ALL_Y"),
-				"ONCLICK" => "var subs = BX(\"subs_items_block_id\"); if(subs) {subs.style.display=\"none\";}"
+				"ONCLICK" => "salePush.toggleSubsBlock();"
 			),
 			"BUTT_N" => array(
 				"TITLE" => GetMessage("SMOP_ALL_N"),
-				"ONCLICK" => "var subs = BX(\"subs_items_block_id\"); if(subs) {subs.style.display=\"\";}"
+				"ONCLICK" => "salePush.toggleSubsBlock();"
 			),
 		)
 	)

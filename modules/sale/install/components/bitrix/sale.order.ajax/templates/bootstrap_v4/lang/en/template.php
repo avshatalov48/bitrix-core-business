@@ -1,4 +1,5 @@
 <?
+$MESS["EMPTY_BASKET_HINT_PATH_TIP"] = "The \"Continue Shopping\" link is shown if the shopping cart is empty.<br>The text will be hidden if the link is empty.";
 $MESS["SOA_YES"] = "yes";
 $MESS["SOA_NO"] = "no";
 $MESS["SOA_DO_SOC_SERV"] = "Social login";

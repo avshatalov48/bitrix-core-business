@@ -11,6 +11,9 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/prolog.php');
 
 Loc::loadMessages(__FILE__);
 
+$publicMode = $adminPage->publicMode;
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+
 if($APPLICATION->GetGroupRight("sale") < "W")
 	$APPLICATION->AuthForm(Loc::getMessage('SALE_MODULE_ACCES_DENIED'));
 
@@ -24,29 +27,71 @@ try
 {
 	$itemId = intval($_REQUEST['id']) ? intval($_REQUEST['id']) : false;
 
-	// get entity fields for columns & filter
-	$columns = Helper::getColumns('list');
+	$sTableID = "tbl_entity";
+	$oSort = new CAdminSorting($sTableID, "SORT", "asc");
+	$lAdmin = new CAdminUiList($sTableID, $oSort);
 
-	$arFilterFields = array();
-	$arFilterTitles = array();
-	foreach($columns as $code => $fld)
+	// get entity fields for columns & filter
+
+	$bySite = "sort";
+	$orderSite = "asc";
+	$langObject = new \CLanguage();
+	$langQueryObject = $langObject->getList($bySite, $orderSite, array());
+	$quickSearchLangId = "EN";
+	while($lang = $langQueryObject->fetch())
 	{
-		$arFilterFields[] = 'find_'.$code;
-		$arFilterTitles[] = $fld['title'];
+		if ($lang["DEF"] == "Y")
+		{
+			$quickSearchLangId = strtoupper($lang["LANGUAGE_ID"]);
+		}
 	}
 
-	$sTableID = "tbl_entity";
-
-	$oFilter = new CAdminFilter(
-		$sTableID."_filter",
-		$arFilterTitles
-	);
-	$oSort = new CAdminSorting($sTableID, "SORT", "asc");
-	$lAdmin = new CAdminList($sTableID, $oSort);
-	$lAdmin->InitFilter($arFilterFields);
+	$columns = Helper::getColumns('list');
+	$filterFields = array();
+	$listDefaultFields = array("ID");
+	foreach ($columns as $code => $fld)
+	{
+		$fType = "";
+		$filterable = "";
+		switch ($fld["data_type"])
+		{
+			case "string":
+				$filterable = "?";
+				break;
+			case "integer":
+				$fType = "number";
+				$filterable = "=";
+				break;
+		}
+		$filterField = array(
+			"id" => $code,
+			"name" => $columns[$code]["title"]
+		);
+		if ($fType)
+		{
+			$filterField["type"] = $fType;
+		}
+		$filterField["filterable"] = $filterable;
+		if (in_array($code, $listDefaultFields))
+		{
+			$filterField["default"] = true;
+		}
+		if (preg_match("/^NAME_/", $code, $match))
+		{
+			$langId = str_replace($match[0], "", $code);
+			$filterField["id"] = "NAME__".$langId.".".rtrim($match[0], "_");
+			if ($quickSearchLangId == $langId && !$quickSearchAlreadyUse)
+			{
+				$filterField["quickSearch"] = "%";
+			}
+		}
+		$filterFields[] = $filterField;
+	}
 
 	// order, select and filter for the list
 	$listParams = Helper::proxyListRequest('list');
+
+	$lAdmin->AddFilter($filterFields, $listParams['filter']);
 
 	#####################################
 	#### ACTIONS
@@ -117,11 +162,19 @@ try
 				}
 			}
 		}
+		if ($lAdmin->hasGroupErrors())
+		{
+			$adminSidePanelHelper->sendJsonErrorResponse($lAdmin->getGroupErrors());
+		}
+		else
+		{
+			$adminSidePanelHelper->sendSuccessResponse();
+		}
 	}
 
-	$adminResult = Helper::getList($listParams, $sTableID);
-	$adminResult->NavStart();
-	$lAdmin->NavText($adminResult->GetNavPrint(Loc::getMessage('SALE_LOCATION_L_PAGES'), true)); // do not relocate the call relative to DisplayList(), or you`ll catch a strange nav bar disapper bug
+	$adminResult = Helper::getList($listParams, $sTableID, CAdminUiResult::GetNavSize($sTableID), array("uiMode" => true));
+	$adminResult = new \CAdminUiResult($adminResult, $sTableID);
+	$lAdmin->SetNavigationParams($adminResult, array("BASE_LINK" => $selfFolderUrl."sale_location_group_list.php"));
 }
 catch(Main\SystemException $e)
 {
@@ -140,38 +193,45 @@ if(empty($fatal))
 		$headers[] = array("id" => $code, "content" => $fld['title'], "sort" => $code, "default" => true);
 
 	$lAdmin->AddHeaders($headers);
-	while($elem = $adminResult->NavNext(true, "f_"))
+	while($elem = $adminResult->NavNext(false))
 	{
-		// CAdminList will escape values by itself
-		/*
-		foreach($columns as $code => $fld)
-			if(isset($elem[$code]))
-				Helper::makeSafeDisplay($elem[$code], $code);
-		*/
-
-		// urls
 		$editUrl = Helper::getEditUrl(array('id' => $elem['ID']));
 		$copyUrl = Helper::getEditUrl(array('copy_id' => $elem['ID']));
+		$editUrl = $adminSidePanelHelper->editUrlToPublicPage($editUrl);
+		$copyUrl = $adminSidePanelHelper->editUrlToPublicPage($copyUrl);
 
-		$row =& $lAdmin->AddRow($f_ID, $elem, $editUrl, Loc::getMessage('SALE_LOCATION_L_EDIT_ITEM'));
+		$row =& $lAdmin->AddRow($elem["ID"], $elem, $editUrl, Loc::getMessage('SALE_LOCATION_L_EDIT_ITEM'));
 
 		foreach($columns as $code => $fld)
 		{
 			if($code == 'ID')
-				$row->AddViewField($code, '<a href="'.$editUrl.'" title="'.Loc::getMessage('SALE_LOCATION_L_EDIT_ITEM').'">'.$f_ID.'</a>');
+				$row->AddViewField($code, '<a href="'.$editUrl.'" title="'.Loc::getMessage('SALE_LOCATION_L_EDIT_ITEM').'">'.$elem["ID"].'</a>');
 			else
 				$row->AddInputField($code);
 		}
 
 		$arActions = array();
 
-		$arActions[] = array("ICON" => "edit", "TEXT" => Loc::getMessage('SALE_LOCATION_L_EDIT_ITEM'), "ACTION" => $lAdmin->ActionRedirect($editUrl), "DEFAULT" => true);
+		$arActions[] = array(
+			"ICON" => "edit",
+			"TEXT" => Loc::getMessage('SALE_LOCATION_L_EDIT_ITEM'),
+			"LINK" => $editUrl,
+			"DEFAULT" => true
+		);
 
 		if($userIsAdmin)
 		{
-			$arActions[] = array("ICON"=>"copy", "TEXT"=>Loc::getMessage('SALE_LOCATION_L_COPY_ITEM'), "ACTION"=>$lAdmin->ActionRedirect($copyUrl));
-			$arActions[] = array("SEPARATOR"=>true);
-			$arActions[] = array("ICON"=>"delete", "TEXT"=>Loc::getMessage('SALE_LOCATION_L_DELETE_ITEM'), "ACTION"=>"if(confirm('".CUtil::JSEscape(Loc::getMessage('SALE_LOCATION_L_CONFIRM_DELETE_ITEM'))."')) ".$lAdmin->ActionDoGroup($f_ID, "delete"));
+			$arActions[] = array(
+				"ICON" => "copy",
+				"TEXT" => Loc::getMessage('SALE_LOCATION_L_COPY_ITEM'),
+				"LINK" => $copyUrl
+			);
+			$arActions[] = array(
+				"ICON" => "delete",
+				"TEXT" => Loc::getMessage('SALE_LOCATION_L_DELETE_ITEM'),
+				"ACTION" => "if(confirm('".CUtil::JSEscape(Loc::getMessage('SALE_LOCATION_L_CONFIRM_DELETE_ITEM')).
+					"')) ".$lAdmin->ActionDoGroup($elem["ID"], "delete")
+			);
 		}
 
 		$row->AddActions($arActions);
@@ -184,11 +244,12 @@ if(empty($fatal))
 	$aContext = array(
 		array(
 			"TEXT"	=> Loc::getMessage('SALE_LOCATION_L_ADD_ITEM'),
-			"LINK"	=> Helper::getEditUrl(),
+			"LINK"	=> $adminSidePanelHelper->editUrlToPublicPage(Helper::getEditUrl()),
 			"TITLE"	=> Loc::getMessage('SALE_LOCATION_L_ADD_ITEM'),
 			"ICON"	=> "btn_new"
 		),
 	);
+	$lAdmin->setContextSettings(array("pagePath" => $selfFolderUrl."sale_location_group_list.php"));
 	$lAdmin->AddAdminContextMenu($aContext);
 	$lAdmin->CheckListMode();
 
@@ -211,50 +272,22 @@ if(empty($fatal))
 <?SearchHelper::checkIndexesValid();?>
 
 <?if(strlen($fatal)):?>
-
+	<?
+	$messageParams = array('MESSAGE' => $fatal, 'type' => 'ERROR');
+	if ($publicMode)
+	{
+		$messageParams["SKIP_PUBLIC_MODE"] = true;
+	}
+	?>
 	<div class="error-message">
-		<?CAdminMessage::ShowMessage(array('MESSAGE' => $fatal, 'type' => 'ERROR'))?>
+		<?CAdminMessage::ShowMessage($messageParams)?>
 	</div>
 
 <?else:?>
 
-	<form method="GET" action="<?=Helper::getListUrl($itemId ? array('id' => $itemId) : array())?>" name="filter_form">
-
-		<input type="hidden" name="filter" value="Y" />
-		<?if($itemId):?>
-			<input type="hidden" name="id" value="<?=$itemId?>" />
-		<?endif?>
-
-		<?$oFilter->Begin();?>
-			<?foreach($columns as $code => $fld):?>
-				<?//if(!in_array($code, $excludedColumns)):?>
-					<tr>
-
-						<td><?=htmlspecialcharsbx($fld['title'])?><?if($fld['data_type'] == 'integer'):?> (<?=Loc::getMessage('SALE_LOCATION_L_FROM_AND_TO')?>)<?endif?>:</td>
-						<td>
-
-							<?if($fld['data_type'] == 'integer'):?>
-								<input type="text" name="find_<?=$code?>_1" value="<?=htmlspecialcharsbx($GLOBALS['find_'.$code.'_1'])?>" />
-								...
-								<input type="text" name="find_<?=$code?>_2" value="<?=htmlspecialcharsbx($GLOBALS['find_'.$code.'_2'])?>" />
-							<?else:?>
-								<input type="text" name="find_<?=$code?>" value="<?=htmlspecialcharsbx($GLOBALS['find_'.$code])?>" />
-							<?endif?>
-
-						</td>
-
-					</tr>
-				<?//endif?>
-			<?endforeach?>
-		<?
-		$oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPageParam(), "form"=>"filter_form"));
-		$oFilter->End();
-		?>
-
-	</form>
-
+	<?$lAdmin->DisplayFilter($filterFields);?>
 	<?$lAdmin->DisplayList();?>
 
 <?endif?>
 
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>

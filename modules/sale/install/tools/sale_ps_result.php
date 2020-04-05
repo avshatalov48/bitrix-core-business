@@ -20,7 +20,14 @@ if (CModule::IncludeModule("sale"))
 	{
 		$service = new PaySystem\Service($item);
 		if ($service instanceof PaySystem\Service)
+		{
 			$result = $service->processRequest($request);
+		}
+	}
+	else
+	{
+		$debugInfo = implode("\n", $request->toArray());
+		PaySystem\Logger::addDebugInfo('Pay system not found. Request: '.$debugInfo);
 	}
 }
 

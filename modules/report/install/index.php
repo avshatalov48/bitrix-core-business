@@ -61,6 +61,7 @@ Class report extends CModule
 		$eventManager->registerEventHandler('report', 'onReportCategoryCollect', 'report', '\Bitrix\Report\VisualConstructor\EventHandler', 'onCategoriesCollect');
 		$eventManager->registerEventHandler('report', 'onReportsCollect', 'report', '\Bitrix\Report\VisualConstructor\EventHandler', 'onReportsCollect');
 		$eventManager->registerEventHandler('report', 'onReportViewCollect', 'report', '\Bitrix\Report\VisualConstructor\EventHandler', 'onViewsCollect');
+		$eventManager->registerEventHandler('report', 'onWidgetCollect', 'report', '\Bitrix\Report\VisualConstructor\EventHandler', 'onWidgetCollect');
 
 		return true;
 	}
@@ -69,6 +70,8 @@ Class report extends CModule
 	{
 		global $DB, $DBType, $APPLICATION;
 		$this->errors = false;
+
+
 
 		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
 		{

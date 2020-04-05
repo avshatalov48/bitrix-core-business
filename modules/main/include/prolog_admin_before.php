@@ -10,10 +10,20 @@ unset($_COOKIE["BX_STATE"]);
 unset($_FILES["BX_STATE"]);
 
 define("NEED_AUTH", true);
-define("ADMIN_SECTION", true);
 
 if (isset($_REQUEST['bxpublic']) && $_REQUEST['bxpublic'] == 'Y' && !defined('BX_PUBLIC_MODE'))
 	define('BX_PUBLIC_MODE', 1);
+
+if (isset($_REQUEST['public']) && $_REQUEST['public'] == 'Y' && !defined("PUBLIC_MODE"))
+{
+	define("PUBLIC_MODE", 1);
+	define('BX_PUBLIC_MODE', 1);
+}
+
+if (!defined('PUBLIC_MODE') || PUBLIC_MODE !== 1)
+{
+	define("ADMIN_SECTION", true);
+}
 
 require_once(dirname(__FILE__)."/../include.php");
 if(!headers_sent())

@@ -1,4 +1,17 @@
 <?
+$MESS["IM_EVENT_RATING_PHOTO_ALBUM_LIKE"] = "I like your #A_START#album#A_END# \"#TITLE#\"";
+$MESS["IM_EVENT_RATING_PHOTO_ALBUM1_LIKE"] = "I like your #A_START#album#A_END#";
+$MESS["IM_EVENT_RATING_PHOTO_ALBUM_REACT"] = "Reacted on your #A_START#album#A_END# \"#TITLE#\"";
+$MESS["IM_EVENT_RATING_PHOTO_ALBUM_REACT_M"] = "Reacted on your #A_START#album#A_END# \"#TITLE#\"";
+$MESS["IM_EVENT_RATING_PHOTO_ALBUM_REACT_F"] = "Reacted on your #A_START#album#A_END# \"#TITLE#\"";
+$MESS["IM_EVENT_RATING_PHOTO_ALBUM1_REACT"] = "Reacted on your #A_START#album#A_END#";
+$MESS["IM_EVENT_RATING_PHOTO_ALBUM1_REACT_M"] = "Reacted on your #A_START#album#A_END#";
+$MESS["IM_EVENT_RATING_PHOTO_ALBUM1_REACT_F"] = "Reacted on your #A_START#album#A_END#";
+$MESS["IM_EVENT_RATING_WIKI_LIKE"] = "I like your #A_START#Wiki page#A_END# \"#TITLE#\"";
+$MESS["IM_EVENT_RATING_WIKI_REACT"] = "Reacted on your #A_START#Wiki page#A_END# \"#TITLE#\"";
+$MESS["IM_EVENT_RATING_WIKI_REACT_M"] = "Reacted on your #A_START#Wiki page#A_END# \"#TITLE#\"";
+$MESS["IM_EVENT_RATING_WIKI_REACT_F"] = "Reacted on your #A_START#Wiki page#A_END# \"#TITLE#\"";
+$MESS["IM_EVENT_RATING_REACTION"] = "\"#REACTION#\"";
 $MESS["IM_EVENT_RATING_BLOG_POST_LIKE"] = "I like your post #LINK#";
 $MESS["IM_EVENT_RATING_BLOG_COMMENT_LIKE"] = "I like your #A_START#comment#A_END# in \"#TITLE#\"";
 $MESS["IM_EVENT_RATING_FORUM_TOPIC_LIKE"] = "I like your topic \"#LINK#\"";

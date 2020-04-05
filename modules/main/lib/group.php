@@ -34,6 +34,10 @@ class GroupTable extends Entity\DataManager
 			'C_SORT' => array(
 				'data_type' => 'integer'
 			),
+			'IS_SYSTEM' => array(
+				'data_type' => 'boolean',
+				'values' => array('N', 'Y')
+			),
 			'ANONYMOUS' => array(
 				'data_type' => 'boolean',
 				'values' => array('N', 'Y')

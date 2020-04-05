@@ -129,8 +129,14 @@ if ($domainErrors)
 	});
 }
 
+$actionParams = '?lang='.LANGUAGE_ID;
+if ($adminSidePanelHelper->isSidePanel())
+{
+	$actionParams .= "&IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER";
+}
+
 ?>
-	<form method="POST" action="<?=$APPLICATION->GetCurPage().'?lang='.LANGUAGE_ID.GetFilterParams('filter_', false)?>" name="bizvalTabs_form" id="bizvalTabs_form">
+	<form method="POST" action="<?=$APPLICATION->GetCurPage().$actionParams?>" name="bizvalTabs_form" id="bizvalTabs_form">
 
 		<?=bitrix_sessid_post()?>
 
@@ -185,12 +191,9 @@ if ($domainErrors)
 		<div class="adm-detail-content-btns-wrap">
 			<div class="adm-detail-content-btns">
 				<?
-
-				$hkInst = CHotKeys::getInstance();
 				echo '<input'.($aParams["disabled"] === true? " disabled":"")
 					.' type="submit" name="apply" value="'.GetMessage("admin_lib_edit_apply").'" title="'
-					.GetMessage("admin_lib_edit_apply_title").$hkInst->GetTitle("Edit_Apply_Button").'" class="adm-btn-save" />';
-				echo $hkInst->PrintJSExecs($hkInst->GetCodeByClassName("Edit_Apply_Button"));
+					.GetMessage("admin_lib_edit_apply_title").'" class="adm-btn-save" />';
 
 				?>
 			</div>

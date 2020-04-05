@@ -14,12 +14,14 @@ interface Sequenceable
 	 * @return mixed
 	 */
 	public function getNextNumber($numeratorId);
+
 	/**
 	 * @param $numeratorId
-	 * @param int $number
+	 * @param int $newNumber
+	 * @param $whereNumber
 	 * @return Result
 	 */
-	public function setNextNumber($numeratorId, $number);
+	public function setNextNumber($numeratorId, $newNumber, $whereNumber);
 	/**
 	 * @param $numberHash
 	 * @return mixed

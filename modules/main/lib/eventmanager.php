@@ -9,6 +9,7 @@ namespace Bitrix\Main;
 
 use Bitrix\Main\Diag;
 use Bitrix\Main\IO;
+use Bitrix\Main\Type\Collection;
 
 class EventManager
 {
@@ -299,12 +300,17 @@ class EventManager
 		if ($hasHandlers)
 		{
 			// need to re-sort because of AddEventHandler() calls (before loadEventHandlers)
-			$funcSort = create_function('$a, $b', 'if ($a["SORT"] == $b["SORT"]) return 0; return ($a["SORT"] < $b["SORT"]) ? -1 : 1;');
 			foreach (array_keys($handlers) as $moduleId)
 			{
 				foreach (array_keys($handlers[$moduleId]) as $event)
 				{
-					uasort($this->handlers[$moduleId][$event], $funcSort);
+					Collection::sortByColumn(
+						$this->handlers[$moduleId][$event],
+						['SORT' => SORT_ASC],
+						'',
+						null,
+						true
+					);
 				}
 			}
 		}

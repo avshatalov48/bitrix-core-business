@@ -12,6 +12,7 @@ use Bitrix\Sale\ResultError;
 use Bitrix\Sale\Shipment;
 use Bitrix\Sale\UserMessageException;
 use Bitrix\Main\Entity\EntityError;
+use Bitrix\Sale\Configuration;
 
 Loc::loadMessages(__FILE__);
 
@@ -31,7 +32,7 @@ class OrderBasketShipment extends OrderBasket
 	 */
 	public function __construct(Shipment $shipment, $jsObjName = "", $idPrefix = "")
 	{
-		self::$useStoreControl = (Option::get('catalog', 'default_use_store_control', 'N') == 'Y');
+		self::$useStoreControl = Configuration::useStoreControl();
 		$order = $shipment->getCollection()->getOrder();
 		$this->visibleColumns = $this->getVisibleColumns('sale_shipment_basket');
 		parent::__construct($order, $jsObjName, $idPrefix);
@@ -626,7 +627,7 @@ class OrderBasketShipment extends OrderBasket
 		$basket = $order->getBasket();
 		$shipmentItemCollection = $shipment->getShipmentItemCollection();
 		if (is_null(self::$useStoreControl))
-			self::$useStoreControl = (Option::get('catalog', 'default_use_store_control', 'N') == 'Y');
+			self::$useStoreControl = Configuration::useStoreControl();
 
 		if(is_array($shipmentBasket))
 		{

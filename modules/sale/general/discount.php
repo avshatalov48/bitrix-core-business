@@ -22,11 +22,22 @@ class CAllSaleDiscount
 	static protected $cacheDiscountHandlers = array();
 	static protected $usedModules = array();
 
-	public static function DoProcessOrder(
-		&$arOrder,
-		/** @noinspection PhpUnusedParameterInspection */$arOptions,
-		/** @noinspection PhpUnusedParameterInspection */&$arErrors
-	)
+	/**
+	 * @deprecated strongly deprecated since sale 15.5.0.
+	 * @see \Bitrix\Sale\Discount
+	 *
+	 * @param array &$arOrder
+	 * @param array $arOptions
+	 * @param array &$arErrors
+	 * @return void
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\ObjectException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public static function DoProcessOrder(&$arOrder, $arOptions, &$arErrors)
 	{
 		if (empty($arOrder['BASKET_ITEMS']) || !is_array($arOrder['BASKET_ITEMS']))
 			return;
@@ -506,12 +517,12 @@ class CAllSaleDiscount
 						$itemDiscountsApply = true;
 						$descr = $row['RESULT']['DESCR_DATA'][0];
 						$validDiscount = (
-							isset($descr['TYPE']) && $descr['TYPE'] == Sale\OrderDiscountManager::DESCR_TYPE_VALUE
+							isset($descr['TYPE']) && $descr['TYPE'] == Sale\Discount\Formatter::TYPE_VALUE
 							&& (
-								$descr['VALUE_ACTION'] == Sale\OrderDiscountManager::DESCR_VALUE_ACTION_DISCOUNT
-								|| $descr['VALUE_ACTION'] == Sale\OrderDiscountManager::DESCR_VALUE_ACTION_ACCUMULATE
+								$descr['VALUE_ACTION'] == Sale\Discount\Formatter::VALUE_ACTION_DISCOUNT
+								|| $descr['VALUE_ACTION'] == Sale\Discount\Formatter::VALUE_ACTION_CUMULATIVE
 							)
-							&& $descr['VALUE_TYPE'] == Sale\OrderDiscountManager::DESCR_VALUE_TYPE_PERCENT
+							&& $descr['VALUE_TYPE'] == Sale\Discount\Formatter::VALUE_TYPE_PERCENT
 						);
 
 						if (!$validDiscount)
@@ -552,9 +563,9 @@ class CAllSaleDiscount
 						}
 						$descr = $discount['RESULT']['BASKET'][$code]['DESCR_DATA'][0];
 						if (
-							isset($descr['TYPE']) && $descr['TYPE'] == Sale\OrderDiscountManager::DESCR_TYPE_VALUE
-							&& $descr['VALUE_ACTION'] == Sale\OrderDiscountManager::DESCR_VALUE_ACTION_DISCOUNT
-							&& $descr['VALUE_TYPE'] == Sale\OrderDiscountManager::DESCR_VALUE_TYPE_PERCENT
+							isset($descr['TYPE']) && $descr['TYPE'] == Sale\Discount\Formatter::TYPE_VALUE
+							&& $descr['VALUE_ACTION'] == Sale\Discount\Formatter::VALUE_ACTION_DISCOUNT
+							&& $descr['VALUE_TYPE'] == Sale\Discount\Formatter::VALUE_TYPE_PERCENT
 						)
 						{
 							$simplePercentValue = $descr['VALUE'];
@@ -1567,6 +1578,7 @@ class CAllSaleDiscount
 								'Value' => (string)roundEx($arFields['DISCOUNT_VALUE'], SALE_VALUE_PRECISION),
 								'Unit' => 'Perc',
 								'All' => 'AND',
+								'True' => 'True'
 							),
 							'CHILDREN' => array(
 							),
@@ -1582,6 +1594,7 @@ class CAllSaleDiscount
 								'Value' => (string)$dblValue,
 								'Unit' => 'CurAll',
 								'All' => 'AND',
+								'True' => 'True'
 							),
 							'CHILDREN' => array(
 							),
@@ -1735,7 +1748,7 @@ class CAllSaleDiscount
 			array(
 				'ORDER' => '$arOrder',
 				'ORDER_FIELDS' => '$arOrder',
-				'ORDER_PROPS' => '$arOrder[\'PROPS\']',
+				'ORDER_PROPS' => '$arOrder[\'ORDER_PROP\']',
 				'ORDER_BASKET' => '$arOrder[\'BASKET_ITEMS\']',
 				'BASKET' => '$arBasket',
 				'BASKET_ROW' => '$row',

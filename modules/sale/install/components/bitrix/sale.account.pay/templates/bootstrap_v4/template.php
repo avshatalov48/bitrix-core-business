@@ -3,6 +3,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main\Localization\Loc;
 
+CJSCore::Init(array("popup"));
+
 if (!empty($arResult["errorMessage"]))
 {
 	if (!is_array($arResult["errorMessage"]))
@@ -31,9 +33,9 @@ else
 					if ($arParams['SELL_SHOW_FIXED_VALUES'] === 'Y')
 					{
 						?>
-						<div class="row">
-							<div class="col sale-accountpay-block">
-								<h3><?= Loc::getMessage("SAP_FIXED_PAYMENT") ?></h3>
+						<div class="row mb-3">
+							<div class="col">
+								<h3 class="mb-2"><?= Loc::getMessage("SAP_FIXED_PAYMENT") ?></h3>
 								<div class="sale-accountpay-fixedpay-container">
 									<div class="sale-accountpay-fixedpay-list">
 										<?
@@ -51,27 +53,30 @@ else
 						<?
 					}
 					?>
-					<div class="row">
-						<div class="col sale-accountpay-block form-horizontal">
-							<h3><?=Loc::getMessage("SAP_SUM")?></h3>
+					<div class="row mb-3">
+						<div class="col form-horizontal">
+							<h3 class="mb-2"><?=Loc::getMessage("SAP_SUM")?></h3>
 							<div class="form-group row">
-
+								<div class='col-3 input-group'>
 									<?
 									$inputElement = "
-											<div class='col-2'>
-											<input type='text' placeholder='0.00' 
+										<input type='text' placeholder='0.00' 
 											class='form-control sale-accountpay-input text-right' value='0.00' "
 											."name=".CUtil::JSEscape(htmlspecialcharsbx($arParams["VAR"]))." "
 											.($arParams['SELL_USER_INPUT'] === 'N' ? "disabled" :"").
-											"></div>";
+										">";
 									$tempCurrencyRow = trim(str_replace("#", "", $arResult['FORMATED_CURRENCY']));
-									$labelWrapper = "<label class='control-label col-form-label col-9'>".$tempCurrencyRow."</label>";
+									$labelWrapper = "
+										<div class='input-group-append'>
+											<span class='input-group-text' id='inputGroupPrepend'>".$tempCurrencyRow."</span>
+										</div>";
 									$currencyRow = str_replace($tempCurrencyRow, $labelWrapper, $arResult['FORMATED_CURRENCY']);
 									$currencyRow = str_replace($tempCurrencyRow, $labelWrapper, $arResult['FORMATED_CURRENCY']);
 									$currencyRow = str_replace("#", $inputElement, $currencyRow);
 									echo $currencyRow;
 									?>
 								</div>
+							</div>
 						</div>
 					</div>
 				<?
@@ -83,16 +88,16 @@ else
 						?>
 						<div class="row mb-3">
 							<div class="col">
-								<h3><?=Loc::getMessage("SAP_SUM")?></h3>
-								<h2><?=SaleFormatCurrency($arResult["SELL_VAR_PRICE_VALUE"], $arParams['SELL_CURRENCY'])?></h2>
+								<h3 class="mb-2"><?=Loc::getMessage("SAP_SUM")?></h3>
+								<h2 class="mb-2"><?=SaleFormatCurrency($arResult["SELL_VAR_PRICE_VALUE"], $arParams['SELL_CURRENCY'])?></h2>
 							</div>
 						</div>
 						<?
 					}
 					?>
-					<div class="row">
+					<div class="row mb-3">
 						<div class="col">
-							<input type="hidden" name="<?=CUtil::JSEscape(htmlspecialcharsbx($arParams["VAR"]))?>" class="input-lg sale-accountpay-input" value="<?=CUtil::JSEscape(htmlspecialcharsbx($arResult["SELL_VAR_PRICE_VALUE"]))?>">
+							<input type="hidden" name="<?=CUtil::JSEscape(htmlspecialcharsbx($arParams["VAR"]))?>" class="sale-accountpay-input" value="<?=CUtil::JSEscape(htmlspecialcharsbx($arResult["SELL_VAR_PRICE_VALUE"]))?>">
 						</div>
 					</div>
 					<?
@@ -100,7 +105,7 @@ else
 				?>
 				<div class="row mb-3">
 					<div class="col">
-						<h3><?=Loc::getMessage("SAP_TYPE_PAYMENT_TITLE")?></h3>
+						<h3 class="mb-2"><?=Loc::getMessage("SAP_TYPE_PAYMENT_TITLE")?></h3>
 						<div class="row sale-accountpay-pp">
 							<?
 							foreach ($arResult['PAYSYSTEMS_LIST'] as $key => $paySystem)
@@ -126,9 +131,9 @@ else
 						</div>
 					</div>
 				</div>
-				<div class="row">
+				<div class="row mb-3">
 					<div class="col">
-						<a href="" class="btn btn-primary btn-lg sale-account-pay-button"><?=Loc::getMessage("SAP_BUTTON")?></a>
+						<a href="" class="btn btn-primary sale-account-pay-button"><?=Loc::getMessage("SAP_BUTTON")?></a>
 					</div>
 				</div>
 			</div>
@@ -138,6 +143,7 @@ else
 			"alertMessages" => array("wrongInput" => Loc::getMessage('SAP_ERROR_INPUT')),
 			"url" => CUtil::JSEscape($this->__component->GetPath().'/ajax.php'),
 			"templateFolder" => CUtil::JSEscape($templateFolder),
+			"templateName" => $this->__component->GetTemplateName(),
 			"signedParams" => $arResult['SIGNED_PARAMS'],
 			"wrapperId" => $wrapperId
 		);

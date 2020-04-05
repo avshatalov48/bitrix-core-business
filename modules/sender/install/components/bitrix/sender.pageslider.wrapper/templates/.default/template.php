@@ -18,6 +18,14 @@ global $APPLICATION;
 		}
 	</script>
 	<?$APPLICATION->ShowHead();?>
+	<script type="text/javascript">
+		BX.ready(function () {
+			if (!BX.message.SITE_ID)
+			{
+				BX.message['SITE_ID'] = '';
+			}
+		});
+	</script>
 </head>
 <body class="sender-slider-frame-popup template-<?=(defined('SITE_TEMPLATE_ID') ? SITE_TEMPLATE_ID  : 'def')?> <?$APPLICATION->ShowProperty('BodyClass');?>">
 	<div class="pagetitle-wrap">

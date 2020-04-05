@@ -114,11 +114,13 @@ class CBPRestActivity
 			}
 		}
 
+		/*
 		$session = \Bitrix\Rest\Event\Session::get();
 		if(!$session)
 		{
 			throw new Exception('Rest session error');
 		}
+		*/
 
 		$dbRes = \Bitrix\Rest\AppTable::getList(array(
 			'filter' => array(
@@ -144,7 +146,7 @@ class CBPRestActivity
 			'WORKFLOW_ID' => $this->getWorkflowInstanceId(),
 			'ACTIVITY_NAME' => $this->name,
 			'CODE' => $activityData['CODE'],
-			\Bitrix\Rest\Event\Session::PARAM_SESSION => $session,
+			//\Bitrix\Rest\Event\Session::PARAM_SESSION => $session,
 			\Bitrix\Rest\OAuth\Auth::PARAM_LOCAL_USER => $userId,
 			"application_token" => \CRestUtil::getApplicationToken($application),
 		);
@@ -169,13 +171,27 @@ class CBPRestActivity
 				$auth,
 				array(
 					"sendAuth" => true,
-					"sendRefreshToken" => false,
+					"sendRefreshToken" => true,
 					"category" => Sqs::CATEGORY_BIZPROC,
 				)
 			),
 		);
 
 		\Bitrix\Rest\OAuthService::getEngine()->getClient()->sendEvent($queryItems);
+
+		if (is_callable(['\Bitrix\Rest\StatTable', 'logRobot']))
+		{
+			if ($activityData['IS_ROBOT'] === 'Y')
+			{
+				\Bitrix\Rest\StatTable::logRobot($activityData['APP_ID']);
+			}
+			else
+			{
+				\Bitrix\Rest\StatTable::logActivity($activityData['APP_ID']);
+			}
+
+			\Bitrix\Rest\StatTable::finalize();
+		}
 
 		if ($this->SetStatusMessage == 'Y')
 		{
@@ -299,7 +315,25 @@ class CBPRestActivity
 
 	public static function GetPropertiesDialog($documentType, $activityName, $workflowTemplate, $workflowParameters, $workflowVariables, $currentValues = null, $formName = "")
 	{
+		if (!Loader::includeModule('rest'))
+		{
+			return false;
+		}
+
 		$activityData = self::getRestActivityData();
+
+		$dbRes = \Bitrix\Rest\AppTable::getList([
+			'select' => ['ID'],
+			'filter' => [
+				'=CLIENT_ID' => $activityData['APP_ID'],
+			]
+		]);
+		$application = $dbRes->fetch();
+
+		if ($application)
+		{
+			$activityData['APP_ID_INT'] = $application['ID'];
+		}
 
 		$dialog = new \Bitrix\Bizproc\Activity\PropertiesDialog(__FILE__, array(
 			'documentType' => $documentType,
@@ -381,21 +415,28 @@ class CBPRestActivity
 		$activityDocumentType = is_array($activityData['DOCUMENT_TYPE']) ? $activityData['DOCUMENT_TYPE'] : $dialog->getDocumentType();
 		$properties = isset($activityData['PROPERTIES']) && is_array($activityData['PROPERTIES']) ? $activityData['PROPERTIES'] : array();
 
-		$currentValues = $dialog->getCurrentValues(true, true);
+		$currentValues = $dialog->getCurrentValues();
 
 		ob_start();
 		foreach ($properties as $name => $property):
 			$required = CBPHelper::getBool($property['REQUIRED']);
 			$name = strtolower($name);
 			$value = !CBPHelper::isEmptyValue($currentValues[static::PROPERTY_NAME_PREFIX.$name]) ? $currentValues[static::PROPERTY_NAME_PREFIX.$name] : $property['DEFAULT'];
+
+			$property['NAME'] = RestActivityTable::getLocalization($property['NAME'], LANGUAGE_ID);
+			if (isset($property['DESCRIPTION']))
+			{
+				$property['DESCRIPTION'] = RestActivityTable::getLocalization($property['DESCRIPTION'], LANGUAGE_ID);
+			}
+
 			?>
 			<tr>
 				<td align="right" width="40%" valign="top">
 					<span class="<?=$required?'adm-required-field':''?>">
-						<?= htmlspecialcharsbx(RestActivityTable::getLocalization($property['NAME'], LANGUAGE_ID)) ?>:
+						<?= htmlspecialcharsbx($property['NAME']) ?>:
 					</span>
-					<?if (isset($property['DESCRIPTION'])):?>
-						<br/><?= htmlspecialcharsbx(RestActivityTable::getLocalization($property['DESCRIPTION'], LANGUAGE_ID)) ?>
+					<?if (!empty($property['DESCRIPTION'])):?>
+						<br/><?= htmlspecialcharsbx($property['DESCRIPTION']) ?>
 					<?endif;?>
 				</td>
 				<td width="60%">
@@ -417,7 +458,7 @@ class CBPRestActivity
 			<tr>
 				<td align="right" width="40%" valign="top"><span class=""><?= Loc::getMessage("BPRA_PD_USER_ID") ?>:</span></td>
 				<td width="60%">
-					<?=CBPDocument::ShowParameterField("user", 'authuserid', $currentValues['authuserid'], Array('rows'=>'1'))?>
+					<?=$dialog->renderFieldControl('AuthUserId', $currentValues['authuserid'], true, 0)?>
 				</td>
 			</tr>
 		<?endif?>
@@ -465,6 +506,27 @@ class CBPRestActivity
 			</td>
 		</tr>
 		<?endif;
+
+		if ($activityData['USE_PLACEMENT'] === 'Y' && !empty($activityData['APP_ID_INT'])):
+			CJSCore::Init(['applayout']);
+
+			$appJs = $appJs = (int) $activityData['APP_ID_INT'];
+			$codeJs = htmlspecialcharsbx(CUtil::JSEscape($activityData['CODE']));
+			$actNameJs = htmlspecialcharsbx(CUtil::JSEscape($dialog->getActivityName()));
+		?>
+		<tr>
+			<td align="right"></td>
+			<td align="right">
+				<button onclick="if (BX.rest) {BX.rest.AppLayout.openApplication(<?=$appJs?>, {
+						action: 'bp_activity_settings',
+						code: '<?=$codeJs?>',
+						activity_name: '<?=$actNameJs?>'
+						});} return false;">
+					<?=GetMessage('BPRA_PD_CONFIGURE')?>
+				</button>
+			</td>
+		</tr>
+	<?endif;
 
 		return ob_get_clean();
 	}

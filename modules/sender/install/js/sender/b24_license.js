@@ -9,7 +9,14 @@
 		},
 		getText: function (code)
 		{
-			return BX.message('SENDER_B24_LICENSE_' + code.toUpperCase() + '_TEXT');
+			var messageCode = 'SENDER_B24_LICENSE_%code%_TEXT'.replace('%code%', code.toUpperCase());
+			var mess = BX.message(messageCode);
+			if (!mess)
+			{
+				mess = BX.message(messageCode + '1');
+			}
+
+			return mess;
 		},
 		showDefaultPopup: function ()
 		{
@@ -29,7 +36,7 @@
 			B24.licenseInfoPopup.show(
 				code,
 				this.getTitle(code),
-				'<span>' + this.getText(code) + '</span>',
+				'<span>' + (this.getText(code) ? this.getText(code) : this.getText('Ad')) + '</span>',
 				true
 			);
 		}

@@ -3,7 +3,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/user_transa
 
 class CSaleUserTransact extends CAllSaleUserTransact
 {
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
@@ -26,7 +26,7 @@ class CSaleUserTransact extends CAllSaleUserTransact
 		return false;
 	}
 
-	function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -135,7 +135,7 @@ class CSaleUserTransact extends CAllSaleUserTransact
 		return $dbRes;
 	}
 
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
@@ -172,7 +172,7 @@ class CSaleUserTransact extends CAllSaleUserTransact
 		return $ID;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 
@@ -207,4 +207,3 @@ class CSaleUserTransact extends CAllSaleUserTransact
 		return $ID;
 	}
 }
-?>

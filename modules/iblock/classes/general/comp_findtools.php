@@ -148,7 +148,8 @@ class CIBlockFindTools
 		}
 
 		reset($pageCandidates);
-		list($pageID, $arVariables) = each($pageCandidates);
+		$pageID = key($pageCandidates);
+		$arVariables = $pageCandidates[$pageID];
 
 		return $pageID;
 	}

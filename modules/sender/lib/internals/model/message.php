@@ -59,8 +59,7 @@ class MessageTable extends Entity\DataManager
 		$result = new Entity\EventResult;
 		$data = $event->getParameters();
 
-		$primary = array('MESSAGE_ID' => $data['primary']['ID']);
-		MessageFieldTable::delete($primary);
+		MessageFieldTable::deleteByMessageId($data['primary']['ID']);
 
 		return $result;
 	}

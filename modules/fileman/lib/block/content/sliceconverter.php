@@ -8,6 +8,7 @@
 namespace Bitrix\Fileman\Block\Content;
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Fileman\Block;
 
 Loc::loadMessages(__FILE__);
 
@@ -66,5 +67,56 @@ class SliceConverter implements IConverter
 		}
 
 		return $blockContent;
+	}
+
+	/**
+	 * Convert block content to string.
+	 *
+	 * @param BlockContent $content Block content.
+	 * @return string
+	 */
+	public static function toString(BlockContent $content)
+	{
+		$result = '';
+		foreach ($content->getList() as $item)
+		{
+			$result .= '<!--START '
+				. static::SLICE_SECTION_ID . "/{$item['type']}/{$item['place']}/-->\n"
+				. $item['value'] . "\n"
+				. '<!--END '
+				. static::SLICE_SECTION_ID . "/{$item['type']}/{$item['place']}/-->\n";
+		}
+
+		return trim($result);
+	}
+
+	/**
+	 * Sanitize.
+	 *
+	 * @param string $string String.
+	 * @return string
+	 */
+	public static function sanitize($string)
+	{
+		if (!self::isValid($string))
+		{
+			return Block\Sanitizer::clean($string);
+		}
+
+		$content = self::toArray($string);
+		$list = $content->getList();
+		foreach ($list as $index => $item)
+		{
+			if ($item['type'] !== BlockContent::TYPE_BLOCKS)
+			{
+				continue;
+			}
+
+			$item['value'] = Block\Sanitizer::clean($item['value']);
+			$list[$index] = $item;
+		}
+
+		$content->setList($list);
+		return self::toString($content);
 	}
 }

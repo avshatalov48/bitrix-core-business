@@ -62,6 +62,10 @@ $filterLayout = ob_get_clean();
 $APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' => array(
 	array('type' => 'filter', 'content' => $filterLayout),
 	array('type' => 'buttons', 'list' => [
+			[
+				'type' => 'settings',
+				'items' => ['import']
+			],
 		$arParams['CAN_EDIT']
 			?
 			[

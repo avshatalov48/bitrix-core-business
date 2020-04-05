@@ -1,6 +1,6 @@
 <section class="landing-block js-animation fadeInUp g-bg-gray-light-v5 g-pt-20 g-pb-20">
 
-	<div class="container text-center g-max-width-800 g-mb-20">
+	<div class="container text-center g-max-width-800">
 
 		<div class="landing-block-node-inner text-uppercase u-heading-v2-4--bottom g-brd-primary">
 			<h4 class="landing-block-node-subtitle g-font-weight-700 g-font-size-12 g-color-primary g-mb-15">

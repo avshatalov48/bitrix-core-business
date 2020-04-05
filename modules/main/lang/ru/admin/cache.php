@@ -9,6 +9,7 @@ $MESS["MAIN_OPTION_CLEAR_CACHE_ALL"] = "Все";
 $MESS["MAIN_OPTION_CLEAR_CACHE_MENU"] = "Меню";
 $MESS["MAIN_OPTION_CLEAR_CACHE_MANAGED"] = "Весь управляемый";
 $MESS["MAIN_OPTION_CLEAR_CACHE_STATIC"] = "Все страницы HTML кеша";
+$MESS["MAIN_OPTION_CLEAR_CACHE_LANDING"] = "Сайты24";
 $MESS["MAIN_OPTION_CLEAR_CACHE_CLEAR"] = "Очистить";
 $MESS["MAIN_OPTION_CACHE_ON"] = "Автокеширование компонентов включено";
 $MESS["MAIN_OPTION_CACHE_OFF"] = "Автокеширование компонентов выключено";

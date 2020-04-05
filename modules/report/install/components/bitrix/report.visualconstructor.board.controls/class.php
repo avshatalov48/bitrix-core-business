@@ -20,7 +20,8 @@ class ReportVisualConstructorBoardControls extends CBitrixComponent
 	{
 		$this->arResult['REPORTS_CATEGORIES'] = array('main');
 		$this->arResult['BOARD_ID'] = !empty($this->arParams['BOARD_ID']) ? $this->arParams['BOARD_ID'] : '';
-
+		$this->arResult['DEMO_TOGGLE'] = isset($this->arParams['DEMO_TOGGLE']) ? $this->arParams['DEMO_TOGGLE'] : false;
+		$this->arResult['IS_FRAME_MODE'] = $this->isFrameMode();
 		$templateName = $this->getTemplateName();
 		switch ($templateName)
 		{
@@ -32,6 +33,12 @@ class ReportVisualConstructorBoardControls extends CBitrixComponent
 		}
 
 		$this->includeComponentTemplate();
+	}
+
+	private function isFrameMode()
+	{
+		$isFrame = \Bitrix\Main\Application::getInstance()->getContext()->getRequest()->get('IFRAME');
+		return $isFrame === "Y";
 	}
 
 	private function prepareParametersForAddForm()

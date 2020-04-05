@@ -104,9 +104,12 @@ class Tools
 				}
 				else
 				{
-					$imageData['UNSAFE_SRC'] = $imageData['SRC'];
-					$imageData['SAFE_SRC'] = \CHTTP::urnEncode($imageData['SRC'], 'UTF-8');
-					$imageData['SRC'] = $imageData['SAFE_SRC'];
+					if (!preg_match('/^(ftp|ftps|http|https):\/\//', $imageData['SRC']))
+					{
+						$imageData['UNSAFE_SRC'] = $imageData['SRC'];
+						$imageData['SAFE_SRC'] = \CHTTP::urnEncode($imageData['SRC'], 'UTF-8');
+						$imageData['SRC'] = $imageData['SAFE_SRC'];
+					}
 				}
 				$imageData['ALT'] = '';
 				$imageData['TITLE'] = '';
@@ -145,9 +148,18 @@ class Tools
 		$safe = ($safe === true);
 
 		if ($safe)
-			$result = (isset($image['SAFE_SRC']) ? $image['SAFE_SRC'] : \CHTTP::urnEncode($image['SRC'], 'UTF-8'));
+		{
+			if (isset($image['SAFE_SRC']))
+				$result = $image['SAFE_SRC'];
+			elseif (preg_match('/^(ftp|ftps|http|https):\/\//', $image['SRC']))
+				$result = $image['SRC'];
+			else
+				$result = \CHTTP::urnEncode($image['SRC'], 'UTF-8');
+		}
 		else
+		{
 			$result = (isset($image['UNSAFE_SRC']) ? $image['UNSAFE_SRC'] : $image['SRC']);
+		}
 
 		return $result;
 	}

@@ -313,7 +313,7 @@
 		});
 		this.list.push(item);
 		BX.addCustomEvent(item, 'remove', this.removeItem.bind(this, item));
-		BX.addCustomEvent(item, 'change', this.getCount.bind(this, item));
+		BX.addCustomEvent(item, 'change', BX.throttle(this.getCount.bind(this, item), 100));
 
 		return item;
 	};
@@ -504,6 +504,8 @@
 		BX.addCustomEvent('BX.Filter.Search:input', this.onBeforeApplyFilter.bind(this));
 		BX.addCustomEvent('BX.Main.Filter:beforeApply', this.onBeforeApplyFilter.bind(this));
 		BX.addCustomEvent('BX.Main.Filter:apply', this.onApplyFilter.bind(this));
+		BX.addCustomEvent("BX.Main.Filter:show", this.onFilterShow.bind(this));
+		BX.addCustomEvent("BX.Main.Filter:blur", this.onFilterBlur.bind(this));
 	};
 	FilterListener.prototype.onBeforeApplyFilter = function (filterId)
 	{
@@ -529,6 +531,79 @@
 		// disable promise auto resolving
 		params.autoResolve = false;
 		this.manager.updateFilterData(id, this.onFilterData.bind(this, id, promise));
+	};
+	FilterListener.prototype.getShowedFilterFields = function (filter)
+	{
+		return filter.getParam('FIELDS').filter(function (field) {
+			var fieldNode = filter.presets.getField(field);
+			if (!fieldNode)
+			{
+				return false;
+			}
+
+			return !filter.getFields().isFieldDelete(fieldNode);
+		});
+	};
+	FilterListener.prototype.onFilterShow = function (filter)
+	{
+		this.clearEmptyFilterFields(filter);
+		if (this.getShowedFilterFields(filter).length === 0)
+		{
+			filter.restoreDefaultFields();
+		}
+	};
+	FilterListener.prototype.onFilterBlur = function (filter)
+	{
+		this.clearEmptyFilterFields(filter);
+	};
+	FilterListener.prototype.clearEmptyFilterFields = function (filter)
+	{
+		var values = filter.getFilterFieldsValues();
+		var fields = this.getShowedFilterFields(filter).filter(function (field) {
+			var name = field.NAME;
+
+			switch (field.TYPE)
+			{
+				case 'DATE':
+				case 'NUMBER':
+					var subKeys = ['_datesel', '_numsel'];
+					return Object.keys(field.VALUES).concat(subKeys).filter(function (key) {
+						if (field.TYPE === 'NUMBER' && BX.util.in_array(key, subKeys))
+						{
+							return false;
+						}
+
+						var multiName = name + key;
+						if (typeof (values[multiName]) === "undefined")
+						{
+							return false;
+						}
+
+						if (key === '_datesel' && values[multiName] === 'NONE')
+						{
+							return false;
+						}
+
+						return (values[multiName] !== "");
+					}).length === 0;
+
+				default:
+					return (typeof (values[name]) === "undefined" || values[name] === "");
+			}
+		});
+
+		if (fields.length === 0)
+		{
+			return;
+		}
+
+
+		if (fields.length === filter.getParam('FIELDS').length)
+		{
+			return;
+		}
+
+		filter.presets.removeFields(fields);
 	};
 
 
@@ -783,7 +858,7 @@
 		typeId = typeId || null;
 		var parameters = {
 			'code': this.getCode(),
-			'fields': JSON.stringify(this.getFilterFields())
+			'fields': encodeURIComponent(JSON.stringify(this.getFilterFields()))
 		};
 
 		parameters.SENDER_RECIPIENT_TYPE_ID = typeId;

@@ -512,51 +512,38 @@ class CSaleMobileOrderUtils
 		return $arRetCur;
 	}
 
-	public static function getDeliveriesInfo($arDeliveryIds)
+	public static function getDeliveriesInfo($deliveryCodes)
 	{
-		if(!is_array($arDeliveryIds))
+		if(!is_array($deliveryCodes))
+		{
 			return false;
+		}
 
-		static $arDeliveries = array();
+		static $result = null;
 
-		$arTmpSD = array();
-
-		foreach ($arDeliveryIds as $deliveryId)
+		if($result !== null)
 		{
-			if(!$deliveryId || is_null($deliveryId))
-				continue;
+			return $result;
+		}
 
-			if(!isset($arDeliveries[$deliveryId]))
+		foreach ($deliveryCodes as $code)
+		{
+			$id = \CAllSaleDelivery::getIdByCode($code);
+
+			if($id <= 0)
 			{
-				if (strpos($deliveryId, ":") !== false)
-				{
-					$arId = explode(":", $deliveryId);
-					$dbDelivery = CSaleDeliveryHandler::GetList(array(), array("SID" => $arId[0]));
-
-					if($arDelivery = $dbDelivery->Fetch())
-					{
-						$arDeliveries[$deliveryId] = htmlspecialcharsEx($arDelivery["NAME"]);
-
-						if(strlen($arId[1]) > 0 && isset($arDelivery["PROFILES"][$arId[1]]["TITLE"]))
-							$arDeliveries[$deliveryId] .= " / ".htmlspecialcharsEx($arDelivery["PROFILES"][$arId[1]]["TITLE"]);
-					}
-				}
-				else
-				{
-					$arTmpSD[] = $deliveryId;
-				}
+				continue;
 			}
+
+			if(!($deliveryService = \Bitrix\Sale\Delivery\Services\Manager::getObjectById($id)))
+			{
+				continue;
+			}
+
+			$result[$code] = htmlspecialcharsbx($deliveryService->getNameWithParent());
 		}
 
-		if(is_array($arTmpSD))
-		{
-			$dbDelivery = CSaleDelivery::GetList(array(), array("ID" => $arTmpSD), false, false, array("ID", "NAME"));
-
-			while($arDelivery = $dbDelivery->Fetch())
-				$arDeliveries[$arDelivery["ID"]] = htmlspecialcharsbx($arDelivery["NAME"]);
-		}
-
-		return $arDeliveries;
+		return $result;
 	}
 
 	public static function getSitesNames($arSitesIds = array())
@@ -959,19 +946,22 @@ class CSaleMobileOrderPush
 		$arOldSubs = &self::getData();
 		$arTmpSubs = array();
 
-		foreach ($arOldSubs as $subId => $subItem)
-			if($subItem["U"] == $userId)
-				$arTmpSubs[$subId] = &$arOldSubs[$subId];
-
-		foreach ($arTmpSubs as $subId => &$subItem)
+		if(is_array($arOldSubs))
 		{
-			if(isset($arSubs[self::$arEvents[$subItem["E"]]]))
-			{
-				$subItem["V"] = $arSubs[self::$arEvents[$subItem["E"]]];
-				unset($arSubs[self::$arEvents[$subItem["E"]]]);
-			}
+			foreach ($arOldSubs as $subId => $subItem)
+				if($subItem["U"] == $userId)
+					$arTmpSubs[$subId] = &$arOldSubs[$subId];
 
-			unset($arTmpSubs[$subId]);
+			foreach ($arTmpSubs as $subId => &$subItem)
+			{
+				if(isset($arSubs[self::$arEvents[$subItem["E"]]]))
+				{
+					$subItem["V"] = $arSubs[self::$arEvents[$subItem["E"]]];
+					unset($arSubs[self::$arEvents[$subItem["E"]]]);
+				}
+
+				unset($arTmpSubs[$subId]);
+			}
 		}
 
 		if(!empty($arSubs))
@@ -979,7 +969,6 @@ class CSaleMobileOrderPush
 				self::addSubscription($userId, $eventId, $value);
 
 		self::saveData();
-
 		return true;
 	}
 
@@ -1005,9 +994,20 @@ class CSaleMobileOrderPush
 
 	private static function checkRights($userId, $eventId, $arParams)
 	{
-		$orderId = $arParams["ORDER_ID"];
-		$arUserGroups = CUser::GetUserGroup($userId);
-		return CSaleOrder::CanUserViewOrder($orderId, $arUserGroups, $userId);
+		$orderId = (int)$arParams["ORDER_ID"];
+
+		if($orderId <= 0)
+		{
+			return false;
+		}
+
+		if(!($order = \Bitrix\Sale\Order::load($orderId)))
+		{
+			return false;
+		}
+
+		$allowedStatusesView = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations($userId, array('view'));
+		return(in_array($order->getField('STATUS_ID'), $allowedStatusesView));
 	}
 
 	public static function getSubscriptions($userId)

@@ -158,7 +158,7 @@ class Product
 				'ID', 'TYPE',
 				'AVAILABLE', 'QUANTITY', 'QUANTITY_TRACE', 'CAN_BUY_ZERO',
 				'WEIGHT', 'WIDTH', 'LENGTH', 'HEIGHT',
-				'MEASURE', 'BARCODE_MULTI'
+				'MEASURE', 'BARCODE_MULTI', 'VAT_ID'
 			),
 			'filter' => array('@ID' => array_keys($this->iblockData))
 		));
@@ -185,6 +185,7 @@ class Product
 				$this->resultData[$row['ID']]['BARCODE_MULTI'] = $row["BARCODE_MULTI"];
 				$this->resultData[$row['ID']]["SET_ITEMS"] = array();
 				$this->resultData[$row['ID']]["IS_SET_ITEM"] = "N";
+				$this->resultData[$row['ID']]["VAT_ID"] = $row["VAT_ID"];
 				$this->resultData[$row['ID']]["IS_SET_PARENT"] = "N"; //empty($arSetInfo) ? "N" : "Y";
 			}
 		}
@@ -279,10 +280,18 @@ class Product
 
 	private function fillIblockData()
 	{
-		$select = array_merge(
-			array("ID", "NAME", "IBLOCK_ID", "IBLOCK_SECTION_ID", "DETAIL_PICTURE", "PREVIEW_PICTURE", "XML_ID", "IBLOCK_EXTERNAL_ID"),
-			$this->columnsList
+		$select = array("ID", "NAME", "IBLOCK_ID", "IBLOCK_SECTION_ID", "DETAIL_PICTURE", "PREVIEW_PICTURE", "XML_ID", "IBLOCK_EXTERNAL_ID");
+		$blockedFields = array(
+			'QUANTITY' => true,
+			'AVAILABLE' => true,
+			'PRICE' => true
 		);
+		foreach ($this->columnsList as $field)
+		{
+			if (isset($blockedFields[$field]))
+				continue;
+			$select[] = $field;
+		}
 
 		if (!empty($this->productsIds))
 		{
@@ -451,13 +460,39 @@ class Product
 
 		foreach($this->groupByIblock as $iblockId => $elIds)
 		{
-			\CIBlockElement::GetPropertyValuesArray(
-				$this->resultData,
-				$iblockId,
-				array(
-					'ID' => $elIds,
-					'IBLOCK_ID' => $iblockId
-			));
+			$exists = false;
+			foreach ($elIds as $oneId)
+			{
+				if (isset($this->resultData[$oneId]))
+				{
+					$exists = true;
+					break;
+				}
+			}
+			if ($exists)
+			{
+				$basketProperties = Catalog\Product\PropertyCatalogFeature::getBasketPropertyCodes($iblockId);
+				if (empty($basketProperties))
+					continue;
+				\CIBlockElement::GetPropertyValuesArray(
+					$this->resultData,
+					$iblockId,
+					array(
+						'ID' => $elIds,
+						'IBLOCK_ID' => $iblockId
+					),
+					array(
+						'ID' => $basketProperties
+					),
+					array(
+						'PROPERTY_FIELDS' => array(
+							'ID', 'IBLOCK_ID', 'NAME', 'CODE', 'PROPERTY_TYPE',
+							'MULTIPLE', 'LINK_IBLOCK_ID',
+							'USER_TYPE', 'USER_TYPE_SETTINGS'
+						)
+					)
+				);
+			}
 		}
 
 		foreach($this->resultData as $elId => $elData)

@@ -10,7 +10,7 @@ abstract class ExportPattern
 {
 	/**
 	 * @param array $fields
-	 * @return mixed
+	 * @return Result
 	 */
 	abstract protected function getItems(array $fields);
 

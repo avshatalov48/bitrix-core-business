@@ -95,6 +95,11 @@ return array(
 						'name' => Loc::getMessage('LANDING_BLOCK_46.5.COVER_WITH_DATE_COUNTDOWN_NODES_LANDINGBLOCKNODEHEADER'),
 						'type' => 'border-color',
 					),
+				'.landing-block-node-bgimg' =>
+					array(
+						'name' => Loc::getMessage('LANDING_BLOCK_46.5.COVER_WITH_DATE_COUNTDOWN_NODES_LANDINGBLOCKNODEBGIMG'),
+						'type' => 'background-attachment',
+					),
 			),
 
 		),

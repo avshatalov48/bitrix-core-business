@@ -18,6 +18,7 @@ function JCTitleSearch(arParams)
 
 	this.startText = '';
 	this.running = false;
+	this.runningCall = false;
 	this.currentRow = -1;
 	this.RESULT = null;
 	this.CONTAINER = null;
@@ -195,7 +196,10 @@ function JCTitleSearch(arParams)
 	this.onChange = function(callback)
 	{
 		if (_this.running)
+		{
+			_this.runningCall = true;
 			return;
+		}
 		_this.running = true;
 
 		if(_this.INPUT.value != _this.oldValue && _this.INPUT.value != _this.startText)
@@ -236,6 +240,11 @@ function JCTitleSearch(arParams)
 							if (!!callback)
 								callback();
 							_this.running = false;
+							if (_this.runningCall)
+							{
+								_this.runningCall = false;
+								_this.onChange();
+							}
 						}
 					);
 					return;

@@ -107,8 +107,8 @@ class CAdminFileDialog
 		{
 			?>
 			<script>
-			var mess_SESS_EXPIRED = '<?=GetMessage('BX_FD_ERROR').': '.GetMessage('BX_FD_SESS_EXPIRED')?>';
-			var mess_ACCESS_DENIED = '<?=GetMessage('BX_FD_ERROR').': '.GetMessage('BX_FD_NO_PERMS')?>';
+			var mess_SESS_EXPIRED = '<?=GetMessageJS('BX_FD_ERROR').': '.GetMessageJS('BX_FD_SESS_EXPIRED')?>';
+			var mess_ACCESS_DENIED = '<?=GetMessageJS('BX_FD_ERROR').': '.GetMessageJS('BX_FD_NO_PERMS')?>';
 			window.<?= CUtil::JSEscape($arConfig['event'])?> = function(bLoadJS, Params)
 			{
 				if (!Params)
@@ -644,13 +644,13 @@ function OnLoad()
 
 	if (oBXFileDialog.oConfig.operation == 'O' && oBXFileDialog.oConfig.showUploadTab)
 	{
-		oBXDialogTabs.AddTab('tab1', '<?= GetMessage("FD_OPEN_TAB_TITLE")?>', _Show_tab_OPEN, true);
-		oBXDialogTabs.AddTab('tab2', '<?= GetMessage("FD_LOAD_TAB_TITLE")?>',_Show_tab_LOAD, false);
+		oBXDialogTabs.AddTab('tab1', '<?= GetMessageJS("FD_OPEN_TAB_TITLE")?>', _Show_tab_OPEN, true);
+		oBXDialogTabs.AddTab('tab2', '<?= GetMessageJS("FD_LOAD_TAB_TITLE")?>',_Show_tab_LOAD, false);
 	}
 	else if(oBXFileDialog.oConfig.operation == 'S' && oBXFileDialog.oConfig.showAddToMenuTab)
 	{
-		oBXDialogTabs.AddTab('tab1', '<?= GetMessage("FD_SAVE_TAB_TITLE")?>', _Show_tab_SAVE, true);
-		oBXDialogTabs.AddTab('tab2', '<?= GetMessage("FD_MENU_TAB_TITLE")?>', _Show_tab_MENU, false);
+		oBXDialogTabs.AddTab('tab1', '<?= GetMessageJS("FD_SAVE_TAB_TITLE")?>', _Show_tab_SAVE, true);
+		oBXDialogTabs.AddTab('tab2', '<?= GetMessageJS("FD_MENU_TAB_TITLE")?>', _Show_tab_MENU, false);
 		BX('add2menu_cont').style.display = 'block';
 	}
 	oBXDialogTabs.DisplayTabs();
@@ -960,8 +960,8 @@ arFDFiles['<?=$path_js?>'] = [];
 ?>
 arFDDirs['<?=$path_js?>'][<?=$ind?>] =
 {
-	name : '<?= $name?>',
-	path : '<?=$path_i?>',
+	name : '<?=CUtil::JSEscape($name)?>',
+	path : '<?=CUtil::JSEscape($path_i)?>',
 	empty: <?= $empty ? 'true' : 'false';?>,
 	permission : {del : <?=$perm_del?>, ren : <?=$perm_ren?>},
 	date : '<?=$Dir["DATE"];?>',
@@ -1010,8 +1010,8 @@ arFDDirs['<?=$path_js?>'][<?=$ind?>] =
 ?>
 arFDFiles['<?=$path_js?>'][<?=$ind?>] =
 {
-	name : '<?=$name?>',
-	path : '<?=$path_i?>',
+	name : '<?=CUtil::JSEscape($name)?>',
+	path : '<?=CUtil::JSEscape($path_i)?>',
 	permission : {del : <?=$perm_del?>, ren : <?=$perm_ren?>},
 	date : '<?=$File["DATE"];?>',
 	timestamp : '<?=$File["TIMESTAMP"];?>',

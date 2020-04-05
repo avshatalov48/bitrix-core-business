@@ -1,4 +1,5 @@
 <?
+$MESS["HIDE_ORDER_DESCRIPTION"] = "Hide order comment field";
 $MESS["SHOW_ORDER_BUTTON"] = "Show checkout button (for unauthorized users)";
 $MESS["SHOW_ALWAYS"] = "Always";
 $MESS["SHOW_FINAL_STEP"] = "Last step only";

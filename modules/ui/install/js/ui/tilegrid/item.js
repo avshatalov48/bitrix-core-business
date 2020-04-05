@@ -41,13 +41,16 @@ BX.TileGrid.Item.prototype =
 
 		this.layout.container = BX.create('div', {
 			attrs: {
-				className: 'ui-grid-tile-item'
+				className: this.gridTile.itemHeight ? 'ui-grid-tile-item ui-grid-tile-item-fixed-height' : 'ui-grid-tile-item'
+			},
+			style: {
+				height: this.gridTile.itemHeight ? this.gridTile.itemHeight + 'px' : null
 			},
 			dataset: {
 				id: this.id
 			},
 			children: [
-				this.getCheckBox(),
+				this.gridTile.checkBoxing ? this.getCheckBox() : null,
 				this.layout.content = BX.create('div', {
 					attrs: {
 						className: 'ui-grid-tile-item-content'
@@ -90,6 +93,19 @@ BX.TileGrid.Item.prototype =
 		}
 
 		return this.layout.container
+	},
+
+	isVisibleItem: function()
+	{
+		var rect = this.layout.container.getBoundingClientRect();
+		var rectBody = document.body.getBoundingClientRect();
+
+		if (rect.top < 0 || rect.bottom < 0)
+		{
+			return false;
+		}
+
+		return rectBody.height > rect.top && rectBody.height >= rect.bottom;
 	},
 
 	afterRender: function()
@@ -185,16 +201,20 @@ BX.TileGrid.Item.prototype =
 			events: {
 				click: function(event)
 				{
-					if(this !== this.gridTile.getCurrentItem())
+					if(this.gridTile.isLastSelectedItem())
+						this.gridTile.resetSetMultiSelectMode();
+
+					if(this !== this.gridTile.getCurrentItem() && this.gridTile.isMultiSelectMode())
 					{
 						this.gridTile.checkItem(this.gridTile.getCurrentItem());
+						this.gridTile.selectItem(this.gridTile.getCurrentItem());
+
 					}
 
 					this.gridTile.checkItem(this);
 					this.gridTile.selectItem(this);
 					this.gridTile.setCurrentItem(this);
 					this.gridTile.setFirstCurrentItem(this);
-
 
 					if(!this.gridTile.isLastSelectedItem())
 					{

@@ -144,8 +144,8 @@ class TemplateRef
 
 	/**
 	 * This landing id is used as a area?
-	 * @param int $lid Landing id.
-	 * @return boolean
+	 * @param int|array $lid Landing id.
+	 * @return boolean|array
 	 */
 	public static function landingIsArea($lid)
 	{
@@ -154,7 +154,23 @@ class TemplateRef
 				'LANDING_ID' => $lid
 			)
 		));
-		return $res->fetch() ? true : false;
+		if (is_array($lid))
+		{
+			$return = array();
+			foreach ($lid as $id)
+			{
+				$return[$id] = false;
+			}
+			while ($row = $res->fetch())
+			{
+				$return[$row['LANDING_ID']] = true;
+			}
+			return $return;
+		}
+		else
+		{
+			return $res->fetch() ? true : false;
+		}
 	}
 
 	/**

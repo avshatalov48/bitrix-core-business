@@ -207,7 +207,7 @@ else if ($_POST['IM_FILE_SAVE_TO_DISK'] == 'Y')
 	echo \Bitrix\Im\Common::objectEncode(Array(
 		'CHAT_ID' => $_POST['CHAT_ID'],
 		'FILE_ID' => $_POST['FILE_ID'],
-		'NEW_FILE_ID' => $result? $result->getId(): 0,
+		'NEW_FILE_ID' => $result? $result['FILE']->getId(): 0,
 		'ERROR' => !$result? 'ERROR': ''
 	));
 }
@@ -321,14 +321,7 @@ elseif ($_POST['IM_UPDATE_STATE'] == 'Y')
 		'ERROR' => ""
 	);
 
-	if (CModule::IncludeModule('pull'))
-	{
-		$arPullConfig = CPullChannel::GetConfig($USER->GetId(), ($_POST['CACHE'] == 'Y'), false, ($_POST['MOBILE'] == 'Y'));
-		if (is_array($arPullConfig))
-		{
-			$arSend['PULL_CONFIG'] = $arPullConfig;
-		}
-	}
+	$arSend['PULL_CONFIG'] = false;
 
 	$CIMMessage = new CIMMessage();
 	$arMessage = $CIMMessage->GetUnreadMessage(Array(
@@ -469,14 +462,7 @@ else if ($_POST['IM_UPDATE_STATE_LIGHT'] == 'Y')
 	{
 		$arOnline = CIMStatus::GetList();
 		$arResult['ONLINE'] = !empty($arOnline)? $arOnline['users']: Array();
-		if (CModule::IncludeModule('pull'))
-		{
-			$arPullConfig = CPullChannel::GetConfig($USER->GetId(), false, false, ($_POST['MOBILE'] == 'Y'));
-			if (is_array($arPullConfig))
-			{
-				$arResult['PULL_CONFIG'] = $arPullConfig;
-			}
-		}
+		$arResult['PULL_CONFIG'] = false;
 	}
 
 	// Counters
@@ -792,7 +778,11 @@ else if ($_POST['IM_LOAD_LAST_MESSAGE'] == 'Y')
 	$entityId = '';
 	if ($_POST['CHAT'] == 'Y')
 	{
-		if (substr($_POST['USER_ID'], 0, 2) == 'sg')
+		if (substr($_POST['USER_ID'], 0, 3) == 'crm')
+		{
+			$chatId = CIMChat::GetCrmChatId(substr($_POST['USER_ID'], 4));
+		}
+		else if (substr($_POST['USER_ID'], 0, 2) == 'sg')
 		{
 			$chatId = CIMChat::GetSonetGroupChatId(substr($_POST['USER_ID'], 2));
 		}

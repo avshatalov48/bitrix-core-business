@@ -1,4 +1,6 @@
 <?
+$MESS["BX_SALE_ADM_DSC_HEADER_TITLE_ACTIVE_FROM"] = "Active from";
+$MESS["BX_SALE_ADM_DSC_HEADER_TITLE_ACTIVE_TO"] = "Active until";
 $MESS["LANG_FILTER_NAME"] = "Site";
 $MESS["ERROR_UPDATE_REC"] = "Error updating the record ";
 $MESS["PERS_TYPE_ACTIVE"] = "Active";
@@ -16,7 +18,6 @@ $MESS["SDSN_MODIFIED_BY_NEW"] = "Modified by";
 $MESS["SDSN_TIMESTAMP_X"] = "Modified";
 $MESS["SDSN_XML_ID"] = "ID ";
 $MESS["BT_SALE_DISCOUNT_LIST_MESS_TITLE"] = "Shopping cart rules";
-$MESS["BT_SALE_DISCOUNT_LIST_MESS_NAV"] = "Rule";
 $MESS["BT_SALE_DISCOUNT_LIST_ERR_DELETE_DISCOUNT"] = "Error in deleting rule";
 $MESS["BT_SALE_DISCOUNT_LIST_MESS_EDIT_DISCOUNT"] = "Change rule parameters";
 $MESS["BT_SALE_DISCOUNT_LIST_MESS_EDIT_DISCOUNT_SHORT"] = "Change";

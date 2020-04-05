@@ -15,8 +15,13 @@ class Context
 	const PRIORITY_LOW = 3;
 
 	protected $category;
-	protected $smtp;
 	protected $priority;
+
+	/** @var  Smtp\Config|null $smtp */
+	protected $smtp;
+
+	/** @var  Callback\Config $callback */
+	protected $callback;
 
 	public function __construct(array $params = null)
 	{
@@ -83,5 +88,27 @@ class Context
 	public function getPriority()
 	{
 		return $this->priority;
+	}
+
+	/**
+	 * Get callback config instance.
+	 *
+	 * @param Callback\Config $config Callback config instance.
+	 * @return $this
+	 */
+	public function setCallback(Callback\Config $config)
+	{
+		$this->callback = $config;
+		return $this;
+	}
+
+	/**
+	 * Get callback config instance.
+	 *
+	 * @return Callback\Config|null
+	 */
+	public function getCallback()
+	{
+		return $this->callback;
 	}
 }

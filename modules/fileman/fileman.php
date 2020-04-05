@@ -2181,6 +2181,52 @@ class CFileMan
 		}
 		return false;
 	}
+
+	public static function decodePdfViewerLangFiles()
+	{
+		if(!\Bitrix\Main\Application::isUtfMode())
+		{
+			return;
+		}
+		$localePath = \Bitrix\Main\Application::getDocumentRoot().'/bitrix/components/bitrix/pdf.viewer/pdfjs/locale/';
+		if(!\Bitrix\Main\IO\Directory::isDirectoryExists($localePath))
+		{
+			return;
+		}
+		$filesToDecode = [
+			$localePath.'de/viewer.properties' => 'iso-8859-1',
+			$localePath.'ru/viewer.properties' => 'windows-1251',
+			$localePath.'ua/viewer.properties' => 'windows-1251',
+		];
+		foreach($filesToDecode as $path => $charset)
+		{
+			static::decodeLangFile($path, $charset);
+		}
+	}
+
+	/**
+	 * @param $path
+	 * @param $charsetFrom
+	 * @throws \Bitrix\Main\IO\FileNotFoundException
+	 */
+	protected static function decodeLangFile($path, $charsetFrom)
+	{
+		if(!\Bitrix\Main\Application::isUtfMode())
+		{
+			return;
+		}
+		$file = new \Bitrix\Main\IO\File($path);
+		if($file->isExists())
+		{
+			$content = $file->getContents();
+			if(\Bitrix\Main\Text\Encoding::detectUtf8($content))
+			{
+				return;
+			}
+			$content = \Bitrix\Main\Text\Encoding::convertEncoding($content, $charsetFrom, 'UTF-8');
+			$file->putContents($content);
+		}
+	}
 }
 
 function is_array_assoc($arr)

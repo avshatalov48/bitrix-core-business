@@ -122,8 +122,6 @@ $className .= " blog-post-day-" . IntVal($arResult["postPreview"]["DATE_PUBLISH_
 	</div>
 <?
 }
-//dbg
-//include_once(__DIR__. "/lhe.php");
 ?>
 <form action="<?=POST_FORM_ACTION_URI?>" name="<?=$arResult['FORM_NAME']?>" id="<?=$arResult['FORM_NAME']?>" method="post" enctype="multipart/form-data">
 <?=bitrix_sessid_post();?>

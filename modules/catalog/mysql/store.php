@@ -14,16 +14,6 @@ class CCatalogStore extends CAllCatalogStore
 
 		global $DB;
 
-		if(!CBXFeatures::IsFeatureEnabled('CatMultiStore'))
-		{
-			$dbResultList = CCatalogStore::GetList(array(), array(), false, array('NAV_PARAMS' => array("nTopCount" => "1")), array("ID"));
-			if($arResult = $dbResultList->Fetch())
-			{
-				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("CS_ALREADY_HAVE_STORE"));
-				return false;
-			}
-		}
-
 		foreach (GetModuleEvents("catalog", "OnBeforeCatalogStoreAdd", true) as $arEvent)
 		{
 			if(ExecuteModuleEventEx($arEvent, array(&$arFields)) === false)

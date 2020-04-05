@@ -8,8 +8,6 @@ if (!empty($arResult['ERROR']))
 	return false;
 }
 
-$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/js/highloadblock/css/highloadblock.css');
-
 //$GLOBALS['APPLICATION']->SetTitle('Highloadblock List');
 
 ?>

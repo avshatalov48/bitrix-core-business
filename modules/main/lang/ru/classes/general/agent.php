@@ -6,5 +6,4 @@ $MESS["MAIN_AGENT_ERROR_DATE_CHECK"] = "Неправильно указана д
 $MESS["MAIN_AGENT_ERROR_EXIST"] = "Агент с такой функцией, для данного пользователя уже существует!";
 $MESS["MAIN_AGENT_ERROR_EXIST_EXT"] = "Агент с функцией #AGENT# уже существует!";
 $MESS["MAIN_AGENT_ERROR_EXIST_FOR_USER"] = "Агент с функцией #AGENT# для пользователя с кодом #USER_ID# уже существует!";
-$MESS["MAIN_AGENT_ERROR_MODULE"] = "Указанный модуль не установлен.";
 ?>

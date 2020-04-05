@@ -8,11 +8,20 @@ use Bitrix\Main\Localization\Loc;
 		<img src="" alt="">
 	</div>
 	<div class="bx-soa-empty-cart-text"><?=Loc::getMessage("EMPTY_BASKET_TITLE")?></div>
-	<div class="bx-soa-empty-cart-desc"><?=Loc::getMessage(
-			'EMPTY_BASKET_HINT',
-			array(
-				'#A1#' => '<a href="/">',
-				'#A2#' => '</a>'
-			))?>
-	</div>
+	<?
+	if (!empty($arParams['EMPTY_BASKET_HINT_PATH']))
+	{
+		?>
+		<div class="bx-soa-empty-cart-desc">
+			<?=Loc::getMessage(
+				'EMPTY_BASKET_HINT',
+				[
+					'#A1#' => '<a href="'.$arParams['EMPTY_BASKET_HINT_PATH'].'">',
+					'#A2#' => '</a>',
+				]
+			)?>
+		</div>
+		<?
+	}
+	?>
 </div>

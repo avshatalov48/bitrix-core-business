@@ -76,11 +76,21 @@ class CSaleBestsellersComponent extends CCatalogViewedProductsComponent
 	 */
 	protected function extractDataFromCache()
 	{
-		if($this->arParams['CACHE_TYPE'] == 'N')
+		if ($this->arParams['CACHE_TYPE'] === 'N')
 			return false;
 
-		$userGroups = implode(",", Bitrix\Main\UserTable::getUserGroupIds($this->getUserId()));
-		return !($this->startResultCache(false, $userGroups));
+		$user = \Bitrix\Main\Engine\CurrentUser::get();
+
+		if ($this->getUserId() == $user->getId())
+		{
+			$userGroups = $user->getUserGroups();
+		}
+		else
+		{
+			$userGroups = Bitrix\Main\UserTable::getUserGroupIds($this->getUserId());
+		}
+
+		return !($this->startResultCache(false, implode(',', $userGroups)));
 	}
 
 	protected function putDataToCache()

@@ -6,6 +6,7 @@
 		this.pulledEntriesIndex = {};
 		this.requestedEntriesIndex = {};
 		this.entriesRaw = [];
+		this.userIndex = {};
 		this.loadedEntriesIndex = {};
 	}
 
@@ -204,7 +205,9 @@
 
 			var attendees = [];
 			if (entry.isMeeting())
-				entry.data['~ATTENDEES'].forEach(function(user){attendees.push(user['USER_ID']);});
+			{
+				entry.data['ATTENDEE_LIST'].forEach(function(user){attendees.push(user['id']);});
+			}
 
 			this.calendar.request({
 				type: 'post',
@@ -465,7 +468,6 @@
 			}
 
 			var sections = this.calendar.sectionController.getSectionsInfo();
-
 			if (this.calendar.isExternalMode())
 			{
 				this.calendar.triggerEvent('loadEntries',
@@ -528,17 +530,8 @@
 					handler: BX.delegate(function(response)
 					{
 						this.calendar.hideLoader();
-						//var sectionsNow = this.calendar.sectionController.getSectionsInfo();
-						//if (!_this.CompareArrays(sections.superposed, sectionsNow.superposed) ||
-						//	!_this.CompareArrays(sections.active, sectionsNow.active) ||
-						//	!_this.CompareArrays(sections.hidden, sectionsNow.hidden)
-						//)
-						//{
-						//	return;
-						//}
-						//this.entriesRaw = response.entries;
 
-						this.handleEntriesList(response.entries);
+						this.handleEntriesList(response.entries, response.userIndex);
 
 						if (!params.finishDate && this.entriesRaw.length > 0)
 						{
@@ -570,7 +563,7 @@
 			}
 		},
 
-		handleEntriesList: function(entries)
+		handleEntriesList: function(entries, userIndex)
 		{
 			if (entries && entries.length)
 			{
@@ -600,6 +593,17 @@
 						{
 							this.entriesRaw[this.loadedEntriesIndex[smartId]] = entries[i];
 						}
+					}
+				}
+			}
+
+			if (BX.type.isNotEmptyObject(userIndex))
+			{
+				for (var id in userIndex)
+				{
+					if (userIndex.hasOwnProperty(id))
+					{
+						this.userIndex[id] = userIndex[id];
 					}
 				}
 			}
@@ -684,6 +688,7 @@
 					this.calendar.reload();
 				}, this)
 			});
+			return true;
 		},
 
 		showConfirmDeleteDialog: function(entry)
@@ -750,6 +755,11 @@
 				}
 			}
 			return false;
+		},
+
+		getUserIndex: function()
+		{
+			return this.userIndex;
 		}
 	};
 
@@ -844,7 +854,14 @@
 
 			if (!this.data.ATTENDEES_CODES && !this.isTask())
 			{
-				this.data.ATTENDEES_CODES = ['U' + this.data.CREATED_BY];
+				if (this.data.CAL_TYPE == 'user')
+				{
+					this.data.ATTENDEES_CODES = ['U' + this.data.OWNER_ID];
+				}
+				else
+				{
+					this.data.ATTENDEES_CODES = ['U' + this.data.CREATED_BY];
+				}
 			}
 
 			this.startDayCode = this.from;
@@ -858,7 +875,22 @@
 
 		getAttendees: function()
 		{
-			return this.data['~ATTENDEES'] || [];
+			if (!this.attendeeList && BX.type.isArray(this.data['ATTENDEE_LIST']))
+			{
+				this.attendeeList = [];
+				var userIndex = this.calendar.entryController.getUserIndex();
+				this.data['ATTENDEE_LIST'].forEach(function(user)
+				{
+					if (userIndex[user.id])
+					{
+						var attendee = BX.clone(userIndex[user.id]);
+						attendee.STATUS = user.status;
+						attendee.ENTRY_ID = user.entryId;
+						this.attendeeList.push(attendee);
+					}
+				}, this);
+			}
+			return this.attendeeList || [];
 		},
 
 		cleanParts: function()
@@ -986,8 +1018,12 @@
 
 		isFirstReccurentEntry: function()
 		{
-			return this.data.DT_FROM_TS === Math.floor(BX.parseDate(this.data['~DATE_FROM']).getTime() / 1000) * 1000
-				&& !this.data.RECURRENCE_ID;
+			var result = (
+				this.data.DATE_FROM_TS_UTC === Math.floor(BX.parseDate(this.data['~DATE_FROM']).getTime() / 1000) * 1000 ||
+				BX.parseDate(this.data['DATE_FROM']).getTime() === BX.parseDate(this.data['~DATE_FROM']).getTime()
+				) && !this.data.RECURRENCE_ID;
+
+			return result;
 		},
 
 		isRecursive: function()
@@ -1078,14 +1114,14 @@
 				{
 					status = this.data.MEETING_STATUS;
 				}
-				else if (this.data['~ATTENDEES'])
+				else if (BX.type.isArray(this.data['ATTENDEE_LIST']))
 				{
-					for (i = 0; i < this.data['~ATTENDEES'].length; i++)
+					for (i = 0; i < this.data['ATTENDEE_LIST'].length; i++)
 					{
-						user = this.data['~ATTENDEES'][i];
-						if (user.USER_ID == this.calendar.util.userId)
+						user = this.data['ATTENDEE_LIST'][i];
+						if (this.data['ATTENDEE_LIST'][i].id == this.calendar.util.userId)
 						{
-							status = user.STATUS;
+							status = this.data['ATTENDEE_LIST'][i].status;
 							break;
 						}
 					}

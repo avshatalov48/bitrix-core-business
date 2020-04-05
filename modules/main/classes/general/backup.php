@@ -897,7 +897,7 @@ class CTar
 
 	function SkipFile()
 	{
-		if ($this->Skip(ceil($this->header['size']/512)))
+		if ($this->Skip(ceil(intval($this->header['size'])/512)))
 		{
 			$this->header = null;
 			return true;
@@ -967,7 +967,7 @@ class CTar
 		$chk = $data['devmajor'].$data['devminor'];
 
 		if (!is_numeric(trim($data['checksum'])) || $chk!='' && $chk!=0)
-			return $this->Error('Archive is corrupted, wrong block: '.($this->Block-1));
+			return $this->Error('Archive is corrupted, wrong block: '.($this->Block-1).', file: '.$this->file.', md5sum: '.md5_file($this->file));
 
 		$header['filename'] = trim(trim($data['prefix'], "\x00").'/'.trim($data['filename'], "\x00"),'/');
 		$header['mode'] = OctDec($data['mode']);
@@ -1080,9 +1080,10 @@ class CTar
 			}
 			fclose($rs);
 
-			//chmod($f, $header['mode']);
-			if (($s=filesize($f)) != $header['size'])
+			if (($s = filesize($f)) != $header['size'])
 				return $this->Error('File size is wrong: '.$header['filename'].' (real: '.$s.'  expected: '.$header['size'].')');
+
+			//chmod($f, $header['mode']);
 		}
 
 		if ($this->header['type']==5)
@@ -1114,6 +1115,8 @@ class CTar
 	{
 		$file = self::getFirstName($file);
 
+		if (!file_exists($file))
+			return false;
 		$f = fopen($file, 'rb');
 		fseek($f, 12);
 		if (fread($f, 2) == 'LN')
@@ -1163,7 +1166,7 @@ class CTar
 		$res = $this->open($file, 'a');
 		if ($res && $this->Block == 0 && ($key = $this->getEncryptKey())) // запишем служебный заголовок для зашифрованного архива
 		{
-			$ver = function_exists('mcrypt_encrypt') ? '1.1' : '1.2';
+			$ver = function_exists('openssl_encrypt') ? '1.2' : '1.1';
 			$enc = pack("a100a90a10a56",md5(uniqid(rand(), true)), self::BX_SIGNATURE, $ver, "");
 			$enc .= $this->encrypt($enc, $key);
 			if (!($this->gzip ? gzwrite($this->res, $enc) : fwrite($this->res, $enc)))
@@ -1494,13 +1497,13 @@ class CTar
 		return false;
 	}
 
-	function xmkdir($dir)
+	public static function xmkdir($dir)
 	{
 		if (!file_exists($dir))
 		{
 			$upper_dir = dirname($dir);
 			if (!file_exists($upper_dir) && !self::xmkdir($upper_dir))
-				return $this->Error('Can\'t create folder: '.$upper_dir);
+				return false;
 
 			return mkdir($dir);
 		}
@@ -1549,7 +1552,7 @@ class CTar
 		return $ar;
 	}
 
-	function getCheckword($key)
+	public static function getCheckword($key)
 	{
 		return md5('BITRIXCLOUDSERVICE'.$key);
 	}
@@ -1563,18 +1566,18 @@ class CTar
 	{
 		if ($m = self::strlen($data)%8)
 			$data .= str_repeat("\x00",  8 - $m);
-		if (function_exists('mcrypt_encrypt'))
-			return mcrypt_encrypt(MCRYPT_BLOWFISH, $md5_key, $data, MCRYPT_MODE_ECB);
-		else
+		if (function_exists('openssl_encrypt'))
 			return openssl_encrypt($data, 'BF-ECB', $md5_key, OPENSSL_RAW_DATA | OPENSSL_NO_PADDING);
+		else
+			return mcrypt_encrypt(MCRYPT_BLOWFISH, $md5_key, $data, MCRYPT_MODE_ECB);
 	}
 
 	public static function decrypt($data, $md5_key)
 	{
-		if (function_exists('mcrypt_encrypt'))
-			$val = mcrypt_decrypt(MCRYPT_BLOWFISH, $md5_key, $data, MCRYPT_MODE_ECB);
-		else
+		if (function_exists('openssl_decrypt'))
 			$val = openssl_decrypt($data, 'BF-ECB', $md5_key, OPENSSL_RAW_DATA | OPENSSL_NO_PADDING);
+		else
+			$val = mcrypt_decrypt(MCRYPT_BLOWFISH, $md5_key, $data, MCRYPT_MODE_ECB);
 		return $val;
 	}
 

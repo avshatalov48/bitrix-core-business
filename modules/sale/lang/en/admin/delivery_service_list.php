@@ -1,4 +1,6 @@
 <?
+$MESS["SALE_SDL_LOCATION_NOTE"] = "Delivery price may be calculated incorrectly because no location is specified in the Online Store #A1#module settings#A2#";
+$MESS["SALE_SDL_UPPER_LEVELL"] = "No group";
 $MESS["SALE_SDL_ERROR_DELETE"] = "Error deleting delivery service; it is possible there are orders using it.<br>";
 $MESS["SALE_SDL_ERROR_UPDATE"] = "Error updating delivery service.";
 $MESS["SALE_SDL_PRLIST"] = "Delivery services";

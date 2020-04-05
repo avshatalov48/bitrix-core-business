@@ -152,7 +152,7 @@
 			beforePart = beforePart.substr(0, beforePart.length - 1);
 
 		this.inputElement.value = beforePart + middlePart + afterPart;
-		this.inputElement.selectionEnd = beforePart.length + cursorPosition;
+		this.inputElement.selectionEnd = beforePart.length + Math.max(0, cursorPosition) + 1;
 	};
 
 	BX.Bizproc.Selector.onSearch = function(scope, e)
@@ -387,78 +387,99 @@
 			items: this.filterItems([{
 				text: 'abs',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_ABS_DESCRIPTION'),
-				value: '{{=abs()}}',
-				cursorPosition: 7
+				value: '{{=abs()}}'
 			},{
 				text: 'dateadd',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_DATEADD_DESCRIPTION'),
-				value: '{{=dateadd(,)}}',
-				cursorPosition: 11
+				value: '{{=dateadd(,)}}'
 			},{
 				text: 'datediff',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_DATEDIFF_DESCRIPTION'),
-				value: '{{=datediff(,,)}}',
-				cursorPosition: 12
+				value: '{{=datediff(,,)}}'
+			},{
+				text: 'date',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_DATE_DESCRIPTION'),
+				value: '{{=date(,)}}'
+			},{
+				text: 'workdateadd',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_WORKDATEADD_DESCRIPTION'),
+				value: '{{=workdateadd(,)}}'
+			},{
+				text: 'addworkdays',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_ADDWORKDAYS_DESCRIPTION'),
+				value: '{{=addworkdays(,)}}'
+			},{
+				text: 'isworkday',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_ISWORKDAY_DESCRIPTION'),
+				value: '{{=isworkday()}}'
+			},{
+				text: 'isworktime',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_ISWORKTIME_DESCRIPTION'),
+				value: '{{=isworktime()}}'
 			},{
 				text: 'if',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_IF_DESCRIPTION'),
-				value: '{{=if(,,)}}',
-				cursorPosition: 6
+				value: '{{=if(,,)}}'
 			},{
 				text: 'intval',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_INTVAL_DESCRIPTION'),
-				value: '{{=intval()}}',
-				cursorPosition: 10
+				value: '{{=intval()}}'
 			},{
 				text: 'floatval',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_FLOATVAL_DESCRIPTION'),
-				value: '{{=floatval()}}',
-				cursorPosition: 12
+				value: '{{=floatval()}}'
+			},{
+				text: 'numberformat',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_NUMBER_FORMAT_DESCRIPTION'),
+				value: '{{=numberformat(,)}}'
 			},{
 				text: 'min',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_MIN_DESCRIPTION'),
-				value: '{{=min(,)}}',
-				cursorPosition: 7
+				value: '{{=min(,)}}'
 			},{
 				text: 'max',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_MAX_DESCRIPTION'),
-				value: '{{=max(,)}}',
-				cursorPosition: 7
+				value: '{{=max(,)}}'
 			},{
 				text: 'rand',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_RAND_DESCRIPTION'),
-				value: '{{=rand(,)}}',
-				cursorPosition: 8
+				value: '{{=rand(0,)}}'
 			},{
 				text: 'round',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_ROUND_DESCRIPTION'),
-				value: '{{=round(,)}}',
-				cursorPosition: 9
+				value: '{{=round(,)}}'
 			},{
 				text: 'ceil',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_CEIL_DESCRIPTION'),
-				value: '{{=ceil()}}',
-				cursorPosition: 8
+				value: '{{=ceil()}}'
 			},{
 				text: 'floor',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_FLOOR_DESCRIPTION'),
-				value: '{{=floor()}}',
-				cursorPosition: 9
+				value: '{{=floor()}}'
 			},{
 				text: 'substr',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_SUBSTR_DESCRIPTION'),
-				value: '{{=substr(,,)}}',
-				cursorPosition: 10
+				value: '{{=substr(,,)}}'
 			},{
 				text: 'strpos',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_STRPOS_DESCRIPTION'),
-				value: '{{=strpos(,)}}',
-				cursorPosition: 10
+				value: '{{=strpos(,)}}'
+			},{
+				text: 'strlen',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_STRLEN_DESCRIPTION'),
+				value: '{{=strlen()}}'
+			},{
+				text: 'randstring',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_RANDSTRING_DESCRIPTION'),
+				value: '{{=randstring(10)}}'
 			},{
 				text: 'merge',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_MERGE_DESCRIPTION'),
-				value: '{{=merge(,)}}',
-				cursorPosition: 9
+				value: '{{=merge(,)}}'
+			},{
+				text: 'urlencode',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_URLENCODE_DESCRIPTION'),
+				value: '{{=urlencode()}}'
 			}], query)
 		});
 
@@ -622,7 +643,7 @@
 				+(item.description ? '<span class="bp-selector-item-description"> ' + BX.util.htmlspecialchars(item.description) + '</span>' : '')
 			});
 			listElement.setAttribute('data-value', item.value);
-			listElement.setAttribute('data-cursor-position', item.cursorPosition || '');
+			listElement.setAttribute('data-cursor-position', item.value.indexOf('('));
 			listElement.setAttribute('hidefocus', 'true');
 
 			BX.addClass(listElement, 'bp-selector-item');

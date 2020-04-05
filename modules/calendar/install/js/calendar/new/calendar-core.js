@@ -16,7 +16,6 @@
 		this.externalMode = config.externalDataHandleMode;
 		this.sectionController = new window.BXEventCalendar.SectionController(this, data, config);
 		this.entryController = new window.BXEventCalendar.EntryController(this, data);
-		//this.section = new window.BXEventCalendar.Section(this, data);
 		this.currentViewName = this.util.getUserOption('view') || this.DEFAULT_VIEW;
 		this.requests = {};
 		this.currentUser = config.user;
@@ -126,6 +125,15 @@
 					{
 						this.views.push(new viewConstuctor[viewName](this));
 					}
+				}, this);
+			}
+
+			var customViews = this.util.getCustumViews();
+			if (BX.type.isArray(customViews))
+			{
+				customViews.forEach(function(customView)
+				{
+					this.views.push(new window.BXEventCalendar.CalendarCustomView(this, customView));
 				}, this);
 			}
 
@@ -240,6 +248,11 @@
 
 					this.triggerEvent('beforeSetView', {currentViewName: this.currentViewName, newViewName: view});
 
+					if (currentView.type == 'custom' || newView.type == 'custom')
+					{
+						params.animation = false;
+					}
+
 					if (params.animation)
 					{
 						this.viewTransition.transit(params);
@@ -250,7 +263,6 @@
 						{
 							currentView.hide();
 						}
-
 						if(params.first === true)
 						{
 							this.initialViewShow = true;
@@ -263,7 +275,10 @@
 						this.currentViewName = newView.getName();
 					}
 
-					this.util.setUserOption('view', view);
+					if(params.first !== true)
+					{
+						this.util.setUserOption('view', view);
+					}
 					this.triggerEvent('afterSetView', {viewName: view});
 				}
 			}
@@ -553,9 +568,9 @@
 			this.buttonsCont = BX(this.id + '-buttons-container');
 			if (this.buttonsCont)
 			{
-				this.sectionButton = this.buttonsCont.appendChild(BX.create("SPAN", {
-					props: {className: "webform-small-button webform-small-button-transparent"},
-					html: '<span class="">' + BX.message('EC_SECTION_BUTTON') + '</span>'
+				this.sectionButton = this.buttonsCont.appendChild(BX.create("button", {
+					props: {className: "ui-btn ui-btn-light-border ui-btn-themes", type: "button"},
+					text: BX.message('EC_SECTION_BUTTON')
 				}));
 				new window.BXEventCalendar.SectionSlider({
 					calendar: this,
@@ -564,9 +579,11 @@
 
 				if (this.util.userIsOwner())
 				{
-					this.syncButton = this.buttonsCont.appendChild(BX.create("DIV", {
-						props: {className: "webform-small-button webform-small-button-transparent calendar-sync-button"},
-						html: '<span class="webform-small-button-icon"></span>'
+					this.syncButton = this.buttonsCont.appendChild(BX.create("button", {
+						props: {
+							className: "ui-btn ui-btn-icon-business ui-btn-light-border ui-btn-themes",
+							type: "button"
+						}
 					}));
 					this.syncSlider = new window.BXEventCalendar.SyncSlider({
 						calendar: this,
@@ -576,22 +593,20 @@
 
 				if (this.util.userIsOwner() || this.util.config.TYPE_ACCESS)
 				{
-					this.settingsButton = this.buttonsCont.appendChild(BX.create("DIV", {
-						props: {className: "webform-small-button webform-small-button-transparent webform-cogwheel"},
-						html: '<span class="webform-button-icon"></span>'
-					}));
-
-					new window.BXEventCalendar.SettingsSlider({
-						calendar: this,
-						button: this.settingsButton
-					});
+					this.addButton = new window.BXEventCalendar.SettingsMenu(
+						{
+							calendar: this,
+							wrap: this.buttonsCont,
+							showMarketPlace: false
+						}
+					);
 				}
 
 				if (!this.util.readOnlyMode())
 				{
 					this.addButton = new window.BXEventCalendar.AddButton(
 						{
-							wrap: this.buttonsCont.appendChild(BX.create("SPAN")),
+							wrap: this.buttonsCont,
 							calendar: this
 						}
 					);
@@ -651,6 +666,11 @@
 				BX.addClass(this.entryLoaderNode, 'hide');
 				setTimeout(BX.delegate(function(){BX.remove(this.entryLoaderNode);}, this), 300);
 			}
+		},
+
+		getCurrentViewName: function()
+		{
+			return this.currentViewName;
 		}
 	};
 

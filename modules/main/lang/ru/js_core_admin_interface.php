@@ -31,4 +31,5 @@ $MESS ['JSADM_PIN_ON'] = "Прикрепить панель";
 $MESS ['JSADM_PIN_OFF'] = "Открепить панель";
 $MESS ['JSADM_FLT_FOLD'] = "Свернуть фильтр";
 $MESS ['JSADM_FLT_UNFOLD'] = "Развернуть фильтр";
+$MESS ['JSADM_SP_ON_CLOSE_BY_ESC'] = "Возможно, внесенные изменения не сохранятся";
 ?>

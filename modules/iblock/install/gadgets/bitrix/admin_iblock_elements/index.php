@@ -68,6 +68,8 @@ if (
 	);
 	if($arIBlock = $dbIBlock->GetNext())
 	{
+		$obParser = new CTextParser;
+
 		if (strlen($arGadgetParams["TITLE_STD"]) <= 0)
 			$arGadget["TITLE"] = $arIBlock["NAME"];
 
@@ -236,7 +238,7 @@ if (
 
 					if (strlen($strDescription) > 0)
 					{
-						?><?=substr(htmlspecialcharsbx($strDescription), 0, $arGadgetParams["DESCRIPTION_CUT"])?><br><?
+						?><?=$obParser->html_cut($strDescription, $arGadgetParams["DESCRIPTION_CUT"]);?><br><?
 					}
 				}
 

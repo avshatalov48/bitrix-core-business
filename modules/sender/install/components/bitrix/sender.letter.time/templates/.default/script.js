@@ -24,6 +24,7 @@
 		this.actionUri = params.actionUri;
 		this.isFrame = params.isFrame || false;
 		this.isSaved = params.isSaved || false;
+		this.isOutside = params.isOutside || false;
 		this.canEdit = params.canEdit || false;
 		this.isSupportReiterate = params.isSupportReiterate || false;
 		this.prettyDateFormat = params.prettyDateFormat;
@@ -39,12 +40,27 @@
 		if (this.isFrame && this.isSaved)
 		{
 			BX.Sender.Page.slider.close();
+
+			if (this.isOutside && parent.BX)
+			{
+				if (!parent.BX.UI || !parent.BX.UI.Notification)
+				{
+					parent.BX.namespace('BX.UI');
+					parent.BX.UI.Notification = BX.UI.Notification;
+				}
+
+				parent.BX.UI.Notification.Center.notify({
+					content: this.mess.outsideSaveSuccess,
+					autoHideDelay: 5000
+				});
+			}
 		}
 
 		this.scheduleNodes = {
 			daysOfMonth: Helper.getNode('time-reiterate-days-of-month', this.context),
 			daysOfWeek: Helper.getNode('time-reiterate-days-of-week', this.context),
-			timesOfDay: Helper.getNode('time-reiterate-times-of-day', this.context)
+			timesOfDay: Helper.getNode('time-reiterate-times-of-day', this.context),
+			monthsOfYear: Helper.getNode('time-reiterate-months-of-year', this.context)
 		};
 		this.schedule = new Schedule({
 			caller: this,
@@ -260,6 +276,47 @@
 					Helper.changeClass(node, this.activeClassName, isAdd);
 				}
 			}, this);
+
+
+			this.daysOfMonthNodes = Helper.getNodes('reiterate-days-of-month', this.context);
+			var daysOfMonth = this.caller.scheduleNodes.daysOfMonth.value.split(',');
+			this.daysOfMonthNodes.forEach(function (node) {
+				BX.bind(node, 'click', this.selectWeekDay.bind(this, node));
+				var value = node.getAttribute('data-value');
+				if (daysOfMonth && value)
+				{
+					var isAdd = BX.util.in_array(value, daysOfMonth);
+					Helper.changeClass(node, this.activeClassName, isAdd);
+				}
+			}, this);
+
+			this.monthsOfYearNodes = Helper.getNodes('reiterate-months-of-year', this.context);
+			var monthsOfYear = this.caller.scheduleNodes.monthsOfYear.value.split(',');
+			this.monthsOfYearNodes.forEach(function (node) {
+				BX.bind(node, 'click', this.selectWeekDay.bind(this, node));
+				var value = node.getAttribute('data-value');
+				if (monthsOfYear && value)
+				{
+					var isAdd = BX.util.in_array(value, monthsOfYear);
+					Helper.changeClass(node, this.activeClassName, isAdd);
+				}
+			}, this);
+
+			this.additionalNode = Helper.getNode('reiterate-additional', this.context);
+			this.additionalBtnNode = Helper.getNode('reiterate-additional-btn', this.context);
+			if (this.additionalBtnNode && this.additionalNode)
+			{
+				BX.bind(this.additionalBtnNode, 'click', this.showAdditional.bind(this));
+				if (daysOfMonth.length || monthsOfYear.length)
+				{
+					this.showAdditional();
+				}
+			}
+		},
+		showAdditional: function ()
+		{
+			Helper.display.change(this.additionalNode, true);
+			Helper.display.change(this.additionalBtnNode, false);
 		},
 		show: function ()
 		{
@@ -272,7 +329,7 @@
 						content: this.context,
 						autoHide: true,
 						lightShadow: false,
-						width: 250,
+						width: 270,
 						closeByEsc: true,
 						contentColor: 'white',
 						angle: true,
@@ -308,19 +365,43 @@
 		},
 		setText: function ()
 		{
-			var days = this.getWeekDayNodes().map(function (node) {
-				return node.textContent.trim();
-			}).join(', ');
 			var time = this.getTime();
-			var monthDays = this.getDaysOfMonth();
+			var days = this.getSelectedNames(this.daysOfWeekNodes);
+			var daysOfMonth = this.getSelectedNames(this.daysOfMonthNodes);
+			var monthsOfYear = this.getSelectedNames(this.monthsOfYearNodes);
+			var additional = [];
+			if (daysOfMonth.length && monthsOfYear.length)
+			{
+				monthsOfYear.forEach(function (month) {
+					daysOfMonth.forEach(function (day) {
+						additional.push(day + ' ' + month);
+					});
+				});
+			}
+			else if (daysOfMonth.length)
+			{
+				additional = daysOfMonth;
+			}
+			else if (monthsOfYear.length)
+			{
+				additional = monthsOfYear;
+			}
+			additional = this.getString(additional);
 
 			var text = this.caller.mess.scheduleText;
 			text = text.replace('%time%', time);
-			text = text.replace('%days%', days);
 
-			if (monthDays)
+			if ((days.length === 0 || days.length === 7) && additional)
 			{
-				text = text + ". " + this.caller.mess.scheduleTextMo.replace('%days%', monthDays);
+				text = text.replace('%days%', additional);
+			}
+			else
+			{
+				text = text.replace('%days%', this.getString(days));
+				if (additional)
+				{
+					text = text + ". " + this.caller.mess.scheduleTextMo.replace('%days%', additional);
+				}
 			}
 
 			this.caller.selectorNode.textContent = text;
@@ -329,24 +410,39 @@
 		{
 			return this.timesOfDayNode.value;
 		},
-		getDaysOfMonth: function ()
+		getSelectedNodes: function (list)
 		{
-			return this.daysOfMonthNode.value;
-		},
-		getWeekDayNodes: function ()
-		{
-			return this.daysOfWeekNodes.filter(function (node)
+			return list.filter(function (node)
 			{
 				return BX.hasClass(node, this.activeClassName);
 			}, this);
 		},
+		getSelectedValues: function (list)
+		{
+			return this.getSelectedNodes(list).map(function (node) {
+				return node.getAttribute('data-value');
+			}, this);
+		},
+		getSelectedValuesString: function (list)
+		{
+			return this.getSelectedValues(list).join(',');
+		},
+		getSelectedNames: function (list)
+		{
+			return this.getSelectedNodes(list).map(function (node) {
+				return node.textContent.trim();
+			}, this);
+		},
+		getString: function (list)
+		{
+			return list.join(', ');
+		},
 		onApply: function ()
 		{
-			this.caller.scheduleNodes.daysOfWeek.value = this.getWeekDayNodes().map(function (node) {
-				return node.getAttribute('data-value');
-			}).join(',');
 			this.caller.scheduleNodes.timesOfDay.value = this.getTime();
-			this.caller.scheduleNodes.daysOfMonth.value = this.getDaysOfMonth();
+			this.caller.scheduleNodes.daysOfWeek.value = this.getSelectedValuesString(this.daysOfWeekNodes);
+			this.caller.scheduleNodes.daysOfMonth.value = this.getSelectedValuesString(this.daysOfMonthNodes);
+			this.caller.scheduleNodes.monthsOfYear.value = this.getSelectedValuesString(this.monthsOfYearNodes);
 			this.caller.inputNode.value = 'schedule';
 
 			this.setText();

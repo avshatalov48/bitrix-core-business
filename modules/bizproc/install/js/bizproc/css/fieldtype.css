@@ -1,0 +1,279 @@
+.bizproc-type-control-clone-btn {
+	display: inline-block;
+	margin: 0 6px;
+	padding: 0 0 2px 0;
+	font-size: 13px;
+	font-weight: normal;
+	color: #0b66c3;
+	border-bottom: 1px dashed #0b66c3;
+	line-height: normal;
+	text-decoration: none;
+	cursor: pointer;
+	-webkit-transition: .1s;
+	-moz-transition: .1s;
+	transition: .1s;
+}
+
+.bizproc-type-control-text {
+	display: block;
+	width: 100%;
+	resize: vertical;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	color: #80868e;
+	font-size: 14px;
+	line-height: 20px;
+	background: #fff;
+	border: 1px solid #c6cdd3;
+	border-radius: 2px;
+	min-height: 86px;
+	padding: 12px 17px !important;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.bizproc-type-control {
+	display: inline-block;
+	background: #fff;
+	border: 1px solid #c6cdd3;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	color: #80868e;
+	font-size: 14px;
+	border-radius: 2px;
+	height: 36px;
+	padding: 0 17px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+.bizproc-type-control::-webkit-input-placeholder {color:#bdc0c4;}
+.bizproc-type-control::-moz-placeholder          {color:#bdc0c4;}
+.bizproc-type-control:-moz-placeholder           {color:#bdc0c4;}
+.bizproc-type-control:-ms-input-placeholder      {color:#bdc0c4;}
+
+.bizproc-type-control:focus {
+	outline: none;
+}
+.bizproc-type-control-string{
+	width: 100%;
+}
+.bizproc-type-control-date,
+.bizproc-type-control-datetime {
+	max-width: 180px;
+	background: url(images/sprite.svg) #fff 153px -152px no-repeat;
+	padding-right: 28px;
+}
+.bizproc-type-control-date + .calendar-icon,
+.bizproc-type-control-datetime + .calendar-icon {
+	margin-left: -27px;
+	vertical-align: middle;
+	opacity: 0;
+}
+
+.bizproc-type-control-int,
+.bizproc-type-control-double{
+	max-width: 155px;
+}
+
+.bizproc-type-control-bool,
+.bizproc-type-control-select,
+.bizproc-type-control-internalselect {
+	display: inline-block;
+	min-width: 155px;
+	padding: 10px 30px 10px 10px;
+	height: 38px;
+	outline: none;
+	margin: 0 10px 0 0;
+	font: 13px "HelveticaNeue", Arial, Helvetica, sans-serif;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2010.97%206.86%22%3E%3Cpolygon%20points%3D%225.49%204.11%201.37%200%200%201.37%204.8%206.17%205.49%206.86%2010.97%201.37%209.6%200%205.49%204.11%22%20fill%3D%22%23535c69%22/%3E%3C/svg%3E');
+	background-position: right 10px center;
+	background-repeat: no-repeat;
+	background-size: 11px 22px;
+	background-color: #fff;
+	line-height: 14px;
+	color: #000000;
+	border: 1px solid #c6cdd3;
+	cursor: pointer;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	-ms-appearance: none;
+	appearance: none !important;
+	vertical-align: middle;
+}
+
+.bizproc-type-control-bool.bizproc-type-control-multiple,
+.bizproc-type-control-select.bizproc-type-control-multiple,
+.bizproc-type-control-internalselect.bizproc-type-control-multiple
+{
+	display: block;
+	min-width: 155px;
+	padding: 10px;
+	outline: none;
+	font: 13px "HelveticaNeue", Arial, Helvetica, sans-serif;
+	line-height: 14px;
+	color: #000000;
+	border: 1px solid #c6cdd3;
+	cursor: pointer;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	-ms-appearance: none;
+	appearance: none !important;
+	vertical-align: middle;
+}
+.bizproc-type-control.bizproc-type-control-multiple
+{
+	margin-top: 1px;
+	margin-bottom: 1px;
+}
+
+.bizproc-type-control-select.bizproc-type-control-multiple,
+.bizproc-type-control-internalselect.bizproc-type-control-multiple
+{
+	height: auto;
+	background-image: none;
+}
+
+/* Destination classes */
+
+.bizproc-type-control-user .feed-add-destination-inp {
+	border: none;
+	margin: 0 7px 3px 5px
+}
+
+.bizproc-type-control-user {
+	display: block;
+	background: #fff;
+	border: 1px solid #c6cdd3;
+	border-radius: 2px;
+	min-height: 36px;
+	padding: 1px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	height: auto;
+	line-height: 32px;
+}
+.bizproc-type-control-user.bizproc-type-control-multiple {
+	margin: 0;
+}
+
+.bizproc-type-control-user-item {
+	display: inline-block;
+	height: 32px;
+	line-height: 32px;
+	margin: 1px;
+	font-weight: bold;
+	border-radius: 1px;
+	background: #a1e7f7;
+	white-space: nowrap;
+}
+
+.bizproc-type-control-user-name {
+	display: inline-block;
+	padding: 0 0 0 10px;
+	color: #0b66c3;
+	vertical-align: top;
+	line-height: 32px;
+	font-size: 13px;
+}
+
+.bizproc-type-control-user-delete {
+	display: inline-block;
+	vertical-align: top;
+	width: 30px;
+	height: 32px;
+	position: relative;
+	cursor: pointer;
+}
+
+.bizproc-type-control-user-delete:after,
+.bizproc-type-control-user-delete:before {
+	content: '';
+	top: 50%;
+	left: 50%;
+	width: 8px;
+	height: 2px;
+	background: #96d5e8;
+	position: absolute;
+	-webkit-transition: .1s;
+	-moz-transition: .1s;
+	transition: .1s;
+	-webkit-transform: translate(-50%,-50%) rotate(45deg);
+	-moz-transform: translate(-50%,-50%) rotate(45deg);
+	transform: translate(-50%,-50%) rotate(45deg);
+}
+
+.bizproc-type-control-user-delete:before {
+	-webkit-transform: translate(-50%,-50%) rotate(-45deg);
+	-moz-transform: translate(-50%,-50%) rotate(-45deg);
+	transform: translate(-50%,-50%) rotate(-45deg);
+}
+
+.bizproc-type-control-user-delete:hover::after,
+.bizproc-type-control-user-delete:hover::before {
+	background: #0b66c3;
+}
+
+/* File control classes */
+.bizproc-type-control-file {
+	position: relative;
+	overflow: hidden;
+	display: inline-block;
+	vertical-align: middle;
+	background: none;
+	border: none;
+	height: auto;
+	padding: 0;
+}
+
+.bizproc-type-control-file input[type="file"] {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	opacity: 0;
+	z-index: 2;
+	height: 40px;
+	background: transparent;
+	font-size: 0; width: 170px;
+	cursor: pointer;
+}
+
+.bizproc-type-control-file-label {
+	display: inline-block;
+	vertical-align: middle;
+	line-height: normal;
+	color: #535c69;
+	font-weight: normal;
+}
+
+.bizproc-automation-popup-settings .money-editor > input[type=text],
+.bizproc-type-control .money-editor > input[type=text]
+{
+	max-width: 155px;
+	display: inline-block;
+	background: #fff;
+	border: 1px solid #c6cdd3;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	color: #80868e;
+	font-size: 14px;
+	border-radius: 2px;
+	height: 36px;
+	padding: 0 17px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}

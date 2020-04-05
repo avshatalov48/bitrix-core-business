@@ -1,109 +1,94 @@
 <?php
 namespace Bitrix\Pull;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\Loc;
+
 Loc::loadMessages(__FILE__);
 
-/**
- * Class ChannelTable
- * 
- * Fields:
- * <ul>
- * <li> ID int mandatory
- * <li> USER_ID int mandatory
- * <li> CHANNEL_TYPE string(50) optional
- * <li> CHANNEL_ID string(50) mandatory
- * <li> LAST_ID int optional
- * <li> DATE_CREATE datetime mandatory
- * <li> USER reference to {@link \Bitrix\User\UserTable}
- * </ul>
- *
- * @package Bitrix\Pull
- **/
-
-class ChannelTable extends Main\Entity\DataManager
+class Channel
 {
-	/**
-	 * Returns DB table name for entity.
-	 *
-	 * @return string
-	 */
-	public static function getTableName()
+	const TYPE_PRIVATE = 'private';
+	const USER_SELF = null;
+
+	public static function getPublicId($params)
 	{
-		return 'b_pull_channel';
+		$config['USERS'] = isset($params['USER_ID'])? $params['USER_ID']: self::USER_SELF;
+		$config['TYPE'] = $params['TYPE']? $params['TYPE']: self::TYPE_PRIVATE;
+		$config['JSON'] = $params['JSON'] == 'Y'? 'Y': 'N';
+
+		$result = self::getPublicIds($config);
+		if ($result)
+		{
+			$result = array_shift($result);
+		}
+
+		return $result;
 	}
 
-	/**
-	 * Returns entity map definition.
-	 *
-	 * @return array
-	 */
-	public static function getMap()
+	public static function getPublicIds($params)
 	{
-		return array(
-			'ID' => array(
-				'data_type' => 'integer',
-				'primary' => true,
-				'autocomplete' => true,
-			),
-			'USER_ID' => array(
-				'data_type' => 'integer',
-				'required' => true,
-			),
-			'CHANNEL_TYPE' => array(
-				'data_type' => 'string',
-				'validation' => array(__CLASS__, 'validateChannelType'),
-			),
-			'CHANNEL_ID' => array(
-				'data_type' => 'string',
-				'required' => true,
-				'validation' => array(__CLASS__, 'validateChannelId'),
-			),
-			'LAST_ID' => array(
-				'data_type' => 'integer',
-			),
-			'DATE_CREATE' => array(
-				'data_type' => 'datetime',
-				'required' => true,
-				'default_value' => array(__CLASS__, 'getCurrentDate'),
-			),
-			'USER' => array(
-				'data_type' => 'Bitrix\User\User',
-				'reference' => array('=this.USER_ID' => 'ref.ID'),
-			),
-		);
+		if (!\CPullOptions::GetQueueServerStatus() || \CPullOptions::GetQueueServerVersion() < 4)
+			return false;
+
+		$users = isset($params['USERS'])? $params['USERS']: self::USER_SELF;
+		$type = $params['TYPE']? $params['TYPE']: self::TYPE_PRIVATE;
+		$returnJson = $params['JSON'] == 'Y'? true: false;
+
+		$userList = [];
+		if (is_array($users))
+		{
+			foreach ($users as $userId)
+			{
+				$userId = intval($userId);
+				if ($userId > 0)
+				{
+					$userList[$userId] = $userId;
+				}
+			}
+		}
+		else
+		{
+			if ($users == self::USER_SELF)
+			{
+				global $USER;
+				$userId = $USER->GetID();
+			}
+			else
+			{
+				$userId = intval($users);
+			}
+			if ($userId <= 0)
+			{
+				return false;
+			}
+			$userList[] = $userId;
+		}
+
+		$config = [];
+		foreach ($userList as $userId)
+		{
+			$privateChannel = \CPullChannel::Get($userId, true, false, $type);
+
+			$config[$userId] = Array(
+				'USER_ID' => (int)$userId,
+				'PUBLIC_ID' => $privateChannel["CHANNEL_PUBLIC_ID"],
+				'SIGNATURE' => \CPullChannel::GetPublicSignature($privateChannel["CHANNEL_PUBLIC_ID"]),
+				'START' => $privateChannel['CHANNEL_DT'],
+				'END' => $privateChannel['CHANNEL_DT'] + \CPullChannel::CHANNEL_TTL,
+			);
+		}
+
+		if ($returnJson)
+		{
+			foreach ($config as $userId => $userConfig)
+			{
+				$userConfig = array_change_key_case($userConfig, CASE_LOWER);
+				$userConfig['start'] = date('c', $userConfig['start']);
+				$userConfig['end'] = date('c', $userConfig['end']);
+				$config[$userId] = $userConfig;
+			}
+		}
+
+		return $config;
 	}
-	/**
-	 * Returns validators for CHANNEL_TYPE field.
-	 *
-	 * @return array
-	 */
-	public static function validateChannelType()
-	{
-		return array(
-			new Main\Entity\Validator\Length(null, 50),
-		);
-	}
-	/**
-	 * Returns validators for CHANNEL_ID field.
-	 *
-	 * @return array
-	 */
-	public static function validateChannelId()
-	{
-		return array(
-			new Main\Entity\Validator\Length(null, 50),
-		);
-	}
-	
-	/**
-	 * Return current date for DATE_CREATE field.
-	 *
-	 * @return array
-	 */
-	public static function getCurrentDate()
-	{
-		return new \Bitrix\Main\Type\DateTime();
-	}	
 }

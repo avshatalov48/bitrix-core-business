@@ -33,6 +33,7 @@ class Transport
 	const METHOD_GET_INSTALL = 'get_app_install';
 	const METHOD_SET_INSTALL = 'is_installed';
 	const METHOD_SEARCH_APP = 'search_app';
+	const METHOD_FILTER_APP = 'search_app_adv';
 
 	protected static $instance = null;
 

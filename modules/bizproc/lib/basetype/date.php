@@ -118,7 +118,17 @@ class Date extends Base
 		$className = static::generateControlClassName($fieldType, $field);
 		$renderResult = '';
 
-		if ($renderMode & FieldType::RENDER_MODE_MOBILE)
+		if ($renderMode & FieldType::RENDER_MODE_PUBLIC && $allowSelection)
+		{
+			$renderResult = '<input name="'.htmlspecialcharsbx($name).'" type="text" '
+				.'class="'.htmlspecialcharsbx($className).'"
+					value="'.htmlspecialcharsbx($value).'"
+					placeholder="'.htmlspecialcharsbx($fieldType->getDescription()).'"
+					data-role="inline-selector-target"
+					data-selector-type="'.htmlspecialcharsbx($fieldType->getType()).'"
+				>';
+		}
+		elseif ($renderMode & FieldType::RENDER_MODE_MOBILE)
 		{
 			$renderResult = '<div><input type="hidden" value="'
 				.htmlspecialcharsbx($value).'" data-type="'
@@ -126,36 +136,120 @@ class Date extends Base
 				.'<a href="#" onclick="return BX.BizProcMobile.showDatePicker(this, event);">'
 				.($value? htmlspecialcharsbx($value) : Loc::getMessage('BPDT_DATE_MOBILE_SELECT')).'</a></div>';
 		}
-		elseif ($renderMode & FieldType::RENDER_MODE_ADMIN)
-		{
-			$renderResult = \CAdminCalendar::calendarDate($name, $value, 19, static::getType() == FieldType::DATETIME);
-		}
 		else
 		{
-			ob_start();
-			global $APPLICATION;
-
-			$APPLICATION->includeComponent(
-				'bitrix:main.calendar',
-				'',
-				array(
-					'SHOW_INPUT' => 'Y',
-					'FORM_NAME' => $field['Form'],
-					'INPUT_NAME' => $name,
-					'INPUT_VALUE' => $value,
-					'SHOW_TIME' => static::getType() == FieldType::DATETIME ? 'Y' : 'N',
-					'INPUT_ADDITIONAL_ATTR' => 'class="'.htmlspecialcharsbx($className).'"'
-				),
-				false,
-				array('HIDE_ICONS' => 'Y')
-			);
-
-			$renderResult = ob_get_contents();
-			ob_end_clean();
+			\CJSCore::Init(['popup', 'date']);
+			$renderResult = '<input type="text" name="'.htmlspecialcharsbx($name)
+				.'" value="'.htmlspecialcharsbx($value).'" class="'.htmlspecialcharsbx($className).'"/>'
+				.'<img src="/bitrix/js/main/core/images/calendar-icon.gif" alt="calendar" class="calendar-icon" '
+				.'onclick="BX.calendar({node:this, field: this.previousSibling, bTime: '
+				.(static::getType() == FieldType::DATETIME ? 'true' : 'false').'});" '
+				.'onmouseover="BX.addClass(this, \'calendar-icon-hover\');" '
+				.'onmouseout="BX.removeClass(this, \'calendar-icon-hover\');" border="0"/>';
 		}
 
 		return $renderResult;
 	}
+
+	/**
+	 * @param FieldType $fieldType Document field type.
+	 * @param array $field Form field.
+	 * @param mixed $value Field value.
+	 * @param bool $allowSelection Allow selection flag.
+	 * @param int $renderMode Control render mode.
+	 * @return string
+	 */
+	public static function renderControlSingle(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
+	{
+		$allowSelectionOrig = $allowSelection;
+		if (($renderMode & FieldType::RENDER_MODE_PUBLIC))
+		{
+			$allowSelection = false;
+		}
+
+		$value = static::toSingleValue($fieldType, $value);
+		$selectorValue = null;
+
+		if ($allowSelection && \CBPActivity::isExpression($value))
+		{
+			$selectorValue = $value;
+			$value = null;
+		}
+
+		$renderResult = static::renderControl($fieldType, $field, $value, $allowSelectionOrig, $renderMode);
+
+		if ($allowSelection)
+		{
+			$renderResult .= static::renderControlSelector($field, $selectorValue, true, '', $fieldType);
+		}
+
+		return $renderResult;
+	}
+
+	public static function renderControlMultiple(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
+	{
+		$allowSelectionOrig = $allowSelection;
+		if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
+		{
+			$allowSelection = false;
+		}
+
+		if (!is_array($value) || is_array($value) && \CBPHelper::isAssociativeArray($value))
+		{
+			$value = array($value);
+		}
+
+		$selectorValue = null;
+		if ($allowSelection)
+		{
+			foreach ($value as $k => $v)
+			{
+				if (\CBPActivity::isExpression($v))
+				{
+					$selectorValue = $v;
+					unset($value[$k]);
+				}
+			}
+			$value = array_values($value);
+		}
+
+		if (empty($value))
+		{
+			$value[] = null;
+		}
+
+		$controls = [];
+
+		foreach ($value as $k => $v)
+		{
+			$singleField = $field;
+			$singleField['Index'] = $k;
+			$controls[] = static::renderControl(
+				$fieldType,
+				$singleField,
+				$v,
+				$allowSelectionOrig,
+				$renderMode
+			);
+		}
+
+		if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
+		{
+			$renderResult = static::renderPublicMultipleWrapper($fieldType, $field, $controls);
+		}
+		else
+		{
+			$renderResult = static::wrapCloneableControls($controls, static::generateControlName($field));
+		}
+
+		if ($allowSelection)
+		{
+			$renderResult .= static::renderControlSelector($field, $selectorValue, true, '', $fieldType);
+		}
+
+		return $renderResult;
+	}
+
 
 	/**
 	 * @param int $renderMode Control render mode.

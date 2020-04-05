@@ -157,7 +157,7 @@ BX(function () {
 		contextAjaxData:  {
 			parameters:'<?=CUtil::JSEscape($signedParameters)?>',
 			template: '<?=CUtil::JSEscape($signedTemplate)?>',
-			site_id: '<?=$component->getSiteId()?>',
+			site_id: '<?=CUtil::JSEscape($component->getSiteId())?>',
 		},
 		injectId:  '<?= $injectId ?>',
 		mainProductState:  '<?= $arResult['MAIN_PRODUCT_STATE'] ?>',

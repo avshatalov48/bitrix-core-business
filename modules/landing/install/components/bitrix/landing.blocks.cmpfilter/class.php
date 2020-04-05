@@ -4,12 +4,18 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Main\Loader;
 use \Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
 class LandingUtilsCmpFilterComponent extends \CBitrixComponent
 {
+	/**
+	 * Search or not by search module.
+	 */
+	const ENABLED_SEARCH_MODULE = true;
+
 	/**
 	 * Get filter for main.ui.filter used.
 	 * @return array
@@ -30,6 +36,58 @@ class LandingUtilsCmpFilterComponent extends \CBitrixComponent
 				'default' => true
 			)
 		);
+	}
+
+	/**
+	 * Get additional filter by query string.
+	 * @param string $q Query string.
+	 * @return array
+	 */
+	protected static function search($q)
+	{
+		$filter = array();
+		$q = trim($q);
+
+		if (
+			self::ENABLED_SEARCH_MODULE &&
+			Loader::includeModule('search')
+		)
+		{
+			$filter['ID'] = array(-1);
+			$obSearch = new \CSearch;
+			$obSearch->setOptions(array(
+				'ERROR_ON_EMPTY_STEM' => false,
+			));
+			$obSearch->search(array(
+				'QUERY' => $q,
+				'SITE_ID' => LANG,
+				'MODULE_ID' => 'iblock'
+			));
+			if (!$obSearch->selectedRowsCount()) {
+				$obSearch->search(
+					array(
+						'QUERY' => $q,
+						'SITE_ID' => SITE_ID,
+						'MODULE_ID' => 'iblock',
+					),
+					array(),
+					array(
+						'STEMMING' => false
+					)
+				);
+			}
+			$obSearch->navStart(500);
+			while ($row = $obSearch->fetch())
+			{
+				$filter['ID'][] = $row['ITEM_ID'];
+			}
+		}
+		else
+		{
+			$filter['?NAME'] = '%' . $q . '%';
+		}
+
+		return $filter;
 	}
 
 	/**
@@ -85,7 +143,10 @@ class LandingUtilsCmpFilterComponent extends \CBitrixComponent
 
 			if ($request->get('q'))
 			{
-				$filter['?NAME'] = '%' . trim($request->get('q')) . '%';
+				$filter = array_merge(
+					$filter,
+					self::search($request->get('q'))
+				);
 			}
 
 			if (!empty($filter))

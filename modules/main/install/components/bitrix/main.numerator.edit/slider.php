@@ -16,10 +16,12 @@ $APPLICATION->IncludeComponent(
 	"bitrix:main.numerator.edit",
 	'',
 	[
-		"NUMERATOR_TYPE"            => $request->get('NUMERATOR_TYPE'),
-		"HIDE_NUMERATOR_NAME"       => $request->get('HIDE_NUMERATOR_NAME'),
-		"HIDE_IS_DIRECT_NUMERATION" => $request->get('HIDE_IS_DIRECT_NUMERATION'),
-		"NUMERATOR_ID"              => $request->get('ID'),
+		"NUMERATOR_TYPE"               => $request->get('NUMERATOR_TYPE'),
+		"IS_HIDE_NUMERATOR_NAME"       => $request->get('IS_HIDE_NUMERATOR_NAME'),
+		"IS_EMBED_FORM"                => $request->get('IS_EMBED_FORM'),
+		"IS_HIDE_IS_DIRECT_NUMERATION" => $request->get('IS_HIDE_IS_DIRECT_NUMERATION'),
+		"IS_SHOW_CHANGE_NUMBER"        => $request->get('IS_SHOW_CHANGE_NUMBER'),
+		"NUMERATOR_ID"                 => $request->get('ID'),
 	]
 );
 require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_after.php');

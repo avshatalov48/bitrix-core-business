@@ -4,9 +4,9 @@ BX.namespace('BX.Sale.PersonalOrderComponent');
 	BX.Sale.PersonalOrderComponent.PersonalOrderDetail = {
 		init : function(params)
 		{
-			var linkMoreOrderInformation = document.getElementsByClassName('sale-order-detail-about-order-inner-container-name-read-more')[0];
-			var linkLessOrderInformation = document.getElementsByClassName('sale-order-detail-about-order-inner-container-name-read-less')[0];
-			var clientInformation = document.getElementsByClassName('sale-order-detail-about-order-inner-container-details')[0];
+			var linkMoreOrderInformation = document.getElementsByClassName('sale-order-detail-more-info-more')[0];
+			var linkLessOrderInformation = document.getElementsByClassName('sale-order-detail-more-info-less')[0];
+			var clientInformation = document.getElementsByClassName('sale-order-detail-more-info-details')[0];
 			var listShipmentWrapper = document.getElementsByClassName('sale-order-detail-payment-options-shipment');
 			var listPaymentWrapper = document.getElementsByClassName('sale-order-detail-payment-options-methods');
 			var shipmentTrackingId = document.getElementsByClassName('sale-order-detail-shipment-id');

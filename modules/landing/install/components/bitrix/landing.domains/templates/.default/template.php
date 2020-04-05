@@ -7,7 +7,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 Loc::loadMessages(__FILE__);
 
-$APPLICATION->setTitle(Loc::getMessage('LANDING_TPL_TITLE'));
+\Bitrix\Landing\Manager::setPageTitle(
+	Loc::getMessage('LANDING_TPL_TITLE')
+);
 
 if ($arResult['ERRORS'])
 {

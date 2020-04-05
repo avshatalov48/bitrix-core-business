@@ -15,7 +15,7 @@ class PreviewBlock extends BaseValuable
 	protected $widget;
 	/**
 	 * Preview block field constructor.
-	 * Defaul view type is linear graph.
+	 * Default view type is linear graph.
 	 *
 	 * @param $key
 	 */
@@ -74,7 +74,10 @@ class PreviewBlock extends BaseValuable
 			$results = $viewProvider->execute()->getResults();
 			foreach ($results as $result)
 			{
-				$views[$result->getKey()] = $result;
+				if ($result::USE_IN_VISUAL_CONSTRUCTOR)
+				{
+					$views[$result->getKey()] = $result;
+				}
 			}
 		}
 

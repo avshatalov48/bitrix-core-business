@@ -46,8 +46,7 @@ class GaCounter extends \Bitrix\Landing\Hook\Page
 	 */
 	public function enabledInEditMode()
 	{
-		$request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
-		return $request->get('landing_mode') == 'preview';
+		return false;
 	}
 
 	/**

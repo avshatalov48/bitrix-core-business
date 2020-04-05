@@ -1,4 +1,6 @@
 <?
+$MESS["BX_SALE_ADM_DSC_HEADER_TITLE_ACTIVE_FROM"] = "Aktiv seit";
+$MESS["BX_SALE_ADM_DSC_HEADER_TITLE_ACTIVE_TO"] = "Aktiv bis";
 $MESS["LANG_FILTER_NAME"] = "Website";
 $MESS["ERROR_UPDATE_REC"] = "Beim Ändern des Datensatzes ist ein Fehler aufgetreten";
 $MESS["PERS_TYPE_ACTIVE"] = "Aktiv";
@@ -16,7 +18,6 @@ $MESS["SDSN_MODIFIED_BY_NEW"] = "Geändert von";
 $MESS["SDSN_TIMESTAMP_X"] = "Geändert am";
 $MESS["SDSN_XML_ID"] = "Externer Code";
 $MESS["BT_SALE_DISCOUNT_LIST_MESS_TITLE"] = "Warenkorbregeln ";
-$MESS["BT_SALE_DISCOUNT_LIST_MESS_NAV"] = "Regeln";
 $MESS["BT_SALE_DISCOUNT_LIST_ERR_DELETE_DISCOUNT"] = "Fehler beim Löschen der Regel";
 $MESS["BT_SALE_DISCOUNT_LIST_MESS_EDIT_DISCOUNT"] = "Regelparameter ändern";
 $MESS["BT_SALE_DISCOUNT_LIST_MESS_EDIT_DISCOUNT_SHORT"] = "Ändern";

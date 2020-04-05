@@ -47,6 +47,10 @@ class ListTable extends Entity\DataManager
 			'NAME' => array(
 				'data_type' => 'string',
 				'required' => true,
+				'default_value' => Loc::getMessage(
+					'SENDER_ENTITY_LIST_FIELD_NAME_PATTERN',
+					['%date%' => Internals\PrettyDate::formatDate()]
+				),
 				'title' => Loc::getMessage('SENDER_ENTITY_LIST_FIELD_TITLE_NAME'),
 			),
 			'SORT' => array(

@@ -117,11 +117,28 @@ class SenderUiMailboxSelectorComponent extends CBitrixComponent
 
 	protected function prepareResult()
 	{
+		$this->arResult['LIST'] = [];
 		$this->arResult['ACTION_URL'] = $this->getPath() . '/ajax.php';
 
 
 		$list = $GLOBALS['APPLICATION']->IncludeComponent('bitrix:main.mail.confirm', '', array());
 		$address = new Address();
+		foreach (\Bitrix\Sender\MailingChainTable::getEmailFromList() as $email)
+		{
+			$address->set($email);
+			$formatted = $address->get();
+			if (!$formatted)
+			{
+				continue;
+			}
+
+			$list[] = [
+				'name' => $address->getName(),
+				'email' => $address->getEmail(),
+				'formatted' => $address->get(),
+			];
+		}
+
 		foreach ($list as $item)
 		{
 			$item['sender'] = $address
@@ -129,6 +146,10 @@ class SenderUiMailboxSelectorComponent extends CBitrixComponent
 				->setName($item['name'])
 				->get();
 
+			if (!$item['sender'])
+			{
+				continue;
+			}
 			$item['id'] = base64_encode($item['sender']);
 			$this->arResult['LIST'][] = $item;
 		}

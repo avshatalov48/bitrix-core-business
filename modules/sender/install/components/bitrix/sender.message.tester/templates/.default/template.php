@@ -39,7 +39,7 @@ $hint = $hint ?: Loc::getMessage('SENDER_MESSAGE_TESTER_TMPL_TEST_HINT');
 
 		<div>
 			<div class="sender-test-button-bottom">
-				<span data-role="test-button" class="webform-small-button webform-small-button-blue">
+				<span data-role="test-button" class="ui-btn ui-btn-primary">
 					<?=Loc::getMessage('SENDER_MESSAGE_TESTER_TMPL_TEST_SEND')?>
 				</span>
 				<span data-role="test-result" class="sender-test-result-line">

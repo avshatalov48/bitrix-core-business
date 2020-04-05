@@ -560,13 +560,16 @@
 				}
 				else
 				{
-					if (!this.getPopup().isShown())
+					if (event && event.type === "click")
 					{
-						this.inputFocus();
-					}
-					else
-					{
-						this.inputBlur();
+						if (!this.getPopup().isShown())
+						{
+							this.inputFocus();
+						}
+						else
+						{
+							this.inputBlur();
+						}
 					}
 				}
 			}

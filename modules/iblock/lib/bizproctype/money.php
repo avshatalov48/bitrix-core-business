@@ -7,125 +7,58 @@ use Bitrix\Main,
 	Bitrix\Currency\Integration\IblockMoneyProperty,
 	Bitrix\Currency\CurrencyTable,
 	Bitrix\Currency\CurrencyManager;
+use Bitrix\Main\Loader;
 
-class Money extends UserTypeProperty
+if (Loader::requireModule('bizproc'))
 {
-	protected static function formatValuePrintable(FieldType $fieldType, $value)
+	class Money extends UserTypeProperty
 	{
-		$explode = is_string($value) ? explode(IblockMoneyProperty::SEPARATOR, $value) : array();
-		$currentValue = $explode[0] ? $explode[0] : '';
-		$currentCurrency = $explode[1] ? $explode[1] : '';
-
-		if(!$currentCurrency)
-			return intval($currentValue) ? $currentValue : '';
-
-		if(CurrencyManager::isCurrencyExist($currentCurrency))
+		protected static function formatValuePrintable(FieldType $fieldType, $value)
 		{
-			$format = \CCurrencyLang::getCurrencyFormat($currentCurrency);
-			$separators = \CCurrencyLang::getSeparators();
-			$thousandsSep = $separators[$format['THOUSANDS_VARIANT']];
-			$currentValue = number_format($currentValue, $format['DECIMALS'], $format['DEC_POINT'], $thousandsSep);
-			if($format['THOUSANDS_VARIANT'] == \CCurrencyLang::SEP_NBSPACE)
-				$currentValue = str_replace(' ', '&nbsp;', $currentValue);
-			return preg_replace('/(^|[^&])#/', '${1}'.$currentValue, $format['FORMAT_STRING']);
-		}
+			$explode = is_string($value) ? explode(IblockMoneyProperty::SEPARATOR, $value) : array();
+			$currentValue = $explode[0] ? $explode[0] : '';
+			$currentCurrency = $explode[1] ? $explode[1] : '';
 
-		return $currentValue;
-	}
+			if(!$currentCurrency)
+				return intval($currentValue) ? $currentValue : '';
 
-	/**
-	 * @param FieldType $fieldType Document field object.
-	 * @param array $field Form field information.
-	 * @param mixed $value Field value.
-	 * @param bool $allowSelection Allow selection flag.
-	 * @param int $renderMode Control render mode.
-	 * @return string
-	 */
-	public static function renderControlSingle(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
-	{
-		$selectorValue = null;
-		if(\CBPActivity::isExpression($value))
-		{
-			$selectorValue = $value;
-			$value = null;
-		}
-
-		$property = static::getUserType($fieldType);
-
-		if(!empty($property['GetPublicEditHTML']))
-		{
-			$fieldName = static::generateControlName($field);
-			$renderResult = call_user_func_array(
-				$property['GetPublicEditHTML'],
-				array(
-					array(
-						'IBLOCK_ID' => self::getIblockId($fieldType),
-						'USER_TYPE_SETTINGS' => $fieldType->getOptions(),
-						'MULTIPLE' => $fieldType->isMultiple() ? 'Y' : 'N',
-						'IS_REQUIRED' => $fieldType->isRequired() ? 'Y' : 'N',
-						'PROPERTY_USER_TYPE' => $property
-					),
-					array('VALUE' => $value),
-					array(
-						'FORM_NAME' => $field['Form'],
-						'VALUE' => $fieldName,
-						'DESCRIPTION' => '',
-					),
-					true
-				)
-			);
-		}
-		else
-		{
-			$renderResult = static::renderControl($fieldType, $field, $value, $allowSelection, $renderMode);
-		}
-
-		if($allowSelection)
-		{
-			$renderResult .= static::renderControlSelector($field, $selectorValue, true, '', $fieldType);
-		}
-
-		return $renderResult;
-	}
-
-	/**
-	 * @param FieldType $fieldType Document field object.
-	 * @param array $field Form field information.
-	 * @param mixed $value Field value.
-	 * @param bool $allowSelection Allow selection flag.
-	 * @param int $renderMode Control render mode.
-	 * @return string
-	 */
-	public static function renderControlMultiple(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
-	{
-		$selectorValue = null;
-		$typeValue = array();
-		if(!is_array($value) || is_array($value) && \CBPHelper::isAssociativeArray($value))
-			$value = array($value);
-
-		foreach ($value as $v)
-		{
-			if (\CBPActivity::isExpression($v))
-				$selectorValue = $v;
-			else
-				$typeValue[] = $v;
-		}
-		// need to show at least one control
-		if(empty($typeValue))
-			$typeValue[] = null;
-
-		$controls = array();
-
-		$property = static::getUserType($fieldType);
-
-		if(!empty($property['GetPublicEditHTML']))
-		{
-			foreach($typeValue as $k => $v)
+			if(CurrencyManager::isCurrencyExist($currentCurrency))
 			{
-				$singleField = $field;
-				$singleField['Index'] = $k;
-				$fieldName = static::generateControlName($singleField);
-				$controls[] = call_user_func_array(
+				$format = \CCurrencyLang::getCurrencyFormat($currentCurrency);
+				$separators = \CCurrencyLang::getSeparators();
+				$thousandsSep = $separators[$format['THOUSANDS_VARIANT']];
+				$currentValue = number_format($currentValue, $format['DECIMALS'], $format['DEC_POINT'], $thousandsSep);
+				if($format['THOUSANDS_VARIANT'] == \CCurrencyLang::SEP_NBSPACE)
+					$currentValue = str_replace(' ', '&nbsp;', $currentValue);
+				return preg_replace('/(^|[^&])#/', '${1}'.$currentValue, $format['FORMAT_STRING']);
+			}
+
+			return $currentValue;
+		}
+
+		/**
+		 * @param FieldType $fieldType Document field object.
+		 * @param array $field Form field information.
+		 * @param mixed $value Field value.
+		 * @param bool $allowSelection Allow selection flag.
+		 * @param int $renderMode Control render mode.
+		 * @return string
+		 */
+		public static function renderControlSingle(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
+		{
+			$selectorValue = null;
+			if(\CBPActivity::isExpression($value))
+			{
+				$selectorValue = $value;
+				$value = null;
+			}
+
+			$property = static::getUserType($fieldType);
+
+			if(!empty($property['GetPublicEditHTML']))
+			{
+				$fieldName = static::generateControlName($field);
+				$renderResult = call_user_func_array(
 					$property['GetPublicEditHTML'],
 					array(
 						array(
@@ -135,9 +68,9 @@ class Money extends UserTypeProperty
 							'IS_REQUIRED' => $fieldType->isRequired() ? 'Y' : 'N',
 							'PROPERTY_USER_TYPE' => $property
 						),
-						array('VALUE' => $v),
+						array('VALUE' => $value),
 						array(
-							'FORM_NAME' => $singleField['Form'],
+							'FORM_NAME' => $field['Form'],
 							'VALUE' => $fieldName,
 							'DESCRIPTION' => '',
 						),
@@ -145,77 +78,147 @@ class Money extends UserTypeProperty
 					)
 				);
 			}
-		}
-		else
-		{
-			foreach($typeValue as $k => $v)
+			else
 			{
-				$singleField = $field;
-				$singleField['Index'] = $k;
-				$controls[] = static::renderControl(
-					$fieldType,
-					$singleField,
-					$v,
-					$allowSelection,
-					$renderMode
-				);
+				$renderResult = static::renderControl($fieldType, $field, $value, $allowSelection, $renderMode);
 			}
+
+			if($allowSelection)
+			{
+				$renderResult .= static::renderControlSelector($field, $selectorValue, true, '', $fieldType);
+			}
+
+			return $renderResult;
 		}
 
-		$renderResult = static::wrapCloneableControls($controls, static::generateControlName($field));
-
-		if($allowSelection)
+		/**
+		 * @param FieldType $fieldType Document field object.
+		 * @param array $field Form field information.
+		 * @param mixed $value Field value.
+		 * @param bool $allowSelection Allow selection flag.
+		 * @param int $renderMode Control render mode.
+		 * @return string
+		 */
+		public static function renderControlMultiple(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
 		{
-			$renderResult .= static::renderControlSelector($field, $selectorValue, true, '', $fieldType);
+			$selectorValue = null;
+			$typeValue = array();
+			if(!is_array($value) || is_array($value) && \CBPHelper::isAssociativeArray($value))
+				$value = array($value);
+
+			foreach ($value as $v)
+			{
+				if (\CBPActivity::isExpression($v))
+					$selectorValue = $v;
+				else
+					$typeValue[] = $v;
+			}
+			// need to show at least one control
+			if(empty($typeValue))
+				$typeValue[] = null;
+
+			$controls = array();
+
+			$property = static::getUserType($fieldType);
+
+			if(!empty($property['GetPublicEditHTML']))
+			{
+				foreach($typeValue as $k => $v)
+				{
+					$singleField = $field;
+					$singleField['Index'] = $k;
+					$fieldName = static::generateControlName($singleField);
+					$controls[] = call_user_func_array(
+						$property['GetPublicEditHTML'],
+						array(
+							array(
+								'IBLOCK_ID' => self::getIblockId($fieldType),
+								'USER_TYPE_SETTINGS' => $fieldType->getOptions(),
+								'MULTIPLE' => $fieldType->isMultiple() ? 'Y' : 'N',
+								'IS_REQUIRED' => $fieldType->isRequired() ? 'Y' : 'N',
+								'PROPERTY_USER_TYPE' => $property
+							),
+							array('VALUE' => $v),
+							array(
+								'FORM_NAME' => $singleField['Form'],
+								'VALUE' => $fieldName,
+								'DESCRIPTION' => '',
+							),
+							true
+						)
+					);
+				}
+			}
+			else
+			{
+				foreach($typeValue as $k => $v)
+				{
+					$singleField = $field;
+					$singleField['Index'] = $k;
+					$controls[] = static::renderControl(
+						$fieldType,
+						$singleField,
+						$v,
+						$allowSelection,
+						$renderMode
+					);
+				}
+			}
+
+			$renderResult = static::wrapCloneableControls($controls, static::generateControlName($field));
+
+			if($allowSelection)
+			{
+				$renderResult .= static::renderControlSelector($field, $selectorValue, true, '', $fieldType);
+			}
+
+			return $renderResult;
 		}
 
-		return $renderResult;
-	}
-
-	/**
-	 * @param array $controls
-	 * @param string $wrapperId
-	 * @return string
-	 */
-	protected static function wrapCloneableControls(array $controls, $wrapperId)
-	{
-		$wrapperId = Main\Text\HtmlFilter::encode((string)$wrapperId);
-		$renderResult = '<table width="100%" border="0" cellpadding="2" cellspacing="2" id="BizprocCloneable_'
-			.$wrapperId.'">';
-
-		foreach($controls as $control)
+		/**
+		 * @param array $controls
+		 * @param string $wrapperId
+		 * @return string
+		 */
+		protected static function wrapCloneableControls(array $controls, $wrapperId)
 		{
-			$renderResult .= '<tr><td>'.$control.'</td></tr>';
-		}
-		$renderResult .= '</table>';
+			$wrapperId = Main\Text\HtmlFilter::encode((string)$wrapperId);
+			$renderResult = '<table width="100%" border="0" cellpadding="2" cellspacing="2" id="BizprocCloneable_'
+				.$wrapperId.'">';
 
-		$separator = Main\Text\HtmlFilter::encode((string)IblockMoneyProperty::SEPARATOR);
-		$listCurrency = array();
-		$queryObject = CurrencyTable::getList(array(
-			'select' => array(
-				'CURRENCY',
-				'BASE',
-				'NAME' => 'CURRENT_LANG_FORMAT.FULL_NAME',
-				'FORMAT' => 'CURRENT_LANG_FORMAT.FORMAT_STRING',
-				'DEC_POINT' => 'CURRENT_LANG_FORMAT.DEC_POINT',
-				'THOUSANDS_VARIANT' => 'CURRENT_LANG_FORMAT.THOUSANDS_VARIANT',
-				'DECIMALS' => 'CURRENT_LANG_FORMAT.DECIMALS',
-			),
-			'filter' => array(),
-			'order' => array('SORT' => 'ASC', 'CURRENCY' => 'ASC')
-		));
-		$separators = \CCurrencyLang::getSeparators();
-		while($currency = $queryObject->fetch())
-		{
-			$currency['SEPARATOR'] = $separators[$currency['THOUSANDS_VARIANT']];
-			$currency['SEPARATOR_STRING'] = $currency['DEC_POINT'];
-			$currency['SEPARATOR_STRING'] .= ($currency['THOUSANDS_VARIANT'] == \CCurrencyLang::SEP_SPACE
-				|| $currency['THOUSANDS_VARIANT'] == \CCurrencyLang::SEP_NBSPACE) ?
-				Loc::getMessage('CIMP_SEPARATOR_SPACE') : $currency['SEPARATOR'];
-			$listCurrency[$currency['CURRENCY']] = $currency;
-		}
+			foreach($controls as $control)
+			{
+				$renderResult .= '<tr><td>'.$control.'</td></tr>';
+			}
+			$renderResult .= '</table>';
 
-		$renderResult .= '<script>
+			$separator = Main\Text\HtmlFilter::encode((string)IblockMoneyProperty::SEPARATOR);
+			$listCurrency = array();
+			$queryObject = CurrencyTable::getList(array(
+				'select' => array(
+					'CURRENCY',
+					'BASE',
+					'NAME' => 'CURRENT_LANG_FORMAT.FULL_NAME',
+					'FORMAT' => 'CURRENT_LANG_FORMAT.FORMAT_STRING',
+					'DEC_POINT' => 'CURRENT_LANG_FORMAT.DEC_POINT',
+					'THOUSANDS_VARIANT' => 'CURRENT_LANG_FORMAT.THOUSANDS_VARIANT',
+					'DECIMALS' => 'CURRENT_LANG_FORMAT.DECIMALS',
+				),
+				'filter' => array(),
+				'order' => array('SORT' => 'ASC', 'CURRENCY' => 'ASC')
+			));
+			$separators = \CCurrencyLang::getSeparators();
+			while($currency = $queryObject->fetch())
+			{
+				$currency['SEPARATOR'] = $separators[$currency['THOUSANDS_VARIANT']];
+				$currency['SEPARATOR_STRING'] = $currency['DEC_POINT'];
+				$currency['SEPARATOR_STRING'] .= ($currency['THOUSANDS_VARIANT'] == \CCurrencyLang::SEP_SPACE
+					|| $currency['THOUSANDS_VARIANT'] == \CCurrencyLang::SEP_NBSPACE) ?
+					Loc::getMessage('CIMP_SEPARATOR_SPACE') : $currency['SEPARATOR'];
+				$listCurrency[$currency['CURRENCY']] = $currency;
+			}
+
+			$renderResult .= '<script>
 			function cloneTypeControlMoney(tableID, wrapperId, separator, listCurrency)
 			{
 				var tbl = document.getElementById(tableID);
@@ -252,17 +255,70 @@ class Money extends UserTypeProperty
 			};
 		</script>';
 
-		$renderResult .= '<input type="button" value="'.Loc::getMessage('BPDT_BASE_ADD')
-			.'" onclick="cloneTypeControlMoney(\'BizprocCloneable_'
-			.$wrapperId.'\', \''.$wrapperId.'\', \''.$separator.'\', '.\CUtil::PhpToJSObject($listCurrency).')"/><br />';
+			$renderResult .= '<input type="button" value="'.Loc::getMessage('BPDT_BASE_ADD')
+				.'" onclick="cloneTypeControlMoney(\'BizprocCloneable_'
+				.$wrapperId.'\', \''.$wrapperId.'\', \''.$separator.'\', '.
+				htmlspecialcharsbx(\CUtil::PhpToJSObject($listCurrency))
+				.')"/><br />';
 
-		return $renderResult;
-	}
+			return $renderResult;
+		}
 
-	private static function getIblockId(FieldType $fieldType)
-	{
-		$documentType = $fieldType->getDocumentType();
-		$type = explode('_', $documentType[2]);
-		return intval($type[1]);
+		private static function getIblockId(FieldType $fieldType)
+		{
+			$documentType = $fieldType->getDocumentType();
+			$type = explode('_', $documentType[2]);
+			return intval($type[1]);
+		}
+
+		/** @inheritdoc */
+		public static function compareValues($valueA, $valueB)
+		{
+			if (
+				strpos($valueA, '|') === false
+				|| strpos($valueB, '|') === false
+				|| !Main\Loader::includeModule('currency')
+			)
+			{
+				return parent::compareValues($valueA, $valueB);
+			}
+
+			list($sumA, $currencyA) = explode('|', $valueA);
+			list($sumB, $currencyB) = explode('|', $valueB);
+
+			$sumA = (double) $sumA;
+			$sumB = (double) $sumB;
+
+			if (!$currencyA)
+			{
+				$currencyA = CurrencyManager::getBaseCurrency();
+			}
+			if (!$currencyB)
+			{
+				$currencyB = CurrencyManager::getBaseCurrency();
+			}
+
+			if ($currencyA !== $currencyB && $sumB > 0)
+			{
+				$sumB = self::convertMoney($sumB, $currencyB, $currencyA);
+			}
+
+			return parent::compareValues($sumA, $sumB);
+		}
+
+		private static function convertMoney($sum, $srcCurrencyId, $dstCurrencyId)
+		{
+			$result = \CCurrencyRates::ConvertCurrency($sum, $srcCurrencyId, $dstCurrencyId);
+
+			$decimals = 2;
+			$formatInfo = \CCurrencyLang::GetCurrencyFormat($dstCurrencyId);
+			if(isset($formatInfo['DECIMALS']))
+			{
+				$decimals = intval($formatInfo['DECIMALS']);
+			}
+
+			$result = round($result, $decimals);
+			return $result;
+		}
 	}
 }

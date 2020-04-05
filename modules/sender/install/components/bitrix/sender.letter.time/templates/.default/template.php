@@ -13,7 +13,10 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 use Bitrix\Sender\Integration\Bitrix24;
 use Bitrix\Sender\Internals\PrettyDate;
-\Bitrix\Main\UI\Extension::load("ui.buttons");
+use Bitrix\Main\UI\Extension;
+
+Extension::load("ui.buttons");
+Extension::load("ui.notification");
 
 $component = $this->getComponent();
 $getMessageLocal = function($messageCode, $replace = []) use ($component)
@@ -34,7 +37,8 @@ $containerId = 'sender-letter-time';
 				'actionUrl' => $arResult['ACTION_URL'],
 				'isFrame' => $arParams['IFRAME'] == 'Y',
 				'isSaved' => $arResult['IS_SAVED'],
-				'canEdit' => $arParams['CAN_EDIT'],
+				'isOutside' => $arParams['IS_OUTSIDE'],
+				'canEdit' => $arResult['CAN_CHANGE'],
 				'isSupportReiterate' => $arResult['IS_SUPPORT_REITERATE'],
 				'prettyDateFormat' => PrettyDate::getDateFormat(),
 				'mess' => array(
@@ -47,6 +51,10 @@ $containerId = 'sender-letter-time';
 					'cancel' => Loc::getMessage('SENDER_LETTER_TIME_TMPL_CANCEL'),
 					'scheduleText' => Loc::getMessage('SENDER_LETTER_TIME_TMPL_SCHEDULE_TEXT'),
 					'scheduleTextMo' => Loc::getMessage('SENDER_LETTER_TIME_TMPL_SCHEDULE_TEXT_MO'),
+					'outsideSaveSuccess' => $getMessageLocal(
+						'SENDER_LETTER_TIME_OUTSIDE_ADD_SUCCESS',
+						['%path%' => $arParams['PATH_TO_LIST']]
+					)
 				)
 			))?>);
 		});
@@ -77,7 +85,7 @@ $containerId = 'sender-letter-time';
 			<div class="sender-letter-time-button" style="<?=(!$arResult['CAN_CHANGE'] ? 'display: none;' : '')?>">
 				<span class="sender-letter-time-button-name"><?=$getMessageLocal('SENDER_LETTER_TIME_TMPL_ACT_SEND')?>:</span>
 				<a data-role="time-selector"
-					class="<?=($arParams['CAN_EDIT'] ? 'sender-letter-time-link' : '')?>"
+					class="<?=($arResult['CAN_CHANGE'] ? 'sender-letter-time-link' : '')?>"
 				></a>
 				<input data-role="time-input"  type="hidden" name="LETTER_TIME" value="<?=htmlspecialcharsbx($arResult['LETTER_TIME'])?>">
 			</div>
@@ -86,15 +94,18 @@ $containerId = 'sender-letter-time';
 		<input data-role="time-reiterate-days-of-week" type="hidden" name="DAYS_OF_WEEK" value="<?=htmlspecialcharsbx($arResult['DAYS_OF_WEEK'])?>">
 		<input data-role="time-reiterate-times-of-day" type="hidden" name="TIMES_OF_DAY" value="<?=htmlspecialcharsbx($arResult['TIMES_OF_DAY'])?>">
 		<input data-role="time-reiterate-days-of-month" type="hidden" name="DAYS_OF_MONTH" value="<?=htmlspecialcharsbx($arResult['DAYS_OF_MONTH'])?>">
+		<input data-role="time-reiterate-months-of-year" type="hidden" name="MONTHS_OF_YEAR" value="<?=htmlspecialcharsbx($arResult['MONTHS_OF_YEAR'])?>">
 
 		<?if (!empty($arResult['LIMITATION'])):?>
 			<div class="sender-letter-info">
 				<?=htmlspecialcharsbx($arResult['LIMITATION']['TEXT'])?>
-				<a href="<?=htmlspecialcharsbx($arResult['LIMITATION']['SETUP_URI'])?>">
-					<div class="sender-hint">
-						<div class="sender-hint-icon"></div>
-					</div>
-				</a>
+				<?if ($arResult['LIMITATION']['SETUP_URI']):?>
+					<a href="<?=htmlspecialcharsbx($arResult['LIMITATION']['SETUP_URI'])?>">
+						<div class="sender-hint">
+							<div class="sender-hint-icon"></div>
+						</div>
+					</a>
+				<?endif;?>
 			</div>
 		<?endif;?>
 
@@ -104,8 +115,8 @@ $containerId = 'sender-letter-time';
 			"bitrix:sender.ui.button.panel",
 			"",
 			array(
-				'SAVE' => $arParams['CAN_EDIT'] ? [] : null,
-				'CLOSE' => $arParams['CAN_EDIT'] ? null : ['URL' => $arParams['PATH_TO_LIST']],
+				'SAVE' => $arResult['CAN_CHANGE'] ? [] : null,
+				'CLOSE' => $arResult['CAN_CHANGE'] ? null : ['URL' => $arParams['PATH_TO_LIST']],
 			),
 			false
 		);
@@ -125,14 +136,6 @@ $containerId = 'sender-letter-time';
 					<?endforeach?>
 				</select>
 			</div>
-			<?if ($arResult['IS_SUPPORT_REITERATE_DAYS']):?>
-			<div class="sender-letter-time-popup-time-box">
-				<div class="sender-letter-time-popup-time-name"><?=Loc::getMessage('SENDER_LETTER_TIME_TMPL_MONTH_DAYS')?>:</div>
-				<input data-role="reiterate-days-of-month" type="text" class="sender-letter-time-popup-time-input">
-			</div>
-			<?else:?>
-				<input data-role="reiterate-days-of-month" type="hidden" class="sender-letter-time-popup-time-input">
-			<?endif;?>
 
 			<div class="sender-letter-time-popup-date-box">
 				<div class="sender-letter-time-popup-date">
@@ -161,6 +164,71 @@ $containerId = 'sender-letter-time';
 						<?
 					}
 					?>
+				</div>
+
+				<div class="sender-letter-time-schedule-addit">
+					<a class="sender-letter-time-schedule-addit-btn"
+						data-role="reiterate-additional-btn"
+					>
+						<?=Loc::getMessage('SENDER_LETTER_TIME_TMPL_SCHEDULE_SHOW_ADDITIONAL')?>
+					</a>
+
+					<div data-role="reiterate-additional" style="display: none;">
+						<div class="sender-letter-time-schedule-addit-section">
+							<div class="sender-letter-time-schedule-addit-caption"><?=Loc::getMessage('SENDER_LETTER_TIME_TMPL_SCHEDULE_DAY')?>:</div>
+							<div>
+								<?
+								$rowCount = 8;
+								for ($row = 0; $row < 4; $row++)
+								{
+									?><div class="sender-letter-time-popup-date"><?
+									for ($dayNum = 1; $dayNum <= $rowCount; $dayNum++)
+									{
+										$num = $dayNum + $row * $rowCount;
+										if ($num > 31)
+										{
+											$num = '';
+										}
+										?>
+										<div class="sender-letter-time-popup-date-item"
+											data-role="reiterate-days-of-month"
+											data-value="<?=$num?>"
+										><?=$num?></div>
+										<?
+									}
+									?></div><?
+								}
+								?>
+							</div>
+						</div>
+
+						<div class="sender-letter-time-schedule-addit-section">
+							<div class="sender-letter-time-schedule-addit-caption"><?=Loc::getMessage('SENDER_LETTER_TIME_TMPL_SCHEDULE_MONTH')?>:</div>
+							<div>
+							<?
+							$rowCount = 6;
+							$date = \Bitrix\Main\Type\DateTime::createFromTimestamp(mktime(0,0,0,1,1,2049));
+							for ($row = 0; $row < 2; $row++)
+							{
+								?><div class="sender-letter-time-popup-date"><?
+								for ($monNum = 1; $monNum <= $rowCount; $monNum++)
+								{
+									$num = $monNum + $row * $rowCount;
+									$name = htmlspecialcharsbx(\FormatDate('M', $date));
+									$date->add("+1 months");
+									?>
+									<div class="sender-letter-time-popup-date-item"
+										data-role="reiterate-months-of-year"
+										data-value="<?=$num?>"
+									><?=$name?></div>
+									<?
+								}
+								?></div><?
+							}
+							?>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

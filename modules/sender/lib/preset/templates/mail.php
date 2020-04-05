@@ -13,7 +13,7 @@ use Bitrix\Main\Localization\Loc;
 
 use Bitrix\Sender\Message;
 use Bitrix\Sender\Templates\Type;
-use Bitrix\Sender\Integration\Bitrix24;
+use Bitrix\Sender\Integration;
 
 Loc::loadMessages(__FILE__);
 
@@ -58,20 +58,59 @@ class Mail
 		return '';
 	}
 
-	private static function getTemplates($templateId = null)
+	/**
+	 * Get template html.
+	 *
+	 * @param array $replace Replace data.
+	 * @return mixed|null
+	 */
+	public static function replaceTemplateHtml($content, $replace = [])
+	{
+		$content = str_replace(
+			array(
+				'%TEXT%',
+				'%IMAGE_PATH%',
+				'%BUTTON_TEXT%',
+
+				'%UNSUB_LINK%',
+			),
+			array(
+				$replace['TEXT'],
+				'/bitrix/images/sender/preset/template_v2/banner.png?1',
+				Loc::getMessage('SENDER_PRESET_TEMPLATE_MAIL_BUTTON_GO'),
+				Loc::getMessage(
+					'SENDER_PRESET_TEMPLATE_MAIL_UNSUBSCRIBE',
+					array(
+						'%btn_start%' => '<a style="color: #0054a5;" href="#' . 'UNSUBSCRIBE_LINK' . '#">',
+						'%btn_end%' => '</a>',
+					)
+				)
+			),
+			$content
+		);
+
+		return  Texts::replace($content);
+	}
+
+	/**
+	 * Get template html.
+	 *
+	 * @return string|null
+	 */
+	public static function getTemplateHtml()
 	{
 		$fileTheme = self::getFileContent('theme');
 		$fileSimple = self::getFileContent('image_text_button');
 
 		if (!$fileTheme || !$fileSimple)
 		{
-			return array();
+			return null;
 		}
 
 		$fileSocial = self::getFileContent('social');
 		$fileSocialRu = self::getFileContent('social_ru');
 		$fileSocialEn = '';
-		if (Bitrix24\Service::isCloud() && !Bitrix24\Service::isCloudRegionRussian())
+		if (Integration\Bitrix24\Service::isCloud() && !Integration\Bitrix24\Service::isCloudRegionRussian())
 		{
 			$fileSocialRu = '';
 			$fileSocialEn = self::getFileContent('social_en');
@@ -87,6 +126,17 @@ class Mail
 			[$fileSimple, $fileSocial],
 			$fileTheme
 		);
+
+		return $fileContent;
+	}
+
+	private static function getTemplates($templateId = null)
+	{
+		$fileContent = self::getTemplateHtml();
+		if (!$fileContent)
+		{
+			return [];
+		}
 
 		$result = [
 			[
@@ -112,6 +162,12 @@ class Mail
 				),
 			]
 		];
+
+		$result = array_merge(
+			$result,
+			Integration\EventHandler::onTemplateList(Message\iBase::CODE_MAIL)
+		);
+
 		foreach (Texts::getListByType(Message\iBase::CODE_MAIL) as $item)
 		{
 			$code = strtolower("mail_" . $item['CODE']);
@@ -120,31 +176,12 @@ class Mail
 				continue;
 			}
 
-			$textHead = $item['TEXT_HEAD'];
-			$textBody = $item['TEXT_BODY'];
-			$fileContent = str_replace(
-				array(
-					'%TEXT%',
-					'%IMAGE_PATH%',
-					'%BUTTON_TEXT%',
-
-					'%UNSUB_LINK%',
-				),
-				array(
-					"<br><h2>$textHead</h2><br>$textBody<br><br>",
-					'/bitrix/images/sender/preset/template_v2/banner.png?1',
-					Loc::getMessage('SENDER_PRESET_TEMPLATE_MAIL_BUTTON_GO'),
-					Loc::getMessage(
-						'SENDER_PRESET_TEMPLATE_MAIL_UNSUBSCRIBE',
-						array(
-							'%btn_start%' => '<a style="color: #0054a5;" href="#' . 'UNSUBSCRIBE_LINK' . '#">',
-							'%btn_end%' => '</a>',
-						)
-					)
-				),
-				$fileContent
+			$fileContent = self::replaceTemplateHtml(
+				$fileContent,
+				[
+					'TEXT' => "<br><h2>{$item['TEXT_HEAD']}</h2><br>{$item['TEXT_BODY']}<br><br>"
+				]
 			);
-			$fileContent = Texts::replace($fileContent);
 
 			$result[] = array(
 				'ID' => $code,

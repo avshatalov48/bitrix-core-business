@@ -14,18 +14,6 @@ $from = isset($map['MailUserFrom']) ? $map['MailUserFrom'] : null;
 $fromValue = $from ? $dialog->getCurrentValue($from['FieldName'],'') : null;
 $fromValue = \CBPHelper::UsersArrayToString($fromValue, $dialog->getWorkflowTemplate(), $dialog->getDocumentType());
 
-$toValue = $dialog->getCurrentValue($map['MailUserTo']['FieldName'], $map['MailUserTo']['Default']);
-
-$toAttributeValue = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode(array(
-	'valueInputName' => $map['MailUserTo']['FieldName'],
-	'selected'       => \Bitrix\Bizproc\Automation\Helper::prepareUserSelectorEntities(
-		$dialog->getDocumentType(),
-		$toValue
-	),
-	'multiple' => true,
-	'required' => true,
-)));
-
 $runtimeData = $dialog->getRuntimeData();
 $mailboxes = $runtimeData['mailboxes'];
 
@@ -48,16 +36,13 @@ endif;
 		<span class="bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete">
 			<?=htmlspecialcharsbx($map['MailUserTo']['Name'])?>:
 		</span>
-		<div data-role="user-selector" data-config="<?= $toAttributeValue ?>"></div>
+		<?=$dialog->renderFieldControl($map['MailUserTo'])?>
 	</div>
 
 	<div class="bizproc-automation-popup-settings">
-		<input name="<?=htmlspecialcharsbx($subject['FieldName'])?>" type="text" class="bizproc-automation-popup-input"
-			value="<?=htmlspecialcharsbx($dialog->getCurrentValue($subject['FieldName']))?>"
-			placeholder="<?=htmlspecialcharsbx($subject['Name'])?>"
-			data-role="inline-selector-target"
-		>
+		<?=$dialog->renderFieldControl($subject)?>
 	</div>
+
 	<div class="bizproc-automation-popup-settings" data-role="inline-selector-html">
 		<div class="bizproc-automation-popup-select"><?php
 			$emailEditor = new CHTMLEditor;

@@ -144,7 +144,7 @@ class DefaultSiteHelper extends Helper
 	}
 
 	// avoid paging here, kz its based on ID which is absent for this table
-	public static function getList($parameters = array(), $tableId = false, $navigation = 20)
+	public static function getList($parameters = array(), $tableId = false, $navigation = 20, $params = array())
 	{
 		$entityClass = static::getEntityClass();
 

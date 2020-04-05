@@ -8,6 +8,21 @@ Loc::loadMessages(__FILE__);
 
 class MainMailFormComponent extends CBitrixComponent
 {
+	/**
+	 * @param array $params
+	 * @return array
+	 */
+	public function onPrepareComponentParams($params)
+	{
+		$params = parent::onPrepareComponentParams($params);
+
+		if(!isset($params['USE_SIGNATURES']) || $params['USE_SIGNATURES'] !== true)
+		{
+			$params['USE_SIGNATURES'] = false;
+		}
+
+		return $params;
+	}
 
 	public function executeComponent()
 	{
@@ -107,14 +122,14 @@ class MainMailFormComponent extends CBitrixComponent
 				}
 
 				$item['id'] = sprintf('%04x%02x', rand(0, 0xffff), $k+1);
-				static::prepareField($this->arParams['FORM_ID'], $item);
+				$this->prepareField($this->arParams['FORM_ID'], $item);
 
 				$fields[$k] = $item;
 			}
 		}
 	}
 
-	protected static function prepareField($formId, &$field)
+	protected function prepareField($formId, &$field)
 	{
 		if (empty($field['type']) || !trim($field['type']))
 			$field['type'] = 'text';
@@ -147,6 +162,10 @@ class MainMailFormComponent extends CBitrixComponent
 			{
 				\CBitrixComponent::includeComponentClass('bitrix:main.mail.confirm');
 				$field['mailboxes'] = \MainMailConfirmComponent::prepareMailboxes();
+				if($this->arParams['USE_SIGNATURES'])
+				{
+					$field['signatures'] = $this->loadSignatures($field['mailboxes']);
+				}
 
 				$defaultMailbox = reset($field['mailboxes']);
 				$value = empty($field['required']) ? null : $defaultMailbox['formated'];
@@ -161,7 +180,8 @@ class MainMailFormComponent extends CBitrixComponent
 					{
 						if ($item['email'] == $email)
 						{
-							$value = $field['value'];
+							$value = (!empty($field['isFormatted']) && $field['isFormatted'] && $item['formated'])
+								? $item['formated'] : $field['value'];
 							break;
 						}
 					}
@@ -285,4 +305,32 @@ class MainMailFormComponent extends CBitrixComponent
 		return $result;
 	}
 
+	/**
+	 * @param array $mailboxes
+	 * @return array
+	 */
+	protected function loadSignatures(array $mailboxes)
+	{
+		$signatures = [];
+
+		if(!empty($mailboxes) && \Bitrix\Main\Loader::includeModule('mail') && class_exists('\\Bitrix\\Mail\\Internals\\UserSignatureTable'))
+		{
+			$signatureList = \Bitrix\Mail\Internals\UserSignatureTable::getList([
+				'order' => ['ID' => 'desc'],
+				'select' => ['SIGNATURE', 'SENDER'],
+				'filter' => [
+					'USER_ID' => \Bitrix\Main\Engine\CurrentUser::get()->getId(),
+				]
+			]);
+			while($signature = $signatureList->fetch())
+			{
+				if(!isset($signatures[$signature['SENDER']]))
+				{
+					$signatures[$signature['SENDER']] = $signature['SIGNATURE'];
+				}
+			}
+		}
+
+		return $signatures;
+	}
 }

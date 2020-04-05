@@ -44,6 +44,8 @@ class CatalogProductsSubscribeListComponent extends \CCatalogViewedProductsCompo
 		if($params['LINE_ELEMENT_COUNT'] < 2 || $params['LINE_ELEMENT_COUNT'] > 5)
 			$params['LINE_ELEMENT_COUNT'] = 3;
 
+		$params["DETAIL_URL"] = trim($params["DETAIL_URL"]);
+
 		if(Main\Loader::includeModule('catalog'))
 		{
 			global $USER, $DB;

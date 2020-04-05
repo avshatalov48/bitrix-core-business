@@ -41,16 +41,17 @@ class File
 		));
 		if (!$res->fetch())
 		{
-			FileTable::add(array(
+			$res = FileTable::add(array(
 				'FILE_ID' => $fileId,
 				'ENTITY_ID' => $entityId,
 				'ENTITY_TYPE' => $entityType
 			));
+			$res->isSuccess();
 		}
 	}
 
 	/**
-	 * Delete record, delete file if stop used.
+	 * Mark records for delete.
 	 * @param int|array $fileId File id.
 	 * @param int $entityId Entity id.
 	 * @param int $entityType Entity type.
@@ -58,15 +59,13 @@ class File
 	 */
 	protected static function delete($fileId, $entityId, $entityType)
 	{
-		$deletedFiles = array();
-		// delete rows first
 		$filter = array(
 			'ENTITY_ID' => $entityId,
 			'=ENTITY_TYPE' => $entityType
 		);
 		if ($fileId)
 		{
-			$fileId['FILE_ID'] = $fileId;
+			$filter['FILE_ID'] = $fileId;
 		}
 		$res = FileTable::getList(array(
 			'select' => array(
@@ -76,6 +75,40 @@ class File
 		));
 		while ($row = $res->fetch())
 		{
+			$resUpdate = FileTable::update(
+				$row['ID'],
+				array(
+					'FILE_ID' => -1 * abs($row['FILE_ID'])
+				)
+			);
+			$resUpdate->isSuccess();
+		}
+	}
+
+	/**
+	 * Final delete all marked files.
+	 * @param null $limit
+	 * @return void
+	 */
+	public static function deleteFinal($limit = null)
+	{
+		$deletedFiles = array();
+
+		$res = FileTable::getList(array(
+		  	'select' => array(
+		 		'ID', 'FILE_ID'
+		  	),
+	  		'filter' => array(
+				'<FILE_ID' => 0
+			),
+			'limit' => $limit,
+			'order' => array(
+				'ID' => 'asc'
+			)
+		));
+		while ($row = $res->fetch())
+		{
+			$row['FILE_ID'] *= -1;
 			FileTable::delete($row['ID']);
 			$deletedFiles[$row['FILE_ID']] = $row['FILE_ID'];
 		}
@@ -96,19 +129,21 @@ class File
 			}
 			foreach ($deletedFiles as $fid)
 			{
-				//@tmp log
-				\CEventLog::add(array(
-					'SEVERITY' => 'NOTICE',
-					'AUDIT_TYPE_ID' => 'LANDING_FILE_DELETE',
-					'MODULE_ID' => 'landing',
-					'ITEM_ID' => \CFile::getPath($fid),
-					'DESCRIPTION' => print_r(array(
-						'fileId' => $fileId,
-						'entityId' => $entityId,
-						'entityType' => $entityType
-					), true)
-				));
-				\CFile::delete($fid);
+				$fileData = self::getFileArray($fid);
+				if ($fileData)
+				{
+					//@tmp log
+					\CEventLog::add(array(
+						'SEVERITY' => 'NOTICE',
+						'AUDIT_TYPE_ID' => 'LANDING_FILE_DELETE',
+						'MODULE_ID' => 'landing',
+						'ITEM_ID' => $fileData['SRC'],
+						'DESCRIPTION' => print_r(array(
+							'fileId' => $fid
+						), true)
+					));
+					\CFile::delete($fid);
+				}
 			}
 		}
 	}
@@ -242,7 +277,7 @@ class File
 	{
 		$fileIds = array();
 		// parse from content
-		if (preg_match_all('/data-fileid="([\d]+)"/i', $content, $matches))
+		if (preg_match_all('/data-fileid[2x]{0,2}="([\d]+)"/i', $content, $matches))
 		{
 			foreach ($matches[1] as $fid)
 			{
@@ -308,5 +343,40 @@ class File
 	public static function copyBlockFiles($from, $to)
 	{
 		self::copyEntityFiles($from, $to, self::ENTITY_TYPE_BLOCK);
+	}
+
+	/**
+	 * Gets core file array.
+	 * @param int $fileId File id.
+	 * @return mixed
+	 */
+	public static function getFileArray($fileId)
+	{
+		$file = \CFile::getFileArray(
+			$fileId
+		);
+		if (
+			isset($file['MODULE_ID']) &&
+			$file['MODULE_ID'] == 'landing'
+		)
+		{
+			return $file;
+		}
+		return false;
+	}
+
+	/**
+	 * Gets core file path.
+	 * @param int $fileId File id.
+	 * @return string
+	 */
+	public static function getFilePath($fileId)
+	{
+		$file = self::getFileArray($fileId);
+		if (isset($file['SRC']))
+		{
+			return $file['SRC'];
+		}
+		return null;
 	}
 }

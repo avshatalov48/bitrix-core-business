@@ -6,7 +6,7 @@ use \Bitrix\Calendar\PushTable;
 
 class CCalendarSync
 {
-	public static $handleExchangeMeeting = false;
+	public static $handleExchangeMeeting;
 	public static $doNotSendToGoogle = false;
 
 	public static function doSync()
@@ -38,7 +38,9 @@ class CCalendarSync
 			}
 			$forceSync = false;
 			if (isset($connectionData['forceSync']))
+			{
 				$forceSync = $connectionData['forceSync'];
+			}
 
 			$bShouldClearCache = (self::syncConnection($connectionData, $forceSync)) ? true : $bShouldClearCache;
 		}
@@ -80,12 +82,19 @@ class CCalendarSync
 	public static function syncConnection($connectionData, $forceSync = false)
 	{
 		$bShouldClearCache = false;
-		CDavConnection::Update($connectionData["ID"], array("LAST_RESULT" => "[0]"), false);
+		CDavConnection::Update($connectionData["ID"], array(
+			"LAST_RESULT" => "[0]",
+			"SYNCHRONIZED" => ConvertTimeStamp(time(), "FULL")
+		));
 
 		$googleApiConnection = new GoogleApiSync($connectionData['ENTITY_ID']);
 		if ($error = $googleApiConnection->getTransportConnectionError())
 		{
-			CDavConnection::Update($connectionData["ID"], array("LAST_RESULT" => $error), false);
+			CDavConnection::Update(
+				$connectionData["ID"], array(
+					"LAST_RESULT" => $error,
+					"SYNCHRONIZED" => ConvertTimeStamp(time(), "FULL")
+				));
 			return false;
 		}
 		$googleCalendars = $googleApiConnection->getCalendarItems();
@@ -164,7 +173,7 @@ class CCalendarSync
 		}
 
 		$pushOptionEnabled = COption::GetOptionString('calendar', 'sync_by_push', false) || CCalendar::IsBitrix24();
-		if (!$forceSync && $pushOptionEnabled)
+		if ($pushOptionEnabled)
 		{
 			$pushResult = PushTable::getByPrimary(array('ENTITY_TYPE' => 'CONNECTION', 'ENTITY_ID' => $connectionData['ID']));
 
@@ -262,7 +271,11 @@ class CCalendarSync
 					$excludeDates[] = $externalEvent['EXDATE'];
 					$localEvents[$externalEvent['recurringEventId']]['EXDATE'] = implode(';', $excludeDates);
 
-					$newParentData = array('arFields' => $localEvents[$externalEvent['recurringEventId']], 'userId' => $localCalendar['OWNER_ID'], 'fromWebservice' => true);
+					$newParentData = [
+						'arFields' => $localEvents[$externalEvent['recurringEventId']],
+						'userId' => $localCalendar['OWNER_ID'],
+						'fromWebservice' => true
+					];
 
 					$newParentData['arFields']['EXDATE'] = CCalendarEvent::SetExDate($excludeDates);
 					$newParentData['arFields']['RRULE'] = CCalendarEvent::ParseRRULE($newParentData['arFields']['RRULE']);
@@ -286,7 +299,6 @@ class CCalendarSync
 
 					$newEvent = array_merge(array('ID' => CCalendarEvent::Edit(array('arFields' => $newEventData))), $newEventData);
 					$localEvents[$externalEvent['DAV_XML_ID']] = $newEvent;
-					$bShouldClearCache = true;
 				}
 				else
 				{
@@ -401,9 +413,21 @@ class CCalendarSync
 
 			if (!empty($arFields['PROPERTY_REMIND_SETTINGS']))
 			{
-				$ar = explode("_", $arFields["PROPERTY_REMIND_SETTINGS"]);
-				if(count($ar) == 2)
-					$arNewFields["REMIND"][] = array('type' => $ar[1],'count' => floatVal($ar[0]));
+				if (is_array($arFields['PROPERTY_REMIND_SETTINGS']))
+				{
+					foreach ($arFields['PROPERTY_REMIND_SETTINGS'] as $remindSetting)
+					{
+						$ar = explode("_", $remindSetting);
+						if(count($ar) == 2)
+							$arNewFields["REMIND"][] = array('type' => $ar[1],'count' => floatVal($ar[0]));
+					}
+				}
+				else
+				{
+					$ar = explode("_", $arFields["PROPERTY_REMIND_SETTINGS"]);
+					if(count($ar) == 2)
+						$arNewFields["REMIND"][] = array('type' => $ar[1],'count' => floatVal($ar[0]));
+				}
 			}
 
 			if (!empty($arFields['PROPERTY_ACCESSIBILITY']))
@@ -454,7 +478,10 @@ class CCalendarSync
 					$arNewFields['EXDATE'] = $arFields["EXDATE"];
 			}
 
-			if ($arFields['IS_MEETING'] && $bExchange && self::isExchangeMeetingEnabled())
+			if ($arFields['IS_MEETING']
+				&& ($bExchange && self::isExchangeMeetingEnabled()
+					|| $params['handleMeetingParams'])
+			)
 			{
 				$arNewFields['IS_MEETING'] = $arFields['IS_MEETING'];
 				$arNewFields['MEETING_HOST'] = $arFields['MEETING_HOST'];
@@ -465,13 +492,14 @@ class CCalendarSync
 			if ($saveEvent)
 			{
 				$eventId = CCalendar::SaveEvent(
-					array(
+					[
 						'arFields' => $arNewFields,
 						'userId' => $userId,
 						'bAffectToDav' => false, // Used to prevent syncro with calDav again
 						'bSilentAccessMeeting' => true,
-						'autoDetectSection' => false
-					)
+						'autoDetectSection' => false,
+						'sendInvitations' => $params['sendInvitations'] !== false,
+					]
 				);
 			}
 
@@ -507,8 +535,22 @@ class CCalendarSync
 
 			foreach ($params['events'] as $arFields)
 			{
+				if ($parentEvent['IS_MEETING'])
+				{
+					$arFields['IS_MEETING'] = $parentEvent['IS_MEETING'];
+					$arFields['MEETING_HOST'] = $parentEvent['MEETING_HOST'];
+					$arFields['MEETING'] = $parentEvent['MEETING'];
+					$arFields['ATTENDEES_CODES'] = $parentEvent['ATTENDEES_CODES'];
+				}
+
 				$arFields['RECURRENCE_ID'] = $parentEvent['ID'];
-				self::ModifyEvent($params['calendarId'], $arFields);
+				self::ModifyEvent(
+					$params['calendarId'],
+					$arFields,
+					[
+						'handleMeetingParams' => $parentEvent['IS_MEETING'],
+						'sendInvitations' => false
+					]);
 
 				if ($arFields['RECURRENCE_ID_DATE'])
 				{
@@ -601,10 +643,9 @@ class CCalendarSync
 		if ($bGoogleApi)
 		{
 			$googleApiCalendar = new GoogleApiSync($arFields['OWNER_ID']);
-
 			$arFields['DAV_XML_ID'] = $googleApiCalendar->saveEvent($arDavFields, $section['GAPI_CALENDAR_ID']);
-
-
+			// TODO: handle google errors
+			// $googleApiCalendar->getTransportErrors()
 			return true;
 		}
 		// **** Synchronize with CalDav ****
@@ -1041,6 +1082,10 @@ class CCalendarSync
 
 	public static function isExchangeMeetingEnabled()
 	{
+		if (!isset(self::$handleExchangeMeeting))
+		{
+			self::$handleExchangeMeeting = COption::GetOptionString('calendar', 'sync_exchange_meeting', false);
+		}
 		return self::$handleExchangeMeeting;
 	}
 }

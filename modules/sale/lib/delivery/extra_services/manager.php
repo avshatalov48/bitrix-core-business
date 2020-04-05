@@ -33,7 +33,7 @@ class Manager
 
 	/**
 	 * Manager constructor.
-	 * @param array $initParam
+	 * @param array|int $initParam
 	 * @param string $currency
 	 * @param array $values
 	 * @param array $additionalParams
@@ -92,7 +92,6 @@ class Manager
 		$classes = array(
 			'\Bitrix\Sale\Delivery\ExtraServices\Enum' => 'lib/delivery/extra_services/enum.php',
 			'\Bitrix\Sale\Delivery\ExtraServices\Store' => 'lib/delivery/extra_services/store.php',
-			'\Bitrix\Sale\Delivery\ExtraServices\String' => 'lib/delivery/extra_services/string.php',
 			'\Bitrix\Sale\Delivery\ExtraServices\Quantity' => 'lib/delivery/extra_services/quantity.php',
 			'\Bitrix\Sale\Delivery\ExtraServices\Checkbox' => 'lib/delivery/extra_services/checkbox.php'
 		);
@@ -141,7 +140,8 @@ class Manager
 	}
 
 	/**
-	 * @return Base
+	 * @param int $id
+	 * @return Base|null
 	 */
 	public function getItem($id)
 	{
@@ -282,7 +282,6 @@ class Manager
 	 * @param int $shipmentId
 	 * @param int $deliveryId
 	 * @return array
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public static function getValuesForShipment($shipmentId, $deliveryId)
 	{
@@ -372,7 +371,6 @@ class Manager
 	 * @param int $shipmentId
 	 * @param int $deliveryId
 	 * @return int
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public static function getStoreIdForShipment($shipmentId, $deliveryId)
 	{
@@ -596,6 +594,7 @@ class Manager
 
 	/**
 	 * @param int $deliveryId
+	 * @param bool $stores
 	 * @return array
 	 * @throws SystemException
 	 */

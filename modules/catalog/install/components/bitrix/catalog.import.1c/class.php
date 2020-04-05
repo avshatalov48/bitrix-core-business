@@ -3,6 +3,8 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 class CBitrixCatalogImport1C extends CBitrixComponent
 {
+	const XML_TREE_TABLE_NAME = 'b_xml_tree_import_1c';
+
 	public function checkDatabaseServerTime($secondsDrift = 600)
 	{
 		global $DB;

@@ -8,6 +8,8 @@ use Bitrix\Main\Localization\Loc;
 /** @var \Bitrix\MessageService\Sender\Sms\Twilio $sender */
 $sender = $arResult['sender'];
 
+$messageSuffix = (defined('ADMIN_SECTION') && ADMIN_SECTION === true) ? '_ADMIN' : '';
+
 if ($sender->isRegistered())
 {
 	if (defined('SITE_TEMPLATE_ID') && SITE_TEMPLATE_ID === 'bitrix24')
@@ -66,7 +68,7 @@ if ($sender->isRegistered())
 	<div class="sms-settings-border"></div>
 	<h3 class="sms-settings-title-paragraph"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_TITLE")?></h3>
 	<div class="sms-settings-description">
-		<p><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION")?></p>
+		<p><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION".$messageSuffix)?></p>
 		<ul class="sms-settings-futures-list">
 			<li class="sms-settings-futures-list-item"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_1")?></li>
 			<li class="sms-settings-futures-list-item"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_2")?></li>
@@ -78,7 +80,7 @@ if ($sender->isRegistered())
 		<?php if (!$sender->isRegistered()):?>
 			<div class="sms-settings-step-section">
 				<div class="sms-settings-step-number">1</div>
-				<div class="sms-settings-step-title"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_TITLE")?></div>
+				<div class="sms-settings-step-title"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_TITLE".$messageSuffix)?></div>
 				<ul class="sms-settings-futures-list">
 					<li class="sms-settings-futures-list-item"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_1", array(
 							'#A1#' => '<a href="https://www.twilio.com/console" target="_blank">',

@@ -1,8 +1,7 @@
-<?
-global $MESS;
-$strPath2Lang = str_replace("\\", "/", __FILE__);
-$strPath2Lang = substr($strPath2Lang, 0, strlen($strPath2Lang)-strlen("/install/index.php"));
-include(GetLangFileName($strPath2Lang."/lang/", "/install/index.php"));
+<?php
+
+use Bitrix\Main\Localization\Loc;
+Loc::loadMessages(__FILE__);
 
 Class bizprocdesigner extends CModule
 {
@@ -14,7 +13,7 @@ Class bizprocdesigner extends CModule
 	var $MODULE_CSS;
 	var $MODULE_GROUP_RIGHTS = "Y";
 
-	function bizprocdesigner()
+	function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -25,8 +24,8 @@ Class bizprocdesigner extends CModule
 		$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 		$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 
-		$this->MODULE_NAME = GetMessage("BIZPROCDESIGNER_INSTALL_NAME");
-		$this->MODULE_DESCRIPTION = GetMessage("BIZPROCDESIGNER_INSTALL_DESCRIPTION");
+		$this->MODULE_NAME = Loc::getMessage("BIZPROCDESIGNER_INSTALL_NAME");
+		$this->MODULE_DESCRIPTION = Loc::getMessage("BIZPROCDESIGNER_INSTALL_DESCRIPTION");
 	}
 
 
@@ -104,15 +103,15 @@ Class bizprocdesigner extends CModule
 		$arCurPhpVer = Explode(".", $curPhpVer);
 		if (IntVal($arCurPhpVer[0]) < 5)
 		{
-			$this->errors = array(GetMessage("BIZPROC_PHP_L439", array("#VERS#" => $curPhpVer)));
+			$this->errors = array(Loc::getMessage("BIZPROC_PHP_L439", array("#VERS#" => $curPhpVer)));
 		}
 		elseif (!IsModuleInstalled("bizproc"))
 		{
-			$this->errors = array(GetMessage("BIZPROC_ERROR_BPM"));
+			$this->errors = array(Loc::getMessage("BIZPROC_ERROR_BPM"));
 		}
 		elseif (!CBXFeatures::IsFeatureEditable("BizProc"))
 		{
-			$this->errors = array(GetMessage("BIZPROC_ERROR_EDITABLE"));
+			$this->errors = array(Loc::getMessage("BIZPROC_ERROR_EDITABLE"));
 		}
 		else
 		{
@@ -122,7 +121,7 @@ Class bizprocdesigner extends CModule
 		}
 
 		$GLOBALS["errors"] = $this->errors;
-		$APPLICATION->IncludeAdminFile(GetMessage("BIZPROC_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizprocdesigner/install/step2.php");
+		$APPLICATION->IncludeAdminFile(Loc::getMessage("BIZPROC_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizprocdesigner/install/step2.php");
 	}
 
 	function DoUninstall()
@@ -131,7 +130,7 @@ Class bizprocdesigner extends CModule
 		$step = IntVal($step);
 		if($step<2)
 		{
-			$APPLICATION->IncludeAdminFile(GetMessage("BIZPROC_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizprocdesigner/install/unstep1.php");
+			$APPLICATION->IncludeAdminFile(Loc::getMessage("BIZPROC_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizprocdesigner/install/unstep1.php");
 		}
 		elseif($step==2)
 		{
@@ -140,7 +139,7 @@ Class bizprocdesigner extends CModule
 			CBXFeatures::SetFeatureEnabled("BizProc", false);
 			$GLOBALS["errors"] = $this->errors;
 
-			$APPLICATION->IncludeAdminFile(GetMessage("BIZPROC_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizprocdesigner/install/unstep2.php");
+			$APPLICATION->IncludeAdminFile(Loc::getMessage("BIZPROC_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizprocdesigner/install/unstep2.php");
 		}
 	}
 }

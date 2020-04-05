@@ -79,7 +79,7 @@ if (strlen($arParams["NAME_TEMPLATE"]) <= 0)
 	$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 $bUseLogin = $arParams["SHOW_LOGIN"] != "N" ? true : false;
 
-if ($arParams["USE_KEYWORDS"] != "N") $arParams["USE_KEYWORDS"] = "Y";
+$arParams["USE_KEYWORDS"] = ($arParams["USE_KEYWORDS"] != "N" ? "Y" : "N");
 
 $arResult["GROUP_PROPERTIES"] = $USER_FIELD_MANAGER->GetUserFields("SONET_GROUP", 0, LANGUAGE_ID);
 
@@ -233,7 +233,7 @@ else
 		if ($arParams["GROUP_ID"] <= 0)
 		{
 			if (
-				!CSocNetUser::IsCurrentUserModuleAdmin() 
+				!CSocNetUser::IsCurrentUserModuleAdmin()
 				&& $APPLICATION->GetGroupRight("socialnetwork", false, "Y", "Y", array(SITE_ID, false)) < "K"
 			)
 			{
@@ -389,10 +389,6 @@ else
 				)
 				{
 					$ownerId = intval($match[1]);
-					\Bitrix\Main\FinderDestTable::merge(array(
-						"CONTEXT" => $arResult['destinationContextOwner'],
-						"CODE" => array($_POST["OWNER_CODE"])
-					));
 				}
 
 				// moderators
@@ -412,18 +408,10 @@ else
 						}
 					}
 				}
-
-				if (!empty($moderatorCodeList))
-				{
-					\Bitrix\Main\FinderDestTable::merge(array(
-						"CONTEXT" => $arResult['destinationContextModerators'],
-						"CODE" => $moderatorCodeList
-					));
-				}
 			}
 
 			if (
-				!array_key_exists("TAB", $arResult) 
+				!array_key_exists("TAB", $arResult)
 				|| $arResult["TAB"] == "invite"
 			)
 			{
@@ -469,11 +457,6 @@ else
 						}
 					}
 
-					\Bitrix\Main\FinderDestTable::merge(array(
-						"CONTEXT" => $arResult['destinationContextUsers'],
-						"CODE" => array_keys($arUserCodes)
-					));
-
 					$arResult["POST"]["USER_IDS"] = $arUserIDs;
 					$arResult["POST"]["USER_CODES"] = $arUserCodes;
 
@@ -512,8 +495,8 @@ else
 
 						//adding e-mail from the input field to the list
 						if (
-							array_key_exists("EMAIL", $_POST) 
-							&& strlen($_POST["EMAIL"]) > 0 
+							array_key_exists("EMAIL", $_POST)
+							&& strlen($_POST["EMAIL"]) > 0
 							&& check_email($_POST["EMAIL"])
 						)
 						{
@@ -541,7 +524,7 @@ else
 						}
 
 						if (
-							$arResult["TAB"] == "invite" 
+							$arResult["TAB"] == "invite"
 							&& Count($arUsersList) <= 0
 						)
 						{
@@ -578,9 +561,9 @@ else
 
 			if (
 				(
-					!array_key_exists("TAB", $arResult) 
+					!array_key_exists("TAB", $arResult)
 					|| $arResult["TAB"] == "edit"
-				) 
+				)
 				&& strlen($errorMessage) <= 0
 			)
 			{
@@ -596,6 +579,27 @@ else
 					"SPAM_PERMS" => $_POST["GROUP_SPAM_PERMS"],
 					"PROJECT" => ($_POST["GROUP_PROJECT"] == "Y" ? "Y" : "N"),
 				);
+
+				if(\Bitrix\Main\Config\Configuration::getValue("utf_mode") === true)
+				{
+					$conn = \Bitrix\Main\Application::getConnection();
+					$table = \Bitrix\Socialnetwork\WorkgroupTable::getTableName();
+
+					if ($arFields["NAME"] <> '')
+					{
+						if (!$conn->isUtf8mb4($table, 'NAME'))
+						{
+							$arFields["NAME"] = \Bitrix\Main\Text\Emoji::encode($arFields["NAME"]);
+						}
+					}
+					if ($arFields["DESCRIPTION"] <> '')
+					{
+						if (!$conn->isUtf8mb4($table, 'DESCRIPTION'))
+						{
+							$arFields["DESCRIPTION"] = \Bitrix\Main\Text\Emoji::encode($arFields["DESCRIPTION"]);
+						}
+					}
+				}
 
 				if (!empty($arImageID))
 				{
@@ -633,7 +637,7 @@ else
 					}
 				}
 				elseif(
-					CModule::IncludeModule("extranet") 
+					CModule::IncludeModule("extranet")
 					&& CExtranet::IsExtranetSite()
 				)
 				{
@@ -677,7 +681,7 @@ else
 				if ($arParams["GROUP_ID"] <= 0)
 				{
 					if (
-						CModule::IncludeModule("extranet") 
+						CModule::IncludeModule("extranet")
 						&& CExtranet::IsExtranetSite()
 					)
 					{
@@ -721,8 +725,8 @@ else
 							$arResult["ErrorFields"][] = "GROUP_IMAGE_ID";
 						}
 						elseif (
-							isset($e->messages) 
-							&& is_array($e->messages) 
+							isset($e->messages)
+							&& is_array($e->messages)
 							&& isset($e->messages[0]["id"])
 						)
 						{
@@ -736,50 +740,6 @@ else
 							CSocNetUserToGroup::setOwner($ownerId, $arParams["GROUP_ID"], $arResult["POST"]);
 						}
 
-						$plusList = array_diff($moderatorIdList, $arResult["POST"]["MODERATOR_IDS"]);
-						$minusList = array_diff($arResult["POST"]["MODERATOR_IDS"], $moderatorIdList);
-
-						if (!empty($minusList))
-						{
-							$relationIdList = array();
-
-							$resRelation = UserToGroupTable::getList(array(
-								'filter' => array(
-									'GROUP_ID' => $arParams["GROUP_ID"],
-									'@USER_ID' => $minusList
-								),
-								'select' => array('ID')
-							));
-							while($relation = $resRelation->fetch())
-							{
-								$relationIdList[] = $relation['ID'];
-							}
-
-							if (!empty($relationIdList))
-							{
-								CSocNetUserToGroup::TransferModerator2Member($arResult["currentUserId"], $arParams["GROUP_ID"], $relationIdList, CSocNetUser::IsCurrentUserModuleAdmin());
-							}
-						}
-
-						\Bitrix\Socialnetwork\Item\UserToGroup::addModerators(array(
-							'group_id' => $arParams["GROUP_ID"],
-							'user_id' => $plusList,
-							'current_user_id' => $arResult["currentUserId"]
-						));
-
-						if (!empty($plusList))
-						{
-							foreach($plusList as $moderatorId)
-							{
-								UserToGroup::addInfoToChat(array(
-									'group_id' => $arResult["GROUP_ID"],
-									'user_id' => $moderatorId,
-									'action' => UserToGroup::CHAT_ACTION_IN,
-									'sendMessage' => false
-								));
-							}
-						}
-
 						$rsSite = CSite::getList($by="sort", $order="desc", Array("ACTIVE" => "Y"));
 						while($arSite = $rsSite->Fetch())
 						{
@@ -787,6 +747,62 @@ else
 						}
 					}
 				}
+
+				if ($arResult["GROUP_ID"] > 0)
+				{
+					$plusList = (
+						$arParams["GROUP_ID"] > 0
+							? array_diff($moderatorIdList, $arResult["POST"]["MODERATOR_IDS"])
+							: $moderatorIdList
+					);
+					$minusList = (
+						$arParams["GROUP_ID"] > 0
+							? array_diff($arResult["POST"]["MODERATOR_IDS"], $moderatorIdList)
+							: array()
+					);
+
+					if (!empty($minusList))
+					{
+						$relationIdList = array();
+
+						$resRelation = UserToGroupTable::getList(array(
+							'filter' => array(
+								'GROUP_ID' => $arResult["GROUP_ID"],
+								'@USER_ID' => $minusList
+							),
+							'select' => array('ID')
+						));
+						while($relation = $resRelation->fetch())
+						{
+							$relationIdList[] = $relation['ID'];
+						}
+
+						if (!empty($relationIdList))
+						{
+							CSocNetUserToGroup::TransferModerator2Member($arResult["currentUserId"], $arResult["GROUP_ID"], $relationIdList, CSocNetUser::IsCurrentUserModuleAdmin());
+						}
+					}
+
+					\Bitrix\Socialnetwork\Item\UserToGroup::addModerators(array(
+						'group_id' => $arResult["GROUP_ID"],
+						'user_id' => $plusList,
+						'current_user_id' => $arResult["currentUserId"]
+					));
+
+					if (!empty($plusList))
+					{
+						foreach($plusList as $moderatorId)
+						{
+							UserToGroup::addInfoToChat(array(
+								'group_id' => $arResult["GROUP_ID"],
+								'user_id' => $moderatorId,
+								'action' => UserToGroup::CHAT_ACTION_IN,
+								'sendMessage' => false
+							));
+						}
+					}
+				}
+
 			}
 
 			if (
@@ -881,9 +897,9 @@ else
 
 				/* invite */
 				if (
-					strlen($errorMessage) <= 0 
+					strlen($errorMessage) <= 0
 					&& (
-						!array_key_exists("TAB", $arResult) 
+						!array_key_exists("TAB", $arResult)
 						|| $arResult["TAB"] == "invite"
 					)
 				)
@@ -1033,7 +1049,7 @@ else
 										$userData["EMAIL"] = $email["EMAIL"];
 										$userData["LOGIN"] = $email["EMAIL"];
 										$userData["CONFIRM_CODE"] = randString(8);
-										
+
 										$name = $last_name = "";
 										if ($email["NAME"] <> '')
 										{
@@ -1295,14 +1311,17 @@ else
 					}
 				}
 
-				//if some e-mails belong to internal users and can't be used for invitation
-				if (count($arIntranetUsersEmails) == 1)
+				if (!empty($arIntranetUsersEmails) && is_array($arIntranetUsersEmails))
 				{
-					$warningMessage .= str_replace("#EMAIL#", HtmlSpecialCharsEx(implode("", $arIntranetUsersEmails)), GetMessage("SONET_GCE_CANNOT_EMAIL_ADD"));
-				}
-				elseif (count($arIntranetUsersEmails) > 1)
-				{
-					$warningMessage .= str_replace("#EMAIL#", HtmlSpecialCharsEx(implode(", ", $arIntranetUsersEmails)), GetMessage("SONET_GCE_CANNOT_EMAILS_ADD"));
+					//if some e-mails belong to internal users and can't be used for invitation
+					if (count($arIntranetUsersEmails) == 1)
+					{
+						$warningMessage .= str_replace("#EMAIL#", HtmlSpecialCharsEx(implode("", $arIntranetUsersEmails)), GetMessage("SONET_GCE_CANNOT_EMAIL_ADD"));
+					}
+					elseif (count($arIntranetUsersEmails) > 1)
+					{
+						$warningMessage .= str_replace("#EMAIL#", HtmlSpecialCharsEx(implode(", ", $arIntranetUsersEmails)), GetMessage("SONET_GCE_CANNOT_EMAILS_ADD"));
+					}
 				}
 
 				//if no users were invited
@@ -1318,7 +1337,7 @@ else
 			}
 
 			if (
-				strlen($errorMessage) <= 0 
+				strlen($errorMessage) <= 0
 				&& strlen($warningMessage) <= 0
 			)
 			{

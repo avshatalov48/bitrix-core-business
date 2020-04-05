@@ -6,6 +6,10 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
+use Bitrix\Main\UI;
+
+UI\Extension::load("ui.buttons");
+
 if(SITE_TEMPLATE_ID === 'bitrix24')
 {
 	$bodyClass = $APPLICATION->GetPageProperty('BodyClass');
@@ -351,7 +355,88 @@ else
 			?>
 			BX.ready(function() {
 				setTimeout(function() {
-					oLFFilter.__SLFShowExpertModePopup(null);
+					oLFFilter.__SLFShowInfoPopup({
+						bindObj: null,
+						name: 'setExpertModePopup',
+						type: 'EXPERT_MODE',
+						reload: true,
+						title: '<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_POPUP_TITLE")?>',
+						description1: '<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_POPUP_TEXT1")?>',
+						description2: '<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_POPUP_TEXT2")?>',
+						descriptionImage: {
+							src: '<?=CUtil::JSEscape($this->GetFolder())?>/images/expert_mode/<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_IMAGENAME")?>.png',
+							width: 354,
+							height: 201
+						}
+					});
+				}, 1000);
+			});
+			<?
+		}
+
+		if (
+			isset($arResult["SHOW_VIDEO_TRANSFORM_POPUP"])
+			&& $arResult["SHOW_VIDEO_TRANSFORM_POPUP"] == "Y"
+		)
+		{
+			?>
+			var __SLFPopupVideoTransform = null;
+			var buttonPublish = null;
+			<?
+			if (!empty($arResult["VIDEO_TRANSFORM_POST_ID"]))
+			{
+				?>
+				buttonPublish = {
+					type: 'light-border',
+					title: '<?=GetMessageJS("SONET_C30_F_VIDEO_TRANSFORM_POPUP_BUTTON_PUBLISH_TITLE")?>',
+					click: function() {
+						BX.ajax({
+							method: 'POST',
+							dataType: 'json',
+							url: BX.message('ajaxControllerURL'),
+							data: {
+								sessid : BX.bitrix_sessid(),
+								popupType: 'VIDEO_TRANSFORM',
+								action: 'PUBLISH',
+								postId: <?=intval($arResult["VIDEO_TRANSFORM_POST_ID"])?>,
+								closePopup: 'Y'
+							},
+							onsuccess: function(response)
+							{
+								if (
+									typeof (response) != 'undefined'
+									&& typeof (response.SUCCESS) != 'undefined'
+									&& response.SUCCESS == 'Y'
+								)
+								{
+									__SLFPopupVideoTransform.close();
+									top.location = top.location.href;
+								}
+							}
+						});
+					}
+				};
+				<?
+			}
+			?>
+
+			BX.ready(function() {
+				setTimeout(function() {
+					__SLFPopupVideoTransform = oLFFilter.__SLFShowInfoPopup({
+						bindObj: null,
+						name: 'startVideoTransformPopup',
+						type: 'VIDEO_TRANSFORM',
+						reload: false,
+						title: '<?=GetMessageJS("SONET_C30_F_VIDEO_TRANSFORM_POPUP_TITLE")?>',
+						description1: '<?=GetMessageJS("SONET_C30_F_VIDEO_TRANSFORM_POPUP_TEXT1")?>',
+						description2: '<?=GetMessageJS("SONET_C30_F_VIDEO_TRANSFORM_POPUP_TEXT2", array(
+							"#A_START#" => '<a href="'.htmlspecialcharsbx($arResult["VIDEO_TRANSFORM_POST_URL"]).'">',
+							"#A_END#" => '</a>'
+						))?>',
+						buttonsAdd: [
+							buttonPublish
+						]
+					});
 				}, 1000);
 			});
 			<?
@@ -362,11 +447,7 @@ else
 			ajaxControllerURL: '<?=CUtil::JSEscape($arResult["ajaxControllerURL"])?>',
 			sonetLFAllMessages: '<?=GetMessageJS("SONET_C30_PRESET_FILTER_ALL")?>',
 			sonetLFDialogClose: '<?=GetMessageJS("SONET_C30_F_DIALOG_CLOSE_BUTTON")?>',
-			sonetLFDialogRead: '<?=GetMessageJS("SONET_C30_F_DIALOG_READ_BUTTON")?>',
-			sonetLFExpertModePopupTitle: '<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_POPUP_TITLE")?>',
-			sonetLFExpertModePopupText1: '<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_POPUP_TEXT1")?>',
-			sonetLFExpertModePopupText2: '<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_POPUP_TEXT2")?>',
-			sonetLFExpertModeImagePath: '<?=CUtil::JSEscape($this->GetFolder())?>/images/expert_mode/<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_IMAGENAME")?>.png'
+			sonetLFDialogRead: '<?=GetMessageJS("SONET_C30_F_DIALOG_READ_BUTTON")?>'
 		});
 	</script><?
 
@@ -452,155 +533,6 @@ else
 			});
 		</script>
 		<?
-		foreach($arResult["Filter"] as $filterField)
-		{
-			if (
-				$filterField['type'] == 'custom_entity'
-				&& $filterField['selector']['TYPE'] == 'user'
-			)
-			{
-				$userSelector = $filterField['selector']['DATA'];
-
-				$selectorID = $userSelector['ID'];
-				$fieldID = $userSelector['FIELD_ID'];
-
-				$APPLICATION->IncludeComponent(
-					"bitrix:main.ui.selector",
-					".default",
-					array(
-						'ID' => $selectorID,
-						'ITEMS_SELECTED' => (!empty($arResult["CREATED_BY_DEST"]['SELECTED']) ? $arResult["CREATED_BY_DEST"]['SELECTED'] : array()),
-						'CALLBACK' => array(
-							'select' => 'BitrixLFFilterDestinationSelectorManager.onSelect',
-							'unSelect' => '',
-							'openDialog' => 'BitrixLFFilterDestinationSelectorManager.onDialogOpen',
-							'closeDialog' => 'BitrixLFFilterDestinationSelectorManager.onDialogClose',
-							'openSearch' => ''
-						),
-						'OPTIONS' => array(
-							'eventInit' => 'BX.Livefeed.Filter:openInit',
-							'eventOpen' => 'BX.Livefeed.Filter:open',
-							'context' => 'FEED_FILTER_CREATED_BY',
-							'contextCode' => 'U',
-							'useSearch' => 'N',
-							'userNameTemplate' => CUtil::JSEscape($arParams["NAME_TEMPLATE"]),
-							'useClientDatabase' => 'Y',
-							'allowEmailInvitation' => 'N',
-							'enableDepartments' => 'Y',
-							'enableSonetgroups' => 'N',
-							'departmentSelectDisable' => 'Y',
-							'allowAddUser' => 'N',
-							'allowAddCrmContact' => 'N',
-							'allowAddSocNetGroup' => 'N',
-							'allowSearchEmailUsers' => 'N',
-							'allowSearchCrmEmailUsers' => 'N',
-							'allowSearchNetworkUsers' => 'N',
-							'allowSonetGroupsAjaxSearchFeatures' => 'N',
-							'useNewCallback' => 'Y'
-						)
-					),
-					false,
-					array("HIDE_ICONS" => "Y")
-				);
-				?>
-				<script>
-				BX.ready(
-					function()
-					{
-						BitrixLFFilterDestinationSelector.create(
-							"<?=CUtil::JSEscape($selectorID)?>",
-							{
-								filterId: "<?=CUtil::JSEscape($filterID)?>",
-								fieldId: "<?=CUtil::JSEscape($fieldID)?>"
-							}
-						);
-					}
-				);
-				</script>
-				<?
-			}
-			elseif (
-				$filterField['type'] == 'custom_entity'
-				&& $filterField['selector']['TYPE'] == 'destination'
-			)
-			{
-				$userSelector = $filterField['selector']['DATA'];
-				$selectorID = $userSelector['ID'];
-				$fieldID = $userSelector['FIELD_ID'];
-
-				$APPLICATION->IncludeComponent(
-					"bitrix:main.ui.selector",
-					".default",
-					array(
-						'ID' => $selectorID,
-						'ITEMS_SELECTED' => (!empty($arResult["TO_DEST"]['SELECTED']) ? $arResult["TO_DEST"]['SELECTED'] : array()),
-						'CALLBACK' => array(
-							'select' => 'BitrixLFFilterDestinationSelectorManager.onSelect',
-							'unSelect' => '',
-							'openDialog' => 'BitrixLFFilterDestinationSelectorManager.onDialogOpen',
-							'closeDialog' => 'BitrixLFFilterDestinationSelectorManager.onDialogClose',
-							'openSearch' => ''
-						),
-						'OPTIONS' => array(
-							'eventInit' => 'BX.Livefeed.Filter:openInit',
-							'eventOpen' => 'BX.Livefeed.Filter:open',
-							'context' => 'FEED_FILTER_TO',
-							'useSearch' => 'N',
-							'userNameTemplate' => CUtil::JSEscape($arParams["NAME_TEMPLATE"]),
-							'useClientDatabase' => 'Y',
-							'allowEmailInvitation' => (IsModuleInstalled('mail') && IsModuleInstalled('intranet') ? 'Y' : 'N'),
-							'enableDepartments' => 'Y',
-							'enableSonetgroups' => 'Y',
-							'departmentSelectDisable' => 'N',
-							'allowAddUser' => 'N',
-							'allowAddCrmContact' => 'N',
-							'allowAddSocNetGroup' => 'N',
-							'allowSearchEmailUsers' => ($arResult["bExtranetUser"] ? 'N' : 'Y'),
-							'allowSearchCrmEmailUsers' => 'N',
-							'allowSearchNetworkUsers' => 'N',
-							'allowSonetGroupsAjaxSearchFeatures' => 'N',
-							'useNewCallback' => 'Y'
-						)
-					),
-					false,
-					array("HIDE_ICONS" => "Y")
-				);
-
-				switch($selectorID)
-				{
-					case 'to':
-						$initialValue = (!empty($arResult['Group'])
-							? array(
-								'itemId' => 'SG'.$arResult['Group']['ID'],
-								'itemName' => $arResult['Group']['~NAME']
-							)
-							: false
-						);
-						break;
-					default:
-						$initialValue = false;
-				}
-
-				?>
-				<script>
-				BX.ready(
-					function()
-					{
-						BitrixLFFilterDestinationSelector.create(
-							"<?=CUtil::JSEscape($selectorID)?>",
-							{
-								filterId: "<?=CUtil::JSEscape($filterID)?>",
-								fieldId: "<?=CUtil::JSEscape($fieldID)?>",
-								initialValue: <?=\CUtil::phpToJSObject($initialValue)?>
-							}
-						);
-					}
-				);
-				</script>
-				<?
-			}
-		}
-
 		$toolbarId = 'LIVEFEED_FILTER_TOOLBAR';
 
 		?><div id="<?=htmlspecialcharsbx($toolbarId)?>" class="pagetitle-container pagetitle-align-right-container"><?

@@ -60,7 +60,9 @@ CJSCore::registerExt('appplacement', array(
 ));
 
 CJSCore::registerExt('restclient', array(
-	'js' => '/bitrix/js/rest/client.js',
+	'js' => '/bitrix/js/rest/client/rest.client.js',
+	'skip_core' => true,
+	'rel' => array('promise'),
 ));
 
 CJSCore::registerExt('rest_userfield', array(

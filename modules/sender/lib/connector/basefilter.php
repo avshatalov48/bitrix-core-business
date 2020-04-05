@@ -7,7 +7,10 @@
  */
 namespace Bitrix\Sender\Connector;
 
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Filter\Options as FilterOptions;
+
+Loc::loadMessages(__FILE__);
 
 /**
  * Class BaseFilter
@@ -259,7 +262,7 @@ abstract class BaseFilter extends Base
 		$fields = is_array($fields) ? $fields : array();
 		$fields[] = array(
 			"id" => self::FIELD_FOR_PRESET_ALL,
-			"name" => '',
+			"name" => Loc::getMessage('SENDER_CONNECTOR_BASE_FILTER'),
 			'type' => 'checkbox',
 			"default" => false,
 			"sender_segment_filter" => false,

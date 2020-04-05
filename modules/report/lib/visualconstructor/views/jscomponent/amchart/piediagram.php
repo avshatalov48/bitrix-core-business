@@ -74,7 +74,7 @@ class PieDiagram extends Base
 
 		foreach ($result['dataProvider'] as $number => &$data)
 		{
-			if (isset($customColors[$number]))
+			if (!isset($data['color']) && isset($customColors[$number]))
 			{
 				$data['color'] = $customColors[$number];
 			}

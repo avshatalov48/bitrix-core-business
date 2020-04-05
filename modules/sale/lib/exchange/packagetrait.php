@@ -4,6 +4,7 @@ namespace Bitrix\Sale\Exchange;
 
 
 use Bitrix\Sale\Exchange\Entity\EntityImport;
+use Bitrix\Sale\Exchange\OneC\DocumentType;
 
 trait PackageTrait
 {
@@ -14,7 +15,7 @@ trait PackageTrait
 	 */
 	protected static function load(ImportBase $item, array $fields, $order=null)
 	{
-		if($item->getOwnerTypeId() <> EntityType::ORDER)
+		if($item->getOwnerTypeId() <> static::getParentEntityTypeId())
 		{
 			if($item instanceof EntityImport)
 			{
@@ -55,9 +56,9 @@ trait PackageTrait
 	{
 		foreach($documents as $document)
 		{
-			if(EntityType::isDefined($type_id))
+			if(DocumentType::isDefined($type_id))
 			{
-				if($document->getOwnerEntityTypeId() == $type_id)
+				if($document->getTypeId() == $type_id)
 				{
 					return $document;
 				}

@@ -1,5 +1,5 @@
 .ui-grid-tile {
-	margin: -9px;
+	margin: 0 -9px;
 	position: relative;
 }
 
@@ -73,6 +73,10 @@
 	content: '';
 	display: block;
 	padding-top: 100%;
+}
+
+.ui-grid-tile-item-fixed-height:before {
+	display: none;
 }
 
 .ui-grid-tile-item-to-fade {

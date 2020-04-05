@@ -87,4 +87,13 @@ class BySite extends Base
 
 		return parent::getSeverity($mode);
 	}
+
+	/**
+	 * @return bool
+	 */
+	public static function isAvailable()
+	{
+		return IsModuleInstalled('crm') ? false : true;
+	}
+
 } 

@@ -713,13 +713,13 @@ function convertTimeToMilitary ($strTime, $fromFormat = 'H:MI T', $toFormat = 'H
  * @param string|array $format
  * @param int|bool|\Bitrix\Main\Type\DateTime $timestamp
  * @param int|bool|\Bitrix\Main\Type\DateTime $now
- * 
+ *
  * @return string
  */
 function FormatDate($format = "", $timestamp = false, $now = false)
 {
 	global $DB;
-	
+
 	if ($timestamp === false)
 	{
 		$timestamp = time();
@@ -732,7 +732,7 @@ function FormatDate($format = "", $timestamp = false, $now = false)
 	{
 		$timestamp = intval($timestamp);
 	}
-	
+
 	if ($now === false)
 	{
 		$now = time();
@@ -745,7 +745,7 @@ function FormatDate($format = "", $timestamp = false, $now = false)
 	{
 		$now = intval($now);
 	}
-	
+
 	switch($format)
 	{
 		case "SHORT":
@@ -935,9 +935,16 @@ function FormatDate($format = "", $timestamp = false, $now = false)
 		$format = substr($format, 1);
 	}
 
-	$arFormatParts = preg_split("/(sago|iago|isago|Hago|dago|mago|Yago|sdiff|idiff|Hdiff|ddiff|mdiff|Ydiff|sshort|ishort|Hshort|dshort|mhort|Yshort|yesterday|today|tomorrow|tommorow|X|x|F|f|Q|M|l|D)/", $format, 0, PREG_SPLIT_DELIM_CAPTURE);
+	$arFormatParts = preg_split("/(?<!\\\\)(
+		sago|iago|isago|Hago|dago|mago|Yago|
+		sdiff|idiff|Hdiff|ddiff|mdiff|Ydiff|
+		sshort|ishort|Hshort|dshort|mhort|Yshort|
+		yesterday|today|tomorrow|tommorow|
+		X|x|j|F|f|Y|Q|M|l|D
+	)/x", $format, 0, PREG_SPLIT_DELIM_CAPTURE);
 
 	$result = "";
+	$currentLanguage = \Bitrix\Main\Localization\Loc::getCurrentLang();
 	foreach($arFormatParts as $format_part)
 	{
 		switch($format_part)
@@ -1141,34 +1148,58 @@ function FormatDate($format = "", $timestamp = false, $now = false)
 			));
 			break;
 		case "F":
-			if(LANGUAGE_ID == "en")
+			if($currentLanguage == "en")
 				$result .= date($format_part, $timestamp);
 			else
 				$result .= GetMessage("MONTH_".date("n", $timestamp)."_S");
 			break;
 		case "f":
-			if(LANGUAGE_ID == "en")
+			if($currentLanguage == "en")
 				$result .= date("F", $timestamp);
 			else
 				$result .= GetMessage("MONTH_".date("n", $timestamp));
 			break;
 		case "M":
-			if(LANGUAGE_ID == "en")
+			if($currentLanguage == "en")
 				$result .= date($format_part, $timestamp);
 			else
 				$result .= GetMessage("MON_".date("n", $timestamp));
 			break;
 		case "l":
-			if(LANGUAGE_ID == "en")
+			if($currentLanguage == "en")
 				$result .= date($format_part, $timestamp);
 			else
 				$result .= GetMessage("DAY_OF_WEEK_".date("w", $timestamp));
 			break;
 		case "D":
-			if(LANGUAGE_ID == "en")
+			if($currentLanguage == "en")
 				$result .= date($format_part, $timestamp);
 			else
 				$result .= GetMessage("DOW_".date("w", $timestamp));
+			break;
+		case "j":
+			$dayOfMonth = date("j", $timestamp);
+			$dayPattern = GetMessage("DOM_PATTERN");
+			if ($dayPattern)
+			{
+				$result .= str_replace("#DAY#", $dayOfMonth, $dayPattern);
+			}
+			else
+			{
+				$result .= $dayOfMonth;
+			}
+			break;
+		case "Y":
+			$year = date("Y", $timestamp);
+			$yearPattern = GetMessage("YEAR_PATTERN");
+			if ($yearPattern)
+			{
+				$result .= str_replace("#YEAR#", $year, $yearPattern);
+			}
+			else
+			{
+				$result .= $year;
+			}
 			break;
 		case "x":
 			$ampm = IsAmPmMode(true);
@@ -1340,6 +1371,14 @@ function FormatDateEx($strDate, $format=false, $new_format=false)
 				case "D":
 					$match=GetMessage("DOW_".date("w", $ux_time));
 					break;
+				case "j":
+					$match = date(substr($new_format, $i ,1), $ux_time);
+					$dayPattern = GetMessage("DOM_PATTERN");
+					if ($dayPattern)
+					{
+						$match = str_replace("#DAY#", $match, $dayPattern);
+					}
+					break;
 				default:
 					$match = date(substr($new_format, $i ,1), $ux_time);
 					break;
@@ -1386,6 +1425,11 @@ function FormatDateEx($strDate, $format=false, $new_format=false)
 					break;
 				case "j":
 					$match = intval($arParsedDate["DD"]);
+					$dayPattern = GetMessage("DOM_PATTERN");
+					if ($dayPattern)
+					{
+						$match = str_replace("#DAY#", $match, $dayPattern);
+					}
 					break;
 				case "Y":
 					$match = str_pad($arParsedDate["YY"], 4, "0", STR_PAD_LEFT);
@@ -3012,14 +3056,21 @@ function GetMessageJS($name, $aReplace=false)
 function GetMessage($name, $aReplace=null)
 {
 	global $MESS;
-	if(isset($MESS[$name]))
+	if (isset($MESS[$name]))
 	{
 		$s = $MESS[$name];
-		if($aReplace!==null && is_array($aReplace))
-			foreach($aReplace as $search=>$replace)
+
+		if ($aReplace !== null && is_array($aReplace))
+		{
+			foreach($aReplace as $search => $replace)
+			{
 				$s = str_replace($search, $replace, $s);
+			}
+		}
+
 		return $s;
 	}
+
 	return \Bitrix\Main\Localization\Loc::getMessage($name, $aReplace);
 }
 
@@ -3043,6 +3094,16 @@ function GetLangFileName($before, $after, $lang=false)
 
 	global $ALL_LANG_FILES;
 	$ALL_LANG_FILES[] = $before.$lang.$after;
+
+	if (\Bitrix\Main\Localization\Translation::allowConvertEncoding())
+	{
+		$langFile = \Bitrix\Main\Localization\Translation::convertLangPath($before. $lang. $after, $lang);
+		if(file_exists($langFile))
+		{
+			return $langFile;
+		}
+	}
+
 	if(file_exists($before.$lang.$after))
 		return $before.$lang.$after;
 	if(file_exists($before."en".$after))
@@ -3070,13 +3131,94 @@ function __IncludeLang($path, $bReturnArray=false, $bFileChecked=false)
 	global $ALL_LANG_FILES;
 	$ALL_LANG_FILES[] = $path;
 
-	if($bReturnArray)
-		$MESS = array();
-	else
-		global $MESS;
+	if (\Bitrix\Main\Localization\Translation::allowConvertEncoding())
+	{
+		// extract language from path
+		$language = '';
+		$arr = explode('/', $path);
+		$langKey = array_search('lang', $arr);
+		if ($langKey !== false && isset($arr[$langKey + 1]))
+		{
+			$language = $arr[$langKey + 1];
+		}
 
-	if($bFileChecked || file_exists($path))
-		include($path);
+		static $encodingCache = array();
+		if (isset($encodingCache[$language]))
+		{
+			list($convertEncoding, $targetEncoding, $sourceEncoding) = $encodingCache[$language];
+		}
+		else
+		{
+			$convertEncoding = \Bitrix\Main\Localization\Translation::needConvertEncoding($language);
+			$targetEncoding = $sourceEncoding = '';
+			if ($convertEncoding)
+			{
+				$targetEncoding = \Bitrix\Main\Localization\Translation::getCurrentEncoding();
+				$sourceEncoding = \Bitrix\Main\Localization\Translation::getSourceEncoding($language);
+			}
+
+			$encodingCache[$language] = array($convertEncoding, $targetEncoding, $sourceEncoding);
+		}
+
+		$path = \Bitrix\Main\Localization\Translation::convertLangPath($path, LANGUAGE_ID);
+
+		$MESS = array();
+		if ($bFileChecked)
+		{
+			include($path);
+		}
+		elseif (file_exists($path))
+		{
+			include($path);
+		}
+
+		if (!empty($MESS))
+		{
+			if ($convertEncoding)
+			{
+				$convertEncoding = \Bitrix\Main\Localization\Translation::checkPathRestrictionConvertEncoding($path);
+			}
+
+			foreach ($MESS as $key => $val)
+			{
+				if ($convertEncoding)
+				{
+					$val = \Bitrix\Main\Text\Encoding::convertEncoding($val, $sourceEncoding, $targetEncoding);
+				}
+
+				$MESS[$key] = $val;
+
+				if (!$bReturnArray)
+				{
+					$GLOBALS['MESS'][$key] = $val;
+				}
+			}
+		}
+	}
+	else
+	{
+		if ($bReturnArray)
+		{
+			$MESS = array();
+		}
+		else
+		{
+			global $MESS;
+		}
+
+		if ($bFileChecked)
+		{
+			include($path);
+		}
+		else
+		{
+			$path = \Bitrix\Main\Localization\Translation::convertLangPath($path, LANGUAGE_ID);
+			if (file_exists($path))
+			{
+				include($path);
+			}
+		}
+	}
 
 	//read messages from user lang file
 	static $bFirstCall = true;
@@ -3161,55 +3303,102 @@ function IncludeTemplateLangFile($filepath, $lang=false)
 	$module_path = $BX_DOC_ROOT.$module_path;
 
 	if($lang === false)
+	{
 		$lang = LANGUAGE_ID;
+	}
 
 	$subst_lang = LangSubst($lang);
 
 	if((substr($file_name, -16) == ".description.php") && $module_name!="")
 	{
-		if($subst_lang <> $lang && file_exists(($fname = $module_path.$module_name."/install/templates/lang/".$subst_lang."/".$file_name)))
-			__IncludeLang($fname, false, true);
+		if ($subst_lang <> $lang)
+		{
+			$fname = $module_path.$module_name."/install/templates/lang/".$subst_lang."/".$file_name;
+			$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $subst_lang);
+			if (file_exists($fname))
+			{
+				__IncludeLang($fname, false, true);
+			}
+		}
 
-		if(file_exists(($fname = $module_path.$module_name."/install/templates/lang/".$lang."/".$file_name)))
+		$fname = $module_path.$module_name."/install/templates/lang/".$lang."/".$file_name;
+		$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $lang);
+		if (file_exists($fname))
+		{
 			__IncludeLang($fname, false, true);
+		}
 	}
 
 	$checkModule = true;
-	if($templ_path <> "")
+	if ($templ_path <> "")
 	{
 		$templ_path = $BX_DOC_ROOT.$templ_path;
 		$checkDefault = true;
-		if($subst_lang <> $lang && file_exists(($fname = $templ_path.$template_name."/lang/".$subst_lang."/".$file_name)))
+
+		// default
+		if ($subst_lang <> $lang)
 		{
-			__IncludeLang($fname, false, true);
-			$checkDefault = $checkModule = false;
-		}
-		if(file_exists(($fname = $templ_path.$template_name."/lang/".$lang."/".$file_name)))
-		{
-			__IncludeLang($fname, false, true);
-			$checkDefault = $checkModule = false;
-		}
-		if($checkDefault && $template_name != ".default")
-		{
-			if($subst_lang <> $lang && file_exists(($fname = $templ_path.".default/lang/".$subst_lang."/".$file_name)))
+			$fname = $templ_path.$template_name."/lang/".$subst_lang."/".$file_name;
+			$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $subst_lang);
+			if (file_exists($fname))
 			{
 				__IncludeLang($fname, false, true);
-				$checkModule = false;
+				$checkDefault = $checkModule = false;
 			}
-			if(file_exists(($fname = $templ_path.".default/lang/".$lang."/".$file_name)))
+		}
+
+		// required lang
+		$fname = $templ_path.$template_name."/lang/".$lang."/".$file_name;
+		$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $lang);
+		if (file_exists($fname))
+		{
+			__IncludeLang($fname, false, true);
+			$checkDefault = $checkModule = false;
+		}
+
+		// template .default
+		if ($checkDefault && $template_name != ".default")
+		{
+			if ($subst_lang <> $lang)
+			{
+				$fname = $templ_path.".default/lang/".$subst_lang."/".$file_name;
+				$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $subst_lang);
+				if (file_exists($fname))
+				{
+					__IncludeLang($fname, false, true);
+					$checkModule = false;
+				}
+			}
+
+			$fname = $templ_path.".default/lang/".$lang."/".$file_name;
+			$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $lang);
+			if (file_exists($fname))
 			{
 				__IncludeLang($fname, false, true);
 				$checkModule = false;
 			}
 		}
 	}
-	if($module_name != "" && $checkModule)
+	if ($checkModule && $module_name != "")
 	{
-		if($subst_lang <> $lang && file_exists(($fname = $module_path.$module_name."/install/templates/lang/".$subst_lang."/".$file_name)))
+		if ($subst_lang <> $lang)
+		{
+			$fname = $module_path.$module_name."/install/templates/lang/".$subst_lang."/".$file_name;
+			$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $subst_lang);
+			if (file_exists($fname))
+			{
+				__IncludeLang($fname, false, true);
+			}
+		}
+
+		$fname = $module_path.$module_name."/install/templates/lang/".$lang."/".$file_name;
+		$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $lang);
+		if(file_exists($fname))
+		{
 			__IncludeLang($fname, false, true);
-		if(file_exists(($fname = $module_path.$module_name."/install/templates/lang/".$lang."/".$file_name)))
-			__IncludeLang($fname, false, true);
+		}
 	}
+
 	return null;
 }
 
@@ -3253,19 +3442,32 @@ function IncludeModuleLangFile($filepath, $lang=false, $bReturnArray=false)
 	$lang_subst = LangSubst($lang);
 
 	$arMess = array();
-	if($lang_subst <> $lang && file_exists(($fname = $module_path."/lang/".$lang_subst."/".$rel_path)))
+	if ($lang_subst <> $lang)
 	{
-		$arMess = __IncludeLang($fname, $bReturnArray, true);
+		$fname = $module_path."/lang/".$lang_subst."/".$rel_path;
+		$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $lang_subst);
+		if (file_exists($fname))
+		{
+			$arMess = __IncludeLang($fname, $bReturnArray, true);
+		}
 	}
-	if(file_exists(($fname = $module_path."/lang/".$lang."/".$rel_path)))
+
+	$fname = $module_path."/lang/".$lang."/".$rel_path;
+	$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $lang);
+	if (file_exists($fname))
 	{
 		$msg = __IncludeLang($fname, $bReturnArray, true);
 		if(is_array($msg))
+		{
 			$arMess = array_merge($arMess, $msg);
+		}
 	}
 
 	if($bReturnArray)
+	{
 		return $arMess;
+	}
+
 	return true;
 }
 
@@ -3612,7 +3814,7 @@ function LocalRedirect($url, $skip_security_check=false, $status="302 Found")
 	{
 		foreach(GetModuleEvents("main", "OnBeforeLocalRedirect", true) as $arEvent)
 		{
-			ExecuteModuleEventEx($arEvent, array(&$url, $skip_security_check, $bExternal));
+			ExecuteModuleEventEx($arEvent, array(&$url, $skip_security_check, &$bExternal));
 		}
 	}
 
@@ -3644,6 +3846,8 @@ function LocalRedirect($url, $skip_security_check=false, $status="302 Found")
 
 	$_SESSION["BX_REDIRECT_TIME"] = time();
 
+	\Bitrix\Main\Context::getCurrent()->getResponse()->flush();
+
 	CMain::ForkActions();
 	exit;
 }
@@ -3659,6 +3863,8 @@ function FindUserID($tag_name, $tag_value, $user_name="", $form_name = "form1", 
 	/** @global CMain $APPLICATION */
 	global $APPLICATION;
 
+	$selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
+	$search_page = str_replace("/bitrix/admin/", $selfFolderUrl, $search_page);
 	$tag_name_x = preg_replace("/([^a-z0-9]|\\[|\\])/is", "x", $tag_name);
 	if($APPLICATION->GetGroupRight("main") >= "R")
 	{
@@ -3687,7 +3893,7 @@ function Ch".$tag_name_x."()
 			if (tv".$tag_name_x."!='')
 			{
 				DV_".$tag_name_x.".innerHTML = '<i>".GetMessage("MAIN_WAIT")."</i>';
-				BX(\"hiddenframe".$tag_name."\").src='/bitrix/admin/get_user.php?ID=' + tv".$tag_name_x."+'&strName=".$tag_name."&lang=".LANG.(defined("ADMIN_SECTION") && ADMIN_SECTION===true?"&admin_section=Y":"")."';
+				BX(\"hiddenframe".$tag_name."\").src='get_user.php?ID=' + tv".$tag_name_x."+'&strName=".$tag_name."&lang=".LANG.(defined("ADMIN_SECTION") && ADMIN_SECTION===true?"&admin_section=Y":"")."';
 			}
 			else
 			{
@@ -4177,7 +4383,7 @@ function check_email($email, $bStrict=false)
 
 	//"." can't be in the beginning or in the end of local-part
 	//dot-atom-text = 1*atext *("." 1*atext)
-	if(preg_match("#^[".$atom."]+(\\.[".$atom."]+)*@(([-0-9a-z_]+\\.)+)([a-z0-9-]{2,20})$#i", $email))
+	if(preg_match("#^[".$atom."]+(\\.[".$atom."]+)*@(([-0-9a-z]+\\.)+)([a-z0-9-]{2,20})$#i", $email))
 	{
 		return true;
 	}
@@ -4290,6 +4496,7 @@ class CJSCore
 	const USE_PUBLIC = 'public';
 
 	private static $arRegisteredExt = array();
+	private static $arAutoloadQueue = array();
 	private static $arCurrentlyLoadedExt = array();
 
 	private static $bInited = false;
@@ -4299,7 +4506,7 @@ class CJSCore
 	ex: CJSCore::RegisterExt('timeman', array(
 		'js' => '/bitrix/js/timeman/core_timeman.js',
 		'css' => '/bitrix/js/timeman/css/core_timeman.css',
-		'lang' => '/bitrix/modules/timeman/lang/#LANG#/js_core_timeman.php',
+		'lang' => '/bitrix/modules/timeman/js_core_timeman.php',
 		'rel' => array(needed extensions for automatic inclusion),
 		'use' => CJSCore::USE_ADMIN|CJSCore::USE_PUBLIC
 	));
@@ -4323,13 +4530,21 @@ class CJSCore
 			}
 		}
 
+		if (isset($arPaths['lang']))
+		{
+			$arPaths['lang'] = str_replace("/lang/".LANGUAGE_ID."/", "/", $arPaths['lang']);
+		}
+
 		self::$arRegisteredExt[$name] = $arPaths;
+
+		if (isset($arPaths['autoload']))
+		{
+			self::$arAutoloadQueue[$name] = $arPaths;
+		}
 	}
 
 	public static function Init($arExt = array(), $bReturn = false)
 	{
-		global $USER;
-
 		if (!self::$bInited)
 		{
 			self::_RegisterStandardExt();
@@ -4347,7 +4562,7 @@ class CJSCore
 			foreach ($arExt as $ext)
 			{
 				if (
-					self::$arRegisteredExt[$ext]
+					isset(self::$arRegisteredExt[$ext])
 					&& (
 						!isset(self::$arRegisteredExt[$ext]['skip_core'])
 						|| !self::$arRegisteredExt[$ext]['skip_core']
@@ -4367,11 +4582,22 @@ class CJSCore
 		$ret = '';
 		if ($bNeedCore && !self::$arCurrentlyLoadedExt['core'])
 		{
-			$ret .= self::_loadCSS('/bitrix/js/main/core/css/core.css', $bReturn);
-			$ret .= self::_loadJS('/bitrix/js/main/core/core.js', $bReturn);
-			$ret .= self::_loadLang(BX_ROOT.'/modules/main/lang/'.LANGUAGE_ID.'/js_core.php', $bReturn);
+			$config = self::GetCoreConfig();
+
+			$ret .= self::_loadCSS($config['css'], $bReturn);
+			$ret .= self::_loadJS($config['js'], $bReturn);
+			$ret .= self::_loadLang($config['lang'], $bReturn);
 
 			self::$arCurrentlyLoadedExt['core'] = true;
+		}
+
+		if (self::$arCurrentlyLoadedExt['core'])
+		{
+			foreach (self::$arAutoloadQueue as $extCode => $extParams)
+			{
+				$ret .= self::_loadExt($extCode, $bReturn);
+				unset(self::$arAutoloadQueue[$extCode]);
+			}
 		}
 
 		for ($i = 0, $len = count($arExt); $i < $len; $i++)
@@ -4379,7 +4605,7 @@ class CJSCore
 			$ret .= self::_loadExt($arExt[$i], $bReturn);
 		}
 
-		if (defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1)
+		if (!defined('PUBLIC_MODE') && defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1)
 			echo $ret;
 
 		return $bReturn ? $ret : true;
@@ -4392,6 +4618,16 @@ class CJSCore
 	public static function IsCoreLoaded()
 	{
 		return isset(self::$arCurrentlyLoadedExt["core"]);
+	}
+
+	/**
+	 * Returns true if JS extension was loaded.
+	 * @param string $code Code of JS extension.
+	 * @return bool
+	 */
+	public static function isExtensionLoaded($code)
+	{
+		return isset(self::$arCurrentlyLoadedExt[$code]);
 	}
 
 	public static function GetCoreMessagesScript($compositeMode = false)
@@ -4601,11 +4837,31 @@ JS;
 		return $scriptsList;
 	}
 
+	public static function GetCoreConfig()
+	{
+		return Array(
+			'css' => '/bitrix/js/main/core/css/core.css',
+			'js' => '/bitrix/js/main/core/core.js',
+			'lang' => BX_ROOT.'/modules/main/js_core.php',
+		);
+	}
+
 	private static function _loadExt($ext, $bReturn)
 	{
 		$ret = '';
 
-		$ext = preg_replace('/[^a-z0-9_\.\-]/i', '', $ext);
+		if (preg_match("/^((?P<MODULE_ID>[\w\.]+):)?(?P<EXT_NAME>[\w\.\-]+)$/", $ext, $matches))
+		{
+			if (strlen($matches['MODULE_ID']) > 0 && $matches['MODULE_ID'] !== 'main')
+			{
+				\Bitrix\Main\Loader::includeModule($matches['MODULE_ID']);
+			}
+			$ext = $matches['EXT_NAME'];
+		}
+		else
+		{
+			$ext = preg_replace('/[^a-z0-9_\.\-]/i', '', $ext);
+		}
 
 		if (!self::IsExtRegistered($ext))
 		{
@@ -4655,7 +4911,7 @@ JS;
 
 		self::$arCurrentlyLoadedExt[$ext] = true;
 
-		if (is_array(self::$arRegisteredExt[$ext]['rel']))
+		if (isset(self::$arRegisteredExt[$ext]['rel']) && is_array(self::$arRegisteredExt[$ext]['rel']))
 		{
 			foreach (self::$arRegisteredExt[$ext]['rel'] as $rel_ext)
 			{
@@ -4676,7 +4932,7 @@ JS;
 			$ret .= self::_loadCSS(self::$arRegisteredExt[$ext]['css'], $bReturn);
 		}
 
-		if (self::$arRegisteredExt[$ext]['js'])
+		if (isset(self::$arRegisteredExt[$ext]['js']))
 		{
 			if (!empty(self::$arRegisteredExt[$ext]['bundle_js']))
 			{
@@ -4689,10 +4945,10 @@ JS;
 			$ret .= self::_loadJS(self::$arRegisteredExt[$ext]['js'], $bReturn);
 		}
 
-		if (self::$arRegisteredExt[$ext]['lang'] || self::$arRegisteredExt[$ext]['lang_additional'])
+		if (isset(self::$arRegisteredExt[$ext]['lang']) || isset(self::$arRegisteredExt[$ext]['lang_additional']))
 		{
 			$ret .= self::_loadLang(
-				self::$arRegisteredExt[$ext]['lang'],
+				isset(self::$arRegisteredExt[$ext]['lang']) ? self::$arRegisteredExt[$ext]['lang'] : null,
 				$bReturn,
 				!empty(self::$arRegisteredExt[$ext]['lang_additional'])? self::$arRegisteredExt[$ext]['lang_additional']: false
 			);
@@ -4725,12 +4981,27 @@ JS;
 	public static function IsExtRegistered($ext)
 	{
 		$ext = preg_replace('/[^a-z0-9_\.\-]/i', '', $ext);
-		return is_array(self::$arRegisteredExt[$ext]);
+		return isset(self::$arRegisteredExt[$ext]) && is_array(self::$arRegisteredExt[$ext]);
 	}
 
 	public static function getExtInfo($ext)
 	{
 		return self::$arRegisteredExt[$ext];
+	}
+
+	public static function getAutoloadExtInfo()
+	{
+		$result = Array();
+
+		foreach(self::$arRegisteredExt as $ext => $info)
+		{
+			if ($info['autoload'])
+			{
+				$result[$ext] = $info;
+			}
+		}
+
+		return $result;
 	}
 
 	private static function _RegisterStandardExt()
@@ -4769,14 +5040,13 @@ JS;
 		global $APPLICATION;
 		$jsMsg = '';
 
-		if ($lang)
+		if (is_string($lang))
 		{
-			$lang_filename = $_SERVER['DOCUMENT_ROOT'].str_replace("/lang/".LANGUAGE_ID."/", "/", $lang);
-			$mess_lang = \Bitrix\Main\Localization\Loc::loadLanguageFile($lang_filename);
+			$messLang = \Bitrix\Main\Localization\Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].$lang);
 
-			if (!empty($mess_lang))
+			if (!empty($messLang))
 			{
-				$jsMsg = '(window.BX||top.BX).message('.CUtil::PhpToJSObject($mess_lang, false).');';
+				$jsMsg = '(window.BX||top.BX).message('.CUtil::PhpToJSObject($messLang, false).');';
 			}
 		}
 
@@ -4844,6 +5114,8 @@ JS;
 
 class CUtil
 {
+	protected static $alreadyDecodedRequest = false;
+
 	public static function addslashes($s)
 	{
 		static $aSearch = array("\\", "\"", "'");
@@ -5269,8 +5541,12 @@ class CUtil
 
 	public static function JSPostUnescape()
 	{
-		CUtil::decodeURIComponent($_POST);
-		CUtil::decodeURIComponent($_REQUEST);
+	    if(!static::$alreadyDecodedRequest)
+	    {
+		    static::$alreadyDecodedRequest = true;
+		    CUtil::decodeURIComponent($_POST);
+		    CUtil::decodeURIComponent($_REQUEST);
+	    }
 	}
 
 	public static function decodeURIComponent(&$item)
@@ -6091,7 +6367,7 @@ class CHTTP
 						$res = trim($matches[1]);
 						$res = base64_decode($res);
 						$res = CUtil::ConvertToLangCharset($res);
-						list($user, $pass) = explode(':', $res);
+						list($user, $pass) = explode(':', $res, 2);
 						if(strpos($user, $_SERVER['HTTP_HOST']."\\") === 0)
 							$user = str_replace($_SERVER['HTTP_HOST']."\\", "", $user);
 						elseif(strpos($user, $_SERVER['SERVER_NAME']."\\") === 0)
@@ -6477,7 +6753,7 @@ function UnEscapePHPString($str, $encloser = '"')
 
 function CheckSerializedData($str, $max_depth = 200)
 {
-	if(preg_match('/[OC]\\:\\+{0,1}\\d/', $str)) // serialized objects
+	if(preg_match('/(^|;)[OC]\\:\\+{0,1}\\d+:/', $str)) // serialized objects
 	{
 		return false;
 	}

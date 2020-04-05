@@ -50,6 +50,8 @@ if($loc = $res->fetch())
 		SALE_DLVRS_ADD_LOC_COMP_TITLE: '<?=\Bitrix\Main\Localization\Loc::getMessage("SALE_DLVRS_ADD_LOC_COMP_TITLE")?>',
 		SALE_DLVRS_ADD_LOC_COMP_CLOSE: '<?=\Bitrix\Main\Localization\Loc::getMessage("SALE_DLVRS_ADD_LOC_COMP_CLOSE")?>',
 		SALE_DLVRS_ADD_LOC_COMP_AJAX_ERROR: '<?=\Bitrix\Main\Localization\Loc::getMessage("SALE_DLVRS_ADD_LOC_COMP_AJAX_ERROR")?>',
-		SALE_DLVRS_ADD_LOC_COMP_PREPARE: '<?=\Bitrix\Main\Localization\Loc::getMessage("SALE_DLVRS_ADD_LOC_COMP_PREPARE")?>'
+		SALE_DLVRS_ADD_LOC_COMP_PREPARE: '<?=\Bitrix\Main\Localization\Loc::getMessage("SALE_DLVRS_ADD_LOC_COMP_PREPARE")?>',
+		SALE_DLVRS_ADD_SP_SAVE: '<?=\Bitrix\Main\Localization\Loc::getMessage("SALE_DLVRS_ADD_SP_SAVE")?>',
+		SALE_DLVRS_ADD_SP_CHOOSE_TITLE: '<?=\Bitrix\Main\Localization\Loc::getMessage("SALE_DLVRS_ADD_SP_CHOOSE_TITLE")?>'
 	});
 </script>

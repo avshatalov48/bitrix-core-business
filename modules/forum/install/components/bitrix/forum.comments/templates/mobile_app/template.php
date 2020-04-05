@@ -28,16 +28,33 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 		"TEMPLATE_ID" => $arParams["tplID"],
 		"RATING_TYPE_ID" => ($arParams["SHOW_RATING"] == "Y" ? "FORUM_POST" : ""),
 		"ENTITY_XML_ID" => $arParams["ENTITY_XML_ID"],
+		"POST_CONTENT_TYPE_ID" => (!empty($arParams["POST_CONTENT_TYPE_ID"]) ? $arParams["POST_CONTENT_TYPE_ID"] : false),
+		"COMMENT_CONTENT_TYPE_ID" => "FORUM_POST",
 		"RECORDS" => $arResult["MESSAGES"],
 		"NAV_STRING" => $arResult["NAV_STRING"],
 		"NAV_RESULT" => $arResult["NAV_RESULT"],
 		"PREORDER" => $arParams["PREORDER"],
 		"RIGHTS" => array(
 			"MODERATE" =>  $arResult["PANELS"]["MODERATE"],
-			"EDIT" => ($arResult["PANELS"]["EDIT"] == "N" ? ($arParams["ALLOW_EDIT_OWN_MESSAGE"] === "ALL" ? "OWN" : (
-				$arParams["ALLOW_EDIT_OWN_MESSAGE"] === "LAST" ? "OWNLAST" : "N") ) : "Y"),
-			"DELETE" => ($arResult["PANELS"]["EDIT"] == "N" ? ($arParams["ALLOW_EDIT_OWN_MESSAGE"] === "ALL" ? "OWN" : (
-				$arParams["ALLOW_EDIT_OWN_MESSAGE"] === "LAST" ? "OWNLAST" : "N") ) : "Y")
+			"EDIT" => (
+				$arResult["PANELS"]["EDIT"] == "N"
+					? (
+						$arParams["ALLOW_EDIT_OWN_MESSAGE"] === "ALL"
+							? "OWN"
+							: ($arParams["ALLOW_EDIT_OWN_MESSAGE"] === "LAST" ? "OWNLAST" : "N")
+					)
+					: "Y"
+			),
+			"DELETE" => (
+				$arResult["PANELS"]["EDIT"] == "N"
+					? (
+						$arParams["ALLOW_EDIT_OWN_MESSAGE"] === "ALL"
+							? "OWN"
+							: ($arParams["ALLOW_EDIT_OWN_MESSAGE"] === "LAST" ? "OWNLAST" : "N")
+					)
+				: "Y"
+			),
+			"CREATETASK" => ($arResult["bTasksAvailable"] ? "Y" : "N")
 		),
 		"VISIBLE_RECORDS_COUNT" => 3,
 

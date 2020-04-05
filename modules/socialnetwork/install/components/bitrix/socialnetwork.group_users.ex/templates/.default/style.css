@@ -101,6 +101,7 @@
 	opacity: 0;
 	transition: opacity .3s;
 	cursor: pointer;
+	z-index: 2;
 }
 
 .sonet-members-member-block:hover .sonet-members-close {

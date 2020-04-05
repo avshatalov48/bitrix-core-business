@@ -175,4 +175,55 @@ class Dialog
 
 		return false;
 	}
+
+	public static function read($dialogId, $messageId = null, $userId = null)
+	{
+		$userId = \Bitrix\Im\Common::getUserId($userId);
+		if (!$userId)
+		{
+			return false;
+		}
+
+		if (\Bitrix\Im\Common::isChatId($dialogId))
+		{
+			$chatId = self::getChatId($dialogId);
+
+			$chat = new \CIMChat($userId);
+			$chat->SetReadMessage($chatId, $messageId);
+		}
+		else
+		{
+			$CIMMessage = new \CIMMessage($userId);
+			$CIMMessage->SetReadMessage($dialogId, $messageId);
+		}
+
+		return false;
+	}
+
+	public static function unread($dialogId, $messageId = null, $userId = null)
+	{
+		$userId = \Bitrix\Im\Common::getUserId($userId);
+		if (!$userId)
+		{
+			return false;
+		}
+
+		if (\Bitrix\Im\Common::isChatId($dialogId))
+		{
+			$chatId = self::getChatId($dialogId);
+
+			$chat = new \CIMChat($userId);
+			$chat->SetUnReadMessage($chatId, $messageId);
+		}
+		else
+		{
+			$CIMMessage = new \CIMMessage($userId);
+			$CIMMessage->SetUnReadMessage($dialogId, $messageId);
+		}
+
+		return false;
+	}
+
+
+
 }

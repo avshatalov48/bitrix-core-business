@@ -180,8 +180,8 @@ $arParams["PHOTO"] = array(
 		"PROPERTY_CODE" => array(),
 		"MODERATION" => ($arParams["PHOTO_MODERATION"] == "Y" ? "Y" : "N"),
 /***************** ADDITIONAL **************************************/
-		"SECTION_PAGE_ELEMENTS" => intVal($arParams["PHOTO_SECTION_PAGE_ELEMENTS"]),
-		"ELEMENTS_PAGE_ELEMENTS" => intVal($arParams["PHOTO_ELEMENTS_PAGE_ELEMENTS"]),
+		"SECTION_PAGE_ELEMENTS" => (intVal($arParams["PHOTO_SECTION_PAGE_ELEMENTS"]) > 0 ? intVal($arParams["PHOTO_SECTION_PAGE_ELEMENTS"]) : 15),
+		"ELEMENTS_PAGE_ELEMENTS" => (intVal($arParams["PHOTO_ELEMENTS_PAGE_ELEMENTS"]) > 0 ? intVal($arParams["PHOTO_ELEMENTS_PAGE_ELEMENTS"]) : 50),
 		"PAGE_NAVIGATION_TEMPLATE" => trim($arParams["PHOTO_PAGE_NAVIGATION_TEMPLATE"]),
 		"ELEMENTS_USE_DESC_PAGE" => "Y",
 		"DATE_TIME_FORMAT_SECTION" => "",

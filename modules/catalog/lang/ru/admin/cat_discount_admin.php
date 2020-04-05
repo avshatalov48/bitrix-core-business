@@ -49,4 +49,6 @@ $MESS["DSC_PRIORITY"] = "Приоритет применимости";
 $MESS["DSC_LAST_DISCOUNT"] = "Прекратить прим. скидок";
 $MESS["DSC_MAX_DISCOUNT"] = "Макс. величина";
 $MESS["DSC_MAX_DISCOUNT_UNLIM"] = "Нет";
+$MESS["DSC_USE_COUPONS"] = "Купоны";
+$MESS["DSC_FILTER_USE_COUPONS"] = "Есть купоны";
 ?>

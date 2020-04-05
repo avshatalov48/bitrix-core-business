@@ -45,9 +45,10 @@ if(strlen($arResult["ID"])>0)
 					</h4>
 				</div>
 				<?
-				foreach($block["PROPS"] as $key => $property)
+				foreach($block["PROPS"] as $property)
 				{
-					$name = "ORDER_PROP_".(int)$property["ID"];
+					$key = (int)$property["ID"];
+					$name = "ORDER_PROP_".$key;
 					$currentValue = $arResult["ORDER_PROPS_VALUES"][$name];
 					$alignTop = ($property["TYPE"] === "LOCATION" && $arParams['USE_AJAX_LOCATIONS'] === 'Y') ? "vertical-align-top" : "";
 					?>
@@ -186,16 +187,16 @@ if(strlen($arResult["ID"])>0)
 									if (empty($currentValue) || !is_array($currentValue))
 										$currentValue = array($property["DEFAULT_VALUE"]);
 
-									foreach ($currentValue as $key => $elementValue)
+									foreach ($currentValue as $code => $elementValue)
 									{
 										$locationValue = intval($elementValue) ? $elementValue : $property["DEFAULT_VALUE"];
 										CSaleLocation::proxySaleAjaxLocationsComponent(
 											array(
-												"ID" => "propertyLocation".$name."[$key]",
+												"ID" => "propertyLocation".$name."[$code]",
 												"AJAX_CALL" => "N",
 												'CITY_OUT_LOCATION' => 'Y',
 												'COUNTRY_INPUT_NAME' => $name.'_COUNTRY',
-												'CITY_INPUT_NAME' => $name."[$key]",
+												'CITY_INPUT_NAME' => $name."[$code]",
 												'LOCATION_VALUE' => $locationValue,
 											),
 											array(
@@ -209,7 +210,7 @@ if(strlen($arResult["ID"])>0)
 									<span class="btn-themes btn-default btn-md btn input-add-multiple"
 										  data-add-type=<?=$property["TYPE"]?>
 										  data-add-name="<?=$name?>"
-										  data-add-last-key="<?=$key?>"
+										  data-add-last-key="<?=$code?>"
 										  data-add-template="<?=$locationTemplate?>"><?=Loc::getMessage('SPPD_ADD')?></span>
 									<?
 								}

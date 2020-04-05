@@ -30,6 +30,16 @@ CREATE TABLE b_im_chat(
 	KEY IX_IM_CHAT_5 (PARENT_ID, PARENT_MID)
 );
 
+CREATE TABLE b_im_chat_index
+(
+	CHAT_ID int(11) not null,
+	SEARCH_CONTENT mediumtext null,
+	SEARCH_TITLE varchar(255) null,
+	SEARCH_USERS mediumtext null,
+	PRIMARY KEY (CHAT_ID),
+	KEY IX_IM_CHAT_INDEX_1 (SEARCH_TITLE)
+);
+
 CREATE TABLE b_im_message(
 	ID int(18) not null auto_increment,
 	CHAT_ID int(18) not null,
@@ -102,6 +112,7 @@ CREATE TABLE b_im_relation (
 	MESSAGE_TYPE char(1) default 'P',
 	USER_ID int(18) not null,
 	START_ID int(18) DEFAULT 0,
+	UNREAD_ID int(18) DEFAULT 0,
 	LAST_ID int(18) DEFAULT 0,
 	LAST_SEND_ID int(18) DEFAULT 0,
 	LAST_FILE_ID int(18) DEFAULT 0,
@@ -113,7 +124,6 @@ CREATE TABLE b_im_relation (
 	MANAGER char(1) DEFAULT 'N',
 	COUNTER int(18) DEFAULT 0,
 	PRIMARY KEY (ID),
-	KEY IX_IM_REL_1 (CHAT_ID),
 	KEY IX_IM_REL_2 (USER_ID, MESSAGE_TYPE, STATUS),
 	KEY IX_IM_REL_3 (USER_ID, MESSAGE_TYPE, CHAT_ID),
 	KEY IX_IM_REL_4 (USER_ID, STATUS),
@@ -144,7 +154,6 @@ CREATE TABLE b_im_last_search (
 	ITEM_CID int(18) not null DEFAULT 0,
 	ITEM_RID int(18) not null DEFAULT 0,
 	PRIMARY KEY PK_B_IM_LAST_SEARCH (ID DESC),
-	KEY IX_IM_LS_1 (USER_ID),
 	KEY IX_IM_LS_2 (USER_ID, DIALOG_ID)
 );
 
@@ -274,6 +283,7 @@ CREATE TABLE b_im_external_avatar
 	PRIMARY KEY PK_B_IM_EXTERNAL_AVATAR (ID),
 	KEY IX_IMOL_NA_1 (LINK_MD5)
 );
+
 CREATE TABLE b_im_no_relation_permission_disk
 (
 	ID int(11) NOT NULL auto_increment,
@@ -282,4 +292,33 @@ CREATE TABLE b_im_no_relation_permission_disk
 	ACTIVE_TO datetime null,
   PRIMARY KEY PK_B_IM_NO_RELATION_PERMISSION_DISK (ID),
 	KEY IX_IM_USER_ID_CHAT_ID (USER_ID, CHAT_ID)
+);
+
+CREATE TABLE b_im_call
+(
+	ID int not null auto_increment,
+	TYPE int,
+	INITIATOR_ID int,
+	IS_PUBLIC char(1) not null default 'N',
+	PUBLIC_ID varchar(128),
+	PROVIDER varchar(128),
+	ENTITY_TYPE varchar(32),
+	ENTITY_ID varchar(255),
+	PARENT_ID int,
+	STATE varchar(50),
+	START_DATE datetime,
+	END_DATE datetime,
+
+	PRIMARY KEY PK_B_IM_CALL(ID),
+	UNIQUE KEY IX_B_IM_CALL_PID(PUBLIC_ID)
+);
+
+CREATE TABLE b_im_call_user
+(
+	CALL_ID int not null,
+	USER_ID int not null,
+	STATE varchar(50),
+	LAST_SEEN datetime,
+
+	PRIMARY KEY PK_B_IM_CALL_USER(CALL_ID, USER_ID)
 );

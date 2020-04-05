@@ -26,7 +26,7 @@ class Client
 
 	private static $appTop = null;
 
-	public static function getTop($action)
+	public static function getTop($action, $fields = array())
 	{
 		$allowedActions = array(
 			Transport::METHOD_GET_LAST,
@@ -41,7 +41,7 @@ class Client
 				$batch = array();
 				foreach($allowedActions as $method)
 				{
-					$batch[$method] = array($method, array());
+					$batch[$method] = array($method, $fields);
 				}
 
 				self::$appTop = Transport::instance()->batch($batch);
@@ -160,15 +160,20 @@ class Client
 		return $categoriesList;
 	}
 
-	public static function getCategory($code, $page = false)
+	public static function getCategory($code, $page = false, $pageSize = false)
 	{
 		$queryFields = Array(
 			"code" => $code
 		);
 		$page = intval($page);
+		$pageSize = intval($pageSize);
 		if($page > 0)
 		{
 			$queryFields["page"] = $page;
+		}
+		if($pageSize > 0)
+		{
+			$queryFields["onPageSize"] = $pageSize;
 		}
 
 		return Transport::instance()->call(
@@ -214,6 +219,25 @@ class Client
 
 		return Transport::instance()->call(
 			Transport::METHOD_GET_APP,
+			$queryFields
+		);
+	}
+
+	public static function filterApp($fields, $page = false)
+	{
+		if (!is_array($fields))
+			$fields = array($fields);
+
+		$queryFields = $fields;
+
+		$page = intval($page);
+		if($page > 0)
+		{
+			$queryFields["page"] = $page;
+		}
+
+		return Transport::instance()->call(
+			Transport::METHOD_FILTER_APP,
 			$queryFields
 		);
 	}
@@ -346,8 +370,6 @@ class Client
 		}
 
 		$tag[] = $placement;
-
-		$tag = ['test'];
 
 		return $tag;
 	}

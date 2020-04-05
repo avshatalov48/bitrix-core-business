@@ -1,4 +1,10 @@
 <?
+$MESS["CAL_REST_RESOURCE_NEW_ERROR"] = "Error creating resource";
+$MESS["CAL_REST_RESOURCE_UPDATE_ERROR"] = "Error updating resource";
+$MESS["CAL_REST_RES_TYPE_ERROR"] = "Incorrect resource type. Possible values: #ALLOWED_TYPES#";
+$MESS["CAL_REST_RES_BOOKING_DEFAULT_VALUE"] = "Booking";
+$MESS["CAL_REST_RES_BOOKING_SERVICE_LABEL"] = "Service";
+$MESS["CAL_REST_RESOURCE_BOOKING_ADD_ERROR"] = "Error booking resource";
 $MESS["CAL_REST_ACCESS_DENIED"] = "Access denied";
 $MESS["CAL_REST_SECTION_NEW_ERROR"] = "Error while creating section";
 $MESS["CAL_REST_SECTION_SAVE_ERROR"] = "Error while editing section";

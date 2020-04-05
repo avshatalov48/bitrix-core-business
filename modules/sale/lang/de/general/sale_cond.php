@@ -1,4 +1,6 @@
 <?
+$MESS["BT_SALE_COND_BASKET_DISCOUNT_APPLIED_LABEL"] = "Warenkorbregeln wurden angewendet";
+$MESS["BT_SALE_COND_BASKET_DISCOUNT_APPLIED_PREFIX"] = "Warenkorbregeln wurden angewendet";
 $MESS["BT_MOD_SALE_COND_CMP_ORDER_CONTROLGROUP_LABEL"] = "Bestellparameter";
 $MESS["BT_MOD_SALE_COND_CMP_SALE_PERSON_TYPE_LABEL"] = "Kundengruppe";
 $MESS["BT_MOD_SALE_COND_CMP_SALE_PERSON_TYPE_PREFIX"] = "Feld Kundengruppe";
@@ -105,4 +107,6 @@ $MESS["BT_SALE_COND_BASKET_PROPERTY_ENTITY_TYPE_SELECT_DEF"] = "...";
 $MESS["BT_SALE_COND_BASKET_PROPERTY_PREFIX"] = "Eigenschaft des Produktes im Warenkorb";
 $MESS["BT_SALE_COND_BASKET_POSITION_WEIGHT_LABEL"] = "Gewicht der Position";
 $MESS["BT_SALE_COND_BASKET_POSITION_WEIGHT_PREFIX"] = "Gewicht der Position des Warenkorbs (Gewicht der Produkteinheit * Menge)";
+$MESS["BT_SALE_COND_BASKET_DISCOUNT_APPLIED_YES"] = "ja";
+$MESS["BT_SALE_COND_BASKET_DISCOUNT_APPLIED_NO"] = "nein";
 ?>

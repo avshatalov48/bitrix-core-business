@@ -125,13 +125,8 @@
 			showSelector = !item.data.isHidden;
 		}
 
-		Helper.changeDisplay(this.setupNode, !showSelector);
+		Helper.changeDisplay(this.setupNode, false);
 		Helper.changeDisplay(this.fromContainerNode, showSelector);
-
-		if (this.senderId == item.senderId)
-		{
-			return;
-		}
 
 		this.senderId = item.senderId;
 		this.setSender(item.data.list[0]);

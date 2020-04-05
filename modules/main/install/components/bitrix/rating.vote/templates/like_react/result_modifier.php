@@ -16,4 +16,23 @@ $arResult['COMMENT'] = (
 		? $arParams["COMMENT"]
 		: 'N'
 );
+
+$arParams['MOBILE'] = (
+	!empty($arParams["MOBILE"])
+		? $arParams["MOBILE"]
+		: 'N'
+);
+
+if (
+	$arParams['MOBILE'] == 'Y'
+	&& $arResult['COMMENT'] == 'Y'
+)
+{
+	$arParams['REACTIONS_LIST'] = (
+		is_array($arParams['REACTIONS_LIST'])
+			? array_reverse($arParams['REACTIONS_LIST'], true)
+			: array()
+	);
+}
+
 ?>

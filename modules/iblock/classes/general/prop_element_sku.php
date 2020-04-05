@@ -42,8 +42,8 @@ class CIBlockPropertySKU extends CIBlockPropertyElementAutoComplete
 		 */
 		$arResult = parent::PrepareSettings($arFields);
 		$arResult['SHOW_ADD'] = 'N';
-		$arFields['MULTIPLE'] = 'N';
 		$arFields['USER_TYPE_SETTINGS'] = $arResult;
+		$arFields['MULTIPLE'] = 'N';
 
 		return $arFields;
 	}
@@ -89,4 +89,5 @@ class CIBlockPropertySKU extends CIBlockPropertyElementAutoComplete
 	}
 }
 
-define('BT_UT_SKU_CODE', CIBlockPropertySKU::USER_TYPE); //deprecated
+/** @deprecated */
+define('BT_UT_SKU_CODE', CIBlockPropertySKU::USER_TYPE);

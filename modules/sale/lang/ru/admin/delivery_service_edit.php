@@ -72,6 +72,7 @@ $MESS ['SALE_DSE_REQUIRED_FIELD'] = "Необходимо заполнить п�
 $MESS ['SALE_DSE_2DS_EDIT'] = "Вернуться в службу доставки";
 $MESS ['SALE_DSE_BUSINESS_VALUES'] = "Бизнес смыслы";
 $MESS ['SALE_DSE_FORM_VAT_ID'] = "Ставка НДС";
+$MESS ['SALE_DSE_XML_ID'] = "Внешний код";
 $MESS ['SALE_DSE_FORM_NO_VAT'] = "Без НДС";
 $MESS ['SALE_DSE_DELIVERY_SERVICE_CREATE_ERROR'] = "Не удалось создать объект службы доставки!";
 ?>

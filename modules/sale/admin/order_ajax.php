@@ -66,52 +66,68 @@ else
 if($result->isSuccess())
 {
 	$arResult["RESULT"] = "OK";
-
-	$needConfirm = ($result->get('NEED_CONFIRM') === true);
-	if ($needConfirm)
-	{
-		if ($result->get('CONFIRM_TITLE') != '')
-		{
-			$arResult["CONFIRM_TITLE"] = $result->get('CONFIRM_TITLE');
-		}
-
-		if ($result->get('CONFIRM_MESSAGE') != '')
-		{
-			$arResult["CONFIRM_MESSAGE"] = $result->get('CONFIRM_MESSAGE');
-		}
-
-	}
-
-	if ($result->hasWarnings())
-	{
-		$arResult["WARNING"] = implode("\n", $result->getWarningMessages());
-		$arResult["WARNINGS"] = array();
-
-		foreach($result->getWarningMessages() as $warning)
-		{
-			$arResult["WARNINGS"][] = $warning;
-		}
-	}
 }
 else
 {
 	$arResult["RESULT"] = "ERROR";
-	$arResult["ERROR"] = implode("\n", $result->getErrorMessages());
+	$arResult["ERROR"] = '';
 	$arResult["ERRORS"] = array();
 
 	foreach($result->getErrorMessages() as $error)
-		$arResult["ERRORS"][] = $error;
+	{
+		if(!in_array($error, $arResult["ERRORS"]))
+		{
+			$arResult["ERRORS"][] = $error;
+
+			if(strlen($arResult["ERROR"]) > 0)
+			{
+				$arResult["ERROR"] .= "\n";
+			}
+
+			$arResult["ERROR"] .= $error;
+		}
+	}
+}
+
+if ($result->hasWarnings())
+{
+	$arResult["WARNING"] = implode("\n", $result->getWarningMessages());
+	$arResult["WARNINGS"] = array();
+
+	foreach($result->getWarningMessages() as $warning)
+	{
+		$arResult["WARNINGS"][] = $warning;
+	}
+}
+
+$needConfirm = ($result->get('NEED_CONFIRM') === true);
+
+if ($needConfirm)
+{
+	if ($result->get('CONFIRM_TITLE') != '')
+	{
+		$arResult["CONFIRM_TITLE"] = $result->get('CONFIRM_TITLE');
+	}
+
+	if ($result->get('CONFIRM_MESSAGE') != '')
+	{
+		$arResult["CONFIRM_MESSAGE"] = $result->get('CONFIRM_MESSAGE');
+	}
 }
 
 $data = $result->getData();
+
 if(is_array($data))
+{
 	$arResult = array_merge($arResult, $data);
+}
 unset($data);
 
 $arResult = AjaxProcessor::convertEncodingArray($arResult, SITE_CHARSET, 'UTF-8');
 
-header('Content-Type: application/json');
+$APPLICATION->RestartBuffer();
 
+header('Content-Type: application/json');
 echo json_encode($arResult);
 \CMain::FinalActions();
 die();
@@ -229,25 +245,25 @@ class AjaxProcessor
 		global $APPLICATION, $USER;
 
 		if(!$this->request["formData"]) throw new ArgumentNullException("formatData");
-		if(!$this->request["quantity"]) throw new ArgumentNullException("quantity");
+		//if(!$this->request["quantity"]) throw new ArgumentNullException("quantity");
 		if(!$this->request["productId"]) throw new ArgumentNullException("productId");
-
-
+		$orderId = (int)$this->request["formData"]['ID'];
 		$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 
-		if ($saleModulePermissions == 'P' && (isset($this->request["orderId"]) && $this->request["orderId"] > 0))
+		if ($saleModulePermissions == 'P' && $orderId > 0)
 		{
 			$isUserResponsible = false;
 			$isAllowCompany = false;
 
 			$resOrder = Sale\Internals\OrderTable::getList(array(
-															   'filter' => array(
-																   '=ID' => intval($this->request["orderId"]),
-															   ),
-															   'select' => array(
-																   'RESPONSIBLE_ID', 'COMPANY_ID', 'STATUS_ID'
-															   )
-														   ));
+				'filter' => array(
+					'=ID' => $orderId,
+				),
+				'select' => array(
+					'RESPONSIBLE_ID', 'COMPANY_ID', 'STATUS_ID'
+				)
+			));
+			
 			if ($orderData = $resOrder->fetch())
 			{
 				$allowedStatusesView = Sale\OrderStatus::getStatusesUserCanDoOperations($USER->GetID(), array('view'));
@@ -299,6 +315,8 @@ class AjaxProcessor
 				break;
 			}
 		}
+
+		Admin\OrderEdit::initCouponsData($userId, $orderId);
 
 		if(empty($productParams))
 		{
@@ -401,30 +419,35 @@ class AjaxProcessor
 		/** @var \Bitrix\Sale\Result $res */
 		$res = $saleOrder->setField("CANCELED", $canceled == "Y" ? "N" : "Y");
 
-		if(!$res->isSuccess())
-			$errors = array_merge($errors, $res->getErrorMessages());
-
-		$saleOrder->setField("REASON_CANCELED", $canceled == "N" ? $comment : "");
-
-		$res = $saleOrder->save();
-		if($res->isSuccess())
-		{
-			Sale\Provider::resetTrustData($saleOrder->getSiteId());
-		}
-		else
+		if (!$res->isSuccess())
 		{
 			$errors = array_merge($errors, $res->getErrorMessages());
 		}
 
-		$canceled = $saleOrder->getField("CANCELED");
-		$this->addResultData("CANCELED", $canceled);
-
-		if($canceled == "Y")
+		if (!$errors)
 		{
-			$userInfo = Admin\Blocks\OrderStatus::getUserInfo($saleOrder->getField("EMP_CANCELED_ID"));
-			$this->addResultData("DATE_CANCELED", $saleOrder->getField("DATE_CANCELED")->toString());
-			$this->addResultData("EMP_CANCELED_ID", $saleOrder->getField("EMP_CANCELED_ID"));
-			$this->addResultData("EMP_CANCELED_NAME", $userInfo["NAME"]." (".$userInfo["LOGIN"].")");
+			$saleOrder->setField("REASON_CANCELED", $canceled == "N" ? $comment : "");
+
+			$res = $saleOrder->save();
+			if ($res->isSuccess())
+			{
+				Sale\Provider::resetTrustData($saleOrder->getSiteId());
+			}
+			else
+			{
+				$errors = array_merge($errors, $res->getErrorMessages());
+			}
+
+			$canceled = $saleOrder->getField("CANCELED");
+			$this->addResultData("CANCELED", $canceled);
+
+			if ($canceled == "Y")
+			{
+				$userInfo = Admin\Blocks\OrderStatus::getUserInfo($saleOrder->getField("EMP_CANCELED_ID"));
+				$this->addResultData("DATE_CANCELED", $saleOrder->getField("DATE_CANCELED")->toString());
+				$this->addResultData("EMP_CANCELED_ID", $saleOrder->getField("EMP_CANCELED_ID"));
+				$this->addResultData("EMP_CANCELED_NAME", $userInfo["NAME"]." (".$userInfo["LOGIN"].")");
+			}
 		}
 
 		if (!empty($errors))
@@ -451,13 +474,13 @@ class AjaxProcessor
 			$isAllowUpdate = false;
 
 			$resOrder = Sale\Internals\OrderTable::getList(array(
-															   'filter' => array(
-																   '=ID' => intval($this->request["orderId"]),
-															   ),
-															   'select' => array(
-																   'RESPONSIBLE_ID', 'COMPANY_ID', 'STATUS_ID'
-															   )
-														   ));
+																'filter' => array(
+																	'=ID' => intval($this->request["orderId"]),
+																),
+																'select' => array(
+																	'RESPONSIBLE_ID', 'COMPANY_ID', 'STATUS_ID'
+																)
+															));
 			if ($orderData = $resOrder->fetch())
 			{
 				$allowedStatusesUpdate = Sale\OrderStatus::getStatusesUserCanDoOperations($USER->GetID(), array('update'));
@@ -482,12 +505,13 @@ class AjaxProcessor
 			}
 		}
 
-		$res = Sale\Internals\OrderTable::update(
-			$this->request['orderId'],
-			array(
-				"COMMENTS" => $this->request['comments'],
-				"DATE_UPDATE" => new DateTime()
-		));
+		$order = Sale\Order::load((int)$this->request['orderId']);
+		if (!$order)
+		{
+			throw new SystemException("Wrong order id!");
+		}
+		$order->setField("COMMENTS", $this->request['comments']);
+		$res = $order->save();
 
 		if(!$res->isSuccess())
 			$this->addResultError(join("\n", $res->getErrorMessages()));
@@ -603,6 +627,7 @@ class AjaxProcessor
 
 		//Use or not data from form and don't refresh data from provider
 		Admin\OrderEdit::$isTrustProductFormData = (!empty($additional["operation"]) && $additional["operation"] == "DATA_ACTUALIZE") ? false : true;
+
 		$order = $this->getOrder($formData, $opResults);
 		$isStartField = $order->isStartField();
 
@@ -977,57 +1002,40 @@ class AjaxProcessor
 
 		if ($this->request['method'] == 'save')
 		{
-			if ($payment->getField('IS_RETURN') == 'Y')
+			$res = $payment->setPaid('Y');
+			if ($strict)
 			{
-				$res = $payment->setReturn('N');
-				if (!$res->isSuccess())
-				{
-					$this->addResultError(join("\n", $res->getErrorMessages()));
-					$hasErrors = true;
-				}
-				elseif ($res->hasWarnings())
-				{
-					$this->addResultWarning(join("\n", $res->getWarningMessages()));
-					$hasErrors = true;
-				}
+				$res = $this->removeErrorsForConfirmation($res);
 			}
-			else
+
+			if (!$res->isSuccess())
 			{
-				$res = $payment->setPaid('Y');
-				if ($strict)
+				$res = $this->convertErrorsToConfirmation($res);
+
+				$setResultMessage = $res->getErrorMessages();
+				if (!empty($setResultMessage))
 				{
-					$res = $this->removeErrorsForConfirmation($res);
-				}
-
-				if (!$res->isSuccess())
-				{
-					$res = $this->convertErrorsToConfirmation($res);
-
-					$setResultMessage = $res->getErrorMessages();
-					if (!empty($setResultMessage))
-					{
-						$this->addResultError(join("\n", $setResultMessage));
-					}
-					elseif ($res->hasWarnings())
-					{
-						$existSpecialErrors = $res->get('NEED_CONFIRM');
-						if ($existSpecialErrors)
-						{
-							$this->addResultData('NEED_CONFIRM', $existSpecialErrors);
-							$this->addResultData('CONFIRM_TITLE', Loc::getMessage('SALE_ORDER_SHIP_SHIPMENT_NOTICE_TITLE'));
-							$this->addResultData('CONFIRM_MESSAGE', Loc::getMessage('SALE_ORDER_SHIP_SHIPMENT_NOTICE_MESSAGE'));
-						}
-
-						$this->addResultWarning(join("\n", $res->getWarningMessages()));
-					}
-
-					$hasErrors = true;
-
+					$this->addResultError(join("\n", $setResultMessage));
 				}
 				elseif ($res->hasWarnings())
 				{
+					$existSpecialErrors = $res->get('NEED_CONFIRM');
+					if ($existSpecialErrors)
+					{
+						$this->addResultData('NEED_CONFIRM', $existSpecialErrors);
+						$this->addResultData('CONFIRM_TITLE', Loc::getMessage('SALE_ORDER_SHIP_SHIPMENT_NOTICE_TITLE'));
+						$this->addResultData('CONFIRM_MESSAGE', Loc::getMessage('SALE_ORDER_SHIP_SHIPMENT_NOTICE_MESSAGE'));
+					}
+
 					$this->addResultWarning(join("\n", $res->getWarningMessages()));
 				}
+
+				$hasErrors = true;
+
+			}
+			elseif ($res->hasWarnings())
+			{
+				$this->addResultWarning(join("\n", $res->getWarningMessages()));
 			}
 
 			if (!$hasErrors)
@@ -1535,11 +1543,43 @@ class AjaxProcessor
 			}
 
 			$result = array(
+				'STATUS_ID' => $order->getField('STATUS_ID'),
 				'DEDUCTED_'.$shipment->getId() => $shipment->getField('DEDUCTED'),
 				'ALLOW_DELIVERY_'.$shipment->getId() => $shipment->getField('ALLOW_DELIVERY'),
 				'SHIPMENT_STATUS_LIST_'.$shipment->getId() => $preparedStatusList,
 				'SHIPMENT_STATUS_'.$shipment->getId() => array('id' => $shipment->getField('STATUS_ID'), 'name' => htmlspecialcharsbx($statusList[$shipment->getField('STATUS_ID')]))
 			);
+
+			/** @var \Bitrix\Sale\ShipmentItem $item */
+			$shipmentItemCollection = $shipment->getShipmentItemCollection();
+			foreach ($shipmentItemCollection as $item)
+			{
+				$basketItem = $item->getBasketItem();
+				if ($basketItem->getField('PRODUCT_PROVIDER_CLASS') === "\\Bitrix\\Sale\\ProviderAccountPay")
+				{
+					$userAccount = new \CSaleUserAccount();
+					$res = $userAccount->getList(
+						array(),
+						array(
+							'USER_ID' => $order->getUserId(),
+							'CURRENCY' => $order->getCurrency(),
+							'LOCKED' => 'N'
+						),
+						false,
+						false,
+						array(
+							'CURRENT_BUDGET'
+						)
+					);
+
+					if($userAccount = $res->Fetch())
+						$result["BUYER_BUDGET"] = $userAccount['CURRENT_BUDGET'];
+					else
+						$result["BUYER_BUDGET"] = 0;
+
+					break;
+				}
+			}
 
 			$this->addResultData("RESULT", $result);
 
@@ -1886,6 +1926,9 @@ class AjaxProcessor
 		if(!isset($this->request["coupon"])) throw new ArgumentNullException("coupon");
 		if(!isset($this->request["orderId"])) throw new ArgumentNullException("orderId");
 
+		Admin\OrderEdit::$needUpdateNewProductPrice = true;
+		Admin\OrderEdit::$isTrustProductFormData = false;
+
 		$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 
 		if ($saleModulePermissions == 'P')
@@ -1941,6 +1984,9 @@ class AjaxProcessor
 		if(!isset($this->request["coupon"])) throw new ArgumentNullException("coupon");
 		if(!isset($this->request["orderId"])) throw new ArgumentNullException("orderId");
 
+		Admin\OrderEdit::$needUpdateNewProductPrice = true;
+		Admin\OrderEdit::$isTrustProductFormData = false;
+
 		$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 
 		if ($saleModulePermissions == 'P')
@@ -1950,13 +1996,13 @@ class AjaxProcessor
 			$isAllowUpdate = false;
 
 			$resOrder = Sale\Internals\OrderTable::getList(array(
-															   'filter' => array(
-																   '=ID' => intval($this->request["orderId"]),
-															   ),
-															   'select' => array(
-																   'RESPONSIBLE_ID', 'COMPANY_ID', 'STATUS_ID'
-															   )
-														   ));
+																'filter' => array(
+																	'=ID' => intval($this->request["orderId"]),
+																),
+																'select' => array(
+																	'RESPONSIBLE_ID', 'COMPANY_ID', 'STATUS_ID'
+																)
+															));
 			if ($orderData = $resOrder->fetch())
 			{
 				$allowedStatusesUpdate = Sale\OrderStatus::getStatusesUserCanDoOperations($USER->GetID(), array('update'));
@@ -2114,7 +2160,7 @@ class AjaxProcessor
 
 					$order->setPersonTypeId($personTypeId);
 
-					$properties = $order->loadPropertyCollection()->getArray();
+					$properties = $order->getPropertyCollection()->getArray();
 
 					if (is_array($properties['properties']))
 					{
@@ -2205,9 +2251,13 @@ class AjaxProcessor
 		{
 			$this->order = Admin\OrderEdit::createOrderFromForm($formData, $this->userId, false, array(), $result);
 
-			if(!$this->order)
+			if(!$result->isSuccess())
 			{
 				$this->addFilteredErrors($result);
+			}
+
+			if(!$this->order)
+			{
 				throw new UserMessageException;
 			}
 		}
@@ -2415,13 +2465,13 @@ class AjaxProcessor
 			$isAllowUpdate = false;
 
 			$resOrder = Sale\Internals\OrderTable::getList(array(
-															   'filter' => array(
-																   '=ID' => intval($this->request["orderId"]),
-															   ),
-															   'select' => array(
-																   'RESPONSIBLE_ID', 'COMPANY_ID', 'STATUS_ID'
-															   )
-														   ));
+																'filter' => array(
+																	'=ID' => intval($this->request["orderId"]),
+																),
+																'select' => array(
+																	'RESPONSIBLE_ID', 'COMPANY_ID', 'STATUS_ID'
+																)
+															));
 			if ($orderData = $resOrder->fetch())
 			{
 				$allowedStatusesUpdate = Sale\OrderStatus::getStatusesUserCanDoOperations($USER->GetID(), array('update'));
@@ -3317,13 +3367,19 @@ class AjaxProcessor
 
 		if ($paymentId > 0)
 		{
-			$filter = array("PAYMENT_ID" => $paymentId);
+			$filter = array(
+				'PAYMENT_ID' => $paymentId,
+				'ENTITY_REGISTRY_TYPE' => Sale\Registry::REGISTRY_TYPE_ORDER
+			);
 			$checkData = Cashbox\CheckManager::collectInfo($filter);
 			$htmlCheckList = Sale\Helpers\Admin\Blocks\OrderPayment::buildCheckHtml($checkData);
 		}
 		else if ($shipmentId > 0)
 		{
-			$filter = array("SHIPMENT_ID" => $shipmentId);
+			$filter = array(
+				'SHIPMENT_ID' => $shipmentId,
+				'ENTITY_REGISTRY_TYPE' => Sale\Registry::REGISTRY_TYPE_ORDER
+			);
 			$checkData = Cashbox\CheckManager::collectInfo($filter);
 			$htmlCheckList = Sale\Helpers\Admin\Blocks\OrderShipment::buildCheckHtml($checkData);
 		}
@@ -3351,10 +3407,12 @@ class AjaxProcessor
 			}
 		}
 
-		$filter = array();
 		if ($check->getField('PAYMENT_ID') > 0)
 		{
-			$filter = array("PAYMENT_ID" => $check->getField('PAYMENT_ID'));
+			$filter = array(
+				'PAYMENT_ID' => $check->getField('PAYMENT_ID'),
+				'ENTITY_REGISTRY_TYPE' => Sale\Registry::REGISTRY_TYPE_ORDER
+			);
 			$checkData = Cashbox\CheckManager::collectInfo($filter);
 			$htmlCheckList = Sale\Helpers\Admin\Blocks\OrderPayment::buildCheckHtml($checkData);
 			$this->addResultData("PAYMENT_ID", $check->getField('PAYMENT_ID'));
@@ -3362,7 +3420,10 @@ class AjaxProcessor
 		}
 		elseif ($check->getField('SHIPMENT_ID') > 0)
 		{
-			$filter = array("SHIPMENT_ID" => $check->getField('SHIPMENT_ID'));
+			$filter = array(
+				'SHIPMENT_ID' => $check->getField('SHIPMENT_ID'),
+				'ENTITY_REGISTRY_TYPE' => Sale\Registry::REGISTRY_TYPE_ORDER
+			);
 			$checkData = Cashbox\CheckManager::collectInfo($filter);
 			$htmlCheckList = Sale\Helpers\Admin\Blocks\OrderShipment::buildCheckHtml($checkData);
 			$this->addResultData("SHIPMENT_ID", $check->getField('SHIPMENT_ID'));
@@ -3384,7 +3445,7 @@ class AjaxProcessor
 		$result = array();
 		$defaultSum = SaleFormatCurrency( 0, CurrencyManager::getBaseCurrency());
 
-		$checkData = CashboxCheckTable::getList(
+		$checkData = Cashbox\CheckManager::getList(
 			array(
 				'select' => array('CHECK_SUM', 'CURRENCY', 'TYPE'),
 				'filter' => $filter,

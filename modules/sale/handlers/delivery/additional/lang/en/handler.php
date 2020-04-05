@@ -1,4 +1,6 @@
 <?
+$MESS["SALE_DLVRS_ADD_SP_SAVE"] = "Save";
+$MESS["SALE_DLVRS_ADD_SP_CHOOSE_TITLE"] = "Select drop-off location";
 $MESS["SALE_DLVRS_ADD_NAME"] = "Extra delivery systems";
 $MESS["SALE_DLVRS_ADD_DESCRIPTION"] = "Adds more delivery services";
 $MESS["SALE_DLVRS_ADD_SERVICE_TYPE"] = "Delivery service type";

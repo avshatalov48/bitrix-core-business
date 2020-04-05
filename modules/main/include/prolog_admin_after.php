@@ -17,7 +17,12 @@ if (!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1)
 		require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/prolog_auth_admin.php");
 }
 else
-	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/prolog_jspopup_admin.php");
+{
+	if (!defined("PUBLIC_MODE") || PUBLIC_MODE != 1)
+	{
+		require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/prolog_jspopup_admin.php");
+	}
+}
 
 define("START_EXEC_PROLOG_AFTER_2", microtime());
 $GLOBALS["BX_STATE"] = "WA";

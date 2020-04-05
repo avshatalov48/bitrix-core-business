@@ -3,6 +3,8 @@
 
 	BX.namespace("BX.Landing.UI.Panel");
 
+	var addClass = BX.Landing.Utils.addClass;
+	var removeClass = BX.Landing.Utils.removeClass;
 
 	/**
 	 * Implements interface for works with content panel
@@ -84,8 +86,13 @@
 		window.top.addEventListener("keydown", this.onKeydown.bind(this));
 
 		BX.Landing.PageObject.getInstance().view().then(function(frame) {
-			frame.contentWindow.addEventListener("keydown", this.onKeydown.bind(this));
+			void (!!frame && frame.contentWindow.addEventListener("keydown", this.onKeydown.bind(this)));
 		}.bind(this), console.warn);
+
+		if (this.data.scrollAnimation)
+		{
+			this.scrollObserver = new IntersectionObserver(this.onIntersecting.bind(this));
+		}
 	};
 
 
@@ -96,7 +103,13 @@
 	 */
 	BX.Landing.UI.Panel.Content.createOverlay = function()
 	{
-		return BX.create("div", {props: {className: "landing-ui-panel-content-overlay"}});
+		return BX.create("div", {
+			props: {className: "landing-ui-panel-content-overlay landing-ui-hide"},
+			attrs: {
+				"data-is-shown": "false",
+				"hidden": true
+			}
+		});
 	};
 
 
@@ -107,7 +120,14 @@
 	 */
 	BX.Landing.UI.Panel.Content.createHeader = function()
 	{
-		return BX.create("div", {props: {className: "landing-ui-panel-content-element landing-ui-panel-content-header"}});
+		return BX.create("div", {
+			props: {
+				className: [
+					"landing-ui-panel-content-element",
+					"landing-ui-panel-content-header"
+				].join(" ")
+			}
+		});
 	};
 
 
@@ -118,7 +138,9 @@
 	 */
 	BX.Landing.UI.Panel.Content.createTitle = function()
 	{
-		return BX.create("div", {props: {className: "landing-ui-panel-content-title"}});
+		return BX.create("div", {
+			props: {className: "landing-ui-panel-content-title"}
+		});
 	};
 
 
@@ -129,7 +151,14 @@
 	 */
 	BX.Landing.UI.Panel.Content.createBody = function()
 	{
-		return BX.create("div", {props: {className: "landing-ui-panel-content-element landing-ui-panel-content-body"}});
+		return BX.create("div", {
+			props: {
+				className: [
+					"landing-ui-panel-content-element",
+					"landing-ui-panel-content-body"
+				].join(" ")
+			}
+		});
 	};
 
 
@@ -140,7 +169,9 @@
 	 */
 	BX.Landing.UI.Panel.Content.createSidebar = function()
 	{
-		return BX.create("div", {props: {className: "landing-ui-panel-content-body-sidebar"}});
+		return BX.create("div", {
+			props: {className: "landing-ui-panel-content-body-sidebar"}
+		});
 	};
 
 
@@ -151,7 +182,9 @@
 	 */
 	BX.Landing.UI.Panel.Content.createContent = function()
 	{
-		return BX.create("div", {props: {className: "landing-ui-panel-content-body-content"}});
+		return BX.create("div", {
+			props: {className: "landing-ui-panel-content-body-content"}
+		});
 	};
 
 
@@ -162,7 +195,14 @@
 	 */
 	BX.Landing.UI.Panel.Content.createFooter = function()
 	{
-		return BX.create("div", {props: {className: "landing-ui-panel-content-element landing-ui-panel-content-footer"}});
+		return BX.create("div", {
+			props: {
+				className: [
+					"landing-ui-panel-content-element",
+					"landing-ui-panel-content-footer"
+				].join(" ")
+			}
+		});
 	};
 
 
@@ -333,6 +373,22 @@
 			}
 		},
 
+		onIntersecting: function(items)
+		{
+			items.forEach(function(item) {
+				if (item.isIntersecting)
+				{
+					removeClass(item.target, "landing-ui-is-not-visible");
+					addClass(item.target, "landing-ui-is-visible");
+				}
+				else
+				{
+					addClass(item.target, "landing-ui-is-not-visible");
+					removeClass(item.target, "landing-ui-is-visible");
+				}
+			});
+		},
+
 		onKeydown: function(event)
 		{
 			if (event.keyCode === 27)
@@ -397,7 +453,7 @@
 		 */
 		isShown: function()
 		{
-			return this.layout.classList.contains(this.classShow) && !this.layout.classList.contains(this.classHide);
+			return this.state === "shown";
 		},
 
 
@@ -406,14 +462,16 @@
 		 */
 		show: function()
 		{
-			var promise = Promise.resolve(true);
 			if (!this.isShown())
 			{
-				BX.Landing.Utils.Show(this.overlay);
-				promise = BX.Landing.Utils.Show(this.layout);
+				void BX.Landing.Utils.Show(this.overlay);
+				return BX.Landing.Utils.Show(this.layout)
+					.then(function() {
+						this.state = "shown";
+					}.bind(this));
 			}
 
-			return promise;
+			return Promise.resolve(true);
 		},
 
 
@@ -425,8 +483,11 @@
 			var promise = Promise.resolve(true);
 			if (this.isShown())
 			{
-				BX.Landing.Utils.Hide(this.overlay);
-				promise = BX.Landing.Utils.Hide(this.layout);
+				void BX.Landing.Utils.Hide(this.overlay);
+				return BX.Landing.Utils.Hide(this.layout)
+					.then(function() {
+						this.state = "hidden";
+					}.bind(this));
 			}
 
 			return promise;
@@ -450,6 +511,12 @@
 		 */
 		appendCard: function(card)
 		{
+			if (this.data.scrollAnimation)
+			{
+				addClass(card.layout, "landing-ui-is-not-visible");
+				this.scrollObserver.observe(card.layout);
+			}
+
 			this.content.appendChild(card.layout);
 		},
 

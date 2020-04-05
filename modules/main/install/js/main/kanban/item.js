@@ -175,7 +175,7 @@ BX.Kanban.Item.prototype =
 
 		this.layout.container = BX.create("div", {
 			attrs: {
-				className: "main-kanban-item",
+				className: this.grid.firstRenderComplete ? "main-kanban-item main-kanban-item-new" : "main-kanban-item",
 				"data-id": this.getId(),
 				"data-type": "item"
 			},

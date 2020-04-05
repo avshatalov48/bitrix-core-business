@@ -54,27 +54,29 @@ class Product2ProductTable extends Main\Entity\DataManager
 		$now = $helper->getCurrentDateTimeFunction();
 
 		// Update existing
-		if ($type == "mysql" && $connection->isTableExists('b_sale_order_product_stat'))
+		switch ($type)
 		{
-			$liveTo = $helper->addSecondsToDateTime($liveTime * 24 * 3600, "ORDER_DATE");
-			$sqlDelete = "DELETE FROM b_sale_order_product_stat WHERE $now > $liveTo";
-			$connection->query($sqlDelete);
-			$sqlDelete = "TRUNCATE TABLE b_sale_product2product";
-			$connection->query($sqlDelete);
-			$sqlUpdate = "
-				INSERT INTO b_sale_product2product(PRODUCT_ID, PARENT_PRODUCT_ID, CNT) 
-					SELECT ops.PRODUCT_ID, ops.RELATED_PRODUCT_ID, SUM(ops.CNT)
-					FROM b_sale_order_product_stat ops
-					GROUP BY PRODUCT_ID, RELATED_PRODUCT_ID
-					ORDER BY NULL
-			";
-		}
-		elseif ($type == "mssql")
-		{
-			$sqlUpdate = "UPDATE b_sale_product2product
-				SET  CNT = CNT - 1
-				FROM b_sale_product2product p2p, b_sale_basket b, b_sale_basket b1, b_sale_order o, b_sale_order_processing op
-				WHERE b.ORDER_ID = b1.ORDER_ID AND
+			case 'mysql':
+				if ($connection->isTableExists('b_sale_order_product_stat'))
+				{
+					$liveTo = $helper->addSecondsToDateTime($liveTime * 24 * 3600, "ORDER_DATE");
+					$sqlDelete = "DELETE FROM b_sale_order_product_stat WHERE $now > $liveTo";
+					$connection->query($sqlDelete);
+					$connection->query("TRUNCATE TABLE b_sale_product2product");
+					$sqlUpdate = "INSERT INTO b_sale_product2product(PRODUCT_ID, PARENT_PRODUCT_ID, CNT) 
+						SELECT ops.PRODUCT_ID, ops.RELATED_PRODUCT_ID, SUM(ops.CNT)
+						FROM b_sale_order_product_stat ops
+						GROUP BY PRODUCT_ID, RELATED_PRODUCT_ID
+						ORDER BY NULL";
+					$connection->query($sqlUpdate);
+					unset($sqlUpdate);
+				}
+				break;
+			case 'mssql':
+				$sqlUpdate = "UPDATE b_sale_product2product
+					SET  CNT = CNT - 1
+					FROM b_sale_product2product p2p, b_sale_basket b, b_sale_basket b1, b_sale_order o, b_sale_order_processing op
+					WHERE b.ORDER_ID = b1.ORDER_ID AND
 					b.ID <> b1.ID AND
 					$now > $liveTo AND
 					o.ID = b.ORDER_ID AND
@@ -82,14 +84,15 @@ class Product2ProductTable extends Main\Entity\DataManager
 					op.PRODUCTS_REMOVED = 'N' AND
 					p2p.PRODUCT_ID = b.PRODUCT_ID AND
 					p2p.PARENT_PRODUCT_ID = b1.PRODUCT_ID";
-		}
-		else // Oracle
-		{
-			$sqlUpdate = "UPDATE b_sale_product2product
-				SET CNT = CNT - 1
-				WHERE ID IN (
-					SELECT p2p.ID FROM b_sale_product2product p2p, b_sale_basket b, b_sale_basket b1, b_sale_order o, b_sale_order_processing op
-					WHERE b.ORDER_ID = b1.ORDER_ID AND
+				$connection->query($sqlUpdate);
+				unset($sqlUpdate);
+				break;
+			case 'oracle':
+				$sqlUpdate = "UPDATE b_sale_product2product
+					SET CNT = CNT - 1
+					WHERE ID IN (
+						SELECT p2p.ID FROM b_sale_product2product p2p, b_sale_basket b, b_sale_basket b1, b_sale_order o, b_sale_order_processing op
+						WHERE b.ORDER_ID = b1.ORDER_ID AND
 						b.ID <> b1.ID AND
 						$now > $liveTo AND
 						o.ID = b.ORDER_ID AND
@@ -98,9 +101,12 @@ class Product2ProductTable extends Main\Entity\DataManager
 						p2p.PRODUCT_ID = b.PRODUCT_ID AND
 						p2p.PARENT_PRODUCT_ID = b1.PRODUCT_ID
 					)";
+				$connection->query($sqlUpdate);
+				unset($sqlUpdate);
+				break;
+			default:
+				break;
 		}
-
-		$connection->query($sqlUpdate);
 
 		// @deprecated update status, stayed for compatibility
 		$updateRemStatusSql = "UPDATE b_sale_order_processing SET PRODUCTS_REMOVED = 'Y'";
@@ -113,7 +119,7 @@ class Product2ProductTable extends Main\Entity\DataManager
 			$connection->query($deleteSql);
 		}
 
-		return "\\Bitrix\\Sale\\Product2ProductTable::deleteOldProducts(".intval($liveTime).");";
+		return "\\Bitrix\\Sale\\Product2ProductTable::deleteOldProducts(".$liveTime.");";
 	}
 
 	/**

@@ -43,8 +43,7 @@ class PersonTypeSiteTable extends Main\Entity\DataManager
 			),
 			'SITE_ID' => array(
 				'data_type' => 'string',
-				'primary' => true,
-				'validation' => array(__CLASS__, 'validateSiteId'),
+				'primary' => true
 			),
 		);
 	}

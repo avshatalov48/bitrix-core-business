@@ -144,7 +144,7 @@ class Theme extends \Bitrix\Landing\Hook\Page
 			),
 			'real-estate' => array(
 				'name' => Loc::getMessage('LANDING_HOOK_THEMECODE-REALESTATE'),
-				'color' => '#e74c3c',
+				'color' => '#f74c3c',
 				'base' => true
 			),
 			'restaurant' => array(
@@ -169,6 +169,38 @@ class Theme extends \Bitrix\Landing\Hook\Page
 				'base' => true
 			),
 		);
+
+		$event = new \Bitrix\Main\Event('landing', 'onGetThemeColors', array(
+			'colors' => $colors
+		));
+		$event->send();
+		foreach ($event->getResults() as $result)
+		{
+			if ($result->getType() != \Bitrix\Main\EventResult::ERROR)
+			{
+				if (($modified = $result->getModified()))
+				{
+					if (isset($modified['colors']))
+					{
+						$colors = $modified['colors'];
+					}
+				}
+			}
+		}
+
+		if (
+			!is_array($colors) ||
+			empty($colors)
+		)
+		{
+			$colors = [
+				'1construction' => [
+					'name' => Loc::getMessage('LANDING_HOOK_THEMECODE_CONSTRUCTION_NEW'),
+					'color' => '#f7b70b',
+					'base' => true
+				]
+			];
+		}
 
 		return $colors;
 	}

@@ -23,6 +23,10 @@ $MESS["LANDING_IMAGE_TITLE"] = "Title";
 $MESS["BLOCK_SAVE"] = "Сохранить";
 $MESS["BLOCK_CANCEL"] = "Отменить";
 $MESS["BLOCK_HEADER"] = "Шапка блока";
+$MESS["BLOCK_SETTINGS"] = "Настройки";
+$MESS["BLOCK_SETTINGS_ANCHOR_FIELD"] = "Якорь блока";
+$MESS["BLOCK_SETTINGS_ANCHOR_FIELD_VALIDATE_ERROR"] = "Якорь должен быть уникальным";
+$MESS["BLOCK_SETTINGS_ANCHOR_FIELD_VALIDATE_INVALID_ID"] = "Якорь должен начинаться с символа от a-z и далее может содержать только символы от \"a-z\", \"0-9\", \"-\", \"_\", \".\", \":\". <br>Например \"about\", \"our-works\", \"block123\"";
 $MESS["FIELD_LINK_TEXT_LABEL"] = "Текст";
 $MESS["FIELD_LINK_HREF_PLACEHOLDER"] = "http:// или выбрать блок, страницу";
 $MESS["FIELD_LINK_HREF_PLACEHOLDER_PAGES_ONLY"] = "выбрать страницу";
@@ -181,6 +185,17 @@ $MESS["LANDING_CONTENT_URL_MEDIA_LOOP"] = "Воспроизводить по к�
 $MESS["LANDING_CONTENT_URL_MEDIA_START"] = "Начинать воспроизведение с";
 $MESS["LANDING_CONTENT_URL_MEDIA_YES"] = "Да";
 $MESS["LANDING_CONTENT_URL_MEDIA_NO"] = "Нет";
+$MESS["LANDING_CONTENT_URL_MEDIA_SOUND"] = "Включить звук";
+$MESS["LANDING_CONTENT_URL_MEDIA_FB_PAGE_SMALL_HEADER"] = "Показывать компактный заголовок";
+$MESS["LANDING_CONTENT_URL_MEDIA_FB_PAGE_COVER"] = "Показывать обложку";
+$MESS["LANDING_CONTENT_URL_MEDIA_FB_PAGE_FACES"] = "Показывать лица друзей";
+$MESS["LANDING_CONTENT_URL_MEDIA_FB_PAGE_TABS"] = "Вкладки";
+$MESS["LANDING_CONTENT_URL_MEDIA_FB_PAGE_TABS_TIMELINE"] = "Таймлайн";
+$MESS["LANDING_CONTENT_URL_MEDIA_FB_PAGE_TABS_MESSAGES"] = "Сообщения";
+$MESS["LANDING_CONTENT_URL_MEDIA_FB_PAGE_TABS_EVENTS"] = "События";
+$MESS["LANDING_CONTENT_URL_MEDIA_FB_POST_FULL"] = "Показать весь пост";
+
+
 $MESS["LANDING_CONTENT_MEDIA_SECONDS_SHORT"] = "Сек.";
 $MESS["LANDING_TITLE_OF_EDITOR_ACTION_DESIGN"] = "Дизайн";
 $MESS["LANDING_BLOCK_DISABLED_ON_DESKTOP_NAME"] = "Настроена видимость блока";
@@ -194,12 +209,14 @@ $MESS["LANDING_TITLE_OF_EDITOR_ACTION_GLAVRED"] = "Главред";
 $MESS["LANDING_TITLE_OF_EDITOR_ACTION_GLAVRED_TITLE"] = "Главред помогает очистить текст от словесного мусора, проверяет на соответствие информационному стилю.";
 // ~~~~
 
-$MESS["LANDING_CONTENT_URL_MEDIA_HELP"] = "<p>Укажите ссылку на видео с Youtube, Vimeo, Vine или Instagram, и клик по этой ссылке откроет видео во всплывающем окне.</p><p>Укажите ссылку на карту с Google Maps, и клик по этой ссылке откроет карту во всплывающем окне.</p>";
+$MESS["LANDING_CONTENT_URL_MEDIA_HELP"] = "<p>Укажите ссылку на видео с Youtube, Vimeo, Vine или Instagram, и клик по этой ссылке откроет видео во всплывающем окне.</p>";
+//$MESS["LANDING_CONTENT_URL_MEDIA_HELP"] = "<p>Укажите ссылку на видео с Youtube, Vimeo, Vine или Instagram, и клик по этой ссылке откроет видео во всплывающем окне.</p><p>Укажите ссылку на карту с Google Maps, и клик по этой ссылке откроет карту во всплывающем окне.</p>";
 $MESS["LANDING_CONTENT_URL_MEDIA_HELP_TITLE"] = "Медиа-ссылки";
 $MESS["LANDING_BLOCKS_LIST_PREVIEW_NEW"] = "Новый";
 
 $MESS["LANDING_ALERT_ACTION_CLOSE"] = "Закрыть";
 $MESS["LANDING_ALERT_ACTION_SUPPORT_LINK"] = "Написать в поддержку";
+$MESS["LANDING_BLOCK_REQUIRES_UPDATE_MESSAGE"] = "Для добавления блока требуется последняя версия модуля &laquo;Сайты 24&raquo;. Проверьте его актуальность в разделе &laquo;<a href='/bitrix/admin/update_system.php' target='_blank'>Marketplace &rarr; Обновление платформы</a>&raquo;.";
 
 
 // Block error messages
@@ -248,7 +265,7 @@ $MESS["LANDING_GOOGLE_FONT_SELECT_BUTTON"] = "Выбрать";
 $MESS["LANDING_GOOGLE_IMAGES_KEY_PANEL_TITLE"] = "Укажите ключ для Google Images";
 $MESS["LANDING_GOOGLE_IMAGES_KEY_FIELD_TITLE"] = "Ключ Google Custom Search API";
 $MESS["LANDING_GOOGLE_IMAGES_CHANGE_KEY_BUTTON"] = "Изменить ключ";
-$MESS["LANDING_GOOGLE_IMAGES_GET_KEY_GUIDE"] = "Для получения ключа перейдите по <a href=\"https://developers.google.com/custom-search/json-api/v1/introduction\" target='_top'>ссылке</a>, нажмите кнопку &laquo;Get&nbsp;a&nbsp;key&raquo; и следуйте инструкциям.";
+$MESS["LANDING_GOOGLE_IMAGES_GET_KEY_GUIDE"] = "Для получения ключа перейдите по <a href=\"https://developers.google.com/custom-search/json-api/v1/introduction\" target='_blank'>ссылке</a>, нажмите кнопку &laquo;Get&nbsp;a&nbsp;key&raquo; и следуйте инструкциям.";
 
 $MESS["LANDING_BLOCK_RESTRICTED_TEXT"] = "Полноценная работа блока будет видна только на опубликованной странице.";
 $MESS["LANDING_LINK_FIELD_URL_TYPE_LINK"] = "Ссылка";
@@ -285,3 +302,26 @@ $MESS["LANDING_TITLE_OF_BLOCK_ACTION_COLLAPSE"] = "Свернуть / разве
 $MESS["LANDING_STYLE_PANEL_CATALOG_IBLOCK_SWITCHER"] = "Инфоблок";
 $MESS["FIELD_LINK_HREF_PLACEHOLDER_CATALOG_ONLY"] = "Выбрать";
 $MESS["LANDING_STYLE_PANEL_CATALOG_SEARCH_SECTION_PLACEHOLDER"] = "Название раздела";
+$MESS["LANDING_NODE_MAP_FORM_HEADER"] = "Данные о местоположении";
+$MESS["LANDING_NODE_MAP_FORM_TITLE"] = "Заголовок";
+$MESS["LANDING_NODE_MAP_FORM_DESCRIPTION"] = "Описание";
+$MESS["LANDING_NODE_MAP_FORM_SHOW_BY_DEFAULT"] = "Открывать по умолчанию";
+$MESS["LANDING_NODE_MAP_FORM_SHOW_BUTTON_APPLY"] = "Готово";
+$MESS["LANDING_NODE_MAP_FORM_SHOW_BUTTON_REMOVE"] = "Удалить";
+
+$MESS["LANDING_IMAGE_EDITOR_RECOMMENDED_RATIOS"] = "Рекомендуемые размеры";
+$MESS["LANDING_IMAGE_EDITOR_TRANSFORM_DEFAULT"] = "По умолч.";
+$MESS["LANDING_IMAGE_EDITOR_TRANSFORM_DEFAULT_RETINA"] = "По умолч. 2x";
+$MESS["LANDING_IMAGE_EDITOR_TRANSFORM_OTHER_AS_IS"] = "Как есть";
+$MESS["LANDING_IMAGE_EDITOR_TRANSFORM_OTHER_AS_IS_RETINA"] = "Как есть 2x";
+$MESS["LANDING_IMAGE_EDITOR_OTHER_RATIOS"] = "Другие размеры";
+
+$MESS["LANDING_PAGE_STATUS_UPDATED"] = "Обновлено";
+$MESS["LANDING_PAGE_STATUS_UPDATED_NOW"] = "Обновлено сейчас";
+
+$MESS['LANDING_DOMAIN_LIMIT_LENGTH'] = 'Превышена длина имени домена';
+
+$MESS['LANDING_DOMAIN_EXIST'] = 'Такой домен уже существует';
+$MESS['LANDING_DOMAIN_EXIST2'] = 'Домен уже существует и привязан к сайту, который находится в корзине. Отвяжите сайт от домена и повторите попытку.';
+
+$MESS['LANDING_DOMAIN_INCORRECT'] = 'Адрес сайта введен неверно. Вы можете использовать только следующие символы "a-z", "A-Z", "0-9" и "_"';

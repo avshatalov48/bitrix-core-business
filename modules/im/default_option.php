@@ -11,6 +11,7 @@ $im_default_option = array(
 	'turn_server_firefox' => '54.217.240.163',
 	'turn_server_login' => 'bitrix',
 	'turn_server_password' => 'bitrix',
+	'call_server_enabled' => IsModuleInstalled('bitrix24') ? true : false,
 	'open_chat_enable' => IsModuleInstalled('intranet')? true: false,
 	'color_enable' => true,
 	'correct_text' => false,

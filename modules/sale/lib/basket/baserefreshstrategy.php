@@ -164,7 +164,9 @@ abstract class BaseRefreshStrategy
 				$preparedData['PRICE'] = $preparedData['BASE_PRICE'] - $preparedData['DISCOUNT_PRICE'];
 			}
 
-			if (empty($preparedData) || (isset($preparedData['QUANTITY']) && $preparedData['QUANTITY'] == 0))
+			if (empty($preparedData)
+				|| (isset($preparedData['QUANTITY']) && $preparedData['QUANTITY'] == 0)
+				|| (isset($data['ACTIVE']) && $data['ACTIVE'] == 'N'))
 			{
 				$preparedData['CAN_BUY'] = 'N';
 				unset($preparedData['QUANTITY']);
@@ -268,9 +270,6 @@ abstract class BaseRefreshStrategy
 		{
 			if (isset($settableFields[$key]))
 			{
-				if ($key === 'NAME' && $item->getField('NAME') != '')
-					continue;
-
 				if ($key === 'PRICE' && $item->isCustomPrice())
 				{
 					$value = $item->getPrice();
@@ -332,59 +331,7 @@ abstract class BaseRefreshStrategy
 
 	protected function getProviderContext(BasketBase $basket)
 	{
-		global $USER;
-
-		$context = array();
-
-		$order = $basket->getOrder();
-		/** @var OrderBase $order */
-		if ($order)
-		{
-			$context['USER_ID'] = $order->getUserId();
-			$context['SITE_ID'] = $order->getSiteId();
-			$context['CURRENCY'] = $order->getCurrency();
-		}
-		else
-		{
-			/** @var BasketItem $basketItem */
-			$basketItem = $basket->rewind();
-			if (!$basketItem)
-			{
-				return $context;
-			}
-
-			$siteId = $basketItem->getField('LID');
-			$fuserId = $basketItem->getFUserId();
-			$currency = $basketItem->getCurrency();
-
-			$userId = Fuser::getUserIdById($fuserId);
-
-			if (empty($context['SITE_ID']))
-			{
-				$context['SITE_ID'] = $siteId;
-			}
-
-			if (empty($context['USER_ID']) && $userId > 0)
-			{
-				$context['USER_ID'] = $userId;
-			}
-
-			if (empty($context['CURRENCY']))
-			{
-				if (empty($currency))
-				{
-					$currency = SiteCurrencyTable::getSiteCurrency($siteId);
-				}
-
-				if (!empty($currency) && CurrencyManager::checkCurrencyID($currency))
-				{
-					$context['CURRENCY'] = $currency;
-				}
-
-			}
-		}
-
-		return $context;
+		return $basket->getContext();
 	}
 
 	protected function getBasketItemsToRefresh(BasketBase $basket, $quantity = 0)
@@ -423,7 +370,7 @@ abstract class BaseRefreshStrategy
 	{
 		if (!empty($itemsToRefresh))
 		{
-			$context = $basket->getContext();
+			$context = $this->getProviderContext($basket);
 			$result = Provider::getProductData($itemsToRefresh, $context);
 		}
 		else

@@ -183,8 +183,8 @@ class Property
 					array(
 						'SELECTOR_ID' => $filterId.'_'.$property['FIELD_ID'],
 						'SEARCH_INPUT_ID' => $filterId.'_'.$property['FIELD_ID'],
-						'IBLOCK_ID' => !empty($property['LINK_IBLOCK_ID']) ? $property['LINK_IBLOCK_ID'] : 0,
-						'MULTIPLE' => $property['MULTIPLE'],
+						'IBLOCK_ID' => $property['LINK_IBLOCK_ID'],
+						'MULTIPLE' => 'Y',
 						'PANEL_SELECTED_VALUES' => 'N',
 						'CURRENT_ELEMENTS_ID' => $currentElements
 					),
@@ -198,7 +198,7 @@ class Property
 							{
 								fieldId: '<?=\CUtil::JSEscape($property['FIELD_ID'])?>',
 								controlId: '<?=\CUtil::JSEscape($filterId.'_'.$property['FIELD_ID'])?>',
-								multiple: '<?=\CUtil::JSEscape($property['MULTIPLE'])?>'
+								multiple: 'Y'
 							}
 						);
 					});
@@ -1030,33 +1030,45 @@ class Property
 								{
 									this._control = control;
 									var currentValues = this._control.getCurrentValues();
-									this._currentElements = [];
-									if(this._multiple)
+									if(!!currentValues.value)
 									{
-										if(!!currentValues.value)
+										this._currentElements = [];
+										if(this._multiple)
 										{
 											var values = JSON.parse(currentValues.value);
 											for(var k in values)
 											{
 												this._currentElements.push(
-													{'id': values[k][0],'name': values[k][1]});
+													{"id": values[k][0], "name": values[k][1]});
 											}
 										}
-									}
-									else
-									{
-										this._currentElements.push(
-											{'id': currentValues.value,'name': currentValues.label});
+										else
+										{
+											this._currentElements.push(
+												{"id": currentValues.value, "name": currentValues.label});
+										}
 									}
 									this.open();
 								}
 							},
 							onCustomEntitySelectorClose: function(control)
 							{
-								if(control.getId() !== this._fieldId)
+								if (control.getId() !== this._fieldId)
 								{
 									return;
 								}
+
+								var currentValues = control.getCurrentValues();
+								if (!currentValues.value && control.getLabelNode())
+								{
+									var value = control.getLabelNode().value;
+									if (parseInt(value))
+									{
+										control.getLabelNode().value = "";
+										control.setData(value, value);
+									}
+								}
+
 								this.close();
 							},
 							onDialogShow: function()
@@ -1114,13 +1126,13 @@ class Property
 										values[this._currentElements[k].id].push(this._currentElements[k].id);
 										values[this._currentElements[k].id].push(this._currentElements[k].name);
 									}
-									if(labels.join(', '))
+									if (labels.join(', '))
 									{
 										this._control.setData(labels.join(', '), JSON.stringify(values));
 									}
 									else
 									{
-										this._control.removeSquare();
+										this._control.removeSquares();
 									}
 								}
 								else

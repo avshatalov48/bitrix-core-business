@@ -912,6 +912,7 @@ BX.Sale.Admin.ShipmentBasketEdit.prototype.recoveryDeliveryStore = function(prod
 {
 	var stack = [element];
 	var index = 1;
+
 	for (var storeId in product.BARCODE_INFO)
 	{
 		if (!product.BARCODE_INFO.hasOwnProperty(storeId))
@@ -1027,6 +1028,7 @@ BX.Sale.Admin.ShipmentBasketEdit.prototype.recoveryBarcode = function(product, e
 		if (!product['BARCODE_INFO'].hasOwnProperty(storeId))
 			continue;
 
+		console.log('recoveryBarcode');
 		var stackElement = stack[stack.length - 1];
 		var barcodeInfo = product['BARCODE_INFO'][storeId];
 

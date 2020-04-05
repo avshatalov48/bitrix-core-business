@@ -1,4 +1,7 @@
 <?
+$MESS["REST_IBLOCK_NAME"] = "Marketplace24 Application Data Storage";
+$MESS["REST_IBLOCK_SECTION_NAME"] = "Sections";
+$MESS["REST_IBLOCK_ELEMENT_NAME"] = "Items";
 $MESS["REST_MODULE_NAME"] = "REST API";
 $MESS["REST_MODULE_DESCRIPTION"] = "Web interface for applications existing in distributed environments.";
 $MESS["REST_INSTALL_TITLE"] = "REST API Module Installation";

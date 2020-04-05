@@ -403,6 +403,10 @@ class BasketTable extends Main\Entity\DataManager
 					'default' => '100'
 				)
 			),
+
+			'XML_ID' => array(
+				'data_type' => 'string'
+			),
 		);
 	}
 

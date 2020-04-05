@@ -2,10 +2,15 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
-use Bitrix\Main\Loader;
+use Bitrix\Main\Loader,
+	Bitrix\Catalog;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
+
+$publicMode = $adminPage->publicMode;
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+
 if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_group')))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 Loader::includeModule('catalog');
@@ -28,7 +33,7 @@ $sTableID = "tbl_catalog_group";
 
 $oSort = new CAdminSorting($sTableID, "ID", "asc");
 
-$lAdmin = new CAdminList($sTableID, $oSort);
+$lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $arFilterFields = array();
 
@@ -97,6 +102,14 @@ if (($arID = $lAdmin->GroupAction()) && !$bReadOnly)
 				}
 				break;
 		}
+	}
+	if ($lAdmin->hasGroupErrors())
+	{
+		$adminSidePanelHelper->sendJsonErrorResponse($lAdmin->getGroupErrors());
+	}
+	else
+	{
+		$adminSidePanelHelper->sendSuccessResponse();
 	}
 }
 
@@ -204,23 +217,20 @@ if ($arSelectFieldsMap['NAME_LID'])
 	unset($order1, $by1);
 }
 
-$arNavParams = (isset($_REQUEST["mode"]) && 'excel' == $_REQUEST["mode"]
-	? false
-	: array("nPageSize" => CAdminResult::GetNavSize($sTableID))
-);
+global $by, $order;
 
 $dbResultList = CCatalogGroup::GetList(
 	array($by => $order),
 	array(),
 	false,
-	$arNavParams,
+	false,
 	$arSelectFields
 );
 
-$dbResultList = new CAdminResult($dbResultList, $sTableID);
+$dbResultList = new CAdminUiResult($dbResultList, $sTableID);
 $dbResultList->NavStart();
 
-$lAdmin->NavText($dbResultList->GetNavPrint(GetMessage("group_admin_nav")));
+$lAdmin->SetNavigationParams($dbResultList, array("BASE_LINK" => $selfFolderUrl."cat_group_admin.php"));
 
 $arUserList = array();
 $arUserID = array();
@@ -243,9 +253,11 @@ while ($arRes = $dbResultList->Fetch())
 		if (0 < $arRes['MODIFIED_BY'])
 			$arUserID[$arRes['MODIFIED_BY']] = true;
 	}
-	$arRows[$arRes['ID']] = $row = &$lAdmin->AddRow($arRes['ID'], $arRes);
 
-	$row->AddViewField("ID", '<a href="/bitrix/admin/cat_group_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes["ID"].'&'.GetFilterParams("filter_").'">'.$arRes["ID"].'</a>');
+	$editUrl = $selfFolderUrl."cat_group_edit.php?ID=".$arRes["ID"]."&lang=".LANGUAGE_ID;
+	$editUrl = $adminSidePanelHelper->editUrlToPublicPage($editUrl);
+	$arRows[$arRes['ID']] = $row = &$lAdmin->AddRow($arRes['ID'], $arRes, $editUrl);
+	$row->AddViewField("ID", '<a href="'.$editUrl.'">'.$arRes["ID"].'</a>');
 
 	if (!$bReadOnly)
 	{
@@ -259,7 +271,7 @@ while ($arRes = $dbResultList->Fetch())
 	else
 	{
 		if ($arSelectFieldsMap['NAME'])
-			$row->AddViewField("NAME", '<a href="/bitrix/admin/cat_group_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes["ID"].'&'.GetFilterParams("filter_").'">'.htmlspecialcharsbx($arRes['NAME']).'</a>');
+			$row->AddViewField("NAME", '<a href="'.$editUrl.'">'.htmlspecialcharsbx($arRes['NAME']).'</a>');
 		if ($arSelectFieldsMap['SORT'])
 			$row->AddInputField('SORT', false);
 		if ($arSelectFieldsMap['XML_ID'])
@@ -273,7 +285,7 @@ while ($arRes = $dbResultList->Fetch())
 	$arActions[] = array(
 		"ICON" => "edit",
 		"TEXT" => GetMessage("EDIT_STATUS_ALT"),
-		"ACTION" => $lAdmin->ActionRedirect("/bitrix/admin/cat_group_edit.php?ID=".$arRes['ID']."&lang=".LANGUAGE_ID."&".GetFilterParams("filter_").""),
+		"LINK" => $editUrl,
 		"DEFAULT" => true
 	);
 
@@ -281,9 +293,6 @@ while ($arRes = $dbResultList->Fetch())
 	{
 		if ('Y' != $arRes['BASE'])
 		{
-			$arActions[] = array(
-				"SEPARATOR" => true
-			);
 			$arActions[] = array(
 				"ICON" => "delete",
 				"TEXT" => GetMessage("DELETE_STATUS_ALT"),
@@ -337,7 +346,11 @@ if ($arSelectFieldsMap['CREATED_BY'] || $arSelectFieldsMap['MODIFIED_BY'])
 		while ($arOneUser = $rsUsers->Fetch())
 		{
 			$arOneUser['ID'] = (int)$arOneUser['ID'];
-			$arUserList[$arOneUser['ID']] = '<a href="/bitrix/admin/user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arOneUser['ID'].'">'.CUser::FormatName($strNameFormat, $arOneUser).'</a>';
+			$userEdit = $selfFolderUrl."user_edit.php?lang=".LANGUAGE_ID."&ID=".$arOneUser["ID"];
+			if ($publicMode)
+				$arUserList[$arOneUser['ID']] = CUser::FormatName($strNameFormat, $arOneUser);
+			else
+				$arUserList[$arOneUser['ID']] = '<a href="'.$userEdit.'">'.CUser::FormatName($strNameFormat, $arOneUser).'</a>';
 		}
 	}
 
@@ -382,42 +395,30 @@ $lAdmin->AddFooter(
 
 if (!$bReadOnly)
 {
-	if (CBXFeatures::IsFeatureEnabled('CatMultiPrice'))
-	{
-		$lAdmin->AddGroupActionTable(
-			array(
-				"delete" => GetMessage("MAIN_ADMIN_LIST_DELETE"),
-			)
-		);
-	}
-	else
-	{
-		$lAdmin->AddGroupActionTable(
-			array()
-		);
-	}
+	$actions = ['edit' => true];
+	if (Catalog\Config\Feature::isMultiPriceTypesEnabled())
+		$actions['delete'] = true;
+
+	$lAdmin->AddGroupActionTable($actions);
 }
 
 if (!$bReadOnly)
 {
 	$aContext = array();
-	$boolEmptyPrice = true;
-	$dbCatGroup = CCatalogGroup::GetList(array("ID" => "ASC"), array(), false, array("nTopCount" => 1), array("ID"));
-	if ($arCatGroup = $dbCatGroup->Fetch())
+	if (Catalog\Config\State::isAllowedNewPriceType())
 	{
-		$boolEmptyPrice = false;
-	}
-	if (CBXFeatures::IsFeatureEnabled('CatMultiPrice') || $boolEmptyPrice)
-	{
+		$addUrl = $selfFolderUrl."cat_group_edit.php?lang=".LANGUAGE_ID;
+		$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
 		$aContext = array(
 			array(
 				"TEXT" => GetMessage("CGAN_ADD_NEW"),
 				"ICON" => "btn_new",
-				"LINK" => "cat_group_edit.php?lang=".LANG,
+				"LINK" => $addUrl,
 				"TITLE" => GetMessage("CGAN_ADD_NEW_ALT")
 			),
 		);
 	}
+	$lAdmin->setContextSettings(array("pagePath" => $selfFolderUrl."cat_group_admin.php"));
 	$lAdmin->AddAdminContextMenu($aContext);
 }
 
@@ -427,5 +428,5 @@ $APPLICATION->SetTitle(GetMessage("GROUP_TITLE"));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
 $lAdmin->DisplayList();
-?><?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>
+
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

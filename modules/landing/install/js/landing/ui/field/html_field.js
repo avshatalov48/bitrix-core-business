@@ -21,9 +21,11 @@
 		addClass(this.layout, "landing-ui-field-html");
 
 		this.onContentChange = proxy(this.onContentChange, this);
+		this.onMousewheel = proxy(this.onMousewheel, this);
 
 		bind(this.input, "input", this.onContentChange);
 		bind(this.input, "keydown", this.onContentChange);
+		bind(this.input, "mousewheel", this.onMousewheel);
 
 		this.input.value = decodeDataValue(this.content);
 
@@ -44,6 +46,12 @@
 		createInput: function()
 		{
 			return BX.create("textarea", {props: {className: "landing-ui-field-input"}, html: this.content});
+		},
+
+
+		onMousewheel: function(event)
+		{
+			event.stopPropagation();
 		},
 
 
@@ -72,7 +80,7 @@
 		adjustHeight: function()
 		{
 			this.input.style.height = "0px";
-			this.input.style.height = this.input.scrollHeight + "px";
+			this.input.style.height = Math.min(this.input.scrollHeight, 180) + "px";
 		},
 
 

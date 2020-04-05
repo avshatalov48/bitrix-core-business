@@ -3,6 +3,7 @@
 
 \Bitrix\Main\Loader::includeModule('socialnetwork');
 CJSCore::Init(array('socnetlogdest', 'bp_user_selector'));
+\Bitrix\Main\UI\Extension::load("ui.tooltip");
 
 $cmpId = RandString();
 
@@ -33,12 +34,9 @@ if (empty($arResult['DOCUMENT_ICON']))
 <?endif?>
 <div class="bp-task-page bp-lent <?if (empty($arResult["TASK"]['STARTED_BY_PHOTO_SRC'])):?>no-photo<?endif?>">
 	<?if (!empty($arResult["TASK"]['STARTED_BY_PHOTO_SRC'])):?>
-	<span class="bp-avatar" id="bp-task-started-by-<?=$arResult["TASK"]['ID']?>">
+	<span class="bp-avatar" bx-tooltip-user-id="<?=(int)$arResult["TASK"]['STARTED_BY']?>" bx-tooltip-classname="intrantet-user-selector-tooltip">
 		<img src="<?=$arResult["TASK"]['STARTED_BY_PHOTO_SRC']?>" alt="">
 	</span>
-	<script>
-		BX.tooltip(<?php echo (int)$arResult["TASK"]['STARTED_BY']?>, "bp-task-started-by-<?=$arResult["TASK"]['ID']?>", "", 'intrantet-user-selector-tooltip');
-	</script>
 	<?endif?>
 	<span class="bp-title"><?=$arResult["TASK"]["NAME"]?></span>
 	<?if ($arResult["TASK"]["DOCUMENT_NAME"]):?>

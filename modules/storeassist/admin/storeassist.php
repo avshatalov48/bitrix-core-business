@@ -309,13 +309,17 @@ $arAssistSteps = array(
 						"path" => "/bitrix/admin/site_speed.php?lang=".LANGUAGE_ID."&back=health_block_1#showtask",
 						"available" => IsModuleInstalled("main")
 					),
-					"composite" => array(
-						"path" => "/bitrix/admin/composite.php?lang=".LANGUAGE_ID."&back=health_block_1#showtask",
-						"available" => IsModuleInstalled("main")
-					),
 					"bitrixcloud_cdn" => array(
 						"path" => "/bitrix/admin/bitrixcloud_cdn.php?lang=".LANGUAGE_ID."&back=health_block_1#showtask",
 						"available" => IsModuleInstalled("bitrixcloud")
+					),
+					"composite" => array(
+						"path" => "/bitrix/admin/composite.php?lang=".LANGUAGE_ID."&back=health_block_1#showtask",
+						"available" => IsModuleInstalled("main"),
+						"subItems" => array(
+							"composite_dev" => "/bitrix/admin/composite.php?lang=".LANGUAGE_ID."&back=health_block_1&subId=composite_dev#showtask",
+							"composite_auto" => "/bitrix/admin/composite.php?lang=".LANGUAGE_ID."&back=health_block_1&subId=composite_auto&tabControl_active_tab=composite#showtask"
+						)
 					),
 					"perfmon_panel" => array(
 						"path" => "/bitrix/admin/perfmon_panel.php?lang=".LANGUAGE_ID."&back=health_block_1#showtask",
@@ -500,8 +504,8 @@ if ($orderPercent > 0)
 
 <?
 //get option of toggled sections
-$step_toggle = CUserOptions::GetOption("storeassist", "step_toggle", "");
-if (!$step_toggle)
+$step_toggle = CUserOptions::GetOption("storeassist", "step_toggle", array());
+if (empty($step_toggle))
 {
 	if ($arAssistSteps["MAIN"]["PERCENT"] >= 80)
 		$step_toggle["MAIN"] = "N";
@@ -575,9 +579,11 @@ foreach($arAssistSteps as $stepCode => $arStep)
 											$partnerName = Bitrix\Main\Config\Option::get("storeassist", "partner_name", "");
 											$message = htmlspecialcharsbx(GetMessage("STOREAS_ITEMS_".$itemCode, array("#NAME#" => ($partnerName ? "\"".$partnerName."\"" : ""))));
 											?>
-											<a href="<?=$arItem["path"]?>" title="<?=$message?>" onclick="BX.Storeassist.Admin.setOption('<?=CUtil::JSEscape($itemCode)?>', 'Y')" target="_blank">
-												<span><?=$message?></span>
-											</a>
+											<span class="adm-s-setting-task-item">
+												<a href="<?=$arItem["path"]?>" title="<?=$message?>" onclick="BX.Storeassist.Admin.setOption('<?=CUtil::JSEscape($itemCode)?>', 'Y')" target="_blank">
+													<span><?=$message?></span>
+												</a>
+											</span>
 											<?
 											break;
 										case "support_bitrix":
@@ -590,22 +596,46 @@ foreach($arAssistSteps as $stepCode => $arStep)
 										case "info_api_doc":
 										case "info_courses":
 											?>
-											<a href="<?=$arItem["path"]?>" title="<?=GetMessage("STOREAS_ITEMS_".$itemCode)?>" onclick="BX.Storeassist.Admin.setOption('<?=CUtil::JSEscape($itemCode)?>', 'Y')" target="_blank">
-												<span><?=GetMessage("STOREAS_ITEMS_".$itemCode)?></span>
-											</a>
+											<span class="adm-s-setting-task-item">
+												<a href="<?=$arItem["path"]?>" title="<?=GetMessage("STOREAS_ITEMS_".$itemCode)?>" onclick="BX.Storeassist.Admin.setOption('<?=CUtil::JSEscape($itemCode)?>', 'Y')" target="_blank">
+													<span><?=GetMessage("STOREAS_ITEMS_".$itemCode)?></span>
+												</a>
+											</span>
 											<?
 											break;
 										default:
-											?>
-											<a href="<?=$arItem["path"]?>" title="<?=GetMessage("STOREAS_ITEMS_".$itemCode)?>"><span><?=GetMessage("STOREAS_ITEMS_".$itemCode)?></span></a>
-											<?
+											if (isset($arItem["subItems"]))
+											{
+												?>
+												<div title="<?=GetMessage("STOREAS_ITEMS_".$itemCode)?>">
+													<span class="adm-s-setting-task-item"><?=GetMessage("STOREAS_ITEMS_".$itemCode)?>
+
+												<?
+												foreach ($arItem["subItems"] as $subCode => $subPath)
+												{
+													?>
+														<span class="adm-s-setting-task-sub-item">
+															<a href="<?=$subPath?>" title="<?=GetMessage("STOREAS_ITEMS_".$subCode)?>">- <?=GetMessage("STOREAS_ITEMS_".$subCode)?></a>
+														</span>
+													<?
+												}
+												?>
+												</span></div>
+												<?
+											}
+											else
+											{
+												?>
+												<span class="adm-s-setting-task-item"><a href="<?=$arItem["path"]?>" title="<?=GetMessage("STOREAS_ITEMS_".$itemCode)?>"><span><?=GetMessage("STOREAS_ITEMS_".$itemCode)?></span></a></span>
+												<?
+											}
 									}
 									?>
 								</li>
 							<?endforeach?>
 
 							<?if (!empty($arBlock["ADDITIONAL_ITEMS"])):?>
-								<li class="adm-s-setting-task add "><span><?=GetMessage("STOREAS_ADDITIONAL_TASKS")?></span></li>
+								<li class="adm-s-setting-task add "><span class="adm-s-setting-task-item"><?=GetMessage("STOREAS_ADDITIONAL_TASKS")?></span></li>
 							<?endif?>
 						</ul>
 						<div class="clb"></div>

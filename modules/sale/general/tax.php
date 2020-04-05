@@ -277,7 +277,10 @@ class CAllSaleTax
 	{
 		$duplicateList = array();
 		$idList = array();
-		$res = CSaleOrderTax::GetList(
+
+		/** @var CSaleOrderTax $orderTaxClass */
+		$orderTaxClass = static::getOrderTaxEntityName();
+		$res = $orderTaxClass::GetList(
 			array('ID' => 'ASC'),
 			array("ORDER_ID" => $orderId),
 			false,
@@ -319,21 +322,35 @@ class CAllSaleTax
 
 				if (array_key_exists($hash, $idList))
 				{
-					$taxId = CSaleOrderTax::Update($idList[$hash], $fields);
+					/** @var CSaleOrderTax $orderTaxClass */
+					$orderTaxClass = static::getOrderTaxEntityName();
+					$taxId = $orderTaxClass::Update($idList[$hash], $fields);
 					unset($idList[$hash]);
 				}
 				elseif (!array_key_exists($hash, $duplicateList))
 				{
 					$isNew = true;
-					$taxId = CSaleOrderTax::Add($fields);
+					/** @var CSaleOrderTax $orderTaxClass */
+					$orderTaxClass = static::getOrderTaxEntityName();
+					$taxId = $orderTaxClass::Add($fields);
 				}
 
 				if ($orderId > 0)
 				{
-					\Bitrix\Sale\OrderHistory::addLog('TAX', $orderId, $isNew ? 'TAX_ADD' : 'TAX_UPDATE', $taxId, null, array(
-						"NAME" => $itemData["NAME"],
-						"CODE" => $itemData["CODE"]
-					), \Bitrix\Sale\OrderHistory::SALE_ORDER_HISTORY_LOG_LEVEL_1);
+					/** @var \Bitrix\Crm\Invoice\InvoiceHistory $historyClass */
+					$historyClass = static::getHistoryEntityName();
+					$historyClass::addLog(
+						'TAX',
+						$orderId,
+						$isNew ? 'TAX_ADD' : 'TAX_UPDATE',
+						$taxId,
+						null,
+						array(
+							"NAME" => $itemData["NAME"],
+							"CODE" => $itemData["CODE"]
+						),
+						$historyClass::SALE_ORDER_HISTORY_LOG_LEVEL_1
+					);
 
 					$isChanged = true;
 				}
@@ -342,10 +359,22 @@ class CAllSaleTax
 
 		foreach ($idList as $code => $id)
 		{
-			CSaleOrderTax::Delete($id);
+			/** @var CSaleOrderTax $orderTaxClass */
+			$orderTaxClass = static::getOrderTaxEntityName();
+			$orderTaxClass::Delete($id);
 			if ($orderId > 0)
 			{
-				\Bitrix\Sale\OrderHistory::addLog('TAX', $orderId, 'TAX_DELETED', $id, null, array(), \Bitrix\Sale\OrderHistory::SALE_ORDER_HISTORY_LOG_LEVEL_1);
+				/** @var \Bitrix\Crm\Invoice\InvoiceHistory $className */
+				$historyClass = static::getHistoryEntityName();
+				$historyClass::addLog(
+					'TAX',
+					$orderId,
+					'TAX_DELETED',
+					$id,
+					null,
+					array(),
+					$historyClass::SALE_ORDER_HISTORY_LOG_LEVEL_1
+				);
 			}
 		}
 
@@ -353,14 +382,30 @@ class CAllSaleTax
 		{
 			foreach ($duplicateList as $hash => $id)
 			{
-				CSaleOrderTax::Delete($id);
-				\Bitrix\Sale\OrderHistory::addLog('TAX', $orderId, 'TAX_DUPLICATE_DELETED', $id, null, array(), \Bitrix\Sale\OrderHistory::SALE_ORDER_HISTORY_LOG_LEVEL_1);
+				/** @var CSaleOrderTax $orderTaxClass */
+				$orderTaxClass = static::getOrderTaxEntityName();
+				$orderTaxClass::Delete($id);
+
+
+				/** @var \Bitrix\Crm\Invoice\InvoiceHistory $className */
+				$historyClass = static::getHistoryEntityName();
+				$historyClass::addLog(
+					'TAX',
+					$orderId,
+					'TAX_DUPLICATE_DELETED',
+					$id,
+					null,
+					array(),
+					$historyClass::SALE_ORDER_HISTORY_LOG_LEVEL_1
+				);
 			}
 		}
 
 		if ($isChanged)
 		{
-			\Bitrix\Sale\OrderHistory::addAction(
+			/** @var \Bitrix\Crm\Invoice\InvoiceHistory $className */
+			$historyClass = static::getHistoryEntityName();
+			$historyClass::addAction(
 				'TAX',
 				$orderId,
 				"TAX_SAVED"
@@ -671,6 +716,22 @@ class CAllSaleTax
 		$strSql .= $strSqlSearch;
 
 		return $DB->Query($strSql, true);
+	}
+
+	/**
+	 * @return string
+	 */
+	protected static function getOrderTaxEntityName()
+	{
+		return CSaleOrderTax::class;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected static function getHistoryEntityName()
+	{
+		return \Bitrix\Sale\OrderHistory::class;
 	}
 }
 ?>

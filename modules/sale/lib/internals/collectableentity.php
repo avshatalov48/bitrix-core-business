@@ -158,68 +158,6 @@ abstract class CollectableEntity
 	}
 
 	/**
-	 * @internal
-	 * @param array $map
-	 *
-	 * @return array
-	 */
-	public static function getAllFieldsByMap(array $map)
-	{
-		$fields = array();
-		foreach ($map as $key => $value)
-		{
-			if (is_array($value) && !isset($value['expression']))
-			{
-				$fields[] = $key;
-			}
-			elseif ($value instanceof Main\Entity\ScalarField)
-			{
-				$fields[] = $value->getName();
-			}
-		}
-		return $fields;
-	}
-
-	/**
-	 * @internal
-	 * @param array $map
-	 * @param array $fields
-	 *
-	 * @return array
-	 */
-	public static function getApplyFieldTypesByMap(array $map, array $fields)
-	{
-		$scalarFieldsIndex = array();
-
-		foreach ($map as $key => $value)
-		{
-			if ($value instanceof Main\Entity\ScalarField)
-			{
-				$scalarFieldsIndex[$value->getName()] = $key;
-			}
-		}
-
-		foreach ($fields as $key => $value)
-		{
-			if (array_key_exists($key, $scalarFieldsIndex))
-			{
-				$index = $scalarFieldsIndex[$key];
-				$field = $map[$index];
-				if ($field instanceof Main\Entity\IntegerField)
-				{
-					$fields[$key] = intval($value);
-				}
-				elseif ($field instanceof Main\Entity\FloatField)
-				{
-					$fields[$key] = floatval($value);
-				}
-			}
-		}
-		return $fields;
-	}
-
-
-	/**
 	 * @return bool
 	 */
 	public function isClone()

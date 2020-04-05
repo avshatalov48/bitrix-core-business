@@ -57,7 +57,8 @@
 .bx-retina .brandblock-block{ border-width: .5px;}
 
 .brandblock-block.icon {
-	background: no-repeat 8px center;
+	background: no-repeat 3px center;
+	background-size:30px auto;
 	padding: 7px 7px 7px 35px;
 	height: 54px;
 }

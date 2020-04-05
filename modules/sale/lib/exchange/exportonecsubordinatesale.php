@@ -3,11 +3,11 @@
 namespace Bitrix\Sale\Exchange;
 
 
+use Bitrix\Sale\Exchange\Entity\SubordinateSale\EntityImportFactory;
 use Bitrix\Sale\Exchange\OneC\DocumentBase;
 use Bitrix\Sale\Exchange\OneC\PaymentDocument;
 use Bitrix\Sale\Exchange\OneC\ShipmentDocument;
 use Bitrix\Sale\Exchange\OneC\SubordinateSale\ConverterFactory;
-use Bitrix\Sale\Result;
 
 final class ExportOneCSubordinateSale extends ExportOneCPackage
 {
@@ -54,7 +54,7 @@ final class ExportOneCSubordinateSale extends ExportOneCPackage
 	 */
 	protected function getShemVersion()
 	{
-		return self::SHEM_VERSION_2_10;
+		return static::SHEM_VERSION_2_10;
 	}
 
 	/**
@@ -64,5 +64,14 @@ final class ExportOneCSubordinateSale extends ExportOneCPackage
 	protected function modifyDocumentsCollection(array $list)
 	{
 		return array($this->getDocumentByTypeId(EntityType::ORDER, $list));
+	}
+
+	/**
+	 * @param $typeId
+	 * @return ImportBase
+	 */
+	protected function entityFactoryCreate($typeId)
+	{
+		return EntityImportFactory::create($typeId);
 	}
 }

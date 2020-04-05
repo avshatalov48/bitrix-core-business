@@ -8,10 +8,13 @@
 
 namespace Bitrix\Main\Mail\Internal;
 
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Data;
 
-class EventTypeTable extends Entity\DataManager
+class EventTypeTable extends Data\DataManager
 {
+	const TYPE_EMAIL = 'email';
+	const TYPE_SMS = 'sms';
+
 	/**
 	 * @return string
 	 */
@@ -50,7 +53,9 @@ class EventTypeTable extends Entity\DataManager
 				'required' => true,
 				'default_value' => 100,
 			),
+			'EVENT_TYPE' => array(
+				'data_type' => 'string',
+			),
 		);
 	}
-
 }

@@ -1,9 +1,8 @@
 <?php
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
-
 /** @var \Bitrix\Bizproc\Activity\PropertiesDialog $dialog */
-$data = $dialog->getRuntimeData();
-extract($data);
+/** @var bool $canSetModifiedBy */
+/** @var mixed $modifiedBy */
 ?>
 <div class="bizproc-automation-popup-settings bizproc-automation-popup-settings-text">
 	<a class="bizproc-automation-popup-settings-link" data-role="bp-sfa-fields-list">
@@ -14,6 +13,7 @@ extract($data);
 <script>
 	BX.ready(function()
 	{
+		var documentType = <?=\Bitrix\Main\Web\Json::encode($dialog->getDocumentType())?>;
 		var documentFields = <?=\Bitrix\Main\Web\Json::encode($arDocumentFields)?>;
 		var documentFieldsSort = <?=\Bitrix\Main\Web\Json::encode(array_keys($arDocumentFields))?>;
 
@@ -25,17 +25,17 @@ extract($data);
 			if (!documentFields.hasOwnProperty(fieldId))
 				continue;
 
-			if (fieldId === 'STATUS_ID' || fieldId === 'STAGE_ID' || fieldId === 'CATEGORY_ID' || fieldId.indexOf('EVENT_') === 0)
+			if (fieldId === 'STATUS_ID' ||
+				fieldId === 'STAGE_ID' ||
+				fieldId === 'CATEGORY_ID' ||
+				fieldId.indexOf('EVENT_') === 0)
 			{
 				continue;
 			}
 
 			propertyType = documentFields[fieldId]['Type'];
 
-			if (propertyType === 'file'
-				|| propertyType === 'UF:money'
-				|| propertyType === 'UF:address'
-			)
+			if (propertyType === 'file')
 			{
 				continue;
 			}
@@ -81,174 +81,18 @@ extract($data);
 		{
 			var property = documentFields[field];
 			if (!property)
-				return;
-
-			var node;
-
-			switch (property['Type'])
 			{
-				case 'bool':
-				case 'UF:boolean':
-					node = BX.create('select', {
-						attrs: {className: 'bizproc-automation-popup-settings-dropdown'},
-						props: {name: field},
-						children: [
-							BX.create('option', {
-								props: {value: ''},
-								text: '<?=GetMessageJS('BIZPROC_AUTOMATION_SFA_NOT_SELECTED')?>'
-							})
-						]
-					});
-					var optionY = BX.create('option', {
-						props: {value: 'Y'},
-						text: '<?=GetMessageJS('MAIN_YES')?>'
-					});
-
-					if (value == 'Y' || value == 1)
-					{
-						optionY.setAttribute('selected', 'selected');
-					}
-
-					var optionN = BX.create('option', {
-						props: {value: 'N'},
-						text: '<?=GetMessageJS('MAIN_NO')?>'
-					});
-
-					if (value == 'N' || value == 0)
-					{
-						optionN.setAttribute('selected', 'selected');
-					}
-
-					node.appendChild(optionY);
-					node.appendChild(optionN);
-					break;
-
-				case 'date':
-				case 'UF:date':
-				case 'datetime':
-					node = BX.create('input', {
-						attrs: {
-							className: 'bizproc-automation-popup-input',
-							'data-role': 'inline-selector-target',
-							'data-selector-type': property['Type'],
-							'data-selector-write-mode' : 'replace'
-						},
-						props: {
-							type: 'text',
-							name: field,
-							value: value
-						}
-					});
-					break;
-
-				case 'select':
-				case 'internalselect':
-					node = BX.create('select', {
-						attrs: {className: 'bizproc-automation-popup-settings-dropdown'},
-						props: {name: field},
-						children: [
-							BX.create('option', {
-								props: {value: ''},
-								text: '<?=GetMessageJS('BIZPROC_AUTOMATION_SFA_NOT_SELECTED')?>'
-							})
-						]
-					});
-					if (BX.type.isPlainObject(property['Options']))
-					{
-						for (var key in property['Options'])
-						{
-							if (!property['Options'].hasOwnProperty(key))
-								continue;
-
-							var option = BX.create('option', {
-								props: {value: key},
-								text: property['Options'][key]
-							});
-
-							if (key == value)
-							{
-								option.setAttribute('selected', 'selected');
-							}
-
-							node.appendChild(option);
-						}
-					}
-					else if (BX.type.isArray(property['Options']))
-					{
-						for (var i = 0; i < property['Options'].length; ++i)
-						{
-							var option = BX.create('option', {
-								props: {value: i},
-								text: property['Options'][i]
-							});
-
-							if (i == value)
-							{
-								option.setAttribute('selected', 'selected');
-							}
-
-							node.appendChild(option);
-						}
-					}
-
-					break;
-
-				case 'text':
-					node = BX.create('textarea', {
-						attrs: {
-							className: 'bizproc-automation-popup-textarea',
-							'data-role': 'inline-selector-target'
-						},
-						props: {name: field},
-						text: value
-					});
-					break;
-
-				case 'int':
-				case 'double':
-				case 'string':
-					node = BX.create('input', {
-						attrs: {
-							className: 'bizproc-automation-popup-input',
-							'data-role': 'inline-selector-target'
-						},
-						props: {
-							type: 'text',
-							name: field,
-							value: value
-						}
-					});
-					break;
-				case 'user':
-					node = BX.create('div', {attrs: {'data-role': 'user-selector'}});
-					node.setAttribute('data-config', JSON.stringify({
-						valueInputName: field,
-						selected: value,
-						multiple: (property['Multiple'] === true),
-						required: (property['Required'] === true)
-					}));
-					break;
-				default:
-					objFields.GetFieldInputControl(
-						objFields.arDocumentFields[field],
-						value,
-						{'Field':field, 'Form':'<?= $formName ?>'},
-						function(v){
-							if (v)
-							{
-								controlWrapper.innerHTML = v;
-							}
-						},
-						false
-					);
-					break;
+				return;
 			}
+
+			var node = BX.Bizproc.FieldType.renderControl(documentType, property, field, value);
 
 			if (node)
 			{
-				controlWrapper.innerHTML = "";
 				controlWrapper.appendChild(node);
 			}
+
+			return node;
 		}
 
 		var bwfvc_counter = -1;
@@ -300,12 +144,6 @@ extract($data);
 			BWFVCChangeFieldType(controlWrapper, fieldId, val);
 
 			addrowTable.appendChild(newRow);
-
-			var dlg = BX.Bizproc.Automation.Designer.getRobotSettingsDialog();
-			if (dlg)
-			{
-				dlg.template.initRobotSettingsControls(dlg.robot, newRow);
-			}
 		}
 
 		function BWFVCDeleteCondition(fieldId, e)
@@ -317,17 +155,20 @@ extract($data);
 <?
 		foreach ($arCurrentValues as $fieldKey => $documentFieldValue)
 		{
-		if (!array_key_exists($fieldKey, $arDocumentFields))
-			continue;
+			if (!array_key_exists($fieldKey, $arDocumentFields))
+			{
+				continue;
+			}
 
-		if ($arDocumentFields[$fieldKey]['Type'] === 'user')
-		{
-			$documentFieldValue = \Bitrix\Bizproc\Automation\Helper::prepareUserSelectorEntities(
-				$dialog->getDocumentType(),
-				$documentFieldValue
-			);
-		}
-		?>BWFVCAddCondition('<?= CUtil::JSEscape($fieldKey) ?>', <?= CUtil::PhpToJSObject($documentFieldValue) ?>);<?
+			if ($arDocumentFields[$fieldKey]['Type'] === 'user')
+			{
+				$documentFieldValue = \CBPHelper::UsersArrayToString(
+						$documentFieldValue,
+						null,
+						$dialog->getDocumentType()
+				);
+			}
+			?>BWFVCAddCondition('<?= CUtil::JSEscape($fieldKey) ?>', <?= CUtil::PhpToJSObject($documentFieldValue) ?>);<?
 		}
 		if (count($arCurrentValues) <= 0)
 		{
@@ -337,3 +178,11 @@ extract($data);
 ?>});
 </script>
 <div id="bwfvc_addrow_table"></div>
+<?if ($canSetModifiedBy):?>
+	<div class="bizproc-automation-popup-settings">
+	<span class="bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete">
+		<?=GetMessage('BIZPROC_AUTOMATION_SFA_MODIFIED_BY')?>:
+	</span>
+		<?=$dialog->renderFieldControl(['Type' => 'user', 'FieldName' => 'modified_by'], $modifiedBy)?>
+	</div>
+<?endif;?>

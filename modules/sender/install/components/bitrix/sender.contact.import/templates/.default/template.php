@@ -84,7 +84,7 @@ $containerId = 'bx-sender-contact-import';
 					</select>
 					<span style="<?=(empty($arResult['SET_LIST']) ? '' : 'display: none;')?>">
 						<?=Loc::getMessage('SENDER_CONTACT_IMPORT_SET_NAME')?>
-						<input type="text" class="sender-form-control">
+						<input data-role="set-name" type="text" class="sender-form-control">
 					</span>
 				<?endif;?>
 			</div>

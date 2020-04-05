@@ -9,43 +9,70 @@ use \Bitrix\Landing\Manager;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Application;
 use \Bitrix\Main\Web\Uri;
+use \Bitrix\Main\Loader;
+use \Bitrix\Main\SiteTemplateTable;
 use \Bitrix\Main\UserConsent\Agreement;
 use \Bitrix\Main\UserConsent\Internals\AgreementTable;
 use \Bitrix\Main\UserConsent\Internals\ConsentTable;
 
 Loc::loadMessages(__FILE__);
 
-if (!\Bitrix\Main\Loader::includeModule('landing'))
+if (!Loader::includeModule('landing'))
 {
 	Showerror(Loc::getMessage('LANDING_CMP_MODULE_NOT_INSTALLED'));
 	return;
 }
 
-// set webform presets
-if (\Bitrix\Main\Loader::includeModule('crm'))
+// something about crm
+if (Loader::includeModule('crm'))
 {
+	// set webform presets
 	if (Preset::checkVersion())
 	{
 		$preset = new Preset();
 		$preset->install();
 	}
+	// install demo data for crm
+	if (!CAllCrmInvoice::installExternalEntities())
+	{
+		Showerror(Loc::getMessage('LANDING_CMP_MODULE_NOT_INSTALLED_CRM'));
+		return;
+	}
 }
 
 // refresh block repo
+\Bitrix\Landing\Manager::getRestPath();
 \Bitrix\Landing\Block::getRepository();
 
-//@tmp
-if (
-	!Manager::getUserId() ||
-	(
-		!Manager::isB24() &&
-		Manager::getApplication()->getGroupRight('landing') < 'W'
-	)
-)
+// check rights
+if (Loader::includeModule('bitrix24'))
 {
-	Manager::getApplication()->setTitle(Loc::getMessage('LANDING_CMP_TITLE'));
-	Showerror(Loc::getMessage('LANDING_CMP_ACCESS_DENIED2'));
-	return;
+	if (
+		Manager::getOption('temp_permission_admin_only')
+		&& !\CBitrix24::isPortalAdmin(Manager::getUserId())
+	)
+	{
+		Manager::setPageTitle(
+			Loc::getMessage('LANDING_CMP_TITLE')
+		);
+		Manager::getApplication()->showAuthForm(
+			Loc::getMessage('LANDING_CMP_ACCESS_DENIED2')
+		);
+		return;
+	}
+}
+else
+{
+	if (Manager::getApplication()->getGroupRight('landing') < 'W')
+	{
+		Manager::setPageTitle(
+			Loc::getMessage('LANDING_CMP_TITLE')
+		);
+		Manager::getApplication()->showAuthForm(
+			Loc::getMessage('LANDING_CMP_ACCESS_DENIED2')
+		);
+		return;
+	}
 }
 
 $defaultUrlTemplates404 = array(
@@ -91,6 +118,7 @@ $request = Application::getInstance()->getContext()->getRequest();
 $uriString = $request->getRequestUri();
 $landingTypes = \Bitrix\Landing\Site::getTypes();
 
+$arResult['AGREEMENT'] = array();
 $arParams['ACTION_FOLDER'] = isset($arParams['ACTION_FOLDER']) ? $arParams['ACTION_FOLDER'] : 'folderId';
 $arParams['SEF_MODE'] = isset($arParams['SEF_MODE']) ? $arParams['SEF_MODE'] : 'Y';
 $arParams['SEF_FOLDER'] = isset($arParams['SEF_FOLDER']) ? $arParams['SEF_FOLDER'] : '/';
@@ -233,7 +261,61 @@ else
 
 $arResult['VARS'] = $variables;
 
-// AGREEMENTS
+// check rules for templates
+if (
+	$arParams['SEF_MODE'] == 'Y' &&
+	isset($arParams['PAGE_URL_LANDING_VIEW'])
+)
+{
+	$condition = $arParams['PAGE_URL_LANDING_VIEW'];
+	$condition = str_replace(
+		array('#site_show#', '#landing_edit#'),
+		'[\\d]+',
+		$condition
+	);
+	$condition = 'preg_match(\'#' . $condition . '#\', ' .
+				 '$GLOBALS[\'APPLICATION\']->GetCurPage(0))';
+	$res = SiteTemplateTable::getList(array(
+		'select' => array(
+			'ID'
+		),
+		'filter' => array(
+			'SITE_ID' => SITE_ID,
+			'=CONDITION' => $condition
+		)
+	));
+	if (!$res->fetch())
+	{
+		SiteTemplateTable::add(array(
+			'TEMPLATE' => Manager::getTemplateId(SITE_ID),
+			'SITE_ID' => SITE_ID,
+			'SORT' => 500,
+			'CONDITION' => $condition
+		));
+		Manager::getCacheManager()->clean('b_site_template');
+		\localRedirect(Manager::getApplication()->getCurPage());
+	}
+}
+
+// disable domain's pages in the cloud
+if (
+	($componentPage == 'domains' || $componentPage == 'domain_edit') &&
+	\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24')
+)
+{
+	$componentPage = '';
+}
+
+// only AGREEMENTS below
+
+if (
+	$request->get('landing_mode') ||
+	!\Bitrix\Landing\Manager::isB24()
+)
+{
+	$this->IncludeComponentTemplate($componentPage);
+	return;
+}
 
 $currentLang = LANGUAGE_ID;
 $agreementCode = 'landing_agreement';
@@ -380,15 +462,6 @@ if (
 )
 {
 	LocalRedirect(SITE_DIR, true);
-}
-
-// disable domain's pages in the cloud
-if (
-	($componentPage == 'domains' || $componentPage == 'domain_edit') &&
-	\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24')
-)
-{
-	$componentPage = '';
 }
 
 $this->IncludeComponentTemplate($componentPage);

@@ -28,5 +28,5 @@ if ($params['ENCODING'])
 	<input type="hidden" name="LMI_FAIL_METHOD" value="1">
 	<input type="hidden" name="BX_HANDLER" value="WEBMONEY">
 	<input type="hidden" name="BX_PAYSYSTEM_CODE" value="<?=$params['BX_PAYSYSTEM_CODE']?>">
-	<input type="submit" value="<?=Loc::getMessage('SALE_HPS_WEBMONEY_BUTTON')?>">
+	<input type="submit" value="<?=Loc::getMessage('SALE_HPS_WEBMONEY_BUTTON')?>" class="btn btn-primary">
 </form>

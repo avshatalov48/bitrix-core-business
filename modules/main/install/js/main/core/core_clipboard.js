@@ -113,7 +113,7 @@
 				(function(context, popupId, nodeButton, text, popupParams){
 					return function(e){
 						context._onCopyClick(popupId, nodeButton, text, popupParams);
-						window.BX.PreventDefault(e);
+						e.preventDefault();
 						return true;
 					};
 				})(this, popupId, nodeButton, text, popupParams)

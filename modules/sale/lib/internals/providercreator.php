@@ -47,6 +47,11 @@ class ProviderCreator
 	public function addShipmentItem(Sale\ShipmentItem $shipmentItem)
 	{
 		$basketItem = $shipmentItem->getBasketItem();
+		if (!$basketItem)
+		{
+			return;
+		}
+
 		$providerName = $basketItem->getProviderName();
 		if (empty($providerName))
 		{

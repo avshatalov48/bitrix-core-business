@@ -996,7 +996,7 @@ var PDFViewerApplication = {
     renderer: 'canvas',
     enhanceTextSelection: false,
     renderInteractiveForms: false,
-    enablePrintAutoRotate: false
+    enablePrintAutoRotate: true
   },
   isViewerEmbedded: window.parent !== window,
   url: '',
@@ -4266,7 +4266,7 @@ var PDFViewer = function () {
     this.removePageBorders = options.removePageBorders || false;
     this.enhanceTextSelection = options.enhanceTextSelection || false;
     this.renderInteractiveForms = options.renderInteractiveForms || false;
-    this.enablePrintAutoRotate = options.enablePrintAutoRotate || false;
+    this.enablePrintAutoRotate = options.enablePrintAutoRotate || true;
     this.renderer = options.renderer || _ui_utils.RendererType.CANVAS;
     this.l10n = options.l10n || _ui_utils.NullL10n;
     this.defaultRenderingQueue = !options.renderingQueue;
@@ -9055,7 +9055,7 @@ function getDefaultPreferences() {
       "enhanceTextSelection": false,
       "renderer": "canvas",
       "renderInteractiveForms": false,
-      "enablePrintAutoRotate": false,
+      "enablePrintAutoRotate": true,
       "disablePageMode": false,
       "disablePageLabels": false
     });

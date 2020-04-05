@@ -248,6 +248,11 @@ else
 				$arExtranetUserID[] = $arUser["ID"];
 		}
 
+		if ($arGroup['NUMBER_OF_MODERATORS'] >= 1)
+		{
+			$arGroup['NUMBER_OF_MODERATORS']--;
+		}
+
 		$arResult["Group"] = $arGroup;
 
 		$arResult["HideArchiveLinks"] =
@@ -418,7 +423,11 @@ else
 				$arResult["Moderators"] = false;
 				$dbModerators = CSocNetUserToGroup::GetList(
 					array("ROLE" => "ASC"),
-					array("GROUP_ID" => $arResult["Group"]["ID"], "<=ROLE" => SONET_ROLES_MODERATOR, "USER_ACTIVE" => "Y"),
+					array(
+						"GROUP_ID" => $arResult["Group"]["ID"],
+						"=ROLE" => SONET_ROLES_MODERATOR,
+						"USER_ACTIVE" => "Y"
+					),
 					false,
 					array("nTopCount" => $arParams["ITEMS_COUNT"]),
 					array("ID", "USER_ID", "ROLE", "USER_NAME", "USER_LAST_NAME", "USER_SECOND_NAME", "USER_LOGIN", "USER_PERSONAL_PHOTO", "USER_PERSONAL_GENDER", "USER_WORK_POSITION")

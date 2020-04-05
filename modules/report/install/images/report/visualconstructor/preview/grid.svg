@@ -1,0 +1,48 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" id="svg_wrapper" class="defs-only" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 1200px">
+    <svg height="1200px">
+        <rect fill="#FFFFFF" width="100%" height="1200" x="0" y="0"/>
+    </svg>
+
+    <svg height="1200">
+        <defs>
+            <g id="l1">
+                <rect x="0" y="0" width="320" height="8"/>
+                <use xlink:href="#g3" x="0" y="30"  preserveAspectRatio="none"/>
+                <use xlink:href="#g3" x="0" y="95"  preserveAspectRatio="none"/>
+                <use xlink:href="#g3" x="0" y="155"  preserveAspectRatio="none"/>
+                <use xlink:href="#g3" x="0" y="215"  preserveAspectRatio="none"/>
+                <use xlink:href="#g3" x="0" y="275"  preserveAspectRatio="none"/>
+                <use xlink:href="#g3" x="0" y="335"  preserveAspectRatio="none"/>
+                <use xlink:href="#g3" x="0" y="400"  preserveAspectRatio="none"/>
+
+            </g>
+            <g id="g3">
+                <rect fill="#DADADA"  x="0" y="0"  width="100%"  height="1" />
+                <rect x="0" y="30" width="90" height="8"/>
+                <rect x="140" y="30" width="90" height="8"/>
+                <rect x="280" y="30" width="90" height="8"/>
+                <rect x="420" y="30" width="90" height="8"/>
+                <rect x="560" y="30" width="90" height="8"/>
+                <rect x="700" y="30" width="90" height="8"/>
+                <rect x="840" y="30" width="90" height="8"/>
+            </g>
+        </defs>
+    </svg>
+
+        <use xlink:href="#l1" fill="#9EA6AD" opacity="0.2" x="30" y="30"  preserveAspectRatio="none"/>
+
+        <rect id="msk3" width="100%" fill="url(#msk_gd)" mask="url(#k1)" height="1200"/>
+
+        <linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+            <stop stop-color="#000000" stop-opacity="0" offset="0%"/>
+            <stop stop-color="#000000" stop-opacity="0.07" offset="50%"/>
+            <stop stop-color="#000000" stop-opacity="0" offset="100%"/>
+        </linearGradient>
+
+        <mask id="k1" fill="white">
+            <use xlink:href="#l1" x="30"   y="30"  preserveAspectRatio="none"/>
+        </mask>
+
+        <animate xlink:href="#msk3" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+
+</svg>

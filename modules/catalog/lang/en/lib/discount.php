@@ -25,4 +25,5 @@ $MESS["CATALOG_DISCOUNT_ENTITY_MESS_ADD_BLOCKED"] = "Call CCatalogDiscount::Add 
 $MESS["CATALOG_DISCOUNT_ENTITY_MESS_UPDATE_BLOCKED"] = "Call CCatalogDiscount::Update to edit product discounts";
 $MESS["CATALOG_DISCOUNT_ENTITY_MESS_DELETE_BLOCKED"] = "Call CCatalogDiscount::Delete to delete product discounts";
 $MESS["DISCOUNT_ENTITY_CONDITIONS_LIST_FIELD"] = "Application condition";
+$MESS["DISCOUNT_ENTITY_USE_COUPONS_FIELD"] = "Coupons";
 ?>

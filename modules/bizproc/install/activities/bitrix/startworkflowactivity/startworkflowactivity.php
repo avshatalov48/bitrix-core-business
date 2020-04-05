@@ -177,8 +177,10 @@ class CBPStartWorkflowActivity
 			return CBPActivityExecutionStatus::Closed;
 		}
 
-		if ($workflowIsCompleted || $this->UseSubscription != 'Y')
+		if ($workflowIsCompleted || $this->UseSubscription != 'Y' || !$this->wfId)
+		{
 			return CBPActivityExecutionStatus::Closed;
+		}
 
 		$this->Subscribe($this);
 		return CBPActivityExecutionStatus::Executing;
@@ -190,22 +192,26 @@ class CBPStartWorkflowActivity
 		/** @var CBPDocumentService $documentService */
 		$documentService = $runtime->GetService("DocumentService");
 
-		$entities = $types = $templates = array();
+		$entities = $types = $templates = [];
 		$currentEntity = $currentType = $currentTemplateId = $templateParametersRender = '';
 
 		$entityIterator = CBPWorkflowTemplateLoader::GetList(
-			array('MODULE_ID' => 'ASC'),
-			array(),
-			array('MODULE_ID', 'ENTITY'),
+			['MODULE_ID' => 'ASC'],
+			['!AUTO_EXECUTE' => CBPDocumentEventType::Automation],
+			['MODULE_ID', 'ENTITY'],
 			false,
-			array('MODULE_ID', 'ENTITY')
+			['MODULE_ID', 'ENTITY']
 		);
 		while ($row = $entityIterator->fetch())
 		{
 			$entityName = $documentService->getEntityName($row['MODULE_ID'], $row['ENTITY']);
 			if ($entityName)
+			{
 				$entities[$row['MODULE_ID'].'@'.$row['ENTITY']] = $entityName;
+			}
 		}
+
+		asort($entities);
 
 		if (!is_array($currentValues))
 		{

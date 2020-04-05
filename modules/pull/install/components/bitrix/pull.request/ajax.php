@@ -39,11 +39,6 @@ else
 	$userId = intval($USER->GetID());
 	if ($userId <= 0)
 	{
-		// TODO need change AUTHORIZE ERROR callbacks
-		//header("HTTP/1.0 401 Not Authorized");
-		//header("Content-Type: application/x-javascript");
-		//header("BX-Authorize: ".bitrix_sessid());
-
 		echo CUtil::PhpToJsObject(Array(
 			'ERROR' => 'AUTHORIZE_ERROR',
 			'BITRIX_SESSID' => bitrix_sessid()

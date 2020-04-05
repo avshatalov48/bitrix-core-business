@@ -17,6 +17,10 @@ use Bitrix\Main;
 
 class StatMethodTable extends Main\Entity\DataManager
 {
+	const METHOD_TYPE_METHOD = 'M';
+	const METHOD_TYPE_EVENT = 'E';
+	const METHOD_TYPE_PLACEMENT = 'P';
+
 	protected static $methodCache = null;
 
 	/**
@@ -47,6 +51,11 @@ class StatMethodTable extends Main\Entity\DataManager
 				'required' => true,
 				'validation' => array(__CLASS__, 'validateName'),
 			),
+			'METHOD_TYPE' => array(
+				'data_type' => 'enum',
+				'required' => false,
+				'values' => array(self::METHOD_TYPE_METHOD, self::METHOD_TYPE_EVENT, self::METHOD_TYPE_PLACEMENT),
+			),
 		);
 	}
 	/**
@@ -68,7 +77,7 @@ class StatMethodTable extends Main\Entity\DataManager
 		return static::$methodCache[$methodName];
 	}
 
-	public static function checkList($methodList)
+	public static function checkList($methodList, $methodType = self::METHOD_TYPE_METHOD)
 	{
 		static::loadFromCache();
 
@@ -77,7 +86,7 @@ class StatMethodTable extends Main\Entity\DataManager
 		{
 			if(!array_key_exists($method, static::$methodCache))
 			{
-				static::addMethod($method);
+				static::addMethod($method, $methodType);
 				$update = true;
 			}
 		}
@@ -89,15 +98,22 @@ class StatMethodTable extends Main\Entity\DataManager
 
 	}
 
-	protected static function addMethod($methodName)
+	protected static function addMethod($methodName, $methodType)
 	{
 		$connection = Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
 
 		$sqlTableName = static::getTableName();
 		$sqlMethodName = $helper->forSql($methodName);
+		$sqlMethodType = in_array(
+			$methodType, [
+				static::METHOD_TYPE_METHOD,
+				static::METHOD_TYPE_EVENT,
+				static::METHOD_TYPE_PLACEMENT
+			]
+		) ? $methodType : self::METHOD_TYPE_METHOD;
 
-		$query = "INSERT IGNORE INTO {$sqlTableName} (NAME) VALUES ('{$sqlMethodName}')";
+		$query = "INSERT IGNORE INTO {$sqlTableName} (NAME, METHOD_TYPE) VALUES ('{$sqlMethodName}', '{$sqlMethodType}')";
 		$connection->query($query);
 	}
 
@@ -110,6 +126,8 @@ class StatMethodTable extends Main\Entity\DataManager
 
 		if(static::$methodCache === null)
 		{
+			static::$methodCache = array();
+
 			$cacheId = 'stat_method_cache';
 
 			$managedCache = Main\Application::getInstance()->getManagedCache();

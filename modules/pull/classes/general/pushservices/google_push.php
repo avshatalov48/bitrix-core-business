@@ -17,20 +17,21 @@ class CGoogleMessage extends CPushMessage
 	public function getBatch()
 	{
 
-		$data = array(
-			"data" => array(
+		$data = [
+			"data" => [
 				'contentTitle' => $this->title,
 				"contentText" => $this->text,
-				"badge"=>$this->badge,
+				"badge" => $this->badge,
 				"messageParams" => $this->customProperties,
 				"category" => $this->getCategory(),
-				"sound"=>$this->getSound(),
-			),
+				"sound" => $this->getSound(),
+			],
 			"time_to_live" => $this->expiryValue,
+			"priority" => "high",
 			"registration_ids" => $this->deviceTokens
-		);
+		];
 
-		$data = CPushManager::_MakeJson($data, "", true);
+		$data = json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
 		$batch = "Content-type: application/json\r\n";
 		$batch .= "Content-length: " . CUtil::BinStrlen($data) . "\r\n";
 		$batch .= "\r\n";

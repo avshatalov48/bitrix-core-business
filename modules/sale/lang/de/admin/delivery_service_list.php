@@ -1,4 +1,6 @@
 <?
+$MESS["SALE_SDL_LOCATION_NOTE"] = "Der Lieferpreis kann evtl. nicht korrekt berechnet werden, weil in den #A1#Einstellungen des Moduls#A2# Onlineshop kein Standort angegeben ist";
+$MESS["SALE_SDL_UPPER_LEVELL"] = "Ohne Gruppe";
 $MESS["SALE_SDL_ERROR_DELETE"] = "Fehler beim Löschen des Lieferservices; es kann sein, dass dieser Lieferservice in einigen Bestellungen verendet wird.<br>";
 $MESS["SALE_SDL_ERROR_UPDATE"] = "Fehler bei Aktualisierung des Lieferservices.";
 $MESS["SALE_SDL_PRLIST"] = "Lieferservices";

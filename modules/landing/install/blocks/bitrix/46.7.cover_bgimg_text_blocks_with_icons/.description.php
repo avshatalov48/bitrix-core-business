@@ -75,7 +75,7 @@ return array(
 						'name' => Loc::getMessage('LANDING_BLOCK_46.7.COVER_BGIMG_TEXT_BLOCKS_WITH_ICONS_NODES_LANDINGBLOCKNODECARDTEXT2'),
 						'type' => 'typo',
 					),
-				'.landing-block-node-card-icon' =>
+				'.landing-block-node-card-icon-container' =>
 					array(
 						'name' => Loc::getMessage('LANDING_BLOCK_46.7.COVER_BGIMG_TEXT_BLOCKS_WITH_ICONS_NODES_LANDINGBLOCKNODECARDICON2'),
 						'type' => 'color',
@@ -83,7 +83,7 @@ return array(
 				'.landing-block-node-bgimg' =>
 					array(
 						'name' => Loc::getMessage('LANDING_BLOCK_46.7.COVER_BGIMG_TEXT_BLOCKS_WITH_ICONS_NODES_LANDINGBLOCKNODEBGIMG'),
-						'type' => 'background-overlay',
+						'type' => array('background-overlay', 'height-vh', 'background-attachment')
 					),
 			),
 

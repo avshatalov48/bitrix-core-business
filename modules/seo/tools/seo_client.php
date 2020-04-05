@@ -4,7 +4,13 @@ This is callback page for Dropbox OAuth 2.0 authentication.
 Dropbox redirects only to specific back url set in the OAuth application.
 The page opens in popup window after user authorized on Dropbox.
 */
-define("NOT_CHECK_PERMISSIONS", true);
+define("NO_KEEP_STATISTIC", "Y");
+define("NO_AGENT_STATISTIC","Y");
+define("DisableEventsCheck", true);
+define("NO_AGENT_CHECK", true);
+
+define('SKIP_TEMPLATE_AUTH_ERROR', true);
+define('NOT_CHECK_PERMISSIONS', true);
 
 require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_before.php");
 

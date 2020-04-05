@@ -4,6 +4,7 @@ $MESS["REPORT_TITLE"] = "Название отчета";
 $MESS["REPORT_DESCRIPTION"] = "Описание отчета";
 $MESS["REPORT_DEFAULT_TITLE"] = "Новый отчет";
 $MESS["REPORT_PERIOD"] = "Отчетный период";
+$MESS["REPORT_PERIOD_HIDDEN"] = "Не показывать в отчёте";
 $MESS["REPORT_COLUMNS"] = "Колонки";
 $MESS["REPORT_CALC_COLUMN"] = "Вычислить колонку";
 $MESS["REPORT_ADD_SELECT_COLUMN"] = "Добавить";

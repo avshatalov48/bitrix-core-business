@@ -6,12 +6,14 @@ use Bitrix\Main\Composite\Debug\Logger;
 use Bitrix\Main\Composite\Internals\Model\PageTable;
 use Bitrix\Main\Composite\Internals\Locker;
 use Bitrix\Main\Composite\Internals\PageManager;
+use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\IO\File;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Page\AssetMode;
 use Bitrix\Main\Page\AssetLocation;
@@ -626,6 +628,8 @@ final class Engine
 							"USE_ANIMATION" => $dynamicArea->getAnimation(),
 							"CSS" => $assets["CSS"],
 							"JS" => $assets["JS"],
+							"BUNDLE_JS" => $assets["BUNDLE_JS"],
+							"BUNDLE_CSS" => $assets["BUNDLE_CSS"],
 							"STRINGS" => $assets["STRINGS"],
 						),
 					);
@@ -1127,6 +1131,11 @@ CSS;
 	 */
 	public static function shouldBeEnabled()
 	{
+		if (self::isSelfHostedPortal())
+		{
+			return;
+		}
+
 		if (defined("USE_HTML_STATIC_CACHE") && USE_HTML_STATIC_CACHE === true)
 		{
 			if (
@@ -1221,6 +1230,22 @@ CSS;
 					"TYPE" => Logger::TYPE_ADMIN_PANEL,
 				)
 			);
+		}
+	}
+
+	/**
+	 * Return true if it's a self-hosted portal.
+	 * @return bool
+	 */
+	public static function isSelfHostedPortal()
+	{
+		if (Configuration::getValue("force_enable_self_hosted_composite") === true)
+		{
+			return false;
+		}
+		else
+		{
+			return ModuleManager::isModuleInstalled("intranet") && !ModuleManager::isModuleInstalled("bitrix24");
 		}
 	}
 

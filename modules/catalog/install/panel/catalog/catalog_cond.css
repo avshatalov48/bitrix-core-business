@@ -1,358 +1,358 @@
-div.condition-border
-{
-	padding: 10px 8px 5px 70px;
+.condition-wrapper {
+	position: relative;
+	margin: 0 0 10px;
+	padding: 0;
+	border: 0 none transparent;
+}
 
-	box-shadow: 0 1px 0 #eeeeee;
-	-webkit-box-shadow: 0 1px 0 #eeeeee;
+.condition-wrapper select,
+.condition-wrapper input[type="text"] {
+	box-sizing: border-box;
+	height: 21px;
+	line-height: 21px;
+}
+.condition-wrapper select {
+	padding: 0 4px;
+}
+.condition-wrapper select option {
+	padding: 0 5px 0 3px;
+}
+
+.condition-border {
+	position: relative;
+	padding: 10px 8px 5px 70px;
 	border: 1px solid #caced7;
 	border-radius: 4px;
 	background-color: #fdfefe;
-
+	box-shadow: 0 1px 0 #eee;
 	font-weight: bold;
 	font-size: 13px;
-	line-height: 16px;
+	line-height: 21px;
+}
+
+.condition-container {
 	position: relative;
-}
-
-div.condition-border a,
-div.condition-border a:link,
-div.condition-border a:visited,
-div.condition-container a,
-div.condition-container a:link,
-div.condition-container a:visited
-{
-	color: #113c7d;
-	text-decoration: none;
-	cursor: pointer;
-	border-bottom: 1px dashed #113c7d;
-	padding: 1px 0 1px 0;
-	line-height: 20px;
-}
-
-div.condition-border a:hover,
-div.condition-container a:hover
-{
-	color: #113c7d;
-	text-decoration: none;
-	cursor: pointer;
-	border-bottom: 1px solid transparent;
-}
-
-div.condition-border a:active,
-div.condition-container a:active
-{
-	color: #113c7d;
-	text-decoration: none;
-	cursor: pointer;
-	border-bottom: 1px solid transparent;
-}
-
-div.condition-container
-{
+	margin-bottom: 10px;
 	padding: 10px 18px 5px 70px;
-
-	box-shadow: 0 1px 0 #eceded;
-	-webkit-box-shadow: 0 1px 0 #eceded;
 	border: 1px solid #c9cdd6;
 	border-radius: 4px;
 	background-color: #edf5f6;
-
-	margin-top: 10px;
-	position: relative;
+	box-shadow: 0 1px 0 #eceded;
 }
 
-div.condition-container div.condition-container
-{
-	box-shadow: 0 1px 0 #dde5e6;
-	-webkit-box-shadow: 0 1px 0 #dde5e6;
+.condition-container .condition-container {
 	border: 1px solid #bcc6d0;
-	border-radius: 4px;
 	background-color: #ddeaec;
-
-	margin-top: 10px;
-	position: relative;
+	box-shadow: 0 1px 0 #dde5e6;
 }
 
-div.condition-container div.condition-container div.condition-container
-{
-	box-shadow: 0 1px 0 #eeeeee;
-	-webkit-box-shadow: 0 1px 0 #eeeeee;
+.condition-container .condition-container .condition-container {
+	position: relative;
 	border: 1px solid #caced7;
-	border-radius: 4px;
 	background-color: #fdfefe;
-
-	margin-top: 10px;
-	position: relative;
+	box-shadow: 0 1px 0 #eee;
 }
 
-div.condition-border span.control-prefix,
-div.condition-container span.control-prefix,
-div.condition-border span.control-string,
-div.condition-container span.control-string
-{
+/**/
+.condition-simple-control {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-align: start;
+	margin-bottom: 10px;
+	padding: 5px 17px 5px 12px;
+	border-radius: 4px;
+	-webkit-box-align: start;
+	align-items: flex-start;
+}
+
+.condition-container .condition-simple-control {
+	border: 1px solid #bec4c5;
+	background-color: #f7f9fa;
+	background-image: -webkit-linear-gradient(top, #fafbfc, #f8f9fa);
+	background-image: -o-linear-gradient(top, #fafbfc, #f8f9fa);
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#fafbfc), to(#f8f9fa));
+	background-image: linear-gradient(top, #fafbfc, #f8f9fa);
+	box-shadow: inset 0 1px 0 #dde5e6;
+}
+
+.condition-container .condition-container .condition-simple-control {
+	border: 1px solid #b1bcbd;
+	box-shadow: inset 0 1px 0 #cedadc;
+}
+
+.condition-container .condition-container .condition-simple-control {
+	border: 1px solid #d8d8d8;
+	box-shadow: inset 0 1px 0 #eceded;
+}
+
+/**/
+.condition-border .condition-simple-control {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-pack: start;
+	-ms-flex-align: center;
+	border: 1px solid #d8d8d8;
+	background-color: #f7f9fa;
+	background-image: -webkit-linear-gradient(top, #fafbfc, #f8f9fa);
+	background-image: -o-linear-gradient(top, #fafbfc, #f8f9fa);
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#fafbfc), to(#f8f9fa));
+	background-image: linear-gradient(top, #fafbfc, #f8f9fa);
+	box-shadow: inset 0 1px 0 #eceded;
+	-webkit-box-align: center;
+	align-items: center;
+	-webkit-box-pack: start;
+	justify-content: flex-start;
+}
+
+.condition-border .condition-simple-control.condition-multi {
+	align-items: flex-start;
+	-webkit-box-align: start;
+	-ms-flex-align: start;
+}
+
+.condition-border a,
+.condition-border a:link,
+.condition-border a:visited,
+.condition-container a,
+.condition-container a:link,
+.condition-container a:visited {
+	display: inline-block;
+	border-bottom: 1px dashed;
+	color: #113c7d;
+	text-decoration: none;
+	line-height: 21px;
+	cursor: pointer;
+}
+
+.condition-border a:hover,
+.condition-container a:hover {
+	border-bottom: 1px solid transparent;
+	color: #113c7d;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.condition-border a:active,
+.condition-container a:active {
+	border-bottom: 1px solid transparent;
+	color: #113c7d;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+span.control-string { display: inline-block; }
+
+.condition-border span.control-prefix,
+.condition-container span.control-prefix,
+.condition-border span.control-string,
+.condition-container span.control-string {
+	border-bottom: 1px solid transparent;
 	white-space: nowrap;
-	line-height: 16px;
+	line-height: 21px;
 }
 
 .condition-list-wrap {
-	display: inline-block;
-	vertical-align: top;
-	padding-top: 2px;
+	display: block;
 }
 
 .condition-item {
-	display: block;
-	height: 25px;
-	line-height: 25px;
 	position: relative;
-	font-size: 0;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-pack: start;
+	-ms-flex-align: center;
+	margin-bottom: 2px;
+	-webkit-box-align: center;
+	align-items: center;
+	-webkit-box-pack: start;
+	justify-content: flex-start;
 }
 
-.condition-item:first-child {
+/*.condition-item:first-child {
 	margin-top: -2px;
-}
+}*/
 
 .condition-item-text {
-	border-bottom: 1px dashed #000;
-	cursor: pointer;
 	display: inline-block;
-	line-height: 17px;
-	vertical-align: middle;
+	border-bottom: 1px dashed #000;
 	font-size: 13px;
+	line-height: 21px;
+	cursor: pointer;
 }
 
 .condition-item-del {
-	cursor: pointer;
-	display: inline-block;
-	height: 20px;
-	line-height: 21px;
-	vertical-align: middle;
-	opacity: 0;
-	text-align: center;
-	width: 20px;
-}
-
-.condition-item-del:before {
-	background: url("images/cond-delete.png") no-repeat left top;
-	content: '';
-	display: inline-block;
-	height: 7px;
-	vertical-align: middle;
-	width: 7px;
-}
-
-.condition-item:hover .condition-item-del {
-	opacity: 0.7;
-}
-
-.condition-item-del:hover:before {
-	background: url("images/cond-delete.png") no-repeat left bottom;
-}
-
-.condition-dots {
-	cursor: pointer;
+	position: relative;
 	display: block;
 	width: 20px;
+	height: 20px;
+	vertical-align: middle;
+	text-align: center;
+	line-height: 21px;
+	opacity: 1;
+	cursor: pointer;
+	-webkit-transition: 250ms linear all;
+	-o-transition: 250ms linear all;
+	transition: 250ms linear all;
 }
 
-.condition-dots:first-child {
-	margin-top: 3px;
+.condition-item:hover .condition-item-del { opacity: 0.7; }
+
+.condition-dots {
+	display: block;
+	width: 20px;
+	cursor: pointer;
 }
 
-div.condition-border div.condition-simple-control
-{
-	padding: 5px 8px 5px 12px;
-
-	box-shadow: inset 0 1px 0 #eceded;
-	-webkit-box-shadow: inset 0 1px 0 #eceded;
-	border: 1px solid #d8d8d8;
-	border-radius: 4px;
-	background-color: #f7f9fa;
-	background-image: -webkit-linear-gradient(top, #fafbfc, #f8f9fa);
-	background-image: -moz-linear-gradient(top, #fafbfc, #f8f9fa);
-	background-image: -o-linear-gradient(top, #fafbfc, #f8f9fa);
-	background-image: linear-gradient(top, #fafbfc, #f8f9fa);
-
-	font-weight: bold;
-
-	margin-top: 10px;
-	position: relative;
+.condition-simple-control a,
+.condition-simple-control a:link,
+.condition-simple-control a:visited {
+	border-bottom: 1px dashed;
+	color: #000;
+	text-decoration: none;
+	white-space: nowrap;
+	cursor: pointer;
 }
 
-div.condition-container div.condition-simple-control
-{
-	padding: 5px 8px 5px 12px;
-
-	box-shadow: inset 0 1px 0 #dde5e6;
-	-webkit-box-shadow: inset 0 1px 0 #dde5e6;
-	border: 1px solid #bec4c5;
-	border-radius: 4px;
-	background-color: #f7f9fa;
-	background-image: -webkit-linear-gradient(top, #fafbfc, #f8f9fa);
-	background-image: -moz-linear-gradient(top, #fafbfc, #f8f9fa);
-	background-image: -o-linear-gradient(top, #fafbfc, #f8f9fa);
-	background-image: linear-gradient(top, #fafbfc, #f8f9fa);
-
-	font-weight: bold;
-
-	margin-top: 10px;
-	position: relative;
-}
-
-div.condition-container div.condition-container div.condition-simple-control
-{
-	box-shadow: inset 0 1px 0 #cedadc;
-	-webkit-box-shadow: inset 0 1px 0 #cedadc;
-	border: 1px solid #b1bcbd;
-}
-
-div.condition-container div.condition-container div.condition-simple-control
-{
-	box-shadow: inset 0 1px 0 #eceded;
-	-webkit-box-shadow: inset 0 1px 0 #eceded;
-	border: 1px solid #d8d8d8;
-}
-
-div.condition-simple-control a,
-div.condition-simple-control a:link,
-div.condition-simple-control a:visited,
-div.condition-simple-control a,
-div.condition-simple-control a:link,
-div.condition-simple-control a:visited
-{
-	color: #000000; text-decoration: none; cursor: pointer; border-bottom: 1px dashed #000000;
-}
-
-div.condition-simple-control a:hover,
-div.condition-simple-control a:active,
+.condition-simple-control a:hover,
+.condition-simple-control a:active,
 .condition-item-text:hover,
-.condition-item-text:active
-{
-	color: #2c4b90; text-decoration: none; cursor: pointer; border-bottom: 1px solid transparent;
+.condition-item-text:active {
+	border-bottom: 1px solid transparent;
+	color: #2c4b90;
+	text-decoration: none;
+	cursor: pointer;
 }
 
-div.condition-simple-control span.control-prefix
-{
+.condition-simple-control span.control-prefix {
 	display: inline-block;
 	padding: 4px 8px 4px 8px;
-	box-shadow: inset 0 1px 0 #f3f6e4;
-	-webkit-box-shadow: inset 0 1px 0 #f3f6e4;
 	border: 1px solid #b4bd98;
 	border-radius: 2px;
 	background-color: #dfe8bc;
 	background-image: -webkit-linear-gradient(top, #e6ecc9, #d6e1a9);
-	background-image: -moz-linear-gradient(top, #e6ecc9, #d6e1a9);
 	background-image: -o-linear-gradient(top, #e6ecc9, #d6e1a9);
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#e6ecc9), to(#d6e1a9));
 	background-image: linear-gradient(top, #e6ecc9, #d6e1a9);
+	box-shadow: inset 0 1px 0 #f3f6e4;
 }
 
-div.condition-add
-{
-	text-align: left;
+.condition-add { min-height: 22px; }
+
+.condition-add a,
+.condition-add a:link,
+.condition-add a:visited {
+	border-bottom: 1px dashed #113c7d;
 	color: #113c7d;
-	padding: 5px 5px 5px 0;
-	font-weight: bold;
-}
-div.condition-add a,
-div.condition-add a:link,
-div.condition-add a:visited
-{
-	color: #113c7d; text-decoration: none; cursor: pointer; border-bottom: 1px dashed #113c7d;
-}
-
-div.condition-add a:hover
-{
-	color: #2c4b90; text-decoration: none; cursor: pointer; border-bottom: 1px solid transparent;
-}
-
-div.condition-add a:active
-{
-	color: #2c4b90; text-decoration: none; cursor: pointer; border-bottom: 1px solid transparent;
-}
-
-div.condition-delete
-{
-	float: right;
-	width: 7px;
-	height: 7px;
-	background: transparent url("images/cond-delete.png") no-repeat scroll left top;
+	text-decoration: none;
 	cursor: pointer;
-	display: none;
-	margin: 5px -10px 0 0;
-	padding: 0;
-	font-size: 0.1em !important;
-	line-height: 0.1em !important;
 }
 
-div.condition-delete:hover
-{
-	background: transparent url("images/cond-delete.png") no-repeat scroll left bottom;
+.condition-add a:hover {
+	border-bottom: 1px solid transparent;
+	color: #2c4b90;
+	text-decoration: none;
+	cursor: pointer;
 }
 
-div.condition-border div.condition-simple-control div.condition-delete
-{
-	margin: 5px 0 0 0;
+.condition-add a:active {
+	border-bottom: 1px solid transparent;
+	color: #2c4b90;
+	text-decoration: none;
+	cursor: pointer;
 }
 
-div.condition-group-sep
-{
+.condition-group-sep {
 	margin: 0 0 10px 0;
 	font-size: 0.1em;
 	line-height: 0.1em;
+	cursor: pointer;
 }
 
-div.condition-logic
-{
+.condition-logic {
 	position: absolute;
-	left: -60px;
 	bottom: -20px;
+	left: -60px;
+	padding: 0 10px 0 5px;
 	width: 55px;
 	height: 30px;
+	border: 0 none transparent;
 	border-radius: 4px;
 	color: #fff !important;
-	font-weight: bold !important;
-	border: 0 none transparent;
-	line-height: 30px !important;
-	white-space: nowrap !important;
-	padding: 0 10px 0 5px;
-	cursor: pointer;
 	text-align: center !important;
+	white-space: nowrap !important;
+	font-weight: bold !important;
+	line-height: 30px !important;
+	cursor: pointer;
 }
 
-div.condition-logic-and
-{
-	background-color: #9cbd6d;
-}
+.condition-logic-and { background-color: #9cbd6d; }
 
-div.condition-logic-or
-{
-	background-color: #88abc2;
-}
-div.condition-wrapper
-{
-	position: relative;
-	margin: 0;
-	padding: 0;
-	border: 0 none transparent;
-}
+.condition-logic-or { background-color: #88abc2; }
 
-span.condition-separator
-{
-	font-style: italic;
-}
+span.condition-separator { font-style: italic; }
 
 span.condition-alert,
-span.list-alert
-{
+span.list-alert {
 	display: inline-block;
+	margin: auto 0 auto 0;
+	padding: 0;
 	width: 26px;
-	height: 17px;
-	background: transparent url("images/cond-alert.png") no-repeat scroll left top;
-	margin: auto 0 auto 0; vertical-align: middle;
-	padding: 0; border: 0 none transparent;
+	height: 17px; border: 0 none transparent;
+	background: transparent url("images/cond-alert.png") no-repeat scroll left top; vertical-align: middle;
 }
 
-span.condition-space
-{
-	margin-right: 10px;
+span.condition-space {
+	display: inline-block;
+	min-width: 10px;
+	max-width: 10px;
+	width: 10px;
+	height: 21px;
+}
+
+.condition-delete {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	opacity: 0;
+	cursor: pointer;
+	-webkit-transition: 250ms linear all;
+	-o-transition: 250ms linear all;
+	transition: 250ms linear all;
+}
+
+.condition-container:hover .condition-delete,
+.condition-simple-control:hover .condition-delete { opacity: 1; }
+
+.condition-delete:after,
+.condition-delete:before,
+.condition-item-del:after,
+.condition-item-del:before {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 9px;
+	height: 2px;
+	background-color: #979797;
+	content: "";
+	-webkit-transition: all 250ms ease;
+	-o-transition: all 250ms ease;
+	transition: all 250ms ease;
+}
+
+.condition-delete:before,
+.condition-item-del:before {
+	-webkit-transform: translateX(-50%) translateY(-50%) rotate(-45deg);
+	-ms-transform: translateX(-50%) translateY(-50%) rotate(-45deg);
+	transform: translateX(-50%) translateY(-50%) rotate(-45deg);
+}
+
+.condition-delete:after,
+.condition-item-del:after {
+	-webkit-transform: translateX(-50%) translateY(-50%) rotate(45deg);
+	-ms-transform: translateX(-50%) translateY(-50%) rotate(45deg);
+	transform: translateX(-50%) translateY(-50%) rotate(45deg);
 }

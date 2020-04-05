@@ -25,7 +25,7 @@ class Extranet
 			return false;
 		}
 
-		$cacheId = 'im_sonet_extranet_v2_'.$userId;
+		$cacheId = 'im_sonet_extranet_v3_'.$userId;
 		$cachePath = '/bx/imc/sonet/extranet'.\Bitrix\Im\Common::getCacheUserPostfix($userId);
 
 		$cache = \Bitrix\Main\Application::getInstance()->getCache();
@@ -86,12 +86,12 @@ class Extranet
 			false,
 			array("ID", "USER_ID", "GROUP_ID")
 		);
-		while ($ar = $db->GetNext(true, false))
+		while ($row = $db->GetNext(true, false))
 		{
-			if($ar["USER_ID"] == $userId)
+			if($row["USER_ID"] == $userId || !isset($groups['SG'.$row['GROUP_ID']]))
 				continue;
 
-			$groups['SG'.$row['GROUP_ID']]['USERS'][] = $ar["USER_ID"];
+			$groups['SG'.$row['GROUP_ID']]['USERS'][] = $row["USER_ID"];
 		}
 
 		$cache->startDataCache();
@@ -102,6 +102,17 @@ class Extranet
 
 	public static function isUserInGroup($userId, $currentUserId = null)
 	{
+		$currentUserId = \Bitrix\Im\Common::getUserId($currentUserId);
+		if ($currentUserId <= 0)
+		{
+			return false;
+		}
+
+		if ($userId == $currentUserId)
+		{
+			return true;
+		}
+
 		$extranetUsers = [];
 		$groups = self::getGroup([], $currentUserId);
 		if (is_array($groups))

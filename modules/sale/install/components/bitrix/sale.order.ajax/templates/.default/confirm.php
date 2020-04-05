@@ -20,7 +20,7 @@ if ($arParams["SET_TITLE"] == "Y")
 		<tr>
 			<td>
 				<?=Loc::getMessage("SOA_ORDER_SUC", array(
-					"#ORDER_DATE#" => $arResult["ORDER"]["DATE_INSERT"]->format('d.m.Y H:i'),
+					"#ORDER_DATE#" => $arResult["ORDER"]["DATE_INSERT"]->toUserTime()->format('d.m.Y H:i'),
 					"#ORDER_ID#" => $arResult["ORDER"]["ACCOUNT_NUMBER"]
 				))?>
 				<? if (!empty($arResult['ORDER']["PAYMENT_ID"])): ?>
@@ -28,8 +28,10 @@ if ($arParams["SET_TITLE"] == "Y")
 						"#PAYMENT_ID#" => $arResult['PAYMENT'][$arResult['ORDER']["PAYMENT_ID"]]['ACCOUNT_NUMBER']
 					))?>
 				<? endif ?>
-				<br /><br />
-				<?=Loc::getMessage("SOA_ORDER_SUC1", array("#LINK#" => $arParams["PATH_TO_PERSONAL"]))?>
+				<? if ($arParams['NO_PERSONAL'] !== 'Y'): ?>
+					<br /><br />
+					<?=Loc::getMessage('SOA_ORDER_SUC1', ['#LINK#' => $arParams['PATH_TO_PERSONAL']])?>
+				<? endif; ?>
 			</td>
 		</tr>
 	</table>
@@ -47,7 +49,7 @@ if ($arParams["SET_TITLE"] == "Y")
 						&& array_key_exists($payment["PAY_SYSTEM_ID"], $arResult['PAY_SYSTEM_LIST'])
 					)
 					{
-						$arPaySystem = $arResult['PAY_SYSTEM_LIST'][$payment["PAY_SYSTEM_ID"]];
+						$arPaySystem = $arResult['PAY_SYSTEM_LIST_BY_PAYMENT_ID'][$payment["ID"]];
 
 						if (empty($arPaySystem["ERROR"]))
 						{
@@ -120,7 +122,7 @@ if ($arParams["SET_TITLE"] == "Y")
 	<table class="sale_order_full_table">
 		<tr>
 			<td>
-				<?=Loc::getMessage("SOA_ERROR_ORDER_LOST", array("#ORDER_ID#" => $arResult["ACCOUNT_NUMBER"]))?>
+				<?=Loc::getMessage("SOA_ERROR_ORDER_LOST", ["#ORDER_ID#" => htmlspecialcharsbx($arResult["ACCOUNT_NUMBER"])])?>
 				<?=Loc::getMessage("SOA_ERROR_ORDER_LOST1")?>
 			</td>
 		</tr>

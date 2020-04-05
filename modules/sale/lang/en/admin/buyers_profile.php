@@ -1,4 +1,7 @@
 <?
+$MESS["BUYER_EDIT"] = "Edit customer";
+$MESS["BUYER_INFO_EDIT"] = "Edit customer information";
+$MESS["BUYER_NO_VALUES"] = "not specified";
 $MESS["BUYER_CUSTOM_FIELD"] = "Customize";
 $MESS["BUYER_CUSTOM_FIELD_TITLE"] = "Customize form fields";
 $MESS["BUYER_NEW_ORDER"] = "Create an order";

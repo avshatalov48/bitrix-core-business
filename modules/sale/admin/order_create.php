@@ -188,9 +188,9 @@ if($isSavingOperation || $needFieldsRestore)
 				}
 
 				if(isset($_POST["save"]))
-					LocalRedirect("/bitrix/admin/sale_order.php?lang=".LANGUAGE_ID.GetFilterParams("filter_", false));
+					LocalRedirect("/bitrix/admin/sale_order.php?lang=".LANGUAGE_ID);
 				else
-					LocalRedirect("/bitrix/admin/sale_order_edit.php?lang=".LANGUAGE_ID."&ID=".$order->getId().GetFilterParams("filter_", false));
+					LocalRedirect("/bitrix/admin/sale_order_edit.php?lang=".LANGUAGE_ID."&ID=".$order->getId());
 			}
 			else
 			{
@@ -463,7 +463,7 @@ elseif($isRestoringOrderOperation) // Restore order from archive
 
 	if (!in_array($archivedOrder->getField("STATUS_ID"), $allowedStatusUpdate))
 	{
-		LocalRedirect("/bitrix/admin/sale_order_archive.php?lang=".LANGUAGE_ID.GetFilterParams("filter_", false));
+		LocalRedirect("/bitrix/admin/sale_order_archive.php?lang=".LANGUAGE_ID);
 	}
 
 	if ($saleModulePermissions == 'P')
@@ -474,7 +474,7 @@ elseif($isRestoringOrderOperation) // Restore order from archive
 			&& $archivedOrder->getField('RESPONSIBLE_ID') !== $USER->GetID()
 		) 
 		{
-			LocalRedirect("/bitrix/admin/sale_order_archive.php?lang=".LANGUAGE_ID.GetFilterParams("filter_", false));
+			LocalRedirect("/bitrix/admin/sale_order_archive.php?lang=".LANGUAGE_ID);
 		}
 	}
 	
@@ -615,6 +615,7 @@ elseif($isCopyingOrderOperation) // copy order
 		$propCollection = $order->getPropertyCollection();
 		$propCollection->setValuesFromPost($properties, $files);
 		$originalBasket = $originalOrder->getBasket();
+		$originalBasketProviderData = Sale\Provider::getProductData($originalBasket);
 		$originalBasketItems = $originalBasket->getBasketItems();
 		$basket = \Bitrix\Sale\Basket::create($originalOrder->getSiteId());
 		$basket->setFUserId($originalBasket->getFUserId());
@@ -622,8 +623,23 @@ elseif($isCopyingOrderOperation) // copy order
 		/** @var \Bitrix\Sale\BasketItem $originalBasketItem */
 		foreach($originalBasketItems as $originalBasketItem)
 		{
-			$item = $basket->createItem($originalBasketItem->getField("MODULE"), $originalBasketItem->getProductId());
-			$item->setField('NAME', $originalBasketItem->getField('NAME'));
+			$obBasketCode = $originalBasketItem->getBasketCode();
+			$module = $originalBasketItem->getField("MODULE");
+			$name = $originalBasketItem->getField("NAME");
+			$isCatalogProductDeleted = !isset($originalBasketProviderData[$obBasketCode])&& $module == 'catalog';
+
+			if($isCatalogProductDeleted)
+			{
+				//Make it custom
+				$module = '';
+				//And warn
+				$errorMessage .= Loc::getMessage('SALE_OK_ORDER_COPY_ERROR_BASKET_ITEM_NOT_FOUND',[
+					"#NAME#" => $name
+					])."<br>\n";
+			}
+
+			$item = $basket->createItem($module, $originalBasketItem->getProductId());
+			$item->setField('NAME', $name);
 
 			$item->setFields(
 				array_intersect_key(
@@ -633,6 +649,11 @@ elseif($isCopyingOrderOperation) // copy order
 					)
 				)
 			);
+
+			if($isCatalogProductDeleted)
+			{
+				$item->setField('PRODUCT_PROVIDER_CLASS', '');
+			}
 
 			$item->getPropertyCollection()->setProperty(
 				$originalBasketItem->getPropertyCollection()->getPropertyValues()
@@ -714,7 +735,7 @@ if ($isRestoringOrderOperation)
 		"ICON" => "btn_list",
 		"TEXT" => Loc::getMessage("SALE_OK_ARCHIVE_LIST"),
 		"TITLE"=> Loc::getMessage("SALE_OK_ARCHIVE_LIST_TITLE"),
-		"LINK" => "/bitrix/admin/sale_order_archive.php?lang=".LANGUAGE_ID.GetFilterParams("filter_")
+		"LINK" => "/bitrix/admin/sale_order_archive.php?lang=".LANGUAGE_ID
 	);
 }
 else
@@ -723,7 +744,7 @@ else
 		"ICON" => "btn_list",
 		"TEXT" => Loc::getMessage("SALE_OK_LIST"),
 		"TITLE"=> Loc::getMessage("SALE_OK_LIST_TITLE"),
-		"LINK" => "/bitrix/admin/sale_order.php?lang=".LANGUAGE_ID.GetFilterParams("filter_")
+		"LINK" => "/bitrix/admin/sale_order.php?lang=".LANGUAGE_ID
 	);
 }
 
@@ -731,11 +752,10 @@ $context = new CAdminContextMenu($aMenu);
 $context->Show();
 
 //errors
-$errorMessage = "";
 
 if(!empty($_SESSION['SALE_ORDER_EDIT_ERROR']))
 {
-	$errorMessage = $_SESSION['SALE_ORDER_EDIT_ERROR']."<br>\n";
+	$errorMessage .= $_SESSION['SALE_ORDER_EDIT_ERROR']."<br>\n";
 	unset($_SESSION['SALE_ORDER_EDIT_ERROR']);
 }
 
@@ -783,7 +803,7 @@ $aTabs = array(
 	array("DIV" => "tab_order", "TAB" => Loc::getMessage("SALE_OK_TAB_ORDER"), "SHOW_WRAP" => "N", "IS_DRAGGABLE" => "Y"),
 );
 
-?><form method="POST" action="<?=$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&SITE_ID=".$siteId.GetFilterParams("filter_", false)?>" name="<?=$formId?>_form" id="<?=$formId?>_form" enctype="multipart/form-data"><?
+?><form method="POST" action="<?=$APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&SITE_ID=".$siteId?>" name="<?=$formId?>_form" id="<?=$formId?>_form" enctype="multipart/form-data"><?
 $tabControl = new CAdminTabControlDrag($formId, $aTabs, $moduleId, false, true);
 $tabControl->AddTabs($customTabber);
 $tabControl->Begin();
@@ -899,7 +919,7 @@ $tabControl->EndTab();
 
 $tabControl->Buttons(
 	array(
-		"back_url" => "/bitrix/admin/sale_order_create.php?lang=".LANGUAGE_ID."&SITE_ID=".$siteId.GetFilterParams("filter_"))
+		"back_url" => "/bitrix/admin/sale_order_create.php?lang=".LANGUAGE_ID."&SITE_ID=".$siteId)
 );
 
 $tabControl->End();

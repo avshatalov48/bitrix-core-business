@@ -1,10 +1,10 @@
 <?
-$MESS["AUTH_FORGOT_PASSWORD_1"] = "If you forgot your password, enter login or E-Mail<br>Your account info will be sent to you by E-Mail.";
-$MESS["AUTH_GET_CHECK_STRING"] = "Get check string";
-$MESS["AUTH_SEND"] = "Send";
 $MESS["AUTH_AUTH"] = "Authorization";
-$MESS["AUTH_LOGIN"] = "Login:";
-$MESS["AUTH_OR"] = "or";
-$MESS["AUTH_EMAIL"] = "E-Mail:";
+$MESS["AUTH_SEND"] = "Send";
+$MESS["sys_forgot_pass_label"] = "Recover password using:";
+$MESS["sys_forgot_pass_login1"] = "Login or email:";
+$MESS["sys_forgot_pass_note_email"] = "Your registration data and the check word to reset your password will be sent to your email.";
+$MESS["sys_forgot_pass_note_phone"] = "SMS with a code to change your password will be sent to your phone.";
+$MESS["sys_forgot_pass_phone"] = "Phone";
 $MESS["system_auth_captcha"] = "Enter the characters you see on the picture:";
 ?>

@@ -14,12 +14,19 @@ class GMap extends \Bitrix\Landing\Hook\Page
 	 */
 	protected function getMap()
 	{
+		$helpUrl = \Bitrix\Landing\Help::getHelpUrl('GMAP_EDIT');
 		return array(
 			'USE' => new Field\Checkbox('USE', array(
 				'title' => Loc::getMessage('LANDING_HOOK_MAPCODE_USE')
 			)),
 			'CODE' => new Field\Text('CODE', array(
-				'title' => Loc::getMessage('LANDING_HOOK_MAPCODE')
+				'title' => Loc::getMessage('LANDING_HOOK_MAPCODE'),
+				'placeholder' => Loc::getMessage('LANDING_HOOK_MAPCODE_PLACEHOLDER'),
+				'help' => $helpUrl
+							? '<a href="' . $helpUrl . '" target="_blank">' .
+						  			Loc::getMessage('LANDING_HOOK_MAPCODE_HELP') .
+						  		'</a>'
+							: ''
 			))
 		);
 	}
@@ -30,7 +37,15 @@ class GMap extends \Bitrix\Landing\Hook\Page
 	 */
 	public function enabled()
 	{
-		return $this->fields['USE']->getValue() == 'Y';
+		if ($this->isPage())
+		{
+			return false;
+		}
+		else
+		{
+			return \CJSCore::isExtensionLoaded('landing_google_maps_new') ||
+				   $this->fields['USE']->getValue() == 'Y';
+		}
 	}
 
 	/**
@@ -39,7 +54,10 @@ class GMap extends \Bitrix\Landing\Hook\Page
 	 */
 	public function exec()
 	{
-		$code = \htmlspecialcharsbx(trim($this->fields['CODE']));
+		if ($this->fields['USE']->getValue() == 'Y')
+		{
+			$code = \htmlspecialcharsbx(trim($this->fields['CODE']));
+		}
 		\Bitrix\Main\Page\Asset::getInstance()->addString(
 			'<script defer src="https://maps.googleapis.com/maps/api/js?key=' . $code . '"></script>'
 		);

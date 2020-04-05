@@ -86,7 +86,7 @@ use Bitrix\Main\Localization\Loc;
 				</div>
 			</div>
 			<?
-			if($arResult["arUser"]["EXTERNAL_AUTH_ID"] == '')
+			if ($arResult['CAN_EDIT_PASSWORD'])
 			{
 				?>
 				<div class="form-group">

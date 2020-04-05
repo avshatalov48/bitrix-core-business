@@ -16,3 +16,4 @@ DROP TABLE if exists b_seo_yandex_direct_stat;
 DROP TABLE if exists b_seo_service_rtg_queue;
 DROP TABLE if exists b_seo_service_log;
 DROP TABLE if exists b_seo_service_webhook;
+DROP TABLE if exists b_seo_service_subscription;

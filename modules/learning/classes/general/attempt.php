@@ -668,7 +668,7 @@ abstract class CAllTestAttempt
 		}
 		else
 		{
-			return "round((unix_timestamp(A.DATE_END)-unix_timestamp(A.DATE_START)) / A.QUESTIONS)";
+			return "round((unix_timestamp(IFNULL(A.DATE_END, A.DATE_START))-unix_timestamp(A.DATE_START)) / A.QUESTIONS)";
 		}
 	}
 

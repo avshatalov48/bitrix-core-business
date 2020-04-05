@@ -142,10 +142,11 @@ final class Manager
 		foreach($condition['CHILDREN'] as $child)
 		{
 			$onlyOneCondition =
-				count($child['CHILDREN']) === 1 &&
-				$child['DATA']['All'] === 'AND' &&
-				$child['DATA']['Found'] === 'Found'
-			;
+				isset($child['CHILDREN'])
+				&& is_array($child['CHILDREN'])
+				&& count($child['CHILDREN']) === 1
+				&& $child['DATA']['All'] === 'AND'
+				&& $child['DATA']['Found'] === 'Found';
 
 			if(
 				$child['CLASS_ID'] === 'CondBsktProductGroup' &&

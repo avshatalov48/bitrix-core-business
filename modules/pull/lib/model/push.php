@@ -105,7 +105,7 @@ class PushTable extends Main\Entity\DataManager
 				'title' => Loc::getMessage('PUSH_ENTITY_DATE_AUTH_FIELD'),
 			),
 			'USER' => array(
-				'data_type' => 'Bitrix\User\User',
+				'data_type' => 'Bitrix\Main\User',
 				'reference' => array('=this.USER_ID' => 'ref.ID'),
 			),
 		);

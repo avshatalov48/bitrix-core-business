@@ -15,7 +15,7 @@
 		DATE_FORMAT = BX.date.convertBitrixFormat(BX.message("FORMAT_DATE")),
 		DATETIME_FORMAT = BX.date.convertBitrixFormat(BX.message("FORMAT_DATETIME"));
 
-	if ((DATETIME_FORMAT.substr(0, DATE_FORMAT.length) == DATE_FORMAT))
+	if ((DATETIME_FORMAT.substr(0, DATE_FORMAT.length) === DATE_FORMAT))
 		TIME_FORMAT = BX.util.trim(DATETIME_FORMAT.substr(DATE_FORMAT.length));
 	else
 		TIME_FORMAT = BX.date.convertBitrixFormat(BX.isAmPmMode() ? 'H:MI:SS T' : 'HH:MI:SS');
@@ -148,7 +148,7 @@
 							{
 								menuItem = popupMenu.menuItems[i];
 								if (menuItem
-									&& nearestTimeValue.label == menuItem.text
+									&& nearestTimeValue.label === menuItem.text
 									&& menuItem.layout)
 								{
 									popupMenu.layout.menuContainer.scrollTop = menuItem.layout.item.offsetTop - 2;
@@ -187,15 +187,13 @@
 					type: 'text'
 				},
 				style: {width: '200px'},
-				events: {
-				},
 				props: {className: 'calendar-resbook-date-input calendar-resbook-field-datetime-menu'}
 			}));
 
 			var serviceListValues = [];
 			this.params.serviceList.forEach(function(service)
 			{
-				if (service.name != '')
+				if (service.name !== '')
 				{
 					serviceListValues.push({value: service.duration, label: service.name});
 				}
@@ -295,11 +293,11 @@
 				socnetDestination: this.params.socnetDestination,
 				itemsSelected: itemsSelected,
 				addMessage: BX.message('USER_TYPE_RESOURCE_SELECT_USER'),
-				checkLimitCallback: BX.proxy(this.checkResourceCountLimit, this)
+				checkLimitCallback: BX.proxy(this.checkResourceCountLimitForNewEntries, this)
 			});
 
-			BX.addCustomEvent('OnDestinationAddNewItem', BX.proxy(this.triggerUpdatePlanner, this));
-			BX.addCustomEvent('OnDestinationUnselect', BX.proxy(this.triggerUpdatePlanner, this));
+			BX.addCustomEvent('OnResourceBookDestinationAddNewItem', BX.proxy(this.triggerUpdatePlanner, this));
+			BX.addCustomEvent('OnResourceBookDestinationUnselect', BX.proxy(this.triggerUpdatePlanner, this));
 		}
 		// endregion
 
@@ -347,7 +345,7 @@
 		setTimeout(BX.delegate(function(){
 			BX.onCustomEvent(window, 'onCrmEntityEditorUserFieldSetValidator', [this.params.controlId, function(result)
 			{
-				if (!_this.params.allowOverbooking && _this.overbooked)
+				if (!_this.params.allowOverbooking && _this.isOverbooked())
 				{
 					if (result && result.addError && BX.Crm && BX.Crm.EntityValidationError)
 					{
@@ -362,6 +360,11 @@
 		}, this), 100);
 
 		setTimeout(BX.proxy(this.onChangeValues, this), 100);
+
+		// Mantis:107646
+		setTimeout(BX.proxy(function(){
+			BX.fireEvent(this.DOM.fromInput, 'change');
+		}, this), 100);
 	};
 
 	BX.Calendar.UserField.ResourceBooking.prototype.showSmallCalendar = function(e)
@@ -380,12 +383,13 @@
 	{
 		var
 			allValuesValue = '',
+			formatDatetime = BX.isAmPmMode() ? BX.message("FORMAT_DATETIME").replace(':SS', '') : BX.message("FORMAT_DATETIME"),
 			dateFrom, dateFromValue = '',
 			duration = this.duration * 60,// Duration in minutes
 			serviceName = this.DOM.serviceInput ? this.DOM.serviceInput.value : '',
 			entries = [];
 
-		dateFrom = this.params.fullDay ? BX.parseDate(this.DOM.fromInput.value) : BX.parseDate(this.DOM.fromInput.value + ' ' + this.DOM.timeFromInput.value);
+		dateFrom = this.params.fullDay ? BX.parseDate(this.DOM.fromInput.value) : BX.parseDate(this.DOM.fromInput.value + ' ' + this.DOM.timeFromInput.value, false, false, formatDatetime);
 
 		if (BX.type.isDate(dateFrom))
 		{
@@ -407,10 +411,7 @@
 
 		entries.forEach(function(entry)
 		{
-			var
-				value = entry.type + '|' + entry.id;
-				value += '|' + dateFromValue + '|' + duration + '|' + serviceName;
-
+			var value = entry.type + '|' + entry.id + '|' + dateFromValue + '|' + duration + '|' + serviceName;
 			allValuesValue += value + '#';
 
 			this.DOM.valueInputs.push(this.DOM.outerWrap.appendChild(
@@ -471,7 +472,7 @@
 
 	BX.Calendar.UserField.ResourceBooking.prototype.triggerUpdatePlanner = function()
 	{
-		if (BX.Calendar.UserField.ResourceBooking.plannerPopup.plannerId == this.params.plannerId
+		if (BX.Calendar.UserField.ResourceBooking.plannerPopup.plannerId === this.params.plannerId
 			&& BX.Calendar.UserField.ResourceBooking.plannerPopup.isShown())
 		{
 			BX.Calendar.UserField.ResourceBooking.plannerPopup.update({
@@ -514,7 +515,7 @@
 
 	BX.Calendar.UserField.ResourceBooking.prototype.plannerSelectorOnChange = function(params)
 	{
-		if (params.plannerId == this.params.plannerId)
+		if (params.plannerId === this.params.plannerId)
 		{
 			var
 				dateFrom = params.dateFrom,
@@ -544,7 +545,7 @@
 
 	BX.Calendar.UserField.ResourceBooking.prototype.plannerSelectedEntriesOnChange = function(params)
 	{
-		if (params.plannerId == this.params.plannerId && BX.type.isArray(params.entries))
+		if (params.plannerId === this.params.plannerId && BX.type.isArray(params.entries))
 		{
 			var
 				selectedResources = [],
@@ -554,7 +555,7 @@
 			{
 				if (entry.selected)
 				{
-					if (entry.type == 'user')
+					if (entry.type === 'user')
 					{
 						selectedUsers.push(entry.id);
 					}
@@ -583,10 +584,10 @@
 
 	BX.Calendar.UserField.ResourceBooking.prototype.checkSelectorStatusCallback = function(params)
 	{
-		if (params.plannerId == this.params.plannerId && !this.params.allowOverbooking)
+		if (params.plannerId === this.params.plannerId && !this.params.allowOverbooking)
 		{
 			var errorClass = 'calendar-resbook-error';
-			this.overbooked = params.status == 'busy';
+			this.overbooked = params.status === 'busy';
 
 			if (this.overbooked)
 			{
@@ -631,9 +632,10 @@
 	BX.Calendar.UserField.ResourceBooking.prototype.getSelectorData = function()
 	{
 		var
+			formatDatetime = BX.isAmPmMode() ? BX.message("FORMAT_DATETIME").replace(':SS', '') : BX.message("FORMAT_DATETIME"),
 			selector, dateTo,
 			duration = this.duration,
-			dateFrom = BX.parseDate(this.DOM.fromInput.value + (this.DOM.timeFromInput ? ' ' + this.DOM.timeFromInput.value : ''));
+			dateFrom = BX.parseDate(this.DOM.fromInput.value + (this.DOM.timeFromInput ? ' ' + this.DOM.timeFromInput.value : ''), false, false, formatDatetime);
 
 		if (!duration)
 		{
@@ -721,7 +723,7 @@
 
 			this.userSelector.getAttendeesCodesList().forEach(function(code)
 			{
-				if (code.substr(0, 1) == 'U')
+				if (code.substr(0, 1) === 'U')
 				{
 					userId = parseInt(code.substr(1));
 					if (!index[userId])
@@ -743,7 +745,7 @@
 		{
 			this.userSelector.getAttendeesCodesList().forEach(function(code)
 			{
-				if (code.substr(0, 1) == 'U')
+				if (code.substr(0, 1) === 'U')
 				{
 					entries.push(
 						{
@@ -777,28 +779,36 @@
 		for (i = 0; i < values.length; i++)
 		{
 			val = values[i];
-
-			// Days
-			if (val % 1440 == 0)
+			if (fullDay && val % 1440 !== 0)
 			{
-				res.push({value: val, label: BX.message('USER_TYPE_DURATION_X_DAY').replace('#NUM#', val / 1440)});
+				continue;
 			}
-			else if (!fullDay)
-			{
-				// Hours
-				if (val % 60 == 0 && val != 60)
-				{
-					res.push({value: val, label: BX.message('USER_TYPE_DURATION_X_HOUR').replace('#NUM#', val / 60)});
 
-				}
-				// Minutes
-				else
-				{
-					res.push({value: val, label: BX.message('USER_TYPE_DURATION_X_MIN').replace('#NUM#', val)});
-				}
-			}
+			res.push({
+				value: val,
+				label: this.getDurationLabel(val)
+			});
 		}
 		return res;
+	};
+
+	BX.Calendar.UserField.ResourceBooking.getDurationLabel = function(val)
+	{
+		var label;
+		if (val % 1440 === 0) // Days
+		{
+			label = BX.message('USER_TYPE_DURATION_X_DAY').replace('#NUM#', val / 1440);
+		}
+		else if (val % 60 === 0 && val !== 60) // Hours
+		{
+			label = BX.message('USER_TYPE_DURATION_X_HOUR').replace('#NUM#', val / 60);
+		}
+		// Minutes
+		else
+		{
+			label = BX.message('USER_TYPE_DURATION_X_MIN').replace('#NUM#', val);
+		}
+		return label
 	};
 
 	BX.Calendar.UserField.ResourceBooking.parseDuration = function(value)
@@ -884,9 +894,9 @@
 		return null;
 	};
 
-	BX.Calendar.UserField.ResourceBooking.getLoader = function(size)
+	BX.Calendar.UserField.ResourceBooking.getLoader = function(size, className)
 	{
-		return BX.create('DIV', {props:{className: 'calendar-loader'}, html: '<svg class="calendar-loader-circular"' +
+		return BX.create('DIV', {props:{className: className || 'calendar-loader'}, html: '<svg class="calendar-loader-circular"' +
 			(size ? 'style="width: '+ parseInt(size) +'px; height: '+ parseInt(size) +'px;"' : '') +
 			' viewBox="25 25 50 50">' +
 			'<circle class="calendar-loader-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>' +
@@ -925,16 +935,21 @@
 							'calendar_resourcebooking',
 							BX.message('USER_TYPE_RESOURCE_B24_LIMITATION_TITLE'),
 							BX.message('USER_TYPE_RESOURCE_B24_LIMITATION') +
-								' <a href="javascript:void(0);" onclick="BX.Helper.show(\'redirect=detail&code=7481073\')">' +
+								' <a href="javascript:void(0);" onclick="if(top.BX.Helper){top.BX.Helper.show(\'redirect=detail&code=7481073\')}">' +
 							BX.message('USER_TYPE_RESOURCE_B24_LIMITATION_LINK') + '</a>');
 					}
 				});
 		}
 	};
 
-	BX.Calendar.UserField.ResourceBooking.prototype.checkResourceCountLimit = function()
+	BX.Calendar.UserField.ResourceBooking.prototype.checkResourceCountLimitForNewEntries = function(checkForNewEntry)
 	{
 		return this.params.resourceLimit <= 0 || this.getTotalResourceCount() < this.params.resourceLimit;
+	};
+
+	BX.Calendar.UserField.ResourceBooking.prototype.checkResourceCountLimit = function(checkForNewEntry)
+	{
+		return this.params.resourceLimit <= 0 || this.getTotalResourceCount() <= this.params.resourceLimit;
 	};
 
 	BX.Calendar.UserField.ResourceBooking.prototype.getTotalResourceCount = function()
@@ -952,6 +967,142 @@
 
 		return result;
 	};
+
+	BX.Calendar.UserField.ResourceBooking.prototype.isOverbooked = function(params)
+	{
+		return this.overbooked;
+	};
+
+	/**
+	 * Creates instance of Resourcebooking field for webform settings (not for live form)
+	 * Used in CRM webform to display and tune resourcebooking field
+	 *
+	 * @param {array} params - incoming data params
+	 */
+	BX.Calendar.UserField.getResourceBookingCrmFormField = function(params)
+	{
+		var bookingFieldParams = {};
+		if (params.field.node && BX.type.isDomNode(params.field.node))
+		{
+			bookingFieldParams.outerWrap = params.field.node;
+		}
+		else
+		{
+			throw new Error("The argument \"params.field.node\" must be a DOM node.");
+		}
+
+		bookingFieldParams.innerWrap = bookingFieldParams.outerWrap.querySelector('.crm-webform-resourcebooking-wrap');
+		if (!bookingFieldParams.innerWrap)
+		{
+			throw new Error("Can't find necessary DOM node \"div.crm-webform-resourcebooking-wrap\"");
+		}
+
+		bookingFieldParams.name = params.field.name;
+		bookingFieldParams.formName = 'FIELD[' + params.field.name + ']';
+		bookingFieldParams.captionNode = params.field.lblCaption;
+		bookingFieldParams.entityFieldName = params.field.entity_field_name;
+		bookingFieldParams.entityName = params.field.dict.entity_field_name;
+
+		bookingFieldParams.settings = {
+			caption: params.field.captionValue || params.field.dict.caption,
+			required: params.field.isRequired || params.field.dict.required,
+			data: params.field.settingsData || []
+		};
+
+		return new BX.Calendar.UserField.CrmFormResourceBookingField(bookingFieldParams);
+	};
+
+
+	/**
+	 * Creates instance of Resourcebooking field for live webform
+	 * Used in CRM webform to fill forms and book users/resources
+	 *
+	 * @param {array} params - incoming data params
+	 */
+	BX.Calendar.UserField.getResourceBookingFieldLive = function(params)
+	{
+		if (!params.wrap || !BX.type.isDomNode(params.wrap))
+		{
+			throw new Error("The argument \"params.wrap\" must be a DOM node.");
+		}
+		return new BX.Calendar.UserField.CrmFormResourceBookingFieldLiveController(params);
+	};
+
+
+	BX.Calendar.UserField.fieldParamsCache = {};
+	BX.Calendar.UserField.getUserFieldParams = function(params)
+	{
+		params = params || {};
+		var
+			fieldName = params.fieldName || '',
+			promise = new BX.Promise();
+
+		if (params.clearCache || !BX.Calendar.UserField.fieldParamsCache[params.fieldName])
+		{
+			BX.ajax.runAction('calendar.api.resourcebookingajax.getfieldparams', {
+				data: {
+					fieldname: params.fieldName,
+					selectedUsers: params.selectedUsers || []
+				}
+			}).then(BX.delegate(function (response)
+				{
+					BX.Calendar.UserField.fieldParamsCache[fieldName] = response.data;
+					promise.fulfill(response.data);
+				}, this),
+				function (response) {
+					/**
+					 {
+						 "status": "error",
+						 "errors": [...]
+					 }
+					 **/
+				});
+		}
+		else
+		{
+			promise.fulfill(BX.Calendar.UserField.fieldParamsCache[fieldName]);
+		}
+
+		return promise;
+	};
+
+	BX.Calendar.UserField.getPluralMessage = function(messageId, number)
+	{
+		var pluralForm, langId;
+
+		langId = BX.message('LANGUAGE_ID') || 'en';
+		number = parseInt(number);
+
+		if (number < 0)
+		{
+			number = -1*number;
+		}
+
+		if (langId)
+		{
+			switch (langId)
+			{
+				case 'de':
+				case 'en':
+					pluralForm = ((number !== 1) ? 1 : 0);
+					break;
+				case 'ru':
+				case 'ua':
+					pluralForm = (((number%10 === 1) && (number%100 !== 11)) ? 0 : (((number%10 >= 2) && (number%10 <= 4) && ((number%100 < 10) || (number%100 >= 20))) ? 1 : 2));
+					break;
+				default:
+					pluralForm = 1;
+					break;
+			}
+		}
+		else
+		{
+			pluralForm = 1;
+		}
+
+		return BX.message(messageId + '_PLURAL_' + pluralForm);
+	};
+
 
 
 	// region ** Planner popup **
@@ -973,7 +1124,7 @@
 				return;
 			}
 
-			if (this.lastPlannerIdShown && this.lastPlannerIdShown != this.plannerId)
+			if (this.lastPlannerIdShown && this.lastPlannerIdShown !== this.plannerId)
 			{
 				this.close({animation: false});
 			}
@@ -1010,12 +1161,18 @@
 			this.config.width = this.plannerWidth;
 
 			setTimeout(BX.delegate(function(){
-				BX.addClass(this.popup.popupContainer, 'calendar-resbook-planner-popup');
-				this.popup.popupContainer.style.width = 0;
+				if (this.popup && this.popup.popupContainer)
+				{
+					BX.addClass(this.popup.popupContainer, 'calendar-resbook-planner-popup');
+					this.popup.popupContainer.style.width = 0;
+				}
 			}, this), 1);
 			setTimeout(BX.delegate(function(){
-				this.popup.popupContainer.style.width = this.plannerWidth + 'px';
-				BX.addClass(this.popup.popupContainer, 'show');
+				if (this.popup && this.popup.popupContainer)
+				{
+					this.popup.popupContainer.style.width = this.plannerWidth + 'px';
+					BX.addClass(this.popup.popupContainer, 'show');
+				}
 				BX.bind(document, 'click', BX.proxy(this.handleClick, this));
 			}, this), 50);
 			setTimeout(BX.proxy(this.showPlanner, this), 350);
@@ -1141,11 +1298,11 @@
 					if (BX.type.isArray(response.data.entries))
 					{
 						response.data.entries.forEach(function(entry){
-							if ((entry.type == 'user'
-								&& params.selectedUsers.find(function(userId){return entry.id == userId;}))
+							if ((entry.type === 'user'
+								&& params.selectedUsers.find(function(userId){return parseInt(entry.id) === parseInt(userId);}))
 								||
-								(entry.type == 'resource'
-								&& params.selectedResources.find(function(item){return entry.type == item.type && entry.id == item.id;}))
+								(entry.type === 'resource'
+								&& params.selectedResources.find(function(item){return entry.type === item.type && parseInt(entry.id) === parseInt(item.id);}))
 							)
 							{
 								entry.selected = true;
@@ -1202,11 +1359,11 @@
 				if (BX.type.isArray(response.data.entries))
 				{
 					response.data.entries.forEach(function(entry){
-						if ((entry.type == 'user'
-							&& params.selectedUsers.find(function(userId){return entry.id == userId;}))
+						if ((entry.type === 'user'
+							&& params.selectedUsers.find(function(userId){return parseInt(entry.id) == parseInt(userId);}))
 							||
-							(entry.type == 'resource'
-							&& params.selectedResources.find(function(item){return entry.type == item.type && entry.id == item.id;}))
+							(entry.type === 'resource'
+							&& params.selectedResources.find(function(item){return entry.type === item.type && parseInt(entry.id) === parseInt(item.id);}))
 						)
 						{
 							entry.selected = true;
@@ -1254,7 +1411,7 @@
 			}
 
 			// 1. Compare dates
-			if (!requestPlannerUpdate && requestData.from != this.lastRequestData.from)
+			if (!requestPlannerUpdate && requestData.from !== this.lastRequestData.from)
 			{
 				requestPlannerUpdate = true;
 			}
@@ -1270,7 +1427,7 @@
 			// 3. Compare resources
 			if (!requestPlannerUpdate && BX.type.isArray(requestData.resources) && BX.type.isArray(this.lastRequestData.resources))
 			{
-				if (requestData.resources.length != this.lastRequestData.resources.length)
+				if (requestData.resources.length !== this.lastRequestData.resources.length)
 				{
 					requestPlannerUpdate = true;
 				}
@@ -1402,7 +1559,7 @@
 
 		isShown: function()
 		{
-			return this.lastPlannerIdShown == this.plannerId
+			return this.lastPlannerIdShown === this.plannerId
 				&& this.popup && this.popup.isShown && this.popup.isShown();
 		},
 
@@ -1442,7 +1599,7 @@
 	};
 	// endregion
 
-	function SettingsSlider(params)
+	function SettingsSlider()
 	{
 		this.id = 'calendar_custom_settings_' + Math.round(Math.random() * 1000000);
 		this.zIndex = 3100;
@@ -1494,7 +1651,6 @@
 			{
 				BX.removeCustomEvent("SidePanel.Slider:onCloseComplete", BX.proxy(this.destroy, this));
 				BX.SidePanel.Instance.destroy(this.sliderId);
-				//this.calendar.enableKeyHandler();
 			}
 		},
 
@@ -1514,7 +1670,6 @@
 
 			promise.fulfill(BX.util.trim(html));
 			setTimeout(BX.delegate(this.initControls, this), 100);
-			//this.initControls();
 
 			return promise;
 		},
@@ -1540,7 +1695,7 @@
 
 				this.params.filterSelectValues.forEach(function(value){
 					this.DOM.fieldSelect.options.add(
-						new Option(value.TEXT, value.VALUE, this.params.filterSelect == value.VALUE, this.params.filterSelect == value.VALUE));
+						new Option(value.TEXT, value.VALUE, this.params.filterSelect === value.VALUE, this.params.filterSelect === value.VALUE));
 				}, this);
 			}
 		},
@@ -1596,7 +1751,7 @@
 			BX.bind(this.wrapNode, 'click', BX.delegate(function (e)
 			{
 				var target = e.target || e.srcElement;
-				if (target.className == 'calendar-resourcebook-content-block-control-delete') // Delete button
+				if (target.className === 'calendar-resourcebook-content-block-control-delete') // Delete button
 				{
 					BX.SocNetLogDestination.deleteItem(target.getAttribute('data-item-id'), target.getAttribute('data-item-type'), id);
 					var block = BX.findParent(target, {className: 'calendar-resourcebook-content-block-control-inner'});
@@ -1644,16 +1799,6 @@
 				props: {className: 'calendar-resourcebook-content-block-control-text calendar-resourcebook-content-block-control-text-add'},
 				text: this.addMessage
 			}));
-
-			//if (this.params.itemsSelected && !this.checkItemsSelected(
-			//		this.getSocnetDestinationConfig('items'),
-			//		this.getSocnetDestinationConfig('itemsLast'),
-			//		this.getSocnetDestinationConfig('itemsSelected'),
-			//		BX.proxy(this.init, this)
-			//	))
-			//{
-			//	return;
-			//}
 
 			this.init();
 		},
@@ -1728,48 +1873,6 @@
 			});
 		},
 
-		//checkItemsSelected: function (items, itemsLast, selected, callback)
-		//{
-		//	var codes = [];
-		//	for (var code in selected)
-		//	{
-		//		if (selected.hasOwnProperty(code))
-		//		{
-		//			if (selected[code] == 'users' && !items.users[code])
-		//			{
-		//				codes.push(code);
-		//			}
-		//		}
-		//	}
-		//
-		//	return;
-		//
-		//	if (codes.length > 0)
-		//	{
-		//		var loader = this.wrapNode.appendChild(BX.adjust(this.calendar.util.getLoader(40), {style: {height: '50px'}}));
-		//
-		//		this.calendar.request({
-		//			type: 'get', data: {
-		//				action: 'get_destination_items', codes: codes
-		//			}, handler: BX.delegate(function (response)
-		//			{
-		//				if (loader)
-		//					BX.remove(loader);
-		//
-		//				//this.calendar.util.mergeSocnetDestinationConfig(response.destinationItems);
-		//				//this.params.items = this.calendar.util.getSocnetDestinationConfig('items');
-		//				//this.params.itemsLast = this.calendar.util.getSocnetDestinationConfig('itemsLast');
-		//
-		//				if (callback && typeof callback == 'function')
-		//					callback();
-		//			}, this)
-		//		});
-		//		return false;
-		//	}
-		//
-		//	return true;
-		//},
-
 		closeAll: function ()
 		{
 			if (BX.SocNetLogDestination.isOpenDialog())
@@ -1781,10 +1884,10 @@
 
 		selectCallback: function(item, type)
 		{
-			if (type == 'users')
+			if (type === 'users')
 			{
 				this.addUserBlock(item);
-				BX.onCustomEvent('OnDestinationAddNewItem', [item]);
+				BX.onCustomEvent('OnResourceBookDestinationAddNewItem', [item, this.id]);
 				this.socnetDestinationInput.value = '';
 			}
 		},
@@ -1798,7 +1901,7 @@
 			var i, blocks = this.wrapNode.querySelectorAll('.calendar-resourcebook-content-block-control-inner.shown');
 			for (i = 0; i < blocks.length; i++)
 			{
-				if (blocks[i].getAttribute('data-id') == item.id)
+				if (blocks[i].getAttribute('data-id') === item.id)
 				{
 					BX.remove(blocks[i]);
 				}
@@ -1824,7 +1927,7 @@
 			this.wrapNode.appendChild(this.socnetDestinationLink);
 		},
 
-		unSelectCallback: function(item, type, search)
+		unSelectCallback: function(item)
 		{
 			var elements = BX.findChildren(this.wrapNode, {attribute: {'data-id': item.id}}, true);
 			if (elements != null)
@@ -1835,7 +1938,7 @@
 				}
 			}
 
-			BX.onCustomEvent('OnDestinationUnselect');
+			BX.onCustomEvent('OnResourceBookDestinationUnselect', [item, this.id]);
 			this.socnetDestinationInput.value = '';
 			this.socnetDestinationLink.innerHTML = this.addMessage;
 		},
@@ -1876,7 +1979,7 @@
 
 				BX.bind(window, 'keydown', BX.SocNetLogDestination.backspaceDisable = function(e)
 				{
-					if (e.keyCode == 8)
+					if (e.keyCode === 8)
 					{
 						e.preventDefault();
 						return false;
@@ -1930,19 +2033,19 @@
 			if (BX.type.isArray(values))
 			{
 				values.forEach(function(code){
-					if (code.substr(0, 2) == 'DR')
+					if (code.substr(0, 2) === 'DR')
 					{
 						attendeesCodes[code] = "department";
 					}
-					else if (code.substr(0, 2) == 'UA')
+					else if (code.substr(0, 2) === 'UA')
 					{
 						attendeesCodes[code] = "groups";
 					}
-					else if (code.substr(0, 2) == 'SG')
+					else if (code.substr(0, 2) === 'SG')
 					{
 						attendeesCodes[code] = "sonetgroups";
 					}
-					else if (code.substr(0, 1) == 'U')
+					else if (code.substr(0, 1) === 'U')
 					{
 						attendeesCodes[code] = "users";
 					}
@@ -1973,11 +2076,11 @@
 				res,
 				socnetDestination = this.params.socnetDestination || {};
 
-			if (key == 'items')
+			if (key === 'items')
 			{
 				res = {
 					users: socnetDestination.USERS || {},
-					groups: socnetDestination.EXTRANET_USER == 'Y' || socnetDestination.DENY_TOALL
+					groups: socnetDestination.EXTRANET_USER === 'Y' || socnetDestination.DENY_TOALL
 						? {}
 						: {UA: {id: 'UA', name: BX.message('USER_TYPE_RESOURCE_TO_ALL_USERS')}},
 					sonetgroups: socnetDestination.SONETGROUPS || {},
@@ -1985,16 +2088,16 @@
 					departmentRelation: socnetDestination.DEPARTMENT_RELATION || {}
 				};
 			}
-			else if (key == 'itemsLast' && socnetDestination.LAST)
+			else if (key === 'itemsLast' && socnetDestination.LAST)
 			{
 				res = {
 					users: socnetDestination.LAST.USERS || {},
-					groups: socnetDestination.EXTRANET_USER == 'Y' ? {} : {UA: true},
+					groups: socnetDestination.EXTRANET_USER === 'Y' ? {} : {UA: true},
 					sonetgroups: socnetDestination.LAST.SONETGROUPS || {},
 					department: socnetDestination.LAST.DEPARTMENT || {}
 				};
 			}
-			else if (key == 'itemsSelected')
+			else if (key === 'itemsSelected')
 			{
 				res = socnetDestination.SELECTED || {};
 			}
@@ -2009,9 +2112,9 @@
 
 			for (i = 0; i < inputs.length; i++)
 			{
-				if (inputs[i].type == 'hidden' && inputs[i].value)
+				if (inputs[i].type === 'hidden' && inputs[i].value)
 				{
-					if (inputs[i].value.substr(0, 1) == 'U')
+					if (inputs[i].value.substr(0, 1) === 'U')
 					{
 						result.push(parseInt(inputs[i].value.substr(1)));
 					}
@@ -2049,6 +2152,11 @@
 			{
 				setTimeout(BX.proxy(this.onChangeCallback, this), 100);
 			}
+		},
+
+		getId: function()
+		{
+			return this.id;
 		}
 	};
 
@@ -2060,6 +2168,7 @@
 		this.id = this.params.id || 'resource-selector-' + Math.round(Math.random() * 100000);
 		this.resourceList = BX.type.isArray(params.resourceList) ? params.resourceList : [];
 		this.checkLimit = BX.type.isFunction(params.checkLimitCallback) ? params.checkLimitCallback : false;
+		this.checkLimitForNew = BX.type.isFunction(params.checkLimitCallbackForNew) ? params.checkLimitCallbackForNew : false;
 
 		this.selectedValues = [];
 		this.selectedValuesIndex = {};
@@ -2122,6 +2231,7 @@
 
 		hide: function ()
 		{
+			this.DOM.outerWrap.style.maxHeight = '';
 			BX.removeClass(this.DOM.outerWrap, 'shown');
 		},
 
@@ -2142,7 +2252,7 @@
 					// Remove from blocks
 					this.selectedBlocks.find(function(element, index)
 					{
-						if (element.value == blockValue)
+						if (element.value === blockValue)
 						{
 							BX.removeClass(element.wrap, 'shown');
 							setTimeout(BX.delegate(function ()
@@ -2157,7 +2267,7 @@
 					// Remove from values
 					this.selectedValues.find(function(element, index)
 					{
-						if (element.title == blockValue)
+						if (element.title === blockValue)
 						{
 							this.selectedValues = BX.util.deleteFromArray(this.selectedValues, index);
 						}
@@ -2214,7 +2324,8 @@
 							checkbox = menuItem.layout.item.querySelector('.menu-popup-item-resource-checkbox'),
 							foundResource = this.resourceList.find(function(resource)
 							{
-								return resource.id == menuItem.dataset.id && resource.type == menuItem.dataset.type;
+								return parseInt(resource.id) === parseInt(menuItem.dataset.id)
+									&& resource.type === menuItem.dataset.type;
 							}, this);
 
 						if (foundResource)
@@ -2385,7 +2496,11 @@
 				var checked;
 				if (menuItem.dataset && menuItem.dataset.type)
 				{
-					checked = this.selectedValues.find(function(item){return item.id == menuItem.dataset.id && item.type == menuItem.dataset.type});
+					checked = this.selectedValues.find(function(item)
+					{
+						return parseInt(item.id) === parseInt(menuItem.dataset.id)
+							&& item.type === menuItem.dataset.type;
+					});
 					menuItem.layout.item.className = 'menu-popup-item';
 					menuItem.layout.item.innerHTML = '<div class="menu-popup-item-inner">' +
 						'<div class="menu-popup-item-resource">' +
@@ -2398,7 +2513,11 @@
 				else
 				{
 					this.selectAllChecked = !this.resourceList.find(function(resource){
-						return !this.selectedValues.find(function(item){return item.id == resource.id && item.type == resource.type});
+						return !this.selectedValues.find(function(item)
+						{
+							return parseInt(item.id) === parseInt(resource.id)
+								&& item.type === resource.type
+						});
 					},this);
 
 					menuItem.layout.item.className = 'menu-popup-item menu-popup-item-resource-all';
@@ -2418,14 +2537,16 @@
 
 		addResourceBlock: function(params)
 		{
-			if (this.checkLimit && !this.checkLimit())
-			{
-				return BX.Calendar.UserField.ResourceBooking.showLimitationPopup();
-			}
-
 			if (!BX.type.isPlainObject(params))
 			{
 				params = {};
+			}
+
+			if ((params.resource && (this.checkLimit && !this.checkLimit() && window.B24))
+				||
+				(!params.resource && (this.checkLimitForNew && !this.checkLimitForNew() && window.B24)))
+			{
+				return BX.Calendar.UserField.ResourceBooking.showLimitationPopup();
 			}
 
 			var
@@ -2434,7 +2555,11 @@
 
 			if (this.editMode)
 			{
-				if (params.resource && this.selectedValues.find(function(val){return val.id && val.id == params.resource.id && val.type == params.resource.type;}))
+				if (params.resource && this.selectedValues.find(function(val)
+				{
+					return val.id && parseInt(val.id) === parseInt(params.resource.id)
+						&& val.type === params.resource.type;
+				}))
 				{
 					return;
 				}
@@ -2480,7 +2605,7 @@
 			}
 			else
 			{
-				if (params.value && this.selectedBlocks.find(function(val){return val.value && val.value == params.value;}))
+				if (params.value && this.selectedBlocks.find(function(val){return val.value && val.value === params.value;}))
 				{
 					return;
 				}
@@ -2526,6 +2651,19 @@
 				this.checkBlockWrapState();
 			}
 
+			// Adjust outer wrap max height
+			if (this.DOM.listWrap && this.DOM.outerWrap)
+			{
+				if (BX.hasClass(this.DOM.outerWrap, 'shown'))
+				{
+					this.DOM.outerWrap.style.maxHeight = Math.max(10000, this.DOM.listWrap.childNodes.length * 45 + 100) + 'px';
+				}
+				else
+				{
+					this.DOM.outerWrap.style.maxHeight = '';
+				}
+			}
+
 			return blockEntry;
 		},
 
@@ -2541,7 +2679,7 @@
 				{
 					resourceType = inputs[i].getAttribute('data-resource-type');
 					resourceId = inputs[i].getAttribute('data-resource-id');
-					if (resourceType == params.resource.type && resourceId == params.resource.id)
+					if (resourceType === params.resource.type && parseInt(resourceId) === parseInt(params.resource.id))
 					{
 						BX.remove(BX.findParent(inputs[i], {className: 'calendar-resourcebook-outer-resource-wrap'}));
 					}
@@ -2553,7 +2691,7 @@
 				{
 					this.selectedBlocks.find(function(element, index)
 					{
-						if (element.value == params.resource.title)
+						if (element.value === params.resource.title)
 						{
 							BX.removeClass(element.wrap, 'shown');
 							setTimeout(BX.delegate(function ()
@@ -2632,29 +2770,19 @@
 
 		isResourcesPopupShown: function()
 		{
-			return this.popup && this.popup.popupWindow && this.popup.popupWindow.isShown && this.popup.popupWindow.isShown();
+			return this.popup && this.popup.popupWindow &&
+				this.popup.popupWindow.isShown && this.popup.popupWindow.isShown() &&
+				this.popup.popupWindow.popupContainer &&
+				BX.isNodeInDom(this.popup.popupWindow.popupContainer)
 		},
 
 		closeResourcesPopup: function(params)
 		{
 			if (this.popup)
 			{
-				//if (params && params.animation)
-				//{
-				//	BX.removeClass(this.popupContainer, 'shown');
-				//	this.popupContainer.style.maxHeight = '';
-				//	setTimeout(BX.delegate(function()
-				//	{
-				//		params.animation = false;
-				//		this.closeResourcesPopup(params);
-				//	}, this), 300);
-				//}
-				//else
-				//{
-					this.popup.close();
-					this.popupContainer.style.maxHeight = '';
-					BX.unbind(document, 'click', BX.proxy(this.handleClick, this));
-				//}
+				this.popup.close();
+				this.popupContainer.style.maxHeight = '';
+				BX.unbind(document, 'click', BX.proxy(this.handleClick, this));
 			}
 		},
 
@@ -2665,7 +2793,7 @@
 
 		addToSelectedValues: function(value)
 		{
-			if (!this.selectedValues.find(function(val){return val.id && val.id == value.id && val.type == value.type;}))
+			if (!this.selectedValues.find(function(val){return parseInt(val.id) === parseInt(value.id) && val.type === value.type;}))
 			{
 				this.selectedValues.push(value);
 			}
@@ -2721,7 +2849,7 @@
 				{
 					var foundResource = this.resourceList.find(function(resource)
 					{
-						return resource.id == value.id && resource.type == value.type;
+						return parseInt(resource.id) === parseInt(value.id) && resource.type === value.type;
 					}, this);
 
 					if (foundResource)
@@ -2773,10 +2901,13 @@
 		this.className = params.className || '';
 		this.currentValue = params.value;
 		this.currentValueIndex = params.valueIndex;
-		this.onChangeCallback = params.onChangeCallback || null;
+		this.onChangeCallback = BX.type.isFunction(params.onChangeCallback) ? params.onChangeCallback : null;
 		this.onAfterMenuOpen = params.onAfterMenuOpen || null;
 		this.zIndex = params.zIndex || 1200;
 		this.disabled = params.disabled;
+		this.editable = params.editable !== false;
+		this.setFirstIfNotFound = !!params.setFirstIfNotFound;
+
 		if (this.onChangeCallback)
 		{
 			BX.bind(this.input, 'change', this.onChangeCallback);
@@ -2788,25 +2919,33 @@
 		if (BX.type.isArray(this.values))
 		{
 			BX.bind(this.input, 'click', BX.proxy(this.onClick, this));
-			BX.bind(this.input, 'focus', BX.proxy(this.onFocus, this));
-			BX.bind(this.input, 'blur', BX.proxy(this.onBlur, this));
-			BX.bind(this.input, 'keyup', BX.proxy(this.onKeyup, this));
+
+			if (this.editable)
+			{
+				BX.bind(this.input, 'focus', BX.proxy(this.onFocus, this));
+				BX.bind(this.input, 'blur', BX.proxy(this.onBlur, this));
+				BX.bind(this.input, 'keyup', BX.proxy(this.onKeyup, this));
+			}
+			else
+			{
+				BX.bind(this.input, 'focus', BX.proxy(function(){this.input.blur();}, this));
+			}
 
 			if (this.currentValueIndex === undefined && this.currentValue !== undefined)
 			{
 				this.currentValueIndex = -1;
 				for (var i = 0; i < this.values.length; i++)
 				{
-					if (this.values[i].value == this.currentValue)
+					if (parseInt(this.values[i].value) === parseInt(this.currentValue))
 					{
 						this.currentValueIndex = i;
 						break;
 					}
 				}
 
-				if (this.currentValueIndex == -1)
+				if (this.currentValueIndex === -1)
 				{
-					this.currentValueIndex = undefined;
+					this.currentValueIndex = this.setFirstIfNotFound ? 0 : undefined;
 				}
 			}
 		}
@@ -2844,8 +2983,8 @@
 				}
 				else
 				{
-					if ((this.currentValue && this.values[i] && this.values[i].value == this.currentValue.value)
-					|| this.input.value == this.values[i].label)
+					if ((this.currentValue && this.values[i] && this.values[i].value === this.currentValue.value)
+					|| this.input.value === this.values[i].label)
 					{
 						ind = j;
 					}
@@ -2945,11 +3084,11 @@
 			setTimeout(BX.delegate(this.closePopup, this), 50);
 		},
 
-		onChange: function(value, label)
+		onChange: function(value)
 		{
 			var val = this.input.value;
 			BX.onCustomEvent(this, 'onSelectInputChanged', [this, val, value]);
-			if (this.onChangeCallback && typeof this.onChangeCallback == 'function')
+			if (BX.type.isFunction(this.onChangeCallback))
 			{
 				this.onChangeCallback({value: val, realValue: value});
 			}
@@ -2982,7 +3121,7 @@
 				var currentValueIndex = -1;
 				for (var i = 0; i < this.values.length; i++)
 				{
-					if (this.values[i].value == value)
+					if (this.values[i].value === value)
 					{
 						currentValueIndex = i;
 						break;
@@ -2995,6 +3134,11 @@
 					this.currentValueIndex = currentValueIndex;
 				}
 			}
+		},
+
+		getValue: function(value)
+		{
+			return this.input.value;
 		}
 	};
 
@@ -3069,12 +3213,12 @@
 						angle: true
 					}
 				);
-
 				this.modeSwitcherPopup.show();
 
 				BX.addCustomEvent(this.modeSwitcherPopup.popupWindow, 'onPopupClose', BX.delegate(function()
 				{
 					BX.PopupMenu.destroy(switcherId);
+					this.modeSwitcherPopup = null;
 				}, this));
 			}, this));
 
@@ -3114,7 +3258,6 @@
 		{
 			this.serviceListOuterWrap = this.outerCont.appendChild(BX.create("div", {props: {className: "calendar-resourcebook-content-block-detail-wrap calendar-resourcebook-service-list-wrap"}}));
 
-			this.show(this.fieldSettings.USE_SERVICES == 'Y');
 			this.durationTitleId = 'duration-title-wrap-' + Math.round(Math.random() * 100000);
 			this.servicesTitleWrap = this.serviceListOuterWrap
 				.appendChild(BX.create("div", {
@@ -3156,6 +3299,8 @@
 
 			BX.bind(window, 'resize', BX.proxy(this.checkDurationTitlePosition, this));
 			this.checkDurationTitlePosition();
+
+			this.show(this.fieldSettings.USE_SERVICES === 'Y');
 		},
 
 		show: function(show)
@@ -3235,6 +3380,9 @@
 				props: {className: "calendar-resourcebook-content-block-detail-delete"},
 				html: '<span class="calendar-resourcebook-content-block-control-delete calendar-resourcebook-content-block-control-delete-detail"></span>'
 			}));
+
+			// Adjust outer wrap max height
+			this.serviceListOuterWrap.style.maxHeight = Math.max(600, this.serviceListRowsWrap.childNodes.length * 40 + 100) + 'px';
 		},
 
 		checkDurationTitlePosition: function(timeout)
@@ -3254,7 +3402,7 @@
 			}
 
 			var durationInput = this.serviceListOuterWrap.querySelector('input.calendar-resbook-duration-input');
-			if (this.durationTitleId && durationInput)
+			if (this.durationTitleId && BX(this.durationTitleId) && durationInput)
 			{
 				BX(this.durationTitleId).style.left = (durationInput.offsetLeft + 15) + 'px';
 			}
@@ -3389,8 +3537,8 @@
 									}
 								),
 								new ModeSelector({
-									useResources: fieldSettings.USE_RESOURCES == 'Y',
-									useUsers: fieldSettings.USE_USERS == 'Y',
+									useResources: fieldSettings.USE_RESOURCES === 'Y',
+									useUsers: fieldSettings.USE_USERS === 'Y',
 									showUsers: BX.delegate(function(){
 										this.resourceList.hide();
 										this.userList.show();
@@ -3454,7 +3602,7 @@
 			}
 
 			this.resourceList = new BX.Calendar.UserField.ResourceBooking.ResourceListSelector({
-				shown: fieldSettings.USE_RESOURCES == 'Y',
+				shown: fieldSettings.USE_RESOURCES === 'Y',
 				editMode: true,
 				outerWrap: this.resourcesWrap,
 				listWrap: this.resourcesListWrap,
@@ -3484,7 +3632,7 @@
 			}
 
 			this.userList = new BX.Calendar.UserField.ResourceBooking.UserSelector({
-				shown: fieldSettings.USE_USERS == 'Y',
+				shown: fieldSettings.USE_USERS === 'Y',
 				outerWrap: this.userSelectorWrap,
 				wrapNode: this.usersListWrap,
 				socnetDestination: this.params.socnetDestination,
@@ -3508,7 +3656,7 @@
 			this.DOM.fulldayCheckBox = BX.create(
 				"input",
 				{
-					props: { type: "checkbox", checked: fieldSettings.FULL_DAY == 'Y'}
+					props: { type: "checkbox", checked: fieldSettings.FULL_DAY === 'Y'}
 				}
 			);
 
@@ -3533,7 +3681,7 @@
 				{
 					props: {
 						type: "checkbox",
-						checked: fieldSettings.USE_SERVICES == 'Y'
+						checked: fieldSettings.USE_SERVICES === 'Y'
 					},
 					events: {
 						'click' : BX.delegate(function(){
@@ -3571,7 +3719,7 @@
 				BX.create("hr", { props: { className: "calendar-resbook-hr"}})
 			);
 			//region Checkbox "Overbooking"
-			this.DOM.overbookingCheckbox = BX.create("input", {props: {type: "checkbox", checked: fieldSettings.ALLOW_OVERBOOKING == 'Y'}});
+			this.DOM.overbookingCheckbox = BX.create("input", {props: {type: "checkbox", checked: fieldSettings.ALLOW_OVERBOOKING === 'Y'}});
 
 			this.DOM.optionWrap.appendChild(
 				BX.create(
@@ -3648,7 +3796,7 @@
 				var SELECTED_USERS = [];
 				this.userList.getAttendeesCodesList().forEach(function(code)
 				{
-					if (code.substr(0, 1) == 'U')
+					if (code.substr(0, 1) === 'U')
 					{
 						SELECTED_USERS.push(parseInt(code.substr(1)));
 					}
@@ -3702,7 +3850,6 @@
 	BX.Calendar.UserField.ResourceBooking.ServiceList = ServiceList;
 	BX.Calendar.UserField.ResourceBooking.ModeSelector = ModeSelector;
 	BX.Calendar.UserField.ResourceBooking.AdminSettingsViewer = AdminSettingsViewer;
-
 	BX.Calendar.UserField.ResourceBooking.plannerPopup = new PlannerPopup();
 
 	if (!Array.prototype.find) {

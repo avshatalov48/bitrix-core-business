@@ -1,0 +1,35 @@
+<?
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_ACTION_REGISTRATION'] = "Connect";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_CABINET_TITLE'] = "SMS Assistant service is now ready!";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_CLEAR_CONFIRMATION'] = "Are you sure you want to reset settings?";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_CLEAR_OPTIONS'] = "Reset settings";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_DESCR'] = "Your request has been sent. Please stand by to receive your login and password.";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_EMAIL'] = "Email";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_IS_DISABLED'] = "Open your #A1#SMS Assistant#A2# profile.";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_RULE_1'] = "Complete the form below.";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_RULE_2'] = "Get access to SMS Assistant service and 30 free SMS.";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_SUBMIT'] = "Activate demo mode";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_TEL'] = "Contact phone";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_TITLE'] = "Try SMS Assistant now!";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_UNP'] = "Taxpayer ID";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_1'] = "Send messages directly from lead, deal, client or quote.";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_2'] = "Configure rules to send SMS messages to a client or employee at a specified time or when a specified task is completed.";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_3'] = "Bulk send SMS messages from a list of clients, deals, leads or other CRM entities.";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION'] = "Bitrix24 provides easy and hassle free SMS messaging";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION_ADMIN'] = "Bitrix24 provides easy and hassle free SMS messaging.";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_TITLE'] = "Explore possibilities of SMS marketing";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_LABEL_ACCOUNT_FRIENDLY_NAME'] = "Account name";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_LABEL_ACCOUNT_PASSWORD'] = "Password";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_LABEL_ACCOUNT_USER'] = "Login";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_REGISTRATION_ERROR'] = "Required fields are incorrect";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_REGISTRATION_INFO'] = "Your SMS Assistant registration information";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_RING_1'] = "Easy connectivity";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_RING_2'] = "Instant delivery";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_RING_3'] = "Pay only for delivered messages";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_1'] = "Provide your SMS Assistant account info or #A1#create a new one#A2#.";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_2'] = "Enter your login and password below";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_TITLE'] = "Configure SMS Assistant parameters and start using SMS notifications with Bitrix24.";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_TITLE_ADMIN'] = "Configure SMS Assistant parameters and start using SMS notifications.";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE'] = "SMS notifications";
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE_2'] = "This service is brought to you by SMS Assistant";
+?>

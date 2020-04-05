@@ -1,6 +1,13 @@
 <?if(!defined("B_PROLOG_INCLUDED")||B_PROLOG_INCLUDED!==true)die();
+
 $arFormFields = array(
 	"EMAIL"=>1,
+);
+if(COption::GetOptionString("main", "new_user_phone_auth", "N") == "Y")
+{
+	$arFormFields["PHONE_NUMBER"] = 1;
+}
+$arFormFields = array_merge($arFormFields, array(
 	"TITLE"=>1,
 	"NAME"=>1,
 	"SECOND_NAME"=>1,
@@ -39,7 +46,7 @@ $arFormFields = array(
 	"WORK_PROFILE"=>1,
 	"WORK_LOGO"=>1,
 	"WORK_NOTES"=>1,
-);
+));
 
 if(!CTimeZone::Enabled())
 	unset($arFormFields["AUTO_TIME_ZONE"]);

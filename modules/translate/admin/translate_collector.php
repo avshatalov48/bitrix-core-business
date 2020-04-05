@@ -1,491 +1,627 @@
-<?
-/** @global CMain $APPLICATION */
+<?php
+//region Head
+require_once $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php';
+require_once $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/translate/prolog.php';
+
 use Bitrix\Main,
-	Bitrix\Main\Loader;
+	Bitrix\Main\Error,
+	Bitrix\Main\Localization\Loc,
+	Bitrix\Translate;
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/translate/prolog.php");
-$TRANS_RIGHT = $APPLICATION->GetGroupRight("translate");
-if($TRANS_RIGHT != "W")
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
-Loader::includeModule('translate');
-IncludeModuleLangFile(__FILE__);
-define("HELP_FILE","translate_list.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/tar_gz.php");
-
-$arrTransEncoding = array(
-	'windows-1250' => 'windows-1250 (ISO 8859-2)',
-	'windows-1251' => 'windows-1251',
-	'windows-1252' => 'windows-1252 (ISO 8859-1)',
-	'windows-1253' => 'windows-1253',
-	'windows-1254' => 'windows-1254',
-	'windows-1255' => 'windows-1255',
-	'windows-1256' => 'windows-1256',
-	'windows-1257' => 'windows-1257',
-	'windows-1258' => 'windows-1258'
-);
-
-@set_time_limit(0);
-
-$bUseCompression = True;
-if (!extension_loaded('zlib') || !function_exists("gzcompress"))
-	$bUseCompression = False;
-
-$butf = defined('BX_UTF') && BX_UTF == 'Y';
-
-function __CopyDirFiles($path_from, $path_to, $ReWrite = True, $Recursive = False, $bConvert = False, $strEncodingIn = '', $strEncodingOut = '')
+if (!\Bitrix\Main\Loader::includeModule('translate'))
 {
-	global $APPLICATION;
+	require $_SERVER['DOCUMENT_ROOT']. '/bitrix/modules/main/include/prolog_admin_after.php';
 
-	if (strpos($path_to."/", $path_from."/")===0)
-		return False;
+	\CAdminMessage::ShowMessage('Translate module not found');
 
-	if (is_dir($path_from))
-	{
-		CheckDirPath($path_to."/");
-	}
-	else
-	{
-		return True;
-	}
-
-	if ($handle = @opendir($path_from))
-	{
-		while (($file = readdir($handle)) !== false)
-		{
-			if ($file == "." || $file == ".." || $file == '.access.php' || $file == '.htaccess')
-				continue;
-
-			if (is_dir($path_from."/".$file) && $Recursive)
-			{
-				__CopyDirFiles($path_from."/".$file, $path_to."/".$file, $ReWrite, $Recursive, $bConvert, $strEncodingIn, $strEncodingOut);
-
-			}
-			elseif (is_file($path_from."/".$file))
-			{
-				if (file_exists($path_to."/".$file) && !$ReWrite)
-					continue;
-
-				@copy($path_from."/".$file, $path_to."/".$file);
-				@chmod($path_to."/".$file, BX_FILE_PERMISSIONS);
-				$filesrc_tmp = $APPLICATION->GetFileContent($path_to."/".$file);
-				$filesrc_tmp = str_replace("\r\n", "\n", $filesrc_tmp);
-				$filesrc_tmp = str_replace("\r", "\n", $filesrc_tmp);
-				if ($bConvert)
-					$filesrc_tmp = $APPLICATION->ConvertCharset($filesrc_tmp, $strEncodingIn, $strEncodingOut);
-				$APPLICATION->SaveFileContent($path_to."/".$file, $filesrc_tmp);
-			}
-		}
-		@closedir($handle);
-
-		return true;
-	}
-
-	return false;
+	require $_SERVER['DOCUMENT_ROOT']. '/bitrix/modules/main/include/epilog_admin.php';
 }
 
-function __ReWalkDirs($pathFrom, $pathTo, $language_id, $bConvert = false, $strEncodingIn = '', $strEncodingOut = '')
+/** @global \CMain $APPLICATION */
+$permissionRight = $APPLICATION->GetGroupRight('translate');
+if ($permissionRight != Translate\Permission::WRITE)
 {
-	$handle = @opendir($pathFrom);
-	if ($handle)
-	{
-		while (false !== ($dir = readdir($handle)))
-		{
-			if (!is_dir($pathFrom."/".$dir) || $dir == "." || $dir == ".." || $dir == ".hg" || $dir == ".svn")
-				continue;
+	$APPLICATION->AuthForm(Loc::getMessage('ACCESS_DENIED'));
+}
 
-			if ($dir == "lang" || (strlen($pathFrom) -  strrpos($pathFrom, 'payment')) == 7)
+Loc::loadLanguageFile(__FILE__);
+
+define('HELP_FILE', 'translate_list.php');
+
+
+//endregion
+
+//-----------------------------------------------------------------------------------
+//region handle POST
+
+$request = Main\Context::getCurrent()->getRequest();
+
+$isPost = ($request->isPost() && check_bitrix_sessid());
+
+$isUtfMode = Translate\Translation::isUtfMode();
+$useTranslationRepository = Main\Localization\Translation::useTranslationRepository();
+
+$enabledLanguages = Translate\Translation::getEnabledLanguages();
+$availableLanguages = Translate\Translation::getAvailableLanguages();
+$allLanguages = Translate\Translation::getLanguages();
+$allowedEncodings = Translate\Translation::getAllowedEncodings();
+
+$languageId = $request->get('language_id') !== null ? $request->get('language_id') : '';
+$langDate = ($request->get('lang_date') !== null ? $request->get('lang_date') : '');
+$encoding = ($request->get('encoding') !== null ? $request->get('encoding') : '');
+$packFiles = ($request->getPost('pack_files') === 'Y');
+$convertEncoding = ($request->getPost('convert_encoding') === 'Y');
+$encodingIn = '';
+$encodingOut = '';
+
+$strOKMessage = '';
+
+$errors = new Main\ErrorCollection();
+
+//-----------------------------------------------------------------------------------
+//region Action start_collect
+
+if ($isPost && $request->getPost('start_collect') === 'Y')
+{
+	@set_time_limit(0);
+
+	if (strlen($languageId) != 2)
+	{
+		$errors[] = new Error(Loc::getMessage('TR_ERROR_SELECT_LANGUAGE'));
+	}
+
+	if (!in_array($languageId, $allLanguages))
+	{
+		$errors[] = new Error(Loc::getMessage('TR_ERROR_LANGUAGE_ID'));
+	}
+
+	$langDate = preg_replace("/[\D]+/", "", $langDate);
+
+	if (strlen($langDate) != 8)
+	{
+		$errors[] = new Error(Loc::getMessage('TR_ERROR_LANGUAGE_DATE'));
+	}
+
+	if ($convertEncoding && (empty($encoding) || !in_array($encoding, $allowedEncodings)))
+	{
+		$errors[] = new Error(Loc::getMessage('TR_ERROR_ENCODING'));
+	}
+
+	if ($errors->isEmpty())
+	{
+		$targetLanguagePath = Main\Application::getDocumentRoot(). Translate\WORKING_DIR. $languageId;
+		CheckDirPath($targetLanguagePath."/");
+		if (!file_exists($targetLanguagePath) || !is_dir($targetLanguagePath))
+		{
+			$errors[] = new Error(Loc::getMessage('TR_ERROR_CREATE_TARGET_FOLDER', array('%PATH%' => $targetLanguagePath)));
+		}
+	}
+
+	if ($errors->isEmpty())
+	{
+		DeleteDirFilesEx(Translate\WORKING_DIR. $languageId);
+		clearstatcache();
+		if (file_exists($targetLanguagePath))
+		{
+			$errors[] = new Error(Loc::getMessage('TR_ERROR_DELETE_TARGET_FOLDER', array('%PATH%' => $targetLanguagePath)));
+		}
+	}
+
+	if ($errors->isEmpty())
+	{
+		clearstatcache();
+		CheckDirPath($targetLanguagePath."/");
+		clearstatcache();
+		if (!file_exists($targetLanguagePath) || !is_dir($targetLanguagePath))
+		{
+			$errors[] = new Error(Loc::getMessage('TR_ERROR_CREATE_TARGET_FOLDER', array('%PATH%' => $targetLanguagePath)));
+		}
+	}
+
+	if ($errors->isEmpty())
+	{
+		if ($convertEncoding)
+		{
+			if ($useTranslationRepository)
 			{
-				if (file_exists($pathFrom."/".$dir."/".$language_id))
+				$encodingIn = Main\Localization\Translation::getSourceEncoding($languageId);
+				$encodingOut = $encoding;
+				if ($encodingIn === 'utf-8' && $encodingOut !== 'utf-8')
 				{
-					CheckDirPath($pathTo."/".$dir."/".$language_id."/");
-					__CopyDirFiles($pathFrom."/".$dir."/".$language_id, $pathTo."/".$dir."/".$language_id, true, true, $bConvert, $strEncodingIn, $strEncodingOut);
+					$errors[] = new Error(Loc::getMessage('TR_ERROR_LANGUAGE_CHARSET_NON_UTF'));
+				}
+			}
+			elseif ($isUtfMode)
+			{
+				$encodingIn = 'utf-8';
+				$encodingOut = $encoding;
+				if (Translate\Translation::getCultureEncoding($languageId) !== 'utf-8')
+				{
+					$errors[] = new Error(Loc::getMessage('TR_ERROR_LANGUAGE_CHARSET_NON_UTF'));
 				}
 			}
 			else
 			{
-				__ReWalkDirs($pathFrom."/".$dir, $pathTo."/".$dir, $language_id, $bConvert, $strEncodingIn, $strEncodingOut);
+				$encodingIn = Translate\Translation::getCultureEncoding($languageId);
+				if (!$encodingIn)
+				{
+					$encodingIn = Main\Localization\Translation::getCurrentEncoding();
+				}
+				$encodingOut = 'utf-8';
 			}
-		}
-		closedir($handle);
-	}
-}
 
-$bConvert = false;
-
-$language_id = $_REQUEST["language_id"];
-$lang_date = $_REQUEST["lang_date"];
-$encoding = $_REQUEST["encoding"];
-$pack_files = $_REQUEST["pack_files"];
-$strEncodingIn = '';
-$strEncodingOut = '';
-
-$strErrorMessage = "";
-$strOKMessage = "";
-if ($_SERVER["REQUEST_METHOD"]=="POST" && $_REQUEST["start_collect"]=="Y" && check_bitrix_sessid())
-{
-	if (strlen($language_id)!=2)
-		$strErrorMessage .= GetMessage('TR_ERROR_SELECT_LANGUAGE').'<br>';
-
-	$language = Main\Localization\LanguageTable::getList(array(
-		'select' => array('LID', 'CHARSET' => 'CULTURE.CHARSET'),
-		'filter' => array('=LID' => $language_id)
-	))->fetch();
-	if (empty($language))
-		$strErrorMessage .= GetMessage('TR_ERROR_LANGUAGE_ID');
-
-	$lang_date = preg_replace("/[\D]+/", "", $lang_date);
-
-	if (strlen($lang_date)!=8)
-		$strErrorMessage .= GetMessage('TR_ERROR_LANGUAGE_DATE');
-
-	$bConvert = isset($_REQUEST['convert_encoding']) && $_REQUEST['convert_encoding'] == 'Y';
-	if ($butf && $bConvert && (!isset($_REQUEST["encoding"]) || !array_key_exists($_REQUEST["encoding"], $arrTransEncoding)))
-		$strErrorMessage .= GetMessage('TR_ERROR_ENCODING').'<br>';
-
-	if (strlen($strErrorMessage)<=0)
-	{
-		$targetLanguagePath = $_SERVER["DOCUMENT_ROOT"]."/bitrix/updates/_langs/".$language_id;
-		CheckDirPath($targetLanguagePath."/");
-		if (!file_exists($targetLanguagePath) || !is_dir($targetLanguagePath))
-			$strErrorMessage .= GetMessage('TR_ERROR_CREATE_TARGET_FOLDER', array('%PATH%' => $targetLanguagePath)).'<br>';
-	}
-
-	if (strlen($strErrorMessage)<=0)
-	{
-		DeleteDirFilesEx("/bitrix/updates/_langs/".$language_id);
-		clearstatcache();
-		if (file_exists($targetLanguagePath))
-			$strErrorMessage .= GetMessage('TR_ERROR_DELETE_TARGET_FOLDER', array('%PATH%' => $targetLanguagePath)).'<br>';
-	}
-
-	if (strlen($strErrorMessage)<=0)
-	{
-		clearstatcache();
-		CheckDirPath($targetLanguagePath."/");
-		clearstatcache();
-		if (!file_exists($targetLanguagePath) || !is_dir($targetLanguagePath))
-			$strErrorMessage .= GetMessage('TR_ERROR_CREATE_TARGET_FOLDER', array('%PATH%' => $targetLanguagePath)).'<br>';
-	}
-
-	if (strlen($strErrorMessage)<=0)
-	{
-		if ($bConvert)
-		{
-			if ($butf)
-			{
-				$strEncodingIn = 'utf-8';
-				$strEncodingOut = $_REQUEST["encoding"];
-				if (strtolower($language['CHARSET']) != 'utf-8')
-					$strErrorMessage .= GetMessage('TR_ERROR_LANGUAGE_CHARSET_NON_UTF');
-			}
-			else
-			{
-				$strEncodingIn = LANG_CHARSET;
-				$strEncodingOut = 'utf-8';
-				if (LANG_CHARSET == 'utf-8')
-					$bConvert = false;
-			}
+			$convertEncoding = ($encodingIn !== $encodingOut);
 		}
 	}
 
-	if ($strErrorMessage == '')
+	if ($errors->isEmpty())
 	{
-		__ReWalkDirs($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules", $targetLanguagePath, $language_id, $bConvert, $strEncodingIn, $strEncodingOut);
-
-		if ($fp1 = fopen($targetLanguagePath."/main/lang/".$language_id."/supd_lang_date.dat", "wb"))
+		if(
+			$useTranslationRepository &&
+			Main\Localization\Translation::isDefaultTranslationLang($languageId) !== true
+		)
 		{
-			fwrite($fp1, $lang_date);
-			fclose($fp1);
+			$sourceDirectory = new Translate\Directory(Main\Localization\Translation::getTranslationRepositoryPath(). '/'. $languageId);
 		}
 		else
 		{
-			$strErrorMessage .= GetMessage('TR_ERROR_OPEN_FILE', array('%FILE%' => $targetLanguagePath."/main/lang/".$language_id."/supd_lang_date.dat")).'<br>';
+			$sourceDirectory = new Translate\Directory(Main\Application::getDocumentRoot(). '/bitrix/modules');
+		}
+
+		$targetDirectory = new Main\IO\Directory($targetLanguagePath);
+
+		$res = $sourceDirectory->copyLangOnly(
+			$targetDirectory,
+			$languageId,
+			$convertEncoding,
+			$encodingIn,
+			$encodingOut
+		);
+		if (!$res)
+		{
+			$errors->add($sourceDirectory->getErrors());
+		}
+
+		$fileDateMark = new Main\IO\File($targetDirectory->getPhysicalPath(). str_replace('#LANG_ID#', $languageId, Translate\SUPD_LANG_DATE_MARK));
+
+		if ($fileDateMark->putContents($langDate) === false)
+		{
+			$errors[] = new Error(Loc::getMessage('TR_ERROR_OPEN_FILE', array(
+				'%FILE%' => $targetLanguagePath. str_replace('#LANG_ID#', $languageId, Translate\SUPD_LANG_DATE_MARK),
+			)));
 		}
 	}
 
-	if (strlen($strErrorMessage)<=0)
+	if ($errors->isEmpty())
 	{
-		if ($pack_files=="Y")
+		if ($packFiles)
 		{
-			@unlink($_SERVER["DOCUMENT_ROOT"]."/bitrix/updates/_langs/file-".$language_id.".tar.gz");
+			if (Translate\Archiver::libAvailable())
+			{
+				$fileName = 'file-'.$languageId.'.tar.gz';
+			}
+			else
+			{
+				$fileName = 'file-'.$languageId.'.tar';
+			}
+			$archive = new Translate\Archiver(Main\Application::getDocumentRoot(). Translate\WORKING_DIR. '/'. $fileName);
 
-			$oArc = new CArchiver($_SERVER["DOCUMENT_ROOT"]."/bitrix/updates/_langs/file-".$language_id.".tar.gz", $bUseCompression);
-			$oArc->_strSeparator = '|';
-			$res = $oArc->Add($_SERVER["DOCUMENT_ROOT"]."/bitrix/updates/_langs/".$language_id, false, $_SERVER["DOCUMENT_ROOT"]."/bitrix/updates/_langs");
+			if ($archive->isExists())
+			{
+				$archive->delete();
+			}
+
+			$langDir = new Translate\Directory(Main\Application::getDocumentRoot(). Translate\WORKING_DIR. '/'. $languageId);
+
+			$res = $archive->pack($langDir);
 			if (!$res)
 			{
-				$strErrorMessage .= GetMessage('TR_ERROR_ARCHIVE').'<br>';
-				if (count($oArc->_arErrors) > 0)
+				if (count($archive->getErrors()) > 0)
 				{
-					$strErrorMessage .= ": ";
-					foreach ($oArc->_arErrors as $e)
-						$strErrorMessage .= $e[1].", ";
+					$strErrorMessage = '';
+					foreach ($archive->getErrors() as $err)
+					{
+						$strErrorMessage .= $err->getMessage(). ', ';
+					}
+					$errors[] = new Error(Loc::getMessage('TR_ERROR_ARCHIVE'). ': '. $strErrorMessage);
 				}
 			}
 			else
 			{
-				$strOKMessage = GetMessage('TR_LANGUAGE_COLLECTED_ARCHIVE', array('%LANG%' => $language_id,
-																				'%FILE_PATH%' => $_SERVER["DOCUMENT_ROOT"]."/bitrix/updates/_langs/file-".$language_id.".tar.gz",
-																				'%LINK%' =>	"<a href=\"/bitrix/updates/_langs/file-".$language_id.".tar.gz\">file-".$language_id.".tar.gz</a>"
+				$strOKMessage = Loc::getMessage('TR_LANGUAGE_COLLECTED_ARCHIVE', array(
+					'%LANG%' => $languageId,
+					'%FILE_PATH%' => $archive->getPhysicalPath(),
+					'%LINK%' =>	"<a href=\"". Translate\WORKING_DIR. $archive->getName()."\">". $archive->getName(). "</a>",
 				));
 			}
 		}
 	}
 
-	if (strlen($strErrorMessage)<=0 && strlen($strOKMessage)<=0)
+	if ($errors->isEmpty() && strlen($strOKMessage) <= 0)
 	{
-		$strOKMessage = GetMessage('TR_LANGUAGE_COLLECTED_FOLDER', array('%LANG%' => $language_id, '%PATH%' => $targetLanguagePath));
+		$strOKMessage = Loc::getMessage('TR_LANGUAGE_COLLECTED_FOLDER', array(
+			'%LANG%' => $languageId,
+			'%PATH%' => $targetLanguagePath
+		));
 	}
 }
-else if ($_SERVER["REQUEST_METHOD"]=="POST" && $_REQUEST["start_download"]=="Y" && check_bitrix_sessid())
-{
-	if (!(array_key_exists('tarfile', $_FILES) &&
-		array_key_exists('tmp_name', $_FILES['tarfile']) &&
-		file_exists($_FILES['tarfile']['tmp_name']) &&
-		$_FILES['tarfile']['error'] == 0))
-		$strErrorMessage .= GetMessage('TR_ERROR_TARFILE').'<br>';
+//endregion
 
-	if ($strErrorMessage == '')
+//-----------------------------------------------------------------------------------
+//region Action start_download
+else if ($isPost && $request->getPost('start_download') === 'Y')
+{
+	@set_time_limit(0);
+
+	if (
+		!(
+			array_key_exists('tarfile', $_FILES) &&
+			array_key_exists('tmp_name', $_FILES['tarfile']) &&
+			file_exists($_FILES['tarfile']['tmp_name']) &&
+			$_FILES['tarfile']['error'] == 0
+		)
+	)
+	{
+		$errors[] = new Error(Loc::getMessage('TR_ERROR_TARFILE'));
+	}
+
+	if ($errors->isEmpty())
 	{
 		$tmpFileName = strtolower($_FILES['tarfile']['name']);
 		if (
 			substr($tmpFileName, -7) !== '.tar.gz'
 			&& substr($tmpFileName, -4) !== '.tar'
 		)
-			$strErrorMessage .= GetMessage('TR_ERROR_TARFILE_EXTENTION').'<br>';
+		{
+			$errors[] = new Error(Loc::getMessage('TR_ERROR_TARFILE_EXTENTION'));
+		}
 		unset($tmpFileName);
 	}
 
-	if (strlen($language_id)!=2)
-		$strErrorMessage .= GetMessage('TR_ERROR_SELECT_LANGUAGE').'<br>';
-
-	$language = Main\Localization\LanguageTable::getList(array(
-		'select' => array('LID', 'CHARSET' => 'CULTURE.CHARSET'),
-		'filter' => array('=LID' => $language_id)
-	))->fetch();
-	if (empty($language))
-		$strErrorMessage .= GetMessage('TR_ERROR_LANGUAGE_ID');
-
-	$bConvert = isset($_REQUEST['convert_encoding']) && $_REQUEST['convert_encoding'] == 'Y';
-	if ($butf && $bConvert && (!isset($_REQUEST["encoding"]) || !in_array($_REQUEST["encoding"], $arrTransEncoding)))
-		$strErrorMessage .= GetMessage('TR_ERROR_ENCODING').'<br>';
-
-	$tempLanguagePathNoRoot = '/bitrix/tmp/translate/'.time().'/';
-	$tempLanguagePath = $_SERVER["DOCUMENT_ROOT"].$tempLanguagePathNoRoot;
-
-	if (strlen($strErrorMessage)<=0)
+	if (strlen($languageId) != 2)
 	{
-		CheckDirPath($tempLanguagePath);
-		if (!file_exists($tempLanguagePath) || !is_dir($tempLanguagePath))
-			$strErrorMessage .= GetMessage('TR_ERROR_CREATE_TEMP_FOLDER', array('%PATH%' => $tempLanguagePath)).'<br>';
+		$errors[] = new Error(Loc::getMessage('TR_ERROR_SELECT_LANGUAGE'));
 	}
 
-	if (strlen($strErrorMessage)<=0)
+	if (!in_array($languageId, $allLanguages))
 	{
-		$oArc = new CArchiver($_FILES['tarfile']['tmp_name'], true);
-		$oArc->_strSeparator = '|';
-		$oArc->extractFiles($tempLanguagePath);
-		if (count($oArc->_arErrors) > 0)
+		$errors[] = new Error(Loc::getMessage('TR_ERROR_LANGUAGE_ID'));
+	}
+
+
+	$tempLanguageDir = Translate\Directory::generateTemporalDirectory('translate');
+
+	if ($errors->isEmpty())
+	{
+		if (!$tempLanguageDir->isExists())
 		{
-			$strErrorMessage .= ": ";
-			foreach ($oArc->_arErrors as $e)
-				$strErrorMessage .= $e[1].", ";
+			$tempLanguageDir->create();
+		}
+		if (!$tempLanguageDir->isExists() || !$tempLanguageDir->isDirectory())
+		{
+			$errors[] = new Error(Loc::getMessage('TR_ERROR_CREATE_TEMP_FOLDER', array('%PATH%' => $tempLanguageDir->getPhysicalPath())));
 		}
 	}
 
-	if (strlen($strErrorMessage)<=0)
+	if ($errors->isEmpty())
 	{
-		$bConvert = isset($_REQUEST['localize_encoding']) && $_REQUEST['localize_encoding'] == 'Y';
-		if ($bConvert)
+		$archive = new Translate\Archiver($_FILES['tarfile']['tmp_name']);
+		$res = $archive->extract($tempLanguageDir);
+		if (!$res)
 		{
-			if ($butf)
+			if (count($archive->getErrors()) > 0)
 			{
-				$strEncodingIn = $_REQUEST["encoding"];
-				$strEncodingOut = 'utf-8';
+				$strErrorMessage = '';
+				foreach ($archive->getErrors() as $err)
+				{
+					$strErrorMessage .= $err->getMessage(). ', ';
+				}
+				$errors[] = new Error(Loc::getMessage('TR_ERROR_ARCHIVE'). ': '. $strErrorMessage);
+			}
+		}
+	}
+
+	if ($errors->isEmpty())
+	{
+		$convertEncoding = ($request->getPost('localize_encoding') === 'Y');
+		if ($convertEncoding)
+		{
+			if ($useTranslationRepository)
+			{
+				$encodingIn = $encoding;
+				$encodingOut = Main\Localization\Translation::getSourceEncoding($languageId);
+			}
+			elseif ($isUtfMode)
+			{
+				$encodingIn = $encoding;
+				$encodingOut = 'utf-8';
 			}
 			else
 			{
-				$strEncodingIn = 'utf-8';
-				$strEncodingOut = LANG_CHARSET;
-				if (LANG_CHARSET == 'utf-8')
-					$bConvert = false;
+				$encodingIn = 'utf-8';
+				$encodingOut = Translate\Translation::getCultureEncoding($languageId);
+				if (!$encodingOut)
+				{
+					$encodingOut = Main\Localization\Translation::getCurrentEncoding();
+				}
 			}
+			$convertEncoding = ($encodingIn !== $encodingOut);
 		}
 
-		__ReWalkDirs($tempLanguagePath.$language_id.'/', $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules", $language_id,
-					$bConvert, $strEncodingIn, $strEncodingOut);
+		if(
+			$useTranslationRepository &&
+			Main\Localization\Translation::isDefaultTranslationLang($languageId) !== true
+		)
+		{
+			$targetDirectory = new Main\IO\Directory(Main\Localization\Translation::getTranslationRepositoryPath(). '/'. $languageId. '/');
+			if (!$targetDirectory->isExists())
+			{
+				$targetDirectory->create();
+			}
+		}
+		else
+		{
+			$targetDirectory = new Main\IO\Directory(Main\Application::getDocumentRoot(). '/bitrix/modules');
+		}
+
+		$sourceDirectory = new Translate\Directory($tempLanguageDir->getPhysicalPath(). '/'. $languageId. '/');
+
+		$res = $sourceDirectory->copyLangOnly(
+			$targetDirectory,
+			$languageId,
+			$convertEncoding,
+			$encodingIn,
+			$encodingOut
+		);
+		if (!$res)
+		{
+			$errors->add($sourceDirectory->getErrors());
+		}
 	}
 
 	//delete tmp files
-	DeleteDirFilesEx($tempLanguagePathNoRoot);
-	clearstatcache();
-	if (strlen($strErrorMessage)<=0)
-		$strOKMessage = GetMessage('TR_LANGUAGE_DOWNLOADED');
+	$tempLanguageDir->delete();
+	//clearstatcache();
+
+	if ($errors->isEmpty())
+	{
+		$strOKMessage = Loc::getMessage('TR_LANGUAGE_DOWNLOADED');
+	}
 }
 else
 {
-	$lang_date = date('Ymd');
-	$language_id = LANGUAGE_ID;
+	$langDate = date('Ymd');
+	$languageId = LANGUAGE_ID;
 	$encoding = '';
 }
 
-$APPLICATION->SetTitle(GetMessage('TRANS_TITLE'));
+//endregion
+//endregion POST
+
+//-----------------------------------------------------------------------------------
+//region Start page
+
+$APPLICATION->SetTitle(Loc::getMessage('TRANS_TITLE'));
+
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-$aTabs = array(
-	array("DIV" => "upload", "TAB" => GetMessage("TRANS_UPLOAD"),  "TITLE" => GetMessage("TRANS_UPLOAD_TITLE"),
-		'ONSELECT' => "BX('tr_submit').value='".GetMessage("TR_COLLECT_LANGUAGE")."'"),
-	array("DIV" => "download", "TAB" => GetMessage("TRANS_DOWNLOAD"), "TITLE" => GetMessage("TRANS_DOWNLOAD_TITLE"),
-		'ONSELECT' => "BX('tr_submit').value='".GetMessage("TR_DOWNLOAD_LANGUAGE")."'"),
-);
 
-$tabControl = new CAdminTabControl("tabControl", $aTabs, false, true);
-
-if ($strErrorMessage != '')
+if (!$errors->isEmpty())
 {
-	$message = new CAdminMessage(array('MESSAGE' => $strErrorMessage, 'TYPE' => 'ERROR'));
+	$strErrorMessage = '';
+	/** @var Main\Error $err */
+	foreach ($errors as $err)
+	{
+		$strErrorMessage .= $err->getMessage(). '<br>';
+	}
+	$message = new \CAdminMessage(array('MESSAGE' => $strErrorMessage, 'TYPE' => 'ERROR'));
 	echo $message->Show();
 }
 if ($strOKMessage != '')
 {
-	$message = new CAdminMessage(array('MESSAGE' => $strOKMessage, 'TYPE' => 'OK', 'HTML' => true));
+	$message = new \CAdminMessage(array('MESSAGE' => $strOKMessage, 'TYPE' => 'OK', 'HTML' => true));
 	echo $message->Show();
 }
 
-$tabControl->Begin();
-$tabControl->BeginNextTab();
+//endregion
 
+$aTabs = array(
+	array(
+		"DIV" => "upload",
+		"TAB" => Loc::getMessage("TRANS_UPLOAD"),
+		"TITLE" => Loc::getMessage("TRANS_UPLOAD_TITLE"),
+		'ONSELECT' => "BX('tr_submit').value='".Loc::getMessage("TR_COLLECT_LANGUAGE")."'"
+	),
+	array(
+		"DIV" => "download",
+		"TAB" => Loc::getMessage("TRANS_DOWNLOAD"),
+		"TITLE" => Loc::getMessage("TRANS_DOWNLOAD_TITLE"),
+		'ONSELECT' => "BX('tr_submit').value='".Loc::getMessage("TR_DOWNLOAD_LANGUAGE")."'"
+	),
+);
+
+$tabControl = new \CAdminTabControl("tabControl", $aTabs, false, true);
+
+$tabControl->Begin();
+
+//region Form COLLECT LANGUAGE
 ?>
 <form method="post" action="" name="form1">
-<input type="hidden" name="start_collect" value="Y">
-<input type="hidden" name="tabControl_active_tab" value="upload">
-<?=bitrix_sessid_post()?>
+	<input type="hidden" name="start_collect" value="Y">
+	<input type="hidden" name="tabControl_active_tab" value="upload">
+	<?=bitrix_sessid_post()?>
+	<?
+
+	$tabControl->BeginNextTab();
+
+	?>
 	<tr class="adm-required-field">
-		<td width="40%"><?echo GetMessage("TR_SELECT_LANGUAGE")?>:</td>
+		<td width="40%"><?= Loc::getMessage("TR_SELECT_LANGUAGE")?>:</td>
 		<td width="60%">
-		<select name="language_id">
-			<?
-			$rsLang = CLanguage::GetList($by="sort", $order="desc");
-			while ($arLang = $rsLang->Fetch())
-			{
-				if (is_dir($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lang/".$arLang['LANGUAGE_ID']))
+			<select name="language_id">
+				<?
+				$iterator = Main\Localization\LanguageTable::getList([
+					'select' => ['ID', 'NAME'],
+					'filter' => [
+						'ID' => array_intersect($availableLanguages, $enabledLanguages),
+						'=ACTIVE' => 'Y'
+					],
+					'order' => ['DEF' => 'DESC', 'SORT' => 'ASC']
+				]);
+				while ($row = $iterator->fetch())
 				{
-					?><option value="<?=htmlspecialcharsbx($arLang['LANGUAGE_ID']); ?>"<?if ($arLang['LANGUAGE_ID']==$language_id) echo " selected";?>><?=htmlspecialcharsbx($arLang['LANGUAGE_ID']); ?></option><?
+					?><option value="<?= $row['ID'] ?>"<?=($row['ID'] == $languageId ? ' selected' : ''); ?>><?= $row['NAME'] ?> (<?= $row['ID'] ?>)</option><?
 				}
-			}
-			?>
-		</select>
+				?>
+			</select>
 		</td>
 	</tr>
 
 	<tr class="adm-required-field">
-		<td><?echo GetMessage("TR_COLLECT_DATE")?>:</td>
-		<td><input type="text" name="lang_date" size="10" maxlength="8" value="<?= htmlspecialcharsbx($lang_date) ?>"></td>
+		<td><?= Loc::getMessage("TR_COLLECT_DATE")?>:</td>
+		<td><input type="text" name="lang_date" size="10" maxlength="8" value="<?= htmlspecialcharsbx($langDate) ?>"></td>
 	</tr>
-	<? if (!$butf)
-	{ ?>
-	<tr>
-		<td><?echo GetMessage("TR_CONVERT_UTF8")?>:</td>
-		<td><input type="checkbox" name="convert_encoding" value="Y" <? echo $bConvert ? 'checked="checked"' : '' ?>></td>
-	</tr>
-	<? }
-	else
-	{ ?>
-	<tr>
-		<td><?echo GetMessage("TR_CONVERT_NATIONAL")?>:</td>
-		<td><input type="checkbox" name="convert_encoding" value="Y" <? echo $bConvert ? 'checked="checked"' : '' ?> onClick="EncodeClicked()"></td>
-	</tr>
-	<tr>
-		<td width="40%"><?echo GetMessage("TR_CONVERT_ENCODING")?>:</td>
-		<td width="60%">
-		<select name="encoding">
-		<?
-		foreach ($arrTransEncoding as $_k => $v)
-		{
-			?><option value="<?=htmlspecialcharsbx($_k); ?>"<?if ($_k==$encoding) echo " selected";?>><?= $v ?></option><?
-		}
+	<?
+	if (!$isUtfMode && !$useTranslationRepository)
+	{
 		?>
-		</select>
-		<script type="text/javascript">
-			function EncodeClicked()
-			{
-				document.form1.encoding.disabled = !document.form1.convert_encoding.checked;
-			}
-			EncodeClicked();
-		</script>
-		</td>
-	</tr>
-	<? } ?>
+		<tr>
+			<td><?= Loc::getMessage("TR_CONVERT_UTF8")?>:</td>
+			<td><input type="checkbox" name="convert_encoding" value="Y" <?= ($convertEncoding ? 'checked="checked"' : '') ?>></td>
+		</tr>
+		<?
+	}
+	else
+	{
+		?>
+		<tr>
+			<td><?echo Loc::getMessage("TR_CONVERT_NATIONAL")?>:</td>
+			<td><input type="checkbox" name="convert_encoding" value="Y" <?= ($convertEncoding ? 'checked="checked"' : '') ?> onClick="EncodeClicked()"></td>
+		</tr>
+		<tr>
+			<td width="40%"><?echo Loc::getMessage("TR_CONVERT_ENCODING")?>:</td>
+			<td width="60%">
+			<select name="encoding">
+				<?
+				foreach ($allowedEncodings as $enc)
+				{
+					$encTitle = Translate\Translation::getEncodingName($enc);
+					?><option value="<?= htmlspecialcharsbx($enc); ?>"<?if ($enc == $encoding) echo " selected";?>><?= $encTitle ?></option><?
+				}
+				?>
+			</select>
+			<script type="text/javascript">
+				function EncodeClicked()
+				{
+					document.form1.encoding.disabled = !document.form1.convert_encoding.checked;
+				}
+				BX.ready(function(){
+					EncodeClicked();
+				});
+			</script>
+			</td>
+		</tr>
+		<?
+	}
+	?>
 	<tr>
-		<td><?echo GetMessage("TR_PACK_FILES")?>:</td>
-		<td><input type="checkbox" name="pack_files" value="Y" <? echo $pack_files=="Y" ?  'checked="checked"' : '' ?>></td>
+		<td><?= Loc::getMessage("TR_PACK_FILES")?>:</td>
+		<td><input type="checkbox" name="pack_files" value="Y" <?= ($packFiles ?  'checked="checked"' : '') ?>></td>
 	</tr>
+	<?
+
+$tabControl->EndTab();
+
+?>
 </form>
 <?
 
-$tabControl->EndTab();
+//endregion
+
+
+//region Form UPLOAD FILE
+
 ?>
 <form method="post" action="" name="form2" enctype="multipart/form-data">
+	<input type="hidden" name="start_download" value="Y">
+	<input type="hidden" name="tabControl_active_tab" value="download">
+	<?=bitrix_sessid_post()?>
 <?
+
 $tabControl->BeginNextTab();
 
-?>
-
-<input type="hidden" name="start_download" value="Y">
-<input type="hidden" name="tabControl_active_tab" value="download">
-<?=bitrix_sessid_post()?>
-<tr class="adm-required-field">
-	<td width="10%" nowrap><?=GetMessage("TR_UPLOAD_FILE")?>:</td>
-	<td valign="top" width="90%"><input type="file" name="tarfile"></td>
-</tr>
-<tr class="adm-required-field">
-	<td width="40%"><?=GetMessage("TR_SELECT_LANGUAGE")?> <?=GetMessage("TR_SELECT_LANGUAGE_DESCRIPTION")?>:</td>
-	<td width="60%">
-	<select name="language_id">
-		<?
-		$rsLang = CLanguage::GetList($by="sort", $order="desc");
-		while ($arLang = $rsLang->Fetch())
-		{
-			?><option value="<?=htmlspecialcharsbx($arLang['LANGUAGE_ID']); ?>"<?if ($arLang['LANGUAGE_ID']==$language_id) echo " selected";?>><?=htmlspecialcharsbx($arLang['LANGUAGE_ID']); ?></option><?
-		}
-		?>
-	</select>
-	</td>
-</tr><?
-if (!$butf)
-{
-	?><tr>
-	<td><?echo GetMessage("TR_CONVERT_FROM_UTF8")?>:</td>
-	<td><input type="checkbox" name="localize_encoding" value="Y" <?=($bConvert ? 'checked="checked"' : ''); ?>></td>
-	</tr><?
-}
-else
-{
-	?><tr>
-	<td><?echo GetMessage("TR_CONVERT_FROM_NATIONAL")?>:</td>
-	<td><input type="checkbox" id="localize_encoding" name="localize_encoding" value="Y" <?=($bConvert ? 'checked="checked"' : ''); ?>></td>
+	?>
+	<tr class="adm-required-field">
+		<td width="10%" nowrap><?=Loc::getMessage("TR_UPLOAD_FILE")?>:</td>
+		<td valign="top" width="90%"><input type="file" name="tarfile"></td>
 	</tr>
-	<tr id="tr_encoding" style="display: <?=($bConvert ? 'table-row' : 'none'); ?>;">
-	<td width="40%"><?echo GetMessage("TR_CONVERT_ENCODING")?>:</td>
-	<td width="60%">
-	<select name="encoding"><?
-	foreach ($arrTransEncoding as $_k => $v)
+	<tr class="adm-required-field">
+		<td width="40%"><?=Loc::getMessage("TR_SELECT_LANGUAGE")?> <?=Loc::getMessage("TR_SELECT_LANGUAGE_DESCRIPTION")?>:</td>
+		<td width="60%">
+			<select name="language_id">
+				<?
+				$iterator = Main\Localization\LanguageTable::getList([
+					'select' => ['ID', 'NAME'],
+					'filter' => [
+						'ID' => $enabledLanguages,
+						'=ACTIVE' => 'Y'
+					],
+					'order' => ['DEF' => 'DESC', 'SORT' => 'ASC']
+				]);
+				while ($row = $iterator->fetch())
+				{
+					?><option value="<?= $row['ID'] ?>"<?=($row['ID'] == $languageId ? ' selected' : ''); ?>><?= $row['NAME'] ?> (<?= $row['ID'] ?>)</option><?
+				}
+				?>
+			</select>
+		</td>
+	</tr>
+	<?
+
+	if (!$isUtfMode && !$useTranslationRepository)
 	{
-		?><option value="<?=htmlspecialcharsbx($_k); ?>"<?if ($_k==$encoding) echo " selected";?>><?= $v ?></option><?
+		?>
+		<tr>
+			<td><?= Loc::getMessage("TR_CONVERT_FROM_UTF8")?>:</td>
+			<td><input type="checkbox" name="localize_encoding" value="Y" <?=($convertEncoding ? 'checked="checked"' : ''); ?>></td>
+		</tr>
+		<?
 	}
-	?></select>
-	</td>
-	</tr><?
-}
+	else
+	{
+		?>
+		<tr>
+			<td><?= Loc::getMessage("TR_CONVERT_FROM_NATIONAL")?>:</td>
+			<td><input type="checkbox" id="localize_encoding" name="localize_encoding" value="Y" <?=($convertEncoding ? 'checked="checked"' : ''); ?>></td>
+		</tr>
+		<tr id="tr_encoding" style="display: <?=($convertEncoding ? 'table-row' : 'none'); ?>;">
+			<td width="40%"><?= Loc::getMessage("TR_CONVERT_ENCODING")?>:</td>
+			<td width="60%">
+				<select name="encoding"><?
+					foreach ($allowedEncodings as $enc)
+					{
+						$encTitle = Translate\Translation::getEncodingName($enc);
+
+						?><option value="<?=htmlspecialcharsbx($enc); ?>"<?if ($enc == $encoding) echo " selected";?>><?= $encTitle ?></option><?
+					}
+				?></select>
+			</td>
+		</tr>
+		<?
+	}
 
 $tabControl->EndTab();
+
 ?>
 </form>
 <?
+
+//endregion
+
+
 $tabControl->Buttons();
 ?>
-<input type="submit" id="tr_submit" class="adm-btn-green" value="<?=isset($_REQUEST["tabControl_active_tab"]) && $_REQUEST["tabControl_active_tab"] == 'download' ? GetMessage("TR_DOWNLOAD_LANGUAGE") : GetMessage("TR_COLLECT_LANGUAGE")?>">
+<input type="submit" id="tr_submit" class="adm-btn-green" value="<?= ($request->get('tabControl_active_tab') === 'download' ? Loc::getMessage("TR_DOWNLOAD_LANGUAGE") : Loc::getMessage("TR_COLLECT_LANGUAGE"))?>">
 <?
 $tabControl->End();
 ?>
@@ -506,7 +642,7 @@ BX.ready(function(){
 	{
 		BX('tr_submit').disabled = true;
 		if (BX('tabControl_active_tab').value == 'upload') {
-			BX.showWait(null, "<?=GetMessage('TR_COLLECT_LOADING') ?>");
+			BX.showWait(null, "<?=Loc::getMessage('TR_COLLECT_LOADING') ?>");
 			tabControl.DisableTab("download");
 			BX.submit(document.forms['form1']);
 		} else {

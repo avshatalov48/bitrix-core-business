@@ -32,6 +32,7 @@ class SenderTemplateSelectorComponent extends CBitrixComponent
 		{
 			$this->arParams['MESSAGE_CODE'] = Message\iBase::CODE_MAIL;
 		}
+		$this->arParams['IS_TRIGGER'] = isset($this->arParams['IS_TRIGGER']) ? (bool) $this->arParams['IS_TRIGGER'] : false;
 	}
 
 	protected function prepareResult()
@@ -51,7 +52,8 @@ class SenderTemplateSelectorComponent extends CBitrixComponent
 
 		$selector = Templates\Selector::create()
 			->withMessageCode($this->arParams['MESSAGE_CODE'])
-			->withVersion(2);
+			->withVersion(2)
+			->withTriggers($this->arParams['IS_TRIGGER']);
 
 		$this->arResult['GRID']['rows'] = $selector->getCategories();
 		$templateCounter = 0;
@@ -74,11 +76,14 @@ class SenderTemplateSelectorComponent extends CBitrixComponent
 				'description' => $template['DESC'],
 				'image' => $template['ICON'],
 				'hot' => $template['HOT'],
+				'hint' => $template['HINT'],
 				'rowId' => $template['CATEGORY'],
 				'data' => array(
 					'templateId' => $template['ID'],
 					'templateType' => $template['TYPE'],
 					'messageFields' => $messageFields,
+					'segments' => $template['SEGMENTS'],
+					'dispatch' => $template['DISPATCH'],
 				)
 			);
 		}

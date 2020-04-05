@@ -12,10 +12,10 @@ if (!empty($arResult['ERROR']))
 <?
 
 // determine column data type
-function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes = array(), $helperClassName)
+function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperClassName)
 {
 	$dataType = null;
-	if (array_key_exists($viewColumnInfo['fieldName'], $customColumnTypes))
+	if (is_array($customColumnTypes) && array_key_exists($viewColumnInfo['fieldName'], $customColumnTypes))
 	{
 		$dataType = $customColumnTypes[$viewColumnInfo['fieldName']];
 	}

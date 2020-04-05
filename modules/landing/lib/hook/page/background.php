@@ -76,9 +76,10 @@ class Background extends \Bitrix\Landing\Hook\Page
 		{
 			if ($picture > 0)
 			{
-				$picture = \htmlspecialcharsbx(\CFile::getPath($picture));
+				$picture = \htmlspecialcharsbx(
+					\Bitrix\Landing\File::getFilePath($picture)
+				);
 			}
-			$picture = str_replace(' ', '%20', $picture);
 		}
 
 		if ($picture)
@@ -88,7 +89,7 @@ class Background extends \Bitrix\Landing\Hook\Page
 				\Bitrix\Main\Page\Asset::getInstance()->addString(
 					'<style type="text/css">
 						body {
-							background-image: url(' . $picture . ');
+							background-image: url("' . $picture . '");
 							background-attachment: fixed;
 							background-size: cover;
 							background-position: center;
@@ -102,7 +103,7 @@ class Background extends \Bitrix\Landing\Hook\Page
 				\Bitrix\Main\Page\Asset::getInstance()->addString(
 					'<style type="text/css">
 						body {
-							background-image: url(' . $picture . ');
+							background-image: url("' . $picture . '");
 							background-attachment: fixed;
 							background-position: center;
 							background-repeat: repeat;

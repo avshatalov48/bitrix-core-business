@@ -582,13 +582,13 @@ diskController.prototype = {
 				data['E' + id] = {
 					type: 'file',
 					id: id,
-					name: node.getAttribute("data-bx-title"),
-					size: node.getAttribute("data-bx-size"),
-					sizeInt: node.getAttribute("data-bx-size"),
+					name: node.getAttribute("data-bx-title") || node.getAttribute("data-title"),
+					size: node.getAttribute("data-bx-size") || '',
+					sizeInt: node.getAttribute("data-bx-size") || '',
 					width: node.getAttribute("data-bx-width"),
 					height: node.getAttribute("data-bx-height"),
 					storage: 'disk',
-					previewUrl: (node.tagName == "A" ? '' : node.getAttribute("data-bx-src")),
+					previewUrl: (node.tagName == "A" ? '' : node.getAttribute("data-bx-src") || node.getAttribute("data-src")),
 					fileId: node.getAttribute("bx-attach-file-id")
 				};
 				if (node.hasAttribute("bx-attach-xml-id"))
@@ -2351,7 +2351,7 @@ window.MPFbuttonShowWait = function(el)
 	el = (el ? (el.tagName == "A" ? el : el.parentNode) : el);
 	if (el)
 	{
-		BX.addClass(el, "feed-add-button-load");
+		BX.addClass(el, "ui-btn-clock");
 		lastWaitElement = el;
 		BX.defer(function(){el.disabled = true})();
 	}
@@ -2365,7 +2365,7 @@ window.MPFbuttonCloseWait = function(el)
 	if (el)
 	{
 		el.disabled = false ;
-		BX.removeClass(el, 'feed-add-button-load');
+		BX.removeClass(el, 'ui-btn-clock');
 		lastWaitElement = null;
 	}
 };
@@ -2397,67 +2397,14 @@ var MPFMention = {
 	bSearch: false
 };
 
-window.BXfpdSelectCallback = function(item, type, search, bUndeleted, name, state)
-{
-	BX.SocNetLogDestination.BXfpSelectCallback({
-		item: item,
-		type: type,
-		bUndeleted: bUndeleted,
-		containerInput: BX('feed-add-post-destination-item'),
-		valueInput: BX('feed-add-post-destination-input'),
-		formName: name,
-		tagInputName: 'bx-destination-tag',
-		tagLink1: BX.message('BX_FPD_LINK_1'),
-		tagLink2: BX.message('BX_FPD_LINK_2'),
-		state: (typeof state != 'undefined' ? state : null)
-	});
-};
-
-window.BXfpdUnSelectCallback = function(item, type, search, name)
-{
-	BX.SocNetLogDestination.BXfpUnSelectCallback.call({
-		formName: name,
-		inputContainerName: 'feed-add-post-destination-item',
-		inputName: 'feed-add-post-destination-input',
-		tagInputName: 'bx-destination-tag',
-		tagLink1: BX.message('BX_FPD_LINK_1'),
-		tagLink2: BX.message('BX_FPD_LINK_2')
-	}, item);
-};
-
-window.BXfpdOpenDialogCallback = function(name)
-{
-	BX.SocNetLogDestination.BXfpOpenDialogCallback.call({
-		inputBoxName: 'feed-add-post-destination-input-box',
-		inputName: 'feed-add-post-destination-input',
-		tagInputName: 'bx-destination-tag'
-	});
-};
-
-window.BXfpdCloseDialogCallback = function(name)
-{
-	BX.SocNetLogDestination.BXfpCloseDialogCallback.call({
-		inputBoxName: 'feed-add-post-destination-input-box',
-		inputName: 'feed-add-post-destination-input',
-		tagInputName: 'bx-destination-tag'
-	});
-};
-
-window.BXfpdCloseSearchCallback = function(name)
-{
-	BX.SocNetLogDestination.BXfpCloseSearchCallback.call({
-		inputBoxName: 'feed-add-post-destination-input-box',
-		inputName: 'feed-add-post-destination-input',
-		tagInputName: 'bx-destination-tag'
-	});
-};
-
 window.onKeyDownHandler = function(e, editor, formID)
 {
 	var keyCode = e.keyCode;
 
 	if (!window['BXfpdStopMent' + formID])
 		return true;
+
+	var selectorId = window.MPFgetSelectorId('bx-mention-' + formID + '-id');
 
 	if (
 		BX.util.in_array(keyCode, [107, 187])
@@ -2469,6 +2416,11 @@ window.onKeyDownHandler = function(e, editor, formID)
 			e.altKey
 			&& BX.util.in_array(keyCode, [76])
 		) /* German @ == Alt + L*/
+		|| (
+			typeof e.getModifierState === 'function'
+			&& !!e.getModifierState('AltGraph')
+			&& BX.util.in_array(keyCode, [81])
+		) /* German @ == AltGr + Q*/
 	)
 	{
 		setTimeout(function()
@@ -2480,9 +2432,17 @@ window.onKeyDownHandler = function(e, editor, formID)
 				determiner = (txt ? txt.slice(range.endOffset - 1, range.endOffset) : ''),
 				prevS = (txt ? txt.slice(range.endOffset - 2, range.endOffset-1) : '');
 
-			if ((determiner == "@" || determiner == "+")
-				&&
-				(!prevS || BX.util.in_array(prevS, ["+", "@", ",", "("]) || (prevS.length == 1 && BX.util.trim(prevS) === "")))
+			if (
+				(determiner == "@" || determiner == "+")
+				&& (
+					!prevS
+					|| BX.util.in_array(prevS, ["+", "@", ",", "("])
+					|| (
+						prevS.length == 1
+						&& BX.util.trim(prevS) === ""
+					)
+				)
+			)
 			{
 				MPFMention.listen = true;
 				MPFMention.listenFlag = true;
@@ -2498,13 +2458,12 @@ window.onKeyDownHandler = function(e, editor, formID)
 				range.setEnd(mentNode, 1);
 				editor.selection.SetSelection(range);
 
-				if(!BX.SocNetLogDestination.isOpenDialog())
+				if (BX.type.isNotEmptyString(selectorId))
 				{
-					BX.SocNetLogDestination.openDialog(window['BXSocNetLogDestinationFormNameMent' + formID],
-						{
-							bindNode: getMentionNodePosition(mentNode, editor)
-						}
-					);
+					BX.onCustomEvent(window, 'BX.MPF.MentionSelector:open', [{
+						id: selectorId,
+						bindPosition: getMentionNodePosition(mentNode, editor)
+					}]);
 				}
 			}
 		}, 10);
@@ -2512,41 +2471,31 @@ window.onKeyDownHandler = function(e, editor, formID)
 
 	if(MPFMention.listen)
 	{
-		var type = (
-			MPFMention.bSearch
-				? 'search'
-				: BX.SocNetLogDestination.obTabSelected[window['BXSocNetLogDestinationFormNameMent' + formID]]
-		);
+		var selectorInstance = null;
 
-		if (keyCode == editor.KEY_CODES["enter"])
+		if (BX.type.isNotEmptyString(selectorId))
 		{
-			BX.SocNetLogDestination.selectCurrentItem(type, window['BXSocNetLogDestinationFormNameMent' + formID]);
-			editor.iframeKeyDownPreventDefault = true;
-			BX.PreventDefault(e);
+			selectorInstance = BX.UI.SelectorManager.instances[selectorId];
 		}
-		else if (keyCode == editor.KEY_CODES["left"])
+
+		var navigationResult = false;
+		if (selectorInstance)
 		{
-			BX.SocNetLogDestination.moveCurrentItem(type, window['BXSocNetLogDestinationFormNameMent' + formID], 'left');
-			editor.iframeKeyDownPreventDefault = true;
-			BX.PreventDefault(e);
+			navigationResult = selectorInstance.getNavigationInstance().checkKeyboardNavigation({
+				keyCode: keyCode,
+				tab: (
+					MPFMention.bSearch
+						? 'search'
+						: (selectorInstance ? selectorInstance.tabs.selected : false)
+				)
+			});
 		}
-		else if (keyCode == editor.KEY_CODES["right"])
+
+		if (navigationResult)
 		{
-			BX.SocNetLogDestination.moveCurrentItem(type, window['BXSocNetLogDestinationFormNameMent' + formID], 'right');
 			editor.iframeKeyDownPreventDefault = true;
-			BX.PreventDefault(e);
-		}
-		else if (keyCode == editor.KEY_CODES["up"])
-		{
-			BX.SocNetLogDestination.moveCurrentItem(type, window['BXSocNetLogDestinationFormNameMent' + formID], 'up');
-			editor.iframeKeyDownPreventDefault = true;
-			BX.PreventDefault(e);
-		}
-		else if (keyCode == editor.KEY_CODES["down"])
-		{
-			BX.SocNetLogDestination.moveCurrentItem(type, window['BXSocNetLogDestinationFormNameMent' + formID], 'down');
-			editor.iframeKeyDownPreventDefault = true;
-			BX.PreventDefault(e);
+			e.stopPropagation();
+			e.preventDefault();
 		}
 	}
 
@@ -2606,12 +2555,23 @@ window.onKeyUpHandler = function(e, editor, formID)
 
 			if (mentNode)
 			{
-				mentText = BX.util.trim(editor.util.GetTextContent(mentNode))
+				mentText = BX.util.trim(editor.util.GetTextContent(mentNode));
 				var mentTextOrig = mentText;
 
 				mentText = mentText.replace(/^[\+@]*/, '');
 				MPFMention.bSearch = (mentText.length > 0);
-				BX.SocNetLogDestination.search(mentText, true, window['BXSocNetLogDestinationFormNameMent' + formID], BX.message("MPF_NAME_TEMPLATE"), {bindNode: getMentionNodePosition(mentNode, editor)});
+
+				var selectorId = window.MPFgetSelectorId('bx-mention-' + formID + '-id');
+				if (BX.type.isNotEmptyString(selectorId))
+				{
+					var selectorInstance = BX.UI.SelectorManager.instances[selectorId];
+					if (BX.type.isNotEmptyObject(selectorInstance))
+					{
+						selectorInstance.getSearchInstance().runSearch({
+							text: mentText
+						});
+					}
+				}
 
 				if (MPFMention.leaveContent && MPFMention._lastText && mentTextOrig === '')
 				{
@@ -2621,11 +2581,14 @@ window.onKeyUpHandler = function(e, editor, formID)
 				{
 					MPFMention.bSearch = false;
 					window['BXfpdStopMent' + formID]();
-					BX.SocNetLogDestination.openDialog(window['BXSocNetLogDestinationFormNameMent' + formID],
-						{
-							bindNode: getMentionNodePosition(mentNode, editor)
-						}
-					);
+
+					if (BX.type.isNotEmptyString(selectorId))
+					{
+						BX.onCustomEvent(window, 'BX.MPF.MentionSelector:open', [{
+							id: selectorId,
+							bindPosition: getMentionNodePosition(mentNode, editor)
+						}]);
+					}
 				}
 
 				MPFMention.lastText = mentText;
@@ -2687,9 +2650,21 @@ window.onTextareaKeyDownHandler = function(e, editor, formID)
 
 	if(MPFMention.listen && keyCode == editor.KEY_CODES["enter"])
 	{
-		BX.SocNetLogDestination.selectFirstSearchItem(window['BXSocNetLogDestinationFormNameMent' + formID]);
+		var selectorId = window.MPFgetSelectorId('bx-mention-' + formID + '-id');
+		if (BX.type.isNotEmptyString(selectorId))
+		{
+			var selectorInstance = BX.UI.SelectorManager.instances[selectorId];
+			if (BX.type.isNotEmptyObject(selectorInstance))
+			{
+				selectorInstance.getNavigationInstance().selectFirstItem({
+					tab: (MPFMention.bSearch ? 'search' : selectorInstance.tabs.selected)
+				});
+			}
+		}
+
 		editor.textareaKeyDownPreventDefault = true;
-		BX.PreventDefault(e);
+		e.stopPropagation();
+		e.preventDefault();
 	}
 };
 
@@ -2698,6 +2673,8 @@ window.onTextareaKeyUpHandler = function(e, editor, formID)
 	var
 		cursor, value,
 		keyCode = e.keyCode;
+
+	var selectorId = window.MPFgetSelectorId('bx-mention-' + formID + '-id');
 
 	if(MPFMention.listen === true)
 	{
@@ -2723,25 +2700,31 @@ window.onTextareaKeyUpHandler = function(e, editor, formID)
 						mentTextOrig = mentText;
 
 					mentText = mentText.replace(/^[\+@]*/, '');
-
-					if(BX.SocNetLogDestination && !BX.SocNetLogDestination.isOpenDialog())
-					{
-						BX.SocNetLogDestination.openDialog(window['BXSocNetLogDestinationFormNameMent' + formID]);
-					}
-
 					MPFMention.bSearch = (mentText.length > 0);
-					if (BX.SocNetLogDestination)
-						BX.SocNetLogDestination.search(mentText, true, window['BXSocNetLogDestinationFormNameMent' + formID], BX.message("MPF_NAME_TEMPLATE"));
 
-					if (MPFMention.leaveContent && MPFMention._lastText && mentTextOrig === '')
+					var selectorInstance = null;
+					if (BX.type.isNotEmptyString(selectorId))
 					{
-						window['BXfpdStopMent' + formID]();
+						selectorInstance = BX.UI.SelectorManager.instances[selectorId];
 					}
-					else if (MPFMention.leaveContent && MPFMention.lastText && mentTextOrig !== '' && mentText === '')
+
+					if (BX.type.isNotEmptyObject(selectorInstance))
+					{
+						selectorInstance.getSearchInstance().runSearch({
+							text: mentText
+						});
+					}
+
+					if (
+						MPFMention.leaveContent
+						&& MPFMention._lastText
+						&& (
+							mentTextOrig === ''
+							|| mentText === ''
+						)
+					)
 					{
 						window['BXfpdStopMent' + formID]();
-						if (BX.SocNetLogDestination)
-							BX.SocNetLogDestination.openDialog(window['BXSocNetLogDestinationFormNameMent' + formID]);
 					}
 
 					MPFMention.lastText = mentText;
@@ -2781,17 +2764,19 @@ window.onTextareaKeyUpHandler = function(e, editor, formID)
 					MPFMention.listenFlag = true;
 					MPFMention.text = '';
 					MPFMention.textarea = true;
+					MPFMention.bSearch = false;
 
-					if(!BX.SocNetLogDestination.isOpenDialog())
+					if (BX.type.isNotEmptyString(selectorId))
 					{
-						BX.SocNetLogDestination.openDialog(window['BXSocNetLogDestinationFormNameMent' + formID]);
+						BX.onCustomEvent(window, 'BX.MPF.MentionSelector:open', [{
+							id: selectorId
+						}]);
 					}
 				}
 			}
 		}
 	}
 };
-
 
 var getMentionNodePosition = function(mention, editor)
 {
@@ -2882,7 +2867,19 @@ window.BxInsertMention = function (params)
 			BX.onCustomEvent(window, 'onMentionAdd', [ item ]);
 		}
 
-		delete BX.SocNetLogDestination.obItemsSelected[window['BXSocNetLogDestinationFormNameMent' + formID]][item.id];
+		var selectorId = window.MPFgetSelectorId('bx-mention-' + formID + '-id');
+		if (BX.type.isNotEmptyString(selectorId))
+		{
+			var selectorInstance = BX.UI.SelectorManager.instances[selectorId];
+			if (BX.type.isNotEmptyObject(selectorInstance))
+			{
+				if (typeof selectorInstance.itemsSelected[item.id] != 'undefined')
+				{
+					delete selectorInstance.itemsSelected[item.id];
+				}
+			}
+		}
+
 		window['BXfpdStopMent' + formID]();
 		MPFMention["text"] = '';
 
@@ -2894,160 +2891,145 @@ window.BxInsertMention = function (params)
 	}
 };
 
-window.MPFMentionInit = function(formId, params)
+window.MPFgetSelectorId = function(formId)
 {
-	if (!params["items"]["departmentRelation"])
+	var result = false;
+	var formNode = BX(formId);
+	if (!formNode)
 	{
-		params["items"]["departmentRelation"] = BX.SocNetLogDestination.buildDepartmentRelation(params["items"]["department"]);
+		return result;
 	}
 
-	window["departmentRelation"] = params["items"]["departmentRelation"]; // for calendar - do not remove
+	result = formNode.getAttribute('data-bx-selector-id');
+	return result;
+};
 
+window.MPFMentionInit = function(formId, params)
+{
 	if (params.initDestination === true)
 	{
-		window.BXSocNetLogDestinationFormName = 'destination' + ('' + new Date().getTime()).substr(6);
-		window.BXSocNetLogDestinationDisableBackspace = null;
-		BX.SocNetLogDestination.init({
-			name : window.BXSocNetLogDestinationFormName,
-			searchInput : BX('feed-add-post-destination-input'),
-			extranetUser :  params["extranetUser"],
-			bindMainPopup : {
-				node: BX('feed-add-post-destination-container'),
-				offsetTop: '5px',
-				offsetLeft: '15px'
-			},
-			bindSearchPopup : {
-				node : BX('feed-add-post-destination-container'),
-				offsetTop : '5px',
-				offsetLeft: '15px'
-			},
-			callback : {
-				select : window.BXfpdSelectCallback,
-				unSelect : BX.delegate(BX.SocNetLogDestination.BXfpUnSelectCallback, {
-					formName: window.BXSocNetLogDestinationFormName,
-					inputContainerName: 'feed-add-post-destination-item',
-					inputName: 'feed-add-post-destination-input',
-					tagInputName: 'bx-destination-tag',
-					tagLink1: BX.message('BX_FPD_LINK_1'),
-					tagLink2: BX.message('BX_FPD_LINK_2')
-				}),
-				openDialog : BX.delegate(BX.SocNetLogDestination.BXfpOpenDialogCallback, {
-					inputBoxName: 'feed-add-post-destination-input-box',
-					inputName: 'feed-add-post-destination-input',
-					tagInputName: 'bx-destination-tag'
-				}),
-				closeDialog : BX.delegate(BX.SocNetLogDestination.BXfpCloseDialogCallback, {
-					inputBoxName: 'feed-add-post-destination-input-box',
-					inputName: 'feed-add-post-destination-input',
-					tagInputName: 'bx-destination-tag'
-				}),
-				openSearch : BX.delegate(BX.SocNetLogDestination.BXfpOpenDialogCallback, {
-					inputBoxName: 'feed-add-post-destination-input-box',
-					inputName: 'feed-add-post-destination-input',
-					tagInputName: 'bx-destination-tag'
-				})
-			},
-			items : params["items"],
-			itemsLast : params["itemsLast"],
-			itemsSelected : params["itemsSelected"],
-			isCrmFeed : params["isCrmFeed"],
-			useClientDatabase: (!!params["useClientDatabase"]),
-			destSort: params["destSort"],
-			allowAddUser: params["allowAddUser"],
-			allowAddCrmContact: params["allowAddCrmContact"],
-			allowSearchCrmEmailUsers: (typeof params["allowSearchCrmEmailUsers"] != 'undefined' ? !!params["allowSearchCrmEmailUsers"] : false),
-			userNameTemplate: (typeof params["userNameTemplate"] != 'undefined' ? params["userNameTemplate"] : ''),
-			allowSonetGroupsAjaxSearch: (typeof params["allowSonetGroupsAjaxSearch"] != 'undefined' ? params["allowSonetGroupsAjaxSearch"] : false),
-			allowSonetGroupsAjaxSearchFeatures: (typeof params["allowSonetGroupsAjaxSearchFeatures"] != 'undefined' ? params["allowSonetGroupsAjaxSearchFeatures"] : {}),
-			showVacations: true,
-			usersVacation : (typeof params["usersVacation"] != 'undefined' ? params["usersVacation"] : {})
-		});
-		BX.bind(BX('feed-add-post-destination-input'), 'keyup', BX.delegate(BX.SocNetLogDestination.BXfpSearch, {
-			formName: window.BXSocNetLogDestinationFormName,
-			inputName: 'feed-add-post-destination-input',
-			tagInputName: 'bx-destination-tag'
-		}));
-		BX.bind(BX('feed-add-post-destination-input'), 'paste', BX.defer(BX.SocNetLogDestination.BXfpSearch, {
-			formName: window.BXSocNetLogDestinationFormName,
-			inputName: 'feed-add-post-destination-input',
-			tagInputName: 'bx-destination-tag',
-			onPasteEvent: true
-		}));
-		BX.bind(BX('feed-add-post-destination-input'), 'keydown', BX.delegate(BX.SocNetLogDestination.BXfpSearchBefore, {
-			formName: window.BXSocNetLogDestinationFormName,
-			inputName: 'feed-add-post-destination-input'
-		}));
-		BX.bind(BX('feed-add-post-destination-input'), 'blur', BX.delegate(BX.SocNetLogDestination.BXfpBlurInput, {
-			inputBoxName: 'feed-add-post-destination-input-box',
-			tagInputName: 'bx-destination-tag'
-		}));
-		BX.bind(BX('bx-destination-tag'), 'focus', function(e) {
-			BX.SocNetLogDestination.openDialog(
-				window.BXSocNetLogDestinationFormName,
+		BX.addCustomEvent('onAutoSaveRestoreDestination', function(params) {
+
+			if (
+				BX.type.isNotEmptyObject(params)
+				&& BX.type.isNotEmptyObject(params.data)
+				&& BX.type.isNotEmptyObject(params.data['DEST_CODES[]'])
+				&& BX.type.isNotEmptyString(params.formId)
+				&& params.formId == formId
+				&& BX.UI.SelectorManager
+			)
+			{
+				var selectorId = window.MPFgetSelectorId(params.formId);
+
+				var selectorInstance = BX.UI.SelectorManager.instances[selectorId];
+				if (!BX.type.isNotEmptyObject(selectorInstance))
 				{
-					bByFocusEvent: true
+					return;
 				}
-			);
-			return BX.PreventDefault(e);
-		});
-		BX.bind(BX('feed-add-post-destination-container'), 'click', function(e) {
-			BX.SocNetLogDestination.openDialog(window.BXSocNetLogDestinationFormName);
-			return BX.PreventDefault(e);
+
+				var
+					val = null,
+					email = null,
+					selectedItems = {},
+					invitedUsers = [],
+					found = false;
+
+				for (var i = 0; i < params.data['DEST_CODES[]'].length; i++)
+				{
+					val = params.data['DEST_CODES[]'][i];
+
+					if (val == 'UA')
+					{
+						selectedItems[val] = 'groups';
+					}
+
+					found = val.match(/^U(\d+)$/i);
+					if (found)
+					{
+						selectedItems[val] = 'users';
+						continue;
+					}
+
+					found = val.match(/^SG(\d+)$/i);
+					if (found)
+					{
+						selectedItems[val] = 'sonetgroups';
+						continue;
+					}
+
+					found = val.match(/^DR(\d+)$/i);
+					if (found)
+					{
+						selectedItems[val] = 'departments';
+						continue
+					}
+
+					found = val.match(/^UE(.+)$/i);
+					if (
+						found
+						&& BX.SocialnetworkUISelector
+					)
+					{
+						email = found[1];
+						invitedUsers.push({
+							selectorId: selectorId,
+							name: (BX.type.isNotEmptyString(params.data['INVITED_USER_NAME[' + email + ']']) ? params.data['INVITED_USER_NAME[' + email + ']'] : ''),
+							lastName: (BX.type.isNotEmptyString(params.data['INVITED_USER_LAST_NAME[' + email + ']']) ? params.data['INVITED_USER_LAST_NAME[' + email + ']'] : ''),
+							email: email,
+							createCrmContact: (BX.type.isNotEmptyString(params.data['INVITED_USER_CREATE_CRM_CONTACT[' + email + ']']) ? params.data['INVITED_USER_CREATE_CRM_CONTACT[' + email + ']'] : '')
+						});
+					}
+				}
+
+				selectorInstance.itemsSelected = selectedItems;
+
+				BX.addCustomEvent(window, 'BX.Main.SelectorV2:afterInitDialog', function(params) {
+					if (
+						params.id == selectorId
+						&& BX.SocialnetworkUISelector
+					)
+					{
+						for (var i = 0; i < invitedUsers.length; i++)
+						{
+							BX.SocialnetworkUISelector.inviteEmailAddUser(invitedUsers[i]);
+						}
+					}
+				});
+			}
 		});
 
 		BX.addCustomEvent(window, "onMentionAdd", function(item) {
-			if (!BX.type.isPlainObject(BX.SocNetLogDestination.obItems[window.BXSocNetLogDestinationFormName]['users'][item.id]))
-			{
-				BX.SocNetLogDestination.obItems[window.BXSocNetLogDestinationFormName]['users'][item.id] = item;
-			}
-			BX.addCustomEvent(window, 'BX.SocNetLogDestination:onBeforeSelectItemFocus', function(sender) {
-				if (sender.id == window.BXSocNetLogDestinationFormName)
-				{
-					sender.blockFocus = true;
-				}
-			});
-			if (
-				typeof (BX.SocNetLogDestination.obItemsSelected[window.BXSocNetLogDestinationFormName][item.id]) == 'undefined'
-				|| !BX.SocNetLogDestination.obItemsSelected[window.BXSocNetLogDestinationFormName][item.id]
-			)
-			{
-				BX.SocNetLogDestination.selectItem(window.BXSocNetLogDestinationFormName, null, null, item.id, 'users', false);
-			}
-		});
 
-		if (params["itemsHidden"])
-		{
-			for (var ii in params["itemsHidden"])
-			{
-				if (params["itemsHidden"].hasOwnProperty(ii))
-				{
-					window.BXfpdSelectCallback(
-						{
-							id: (typeof params["itemsHidden"][ii]["PREFIX"] != 'undefined' ? params["itemsHidden"][ii]["PREFIX"] : 'SG') + params["itemsHidden"][ii]["ID"],
-							name: params["itemsHidden"][ii]["NAME"]
-						},
-						(typeof params["itemsHidden"][ii]["TYPE"] != 'undefined' ? params["itemsHidden"][ii]["TYPE"] : 'sonetgroups'),
-						'',
-						true,
-						'',
-						'init'
-					);
-				}
-			}
-		}
+			var selectorId = window.MPFgetSelectorId(formId);
 
-		BX.SocNetLogDestination.BXfpSetLinkName({
-			formName: window.BXSocNetLogDestinationFormName,
-			tagInputName: 'bx-destination-tag',
-			tagLink1: BX.message('BX_FPD_LINK_1'),
-			tagLink2: BX.message('BX_FPD_LINK_2')
+			var selectorInstance = BX.UI.SelectorManager.instances[selectorId];
+			if (!BX.type.isNotEmptyObject(selectorInstance))
+			{
+				return;
+			}
+
+			if (!BX.type.isNotEmptyObject(selectorInstance.entities.USERS.items[item.id]))
+			{
+				selectorInstance.entities.USERS.items[item.id] = item;
+			}
+
+			selectorInstance.setOption('focusInputOnSelectItem', 'N');
+
+			if (!BX.type.isNotEmptyString(selectorInstance.itemsSelected[item.id]))
+			{
+				selectorInstance.selectItem({
+					itemId: item.id,
+					entityType: 'USERS'
+				});
+			}
 		});
 	}
-	window["BXfpdSelectCallbackMent" + formId] = function(item, type, search)
+
+	window["BXfpdSelectCallbackMent" + formId] = function(callbackParams) // item, type, search
 	{
 		window.BxInsertMention({
-			item: item,
-			type: type,
+			item: callbackParams.item,
+			type: callbackParams.entityType.toLowerCase(),
 			formID: formId,
 			editorId: params.editorId,
 			fireAddEvent: params.initDestination
@@ -3056,122 +3038,28 @@ window.MPFMentionInit = function(formId, params)
 
 	window["BXfpdStopMent" + formId] = function ()
 	{
-		BX.SocNetLogDestination.closeDialog();
-		BX.SocNetLogDestination.closeSearch();
-		clearTimeout(BX.SocNetLogDestination.searchTimeout);
-		BX.SocNetLogDestination.searchOnSuccessHandle = false;
-	};
-
-	window["BXfpdOnDialogOpen" + formId] = function ()
-	{
-		MPFMention.listen = true;
-		MPFMention.listenFlag = true;
-	};
-
-	window["BXfpdOnDialogClose" + formId] = function ()
-	{
-		MPFMention.listen = false;
-		setTimeout(function()
+		var selectorId = window.MPFgetSelectorId('bx-mention-' + formId + '-id');
+		if (BX.type.isNotEmptyString(selectorId))
 		{
-			MPFMention.listenFlag = false;
-			if (!MPFMention.listen)
+			var selectorInstance = BX.UI.SelectorManager.instances[selectorId];
+			if (BX.type.isNotEmptyObject(selectorInstance))
 			{
-				var editor = LHEPostForm.getEditor(params.editorId);
-				if(editor)
-				{
-					var
-						doc = editor.GetIframeDoc(),
-						mentNode = doc.getElementById('bx-mention-node');
-
-					if (mentNode)
-					{
-						editor.selection.SetAfter(mentNode);
-						if (MPFMention.leaveContent)
-						{
-							editor.util.ReplaceWithOwnChildren(mentNode);
-						}
-						else
-						{
-							BX.remove(mentNode);
-						}
-					}
-					editor.Focus();
-				}
-			}
-		}, 100);
-	};
-
-	window["BXSocNetLogDestinationFormNameMent" + formId] = 'mention' + ('' + new Date().getTime()).substr(5);
-	window["BXSocNetLogDestinationDisableBackspace"] = null;
-	var bxBMent = BX('bx-b-mention-' + formId);
-
-	if (
-		!params.extranetUser
-		&& typeof params.items.extranetRoot != 'undefined'
-	)
-	{
-		params["items"]["departmentExtranet"] = BX.clone(params["items"]["department"]);
-		for(var key in params["items"]["extranetRoot"])
-		{
-			if (params["items"]["extranetRoot"].hasOwnProperty(key))
-			{
-				params["items"]["departmentExtranet"][key] = params["items"]["extranetRoot"][key];
+				selectorInstance.closeAllPopups();
+				selectorInstance.getSearchInstance().abortSearchRequest();
 			}
 		}
-		params["items"]["departmentRelationExtranet"] = BX.SocNetLogDestination.buildDepartmentRelation(params["items"]["departmentExtranet"]);
-	}
-
-	BX.SocNetLogDestination.init({
-		name : window["BXSocNetLogDestinationFormNameMent" + formId],
-		searchInput : bxBMent,
-		extranetUser : params.extranetUser,
-		bindMainPopup :  {
-			node : bxBMent,
-			offsetTop : '1px',
-			offsetLeft: '12px'
-		},
-		bindSearchPopup : {
-			node : bxBMent,
-			offsetTop : '1px',
-			offsetLeft: '12px'
-		},
-		callback : {
-			select : window["BXfpdSelectCallbackMent" + formId],
-			openDialog : window["BXfpdOnDialogOpen" + formId],
-			closeDialog : window["BXfpdOnDialogClose" + formId],
-			openSearch : window["BXfpdOnDialogOpen" + formId],
-			closeSearch : window["BXfpdOnDialogClose" + formId]
-		},
-		items : {
-			users : params["items"]["mentionUsers"],
-			groups : {},
-			sonetgroups : {},
-			department : (typeof params["items"]["departmentExtranet"] != 'undefined' ? params["items"]["departmentExtranet"] : params["items"]["department"]),
-			departmentRelation : (typeof params["items"]["departmentRelationExtranet"] != 'undefined' ? params["items"]["departmentRelationExtranet"] : params["items"]["departmentRelation"])
-		},
-		itemsLast : {
-			users : params["itemsLast"]["mentionUsers"],
-			sonetgroups : {},
-			department : {},
-			groups : {}
-		},
-		itemsSelected : {},
-		destSort: (typeof params["mentionDestSort"] != 'undefined' && params["mentionDestSort"] ? params["mentionDestSort"] : {}),
-		departmentSelectDisable : true,
-		obWindowClass : 'bx-lm-mention',
-		obWindowCloseIcon : false,
-		useClientDatabase: (!!params["useClientDatabase"]),
-		userNameTemplate: (typeof params["userNameTemplate"] != 'undefined' ? params["userNameTemplate"] : ''),
-		showVacations: false,
-		showSearchInput: BX.browser.IsMobile()
-	});
+	};
 
 	BX.ready(function() {
 			var ment = BX('bx-b-mention-' + formId);
-			if(BX.browser.IsIE() && !BX.browser.IsIE9())
+			var selectorId = window.MPFgetSelectorId('bx-mention-' + formId + '-id');
+
+			if (selectorId)
 			{
-				ment.style.width = '1px';
-				ment.style.marginRight = '0';
+				BX.onCustomEvent(window, 'BX.MPF.MentionSelector:init', [{
+					id: selectorId,
+					openDialogWhenInit: false
+				}]);
 			}
 
 			BX.bind(
@@ -3204,9 +3092,12 @@ window.MPFMentionInit = function(formId, params)
 
 							setTimeout(function()
 							{
-								if(!BX.SocNetLogDestination.isOpenDialog())
+								if (selectorId)
 								{
-									BX.SocNetLogDestination.openDialog(window["BXSocNetLogDestinationFormNameMent" + formId], {bindNode: ment});
+									BX.onCustomEvent(window, 'BX.MPF.MentionSelector:open', [{
+										id: selectorId,
+										bindNode: ment
+									}]);
 								}
 
 								var mentionNode = doc.getElementById('bx-mention-node');
@@ -3237,9 +3128,12 @@ window.MPFMentionInit = function(formId, params)
 
 							setTimeout(function()
 							{
-								if(!BX.SocNetLogDestination.isOpenDialog())
+								if (selectorId)
 								{
-									BX.SocNetLogDestination.openDialog(window["BXSocNetLogDestinationFormNameMent" + formId], {bindNode: ment});
+									BX.onCustomEvent(window, 'BX.MPF.MentionSelector:open', [{
+										id: selectorId,
+										bindNode: ment
+									}]);
 								}
 							}, 100);
 						}
@@ -3250,5 +3144,46 @@ window.MPFMentionInit = function(formId, params)
 			);
 		}
 	);
-}
+};
+
+window.BXfpdOnDialogOpen = function ()
+{
+	MPFMention.listen = true;
+	MPFMention.listenFlag = true;
+};
+
+window.BXfpdOnDialogClose = function (params)
+{
+	MPFMention.listen = false;
+
+	setTimeout(function()
+	{
+		MPFMention.listenFlag = false;
+		if (!MPFMention.listen)
+		{
+			var editor = LHEPostForm.getEditor(params.editorId);
+			if(editor)
+			{
+				var
+					doc = editor.GetIframeDoc(),
+					mentNode = doc.getElementById('bx-mention-node');
+
+				if (mentNode)
+				{
+					editor.selection.SetAfter(mentNode);
+					if (MPFMention.leaveContent)
+					{
+						editor.util.ReplaceWithOwnChildren(mentNode);
+					}
+					else
+					{
+						BX.remove(mentNode);
+					}
+				}
+				editor.Focus();
+			}
+		}
+	}, 100);
+};
+
 })();

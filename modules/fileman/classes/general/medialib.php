@@ -1058,6 +1058,7 @@ ML_MESS.Save = '<?= GetMessageJS('ML_SAVE')?>';
 			file_size: '<?= CMedialib::GetUsableSize($arItems[$i]['FILE_SIZE'])?>',
 			thumb_path: '<?= CMedialib::Escape($arItems[$i]['THUMB_PATH'])?>',
 			path: '<?= CMedialib::Escape($arItems[$i]['PATH'])?>',
+			path_external: '<?= CMedialib::Escape($arItems[$i]['PATH_EXTERNAL'])?>',
 			type: '<?= $arItems[$i]['TYPE']?>'
 		}
 		<?
@@ -1627,9 +1628,18 @@ window.MLSearchResult = [
 
 			if ($item['TYPE'] == 'image' || strpos($item['CONTENT_TYPE'], 'image') !== false)
 			{
+				if(substr($item['PATH'], 0,1) !== '/' || $item['PATH'] !== $item['PATH_EXTERNAL'])
+				{
+					$src = $item['PATH_EXTERNAL'];
+				}
+				else
+				{
+					$src = $item['PATH'];
+				}
+
 				// It's image
 				$arRes = array(
-					"html" => "<img src=\"".htmlspecialcharsex($item['PATH'])."\" width=\"".intVal($item['WIDTH'])."\" height=\"".intVal($item['HEIGHT'])."\" title=\"".htmlspecialcharsex($item['NAME'])."\" />",
+					"html" => "<img src=\"".htmlspecialcharsex($src)."\" width=\"".intVal($item['WIDTH'])."\" height=\"".intVal($item['HEIGHT'])."\" title=\"".htmlspecialcharsex($item['NAME'])."\" />",
 					"width" => intVal($item['WIDTH']),
 					"height" => intVal($item['HEIGHT'])
 				);
@@ -2100,7 +2110,8 @@ class CMedialibItem
 		while($arRes = $res->Fetch())
 		{
 			CMedialibItem::GenerateThumbnail($arRes, array('rootPath' => $rootPath, 'width' => $tmbW, 'height' => $tmbH));
-			$arRes['PATH'] = CFile::GetFileSRC($arRes);
+			$arRes['PATH'] = CFile::GetFileSRC($arRes, false, false);
+			$arRes['PATH_EXTERNAL'] = CFile::GetFileSRC($arRes, false, true);
 			$arResult[]=$arRes;
 		}
 

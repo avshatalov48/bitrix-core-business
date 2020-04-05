@@ -7,11 +7,9 @@ if (!CModule::IncludeModule('sale'))
 }
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
-
 $arStatusList = false;
 $arFilter = array("LID" => LANG, "ID" => "N");
 $arGroupByTmpSt = false;
-
 $arUserGroups = $USER->GetUserGroupArray();
 $userId = intval($USER->GetID());
 
@@ -50,37 +48,32 @@ $arResult = array(
 
 $arEvents = CSaleMobileOrderPush::getEvents();
 $arSubscribedEvents = CSaleMobileOrderPush::getSubscriptions($userId);
-$bSubscribedEarlier = !empty($arSubscribedEvents) ? true : false;
-$subscribedAll = 'Y';
+$counter = 0;
 
 foreach ($arEvents as $eventId)
 {
-	if($bSubscribedEarlier)
+	if(isset($arSubscribedEvents[$eventId]) && $arSubscribedEvents[$eventId] == 'Y')
 	{
-		if(isset($arSubscribedEvents[$eventId]) && $arSubscribedEvents[$eventId] == 'Y')
-			$subscribed = true;
-		else
-			$subscribed = false;
-
-		if($subscribedAll == 'Y' && !$subscribed)
-			$subscribedAll = 'N';
+		$counter++;
+		$subscribed = true;
 	}
 	else
 	{
-		$subscribed = true;
+		$subscribed = false;
 	}
 
 	$msg = GetMessage("SMOP_EVNT_".$eventId);
 
 	if(strlen($msg) > 0)
+	{
 		$arResult["EVENTS"][$eventId] = array(
 			"TITLE" => $msg,
 			"SUBSCRIBED" => $subscribed
 		);
+	}
 }
 
-$arResult["SUBSCRIBED_ALL"] = $subscribedAll;
-
+$arResult["SUBSCRIBED_ALL"] = $counter == count($arResult["EVENTS"]);
 CJSCore::Init('ajax');
 
 $this->IncludeComponentTemplate();

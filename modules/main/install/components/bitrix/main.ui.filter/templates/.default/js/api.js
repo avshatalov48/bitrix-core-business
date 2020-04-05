@@ -33,7 +33,74 @@
 				this.parent.getPreset().deactivateAllPresets();
 				this.parent.getPreset().activatePreset(filter.preset_id);
 				this.parent.getPreset().applyPreset(filter.preset_id);
-				this.parent.applyFilter(false, filter.preset_id);
+
+				if (!filter.checkFields || !this.parent.getPreset().isPresetValuesModified(filter.preset_id))
+				{
+					this.parent.applyFilter(false, filter.preset_id);
+				}
+				else
+				{
+					var newFields = {};
+
+					if (BX.type.isPlainObject(filter.fields))
+					{
+						newFields = Object.assign({}, filter.fields);
+					}
+
+					if (BX.type.isPlainObject(filter.additional))
+					{
+						newFields = Object.assign({}, filter.additional);
+					}
+
+					this.parent.getPreset().deactivateAllPresets();
+					this.setFields(newFields);
+					this.apply();
+				}
+			}
+		},
+
+
+		/**
+		 * Extends current applied filter
+		 * @param {Object.<String, *>} fields
+		 */
+		extendFilter: function(fields)
+		{
+			if (!!fields && typeof fields === "object")
+			{
+				Object.keys(fields).forEach(function(key) {
+					if (BX.type.isNumber(fields[key]))
+					{
+						fields[key] = "" + fields[key];
+					}
+				});
+
+				var currentPresetId = this.parent.getPreset().getCurrentPresetId();
+
+				if (currentPresetId === "tmp_filter" ||
+					currentPresetId === "default_filter")
+				{
+					var newFields = Object.assign({}, this.parent.getFilterFieldsValues(), fields);
+
+					this.setFields(newFields);
+					this.apply();
+
+					return;
+				}
+
+				var previewsAdditionalValues = this.parent.getPreset().getAdditionalValues(currentPresetId);
+
+				if (BX.type.isPlainObject(previewsAdditionalValues) &&
+					Object.keys(previewsAdditionalValues).length)
+				{
+					fields = Object.assign({}, previewsAdditionalValues, fields);
+				}
+
+				this.setFilter({
+					preset_id: currentPresetId,
+					additional: fields,
+					checkFields: true
+				});
 			}
 		},
 

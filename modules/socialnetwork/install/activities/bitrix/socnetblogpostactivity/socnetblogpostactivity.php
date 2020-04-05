@@ -300,7 +300,9 @@ class CBPSocnetBlogPostActivity
 				'FieldName' => 'users_to',
 				'Type' => 'user',
 				'Required' => true,
-				'Default' => 'author'
+				'Multiple' => true,
+				'Default' => method_exists(\Bitrix\Bizproc\Automation\Helper::class, 'getResponsibleUserExpression')
+					? \Bitrix\Bizproc\Automation\Helper::getResponsibleUserExpression($documentType) : 'author'
 			),
 			'PostTitle' => array(
 				'Name' => GetMessage("SNBPA_POST_TITLE"),

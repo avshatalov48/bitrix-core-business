@@ -167,7 +167,7 @@
 				closeByEsc: true,
 				autoHide: true,
 				zIndex: 9999,
-				width: 290,
+				width: 310,
 				angle: true,
 				content: this.getPatternRemoveConfirmDialogContent(),
 				buttons: [

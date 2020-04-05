@@ -1,4 +1,6 @@
 <?
+$MESS["BT_SALE_COND_BASKET_DISCOUNT_APPLIED_LABEL"] = "Shopping cart rules were applied";
+$MESS["BT_SALE_COND_BASKET_DISCOUNT_APPLIED_PREFIX"] = "Shopping cart rules were applied";
 $MESS["BT_MOD_SALE_COND_CMP_ORDER_CONTROLGROUP_LABEL"] = "Order parameters";
 $MESS["BT_MOD_SALE_COND_CMP_SALE_PERSON_TYPE_LABEL"] = "Buyer type";
 $MESS["BT_MOD_SALE_COND_CMP_SALE_PERSON_TYPE_PREFIX"] = "Buyer type field";
@@ -105,4 +107,6 @@ $MESS["BT_SALE_COND_BASKET_PROPERTY_ENTITY_TYPE_SELECT_DEF"] = "...";
 $MESS["BT_SALE_COND_BASKET_PROPERTY_PREFIX"] = "shopping cart product property";
 $MESS["BT_SALE_COND_BASKET_POSITION_WEIGHT_LABEL"] = "Cart item weight";
 $MESS["BT_SALE_COND_BASKET_POSITION_WEIGHT_PREFIX"] = "Shopping cart item weight (product item weight * quantity)";
+$MESS["BT_SALE_COND_BASKET_DISCOUNT_APPLIED_YES"] = "yes";
+$MESS["BT_SALE_COND_BASKET_DISCOUNT_APPLIED_NO"] = "no";
 ?>

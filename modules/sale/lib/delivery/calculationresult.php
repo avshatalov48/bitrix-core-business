@@ -3,6 +3,11 @@ namespace Bitrix\Sale\Delivery;
 
 use Bitrix\Sale;
 
+/**
+ * Class CalculationResult
+ * @package Bitrix\Sale\Delivery
+ * Used by delivery services as a calculations result structure
+ */
 class CalculationResult extends Sale\ResultSerializable
 {
 	const PERIOD_TYPE_MIN = "MIN";
@@ -14,7 +19,7 @@ class CalculationResult extends Sale\ResultSerializable
 	protected $description = "";
 	/** @var string */
 	protected $periodDescription = "";
-	/** @var int  */
+	/** @var int */
 	protected $periodFrom = null;
 	/** @var int  */
 	protected $periodTo = null;
@@ -31,6 +36,9 @@ class CalculationResult extends Sale\ResultSerializable
 	/** @var string $tmpData */
 	protected $tmpData = "";
 
+	/**
+	 * CalculationResult constructor.
+	 */
 	public function __construct() { parent::__construct(); }
 
 	/**	@return float */
@@ -60,6 +68,9 @@ class CalculationResult extends Sale\ResultSerializable
 	/** @return string */
 	public function getPeriodDescription() { return $this->periodDescription; }
 
+	/**
+	 * If calculation needs several steps.
+	 */
 	public function setAsNextStep() { $this->nextStep = true; }
 
 	/** @return string */

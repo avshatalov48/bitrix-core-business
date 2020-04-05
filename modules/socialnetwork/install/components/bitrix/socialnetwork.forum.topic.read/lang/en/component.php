@@ -15,4 +15,6 @@ $MESS["F_TID_IS_LOST_IN_FORUM"] = "The topic is not found.";
 $MESS["F_TID_IS_LOST_IN_OBJECT"] = "The topic is not found.";
 $MESS["F_TID_IS_NOT_APPROVED"] = "The topic will be available after it has been approved by the moderator.";
 $MESS["F_MID_IS_NOT_APPROVED"] = "Your post will be visible once it has been verified by the moderator.";
+$MESS["SFTR_ERROR_NO_USER"] = "User was not found.";
+$MESS["SFTR_ERROR_NO_GROUP"] = "Group was not found.";
 ?>

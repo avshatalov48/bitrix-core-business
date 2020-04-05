@@ -13,6 +13,11 @@ namespace Bitrix\Sale\Internals;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 
+if (!Main\Loader::includeModule('catalog'))
+{
+	return;
+}
+
 Loc::loadMessages(__FILE__);
 
 class StoreProductTable extends Main\Entity\DataManager

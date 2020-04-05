@@ -28,7 +28,7 @@ class HandlerHelper
 	 *
 	 * @throws RestException
 	 */
-	public static function checkCallback($handlerUrl, $appInfo, $checkInstallUrl = true)
+	public static function checkCallback($handlerUrl, $appInfo = array(), $checkInstallUrl = true)
 	{
 		$callbackData = parse_url($handlerUrl);
 

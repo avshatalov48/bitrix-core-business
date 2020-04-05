@@ -8,6 +8,8 @@
 namespace Bitrix\Sender\Entity;
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Error;
+use Bitrix\Main\DB\SqlQueryException;
 
 use Bitrix\Sender\ContactTable;
 use Bitrix\Sender\ContactListTable;
@@ -68,6 +70,7 @@ class Contact extends Base
 	 * @param integer|null $id ID.
 	 * @param array $data Data.
 	 * @return integer|null
+	 * @throws
 	 */
 	protected function saveData($id = null, array $data)
 	{
@@ -76,7 +79,21 @@ class Contact extends Base
 		$unsubList = array_filter($data['UNSUB_LIST'], 'is_numeric');
 
 		$this->filterDataByEntityFields(ContactTable::getEntity(), $data);
-		$id = $this->saveByEntity(ContactTable::getEntity(), $id, $data);
+
+		try
+		{
+			$id = $this->saveByEntity(ContactTable::getEntity(), $id, $data);
+		}
+		catch (SqlQueryException $exception)
+		{
+			if (strpos($exception->getMessage(), '(1062) Duplicate entry') !== false)
+			{
+				$this->errors->setError(new Error(Loc::getMessage('SENDER_ENTITY_CONTACT_ERROR_DUPLICATE')));
+				return $id;
+			}
+
+			throw $exception;
+		}
 
 		if ($this->hasErrors())
 		{
@@ -250,6 +267,7 @@ class Contact extends Base
 	/**
 	 * Add to list.
 	 *
+	 * @param int $listId List ID.
 	 * @return bool
 	 */
 	public function addToList($listId)
@@ -265,6 +283,7 @@ class Contact extends Base
 	/**
 	 * Remove from list.
 	 *
+	 * @param int $listId List ID.
 	 * @return bool
 	 */
 	public function removeFromList($listId)

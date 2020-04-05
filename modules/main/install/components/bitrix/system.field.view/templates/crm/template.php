@@ -1,5 +1,7 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
+Bitrix\Main\UI\Extension::load("ui.tooltip");
+
 \Bitrix\Main\Page\Asset::getInstance()->addCss('/bitrix/js/crm/css/crm.css');
 if(\CCrmSipHelper::isEnabled())
 	\Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/crm/common.js');
@@ -27,8 +29,19 @@ $publicMode = isset($arParams["PUBLIC_MODE"]) && $arParams["PUBLIC_MODE"] === tr
 			}
 			else
 			{
+				$entityTypeLower = strtolower($entityType);
+
+				if($entityType == 'ORDER')
+				{
+					$url = '/bitrix/components/bitrix/crm.order.details/card.ajax.php';
+				}
+				else
+				{
+					$url = '/bitrix/components/bitrix/crm.'.$entityTypeLower.'.show/card.ajax.php';
+				}
+
 				?><a href="<?=htmlspecialcharsbx($entity['ENTITY_LINK'])?>" target="_blank"
-					 id="balloon_<?=$entityType."_".$entityId."_".$_suf?>"><?=htmlspecialcharsbx($entity['ENTITY_TITLE'])?></a><?
+					 bx-tooltip-user-id="<?=htmlspecialcharsbx($entityId)?>" bx-tooltip-loader="<?=htmlspecialcharsbx($url)?>" bx-tooltip-classname="crm_balloon<?=($entityType == 'LEAD' || $entityType == 'DEAL'? '_no_photo': '_'.$entityTypeLower)?>"><?=htmlspecialcharsbx($entity['ENTITY_TITLE'])?></a><?
 			}
 
 			$first = false;
@@ -76,15 +89,4 @@ $publicMode = isset($arParams["PUBLIC_MODE"]) && $arParams["PUBLIC_MODE"] === tr
 		}
 	);
 </script>
-<? endif ?>
-
-<? if (!$publicMode):?>
-	<?CJSCore::Init('tooltip');?>
-	<script type="text/javascript">
-		<?foreach ($arResult["VALUE"] as $entityType => $arEntity):?>
-		<?foreach ($arEntity as $entityId => $entity):?>
-		BX.tooltip(<?=$entityId?>, "balloon_<?=$entityType?>_<?=$entityId?>_<?=$_suf?>", "/bitrix/components/bitrix/crm.<?=strtolower($entityType)?>.show/card.ajax.php", "crm_balloon<?=($entityType == 'LEAD' || $entityType == 'DEAL'? '_no_photo': '_'.strtolower($entityType))?>", true);
-		<?endforeach;?>
-		<?endforeach;?>
-	</script>
 <? endif ?>

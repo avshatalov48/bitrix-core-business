@@ -1,9 +1,9 @@
 <?php
 namespace Bitrix\Sale\Exchange\Entity;
 
+use Bitrix\Crm\InvoiceTable;
 use Bitrix\Main;
 use Bitrix\Sale\Exchange\EntityType;
-use Bitrix\Sale\Exchange\ImportSettings;
 use Bitrix\Sale\Exchange\ISettings;
 use Bitrix\Sale\Internals\OrderTable;
 use Bitrix\Sale\Internals\PaymentTable;
@@ -304,5 +304,29 @@ class UserProfileImportLoader extends EntityImportLoader
 			}
 		}
 		return $result;
+	}
+}
+
+class InvoiceImportLoader extends OrderImportLoader
+{
+	protected static function getEntityTable()
+	{
+		return new \Bitrix\Crm\Invoice\Internals\InvoiceTable();
+	}
+}
+
+class PaymentInvoiceImportLoader extends PaymentImportLoader
+{
+	protected static function getEntityTable()
+	{
+		return new \Bitrix\Crm\Invoice\Internals\PaymentTable();
+	}
+}
+
+class ShipmentInvoiceImportLoader extends ShipmentImportLoader
+{
+	protected static function getEntityTable()
+	{
+		return new \Bitrix\Crm\Invoice\Internals\ShipmentTable();
 	}
 }

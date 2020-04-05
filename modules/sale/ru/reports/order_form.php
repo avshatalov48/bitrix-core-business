@@ -204,10 +204,11 @@ if ($page<=0) $page = 1;
 						<td align="right" nowrap><?=CCurrencyLang::CurrencyFormat($arBasket["PRICE"]*$arQuantities[$i], $arOrder["CURRENCY"], false);?></td>
 					</tr>
 					<?
-
-					$total_sum += $arBasket["PRICE"]*$arQuantities[$i];
-					$total_nds += $nds_val*$arQuantities[$i];
-
+					if (empty($arBasket['SET_PARENT_ID']))
+					{
+						$total_sum += $arBasket["PRICE"]*$arQuantities[$i];
+						$total_nds += $nds_val*$arQuantities[$i];
+					}
 					$i++;
 					endforeach;
 					?>
@@ -222,29 +223,32 @@ if ($page<=0) $page = 1;
 					</tr>
 
 					<?
-					$db_tax_list = CSaleOrderTax::GetList(array("APPLY_ORDER"=>"ASC"), Array("ORDER_ID"=>$ORDER_ID));
-					while ($ar_tax_list = $db_tax_list->Fetch())
+					if ($bUseVat || $arOrder['DELIVERY_VAT_RATE'] <= 0)
 					{
-						?>
-						<tr>
-							<td align="right" colspan="4">
-								<?
-								if ($ar_tax_list["IS_IN_PRICE"]=="Y")
-								{
-									echo "В том числе ";
-								}
-								echo htmlspecialcharsbx($ar_tax_list["TAX_NAME"]);
-								if ($ar_tax_list["IS_PERCENT"]=="Y")
-								{
-									echo " (".$ar_tax_list["VALUE"]."%)";
-								}
-								?>:
-							</td>
-							<td align="right" nowrap>
-								<?=CCurrencyLang::CurrencyFormat($total_nds, $arOrder["CURRENCY"], false);?>
-							</td>
-						</tr>
-						<?
+						$db_tax_list = CSaleOrderTax::GetList(array("APPLY_ORDER"=>"ASC"), Array("ORDER_ID"=>$ORDER_ID));
+						while ($ar_tax_list = $db_tax_list->Fetch())
+						{
+							?>
+							<tr>
+								<td align="right" colspan="4">
+									<?
+									if ($ar_tax_list["IS_IN_PRICE"]=="Y")
+									{
+										echo "В том числе ";
+									}
+									echo htmlspecialcharsbx($ar_tax_list["TAX_NAME"]);
+									if ($ar_tax_list["IS_PERCENT"]=="Y")
+									{
+										echo " (".(int)$ar_tax_list["VALUE"]."%)";
+									}
+									?>:
+								</td>
+								<td align="right" nowrap>
+									<?=CCurrencyLang::CurrencyFormat($total_nds, $arOrder["CURRENCY"], false);?>
+								</td>
+							</tr>
+							<?
+						}
 					}
 					?>
 

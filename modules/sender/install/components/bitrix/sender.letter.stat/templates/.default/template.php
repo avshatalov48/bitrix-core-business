@@ -6,12 +6,15 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
+use Bitrix\Main\UI\Extension;
 
 /** @var CAllMain $APPLICATION */
 /** @var array $arParams */
 /** @var array $arResult */
 
-
+Extension::load('ui.hint');
+$containerId = 'BX_SENDER_STATISTICS';
+$containerId = htmlspecialcharsbx($containerId);
 ?>
 
 <script type="text/javascript">
@@ -23,7 +26,7 @@ use Bitrix\Main\Web\Json;
 			'posting' => $arResult['DATA']['posting'],
 			'chainList' => $arResult['CHAIN_LIST'],
 			'clickList' => $arResult['DATA']['clickList'],
-			'actionUrl' => $arResult['ACTION_URL'],
+			'actionUrl' => $arResult['ACTION_URI'],
 			'nameTemplate' => $arParams['NAME_TEMPLATE'],
 			'pathToUserProfile' => $arResult['PATH_TO_USER_PROFILE'],
 			'mess' => array(
@@ -32,12 +35,12 @@ use Bitrix\Main\Web\Json;
 			)
 		))?>;
 
-		params.context = BX('BX_SENDER_STATISTICS');
+		params.context = BX('<?=$containerId?>');
 		BX.Sender.PostingsStats.load(params);
 	});
 </script>
 
-<div id="BX_SENDER_STATISTICS" class="bx-sender-stat-wrapper">
+<div id="<?=$containerId?>" class="bx-sender-stat-wrapper">
 
 	<div class="bx-sender-block-first">
 		<p class="bx-sender-title"><?=Loc::getMessage('SENDER_LETTER_STAT_STATS_EFFICIENCY_TITLE')?></p>
@@ -147,7 +150,7 @@ use Bitrix\Main\Web\Json;
 							<p class="bx-sender-mailfilter-result-title"><?=Loc::getMessage('SENDER_LETTER_STAT_STATS_COUNTER_READ')?></p>
 							<a class=""
 								href="<?=htmlspecialcharsbx($arResult['URLS']['READ'])?>"
-								onclick="BX.Sender.Page.open('<?= htmlspecialcharsbx($arResult['URLS']['READ'])?>'); return false;"
+								onclick="BX.Sender.Page.open('<?= CUtil::JSEscape($arResult['URLS']['READ'])?>'); return false;"
 							>
 								<span data-bx-point="counters/READ/VALUE_DISPLAY" class="bx-sender-mailfilter-result-total">
 									<?=htmlspecialcharsbx($arResult['DATA']['counters']['READ']['VALUE_DISPLAY'])?>
@@ -158,7 +161,7 @@ use Bitrix\Main\Web\Json;
 							<p class="bx-sender-mailfilter-result-title"><?=Loc::getMessage('SENDER_LETTER_STAT_STATS_COUNTER_CLICK')?></p>
 							<a class=""
 								href="<?=htmlspecialcharsbx($arResult['URLS']['CLICK'])?>"
-								onclick="BX.Sender.Page.open('<?= htmlspecialcharsbx($arResult['URLS']['CLICK'])?>'); return false;"
+								onclick="BX.Sender.Page.open('<?= CUtil::JSEscape($arResult['URLS']['CLICK'])?>'); return false;"
 							>
 								<span data-bx-point="counters/CLICK/VALUE_DISPLAY" class="bx-sender-mailfilter-result-total">
 									<?=htmlspecialcharsbx($arResult['DATA']['counters']['CLICK']['VALUE_DISPLAY'])?>
@@ -174,7 +177,7 @@ use Bitrix\Main\Web\Json;
 							<?=Loc::getMessage('SENDER_LETTER_STAT_STATS_COUNTER_SEND_ALL')?>:
 							<a class=""
 								href="<?=htmlspecialcharsbx($arResult['URLS']['SENT_SUCCESS'])?>"
-								onclick="BX.Sender.Page.open('<?= htmlspecialcharsbx($arResult['URLS']['SENT_SUCCESS'])?>'); return false;"
+								onclick="BX.Sender.Page.open('<?= CUtil::JSEscape($arResult['URLS']['SENT_SUCCESS'])?>'); return false;"
 							>
 								<span class="bx-sender-title-statistic-number-bold">
 									<?=htmlspecialcharsbx($arResult['DATA']['counters']['SEND_SUCCESS']['VALUE_DISPLAY'])?>
@@ -183,7 +186,7 @@ use Bitrix\Main\Web\Json;
 							<?=Loc::getMessage('SENDER_LETTER_STAT_STATS_FROM')?>
 							<a class=""
 								href="<?=htmlspecialcharsbx($arResult['URLS']['SEND_ALL'])?>"
-								onclick="BX.Sender.Page.open('<?= htmlspecialcharsbx($arResult['URLS']['SEND_ALL'])?>'); return false;"
+								onclick="BX.Sender.Page.open('<?= CUtil::JSEscape($arResult['URLS']['SEND_ALL'])?>'); return false;"
 							>
 								<?=htmlspecialcharsbx($arResult['DATA']['counters']['SEND_ALL']['VALUE_DISPLAY'])?>
 							</a>
@@ -218,18 +221,26 @@ use Bitrix\Main\Web\Json;
 							<p class="bx-sender-mailfilter-result-title"><?=Loc::getMessage('SENDER_LETTER_STAT_STATS_COUNTER_SEND_ERROR')?></p>
 							<a class=""
 								href="<?=htmlspecialcharsbx($arResult['URLS']['SENT_ERROR'])?>"
-								onclick="BX.Sender.Page.open('<?= htmlspecialcharsbx($arResult['URLS']['SENT_ERROR'])?>'); return false;"
+								onclick="BX.Sender.Page.open('<?= CUtil::JSEscape($arResult['URLS']['SENT_ERROR'])?>'); return false;"
 							>
 								<span data-bx-point="counters/SEND_ERROR/VALUE_DISPLAY" class="bx-sender-mailfilter-result-total">
 									<?=htmlspecialcharsbx($arResult['DATA']['counters']['SEND_ERROR']['VALUE_DISPLAY'])?>
 								</span>
 							</a>
+							<?if ($arResult['CAN_RESEND_ERRORS']):?>
+								<div class="sender-letter-stat-number-action">
+									<span data-role="resend-errors" class="ui-btn ui-btn-xs ui-btn-light">
+										<?=Loc::getMessage('SENDER_LETTER_STAT_RESEND')?>
+									</span>
+									<span data-hint="<?=Loc::getMessage('SENDER_LETTER_STAT_RESEND_HINT')?>"></span>
+								</div>
+							<?endif;?>
 						</div>
 						<div class="bx-sender-mailfilter-result-item bx-sender-mailfilter-2-items">
 							<p class="bx-sender-mailfilter-result-title"><?=Loc::getMessage('SENDER_LETTER_STAT_STATS_COUNTER_UNSUB')?></p>
 							<a class=""
 								href="<?=htmlspecialcharsbx($arResult['URLS']['UNSUB'])?>"
-								onclick="BX.Sender.Page.open('<?= htmlspecialcharsbx($arResult['URLS']['UNSUB'])?>'); return false;"
+								onclick="BX.Sender.Page.open('<?= CUtil::JSEscape($arResult['URLS']['UNSUB'])?>'); return false;"
 							>
 								<span data-bx-point="counters/UNSUB/VALUE_DISPLAY" class="bx-sender-mailfilter-result-total">
 									<?=htmlspecialcharsbx($arResult['DATA']['counters']['UNSUB']['VALUE_DISPLAY'])?>
@@ -297,7 +308,11 @@ use Bitrix\Main\Web\Json;
 
 	<script type="text/javascript">
 		BX.ready(function () {
-			BX.Sender.Letter.Stat.init();
+			BX.Sender.Letter.Stat.init(<?=Json::encode([
+				'containerId' => $containerId,
+				'letterId' => $arParams['CHAIN_ID'],
+				'actionUri' => $arResult['ACTION_URI'],
+			])?>);
 		});
 	</script>
 </div>

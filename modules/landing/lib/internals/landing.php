@@ -5,6 +5,7 @@ use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Entity;
 use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Manager;
+use \Bitrix\Landing\TemplateRef;
 
 Loc::loadMessages(__FILE__);
 
@@ -57,6 +58,10 @@ class LandingTable extends Entity\DataManager
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_LANDING_ACTIVE'),
 				'default_value' => 'Y'
 			)),
+			'DELETED' => new Entity\StringField('DELETED', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_SITE_DELETED'),
+				'default_value' => 'N'
+			)),
 			'PUBLIC' => new Entity\StringField('PUBLIC', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_LANDING_PUBLIC'),
 				'default_value' => 'Y'
@@ -73,6 +78,9 @@ class LandingTable extends Entity\DataManager
 			)),
 			'TPL_ID' => new Entity\IntegerField('TPL_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_TPL_ID')
+			)),
+			'TPL_CODE' => new Entity\StringField('TPL_CODE', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_TPL_CODE')
 			)),
 			'SITE_ID' => new Entity\IntegerField('SITE_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_SITE_ID'),
@@ -158,6 +166,13 @@ class LandingTable extends Entity\DataManager
 		$result = new Entity\EventResult();
 		$primary = $event->getParameter('primary');
 		$fields = $event->getParameter('fields');
+		$modifyFields = array();
+
+		// if delete, set unpublic always
+		if (isset($fields['DELETED']))
+		{
+			$modifyFields['ACTIVE'] = 'N';
+		}
 
 		// additional fields save after
 		if (array_key_exists('ADDITIONAL_FIELDS', $fields))
@@ -210,9 +225,7 @@ class LandingTable extends Entity\DataManager
 					'replace_space' => '',
 					'replace_other' => ''
 				));
-			$result->modifyFields(array(
-				'CODE' => $fields['CODE']
-			));
+			$modifyFields['CODE'] = $fields['CODE'];
 		}
 
 		// check rights for landing site
@@ -248,6 +261,8 @@ class LandingTable extends Entity\DataManager
 				$fields['SITE_ID'] = $site['SITE_ID'];
 			}
 
+			Landing::disableCheckDeleted();
+
 			$i = 0;
 			do
 			{
@@ -264,11 +279,13 @@ class LandingTable extends Entity\DataManager
 				));
 			} while ($res->fetch());
 
+			Landing::enableCheckDeleted();
+
 			$fields['CODE'] = $newCode;
-			$result->modifyFields(array(
-				'CODE' => $fields['CODE']
-			));
+			$modifyFields['CODE'] = $fields['CODE'];
 		}
+
+		$result->modifyFields($modifyFields);
 
 		// all code blocks below promptly return result !
 
@@ -337,6 +354,41 @@ class LandingTable extends Entity\DataManager
 	}
 
 	/**
+	 * Get entity rows.
+	 * @param array $params Params array.
+	 * @return \Bitrix\Main\ORM\Query\Result
+	 */
+	public static function getList(array $params = array())
+	{
+		if (Landing::checkDeleted())
+		{
+			if (
+				!isset($params['filter']) ||
+				!is_array($params['filter'])
+			)
+			{
+				$params['filter'] = array();
+			}
+			if (
+				!isset($params['filter']['DELETED']) &&
+				!isset($params['filter']['=DELETED'])
+			)
+			{
+				$params['filter']['=DELETED'] = 'N';
+			}
+			if (
+				!isset($params['filter']['SITE.DELETED']) &&
+				!isset($params['filter']['=SITE.DELETED'])
+			)
+			{
+				$params['filter']['=SITE.DELETED'] = 'N';
+			}
+		}
+
+		return parent::getList($params);
+	}
+
+	/**
 	 * Before add handler.
 	 * @param Entity\Event $event Event instance.
 	 * @return Entity\EventResult
@@ -381,6 +433,17 @@ class LandingTable extends Entity\DataManager
 		$primary = $event->getParameter('primary');
 		if ($primary)
 		{
+			// @tmp debug
+			\CEventLog::add(array(
+				'SEVERITY' => 'NOTICE',
+				'AUDIT_TYPE_ID' => 'LANDING_DELETE',
+				'MODULE_ID' => 'landing',
+				'ITEM_ID' => $primary['ID'],
+				'DESCRIPTION' => var_export(
+					\Bitrix\Main\Diag\Helper::getBackTrace(20),
+					true
+				)
+			));
 			$res = self::getList(array(
 				'select' => array(
 					'ID'
@@ -488,12 +551,52 @@ class LandingTable extends Entity\DataManager
 	{
 		$primary = $event->getParameter('primary');
 
-		if ($primary)
+		if (isset($primary['ID']))
 		{
+			\Bitrix\Landing\File::deleteFromLanding($primary['ID']);
 			\Bitrix\Landing\Syspage::deleteForLanding($primary['ID']);
 			\Bitrix\Landing\Hook::deleteForLanding($primary['ID']);
 			\Bitrix\Landing\TemplateRef::deleteArea($primary['ID']);
 			\Bitrix\Landing\TemplateRef::setForLanding($primary['ID'], array());
+			\Bitrix\Landing\UrlRewrite::removeForLanding($primary['ID']);
+
+			// if delete index page, make new page is index
+			$res = \Bitrix\Landing\Site::getList(array(
+				'select' => array(
+					'ID'
+				),
+				'filter' => array(
+					'LANDING_ID_INDEX' => $primary['ID']
+				)
+			));
+			if ($site = $res->fetch())
+			{
+				$res = Landing::getList(array(
+					'select' => array(
+						'ID'
+					),
+					'filter' => array(
+						'SITE_ID' => $site['ID'],
+						'=ACTIVE' => 'Y'
+					),
+					'order' => array(
+						'ID' => 'asc'
+					)
+				));
+				while ($page = $res->fetch())
+				{
+					if (!TemplateRef::landingIsArea($page['ID']))
+					{
+						\Bitrix\Landing\Site::update(
+							$site['ID'],
+							array(
+								'LANDING_ID_INDEX' => $page['ID']
+							)
+						);
+						break;
+					}
+				}
+			}
 		}
 	}
 }

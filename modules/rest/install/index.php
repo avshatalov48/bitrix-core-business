@@ -66,9 +66,8 @@ class rest extends CModule
 		$eventManager->registerEventHandler('rest', 'OnRestServiceBuildDescription', 'rest', '\Bitrix\Rest\Api\Placement', 'onRestServiceBuildDescription');
 		$eventManager->registerEventHandler('rest', 'OnRestServiceBuildDescription', 'rest', '\Bitrix\Rest\Api\Event', 'onRestServiceBuildDescription');
 		$eventManager->registerEventHandler('rest', 'OnRestServiceBuildDescription', 'rest', '\Bitrix\Rest\Api\UserFieldType', 'onRestServiceBuildDescription');
-		$eventManager->registerEventHandler("rest", "OnRestServiceBuildDescription", "rest", "\\Bitrix\\Rest\\Engine\\RestManager", "OnRestServiceBuildDescription");
 
-
+		$eventManager->registerEventHandler("rest","onFindMethodDescription", "rest","\\Bitrix\\Rest\\Engine\\RestManager","onFindMethodDescription");
 
 		$eventManager->registerEventHandler("main", "OnApplicationsBuildList", "main", '\Bitrix\Rest\APAuth\Application', "onApplicationsBuildList", 100, "modules/rest/lib/apauth/application.php");
 
@@ -86,10 +85,10 @@ class rest extends CModule
 				'IN_RSS' => 'N',
 				'SORT' => 1000,
 				'LANG' => array(
-					'en' => array(
-						'NAME' => 'MP applications entity storage',
-						'SECTION_NAME' => 'Sections',
-						'ELEMENT_NAME' => 'Elements'
+					LANGUAGE_ID => array(
+						'NAME' => GetMessage('REST_IBLOCK_NAME'),
+						'SECTION_NAME' => GetMessage('REST_IBLOCK_SECTION_NAME'),
+						'ELEMENT_NAME' => GetMessage('REST_IBLOCK_ELEMENT_NAME'),
 					)
 				)
 			);
@@ -112,6 +111,8 @@ class rest extends CModule
 
 		\CAgent::AddAgent("Bitrix\\Rest\\Marketplace\\Client::getNumUpdates();", "rest", "N", 86400);
 		\CAgent::AddAgent("Bitrix\\Rest\\EventOfflineTable::cleanProcessAgent();", "rest", "N", 86400);
+		\CAgent::AddAgent("\\Bitrix\\Rest\\StatTable::cleanUpAgent();", "rest", "N", 86400);
+
 
 		return true;
 	}
@@ -143,6 +144,8 @@ class rest extends CModule
 		$eventManager->unRegisterEventHandler('rest', 'OnRestServiceBuildDescription', 'rest', '\Bitrix\Rest\Api\Event', 'onRestServiceBuildDescription');
 		$eventManager->unRegisterEventHandler('rest', 'OnRestServiceBuildDescription', 'rest', '\Bitrix\Rest\Api\UserFieldType', 'onRestServiceBuildDescription');
 
+		$eventManager->unRegisterEventHandler("rest","onFindMethodDescription", "rest","\\Bitrix\\Rest\\Engine\\RestManager","onFindMethodDescription");
+
 		$eventManager->unRegisterEventHandler("rest", "onRestCheckAuth", "rest", "\\Bitrix\\Rest\\OAuth\\Auth", "onRestCheckAuth");
 
 		$eventManager->unRegisterEventHandler("rest", "onRestCheckAuth", "rest", "\\Bitrix\\Rest\\APAuth\\Auth", "onRestCheckAuth");
@@ -154,6 +157,8 @@ class rest extends CModule
 		$eventManager->unRegisterEventHandler("im", "OnAfterConfirmNotify", "rest", "\\Bitrix\\Rest\\NotifyIm", "receive");
 
 		$eventManager->unRegisterEventHandler("rest", "\\Bitrix\\Rest\\APAuth\\Password::OnDelete", "rest", "\\Bitrix\\Rest\\APAuth\\PermissionTable", "onPasswordDelete");
+
+		$eventManager->unRegisterEventHandler("rest", "OnRestServiceBuildDescription", "rest", "\\Bitrix\\Rest\\Engine\\RestManager", "OnRestServiceBuildDescription");
 
 		CAgent::RemoveModuleAgents("rest");
 
@@ -185,7 +190,9 @@ class rest extends CModule
 			'PATH' => '/rest/index.php'
 		));
 
-		CUrlRewriter::Add(array(
+		$siteId = \CSite::GetDefSite();
+
+		\Bitrix\Main\UrlRewriter::add($siteId, array(
 			"CONDITION" => "#^/rest/#",
 			"RULE" => "",
 			"PATH" => "/bitrix/services/rest/index.php",
@@ -195,28 +202,28 @@ class rest extends CModule
 		{
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/rest/install/public", $_SERVER["DOCUMENT_ROOT"]."/", true, true);
 
-			CUrlRewriter::Add(array(
+			\Bitrix\Main\UrlRewriter::add($siteId, array(
 				"CONDITION" => "#^/marketplace/#",
 				"RULE" => "",
 				"ID" => "bitrix:rest.marketplace",
 				"PATH" => "/marketplace/index.php",
 			));
 
-			CUrlRewriter::Add(array(
+			\Bitrix\Main\UrlRewriter::add($siteId, array(
 				"CONDITION" => "#^/marketplace/local/#",
 				"RULE" => "",
 				"ID" => "bitrix:rest.marketplace.localapp",
 				"PATH" => "/marketplace/local/index.php",
 			));
 
-			CUrlRewriter::Add(array(
+			\Bitrix\Main\UrlRewriter::add($siteId, array(
 				"CONDITION" => "#^/marketplace/app/#",
 				"RULE" => "",
 				"ID" => "bitrix:app.layout",
 				"PATH" => "/marketplace/app/index.php",
 			));
 
-			CUrlRewriter::Add(array(
+			\Bitrix\Main\UrlRewriter::add($siteId, array(
 				"CONDITION" => "#^/marketplace/hook/#",
 				"RULE" => "",
 				"ID" => "bitrix:rest.hook",

@@ -170,67 +170,59 @@ if ($bCanProcess)
 
 if ($bSuccessProcess)
 {
-	?><p><font class="oktext"><?=GetMessage("AN_SUCC")?></font></p><?
+	?><div class="alert alert-success" role="alert"><?=GetMessage("AN_SUCC")?></div><?
 }
 else
 {
 	if (strlen($strErrorMessage)>0)
 	{
-		?><p><font class="errortext"><?= $strErrorMessage ?></font></p><?
+		?><div class="alert alert-danger" role="alert"><?= $strErrorMessage ?></div><?
 	}
 	?>
-	<table border="0" cellspacing="0" cellpadding="1" width="100%"><tr><td class="tableborder">
-	<table border="0" cellpadding="3" cellspacing="0" width="100%">
 		<form action="" method="post">
-		<tr>
-			<td align="right" class="tablebody">
-				<font class="tablebodytext">
-				<?=GetMessage("AN_CC")?>
-				</font>
-			</td>
-			<td class="tablebody"><input type="text" class="inputtext" name="ccard_num" size="30" value="<?= htmlspecialcharsbx($_REQUEST["ccard_num"]) ?>"></td>
-		</tr>
-		<tr>
-			<td align="right" class="tablebody">
-				<font class="tablebodytext">
-				<?=GetMessage("AN_CC_DATE")?>
-				</font>
-			</td>
-			<td class="tablebody">
-				<select name="ccard_date1" class="inputselect">
-					<?for ($i = 1; $i <= 12; $i++):?>
-						<option value="<?= $i ?>"<?= (($i==$_REQUEST["ccard_date1"]) ? "selected" : "") ?>><?= $i ?></option>
-					<?endfor;?>
-				</select>
-				/
-				<select name="ccard_date2" class="inputselect">
-					<?for ($i = $year; $i <= $year+5; $i++):?>
-						<option value="<?= $i ?>"<?= (($i==$_REQUEST["ccard_date2"]) ? "selected" : "") ?>><?= $i ?></option>
-					<?endfor;?>
-				</select>
-			</td>
-		</tr>
-		<tr>
-			<td align="right" class="tablebody">
-				<font class="tablebodytext">
-				<?=GetMessage("AN_CC_CVV2")?>
-				</font>
-			</td>
-			<td class="tablebody"><input type="text" class="inputtext" name="ccard_code" size="5" value="<?= htmlspecialcharsbx($_REQUEST["ccard_code"]) ?>"></td>
-		</tr>
-		<tr>
-			<td align="center" class="tablebody" colspan="2">
-				<font class="tablebodytext">
-				<input type="hidden" name="CurrentStep" value="<?= IntVal($GLOBALS["CurrentStep"]) ?>">
-				<input type="hidden" name="ORDER_ID" value="<?= $ORDER_ID ?>">
-				<input type="hidden" name="pay_this_order" value="Y">
-				<input type="submit" value="<?=GetMessage("AN_CC_BUTTON")?>" class="inputbutton">
-				</font>
-			</td>
-		</tr>
+			<div class="form-group row">
+				<label for="ccardNumber" class="col-sm-6 col-form-label text-sm-right"><?=GetMessage("AN_CC")?></label>
+				<div class="col-sm-6">
+					<input type="text" id="ccardNumber" name="ccard_num" size="30" value="<?= htmlspecialcharsbx($_REQUEST["ccard_num"]) ?>" class="form-control inputtext">
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label for="ccardDate1" class="col-sm-6 col-form-label text-sm-right"><?=GetMessage("AN_CC_DATE")?></label>
+				<div class="col-auto">
+					<select name="ccard_date1" class="inputselect form-control" id="ccardDate1">
+						<?for ($i = 1; $i <= 12; $i++):?>
+							<option value="<?= $i ?>"<?= (($i==$_REQUEST["ccard_date1"]) ? "selected" : "") ?>><?= $i ?></option>
+						<?endfor;?>
+					</select>
+				</div>
+				<div class="col-auto col-form-label">/</div>
+				<div class="col-auto">
+					<select name="ccard_date2" class="inputselect form-control">
+						<?for ($i = $year; $i <= $year+5; $i++):?>
+							<option value="<?= $i ?>"<?= (($i==$_REQUEST["ccard_date2"]) ? "selected" : "") ?>><?= $i ?></option>
+						<?endfor;?>
+					</select>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label for="ccardCode" class="col-sm-6 col-form-label text-sm-right"><?=GetMessage("AN_CC_CVV2")?></label>
+				<div class="col-auto">
+					<input type="text" id="ccardCode" name="ccard_code" size="5" value="<?= htmlspecialcharsbx($_REQUEST["ccard_code"]) ?>" class="inputtext form-control">
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<div class="col-sm-6 col-form-label text-sm-right"></div>
+				<div class="col-auto">
+					<input type="hidden" name="CurrentStep" value="<?= IntVal($GLOBALS["CurrentStep"]) ?>">
+					<input type="hidden" name="ORDER_ID" value="<?= $ORDER_ID ?>">
+					<input type="hidden" name="pay_this_order" value="Y">
+					<input type="submit" value="<?=GetMessage("AN_CC_BUTTON")?>" class="inputbutton btn btn-primary">
+				</div>
+			</div>
 		</form>
-	</table>
-	</td></tr></table>
 	<?
 }
 ?>

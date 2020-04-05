@@ -4,6 +4,8 @@ namespace Bitrix\Socialnetwork\CommentAux;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Socialnetwork\Livefeed\ForumPost;
+use Bitrix\Socialnetwork\LogTable;
 
 Loc::loadMessages(__FILE__);
 
@@ -12,9 +14,134 @@ final class CreateTask extends Base
 	const TYPE = 'CREATETASK';
 	const POST_TEXT = 'commentAuxCreateTask';
 	const SOURCE_TYPE_BLOG_POST = 'BLOG_POST';
-	const SOURCE_TYPE_BLOG_COMMENT = 'BLOG_COMMENT';
+	const SOURCE_TYPE_TASK = 'TASK';
+	const SOURCE_TYPE_FORUM_TOPIC = 'FORUM_TOPIC';
+	const SOURCE_TYPE_CALENDAR_EVENT = 'CALENDAR_EVENT';
+	const SOURCE_TYPE_TIMEMAN_ENTRY = 'TIMEMAN_ENTRY';
+	const SOURCE_TYPE_TIMEMAN_REPORT = 'TIMEMAN_REPORT';
+	const SOURCE_TYPE_LOG_ENTRY = 'LOG_ENTRY';
+	const SOURCE_TYPE_PHOTO_ALBUM = 'PHOTO_ALBUM';
+	const SOURCE_TYPE_PHOTO_PHOTO = 'PHOTO_PHOTO';
+	const SOURCE_TYPE_WIKI = 'WIKI';
+	const SOURCE_TYPE_LISTS_NEW_ELEMENT = 'LISTS_NEW_ELEMENT';
+	const SOURCE_TYPE_INTRANET_NEW_USER = 'INTRANET_NEW_USER';
+	const SOURCE_TYPE_BITRIX24_NEW_USER = 'BITRIX24_NEW_USER';
 
-	private $sourceTypeList = array(self::SOURCE_TYPE_BLOG_POST, self::SOURCE_TYPE_BLOG_COMMENT);
+	const SOURCE_TYPE_BLOG_COMMENT = 'BLOG_COMMENT';
+	const SOURCE_TYPE_FORUM_POST = 'FORUM_POST';
+	const SOURCE_TYPE_LOG_COMMENT = 'LOG_COMMENT';
+
+	private $postTypeList = array(
+		self::SOURCE_TYPE_BLOG_POST,
+		self::SOURCE_TYPE_TASK,
+		self::SOURCE_TYPE_FORUM_TOPIC,
+		self::SOURCE_TYPE_CALENDAR_EVENT,
+		self::SOURCE_TYPE_TIMEMAN_ENTRY,
+		self::SOURCE_TYPE_TIMEMAN_REPORT,
+		self::SOURCE_TYPE_LOG_ENTRY,
+		self::SOURCE_TYPE_PHOTO_ALBUM,
+		self::SOURCE_TYPE_PHOTO_PHOTO,
+		self::SOURCE_TYPE_WIKI,
+		self::SOURCE_TYPE_LISTS_NEW_ELEMENT,
+		self::SOURCE_TYPE_INTRANET_NEW_USER,
+		self::SOURCE_TYPE_BITRIX24_NEW_USER
+	);
+	private $commentTypeList = array(
+		self::SOURCE_TYPE_BLOG_COMMENT,
+		self::SOURCE_TYPE_FORUM_POST,
+		self::SOURCE_TYPE_LOG_COMMENT
+	);
+	private $postTypeListInited = false;
+	private $commentTypeListInited = false;
+
+	public function addPostTypeList($type)
+	{
+		$this->postTypeList[] = $type;
+	}
+
+	public function addCommentTypeList($type)
+	{
+		$this->commentTypeList[] = $type;
+	}
+
+	public function getPostTypeList()
+	{
+		if ($this->postTypeListInited === false)
+		{
+			$moduleEvent = new \Bitrix\Main\Event(
+				'socialnetwork',
+				'onCommentAuxGetPostTypeList',
+				array()
+			);
+			$moduleEvent->send();
+
+			foreach ($moduleEvent->getResults() as $moduleEventResult)
+			{
+				if ($moduleEventResult->getType() == \Bitrix\Main\EventResult::SUCCESS)
+				{
+					$moduleEventParams = $moduleEventResult->getParameters();
+
+					if (
+						is_array($moduleEventParams)
+						&& !empty($moduleEventParams['typeList'])
+						&& is_array($moduleEventParams['typeList'])
+					)
+					{
+						foreach($moduleEventParams['typeList'] as $type)
+						{
+							$this->addPostTypeList($type);
+						}
+					}
+				}
+			}
+
+			$this->postTypeListInited = true;
+		}
+
+		return $this->postTypeList;
+	}
+
+	public function getCommentTypeList()
+	{
+		if ($this->commentTypeListInited === false)
+		{
+			$moduleEvent = new \Bitrix\Main\Event(
+				'socialnetwork',
+				'onCommentAuxGetCommentTypeList',
+				array()
+			);
+			$moduleEvent->send();
+
+			foreach ($moduleEvent->getResults() as $moduleEventResult)
+			{
+				if ($moduleEventResult->getType() == \Bitrix\Main\EventResult::SUCCESS)
+				{
+					$moduleEventParams = $moduleEventResult->getParameters();
+
+					if (
+						is_array($moduleEventParams)
+						&& !empty($moduleEventParams['typeList'])
+						&& is_array($moduleEventParams['typeList'])
+					)
+					{
+						foreach($moduleEventParams['typeList'] as $type)
+						{
+							$this->addCommentTypeList($type);
+						}
+					}
+				}
+			}
+
+			$this->commentTypeListInited = true;
+		}
+
+		return $this->commentTypeList;
+	}
+
+	public function getSourceTypeList()
+	{
+		return array_merge($this->getPostTypeList(), $this->getCommentTypeList());
+	}
 
 	public function getParamsFromFields($fields = array())
 	{
@@ -48,9 +175,11 @@ final class CreateTask extends Base
 		$params = $this->params;
 		$options = $this->options;
 
+		$siteId = (!empty($options['siteId']) ? $options['siteId'] : SITE_ID);
+
 		if (
 			isset($params['sourcetype'])
-			&& in_array($params['sourcetype'], $this->sourceTypeList)
+			&& in_array($params['sourcetype'], $this->getSourceTypeList())
 			&& isset($params['sourceid'])
 			&& intval($params['sourceid']) > 0
 			&& isset($params['taskid'])
@@ -65,7 +194,7 @@ final class CreateTask extends Base
 						'socialnetwork',
 						'user_page',
 						SITE_DIR.'company/personal/',
-						(!empty($options['siteId']) ? $options['siteId'] : SITE_ID)
+						$siteId
 					).'user/#user_id#/';
 				}
 
@@ -85,10 +214,13 @@ final class CreateTask extends Base
 				$taskTitle = Loc::getMessage('SONET_COMMENTAUX_CREATETASK_NOT_FOUND');
 			}
 
-			if ($params['sourcetype'] == self::SOURCE_TYPE_BLOG_COMMENT)
+			if (in_array($params['sourcetype'], $this->getCommentTypeList()))
 			{
+				$commentPath = '';
+
 				if (
-					Loader::includeModule('blog')
+					$params['sourcetype'] == self::SOURCE_TYPE_BLOG_COMMENT
+					&& Loader::includeModule('blog')
 					&& ($comment = \CBlogComment::getByID($params['sourceid']))
 					&& ($post = \CBlogPost::getByID($comment['POST_ID']))
 				)
@@ -103,25 +235,37 @@ final class CreateTask extends Base
 				}
 				else
 				{
-					$commentPath = '';
+					$commentProvider = \Bitrix\Socialnetwork\Livefeed\Provider::getProvider($params['sourcetype']);
+
+					if (
+						$commentProvider
+						&& (!isset($options['im']) || !$options['im'])
+						&& (!isset($options['bPublicPage']) || !$options['bPublicPage'])
+						&& (!isset($options['mail']) || !$options['mail'])
+						&& isset($options['logId'])
+						&& intval($options['logId']) > 0
+					)
+					{
+						$commentProvider->setEntityId(intval($params['sourceid']));
+						$commentProvider->setLogId($options['logId']);
+						$commentProvider->initSourceFields();
+
+						$commentPath = $commentProvider->getLiveFeedUrl();
+					}
 				}
 
-				$result = Loc::getMessage('SONET_COMMENTAUX_CREATETASK_BLOG_COMMENT', array(
+				$suffix = (isset($options['suffix']) ? $options['suffix'] : '');
+				$result = Loc::getMessage('SONET_COMMENTAUX_CREATETASK_COMMENT_'.$params['sourcetype'].(!empty($suffix) ? '_'.$suffix : ''), array(
 					'#TASK_NAME#' => (!empty($taskPath) ? '[URL='.$taskPath.']'.$taskTitle.'[/URL]' : $taskTitle),
-					'#COMMENT_LINK#' => (!empty($commentPath) ? '[URL='.$commentPath.']'.Loc::getMessage('SONET_COMMENTAUX_CREATETASK_BLOG_COMMENT_LINK').'[/URL]' : Loc::getMessage('SONET_COMMENTAUX_CREATETASK_BLOG_COMMENT_LINK'))
+					'#A_BEGIN#' => (!empty($commentPath) ? '[URL='.$commentPath.']' : ''),
+					'#A_END#' => (!empty($commentPath) ? '[/URL]' : '')
 				));
 			}
-			elseif ($params['sourcetype'] == self::SOURCE_TYPE_BLOG_POST)
+			elseif (in_array($params['sourcetype'], $this->getPostTypeList()))
 			{
-				if (
-					Loader::includeModule('blog')
-					&& ($post = \CBlogPost::getByID($params['sourceid']))
-				)
-				{
-					$result = Loc::getMessage('SONET_COMMENTAUX_CREATETASK_BLOG_POST', array(
-						'#TASK_NAME#' => (!empty($taskPath) ? '[URL='.$taskPath.']'.$taskTitle.'[/URL]' : $taskTitle)
-					));
-				}
+				$result = Loc::getMessage('SONET_COMMENTAUX_CREATETASK_POST_'.$params['sourcetype'], array(
+					'#TASK_NAME#' => (!empty($taskPath) ? '[URL='.$taskPath.']'.$taskTitle.'[/URL]' : $taskTitle),
+				));
 			}
 
 			if (!empty($result))
@@ -152,6 +296,7 @@ final class CreateTask extends Base
 		else
 		{
 			$handlerParams = $this->getParamsFromFields($fields);
+
 			if (
 				!empty($handlerParams)
 				&& !empty($handlerParams['taskid'])
@@ -222,19 +367,21 @@ final class CreateTask extends Base
 
 				$followValue = \CSocNetLogFollow::getExactValueByRating(
 					$userId,
-					'BLOG_COMMENT',
-					$fields['ID']
+					$ratingVoteParams['ENTITY_TYPE_ID'],
+					$ratingVoteParams['ENTITY_ID']
 				);
 
 				if ($followValue != "N")
 				{
 					$ratingVoteParams['ENTITY_LINK'] = $this->getRatingCommentLink(array(
 						'commentId' => $fields['ID'],
-						'commentAuthorId' => $ratingVoteParams['OWNER_ID']
+						'commentAuthorId' => $ratingVoteParams['OWNER_ID'],
+						'ratingEntityTypeId' => $ratingVoteParams['ENTITY_TYPE_ID'],
+						'ratingEntityId' => $ratingVoteParams['ENTITY_ID']
 					));
 
 					$ratingVoteParams["ENTITY_PARAM"] = 'COMMENT';
-					$ratingVoteParams["ENTITY_MESSAGE"] = $this->getText();
+					$ratingVoteParams["ENTITY_TITLE"] = $ratingVoteParams["ENTITY_MESSAGE"] = $this->getText();
 
 					$messageFields = array(
 						"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,

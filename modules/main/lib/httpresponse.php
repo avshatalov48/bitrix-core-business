@@ -11,16 +11,43 @@ class HttpResponse extends Response
 	/** @var \Bitrix\Main\Web\Cookie[] */
 	protected $cookies = array();
 
-	/** @var array */
-	protected $headers = array();
+	/** @var Web\HttpHeaders */
+	protected $headers;
 
 	/** @var \Bitrix\Main\Type\DateTime */
 	protected $lastModified;
 
+	protected $backgroundJobs = [];
+
+	public function __construct()
+	{
+		parent::__construct();
+
+		$this->initializeHeaders();
+	}
+
+	protected function initializeHeaders()
+	{
+		if ($this->headers === null)
+		{
+			$this->setHeaders(new Web\HttpHeaders());
+		}
+
+		return $this;
+	}
+
 	public function flush($text = '')
 	{
-		$this->writeHeaders();
-		$this->writeBody($text);
+		if (empty($this->backgroundJobs))
+		{
+			$this->writeHeaders();
+			$this->writeBody($text);
+		}
+		else
+		{
+			$this->closeConnection($text);
+			$this->runBackgroundJobs();
+		}
 	}
 
 	/**
@@ -30,22 +57,26 @@ class HttpResponse extends Response
 	 * @param string $value Header field value
 	 * @return $this
 	 * @throws ArgumentNullException
-	 * @throws ArgumentOutOfRangeException
 	 */
 	public function addHeader($name, $value = '')
 	{
 		if (empty($name))
 			throw new ArgumentNullException("name");
 
-		if (preg_match("/%0D|%0A|\r|\n/i", $name))
-			throw new ArgumentOutOfRangeException("name");
-		if (preg_match("/%0D|%0A|\r|\n/i", $value))
-			throw new ArgumentOutOfRangeException("value");
+		$this->getHeaders()->add($name, $value);
 
-		if ($value == "")
-			$this->headers[] = $name;
-		else
-			$this->headers[] = array($name, $value);
+		return $this;
+	}
+
+	/**
+	 * Sets a collection of HTTP headers.
+	 * @param Web\HttpHeaders $headers Headers collection.
+	 *
+	 * @return $this
+	 */
+	public function setHeaders(Web\HttpHeaders $headers)
+	{
+		$this->headers = $headers;
 
 		return $this;
 	}
@@ -113,23 +144,49 @@ class HttpResponse extends Response
 		return $this->cookies;
 	}
 
+	/**
+	 * @return Web\HttpHeaders
+	 */
+	public function getHeaders()
+	{
+		$this->initializeHeaders();
+
+		return $this->headers;
+	}
+
 	protected function writeHeaders()
 	{
 		if($this->lastModified !== null)
 		{
-			$this->setHeader(array("Last-Modified", gmdate("D, d M Y H:i:s", $this->lastModified->getTimestamp())." GMT"));
+			$this->flushHeader(array("Last-Modified", gmdate("D, d M Y H:i:s", $this->lastModified->getTimestamp()) . " GMT"));
 		}
-		foreach ($this->headers as $header)
+
+		foreach ($this->getHeaders() as $name => $values)
 		{
-			$this->setHeader($header);
+			if (is_array($values))
+			{
+				foreach ($values as $value)
+				{
+					$this->flushHeader([$name, $value]);
+				}
+			}
+			elseif($values !== '')
+			{
+				$this->flushHeader([$name, $values]);
+			}
+			else
+			{
+				$this->flushHeader($name);
+			}
 		}
+
 		foreach ($this->cookies as $cookie)
 		{
 			$this->setCookie($cookie);
 		}
 	}
 
-	protected function setHeader($header)
+	protected function flushHeader($header)
 	{
 		if (is_array($header))
 			header(sprintf("%s: %s", $header[0], $header[1]));
@@ -176,11 +233,39 @@ class HttpResponse extends Response
 		}
 		else
 		{
+			$httpHeaders = $this->getHeaders();
+			$httpHeaders->delete($this->getStatus());
+
 			$server = Context::getCurrent()->getServer();
 			$this->addHeader($server->get("SERVER_PROTOCOL")." ".$status);
 		}
 
 		return $this;
+	}
+
+	/**
+	 * Returns the HTTP status of the response.
+	 * @return int|string|null
+	 */
+	public function getStatus()
+	{
+		$cgiStatus = $this->getHeaders()->get('Status');
+		if ($cgiStatus)
+		{
+			return $cgiStatus;
+		}
+
+		$prefixStatus = strtolower(Context::getCurrent()->getServer()->get("SERVER_PROTOCOL") . ' ');
+		$prefixStatusLength = strlen($prefixStatus);
+		foreach ($this->getHeaders() as $name => $value)
+		{
+			if (substr(strtolower($name), 0, $prefixStatusLength) === $prefixStatus)
+			{
+				return $name;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -197,5 +282,62 @@ class HttpResponse extends Response
 		}
 
 		return $this;
+	}
+
+	public function addBackgroundJob(callable $job, array $args = [])
+	{
+		$this->backgroundJobs[] = [$job, $args];
+
+		return $this;
+	}
+
+	protected function runBackgroundJobs()
+	{
+		$lastException = null;
+
+		foreach ($this->backgroundJobs as $job)
+		{
+			try
+			{
+				call_user_func_array($job[0], $job[1]);
+			}
+			catch (\Exception $exception)
+			{
+				$lastException = $exception;
+			}
+		}
+
+		if ($lastException !== null)
+		{
+			throw $lastException;
+		}
+	}
+
+	private function closeConnection($content = "")
+	{
+		while (@ob_end_clean());
+
+		ob_start();
+
+		echo $content;
+
+		$size = ob_get_length();
+
+		$this
+			->addHeader('Connection', 'close')
+			->addHeader('Content-Encoding', 'none')
+			->addHeader('Content-Length', $size)
+		;
+
+		$this->writeHeaders();
+
+		ob_end_flush();
+		@ob_flush();
+		flush();
+
+		if (function_exists("fastcgi_finish_request"))
+		{
+			fastcgi_finish_request();
+		}
 	}
 }

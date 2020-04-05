@@ -1,4 +1,9 @@
 <?
+$MESS["SALE_TAB_ORDER_NUMERATOR_TEMPLATE"] = "Order numbering template";
+$MESS["NUMERATOR_NOT_USE_CHECKBOX_TITLE"] = "Don't use";
+$MESS["SALE_TAB_ORDER_NUMERATOR_TEMPLATE_TITLE"] = "Order number template";
+$MESS["SALE_BASKET_REFRESH_GAP_WARNING"] = "Your online store is using legacy individual discount mode. Discounts may calculate incorrectly if the \"Refresh shopping cart after\" parameter is not zero. It is recommended that you enable the new discount mode, or set this parameter to zero.";
+$MESS["SALE_USE_SALE_DISCOUNT_ONLY_WARNING"] = "Legacy individual discount mode may cause discounts to calculate incorrectly if the \"Refresh shopping cart after\" parameter is not zero. It is recommended that you enable the new discount mode, or set this parameter to zero.";
 $MESS["SALE_EMAIL_ORDER"] = "Sales department e-mail:";
 $MESS["SALE_EMAIL_REGISTER"] = "Default registration e-mail";
 $MESS["SALE_ADDRESS_POST"] = "Value 1";

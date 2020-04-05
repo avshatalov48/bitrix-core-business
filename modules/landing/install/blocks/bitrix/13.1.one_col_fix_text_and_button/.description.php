@@ -10,7 +10,7 @@ return array(
 	'block' =>
 		array(
 			'name' => Loc::getMessage('LANDING_BLOCK_6_ONE_COL_FIX_TEXT_AND_BUTTON_NAME'),
-			'section' => array('tiles', 'text'),
+			'section' => array('tiles'),
 		),
 	'cards' =>
 		array(),

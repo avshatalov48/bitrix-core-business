@@ -133,6 +133,7 @@ class ShipmentItemTable extends Main\Entity\DataManager
 				'required' => true,
 				'title' => Loc::getMessage('ORDER_DELIVERY_BASKET_ENTITY_RESERVED_QUANTITY_FIELD'),
 			),
+			'XML_ID' => array('data_type' => 'string'),
 		);
 	}
 }

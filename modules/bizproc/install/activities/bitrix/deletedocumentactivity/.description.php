@@ -10,6 +10,11 @@ $arActivityDescription = array(
 	"CATEGORY" => array(
 		"ID" => "document",
 	),
+	'FILTER' => [
+		'EXCLUDE' => [
+			['tasks']
+		]
+	],
 	'ROBOT_SETTINGS' => array(
 		'CATEGORY' => 'employee',
 		'TITLE' => GetMessage('BPDDA_DESCR_ROBOT_TITLE')

@@ -33,7 +33,7 @@ return array(
 		'.landing-block-node-card-img' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.2.FOUR_COLUMNS_WITH_IMG_AND_TEXT_NODES_LANDINGBLOCKNODECARDIMG2'),
 			'type' => 'img',
-			'dimensions' => array('width' => 480, 'height' => 466),
+			'dimensions' => array('width' => 800, 'height' => 466),
 		),
 		'.landing-block-node-card-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.2.FOUR_COLUMNS_WITH_IMG_AND_TEXT_NODES_LANDINGBLOCKNODECARDTITLE2'),
@@ -61,27 +61,6 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.2.FOUR_COLUMNS_WITH_IMG_AND_TEXT_CARDS_LANDINGBLOCKNODECARD'),
 			'type' => array('columns', 'background-color', 'background-gradient', 'animation'),
 		),
-		//dbg: del?
-		//			'.landing-block-node-card:nth-child(1)' =>
-		//				array(
-		//					'name' => Loc::getMessage('LANDING_BLOCK_44.2.FOUR_COLUMNS_WITH_IMG_AND_TEXT_CARDS_LANDINGBLOCKNODECARD').' 1',
-		//					'type' => array('background-color', 'background-gradient'),
-		//				),
-		//			'.landing-block-node-card:nth-child(2)' =>
-		//				array(
-		//					'name' => Loc::getMessage('LANDING_BLOCK_44.2.FOUR_COLUMNS_WITH_IMG_AND_TEXT_CARDS_LANDINGBLOCKNODECARD').' 2',
-		//					'type' => array('background-color', 'background-gradient'),
-		//				),
-		//			'.landing-block-node-card:nth-child(3)' =>
-		//				array(
-		//					'name' => Loc::getMessage('LANDING_BLOCK_44.2.FOUR_COLUMNS_WITH_IMG_AND_TEXT_CARDS_LANDINGBLOCKNODECARD').' 3',
-		//					'type' => array('background-color', 'background-gradient'),
-		//				),
-		//			'.landing-block-node-card:nth-child(4)' =>
-		//				array(
-		//					'name' => Loc::getMessage('LANDING_BLOCK_44.2.FOUR_COLUMNS_WITH_IMG_AND_TEXT_CARDS_LANDINGBLOCKNODECARD').' 4',
-		//					'type' => array('background-color', 'background-gradient'),
-		//				),
 		'.landing-block-node-card-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.2.FOUR_COLUMNS_WITH_IMG_AND_TEXT_NODES_LANDINGBLOCKNODECARDTITLE2'),
 			'type' => 'typo',

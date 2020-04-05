@@ -343,8 +343,11 @@ class CPageTemplate
 					if(!IsModuleInstalled($module))
 						continue 2;
 
-			foreach($arDesc as $key=>$val)
-				$arRes[$key] = $val;
+			if(is_array($arDesc))
+			{
+				foreach($arDesc as $key=>$val)
+					$arRes[$key] = $val;
+			}
 
 			$res[$file] = $arRes;
 		}
@@ -411,11 +414,23 @@ class CPageTemplate
 		$file = basename($filepath);
 		$dir = dirname($filepath);
 
-		if(LANGUAGE_ID <> "en" && LANGUAGE_ID <> "ru" && file_exists(($fname = $dir."/lang/".LangSubst(LANGUAGE_ID)."/".$file)))
-			__IncludeLang($fname, false, true);
+		$langSubst = LangSubst(LANGUAGE_ID);
+		$fname = $dir."/lang/".$langSubst."/".$file;
+		$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, $langSubst);
+		if(LANGUAGE_ID <> "en" && LANGUAGE_ID <> "ru")
+		{
+			if(file_exists($fname))
+			{
+				__IncludeLang($fname, false, true);
+			}
+		}
 
-		if(file_exists(($fname = $dir."/lang/".LANGUAGE_ID."/".$file)))
+		$fname = $dir."/lang/".LANGUAGE_ID."/".$file;
+		$fname = \Bitrix\Main\Localization\Translation::convertLangPath($fname, LANGUAGE_ID);
+		if(file_exists($fname))
+		{
 			__IncludeLang($fname, false, true);
+		}
 	}
 }
 
@@ -700,7 +715,7 @@ function GetDirList($path, &$arDirs, &$arFiles, $arFilter=array(), $sort=array()
 		if ($task_mode)
 		{
 			$arFile["PERMISSION"] = $arPerm[0];
-			if (count($arPerm[1]) > 0)
+			if (!empty($arPerm[1]))
 				$arFile["PERMISSION_EX"] = $arPerm[1];
 		}
 		else

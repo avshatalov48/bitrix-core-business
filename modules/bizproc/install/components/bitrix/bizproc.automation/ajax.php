@@ -115,6 +115,12 @@ if (!$target || !$target->isAvailable())
 
 $checkConfigWritePerms = function() use ($documentType, $documentCategoryId, $curUser, $sendError)
 {
+	$tplUser = new \CBPWorkflowTemplateUser(\CBPWorkflowTemplateUser::CurrentUser);
+	if ($tplUser->isAdmin())
+	{
+		return true;
+	}
+
 	$canWrite = CBPDocument::CanUserOperateDocumentType(
 		CBPCanUserOperateOperation::CreateAutomation,
 		$curUser->getId(),
@@ -129,6 +135,12 @@ $checkConfigWritePerms = function() use ($documentType, $documentCategoryId, $cu
 
 $checkReadPerms = function($documentId) use ($documentType, $curUser, $sendError)
 {
+	$tplUser = new \CBPWorkflowTemplateUser(\CBPWorkflowTemplateUser::CurrentUser);
+	if ($tplUser->isAdmin())
+	{
+		return true;
+	}
+
 	$documentId = [$documentType[0], $documentType[1], $documentId];
 	$canRead = CBPDocument::CanUserOperateDocument(
 		CBPCanUserOperateOperation::ViewWorkflow,

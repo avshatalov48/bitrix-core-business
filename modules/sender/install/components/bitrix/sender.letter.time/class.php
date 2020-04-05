@@ -46,6 +46,7 @@ class SenderLetterTimeComponent extends CBitrixComponent
 			$this->arParams['ID'] = (int) $this->request->get('ID');
 		}
 
+		$this->arParams['IS_OUTSIDE'] = isset($this->arParams['IS_OUTSIDE']) ? (bool) $this->arParams['IS_OUTSIDE'] : $this->request->get('isOutside') === 'Y';
 		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] == 'Y' : true;
 		$this->arParams['CAN_EDIT'] = isset($this->arParams['CAN_EDIT'])
 			?
@@ -83,6 +84,7 @@ class SenderLetterTimeComponent extends CBitrixComponent
 
 				case Dispatch\Method::SCHEDULE:
 					$scheduleTime = Dispatch\MethodSchedule::parseTimesOfDay($this->request->get('TIMES_OF_DAY'));
+					$scheduleMonths = Dispatch\MethodSchedule::parseMonthsOfYear($this->request->get('MONTHS_OF_YEAR'));
 					$scheduleWeekDays = Dispatch\MethodSchedule::parseDaysOfWeek($this->request->get('DAYS_OF_WEEK'));
 					$scheduleMonthDays = Dispatch\MethodSchedule::parseDaysOfMonth($this->request->get('DAYS_OF_MONTH'));
 					if (empty($scheduleTime))
@@ -95,6 +97,7 @@ class SenderLetterTimeComponent extends CBitrixComponent
 					}
 					$method->set(
 						(new Dispatch\MethodSchedule($this->letter))
+							->setMonthsOfYear($scheduleMonths)
 							->setDaysOfMonth($scheduleMonthDays)
 							->setDaysOfWeek($scheduleWeekDays)
 							->setTime($scheduleTime[0], $scheduleTime[1])
@@ -128,6 +131,10 @@ class SenderLetterTimeComponent extends CBitrixComponent
 			{
 				$uri->addParams(array('IFRAME' => 'Y'));
 				$uri->addParams(array('IS_SAVED' => 'Y'));
+			}
+			if ($this->arParams['IS_OUTSIDE'])
+			{
+				$uri->addParams(array('isOutside' => 'Y'));
 			}
 
 			LocalRedirect($uri->getLocator());
@@ -179,7 +186,8 @@ class SenderLetterTimeComponent extends CBitrixComponent
 		$this->arResult['TITLE'] = $this->letter->get('TITLE');
 
 		$method = $this->letter->getMethod();
-		switch ($method->getCode())
+		$code = $this->request->get('METHOD_CODE') ?: $method->getCode();
+		switch ($code)
 		{
 			case Dispatch\Method::TIME:
 				/** @var Dispatch\MethodTime $methodInstance */
@@ -191,6 +199,8 @@ class SenderLetterTimeComponent extends CBitrixComponent
 
 			case Dispatch\Method::SCHEDULE:
 				$code = Dispatch\Method::SCHEDULE;
+				$this->arResult['DATE_SEND'] = $this->letter->get('DATE_SEND') ?: $this->letter->get('AUTO_SEND_TIME');
+				$this->arResult['DATE_SEND'] = PrettyDate::formatDateTime($this->arResult['DATE_SEND']);
 				break;
 
 			case Dispatch\Method::DEFERED:
@@ -201,10 +211,11 @@ class SenderLetterTimeComponent extends CBitrixComponent
 		}
 
 		$this->arResult['LETTER_TIME'] = $code;
-		$this->arResult['CAN_CHANGE'] = $method->canChange();
-		$this->arResult['DAYS_OF_MONTH'] = $this->letter->get('DAYS_OF_MONTH');
-		$this->arResult['DAYS_OF_WEEK'] = $this->letter->get('DAYS_OF_WEEK');
-		$this->arResult['TIMES_OF_DAY'] = $this->letter->get('TIMES_OF_DAY');
+		$this->arResult['CAN_CHANGE'] = $method->canChange() && $this->arParams['CAN_EDIT'];
+		foreach (['DAYS_OF_MONTH', 'DAYS_OF_WEEK', 'MONTHS_OF_YEAR', 'TIMES_OF_DAY'] as $key)
+		{
+			$this->arResult[$key] = $this->letter->get($key) ?: $this->request->get($key);
+		}
 		$this->arResult['TIME_LIST'] = Dispatch\MethodSchedule::getTimeList();
 		$this->arResult['IS_SAVED'] = $this->request->get('IS_SAVED') == 'Y';
 		$this->arResult['IS_SUPPORT_REITERATE'] = $this->letter->isSupportReiterate();

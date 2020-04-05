@@ -99,7 +99,7 @@ final class IndexCalendar extends Stepper
 				'fetchAttendees' => true,
 				'parseRecursion' => false,
 				'checkPermissions' => false,
-				//'getUserfields' => false,
+				'parseDescription' => false,
 				'fetchSection' => true,
 				'limit' => self::PORTION
 			)

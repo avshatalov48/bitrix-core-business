@@ -1,6 +1,7 @@
 <?
 
 use Bitrix\Bizproc\FieldType;
+use Bitrix\Iblock\BizprocType;
 
 if (!CModule::IncludeModule("iblock") || !class_exists("CIBlockDocument"))
 	return;
@@ -1636,11 +1637,6 @@ class CBPVirtualDocument
 
 	public function GetDocumentFieldTypes($documentType)
 	{
-		$v = substr($documentType, strlen("type_"));
-		if (intval($v)."!" != $v."!")
-			throw new CBPArgumentOutOfRangeException("documentType", $documentType);
-		$iblockId = intval($v);
-
 		$typesMap = FieldType::getBaseTypesMap();
 
 		$arResult = array(
@@ -1649,8 +1645,6 @@ class CBPVirtualDocument
 			"N" => array("Name" => GetMessage("BPVDX_NUM"), "BaseType" => "double", 'typeClass' => $typesMap[FieldType::DOUBLE]),
 			"L" => array("Name" => GetMessage("BPVDX_LIST"), "BaseType" => "select", "Complex" => true, 'typeClass' => $typesMap[FieldType::SELECT]),
 			"F" => array("Name" => GetMessage("BPVDX_FILE"), "BaseType" => "file", 'typeClass' => $typesMap[FieldType::FILE]),
-			//"G" => array("Name" => GetMessage("BPVDX_SECT"), "BaseType" => "int"),
-			//"E" => array("Name" => GetMessage("BPVDX_ELEM"), "BaseType" => "int"),
 			"B" => array("Name" => GetMessage("BPVDX_YN"), "BaseType" => "bool", 'typeClass' => $typesMap[FieldType::BOOL]),
 		);
 
@@ -1667,7 +1661,7 @@ class CBPVirtualDocument
 				&& !array_key_exists("GetPublicEditHTML", $ar) && $t != "S:UserID" && $t != "S:DateTime")
 				continue;
 
-			$arResult[$t] = array("Name" => $ar["DESCRIPTION"], "BaseType" => "string", 'typeClass' => '\Bitrix\Iblock\BizprocType\UserTypeProperty');
+			$arResult[$t] = array("Name" => $ar["DESCRIPTION"], "BaseType" => "string", 'typeClass' => BizprocType\UserTypeProperty::class);
 			if ($t == "S:UserID")
 			{
 				$arResult[$t]["BaseType"] = "user";
@@ -1676,7 +1670,7 @@ class CBPVirtualDocument
 			elseif ($t == "S:employee" && COption::GetOptionString("bizproc", "employee_compatible_mode", "N") != "Y")
 			{
 				$arResult[$t]["BaseType"] = "user";
-				$arResult[$t]['typeClass'] = '\Bitrix\Iblock\BizprocType\UserTypePropertyEmployee';
+				$arResult[$t]['typeClass'] = BizprocType\UserTypePropertyEmployee::class;
 			}
 			elseif ($t == "S:DateTime")
 			{
@@ -1692,22 +1686,22 @@ class CBPVirtualDocument
 			{
 				$arResult[$t]["BaseType"] = "string";
 				$arResult[$t]["Complex"] = true;
-				$arResult[$t]['typeClass'] = '\Bitrix\Iblock\BizprocType\UserTypePropertyElist';
+				$arResult[$t]['typeClass'] = BizprocType\UserTypePropertyElist::class;
 			}
 			elseif ($t == 'S:HTML')
 			{
-				$arResult[$t]['typeClass'] = '\Bitrix\Iblock\BizprocType\UserTypePropertyHtml';
+				$arResult[$t]['typeClass'] = BizprocType\UserTypePropertyHtml::class;
 			}
 			elseif($t == 'S:DiskFile')
 			{
 				$arResult[$t]["BaseType"] = "int";
-				$arResult[$t]['typeClass'] = '\Bitrix\Iblock\BizprocType\UserTypePropertyDiskFile';
+				$arResult[$t]['typeClass'] = BizprocType\UserTypePropertyDiskFile::class;
 			}
 			elseif($t == 'E:ECrm')
 			{
 				$arResult[$t]["BaseType"] = "string";
 				$arResult[$t]["Complex"] = true;
-				$arResult[$t]['typeClass'] = '\Bitrix\Iblock\BizprocType\ECrm';
+				$arResult[$t]['typeClass'] = BizprocType\ECrm::class;
 			}
 		}
 
@@ -1921,6 +1915,7 @@ class CBPVirtualDocument
 		$arDocumentFields = self::GetDocumentFields("type_".$arFields["IBLOCK_ID"]);
 
 		$arKeys = array_keys($arFields);
+		$arFieldsPropertyValues = [];
 		foreach ($arKeys as $key)
 		{
 			if (!array_key_exists($key, $arDocumentFields))
@@ -1947,7 +1942,7 @@ class CBPVirtualDocument
 					}
 					else
 					{
-						$a1 = self::GetUsersFromUserGroup($v1, $documentId);
+						$a1 = self::GetUsersFromUserGroup($v1, $parentDocumentId);
 						foreach ($a1 as $a11)
 							$ar[] = $a11;
 					}

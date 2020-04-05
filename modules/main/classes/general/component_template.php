@@ -506,27 +506,32 @@ class CBitrixComponentTemplate
 
 		$parentRelativePath = "";
 		$parentTemplateName = "";
+		$parentTemplatePath = "";
 		$parentComponent = & $this->__component->GetParent();
 		$defSiteTemplate = ($this->__siteTemplate == ".default");
 		if ($parentComponent && $parentComponent->GetTemplate())
 		{
 			$parentRelativePath = $parentComponent->GetRelativePath();
 			$parentTemplateName = $parentComponent->GetTemplate()->GetName();
+			if($parentTemplateName <> '')
+			{
+				$parentTemplatePath = "/".$parentTemplateName;
+			}
 
 			if(!$defSiteTemplate)
 			{
 				$arFolders[] = array(
-					"path" => "/local/templates/".$this->__siteTemplate."/components".$parentRelativePath."/".$parentTemplateName.$relativePath,
+					"path" => "/local/templates/".$this->__siteTemplate."/components".$parentRelativePath.$parentTemplatePath.$relativePath,
 					"in_theme" => true,
 				);
 			}
 			$arFolders[] = array(
-				"path" => "/local/templates/.default/components".$parentRelativePath."/".$parentTemplateName.$relativePath,
+				"path" => "/local/templates/.default/components".$parentRelativePath.$parentTemplatePath.$relativePath,
 				"in_theme" => true,
 				"site_template" => ".default",
 			);
 			$arFolders[] = array(
-				"path" => "/local/components".$parentRelativePath."/templates/".$parentTemplateName.$relativePath,
+				"path" => "/local/components".$parentRelativePath."/templates".$parentTemplatePath.$relativePath,
 				"in_theme" => true,
 				"site_template" => "",
 			);
@@ -551,17 +556,17 @@ class CBitrixComponentTemplate
 			if(!$defSiteTemplate)
 			{
 				$arFolders[] = array(
-					"path" => BX_PERSONAL_ROOT."/templates/".$this->__siteTemplate."/components".$parentRelativePath."/".$parentTemplateName.$relativePath,
+					"path" => BX_PERSONAL_ROOT."/templates/".$this->__siteTemplate."/components".$parentRelativePath.$parentTemplatePath.$relativePath,
 					"in_theme" => true,
 				);
 			}
 			$arFolders[] = array(
-				"path" => BX_PERSONAL_ROOT."/templates/.default/components".$parentRelativePath."/".$parentTemplateName.$relativePath,
+				"path" => BX_PERSONAL_ROOT."/templates/.default/components".$parentRelativePath.$parentTemplatePath.$relativePath,
 				"in_theme" => true,
 				"site_template" => ".default",
 			);
 			$arFolders[] = array(
-				"path" => "/bitrix/components".$parentRelativePath."/templates/".$parentTemplateName.$relativePath,
+				"path" => "/bitrix/components".$parentRelativePath."/templates".$parentTemplatePath.$relativePath,
 				"in_theme" => true,
 				"site_template" => "",
 			);

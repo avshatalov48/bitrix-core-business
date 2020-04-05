@@ -198,7 +198,7 @@ class CAllSalePaySystem
 					'filter' => array(
 						'SERVICE_ID' => $ps['ID'],
 						'SERVICE_TYPE' => \Bitrix\Sale\Services\PaySystem\Restrictions\Manager::SERVICE_TYPE_PAYMENT,
-						'=CLASS_NAME' => '\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType'
+						'=CLASS_NAME' => '\\'.\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType::class
 					)
 				));
 
@@ -223,7 +223,7 @@ class CAllSalePaySystem
 			'filter' => array(
 				'SERVICE_ID' => $paySystemId,
 				'SERVICE_TYPE' => \Bitrix\Sale\Services\PaySystem\Restrictions\Manager::SERVICE_TYPE_PAYMENT,
-				'=CLASS_NAME' => '\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType'
+				'=CLASS_NAME' => '\\'.\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType::class
 			)
 		));
 		while ($restriction = $dbRestriction->fetch())

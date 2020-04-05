@@ -61,6 +61,62 @@ class BaseTrigger
 		return 'Base trigger';
 	}
 
+	protected function getPotentialTriggers()
+	{
+		$triggers = [];
+
+		$currentStatus = $this->getTarget()->getDocumentStatus();
+		$allStatuses = array_keys($this->getTarget()->getDocumentStatusList());
+
+		$needleKey = array_search($currentStatus, $allStatuses);
+
+		if ($needleKey === false)
+		{
+			return $triggers;
+		}
+
+		$forwardStatuses = array_slice($allStatuses, $needleKey + 1);
+
+		$code = static::getCode();
+		$rows = [];
+		$targetTriggers = $this->getTarget()->getTriggers($allStatuses);
+
+		foreach ($targetTriggers as $row)
+		{
+			if ($row['CODE'] !== $code)
+			{
+				continue;
+			}
+
+			if (!in_array($row['DOCUMENT_STATUS'], $forwardStatuses))
+			{
+				if (
+					!isset($row['APPLY_RULES']['ALLOW_BACKWARDS'])
+					||
+					$row['APPLY_RULES']['ALLOW_BACKWARDS'] !== 'Y'
+				)
+				{
+					continue;
+				}
+			}
+
+			$rows[$row['DOCUMENT_STATUS']][] = $row;
+		}
+
+		if ($rows)
+		{
+			foreach ($allStatuses as $needleStatus)
+			{
+				if (isset($rows[$needleStatus]))
+				{
+					$triggers = array_merge($triggers, $rows[$needleStatus]);
+				}
+			}
+		}
+
+		return $triggers;
+	}
+
 	public function checkApplyRules(array $trigger)
 	{
 		$conditionRules = is_array($trigger['APPLY_RULES']) && isset($trigger['APPLY_RULES']['Condition'])

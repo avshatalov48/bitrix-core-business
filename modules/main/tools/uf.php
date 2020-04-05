@@ -2,6 +2,12 @@
 define("NO_KEEP_STATISTIC", true);
 define("NOT_CHECK_PERMISSIONS", true);
 define("NO_AGENT_CHECK", true);
+define("DisableEventsCheck", true);
+
+if(isset($_REQUEST['mode']) && $_REQUEST['mode'] === 'view')
+{
+	define('BX_SECURITY_SESSION_READONLY', true);
+}
 
 if(isset($_REQUEST['tpl']) && isset($_REQUEST['tpls']))
 {

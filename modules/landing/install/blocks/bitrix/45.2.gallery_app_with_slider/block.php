@@ -1,6 +1,5 @@
 <div class="landing-block g-pt-80 g-pb-80">
 	<div class="container">
-		<!--		<div class="js-gallery-cards row">-->
 		<div class="js-carousel js-gallery-cards landing-gallery-app-slider row g-pb-20"
 			 data-infinite="true"
 			 data-slides-show="3"
@@ -25,7 +24,7 @@
                    "slidesToScroll": 1
                  }
                }]'>
-			<div class="landing-block-node-card js-animation slideInUp text-center col-lg-3 col-md-4 col-sm-6 g-mb-30 g-min-width-300">
+			<div class="landing-block-node-card js-animation slideInUp text-center g-mb-30 g-min-width-300">
 				<div class="g-pos-rel g-parent d-inline-block h-100">
 					<img data-fancybox="gallery" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img1.jpg"
 						 alt=""
@@ -37,7 +36,7 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-card js-animation slideInUp text-center col-lg-3 col-md-4 col-sm-6 g-mb-30 g-min-width-300">
+			<div class="landing-block-node-card js-animation slideInUp text-center g-mb-30 g-min-width-300">
 				<div class="g-pos-rel g-parent d-inline-block h-100">
 					<img data-fancybox="gallery" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img2.jpg"
 						 alt=""
@@ -49,7 +48,7 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-card js-animation slideInUp text-center col-lg-3 col-md-4 col-sm-6 g-mb-30 g-min-width-300">
+			<div class="landing-block-node-card js-animation slideInUp text-center g-mb-30 g-min-width-300">
 				<div class="g-pos-rel g-parent d-inline-block h-100">
 					<img data-fancybox="gallery" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img3.jpg"
 						 alt=""
@@ -61,7 +60,7 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-card js-animation slideInUp text-center col-lg-3 col-md-4 col-sm-6 g-mb-30 g-min-width-300">
+			<div class="landing-block-node-card js-animation slideInUp text-center g-mb-30 g-min-width-300">
 				<div class="g-pos-rel g-parent d-inline-block h-100">
 					<img data-fancybox="gallery" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img4.jpg"
 						 alt=""
@@ -73,7 +72,7 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-card js-animation slideInUp text-center col-lg-3 col-md-4 col-sm-6 g-mb-30 g-min-width-300">
+			<div class="landing-block-node-card js-animation slideInUp text-center g-mb-30 g-min-width-300">
 				<div class="g-pos-rel g-parent d-inline-block h-100">
 					<img data-fancybox="gallery" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img5.jpg"
 						 alt=""
@@ -85,7 +84,7 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-card js-animation slideInUp text-center col-lg-3 col-md-4 col-sm-6 g-mb-30 g-min-width-300">
+			<div class="landing-block-node-card js-animation slideInUp text-center g-mb-30 g-min-width-300">
 				<div class="g-pos-rel g-parent d-inline-block h-100">
 					<img data-fancybox="gallery" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img6.jpg"
 						 alt=""
@@ -97,7 +96,7 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-card js-animation slideInUp text-center col-lg-3 col-md-4 col-sm-6 g-mb-30 g-min-width-300">
+			<div class="landing-block-node-card js-animation slideInUp text-center g-mb-30 g-min-width-300">
 				<div class="g-pos-rel g-parent d-inline-block h-100">
 					<img data-fancybox="gallery" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img7.jpg"
 						 alt=""
@@ -109,7 +108,7 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-card js-animation slideInUp text-center col-lg-3 col-md-4 col-sm-6 g-mb-30 g-min-width-300">
+			<div class="landing-block-node-card js-animation slideInUp text-center g-mb-30 g-min-width-300">
 				<div class="g-pos-rel g-parent d-inline-block h-100">
 					<img data-fancybox="gallery" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img8.jpg"
 						 alt=""
@@ -121,7 +120,7 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-card js-animation slideInUp text-center col-lg-3 col-md-4 col-sm-6 g-mb-30 g-min-width-300">
+			<div class="landing-block-node-card js-animation slideInUp text-center g-mb-30 g-min-width-300">
 				<div class="g-pos-rel g-parent d-inline-block h-100">
 					<img data-fancybox="gallery" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img9.jpg"
 						 alt=""
@@ -133,7 +132,7 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-card js-animation slideInUp text-center col-lg-3 col-md-4 col-sm-6 g-mb-30 g-min-width-300">
+			<div class="landing-block-node-card js-animation slideInUp text-center g-mb-30 g-min-width-300">
 				<div class="g-pos-rel g-parent d-inline-block h-100">
 					<img data-fancybox="gallery" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img10.jpg"
 						 alt=""
@@ -145,7 +144,7 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-card js-animation slideInUp text-center col-lg-3 col-md-4 col-sm-6 g-mb-30 g-min-width-300">
+			<div class="landing-block-node-card js-animation slideInUp text-center g-mb-30 g-min-width-300">
 				<div class="g-pos-rel g-parent d-inline-block h-100">
 					<img data-fancybox="gallery" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img11.jpg"
 						 alt=""
@@ -157,7 +156,7 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-card js-animation slideInUp text-center col-lg-3 col-md-4 col-sm-6 g-mb-30 g-min-width-300">
+			<div class="landing-block-node-card js-animation slideInUp text-center g-mb-30 g-min-width-300">
 				<div class="g-pos-rel g-parent d-inline-block h-100">
 					<img data-fancybox="gallery" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x481/img12.jpg"
 						 alt=""

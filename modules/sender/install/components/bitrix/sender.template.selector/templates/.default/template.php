@@ -3,6 +3,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
+use Bitrix\Main\UI\Extension;
 
 /** @var array $arParams */
 /** @var array $arResult */
@@ -17,6 +18,8 @@ use Bitrix\Main\Web\Json;
 /** @var CBitrixComponent $component */
 
 $this->addExternalJs($this->GetFolder() . '/grid.js');
+
+Extension::load('ui.hint');
 
 $containerId = 'bx-sender-template-selector';
 

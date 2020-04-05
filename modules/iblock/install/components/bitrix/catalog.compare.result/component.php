@@ -465,7 +465,7 @@ if (isset($_REQUEST[$arParams["ACTION_VARIABLE"]]) && isset($_REQUEST[$arParams[
 			if (Add2BasketByProductID($productID, $QUANTITY, $product_properties))
 			{
 				if ($action == "COMPARE_BUY")
-					LocalRedirect($arParams["BASKET_URL"]);
+					LocalRedirect($arParams["BASKET_URL"], true);
 				else
 					LocalRedirect($APPLICATION->GetCurPageParam("", array($arParams["PRODUCT_ID_VARIABLE"], $arParams["ACTION_VARIABLE"])));
 			}

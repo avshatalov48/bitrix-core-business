@@ -99,15 +99,33 @@
 		{
 			if (!this.supportLink)
 			{
-				this.supportLink = BX.create("span", {
+				var url = "https://helpdesk.bitrix24.com/ticket.php";
+				var currentLanguage = BX.message("LANGUAGE_ID");
+
+				switch (currentLanguage)
+				{
+					case "ru":
+					case "by":
+					case "kz":
+						url = "https://helpdesk.bitrix24.ru/ticket.php";
+						break;
+					case "de":
+						url = "https://helpdesk.bitrix24.de/ticket.php";
+						break;
+					case "br":
+						url = "https://helpdesk.bitrix24.com.br/ticket.php";
+						break;
+					case "es":
+						url = "https://helpdesk.bitrix24.es/ticket.php";
+						break;
+
+				}
+
+				this.supportLink = BX.create("a", {
 					props: {className: "landing-ui-panel-alert-support-link"},
 					html: BX.message("LANDING_ALERT_ACTION_SUPPORT_LINK"),
-					events: {
-						click: function() {
-							BX.Landing.Main.getInstance().showSliderFeedbackForm({target: "error_message"});
-						}
-					}
-				})
+					attrs: {href: url, target: '_blank'}
+				});
 			}
 
 			return this.supportLink;

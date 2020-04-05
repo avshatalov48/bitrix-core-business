@@ -147,10 +147,8 @@ a.sonet-invitation-dash-link:hover{ color: #696969; border-color: #696969; text-
 
 .sonet-group-create-popup-form-email-block .errortext { cursor: default; display: block; font-size: 14px; color: #ff3c00; width: 550px; border-radius: 2px; padding: 3px 5px; position: relative; text-decoration: none; }
 
-.sonet-group-create-popup .feed-add-post-destination-wrap {background:#FFF;}
 .sonet-group-create-popup-users-title {padding-bottom:10px;}
 
-.feed-add-post-destination-wrap.sonet-group-create-tabs-text-error { border-width: 2px!important; border-color: #ff3c00!important; border-radius: 2px!important; border-style: solid!important; }
 .sonet-group-create-popup .invite-dialog-inv-form {
 	width:auto;
 	min-width:0;
@@ -756,14 +754,13 @@ a.sonet-invitation-dash-link:hover{ color: #696969; border-color: #696969; text-
 
 .social-group-create-form-field .social-group-create-form-field-controls {
 	position: relative;
-	display: inline-block;
+	display: flex;
+	flex-wrap: wrap;
 	min-width: 200px;
-	height: 30px;
 	vertical-align: middle;
 	white-space: nowrap;
 	line-height: 30px;
 	overflow: hidden;
-	margin: 0 5px 5px 0;
 }
 
 .social-group-create-form-field .social-group-create-form-field-loading {
@@ -841,18 +838,10 @@ a.sonet-invitation-dash-link:hover{ color: #696969; border-color: #696969; text-
 	margin: 0 120px 0 0;
 }
 
-.social-group-create-form-control-block .social-group-create-form-field.feed-add-post-destination-wrap,
-.social-group-create-form-control-block .social-group-create-form-field.feed-add-post-destination-wrap {
-	margin-right: 220px;
-}
-
-.social-group-create-form-control-block .social-group-create-form-field .feed-add-destination-inp {
-	margin-bottom: 6px;
-}
-
-.social-group-create-form-control-block .social-group-create-form-field .feed-add-destination-link {
-	margin-top: 9px;
-	margin-bottom: 9px;
+.social-group-create-form-control-block .main-user-selector-wrap
+{
+	flex: 1 1 auto;
+	margin: 0 220px 0 0;
 }
 
 .social-group-create-form-control-block .social-group-create-text {
@@ -942,7 +931,7 @@ a.sonet-invitation-dash-link:hover{ color: #696969; border-color: #696969; text-
 	flex-direction: column;
 	flex-wrap: wrap;
 	margin: -8px 0 0 0;
-	max-height: 170px;
+	height: 170px;
 	max-width: 330px;
 }
 

@@ -7,7 +7,7 @@ Loc::loadMessages(__FILE__);
 
 /**
  * Class AppLangTable
- * 
+ *
  * Fields:
  * <ul>
  * <li> ID int mandatory
@@ -58,10 +58,14 @@ class AppLangTable extends Main\Entity\DataManager
 			'TITLE' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateTitle'),
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'DESCRIPTION' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateDescription'),
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'COPYRIGHT' => array(
 				'data_type' => 'string',

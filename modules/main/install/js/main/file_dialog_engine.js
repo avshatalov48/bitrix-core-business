@@ -2082,6 +2082,13 @@ BXDialogControls.prototype.RefreshOnclick = function()
 	BXDialogWindow.arFiles = {};
 	oBXDialogTree.bRedisplayTree = true;
 
+	if(oBXDialogTree.curSelectedItem && oBXDialogTree.curSelectedItem.oTitle)
+	{
+		oBXDialogTree.UnHighlightElement(oBXDialogTree.curSelectedItem.oTitle);
+	}
+
+	oBXDialogTree.curSelectedItem = null;
+
 	var path = oBXDialogControls.dirPath.Get() || '/';
 	oBXDialogTree.SetPath(path);
 };

@@ -67,6 +67,14 @@ if ($action === 'registration')
 		'errors' => $registerResult->getErrorMessages()
 	));
 }
+elseif ($action === 'demo')
+{
+	$registerResult = $sender->registerDemo($_POST['info']);
+	$sendResponse(array(
+		'success' => $registerResult->isSuccess(),
+		'errors' => $registerResult->getErrorMessages()
+	));
+}
 else if ($action === 'confirmation' && !$sender->isConfirmed())
 {
 	$confirmResult = $sender->confirmRegistration(array(

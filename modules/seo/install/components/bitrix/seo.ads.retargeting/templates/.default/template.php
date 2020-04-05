@@ -2,8 +2,11 @@
 if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
 use \Bitrix\Main\Localization\Loc;
+use \Bitrix\Main\UI\Extension;
 
 /** @var array $arParams */
+
+Extension::load('ui.hint');
 
 $containerNodeId = $arParams['CONTAINER_NODE_ID'];
 $destroyEventName = $arParams['JS_DESTROY_EVENT_NAME'];
@@ -34,6 +37,7 @@ $namePrefix = htmlspecialcharsbx($arParams['INPUT_NAME_PREFIX']);
 	<div data-bx-ads-block="login" style="display: none;" class="crm-ads-rtg-popup-settings">
 		<div class="crm-ads-rtg-popup-social crm-ads-rtg-popup-social-<?=$type?>">
 			<a
+				id="seo-ads-login-btn"
 				target="_blank"
 				href="javascript: void(0);"
 				onclick="BX.util.popup('<?=htmlspecialcharsbx($provider['AUTH_URL'])?>', 800, 600);"
@@ -101,7 +105,13 @@ $namePrefix = htmlspecialcharsbx($arParams['INPUT_NAME_PREFIX']);
 
 			<?if($provider['IS_SUPPORT_MULTI_TYPE_CONTACTS']):?>
 			<div class="crm-ads-rtg-popup-settings">
-				<div class="crm-ads-rtg-popup-settings-title-full"><?=Loc::getMessage('CRM_ADS_RTG_SELECT_AUDIENCE')?>:</div>
+				<div class="crm-ads-rtg-popup-settings-title-full">
+					<?=Loc::getMessage('CRM_ADS_RTG_SELECT_AUDIENCE')?>:
+					<span data-hint="<?=htmlspecialcharsbx(
+						Loc::getMessage('CRM_ADS_RTG_AUDIENCE_TYPE_HINT_' . $typeUpped)
+						. ' ' . Loc::getMessage('CRM_ADS_RTG_AUDIENCE_ADD_HINT_' . $typeUpped)
+					)?>"></span>
+				</div>
 
 				<table class="crm-ads-rtg-table">
 					<tr>
@@ -128,7 +138,13 @@ $namePrefix = htmlspecialcharsbx($arParams['INPUT_NAME_PREFIX']);
 			</div>
 			<?else:?>
 			<div class="crm-ads-rtg-popup-settings">
-				<div class="crm-ads-rtg-popup-settings-title-full"><?=Loc::getMessage('CRM_ADS_RTG_SELECT_CONTACT_DATA')?>:</div>
+				<div class="crm-ads-rtg-popup-settings-title-full">
+					<?=Loc::getMessage('CRM_ADS_RTG_SELECT_CONTACT_DATA')?>:
+					<span data-hint="<?=htmlspecialcharsbx(
+						Loc::getMessage('CRM_ADS_RTG_AUDIENCE_TYPE_HINT_' . $typeUpped)
+						. ' ' . Loc::getMessage('CRM_ADS_RTG_AUDIENCE_ADD_HINT_' . $typeUpped)
+					)?>"></span>
+				</div>
 				<table class="crm-ads-rtg-table">
 					<tr>
 						<td>

@@ -3,6 +3,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main\Localization\Loc;
 
+CJSCore::Init(array("popup"));
 $this->addExternalCss("/bitrix/css/main/bootstrap.css");
 
 if (!empty($arResult["errorMessage"]))
@@ -158,6 +159,7 @@ else
 			"alertMessages" => array("wrongInput" => Loc::getMessage('SAP_ERROR_INPUT')),
 			"url" => CUtil::JSEscape($this->__component->GetPath().'/ajax.php'),
 			"templateFolder" => CUtil::JSEscape($templateFolder),
+			"templateName" => $this->__component->GetTemplateName(),
 			"signedParams" => $arResult['SIGNED_PARAMS'],
 			"wrapperId" => $wrapperId
 		);

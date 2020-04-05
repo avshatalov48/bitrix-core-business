@@ -11,18 +11,19 @@ if (
 	!\Bitrix\Main\Loader::includeModule('landing') ||
 	\Bitrix\Landing\Landing::getEditMode()
 )
-{?>
-<div class="g-min-height-200 g-height-100 g-flex-centered">
-	<div class="g-pa-10 g-brd-html-dashed">
-		<?echo Loc::getMessage('LANDING_TPL_NOT_IN_PREVIEW_MODE');
-		 } else
-		{
-			echo \htmlspecialcharsback($arParams['~HTML_CODE']);
-		} ?>
+{
+	?>
+	<div class="g-min-height-200 g-flex-centered">
+		<div class="g-pa-10 g-brd-html-dashed g-bg-white">
+			<?= Loc::getMessage('LANDING_TPL_NOT_IN_PREVIEW_MODE');?>
+		</div>
 	</div>
-</div>
-
-
+	<?
+}
+else
+{
+	echo \htmlspecialcharsback($arParams['~HTML_CODE']);
+}
 
 
 

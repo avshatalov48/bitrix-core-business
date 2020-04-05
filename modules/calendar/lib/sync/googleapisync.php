@@ -496,6 +496,7 @@ final class GoogleApiSync
 				}
 			}
 		}
+
 		if (!empty($eventData['DAV_XML_ID']) && stripos($eventData['DAV_XML_ID'], '@google.com') !== false)
 		{
 			$externalEvent = $this->syncTransport->updateEvent($newEvent, urlencode($calendarId), $eventData['DAV_XML_ID']);
@@ -504,6 +505,7 @@ final class GoogleApiSync
 		{
 			$externalEvent = $this->syncTransport->insertEvent($newEvent, urlencode($calendarId));
 		}
+
 		return ($externalEvent) ? $externalEvent['iCalUID'] : '';
 	}
 

@@ -166,12 +166,15 @@ class CSocNetLogComments extends CAllSocNetLogComments
 						));
 					}
 
-					CSocNetLogFollow::Set(
-						$arFields["USER_ID"], 
-						"L".$arFields["LOG_ID"], 
-						"Y", 
-						ConvertTimeStamp(time() + CTimeZone::GetOffset(), "FULL")
-					);
+					\Bitrix\Socialnetwork\ComponentHelper::userLogSubscribe(array(
+						'logId' => $arFields["LOG_ID"],
+						'userId' => $arFields["USER_ID"],
+						'typeList' => array(
+							'FOLLOW',
+							'COUNTER_COMMENT_PUSH'
+						),
+						'followDate' => 'CURRENT'
+					));
 
 					// subscribe log entry owner
 					$rsLog = CSocNetLog::GetList(
@@ -200,7 +203,13 @@ class CSocNetLogComments extends CAllSocNetLogComments
 							$arLogFollow = $rsLogFollow->Fetch();
 							if (!$arLogFollow)
 							{
-								CSocNetLogFollow::Set($arLog["USER_ID"], "L".$arFields["LOG_ID"], "Y");
+								\Bitrix\Socialnetwork\ComponentHelper::userLogSubscribe(array(
+									'logId' => $arFields["LOG_ID"],
+									'userId' => $arLog["USER_ID"],
+									'typeList' => array(
+										'FOLLOW',
+									)
+								));
 							}
 						}
 					}
@@ -526,6 +535,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 			"CREATED_BY_PERSONAL_PHOTO" => Array("FIELD" => "U1.PERSONAL_PHOTO", "TYPE" => "int", "FROM" => "LEFT JOIN b_user U1 ON LC.USER_ID = U1.ID"),
 			"CREATED_BY_PERSONAL_GENDER" => Array("FIELD" => "U1.PERSONAL_GENDER", "TYPE" => "string", "FROM" => "LEFT JOIN b_user U1 ON LC.USER_ID = U1.ID"),
 			"CREATED_BY_EXTERNAL_AUTH_ID" => Array("FIELD" => "U1.EXTERNAL_AUTH_ID", "TYPE" => "string", "FROM" => "LEFT JOIN b_user U1 ON LC.USER_ID = U1.ID"),
+			"SHARE_DEST" => Array("FIELD" => "LC.SHARE_DEST", "TYPE" => "string"),
 		);
 
 		if (array_key_exists("LOG_SITE_ID", $arFilter))

@@ -438,15 +438,19 @@ abstract class Helper
 
 	// function calculates limit and offset for sql select query, based on current request and session
 	// variables, then forms fake old-style database result
-	public static function getList($parameters = array(), $tableId = false, $navigation = 20)
+	public static function getList($parameters = array(), $tableId = false, $navigation = 20, $params = array())
 	{
 		$entityClass = static::getEntityClass();
-
 		$navNum = $GLOBALS['NavNum'] + 1;
 		$unique = md5($GLOBALS['APPLICATION']->GetCurPage());
 		$showAll = $_SESSION[$unique.'SESS_ALL_'.$navNum] || $_GET['SHOWALL_'.$navNum];
+		$isAdminSection = defined('ADMIN_SECTION') && ADMIN_SECTION === true;
 
-		if(ADMIN_SECTION === true && strlen($tableId))
+		if ($params["uiMode"])
+		{
+			$result = new \CSaleProxyAdminUiResult($parameters, $entityClass, $tableId);
+		}
+		elseif($isAdminSection && strlen($tableId))
 		{
 			$result = new \CSaleProxyAdminResult($parameters, $entityClass, $tableId); // being in admin and knowing table, do admin result api call
 		}
@@ -566,8 +570,10 @@ abstract class Helper
 
 		$parameters['lang'] = LANGUAGE_ID;
 
+		$selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
+
 		$packed = self::packUrlParameters($parameters);
-		return '/bitrix/admin/'.$page.(strlen($packed) ? '?'.$packed : '');
+		return $selfFolderUrl.$page.(strlen($packed) ? '?'.$packed : '');
 	}
 
 	#####################################

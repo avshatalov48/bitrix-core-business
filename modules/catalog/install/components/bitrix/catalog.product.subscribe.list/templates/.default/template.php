@@ -362,7 +362,7 @@ if (!empty($arResult['ITEMS']))
 		?>
 		<div class="bx_catalog_item_controls">
 			<div>
-				<a class="btn btn-sm btn-primary" href="<?=$arItem['DETAIL_PAGE_URL'];?>">
+				<a class="btn btn-default" href="<?=$arItem['DETAIL_PAGE_URL'];?>">
 					<?=GetMessage('CPSL_TPL_MESS_BTN_DETAIL');?>
 				</a>
 			</div>
@@ -514,7 +514,7 @@ if (!empty($arResult['ITEMS']))
 	?>
 		<div class="bx_catalog_item_controls no_touch">
 			<div>
-				<a class="btn btn-sm btn-primary" href="<?=$arItem['DETAIL_PAGE_URL'];?>">
+				<a class="btn btn-default" href="<?=$arItem['DETAIL_PAGE_URL'];?>">
 					<?=GetMessage('CPSL_TPL_MESS_BTN_DETAIL');?>
 				</a>
 			</div>

@@ -218,7 +218,7 @@ class CSaleBasketHelper
 	 */
 	public static function getFinalPrice(array $basketItemData)
 	{
-		$price = roundEx($basketItemData['PRICE'] * $basketItemData['QUANTITY'], SALE_VALUE_PRECISION);
+		$price = \Bitrix\Sale\PriceMaths::roundPrecision($basketItemData['PRICE'] * $basketItemData['QUANTITY']);
 		if (isset($basketItemData['VAT_INCLUDED']) && $basketItemData['VAT_INCLUDED'] === 'N')
 		{
 			$price += static::getVat($basketItemData);

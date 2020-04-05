@@ -1,32 +1,13 @@
-<?php
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
-{
-	die();
-}
-
-$context = \Bitrix\Main\Application::getInstance()->getContext();
-$request = $context->getRequest();
-
-if ($request->get("landing_mode") != "edit")
-{
-	\Bitrix\Landing\Manager::setPageView(
-		"MainClass",
-		"g-pt-50 g-pt-70--md"
-	);
-}
-?>
-
-<header class="landing-block landing-block-menu g-bg-white u-header u-header--sticky-top u-header--change-appearance g-z-index-9999"
-		data-header-fix-moment="100">
-	<div class="u-header__section g-transition-0_3 g-py-6 g-py-18--md"
+<header class="landing-block landing-block-menu g-bg-white u-header u-header--floating u-header--floating-relative g-z-index-9999">
+	<div class="u-header__section u-header__section--light g-transition-0_3 g-py-6 g-py-18--md"
 		 data-header-fix-moment-exclude="g-py-18--md"
 		 data-header-fix-moment-classes="u-shadow-v27 g-py-13--md">
-		<nav class="navbar navbar-expand-lg g-py-0 g-mt-3">
+		<nav class="navbar navbar-expand-lg g-py-0 g-mt-3 g-px-10">
 			<div class="container">
 				<!-- Logo -->
-				<a href="#" class="landing-block-node-menu-logo-link navbar-brand u-header__logo p-0">
+				<a href="#system_mainpage" class="landing-block-node-menu-logo-link navbar-brand u-header__logo p-0">
 					<img class="landing-block-node-menu-logo u-header__logo-img u-header__logo-img--main g-max-width-180"
-						 src="/bitrix/templates/landing24/assets/img/lawyer-logo.png" alt="">
+						 src="https://cdn.bitrix24.site/bitrix/images/landing/logos/lawyer-logo.png" alt="">
 				</a>
 				<!-- End Logo -->
 
@@ -34,7 +15,7 @@ if ($request->get("landing_mode") != "edit")
 				<!-- Navigation -->
 				<div class="collapse navbar-collapse align-items-center flex-sm-row" id="navBar">
 					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav text-uppercase g-font-weight-700 g-font-size-11 g-pt-20 g-pt-0--lg ml-auto">
-						<li class="landing-block-node-menu-list-item nav-item g-mr-15--lg g-mb-7 g-mb-0--lg active">
+						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#about" class="landing-block-node-menu-list-item-link nav-link p-0">About</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
@@ -59,7 +40,7 @@ if ($request->get("landing_mode") != "edit")
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#blog" class="landing-block-node-menu-list-item-link nav-link p-0">Blog</a>
 						</li>
-						<li class="landing-block-node-menu-list-item nav-item g-ml-15--lg g-mb-7 g-mb-0--lg">
+						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#contact" class="landing-block-node-menu-list-item-link nav-link p-0">Contact</a>
 						</li>
 					</ul>

@@ -10,6 +10,8 @@ class CUserTypeIBlockSection extends CUserTypeEnum
 			"CLASS_NAME" => "CUserTypeIBlockSection",
 			"DESCRIPTION" => GetMessage("USER_TYPE_IBSEC_DESCRIPTION"),
 			"BASE_TYPE" => "int",
+			"VIEW_CALLBACK" => array(__CLASS__, 'GetPublicView'),
+			"EDIT_CALLBACK" => array(__CLASS__, 'GetPublicEdit'),
 		);
 	}
 
@@ -178,6 +180,39 @@ class CUserTypeIBlockSection extends CUserTypeEnum
 			$rsSection = $obSection->GetTreeList($arUserField["SETTINGS"]["IBLOCK_ID"], $arUserField["SETTINGS"]["ACTIVE_FILTER"]);
 		}
 		return $rsSection;
+	}
+
+	protected static function getEnumList(&$arUserField, $arParams = array())
+	{
+		if(!CModule::IncludeModule('iblock'))
+		{
+			return;
+		}
+
+		$obSection = new CIBlockSectionEnum;
+		$rsSection = $obSection->GetTreeList($arUserField["SETTINGS"]["IBLOCK_ID"], $arUserField["SETTINGS"]["ACTIVE_FILTER"]);
+		if(!is_object($rsSection))
+		{
+			return;
+		}
+
+		$result = array();
+		$showNoValue = $arUserField["MANDATORY"] != "Y"
+			|| $arUserField['SETTINGS']['SHOW_NO_VALUE'] != 'N'
+			|| (isset($arParams["SHOW_NO_VALUE"]) && $arParams["SHOW_NO_VALUE"] == true);
+
+		if($showNoValue
+			&& ($arUserField["SETTINGS"]["DISPLAY"] != "CHECKBOX" || $arUserField["MULTIPLE"] <> "Y")
+		)
+		{
+			$result = array(null => htmlspecialcharsbx(static::getEmptyCaption($arUserField)));
+		}
+
+		while($arSection = $rsSection->Fetch())
+		{
+			$result[$arSection["ID"]] = $arSection["NAME"];
+		}
+		$arUserField["USER_TYPE"]["FIELDS"] = $result;
 	}
 
 	function OnSearchIndex($arUserField)

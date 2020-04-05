@@ -22,6 +22,7 @@ class Funnel extends PieDiagram
 		parent::__construct();
 		$this->setLabel(Loc::getMessage('REPORT_FUNNEL_VIEW_LABEL'));
 		$this->setLogoUri('/bitrix/images/report/visualconstructor/view-funnel.jpg');
+		$this->setJsClassName('BX.Report.VisualConstructor.Widget.Content.AmChart.Funnel');
 	}
 
 	/**
@@ -34,6 +35,7 @@ class Funnel extends PieDiagram
 		$viewTypes = parent::getCompatibleViewTypes();
 		$viewTypes[] = 'pieDiagram';
 		return $viewTypes;
+
 	}
 
 
@@ -58,6 +60,7 @@ class Funnel extends PieDiagram
 		$result = parent::handlerFinallyBeforePassToView($dataFromReport);
 		$result['depth3D'] = 35;
 		$result['angle'] = 45;
+		$result['valueRepresents'] = 'area';
 		return $result;
 	}
 }

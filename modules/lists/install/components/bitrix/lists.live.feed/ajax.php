@@ -1062,7 +1062,7 @@ class LiveFeedAjaxController extends Controller
 
 		foreach($this->lists['FIELDS'] as $fieldId => $field)
 		{
-			$this->lists['FIELDS'][$fieldId]['NAME'] = htmlspecialcharsbx($this->lists['FIELDS'][$fieldId]['NAME']);
+			$this->lists['FIELDS'][$fieldId]['NAME'] = $this->lists['FIELDS'][$fieldId]['NAME'];
 
 			if($list->is_field($fieldId))
 			{

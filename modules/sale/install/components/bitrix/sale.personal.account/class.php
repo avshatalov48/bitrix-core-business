@@ -7,6 +7,8 @@ use Bitrix\Main\Loader,
 
 class PersonalAccountComponent extends CBitrixComponent
 {
+	const E_SALE_MODULE_NOT_INSTALLED 		= 10000;
+	const E_NOT_AUTHORIZED					= 10001;
 	/**
 	 * @return bool
 	 * @throws \Bitrix\Main\LoaderException
@@ -17,7 +19,7 @@ class PersonalAccountComponent extends CBitrixComponent
 
 		if (!Loader::includeModule("sale"))
 		{
-			ShowError(GetMessage("SALE_MODULE_NOT_INSTALL"));
+			$this->arResult['ERRORS'][self::E_SALE_MODULE_NOT_INSTALLED] = GetMessage("SALE_MODULE_NOT_INSTALL");
 			return false;
 		}
 
@@ -26,7 +28,14 @@ class PersonalAccountComponent extends CBitrixComponent
 
 		if (!$USER->IsAuthorized())
 		{
-			$APPLICATION->AuthForm(GetMessage("SALE_ACCESS_DENIED"), false, false, 'N', false);
+			if ($this->arParams['AUTH_FORM_IN_TEMPLATE'] !== 'Y')
+			{
+				$APPLICATION->AuthForm(GetMessage("SALE_ACCESS_DENIED"), false, false, 'N', false);
+			}
+			else
+			{
+				$this->arResult['ERRORS'][self::E_NOT_AUTHORIZED] = GetMessage("SALE_ACCESS_DENIED");
+			}
 			return false;
 		}
 
@@ -52,19 +61,28 @@ class PersonalAccountComponent extends CBitrixComponent
 	 */
 	public function executeComponent()
 	{
-		global $USER, $APPLICATION;
+		global $APPLICATION;
 
-		if (!$this->checkRequirements())
-		{
-			return;
-		}
+		$this->arResult["ERRORS"] = array();
 
 		if($this->arParams["SET_TITLE"] == 'Y')
 		{
 			$APPLICATION->SetTitle(GetMessage("SPA_TITLE"));
 		}
 
-		$resultTemplate= Array();
+		if ($this->checkRequirements())
+		{
+			$this->obtainAccountData();
+		}
+
+		$this->includeComponentTemplate();
+	}
+
+	private function obtainAccountData()
+	{
+		global $USER;
+
+		$resultTemplate= array();
 
 		$objDateTime = new Date();
 		$this->arResult["DATE"] = $objDateTime->toString();
@@ -82,7 +100,7 @@ class PersonalAccountComponent extends CBitrixComponent
 			'select' => array('CURRENCY', 'FULL_NAME' => 'CURRENT_LANG_FORMAT.FULL_NAME', 'SORT'),
 			'order' => array('SORT' => 'ASC', 'CURRENCY' => 'ASC')
 		));
-		while ($currency = $currencyIterator->fetch())		
+		while ($currency = $currencyIterator->fetch())
 		{
 			$currencyList[$currency['CURRENCY']] = (string)$currency['FULL_NAME'];
 		}
@@ -92,7 +110,7 @@ class PersonalAccountComponent extends CBitrixComponent
 			"CODE" => $baseCurrencyCode,
 			"TEXT" => $currencyList[$baseCurrencyCode]
 		);
-			
+
 		while ($account = $accountList->Fetch())
 		{
 			$resultTemplate["CURRENCY"] = $account["CURRENCY"];
@@ -115,8 +133,7 @@ class PersonalAccountComponent extends CBitrixComponent
 				'CURRENCY_FULL_NAME' => $this->arResult['BASE_CURRENCY']['TEXT']
 			);
 			$this->arResult["ERROR_MESSAGE"] = Loc::getMessage("SPA_NO_ACCOUNT");
+			$this->arResult["ERRORS"][] = Loc::getMessage("SPA_NO_ACCOUNT");
 		}
-
-		$this->includeComponentTemplate();
 	}
 }

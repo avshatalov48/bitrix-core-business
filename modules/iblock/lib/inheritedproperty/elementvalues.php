@@ -18,7 +18,8 @@ class ElementValues extends BaseValues
 	public function __construct($iblockId, $elementId)
 	{
 		parent::__construct($iblockId);
-		$this->elementId = intval($elementId);
+		$this->elementId = (int)$elementId;
+		$this->queue->addElement($this->iblockId, $this->elementId);
 	}
 
 	/**
@@ -80,7 +81,7 @@ class ElementValues extends BaseValues
 		}
 		else
 		{
-			$this->sectionId = intval($sectionId);
+			$this->sectionId = (int)$sectionId;
 		}
 	}
 
@@ -124,36 +125,44 @@ class ElementValues extends BaseValues
 	 */
 	public function queryValues()
 	{
+		$connection = \Bitrix\Main\Application::getConnection();
 		$result = array();
 		if ($this->hasTemplates())
 		{
-			$connection = \Bitrix\Main\Application::getConnection();
-			$query = $connection->query("
-				SELECT
-					P.ID
-					,P.CODE
-					,P.TEMPLATE
-					,P.ENTITY_TYPE
-					,P.ENTITY_ID
-					,IP.VALUE
-				FROM
-					b_iblock_element_iprop IP
-					INNER JOIN b_iblock_iproperty P ON P.ID = IP.IPROP_ID
-				WHERE
-					IP.IBLOCK_ID = ".$this->iblockId."
-					AND IP.ELEMENT_ID = ".$this->elementId."
-			");
-
-			while ($row = $query->fetch())
+			if ($this->queue->getElement($this->iblockId, $this->elementId) === false)
 			{
-				$result[$row["CODE"]] = $row;
+				$ids = $this->queue->get($this->iblockId);
+				$query = $connection->query("
+					SELECT
+						P.ID
+						,P.CODE
+						,P.TEMPLATE
+						,P.ENTITY_TYPE
+						,P.ENTITY_ID
+						,IP.VALUE
+						,IP.ELEMENT_ID
+					FROM
+						b_iblock_element_iprop IP
+						INNER JOIN b_iblock_iproperty P ON P.ID = IP.IPROP_ID
+					WHERE
+						IP.IBLOCK_ID = ".$this->iblockId."
+						AND IP.ELEMENT_ID in (".implode(", ", $ids).")
+				");
+				$result = array();
+				while ($row = $query->fetch())
+				{
+					$result[$row["ELEMENT_ID"]][$row["CODE"]] = $row;
+				}
+				$this->queue->set($this->iblockId, $result);
 			}
+			$result = $this->queue->getElement($this->iblockId, $this->elementId);
 
 			if (empty($result))
 			{
 				$result = parent::queryValues();
 				if (!empty($result))
 				{
+					$sqlHelper = $connection->getSqlHelper();
 					$elementList = \Bitrix\Iblock\ElementTable::getList(array(
 						"select" => array("IBLOCK_SECTION_ID"),
 						"filter" => array("=ID" => $this->elementId),
@@ -161,33 +170,25 @@ class ElementValues extends BaseValues
 					$element = $elementList->fetch();
 					$element['IBLOCK_SECTION_ID'] = (int)$element['IBLOCK_SECTION_ID'];
 
-					$sqlHelper = $connection->getSqlHelper();
+					$fields = array(
+						"IBLOCK_ID",
+						"SECTION_ID",
+						"ELEMENT_ID",
+						"IPROP_ID",
+						"VALUE",
+					);
+					$rows = array();
 					foreach ($result as $CODE => $row)
 					{
-						$mergeSql = $sqlHelper->prepareMerge(
-							"b_iblock_element_iprop",
-							array(
-								"ELEMENT_ID",
-								"IPROP_ID",
-							),
-							array(
-								"IBLOCK_ID" => $this->iblockId,
-								"SECTION_ID" => $element["IBLOCK_SECTION_ID"],
-								"ELEMENT_ID" => $this->elementId,
-								"IPROP_ID" => $row["ID"],
-								"VALUE" => $row["VALUE"],
-							),
-							array(
-								"IBLOCK_ID" => $this->iblockId,
-								"SECTION_ID" => $element["IBLOCK_SECTION_ID"],
-								"VALUE" => $row["VALUE"],
-							)
+						$rows[] = array(
+							$this->iblockId,
+							$element["IBLOCK_SECTION_ID"],
+							$this->elementId,
+							$row["ID"],
+							$sqlHelper->forSql($row["VALUE"]),
 						);
-						foreach ($mergeSql as $sql)
-						{
-							$connection->query($sql);
-						}
 					}
+					$this->insertValues("b_iblock_element_iprop", $fields, $rows);
 				}
 			}
 		}
@@ -207,5 +208,6 @@ class ElementValues extends BaseValues
 			WHERE IBLOCK_ID = ".$this->iblockId."
 			AND ELEMENT_ID = ".$this->elementId."
 		");
+		$this->queue->deleteElement($this->iblockId, $this->elementId);
 	}
 }

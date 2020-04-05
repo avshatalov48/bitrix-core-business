@@ -56,6 +56,7 @@
 				monthNames.push(BX.message["MONTH_" + m.toString()]);
 				shortMonthNames.push(BX.message["MON_" + m.toString()]);
 			}
+
 			AmCharts.monthNames = monthNames;
 			AmCharts.shortMonthNames = shortMonthNames;
 
@@ -102,6 +103,18 @@
 		}
 	};
 
+
+
+	BX.Report.VisualConstructor.Widget.Content.AmChart.Funnel = function(options)
+	{
+		BX.Report.VisualConstructor.Widget.Content.AmChart.apply(this, arguments);
+		this.chartWrapper.style.paddingLeft = '25px';
+	};
+
+	BX.Report.VisualConstructor.Widget.Content.AmChart.Funnel.prototype = {
+		__proto__: BX.Report.VisualConstructor.Widget.Content.AmChart.prototype,
+		constructor: BX.Report.VisualConstructor.Widget.Content.AmChart.Funnel
+	};
 
 	/**
 	 * @param options

@@ -17,43 +17,6 @@ use Bitrix\Main\Localization\Loc;
 
 $storage = \Bitrix\Disk\Driver::getInstance()->getStorageByGroupId($arResult['VARIABLES']['group_id']);
 $arResult['VARIABLES']['STORAGE'] = $storage;
-
-if(isset($_REQUEST['document_id']))
-{
-	$backUrl = CComponentEngine::MakePathFromTemplate($arResult["PATH_TO_GROUP_DISK"], array('group_id' => $arResult['VARIABLES']['group_id'], "PATH" => ""));
-}
-else
-{
-	$backUrl = urldecode($_REQUEST["back_url"]);
-	$backUrl .= '#tab-bp';
-}
-if(!preg_match('#^(?:/|\?|https?://)(?:\w|$)#D', $backUrl))
-{
-	$backUrl = '#';
-}
-
-$arResult['TOOLBAR'] = array(
-	'BUTTONS' => array(
-		array(
-			'TEXT' => Loc::getMessage('DISK_FILE_VIEW_START_BIZPROC_GO_BACK_TEXT'),
-			'TITLE' => Loc::getMessage('DISK_FILE_VIEW_START_BIZPROC__GO_BACK_TITLE'),
-			'LINK' => $backUrl,
-			'ICON' => 'back',
-		),
-	),
-);
-
-$APPLICATION->includeComponent(
-	'bitrix:disk.interface.toolbar',
-	'',
-	array(
-		'TOOLBAR_ID' => 'bp_start_toolbar',
-		'CLASS_NAME' => 'bx-filepage',
-		'BUTTONS'    => $arResult['TOOLBAR']['BUTTONS'],
-	),
-	$component,
-	array('HIDE_ICONS' => 'Y')
-);
 ?>
 <div class="bx-disk-bizproc-section">
 <?

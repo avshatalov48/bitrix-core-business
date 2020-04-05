@@ -172,7 +172,13 @@ foreach($folders as $folder)
 		}
 	}
 }
-uasort($arModules, create_function('$a, $b', 'if($a["MODULE_SORT"] == $b["MODULE_SORT"]) return strcasecmp($a["MODULE_NAME"], $b["MODULE_NAME"]); return ($a["MODULE_SORT"] < $b["MODULE_SORT"])? -1 : 1;'));
+\Bitrix\Main\Type\Collection::sortByColumn(
+	$arModules,
+	['MODULE_SORT' => SORT_ASC, 'MODULE_NAME' => SORT_STRING],
+	'',
+	null,
+	true
+);
 
 $stableVersionsOnly = COption::GetOptionString("main", "stable_versions_only", "Y");
 $arRequestedModules = CUpdateClientPartner::GetRequestedModules("");

@@ -1,0 +1,24 @@
+<?
+$MESS ['TRANSLATE_ENCODING_UTF_8'] = "Юникод";
+$MESS ['TRANSLATE_ENCODING_WINDOWS_1250'] = "Центрально-Европейская";
+$MESS ['TRANSLATE_ENCODING_WINDOWS_1251'] = "Кириллица";
+$MESS ['TRANSLATE_ENCODING_WINDOWS_1252'] = "Западно-Европейская";
+$MESS ['TRANSLATE_ENCODING_WINDOWS_1253'] = "Греческая";
+$MESS ['TRANSLATE_ENCODING_WINDOWS_1254'] = "Турецкая";
+$MESS ['TRANSLATE_ENCODING_WINDOWS_1255'] = "Иврит";
+$MESS ['TRANSLATE_ENCODING_WINDOWS_1256'] = "Арабская";
+$MESS ['TRANSLATE_ENCODING_WINDOWS_1257'] = "Балтийская";
+$MESS ['TRANSLATE_ENCODING_WINDOWS_1258'] = "Вьетнамская";
+$MESS ['TRANSLATE_ENCODING_ISO_8859_1'] = "Западно-Европейская";
+$MESS ['TRANSLATE_ENCODING_ISO_8859_2'] = "Центрально-Европейская";
+$MESS ['TRANSLATE_ENCODING_ISO_8859_3'] = "Южно-Европейская";
+$MESS ['TRANSLATE_ENCODING_ISO_8859_4'] = "Северо-Европейская";
+$MESS ['TRANSLATE_ENCODING_ISO_8859_5'] = "Кириллица";
+$MESS ['TRANSLATE_ENCODING_ISO_8859_6'] = "Арабская";
+$MESS ['TRANSLATE_ENCODING_ISO_8859_7'] = "Греческая";
+$MESS ['TRANSLATE_ENCODING_ISO_8859_8'] = "Иврит";
+$MESS ['TRANSLATE_ENCODING_ISO_8859_9'] = "Турецкая";
+$MESS ['TRANSLATE_ENCODING_ISO_8859_10'] = "Северо-Европейская";
+$MESS ['TRANSLATE_ENCODING_ISO_8859_13'] = "Балтийская";
+$MESS ['TRANSLATE_ENCODING_ISO_8859_15'] = "Западно-Европейская";
+?>

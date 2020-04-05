@@ -48,11 +48,38 @@
 				data-form-style-main-font-color="1"
 			>
 			</h3>
+
+			<!--			for resource booking-->
+			<div class="g-bg-white"
+				 data-form-style-bg-as-text="1"
+			>
+			</div>
+
+			<div class="g-bg-primary-dark-v2"
+				 data-form-style-input-bg-light="1"
+			>
+			</div>
+
+			<div class="g-bg-primary-dark-v3"
+				 data-form-style-input-bg-light2="1"
+			>
+			</div>
+
+			<div class="g-bg-primary u-shadow-custom-v2"
+				 data-form-style-input-bg-light3="1"
+				 data-form-style-gradient-box-shadow="1"
+			>
+			</div>
+
+			<div class="g-bg-primary-opacity-0_4"
+				 data-form-style-main-bg-light="1"
+			>
+			</div>
 		</div>
 
 		<div class="row">
 			<div class="col-md-6 mx-auto">
-				<div class="bitrix24forms g-brd-white-opacity-0_6"
+				<div class="bitrix24forms g-brd-white-opacity-0_6 u-form-alert-v3"
 					 data-b24form=""
 					 data-b24form-use-style="Y"
 					 data-b24form-show-header="N"

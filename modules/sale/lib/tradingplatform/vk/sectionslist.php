@@ -58,14 +58,16 @@ class SectionsList
 		$this->mappedSections = $mappedSections;
 		
 		if (!Loader::includeModule('iblock'))
+		{
 			throw new SystemException("Can't include module \"IBlock\"! " . __METHOD__);
+		}
 	}
 	
 	/**
 	 * @return string
 	 * Create name for cache
 	 */
-	private function createCacheId($cacheName = NULL)
+	private function createCacheId($cacheName = null)
 	{
 		$cacheId = self::CACHE_ID_PREFIX . '__' . $this->exportId;
 		
@@ -76,9 +78,11 @@ class SectionsList
 	 * Create cache ID for iblock sections
 	 * @return string
 	 */
-	public function createCacheIdSections()
+	public function createCacheIdSections($onlyMapped = true)
 	{
-		return $this->createCacheId(self::CACHE_ID_SECTIONS);
+		$cacheName = self::CACHE_ID_SECTIONS .
+			($onlyMapped ? '_mapped' : '_all');
+		return $this->createCacheId($cacheName);
 	}
 	
 	/**
@@ -106,7 +110,8 @@ class SectionsList
 	public function clearCaches()
 	{
 		$cacheManager = Application::getInstance()->getManagedCache();
-		$cacheManager->clean($this->createCacheIdSections());
+		$cacheManager->clean($this->createCacheIdSections(true));
+		$cacheManager->clean($this->createCacheIdSections(false));
 		$cacheManager->clean($this->createCacheIdMappedSections());
 		$cacheManager->clean($this->createCacheIdMappedSectionsList());
 	}
@@ -119,40 +124,43 @@ class SectionsList
 	 * @return array
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function getSections($tree = false)
+	public function getSections($tree = false, $onlyMapped = true)
 	{
 //		We can save data in cache.Cache must be reload only if sections settings will be changed.
 		$cacheManager = Application::getInstance()->getManagedCache();
 		$sections = array();
 		
-		if ($cacheManager->read(self::CACHE_TTL, $this->createCacheIdSections()))
+		if ($cacheManager->read(self::CACHE_TTL, $this->createCacheIdSections($onlyMapped)))
 		{
-			$sections = $cacheManager->get($this->createCacheIdSections());
+			$sections = $cacheManager->get($this->createCacheIdSections($onlyMapped));
 		}
 		else
 		{
-//			IBLOCK IDS for getting catalog sections
-			$iblocks = $this->getMappedIblocks();
-			$iblocksIds = array();
-			foreach ($iblocks as $id => $value)
-				$iblocksIds[] = $id;
-			
-			$filter = array("IBLOCK_ID" => $iblocksIds, "ELEMENT_SUBSECTIONS" => "N");
+//			get IBLOCK IDS only for mapped sections or for all catalogs
+			$iblockIds = $this->getIblockIds($onlyMapped);
+			$filter = array("IBLOCK_ID" => $iblockIds, "ELEMENT_SUBSECTIONS" => "N");
 
 //			calculate all products or just active
 			$vk = Vk::getInstance();
 			$vkSettings = $vk->getSettings($this->exportId);
 			if (isset($vkSettings["EXPORT_SETTINGS"]["ONLY_AVAILABLE_FLAG"]) && !$vkSettings["EXPORT_SETTINGS"]["ONLY_AVAILABLE_FLAG"])
+			{
 				$filter["CNT_ACTIVE"] = "N";
+			}
 			else
+			{
 				$filter["CNT_ACTIVE"] = "Y";
+			}
 
 //			get ALL sections for ALL catalog iblocks
 			$resSections = \CIBlockSection::GetList(
 				array("LEFT_MARGIN" => "asc"),
 				$filter,
 				true,
-				array("IBLOCK_ID", "IBLOCK_SECTION_ID", "ID", "DEPTH_LEVEL", "NAME", "LEFT_MARGIN", "RIGHT_MARGIN", "ELEMENT_CNT")
+				array(
+					"IBLOCK_ID", "IBLOCK_SECTION_ID", "ID", "DEPTH_LEVEL", "NAME", "LEFT_MARGIN", "RIGHT_MARGIN",
+					"ELEMENT_CNT",
+				)
 			);
 			
 			while ($currSection = $resSections->Fetch())
@@ -161,21 +169,50 @@ class SectionsList
 				$sections[$currSection["IBLOCK_ID"]][$currSection["ID"]] = $currSection;
 			}
 			
-			$cacheManager->set($this->createCacheIdSections(), $sections);
+			$cacheManager->set($this->createCacheIdSections($onlyMapped), $sections);
 		}
 
 //		if not a tree - formatted to list
 		if (!$tree)
 		{
-			$sectionsList = array();
+			$sectionsList = [];
 			foreach ($sections as $iblock)
+			{
 				$sectionsList += $iblock;
+			}
 			
-			return $sectionsList;
+			$sections = $sectionsList;
 		}
 		
 		return $sections;
 	}
+	
+	
+	protected function getIblockIds($onlyMapped)
+	{
+		$iblockIds = [];
+		
+		if ($onlyMapped)
+		{
+			$iblockIds = $this->getMappedIblocks();
+		}
+		else
+		{
+			if (Loader::includeModule('catalog'))
+			{
+				$iterator = \Bitrix\Catalog\CatalogIblockTable::getList([
+					'select' => ['IBLOCK_ID'],
+					'filter' => ['=PRODUCT_IBLOCK_ID' => 0],
+				]);
+				while ($row = $iterator->fetch())
+				{
+					$iblockIds[$row['IBLOCK_ID']] = $row['IBLOCK_ID'];
+				}
+			}
+		}
+
+return $iblockIds;
+}
 	
 	
 	/**
@@ -185,7 +222,7 @@ class SectionsList
 	 */
 	public function getMappedIblocks()
 	{
-//		todo: maybe need cache to?
+//		todo: maybe need cache too?
 //		get iblocks if they not set yet
 		if (empty($this->iblocksIds))
 		{
@@ -219,7 +256,9 @@ class SectionsList
 				(!$params["INHERIT"] && $params['ENABLE']) ||
 				($params["INHERIT"] && $parentParams && $parentParams["ENABLE"])
 			)
+			{
 				$sectionsToExport[$params["IBLOCK"]][$mappedSection["BX_ID"]] = $mappedSection["BX_ID"];
+			}
 		}
 		
 		return $sectionsToExport;
@@ -228,8 +267,6 @@ class SectionsList
 	
 	private function getListMappedSections()
 	{
-		$sectionsToExport = array();
-		$sectionsAliases = array();
 		$result = array();
 		
 		foreach ($this->mappedSections as $mappedSection)
@@ -248,7 +285,9 @@ class SectionsList
 				);
 //				alias get from settings. If not set - do nothing (will be used default name)
 				if ($params["TO_ALBUM_ALIAS"])
+				{
 					$result[$mappedSection["BX_ID"]]["TO_ALBUM_ALIAS"] = $params["TO_ALBUM_ALIAS"];
+				}
 			}
 
 //			inherit - get params from parent. If not include child - import in self album
@@ -260,10 +299,6 @@ class SectionsList
 					"VK_CATEGORY" => $parentParams["VK_CATEGORY"],
 					"IBLOCK" => $params["IBLOCK"],
 				);
-//				alias get from settings. If not set - do nothing (will be used default name)
-//				not get aliases from parent settings - it should take place in category itself
-//				if ($parentParams["TO_ALBUM_ALIAS"])
-//					$sectionsAliases[$parentParams["TO_ALBUM"]] = $parentParams["TO_ALBUM_ALIAS"];
 			}
 
 //			if INHERIT and parent section included childs - put section to parent to_album
@@ -278,7 +313,9 @@ class SectionsList
 
 //				alias get from settings. If not set - do nothing (will be used default name)
 				if ($parentParams["TO_ALBUM_ALIAS"])
+				{
 					$result[$mappedSection["BX_ID"]]["TO_ALBUM_ALIAS"] = $parentParams["TO_ALBUM_ALIAS"];
+				}
 			}
 		}
 		
@@ -308,7 +345,9 @@ class SectionsList
 				$sectionsToExport[$params["TO_ALBUM"]] = $params["TO_ALBUM"];
 //				alias get from settings. If not set - do nothing (will be used default name)
 				if ($params["TO_ALBUM_ALIAS"])
+				{
 					$sectionsAliases[$params["TO_ALBUM"]] = $params["TO_ALBUM_ALIAS"];
+				}
 			}
 
 //			inherit - get params from parent. If not include child - import in self album
@@ -317,7 +356,9 @@ class SectionsList
 				$sectionsToExport[$mappedSection["BX_ID"]] = $mappedSection["BX_ID"];
 //				alias get from settings. If not set - do nothing (will be used default name)
 				if ($parentParams["TO_ALBUM_ALIAS"])
+				{
 					$sectionsAliases[$parentParams["TO_ALBUM"]] = $parentParams["TO_ALBUM_ALIAS"];
+				}
 			}
 
 //			if INHERIT and parent section included childs - put section to parent to_album
@@ -326,7 +367,9 @@ class SectionsList
 				$sectionsToExport[$parentParams["TO_ALBUM"]] = $parentParams["TO_ALBUM"];
 //					alias get from settings. If not set - do nothing (will be used default name)
 				if ($parentParams["TO_ALBUM_ALIAS"])
+				{
 					$sectionsAliases[$parentParams["TO_ALBUM"]] = $parentParams["TO_ALBUM_ALIAS"];
+				}
 			}
 		}
 		
@@ -339,7 +382,7 @@ class SectionsList
 		$sections = SectionElementTable::getList(array(
 			"filter" => array(
 				"IBLOCK_ELEMENT_ID" => $pdoructsIds,
-				"ADDITIONAL_PROPERTY_ID" => NULL,
+				"ADDITIONAL_PROPERTY_ID" => null,
 			),
 		));
 		
@@ -414,16 +457,22 @@ class SectionsList
 	public function getSectionsToMap()
 	{
 		if (empty($this->mappedAlbums))
+		{
 			$this->mappedAlbums = Map::getMappedAlbums($this->exportId);
+		}
 		if (empty($this->mappedSections))
+		{
 			$this->mappedSections = Map::getMappedSections($this->exportId);
+		}
 		
 		$sectionsUnformatted = $this->getListMappedSections();
 		$sectionsFormatted = array();
 
 //		Empty settings = empty result. It's law
 		if (empty($this->mappedSections))
+		{
 			return array();
+		}
 		
 		$sections = $this->getSections(true);
 		$vkCategories = new VkCategories($this->exportId);
@@ -453,9 +502,9 @@ class SectionsList
 					$sectionsFormatted[$sectionUnformatted["TO_ALBUM"]]["ALBUM_VK_URL"] = $this->createVkAlbumLink($albumVkId);
 				}
 			}
-			
+
 //			create toAlbum name only from section, then root for this album. Take alias if exist, or just name
-			if($sectionUnformatted["TO_ALBUM"] == $sectionUnformatted["BX_ID"])
+			if ($sectionUnformatted["TO_ALBUM"] == $sectionUnformatted["BX_ID"])
 			{
 				$sectionsFormatted[$sectionUnformatted["TO_ALBUM"]]["TO_ALBUM_NAME"] = $sectionUnformatted["TO_ALBUM_ALIAS"] ?
 					$sectionUnformatted["TO_ALBUM_ALIAS"] :
@@ -479,7 +528,9 @@ class SectionsList
 			);
 			
 			if (isset($item["BX_ID"]) && isset($item["IBLOCK"]))
+			{
 				$item["SECTION_URL"] = $this->createSectionLink($item["IBLOCK"], $item["BX_ID"]);
+			}
 			
 			$sectionsFormatted[$sectionUnformatted["TO_ALBUM"]]["ITEMS"][$item["LEFT_MARGIN"]] = $item;
 			$sectionsFormatted[$sectionUnformatted["TO_ALBUM"]]["ELEMENT_CNT"] += $sectionElementCnt;
@@ -505,7 +556,9 @@ class SectionsList
 				foreach ($album["ITEMS"] as &$item)
 				{
 					if (!$prevDepthLevel)
-						$prevDepthLevel = $item["DEPTH_LEVEL"];	//first item
+					{
+						$prevDepthLevel = $item["DEPTH_LEVEL"];
+					}    //first item
 					if ($item["DEPTH_LEVEL"] > $prevDepthLevel)
 					{
 						$tabsCount++;
@@ -538,9 +591,13 @@ class SectionsList
 		$groupId = str_replace('-', '', $vk->getGroupId($this->exportId));
 		
 		if ($groupId)
+		{
 			return Vk::VK_URL . Vk::VK_URL__MARKET_PREFIX . $groupId . Vk::VK_URL__ALBUM_PREFIX . $albumVkId;
+		}
 		else
+		{
 			return false;
+		}
 	}
 	
 	
@@ -555,7 +612,7 @@ class SectionsList
 		$sectionTabControlName = 'form_section_' . $iblockId . '_active_tab';
 		
 		return \CAllIBlock::GetAdminSectionEditLink($iblockId, $sectionId, array(
-			$sectionTabControlName => "SALE_TRADING_PLATFORM_edit_trading_platforms"
+			$sectionTabControlName => "SALE_TRADING_PLATFORM_edit_trading_platforms",
 		));
 	}
 	
@@ -580,11 +637,15 @@ class SectionsList
 		)
 		{
 			if (isset($params["TO_ALBUM"]) && $params["TO_ALBUM"])
-//				get param TO_ALBUM
+//			get param TO_ALBUM
+			{
 				return $params["TO_ALBUM"];
+			}
 			else
-//				or add in current album
+//			or add in current album
+			{
 				return $sectionId;
+			}
 		}
 
 //		if INHERIT and parent section included childs - put section to parent to_album
@@ -607,20 +668,27 @@ class SectionsList
 	 * @return string
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function getSectionsSelector($checkedSection = NULL)
+	public function getSectionsSelector($checkedSection = null, $onlyMapped = true)
 	{
-		$iblockIds = $this->getMappedIblocks();
-		$sectionsTree = $this->getSections(true);
+//		old variant - get iblocks from map. Will work only when we check at least one section
+//		new variant - show ALL iblock in list
+		$iblockIds = $this->getIblockIds($onlyMapped);
+
+//		get mapped sections for checking activity
+		$sectionsTree = $this->getSections(true, $onlyMapped);
 		
 		$result = '';
 		$result .= '<option value="0">' . Loc::getMessage("SALE_CATALOG_VK_MAIN_ALBUM") . '</option>';
-		foreach ($iblockIds as $iblock)
+		foreach ($iblockIds as $iblockId)
 		{
-//			todo: why strtoupper dont work ? encode problem ?
-			$result .= '<option disabled value="-1">' . strtoupper($iblock["NAME"]) . '</option>';
+			$iblock = \CIBlock::GetByID($iblockId)->GetNext();
+			
+			$result .= '<option disabled value="-1">' .
+				strtoupper(is_array($iblock) ? $iblock["NAME"] : $iblockId) .
+				'</option>';
 
-//			parse ITEMS for current iblock
-			foreach ($sectionsTree[$iblock["IBLOCK_ID"]] as $bxCategory)
+//			create ITEMS for current iblock
+			foreach ($sectionsTree[$iblockId] as $bxCategory)
 			{
 				$selected = $checkedSection == $bxCategory["ID"] ? ' selected' : '';
 				$result .=
@@ -652,9 +720,13 @@ class SectionsList
 			$settings = $vk->getSettings($this->exportId);
 			
 			if (isset($settings["EXPORT_SETTINGS"]["CATEGORY_DEFAULT"]))
+			{
 				$vkCategory = $settings["EXPORT_SETTINGS"]["CATEGORY_DEFAULT"];
+			}
 			else
-				$vkCategory = Vk::VERY_DEFAULT_VK_CATEGORY;    //hardcoooooooooooode
+			{
+				$vkCategory = Vk::VERY_DEFAULT_VK_CATEGORY;
+			}    //hardcoooooooooooode
 		}
 		
 		return $vkCategory;
@@ -671,7 +743,7 @@ class SectionsList
 	 */
 	public function prepareSectionToShow($sectionId)
 	{
-		$sections = $this->getSections();
+		$sections = $this->getSections(false, false);
 		$section = $sections[$sectionId];
 		
 		$currParams = $this->mappedSections[$sectionId]['PARAMS'];
@@ -679,7 +751,9 @@ class SectionsList
 
 //		for root section inherit always false
 		if (!$section["IBLOCK_SECTION_ID"])
+		{
 			$currParams['INHERIT'] = false;
+		}
 
 //		if not INHERIT - get own settings, Else - find parents
 		if (isset($currParams['INHERIT']) && !$currParams['INHERIT'])
@@ -690,10 +764,14 @@ class SectionsList
 		{
 //			prepared for correct show to_album and album_alias
 			if (!empty($parentParams))
+			{
 				$currParams = $this->prepareParentSettingToShow($parentParams, $section);
+			}
 //			if parent not set - get default
 			else
+			{
 				$currParams = $this->getDefaultExportParams($sectionId);
+			}
 
 //			override parent setting
 			$currParams['INHERIT'] = true;
@@ -704,7 +782,9 @@ class SectionsList
 			$this->prepareParentSettingToShow($parentParams, $section) :
 			$hiddenParentParams = $this->getDefaultExportParams($sectionId);
 		foreach ($hiddenParentParams as $key => $param)
+		{
 			$currParams[$key . '__PARENT'] = $param;
+		}
 		
 		return $currParams;
 	}
@@ -718,7 +798,7 @@ class SectionsList
 	 */
 	public function prepareSettingsVisibility($params, $sectionId)
 	{
-		$sections = $this->getSections();
+		$sections = $this->getSections(false, false);
 		$section = $sections[$sectionId];
 //		always hide inherit for root sections
 		$params["INHERIT__DISPLAY"] = $section["IBLOCK_SECTION_ID"] ? '' : ' disabled ';
@@ -726,7 +806,7 @@ class SectionsList
 //		default
 		$params["ENABLE__DISPLAY"] = ' disabled ';
 		$params["TO_ALBUM__DISPLAY"] = ' disabled ';
-		$params["TO_ALBUM_ALIAS__DISPLAY"] = ' disabled ';
+		$params["TO_ALBUM_ALIAS__DISPLAY"] = ' display:none; ';
 		$params["INCLUDE_CHILDS__DISPLAY"] = " disabled ";
 		$params["VK_CATEGORY__DISPLAY"] = " disabled ";
 
@@ -744,7 +824,7 @@ class SectionsList
 //				ALIAS can be showed only if checked TO ALBUM selector
 				if (isset($params["TO_ALBUM"]) && $params["TO_ALBUM"] > 0 && $params["TO_ALBUM"] == $sectionId)
 				{
-					$params["TO_ALBUM_ALIAS__DISPLAY"] = '';
+					$params["TO_ALBUM_ALIAS__DISPLAY"] = 'display: block';
 				}
 				
 				$params["INCLUDE_CHILDS__DISPLAY"] = $params["TO_ALBUM"] > 0 ? "" : " disabled ";
@@ -755,9 +835,13 @@ class SectionsList
 		foreach ($params as $key => $param)
 		{
 			if ($param === true)
-				$params[$key] = ' checked ';
+			{
+				$params[$key] = 'checked';
+			}
 			if ($param === false)
-				$params[$key] = ' ';
+			{
+				$params[$key] = '';
+			}
 		}
 		
 		return $params;
@@ -794,14 +878,14 @@ class SectionsList
 	
 	
 	/**
-	 * Default params for current section - need if have not cirrent and parent params
+	 * Default params for current section - need if have not current and parent params
 	 *
 	 * @param $sectionId
 	 * @return array
 	 */
 	private function getDefaultExportParams($sectionId)
 	{
-		$sections = $this->getSections();
+		$sections = $this->getSections(false, false);
 		
 		$vk = Vk::getInstance();
 		$vkSettings = $vk->getSettings($this->exportId);
@@ -842,8 +926,10 @@ class SectionsList
 	{
 		$settings = $this->currSectionSettings;
 		if (empty($settings))
+		{
 			return false;
-		$sections = $this->getSections();
+		}
+		$sections = $this->getSections(false, false);
 		$iblockId = $sections[$sectionId]["IBLOCK_ID"];
 		$currParentSettings = $this->mappedSections[$sectionId]['PARAMS']['PARENT_SETTINGS'];
 		
@@ -863,12 +949,16 @@ class SectionsList
 		{
 //			if INHERIT and have not parent settings - delete this item
 			if (!$currParentSettings)
+			{
 				$dataToDelete = array(
 					"VALUE_EXTERNAL" => $settings["VK_CATEGORY"] ? $settings["VK_CATEGORY"] : Vk::VERY_DEFAULT_VK_CATEGORY,
 					"VALUE_INTERNAL" => $sectionId,
 				);
+			}
 			else
+			{
 				$settingsToSave["INHERIT"] = true;
+			}
 		}
 		else
 		{
@@ -893,14 +983,18 @@ class SectionsList
 						isset($settings["TO_ALBUM_ALIAS"]) && $settings["TO_ALBUM_ALIAS"] &&
 						$settings["TO_ALBUM"] == $sectionId
 					)
+					{
 						$settingsToSave["TO_ALBUM_ALIAS"] = $settings["TO_ALBUM_ALIAS"];
+					}
 					else
-						$settingsToSave["TO_ALBUM_ALIAS"] = NULL;
+					{
+						$settingsToSave["TO_ALBUM_ALIAS"] = null;
+					}
 				}
 				else
 				{
 					$settingsToSave["TO_ALBUM"] = 0;
-					$settingsToSave["TO_ALBUM_ALIAS"] = NULL;
+					$settingsToSave["TO_ALBUM_ALIAS"] = null;
 				}
 			}
 		}
@@ -908,13 +1002,16 @@ class SectionsList
 //		VALUE_EXTERNAL is required, but we might be have not this value. Get some default
 		
 		if (!empty($dataToDelete))
+		{
 			return array(
 				"TO_DELETE" => array(
 					$sectionId => $dataToDelete,
 				),
 			);
+		}
 		
 		else
+		{
 			return array(
 				"TO_SAVE" => array(
 					$sectionId => array(
@@ -924,6 +1021,7 @@ class SectionsList
 					),
 				),
 			);
+		}
 	}
 	
 	
@@ -938,7 +1036,9 @@ class SectionsList
 	{
 		$settings = $this->currSectionSettings;
 		if (empty($settings))
+		{
 			return false;
+		}
 		
 		$sections = $this->getSections();
 		$currParentSettings = $this->mappedSections[$sectionId]['PARAMS']['PARENT_SETTINGS'];
@@ -957,9 +1057,13 @@ class SectionsList
 		{
 //			if have not parent settings - needed delete childs
 			if (!$currParentSettings)
+			{
 				$needDelete = true;
+			}
 			else
+			{
 				$settings = $currParentSettings;
+			}
 		}
 		
 		
@@ -977,13 +1081,16 @@ class SectionsList
 				{
 //					get childs to delete
 					if ($needDelete)
+					{
 						$dataToDelete[$section["ID"]] = array(
 							'VALUE_EXTERNAL' => $settings["VK_CATEGORY"] ? $settings["VK_CATEGORY"] : Vk::VK_CATEGORY_TO_CHANGE,
 							'VALUE_INTERNAL' => $section["ID"],
 						);
+					}
 
 //					get childs to add to mapping
 					else
+					{
 						$dataToSave[$section["ID"]] = array(
 							"VALUE_EXTERNAL" => $settings["VK_CATEGORY"] ? $settings["VK_CATEGORY"] : Vk::VK_CATEGORY_TO_CHANGE,
 							"VALUE_INTERNAL" => $section["ID"],
@@ -1001,6 +1108,7 @@ class SectionsList
 								),
 							),
 						);
+					}
 				}
 				else
 				{
@@ -1012,6 +1120,7 @@ class SectionsList
 					);
 //					add parent settings to child params if parent section not deleted
 					if (!$needDelete)
+					{
 						$dataToSave[$section["ID"]]["PARAMS"]["PARENT_SETTINGS"] = array(
 							"INHERIT" => false,
 							"ENABLE" => $settings["ENABLE"] ? true : false,
@@ -1020,18 +1129,25 @@ class SectionsList
 							"VK_CATEGORY" => $settings["VK_CATEGORY"],
 							"INCLUDE_CHILDS" => $settings["INCLUDE_CHILDS"] ? true : false,
 						);
+					}
 					else
+					{
 						unset($dataToSave[$section["ID"]]["PARAMS"]["PARENT_SETTINGS"]);
+					}
 				}
 			}
 		}
 		
 		$result = array();
 		if (!empty($dataToSave))
+		{
 			$result['TO_SAVE'] = $dataToSave;
+		}
 		
 		if (!empty($dataToDelete))
+		{
 			$result['TO_DELETE'] = $dataToDelete;
+		}
 		
 		return $result;
 	}

@@ -149,6 +149,7 @@ function _ShowElementPropertyField($name, $property_fields, $values, $bVarsFromF
 
 	$index = 0;
 	$show = true;
+	$selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
 
 	$MULTIPLE_CNT = intval($property_fields["MULTIPLE_CNT"]);
 	if ($MULTIPLE_CNT <= 0 || $MULTIPLE_CNT > 30)
@@ -180,7 +181,7 @@ function _ShowElementPropertyField($name, $property_fields, $values, $bVarsFromF
 		$ar_res = $db_res->GetNext();
 		echo '<tr><td>'.
 		'<input name="'.$name.'['.$key.']" id="'.$name.'['.$key.']" value="'.htmlspecialcharsbx($val).'" size="5" type="text">'.
-		'<input type="button" value="..." onClick="jsUtils.OpenWindow(\'/bitrix/admin/iblock_element_search.php?lang='.LANGUAGE_ID.'&amp;IBLOCK_ID='.$property_fields["LINK_IBLOCK_ID"].'&amp;n='.$name.'&amp;k='.$key.($fixIBlock ? '&amp;iblockfix=y' : '').'&amp;tableId='.$windowTableId.'\', 900, 700);">'.
+		'<input type="button" value="..." onClick="jsUtils.OpenWindow(\''.$selfFolderUrl.'iblock_element_search.php?lang='.LANGUAGE_ID.'&amp;IBLOCK_ID='.$property_fields["LINK_IBLOCK_ID"].'&amp;n='.$name.'&amp;k='.$key.($fixIBlock ? '&amp;iblockfix=y' : '').'&amp;tableId='.$windowTableId.'\', 900, 700);">'.
 		'&nbsp;<span id="sp_'.md5($name).'_'.$key.'" >'.$ar_res['NAME'].'</span>'.
 		'</td></tr>';
 
@@ -201,7 +202,7 @@ function _ShowElementPropertyField($name, $property_fields, $values, $bVarsFromF
 
 			echo '<tr><td>'.
 			'<input name="'.$name.'['.$key.']" id="'.$name.'['.$key.']" value="'.htmlspecialcharsbx($val).'" size="5" type="text">'.
-			'<input type="button" value="..." onClick="jsUtils.OpenWindow(\'/bitrix/admin/iblock_element_search.php?lang='.LANGUAGE_ID.'&amp;IBLOCK_ID='.$property_fields["LINK_IBLOCK_ID"].'&amp;n='.$name.'&amp;k='.$key.($fixIBlock ? '&amp;iblockfix=y' : '').'&amp;tableId='.$windowTableId.'\', 900, 700);">'.
+			'<input type="button" value="..." onClick="jsUtils.OpenWindow(\''.$selfFolderUrl.'iblock_element_search.php?lang='.LANGUAGE_ID.'&amp;IBLOCK_ID='.$property_fields["LINK_IBLOCK_ID"].'&amp;n='.$name.'&amp;k='.$key.($fixIBlock ? '&amp;iblockfix=y' : '').'&amp;tableId='.$windowTableId.'\', 900, 700);">'.
 			'&nbsp;<span id="sp_'.md5($name).'_'.$key.'"></span>'.
 			'</td></tr>';
 		}
@@ -210,7 +211,7 @@ function _ShowElementPropertyField($name, $property_fields, $values, $bVarsFromF
 	if($property_fields["MULTIPLE"]=="Y")
 	{
 		echo '<tr><td>'.
-			'<input type="button" value="'.GetMessage("IBLOCK_AT_PROP_ADD").'..." onClick="jsUtils.OpenWindow(\'/bitrix/admin/iblock_element_search.php?lang='.LANGUAGE_ID.'&amp;IBLOCK_ID='.$property_fields["LINK_IBLOCK_ID"].'&amp;n='.$name.'&amp;m=y&amp;k='.$key.($fixIBlock ? '&amp;iblockfix=y' : '').'&amp;tableId='.$windowTableId.'\', 900, 700);">'.
+			'<input type="button" value="'.GetMessage("IBLOCK_AT_PROP_ADD").'..." onClick="jsUtils.OpenWindow(\''.$selfFolderUrl.'iblock_element_search.php?lang='.LANGUAGE_ID.'&amp;IBLOCK_ID='.$property_fields["LINK_IBLOCK_ID"].'&amp;n='.$name.'&amp;m=y&amp;k='.$key.($fixIBlock ? '&amp;iblockfix=y' : '').'&amp;tableId='.$windowTableId.'\', 900, 700);">'.
 			'<span id="sp_'.md5($name).'_'.$key.'" ></span>'.
 			'</td></tr>';
 	}
@@ -225,7 +226,7 @@ function _ShowElementPropertyField($name, $property_fields, $values, $bVarsFromF
 	echo "	oCell.innerHTML=".
 		"'<input name=\"".$name."[n'+MV_".md5($name)."+']\" value=\"'+id+'\" id=\"".$name."[n'+MV_".md5($name)."+']\" size=\"5\" type=\"text\">'+\r\n".
 		"'<input type=\"button\" value=\"...\" '+\r\n".
-		"'onClick=\"jsUtils.OpenWindow(\'/bitrix/admin/iblock_element_search.php?lang=".LANGUAGE_ID."&amp;IBLOCK_ID=".$property_fields["LINK_IBLOCK_ID"]."&amp;n=".$name."&amp;k=n'+MV_".md5($name)."+'".($fixIBlock ? '&amp;iblockfix=y' : '')."&amp;tableId=".$windowTableId."\', '+\r\n".
+		"'onClick=\"jsUtils.OpenWindow(\'".$selfFolderUrl."iblock_element_search.php?lang=".LANGUAGE_ID."&amp;IBLOCK_ID=".$property_fields["LINK_IBLOCK_ID"]."&amp;n=".$name."&amp;k=n'+MV_".md5($name)."+'".($fixIBlock ? '&amp;iblockfix=y' : '')."&amp;tableId=".$windowTableId."\', '+\r\n".
 		"' 900, 700);\">'+".
 		"'&nbsp;<span id=\"sp_".md5($name)."_n'+MV_".md5($name)."+'\" >'+name+'</span>".
 		"';";
@@ -416,11 +417,11 @@ function _ShowListPropertyField($name, $property_fields, $values, $bInitDef = fa
 	$id = $property_fields["ID"];
 	$multiple = $property_fields["MULTIPLE"];
 	$res = "";
+	$prop_enums = CIBlockProperty::GetPropertyEnum($id, ['SORT' => 'ASC', 'VALUE' => 'ASC', 'ID' => 'ASC']);
 	if($property_fields["LIST_TYPE"]=="C") //list property as checkboxes
 	{
 		$cnt = 0;
 		$wSel = false;
-		$prop_enums = CIBlockProperty::GetPropertyEnum($id);
 		while($ar_enum = $prop_enums->Fetch())
 		{
 			$cnt++;
@@ -455,7 +456,6 @@ function _ShowListPropertyField($name, $property_fields, $values, $bInitDef = fa
 	else //list property as list
 	{
 		$bNoValue = true;
-		$prop_enums = CIBlockProperty::GetPropertyEnum($id);
 		while($ar_enum = $prop_enums->Fetch())
 		{
 			if($bInitDef)
@@ -905,7 +905,20 @@ function GetUserProfileLink($user_id, $title)
 		}
 
 		if($arUsersCache[$user_id])
-			return '[<a href="user_edit.php?lang='.LANGUAGE_ID.'&ID='.$user_id.'" title="'.$title.'">'.$user_id."</a>]&nbsp;(".htmlspecialcharsex($arUsersCache[$user_id]["LOGIN"]).") ".htmlspecialcharsex($arUsersCache[$user_id]["NAME"]." ".$arUsersCache[$user_id]["LAST_NAME"]);
+		{
+			$urlToUser = "user_edit.php?lang='.LANGUAGE_ID.'&ID='.$user_id.'";
+			if (defined("PUBLIC_MODE") && PUBLIC_MODE == 1)
+			{
+				return "(".htmlspecialcharsex($arUsersCache[$user_id]["LOGIN"]).") ".
+					htmlspecialcharsex($arUsersCache[$user_id]["NAME"]." ".$arUsersCache[$user_id]["LAST_NAME"]);
+			}
+			else
+			{
+				return '[<a href="'.$urlToUser.'" title="'.$title.'">'.$user_id.
+					"</a>]&nbsp;(".htmlspecialcharsex($arUsersCache[$user_id]["LOGIN"]).") ".
+					htmlspecialcharsex($arUsersCache[$user_id]["NAME"]." ".$arUsersCache[$user_id]["LAST_NAME"]);
+			}
+		}
 	}
 	return '';
 }

@@ -49,10 +49,20 @@ class Link extends \Bitrix\Landing\Node
 			$href = isset($value['href']) ? trim($value['href']) : '';
 			$target = isset($value['target']) ? trim(strtolower($value['target'])) : '';
 			$attrs = isset($value['attrs']) ? (array)$value['attrs'] : array();
+			$skipContent = isset($value['skipContent']) ? (boolean)$value['skipContent'] : false;
+
+			if (isset($value['text']) && !$text)
+			{
+				$text = '&nbsp;';
+			}
 
 			if (isset($resultList[$pos]))
 			{
-				if (trim($resultList[$pos]->getTextContent()) != '' && $text != '')
+				if (
+					$text &&
+					!$skipContent &&
+					trim($resultList[$pos]->getTextContent()) != ''
+				)
 				{
 					$text = \htmlspecialcharsbx($text);
 					$resultList[$pos]->setInnerHTML($text);
@@ -65,15 +75,23 @@ class Link extends \Bitrix\Landing\Node
 				{
 					$resultList[$pos]->setAttribute('target', $target);
 				}
+
+				$allowedAttrs = self::allowedAttrs();
 				if (!empty($attrs))
 				{
-					$allowedAttrs = self::allowedAttrs();
 					foreach ($attrs as $code => $val)
 					{
 						if ($val && in_array($code, $allowedAttrs))
 						{
 							$resultList[$pos]->setAttribute($code, $val);
 						}
+					}
+				}
+				else
+				{
+					foreach ($allowedAttrs as $code => $attr)
+					{
+						$resultList[$pos]->removeAttribute($attr);
 					}
 				}
 			}
@@ -90,12 +108,12 @@ class Link extends \Bitrix\Landing\Node
 	{
 		$data = array();
 		$doc = $block->getDom();
+		$manifest = $block->getManifest();
 		$resultList = $doc->querySelectorAll($selector);
 
 		foreach ($resultList as $pos => $res)
 		{
 			$data[$pos] = array(
-				'text' => $res->getInnerHTML(),
 				'href' => $res->getAttribute('href'),
 				'target' => $res->getAttribute('target'),
 				'attrs' => array(
@@ -103,6 +121,15 @@ class Link extends \Bitrix\Landing\Node
 					'data-url' => $res->getAttribute('data-url')
 				)
 			);
+			if (
+				!isset($manifest['nodes'][$selector]['skipContent']) ||
+				$manifest['nodes'][$selector]['skipContent'] !== true
+			)
+			{
+				$text = \htmlspecialcharsback($res->getInnerHTML());
+				$text = str_replace('&amp;nbsp;', '', $text);
+				$data[$pos]['text'] = $text;
+			}
 		}
 
 		return $data;

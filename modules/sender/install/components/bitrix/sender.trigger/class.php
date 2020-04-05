@@ -153,7 +153,8 @@ class SenderTriggerComponent extends \CBitrixComponent
 				}
 				$value = implode('&', $value);
 				//$value = str_replace('/', '&ID=', $value);
-				$this->arResult[$key] = $APPLICATION->GetCurPage() . "?$value";
+				$lang = isset($_REQUEST['lang']) ? $_REQUEST['lang'] : null;
+				$this->arResult[$key] = $APPLICATION->GetCurPage() . "?$value" . ($lang ? "&lang=$lang" : '');
 			}
 		}
 

@@ -269,6 +269,7 @@ while($db_res = $rsData->NavNext(true, "a_"))
 		case "USER_PASSWORD_CHANGED":
 		case "USER_DELETE":
 		case "USER_GROUP_CHANGED":
+		case "USER_EDIT":
 			if(!array_key_exists($a_ITEM_ID, $arUsersCache))
 			{
 				$rsUser = CUser::GetByID($a_ITEM_ID);

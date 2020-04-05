@@ -54,7 +54,7 @@ class BotTable extends Main\Entity\DataManager
 			'CODE' => array(
 				'data_type' => 'string',
 				'required' => true,
-				'validation' => array(__CLASS__, 'validateBotName'),
+				'validation' => array(__CLASS__, 'validateBotCode'),
 				'title' => Loc::getMessage('BOT_ENTITY_BOT_NAME_FIELD'),
 			),
 			'TYPE' => array(
@@ -144,14 +144,14 @@ class BotTable extends Main\Entity\DataManager
 		);
 	}
 	/**
-	 * Returns validators for NAME field.
+	 * Returns validators for CODE field.
 	 *
 	 * @return array
 	 */
-	public static function validateBotName()
+	public static function validateBotCode()
 	{
 		return array(
-			new Main\Entity\Validator\Length(null, 50),
+			new Main\Entity\Validator\Length(1, 50),
 		);
 	}
 	/**

@@ -44,6 +44,7 @@ $MESS ['SALE_PROPERTY_SELECT_ALL'] = "Все";
 $MESS ['SALE_VARIANTS_CODE'] = "Код";
 $MESS ['SALE_VARIANTS_NAME'] = "Название";
 $MESS ['SALE_VARIANTS_SORT'] = "Сорт.";
+$MESS ['SALE_VARIANTS_XML_ID'] = "Внешний код";
 $MESS ['SALE_VARIANTS_DESCR'] = "Описание";
 $MESS ['SALE_VARIANTS_DEL'] = "Удалить";
 $MESS ['SALE_VARIANTS_MORE'] = "Еще...";
@@ -61,6 +62,7 @@ $MESS ['SOPEN_4NEW_PROMT'] = "Выберите тип плательщика:";
 $MESS ['F_IS_FILTERED'] = "Доступно в фильтре по заказам";
 $MESS ['F_ACTIVE'] = "Активность";
 $MESS ['F_UTIL'] = "Служебное";
+$MESS ['F_XML_ID'] = "Внешний код";
 
 $MESS ['F_ANOTHER_LOCATION'] = "Альтернативное поле ввода местоположения";
 $MESS ['NULL_ANOTHER_LOCATION'] = "Выбрать";

@@ -59,6 +59,7 @@ while ($arApp = $dbApps->Fetch())
 if (!empty($arCodes))
 {
 	$arAppsBuy = \Bitrix\Rest\Marketplace\Client::getBuy($arCodes);
+
 	if($arAppsBuy)
 	{
 		$arAppsBuy = $arAppsBuy["ITEMS"];

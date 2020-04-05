@@ -143,22 +143,13 @@ if (check_bitrix_sessid())
 		}
 		elseif ($action == 'SETOWNER')
 		{
-			if (CSocNetUserToGroup::SetOwner($arUserID[0], $arGroup["ID"], $arGroup))
-			{
-				\Bitrix\Main\FinderDestTable::merge(array(
-					"CONTEXT" => 'GROUP_SET_OWNER',
-					"CODE" => array('U'.$arUserID[0])
-				));
-			}
-			else
+			if (!CSocNetUserToGroup::SetOwner($arUserID[0], $arGroup["ID"], $arGroup))
 			{
 				echo CUtil::PhpToJsObject(Array('ERROR' => 'USER_ACTION_FAILED: '.(($e = $APPLICATION->GetException()) ? $e->GetString() : "")));
 				die();
 			}
 		}
-		elseif (
-			$action == 'ADDMODERATOR'
-		)
+		elseif ($action == 'ADDMODERATOR')
 		{
 			$error = false;
 			$arUserPerms = CSocNetUserToGroup::initUserPerms($USER->getId(), $arGroup, CSocNetUser::IsCurrentUserModuleAdmin());
@@ -175,11 +166,6 @@ if (check_bitrix_sessid())
 					'user_id' => $arUserID[0],
 				)))
 				{
-					\Bitrix\Main\FinderDestTable::merge(array(
-						"CONTEXT" => 'GROUP_ADD_MODERATOR',
-						"CODE" => array('U'.$arUserID[0])
-					));
-
 					UserToGroup::addInfoToChat(array(
 						'group_id' => $arGroup["ID"],
 						'user_id' => $arUserID[0],

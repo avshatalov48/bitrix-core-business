@@ -59,7 +59,7 @@ class CAjax
 				else
 				{
 					// special hack
-					$sRealBitrixModules = strtolower(str_replace("\\", "/", realpath($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules")));
+					$sRealBitrixModules = substr(strtolower(str_replace("\\", "/", realpath($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main"))), 0, -5);
 					if(strpos($sSrcFile, $sRealBitrixModules) === 0)
 					{
 						$sSrcFile = "/bitrix/modules".substr($sSrcFile, strlen($sRealBitrixModules));
@@ -77,12 +77,6 @@ class CAjax
 								$sSrcFile = "/bitrix/components/bitrix".substr($sSrcFile, strlen($sRealBitrixComponentsDir));
 								$bSrcFound = true;
 							}
-						}
-						elseif (preg_match("#/bitrix/modules#", $sSrcFile))
-						{
-							$sRealDocRoot = substr($sSrcFile, 0, strpos($sSrcFile, "/bitrix/modules/"));
-							$sSrcFile = substr($sSrcFile, strlen($sRealDocRoot));
-							$bSrcFound = true;
 						}
 					}
 				}

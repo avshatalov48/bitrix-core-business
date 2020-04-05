@@ -127,6 +127,10 @@ $APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' 
 			]
 			:
 			null,
+		[
+			'type' => 'settings',
+			'items' => ['import']
+		],
 		$arParams['CAN_EDIT']
 			?
 			[

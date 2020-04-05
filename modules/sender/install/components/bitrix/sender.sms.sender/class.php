@@ -67,12 +67,12 @@ class SenderSmsSenderComponent extends CBitrixComponent
 								array(
 									'id' => $from,
 									'name' => 'Unnamed',
-									'selected' => $currentId == $from,
+									'selected' => $currentId === $from,
 								)
 							),
 							'isHidden' => true
 						),
-						'selected' => $currentSenderId == $item['id'],
+						'selected' => $currentId === $from,
 					);
 
 					$this->arResult['LIST'][] = $row;
@@ -110,7 +110,7 @@ class SenderSmsSenderComponent extends CBitrixComponent
 		{
 			foreach ($this->arResult['LIST'] as $item)
 			{
-				if ($currentSenderId && $currentSenderId != $item['senderId'])
+				if ($currentSenderId && !$item['selected'])
 				{
 					continue;
 				}

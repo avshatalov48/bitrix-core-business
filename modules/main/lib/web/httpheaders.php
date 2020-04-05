@@ -7,7 +7,12 @@
  */
 namespace Bitrix\Main\Web;
 
-class HttpHeaders
+use Bitrix\Main\Context;
+use Bitrix\Main\Text\Encoding;
+use IteratorAggregate;
+use Traversable;
+
+class HttpHeaders implements IteratorAggregate
 {
 	protected $headers = array();
 
@@ -22,18 +27,24 @@ class HttpHeaders
 	 */
 	public function add($name, $value)
 	{
-		$name = str_replace(array("\r", "\n"), "", $name);
-		$value = str_replace(array("\r", "\n"), "", $value);
+		$name = $this->refineString($name);
+		$value = $this->refineString($value);
+
 		$nameLower = strtolower($name);
 
-		if(!isset($this->headers[$nameLower]))
+		if (!isset($this->headers[$nameLower]))
 		{
-			$this->headers[$nameLower] = array(
+			$this->headers[$nameLower] = [
 				"name" => $name,
-				"values" => array(),
-			);
+				"values" => [],
+			];
 		}
 		$this->headers[$nameLower]["values"][] = $value;
+	}
+
+	private function refineString($string)
+	{
+		return str_replace(["%0D", "%0A", "\r", "\n"], "", $string);
 	}
 
 	/**
@@ -43,17 +54,17 @@ class HttpHeaders
 	 */
 	public function set($name, $value)
 	{
-		$name = str_replace(array("\r", "\n"), "", $name);
-		if($value !== null)
+		$name = $this->refineString($name);
+		if ($value !== null)
 		{
-			$value = str_replace(array("\r", "\n"), "", $value);
+			$value = $this->refineString($value);
 		}
 		$nameLower = strtolower($name);
 
-		$this->headers[$nameLower] = array(
+		$this->headers[$nameLower] = [
 			"name" => $name,
-			"values" => array($value),
-		);
+			"values" => [$value],
+		];
 	}
 
 	/**
@@ -66,15 +77,33 @@ class HttpHeaders
 	{
 		$nameLower = strtolower($name);
 
-		if(isset($this->headers[$nameLower]))
+		if (isset($this->headers[$nameLower]))
 		{
-			if($returnArray)
+			if ($returnArray)
 			{
 				return $this->headers[$nameLower]["values"];
 			}
+
 			return $this->headers[$nameLower]["values"][0];
 		}
+
 		return null;
+	}
+
+	/**
+	 * Deletes a header or headers by its name.
+	 *
+	 * @param string $name
+	 * @return void
+	 */
+	public function delete($name)
+	{
+		$nameLower = strtolower($name);
+
+		if (isset($this->headers[$nameLower]))
+		{
+			unset($this->headers[$nameLower]);
+		}
 	}
 
 	/**
@@ -83,7 +112,7 @@ class HttpHeaders
 	public function clear()
 	{
 		unset($this->headers);
-		$this->headers = array();
+		$this->headers = [];
 	}
 
 	/**
@@ -95,11 +124,12 @@ class HttpHeaders
 		$str = "";
 		foreach($this->headers as $header)
 		{
-			foreach($header["values"] as $value)
+			foreach ($header["values"] as $value)
 			{
-				$str .= $header["name"].": ".$value."\r\n";
+				$str .= $header["name"] . ": " . $value . "\r\n";
 			}
 		}
+
 		return $str;
 	}
 
@@ -119,11 +149,12 @@ class HttpHeaders
 	public function getContentType()
 	{
 		$contentType = $this->get("Content-Type");
-		if($contentType !== null)
+		if ($contentType !== null)
 		{
 			$parts = explode(";", $contentType);
 			return trim($parts[0]);
 		}
+
 		return null;
 	}
 
@@ -134,18 +165,19 @@ class HttpHeaders
 	public function getCharset()
 	{
 		$contentType = $this->get("Content-Type");
-		if($contentType !== null)
+		if ($contentType !== null)
 		{
 			$parts = explode(";", $contentType);
-			foreach($parts as $part)
+			foreach ($parts as $part)
 			{
 				$values = explode("=", $part);
-				if(strtolower(trim($values[0])) == "charset")
+				if (strtolower(trim($values[0])) == "charset")
 				{
 					return trim($values[1]);
 				}
 			}
 		}
+
 		return null;
 	}
 
@@ -156,11 +188,13 @@ class HttpHeaders
 	public function getContentDisposition()
 	{
 		$contentDisposition = $this->get("Content-Disposition");
-		if($contentDisposition !== null)
+		if ($contentDisposition !== null)
 		{
 			$parts = explode(";", $contentDisposition);
+
 			return trim($parts[0]);
 		}
+
 		return null;
 	}
 
@@ -172,44 +206,70 @@ class HttpHeaders
 	public function getFilename()
 	{
 		$contentDisposition = $this->get('Content-disposition');
-		if($contentDisposition !== null)
+		if ($contentDisposition !== null)
 		{
 			$filename = null;
 			$encoding = null;
 
 			$contentElements = explode(';', $contentDisposition);
-			foreach($contentElements as $contentElement)
+			foreach ($contentElements as $contentElement)
 			{
 				$contentElement = trim($contentElement);
-				if(preg_match('/^filename\*=(.+)\'(.+)?\'(.+)$/', $contentElement, $matches))
+				if (preg_match('/^filename\*=(.+)\'(.+)?\'(.+)$/', $contentElement, $matches))
 				{
 					$filename = $matches[3];
 					$encoding = $matches[1];
 					break;
 				}
-				elseif(preg_match('/^filename="(.+)"$/', $contentElement, $matches))
+				elseif (preg_match('/^filename="(.+)"$/', $contentElement, $matches))
 				{
 					$filename = $matches[1];
 				}
-				elseif(preg_match('/^filename=(.+)$/', $contentElement, $matches))
+				elseif (preg_match('/^filename=(.+)$/', $contentElement, $matches))
 				{
 					$filename = $matches[1];
 				}
 			}
 
-			if($filename <> '')
+			if ($filename <> '')
 			{
 				$filename = urldecode($filename);
 
-				if($encoding <> '')
+				if ($encoding <> '')
 				{
-					$charset = \Bitrix\Main\Context::getCurrent()->getCulture()->getCharset();
-					$filename = \Bitrix\Main\Text\Encoding::convertEncoding($filename, $encoding, $charset);
+					$charset = Context::getCurrent()->getCulture()->getCharset();
+					$filename = Encoding::convertEncoding($filename, $encoding, $charset);
 				}
 			}
 
 			return $filename;
 		}
+
 		return null;
+	}
+
+	/**
+	 * Retrieve an external iterator
+	 * @link https://php.net/manual/en/iteratoraggregate.getiterator.php
+	 * @return Traversable An instance of an object implementing <b>Iterator</b> or
+	 * <b>Traversable</b>
+	 * @since 5.0.0
+	 */
+	public function getIterator()
+	{
+		$toIterate = [];
+		foreach ($this->headers as $header)
+		{
+			if (count($header["values"]) > 1)
+			{
+				$toIterate[$header["name"]] = $header["values"];
+			}
+			else
+			{
+				$toIterate[$header["name"]] = $header["values"][0];
+			}
+		}
+
+		return new \ArrayIterator($toIterate);
 	}
 }

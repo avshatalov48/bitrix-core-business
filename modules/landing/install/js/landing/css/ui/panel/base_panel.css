@@ -83,7 +83,7 @@
 
 
 .landing-ui-panel .landing-ui-button {
-	transition: opacity 200ms ease;
+	transition: background-color 200ms ease, opacity 400ms ease;
 }
 
 .landing-ui-panel-block-action {

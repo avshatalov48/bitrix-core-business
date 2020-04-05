@@ -105,99 +105,99 @@ if ($isFilter || $isSidebar): ?>
 				{
 					?>
 					<div data-entity="parent-container">
-					<?
-					if (!isset($arParams['GIFTS_SECTION_LIST_HIDE_BLOCK_TITLE']) || $arParams['GIFTS_SECTION_LIST_HIDE_BLOCK_TITLE'] !== 'Y')
-					{
-						?>
-						<div class="catalog-block-header" data-entity="header" data-showed="false" style="display: none; opacity: 0;">
-							<?=($arParams['GIFTS_SECTION_LIST_BLOCK_TITLE'] ?: \Bitrix\Main\Localization\Loc::getMessage('CT_GIFTS_SECTION_LIST_BLOCK_TITLE_DEFAULT'))?>
-						</div>
 						<?
-					}
+						if (!isset($arParams['GIFTS_SECTION_LIST_HIDE_BLOCK_TITLE']) || $arParams['GIFTS_SECTION_LIST_HIDE_BLOCK_TITLE'] !== 'Y')
+						{
+							?>
+							<div class="catalog-block-header" data-entity="header" data-showed="false" style="display: none; opacity: 0;">
+								<?=($arParams['GIFTS_SECTION_LIST_BLOCK_TITLE'] ?: \Bitrix\Main\Localization\Loc::getMessage('CT_GIFTS_SECTION_LIST_BLOCK_TITLE_DEFAULT'))?>
+							</div>
+							<?
+						}
 
-					CBitrixComponent::includeComponentClass('bitrix:sale.products.gift.section');
-					$APPLICATION->IncludeComponent(
-						'bitrix:sale.products.gift.section',
-						'.default',
-						array(
-							'IBLOCK_TYPE' => $arParams['IBLOCK_TYPE'],
-							'IBLOCK_ID' => $arParams['IBLOCK_ID'],
-							
-							'SECTION_ID' => $arResult['VARIABLES']['SECTION_ID'],
-							'SECTION_CODE' => $arResult['VARIABLES']['SECTION_CODE'],
-							'SECTION_ID_VARIABLE' => $arParams['SECTION_ID_VARIABLE'],
-							
-							'PRODUCT_ID_VARIABLE' => $arParams['PRODUCT_ID_VARIABLE'],
-							'ACTION_VARIABLE' => (!empty($arParams['ACTION_VARIABLE']) ? $arParams['ACTION_VARIABLE'] : 'action').'_spgs',
+						CBitrixComponent::includeComponentClass('bitrix:sale.products.gift.section');
+						$APPLICATION->IncludeComponent(
+							'bitrix:sale.products.gift.section',
+							'.default',
+							array(
+								'IBLOCK_TYPE' => $arParams['IBLOCK_TYPE'],
+								'IBLOCK_ID' => $arParams['IBLOCK_ID'],
 
-							'PRODUCT_ROW_VARIANTS' => \Bitrix\Main\Web\Json::encode(
-								SaleProductsGiftSectionComponent::predictRowVariants(
-									$arParams['GIFTS_SECTION_LIST_PAGE_ELEMENT_COUNT'],
-									$arParams['GIFTS_SECTION_LIST_PAGE_ELEMENT_COUNT']
-								)
+								'SECTION_ID' => $arResult['VARIABLES']['SECTION_ID'],
+								'SECTION_CODE' => $arResult['VARIABLES']['SECTION_CODE'],
+								'SECTION_ID_VARIABLE' => $arParams['SECTION_ID_VARIABLE'],
+
+								'PRODUCT_ID_VARIABLE' => $arParams['PRODUCT_ID_VARIABLE'],
+								'ACTION_VARIABLE' => (!empty($arParams['ACTION_VARIABLE']) ? $arParams['ACTION_VARIABLE'] : 'action').'_spgs',
+
+								'PRODUCT_ROW_VARIANTS' => \Bitrix\Main\Web\Json::encode(
+									SaleProductsGiftSectionComponent::predictRowVariants(
+										$arParams['GIFTS_SECTION_LIST_PAGE_ELEMENT_COUNT'],
+										$arParams['GIFTS_SECTION_LIST_PAGE_ELEMENT_COUNT']
+									)
+								),
+								'PAGE_ELEMENT_COUNT' => $arParams['GIFTS_SECTION_LIST_PAGE_ELEMENT_COUNT'],
+								'DEFERRED_PRODUCT_ROW_VARIANTS' => '',
+								'DEFERRED_PAGE_ELEMENT_COUNT' => 0,
+
+								'SHOW_DISCOUNT_PERCENT' => $arParams['GIFTS_SHOW_DISCOUNT_PERCENT'],
+								'DISCOUNT_PERCENT_POSITION' => $arParams['DISCOUNT_PERCENT_POSITION'],
+								'SHOW_OLD_PRICE' => $arParams['GIFTS_SHOW_OLD_PRICE'],
+								'PRODUCT_DISPLAY_MODE' => 'Y',
+								'PRODUCT_BLOCKS_ORDER' => $arParams['LIST_PRODUCT_BLOCKS_ORDER'],
+								'SHOW_SLIDER' => $arParams['LIST_SHOW_SLIDER'],
+								'SLIDER_INTERVAL' => isset($arParams['LIST_SLIDER_INTERVAL']) ? $arParams['LIST_SLIDER_INTERVAL'] : '',
+								'SLIDER_PROGRESS' => isset($arParams['LIST_SLIDER_PROGRESS']) ? $arParams['LIST_SLIDER_PROGRESS'] : '',
+
+								'TEXT_LABEL_GIFT' => $arParams['GIFTS_DETAIL_TEXT_LABEL_GIFT'],
+
+								'LABEL_PROP_'.$arParams['IBLOCK_ID'] => array(),
+								'LABEL_PROP_MOBILE_'.$arParams['IBLOCK_ID'] => array(),
+								'LABEL_PROP_POSITION' => $arParams['LABEL_PROP_POSITION'],
+
+								'ADD_TO_BASKET_ACTION' => $basketAction,
+								'MESS_BTN_BUY' => $arParams['~GIFTS_MESS_BTN_BUY'],
+								'MESS_BTN_ADD_TO_BASKET' => $arParams['~GIFTS_MESS_BTN_BUY'],
+								'MESS_BTN_DETAIL' => $arParams['~MESS_BTN_DETAIL'],
+								'MESS_BTN_SUBSCRIBE' => $arParams['~MESS_BTN_SUBSCRIBE'],
+
+								'PROPERTY_CODE' => (isset($arParams['LIST_PROPERTY_CODE']) ? $arParams['LIST_PROPERTY_CODE'] : []),
+								'PROPERTY_CODE_MOBILE' => $arParams['LIST_PROPERTY_CODE_MOBILE'],
+								'ADD_PICT_PROP' => $arParams['ADD_PICT_PROP'],
+
+								'OFFERS_FIELD_CODE' => $arParams['LIST_OFFERS_FIELD_CODE'],
+								'OFFERS_PROPERTY_CODE' => (isset($arParams['LIST_OFFERS_PROPERTY_CODE']) ? $arParams['LIST_OFFERS_PROPERTY_CODE'] : []),
+								'OFFER_TREE_PROPS' => (isset($arParams['OFFER_TREE_PROPS']) ? $arParams['OFFER_TREE_PROPS'] : []),
+								'OFFERS_CART_PROPERTIES' => (isset($arParams['OFFERS_CART_PROPERTIES']) ? $arParams['OFFERS_CART_PROPERTIES'] : []),
+								'OFFER_ADD_PICT_PROP' => $arParams['OFFER_ADD_PICT_PROP'],
+
+								'HIDE_NOT_AVAILABLE' => 'Y',
+								'HIDE_NOT_AVAILABLE_OFFERS' => 'Y',
+								'PRODUCT_SUBSCRIPTION' => $arParams['PRODUCT_SUBSCRIPTION'],
+								'TEMPLATE_THEME' => $arParams['TEMPLATE_THEME'],
+								'PRICE_CODE' => $arParams['~PRICE_CODE'],
+								'SHOW_PRICE_COUNT' => $arParams['SHOW_PRICE_COUNT'],
+								'PRICE_VAT_INCLUDE' => $arParams['PRICE_VAT_INCLUDE'],
+								'CONVERT_CURRENCY' => $arParams['CONVERT_CURRENCY'],
+								'BASKET_URL' => $arParams['BASKET_URL'],
+								'ADD_PROPERTIES_TO_BASKET' => $arParams['ADD_PROPERTIES_TO_BASKET'],
+								'PRODUCT_PROPS_VARIABLE' => $arParams['PRODUCT_PROPS_VARIABLE'],
+								'PARTIAL_PRODUCT_PROPERTIES' => $arParams['PARTIAL_PRODUCT_PROPERTIES'],
+								'USE_PRODUCT_QUANTITY' => 'N',
+								'PRODUCT_QUANTITY_VARIABLE' => $arParams['PRODUCT_QUANTITY_VARIABLE'],
+								'CACHE_GROUPS' => $arParams['CACHE_GROUPS'],
+
+								'USE_ENHANCED_ECOMMERCE' => (isset($arParams['USE_ENHANCED_ECOMMERCE']) ? $arParams['USE_ENHANCED_ECOMMERCE'] : ''),
+								'DATA_LAYER_NAME' => (isset($arParams['DATA_LAYER_NAME']) ? $arParams['DATA_LAYER_NAME'] : ''),
+								'BRAND_PROPERTY' => (isset($arParams['BRAND_PROPERTY']) ? $arParams['BRAND_PROPERTY'] : ''),
 							),
-							'PAGE_ELEMENT_COUNT' => $arParams['GIFTS_SECTION_LIST_PAGE_ELEMENT_COUNT'],
-							'DEFERRED_PRODUCT_ROW_VARIANTS' => '',
-							'DEFERRED_PAGE_ELEMENT_COUNT' => 0,
-
-							'SHOW_DISCOUNT_PERCENT' => $arParams['GIFTS_SHOW_DISCOUNT_PERCENT'],
-							'DISCOUNT_PERCENT_POSITION' => $arParams['DISCOUNT_PERCENT_POSITION'],
-							'SHOW_OLD_PRICE' => $arParams['GIFTS_SHOW_OLD_PRICE'],
-							'PRODUCT_DISPLAY_MODE' => 'Y',
-							'PRODUCT_BLOCKS_ORDER' => $arParams['LIST_PRODUCT_BLOCKS_ORDER'],
-							'SHOW_SLIDER' => $arParams['LIST_SHOW_SLIDER'],
-							'SLIDER_INTERVAL' => isset($arParams['LIST_SLIDER_INTERVAL']) ? $arParams['LIST_SLIDER_INTERVAL'] : '',
-							'SLIDER_PROGRESS' => isset($arParams['LIST_SLIDER_PROGRESS']) ? $arParams['LIST_SLIDER_PROGRESS'] : '',
-
-							'TEXT_LABEL_GIFT' => $arParams['GIFTS_DETAIL_TEXT_LABEL_GIFT'],
-
-							'LABEL_PROP_'.$arParams['IBLOCK_ID'] => array(),
-							'LABEL_PROP_MOBILE_'.$arParams['IBLOCK_ID'] => array(),
-							'LABEL_PROP_POSITION' => $arParams['LABEL_PROP_POSITION'],
-
-							'ADD_TO_BASKET_ACTION' => $basketAction,
-							'MESS_BTN_BUY' => $arParams['~GIFTS_MESS_BTN_BUY'],
-							'MESS_BTN_ADD_TO_BASKET' => $arParams['~GIFTS_MESS_BTN_BUY'],
-							'MESS_BTN_DETAIL' => $arParams['~MESS_BTN_DETAIL'],
-							'MESS_BTN_SUBSCRIBE' => $arParams['~MESS_BTN_SUBSCRIBE'],
-
-							'PROPERTY_CODE' => $arParams['LIST_PROPERTY_CODE'],
-							'PROPERTY_CODE_MOBILE' => $arParams['LIST_PROPERTY_CODE_MOBILE'],
-							'ADD_PICT_PROP' => $arParams['ADD_PICT_PROP'],
-
-							'OFFERS_FIELD_CODE' => $arParams['LIST_OFFERS_FIELD_CODE'],
-							'OFFERS_PROPERTY_CODE' => $arParams['LIST_OFFERS_PROPERTY_CODE'],
-							'OFFER_TREE_PROPS' => $arParams['OFFER_TREE_PROPS'],
-							'OFFERS_CART_PROPERTIES' => $arParams['OFFERS_CART_PROPERTIES'],
-							'OFFER_ADD_PICT_PROP' => $arParams['OFFER_ADD_PICT_PROP'],
-
-							'HIDE_NOT_AVAILABLE' => 'Y',
-							'HIDE_NOT_AVAILABLE_OFFERS' => 'Y',
-							'PRODUCT_SUBSCRIPTION' => $arParams['PRODUCT_SUBSCRIPTION'],
-							'TEMPLATE_THEME' => $arParams['TEMPLATE_THEME'],
-							'PRICE_CODE' => $arParams['~PRICE_CODE'],
-							'SHOW_PRICE_COUNT' => $arParams['SHOW_PRICE_COUNT'],
-							'PRICE_VAT_INCLUDE' => $arParams['PRICE_VAT_INCLUDE'],
-							'CONVERT_CURRENCY' => $arParams['CONVERT_CURRENCY'],
-							'BASKET_URL' => $arParams['BASKET_URL'],
-							'ADD_PROPERTIES_TO_BASKET' => $arParams['ADD_PROPERTIES_TO_BASKET'],
-							'PRODUCT_PROPS_VARIABLE' => $arParams['PRODUCT_PROPS_VARIABLE'],
-							'PARTIAL_PRODUCT_PROPERTIES' => $arParams['PARTIAL_PRODUCT_PROPERTIES'],
-							'USE_PRODUCT_QUANTITY' => 'N',
-							'PRODUCT_QUANTITY_VARIABLE' => $arParams['PRODUCT_QUANTITY_VARIABLE'],
-							'CACHE_GROUPS' => $arParams['CACHE_GROUPS'],
-
-							'USE_ENHANCED_ECOMMERCE' => (isset($arParams['USE_ENHANCED_ECOMMERCE']) ? $arParams['USE_ENHANCED_ECOMMERCE'] : ''),
-							'DATA_LAYER_NAME' => (isset($arParams['DATA_LAYER_NAME']) ? $arParams['DATA_LAYER_NAME'] : ''),
-							'BRAND_PROPERTY' => (isset($arParams['BRAND_PROPERTY']) ? $arParams['BRAND_PROPERTY'] : ''),
-						),
-						$component,
-						array("HIDE_ICONS" => "Y")
-					);
+							$component,
+							array("HIDE_ICONS" => "Y")
+						);
+						?>
+					</div>
+					<?
 				}
-				?>
-				</div>
-				<?
 			}
 			?>
 		</div>
@@ -257,7 +257,7 @@ if ($isFilter || $isSidebar): ?>
 					"ELEMENT_SORT_ORDER" => $arParams["ELEMENT_SORT_ORDER"],
 					"ELEMENT_SORT_FIELD2" => $arParams["ELEMENT_SORT_FIELD2"],
 					"ELEMENT_SORT_ORDER2" => $arParams["ELEMENT_SORT_ORDER2"],
-					"PROPERTY_CODE" => $arParams["LIST_PROPERTY_CODE"],
+					"PROPERTY_CODE" => (isset($arParams["LIST_PROPERTY_CODE"]) ? $arParams["LIST_PROPERTY_CODE"] : []),
 					"PROPERTY_CODE_MOBILE" => $arParams["LIST_PROPERTY_CODE_MOBILE"],
 					"META_KEYWORDS" => $arParams["LIST_META_KEYWORDS"],
 					"META_DESCRIPTION" => $arParams["LIST_META_DESCRIPTION"],
@@ -291,7 +291,7 @@ if ($isFilter || $isSidebar): ?>
 					"USE_PRODUCT_QUANTITY" => $arParams['USE_PRODUCT_QUANTITY'],
 					"ADD_PROPERTIES_TO_BASKET" => (isset($arParams["ADD_PROPERTIES_TO_BASKET"]) ? $arParams["ADD_PROPERTIES_TO_BASKET"] : ''),
 					"PARTIAL_PRODUCT_PROPERTIES" => (isset($arParams["PARTIAL_PRODUCT_PROPERTIES"]) ? $arParams["PARTIAL_PRODUCT_PROPERTIES"] : ''),
-					"PRODUCT_PROPERTIES" => $arParams["PRODUCT_PROPERTIES"],
+					"PRODUCT_PROPERTIES" => (isset($arParams["PRODUCT_PROPERTIES"]) ? $arParams["PRODUCT_PROPERTIES"] : []),
 
 					"DISPLAY_TOP_PAGER" => $arParams["DISPLAY_TOP_PAGER"],
 					"DISPLAY_BOTTOM_PAGER" => $arParams["DISPLAY_BOTTOM_PAGER"],
@@ -308,14 +308,14 @@ if ($isFilter || $isSidebar): ?>
 					"MESS_BTN_LAZY_LOAD" => $arParams["~MESS_BTN_LAZY_LOAD"],
 					"LOAD_ON_SCROLL" => $arParams["LOAD_ON_SCROLL"],
 
-					"OFFERS_CART_PROPERTIES" => $arParams["OFFERS_CART_PROPERTIES"],
+					"OFFERS_CART_PROPERTIES" => (isset($arParams["OFFERS_CART_PROPERTIES"]) ? $arParams["OFFERS_CART_PROPERTIES"] : []),
 					"OFFERS_FIELD_CODE" => $arParams["LIST_OFFERS_FIELD_CODE"],
-					"OFFERS_PROPERTY_CODE" => $arParams["LIST_OFFERS_PROPERTY_CODE"],
+					"OFFERS_PROPERTY_CODE" => (isset($arParams["LIST_OFFERS_PROPERTY_CODE"]) ? $arParams["LIST_OFFERS_PROPERTY_CODE"] : []),
 					"OFFERS_SORT_FIELD" => $arParams["OFFERS_SORT_FIELD"],
 					"OFFERS_SORT_ORDER" => $arParams["OFFERS_SORT_ORDER"],
 					"OFFERS_SORT_FIELD2" => $arParams["OFFERS_SORT_FIELD2"],
 					"OFFERS_SORT_ORDER2" => $arParams["OFFERS_SORT_ORDER2"],
-					"OFFERS_LIMIT" => $arParams["LIST_OFFERS_LIMIT"],
+					"OFFERS_LIMIT" => (isset($arParams["LIST_OFFERS_LIMIT"]) ? $arParams["LIST_OFFERS_LIMIT"] : 0),
 
 					"SECTION_ID" => $arResult["VARIABLES"]["SECTION_ID"],
 					"SECTION_CODE" => $arResult["VARIABLES"]["SECTION_CODE"],
@@ -341,7 +341,7 @@ if ($isFilter || $isSidebar): ?>
 					'SLIDER_PROGRESS' => isset($arParams['LIST_SLIDER_PROGRESS']) ? $arParams['LIST_SLIDER_PROGRESS'] : '',
 
 					'OFFER_ADD_PICT_PROP' => $arParams['OFFER_ADD_PICT_PROP'],
-					'OFFER_TREE_PROPS' => $arParams['OFFER_TREE_PROPS'],
+					'OFFER_TREE_PROPS' => (isset($arParams['OFFER_TREE_PROPS']) ? $arParams['OFFER_TREE_PROPS'] : []),
 					'PRODUCT_SUBSCRIPTION' => $arParams['PRODUCT_SUBSCRIPTION'],
 					'SHOW_DISCOUNT_PERCENT' => $arParams['SHOW_DISCOUNT_PERCENT'],
 					'DISCOUNT_PERCENT_POSITION' => $arParams['DISCOUNT_PERCENT_POSITION'],
@@ -402,7 +402,7 @@ if ($isFilter || $isSidebar): ?>
 								"ELEMENT_SORT_ORDER" => $arParams["ELEMENT_SORT_ORDER"],
 								"ELEMENT_SORT_FIELD2" => $arParams["ELEMENT_SORT_FIELD2"],
 								"ELEMENT_SORT_ORDER2" => $arParams["ELEMENT_SORT_ORDER2"],
-								"PROPERTY_CODE" => $arParams["LIST_PROPERTY_CODE"],
+								"PROPERTY_CODE" => (isset($arParams["LIST_PROPERTY_CODE"]) ? $arParams["LIST_PROPERTY_CODE"] : []),
 								"PROPERTY_CODE_MOBILE" => $arParams["LIST_PROPERTY_CODE_MOBILE"],
 								"INCLUDE_SUBSECTIONS" => $arParams["INCLUDE_SUBSECTIONS"],
 								"BASKET_URL" => $arParams["BASKET_URL"],
@@ -431,16 +431,16 @@ if ($isFilter || $isSidebar): ?>
 								"USE_PRODUCT_QUANTITY" => $arParams['USE_PRODUCT_QUANTITY'],
 								"ADD_PROPERTIES_TO_BASKET" => (isset($arParams["ADD_PROPERTIES_TO_BASKET"]) ? $arParams["ADD_PROPERTIES_TO_BASKET"] : ''),
 								"PARTIAL_PRODUCT_PROPERTIES" => (isset($arParams["PARTIAL_PRODUCT_PROPERTIES"]) ? $arParams["PARTIAL_PRODUCT_PROPERTIES"] : ''),
-								"PRODUCT_PROPERTIES" => $arParams["PRODUCT_PROPERTIES"],
+								"PRODUCT_PROPERTIES" => (isset($arParams["PRODUCT_PROPERTIES"]) ? $arParams["PRODUCT_PROPERTIES"] : []),
 
-								"OFFERS_CART_PROPERTIES" => $arParams["OFFERS_CART_PROPERTIES"],
+								"OFFERS_CART_PROPERTIES" => (isset($arParams["OFFERS_CART_PROPERTIES"]) ? $arParams["OFFERS_CART_PROPERTIES"] : []),
 								"OFFERS_FIELD_CODE" => $arParams["LIST_OFFERS_FIELD_CODE"],
-								"OFFERS_PROPERTY_CODE" => $arParams["LIST_OFFERS_PROPERTY_CODE"],
+								"OFFERS_PROPERTY_CODE" => (isset($arParams["LIST_OFFERS_PROPERTY_CODE"]) ? $arParams["LIST_OFFERS_PROPERTY_CODE"] : []),
 								"OFFERS_SORT_FIELD" => $arParams["OFFERS_SORT_FIELD"],
 								"OFFERS_SORT_ORDER" => $arParams["OFFERS_SORT_ORDER"],
 								"OFFERS_SORT_FIELD2" => $arParams["OFFERS_SORT_FIELD2"],
 								"OFFERS_SORT_ORDER2" => $arParams["OFFERS_SORT_ORDER2"],
-								"OFFERS_LIMIT" => $arParams["LIST_OFFERS_LIMIT"],
+								"OFFERS_LIMIT" => (isset($arParams["LIST_OFFERS_LIMIT"]) ? $arParams["LIST_OFFERS_LIMIT"] : 0),
 
 								"SECTION_ID" => $intSectionID,
 								"SECTION_CODE" => "",
@@ -473,7 +473,7 @@ if ($isFilter || $isSidebar): ?>
 								"SHOW_FROM_SECTION" => 'Y',
 
 								'OFFER_ADD_PICT_PROP' => $arParams['OFFER_ADD_PICT_PROP'],
-								'OFFER_TREE_PROPS' => $arParams['OFFER_TREE_PROPS'],
+								'OFFER_TREE_PROPS' => (isset($arParams['OFFER_TREE_PROPS']) ? $arParams['OFFER_TREE_PROPS'] : []),
 								'PRODUCT_SUBSCRIPTION' => $arParams['PRODUCT_SUBSCRIPTION'],
 								'SHOW_DISCOUNT_PERCENT' => $arParams['SHOW_DISCOUNT_PERCENT'],
 								'DISCOUNT_PERCENT_POSITION' => $arParams['DISCOUNT_PERCENT_POSITION'],

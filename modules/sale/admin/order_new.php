@@ -3763,14 +3763,14 @@ $tabControl->BeginCustomField("NEWO_COMMENTS_A", GetMessage("NEWO_COMMENTS"), tr
 <tr>
 	<td width="40%" valign="top"><?=GetMessage("SOE_COMMENT")?>:<br /><small><?=GetMessage("SOE_COMMENT_NOTE")?></small></td>
 	<td width="60%">
-		<textarea name="COMMENTS" cols="40" rows="5"><?=$str_COMMENTS?></textarea>
+		<textarea name="COMMENTS" cols="40" rows="5"><?=htmlspecialcharsbx($str_COMMENTS)?></textarea>
 	</td>
 </tr>
 <?if (strlen($str_ADDITIONAL_INFO) > 0):?>
 <tr>
 	<td width="40%" valign="top"><?=GetMessage("SOE_ADDITIONAL")?>:</td>
 	<td width="60%">
-		<?=$str_ADDITIONAL_INFO?>
+		<?=htmlspecialcharsbx($str_ADDITIONAL_INFO);?>
 	</td>
 </tr>
 <?
@@ -5717,7 +5717,7 @@ $tabControl->BeginCustomField("BASKET_CONTAINER", GetMessage("NEWO_BASKET_CONTAI
 		if (urlEdit.length > 0)
 			hiddenField += '<a href="' + urlEdit + '" target="_blank" class="name-link ' + setItemLinkClass + '" >';
 
-		hiddenField += name;
+		hiddenField += BX.util.htmlspecialchars(name);
 
 		if (urlEdit.length > 0)
 			hiddenField += "</a>";

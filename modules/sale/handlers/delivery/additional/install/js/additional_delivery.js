@@ -6,6 +6,86 @@ BX.Sale.Handler.Delivery.Additional =
 	interruptFlag: false,
 	requestFlag: false,
 
+	onRusPostShippingPointsSelect: function(buttonNode, roNameId)
+	{
+		if(buttonNode && buttonNode.form
+			&& buttonNode.form.elements.ID
+			&& buttonNode.form.elements['CONFIG[MAIN][SHIPPING_POINT][VALUE]']
+		)
+		{
+			BX.Sale.Handler.Delivery.Additional.showRusPostShippingPointsDialog(
+				buttonNode.form.elements.ID.value,
+				buttonNode.form.elements['CONFIG[MAIN][SHIPPING_POINT][VALUE]'].value,
+				buttonNode.form,
+				roNameId
+			);
+		}
+	},
+
+	showRusPostShippingPointsDialog: function(deliveryId, spSelected, form, roNameId)
+	{	var self = this;
+		var popup = new BX.CDialog({
+			content_url: this.ajaxUrl,
+			content_post: 'action=get_ruspost_shipping_points_list&deliveryId='+deliveryId+'&spSelected='+spSelected+'&sessid='+BX.bitrix_sessid(),
+			width: 500,
+			height: 51,
+			draggable: true,
+			resizable: false,
+			title: BX.message('SALE_DLVRS_ADD_SP_CHOOSE_TITLE'),
+			buttons: [
+				{
+					title: BX.message('SALE_DLVRS_ADD_SP_SAVE'),
+					id: 'save-butt',
+					action: function ()
+					{
+						var selector = BX('sale-delivery-ruspost-shipment-points');
+
+						if(selector && selector.options && selector.options.length)
+						{
+							for(var i = selector.options.length - 1; i >= 0; i--)
+							{
+								if(selector.options[i].selected === true)
+								{
+									self.setShippingPoint(
+										selector.options[i].value,
+										selector.options[i].text,
+										form,
+										roNameId
+									);
+									break;
+								}
+							}
+						}
+
+						this.parentWindow.Close();
+					}
+				},
+				BX.CDialog.btnCancel
+			]});
+
+		popup.Show();
+	},
+
+	setShippingPoint: function(zip, address, form, roNameId)
+	{
+		if(form.elements['CONFIG[MAIN][SHIPPING_POINT][NAME]'])
+		{
+			form.elements['CONFIG[MAIN][SHIPPING_POINT][NAME]'].value = address;
+		}
+
+		if(form.elements['CONFIG[MAIN][SHIPPING_POINT][VALUE]'])
+		{
+			form.elements['CONFIG[MAIN][SHIPPING_POINT][VALUE]'].value = zip;
+		}
+
+		var roNameNode = BX(roNameId);
+
+		if(roNameNode)
+		{
+			roNameNode.innerHTML = address;
+		}
+	},
+
 	sendRequest: function(request)
 	{
 		if(!request)

@@ -1,7 +1,9 @@
 <?php
 namespace Bitrix\Bizproc\BaseType;
 
+use Bitrix\Main;
 use Bitrix\Bizproc\FieldType;
+use Bitrix\Bizproc\Automation;
 
 /**
  * Class User
@@ -135,10 +137,72 @@ class User extends Base
 	protected static function renderControl(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
 	{
 		if ($value !== null && !is_array($value))
+		{
 			$value = array($value);
+		}
 
-		$value = \CBPHelper::usersArrayToString($value, null, $fieldType->getDocumentType());
-		$renderResult = parent::renderControl($fieldType, $field, $value, $allowSelection, $renderMode);
+		$valueString = \CBPHelper::usersArrayToString($value, null, $fieldType->getDocumentType());
+
+		if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
+		{
+			\CUtil::InitJSCore(['bp_user_selector']);
+			$name = static::generateControlName($field);
+			$controlId = static::generateControlId($field);
+
+			$config = [
+				'valueInputName' => $name,
+				'value' => $valueString,
+				'multiple' => $fieldType->isMultiple(),
+				'required' => $fieldType->isRequired(),
+			];
+
+			$additional = $fieldType->getSettings();
+			if ($additional && is_array($additional))
+			{
+				$config += $additional;
+			}
+
+			$groups = \CBPRuntime::GetRuntime()
+				->GetService('DocumentService')
+				->GetAllowableUserGroups($fieldType->getDocumentType(), true);
+
+			if ($groups)
+			{
+				$config['groups'] = [];
+				foreach ($groups as $id => $groupName)
+				{
+					if (!$groupName || strpos($id, 'group_') === 0)
+					{
+						continue;
+					}
+
+					$config['groups'][] = [
+						'id' => preg_match('/^[0-9]+$/', $id) ? 'G'.$id : $id,
+						'name' => $groupName
+					];
+				}
+			}
+
+			$controlIdJs = \CUtil::JSEscape($controlId);
+			$controlIdHtml = htmlspecialcharsbx($controlId);
+			$configHtml = htmlspecialcharsbx(Main\Web\Json::encode($config));
+			$className = htmlspecialcharsbx(static::generateControlClassName($fieldType, $field));
+
+			return <<<HTML
+				<script>
+					BX.ready(function(){
+						var c = document.getElementById('{$controlIdJs}');
+						if (c)
+						{
+							BX.Bizproc.UserSelector.decorateNode(c);
+						}
+					});
+				</script>
+				<div id="{$controlIdHtml}" data-role="user-selector" data-config="{$configHtml}" class="{$className}"></div>
+HTML;
+		}
+
+		$renderResult = parent::renderControl($fieldType, $field, $valueString, $allowSelection, $renderMode);
 		$renderResult .= static::renderControlSelector($field, null, false, '', $fieldType);
 		return $renderResult;
 	}

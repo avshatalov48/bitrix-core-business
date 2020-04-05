@@ -9,6 +9,8 @@
 	var RESOLVED = "resolved";
 	var PENDING = "pending";
 
+	var MAX_ENTRIES_COUNT = 100;
+
 	var isPlainObject = BX.Landing.Utils.isPlainObject;
 	var bind = BX.Landing.Utils.bind;
 	var fireCustomEvent = BX.Landing.Utils.fireCustomEvent;
@@ -32,6 +34,7 @@
 
 		registerBaseCommands(this)
 			.then(load)
+			.then(save)
 			.then(onInit);
 	};
 
@@ -70,6 +73,22 @@
 				id: "editText",
 				undo: BX.Landing.History.Action.editText.bind(null, UNDO),
 				redo: BX.Landing.History.Action.editText.bind(null, REDO)
+			})
+		);
+
+		history.registerCommand(
+			new BX.Landing.History.Command({
+				id: "editEmbed",
+				undo: BX.Landing.History.Action.editEmbed.bind(null, UNDO),
+				redo: BX.Landing.History.Action.editEmbed.bind(null, REDO)
+			})
+		);
+
+		history.registerCommand(
+			new BX.Landing.History.Command({
+				id: "editMap",
+				undo: BX.Landing.History.Action.editMap.bind(null, UNDO),
+				redo: BX.Landing.History.Action.editMap.bind(null, REDO)
 			})
 		);
 
@@ -210,11 +229,16 @@
 				return (isPlainObject(historyData) && currentPageId in historyData) ? historyData[currentPageId] : Promise.reject();
 			})
 			.then(function(landingData) {
-				Object.keys(landingData.stack).forEach(function(key) {
+				Object.keys(landingData.stack).forEach(function(key, index) {
 					history.stack.push(new BX.Landing.History.Entry(landingData.stack[key]));
+
+					if (index >= MAX_ENTRIES_COUNT)
+					{
+						history.stack.shift();
+					}
 				});
 
-				history.position = parseInt(landingData.position);
+				history.position = Math.min(parseInt(landingData.position), history.stack.length-1);
 				history.state = landingData.state;
 				return history;
 			})
@@ -534,6 +558,11 @@
 			}
 
 			var deletedEntries = this.stack.splice(startIndex, deleteCount, entry);
+
+			if (this.stack.length > MAX_ENTRIES_COUNT)
+			{
+				deletedEntries.push(this.stack.shift());
+			}
 
 			if (deletedEntries.length)
 			{

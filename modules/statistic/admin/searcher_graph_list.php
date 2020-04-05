@@ -111,7 +111,7 @@ if (strlen($strError)<=0 && count($arrLegend)>0 && count($arrDays)>1) :
 					<td nowrap>
 					<?
 					if ($arrL["COUNTER_TYPE"]=="DETAIL") :
-						?>[<a title="<?=GetMessage("STAT_SEARCHER_LIST_OPEN")?> " href="<?htmlspecialcharsbx("/bitrix/admin/searcher_list.php?lang=".urlencode(LANGUAGE_ID)."&find_id=".urlencode($keyL)."&set_filter=Y")?>"><?=$keyL?></a>]&nbsp;<a title="<?=GetMessage("STAT_SEARCHER_DYNAMIC")?>" href="<?htmlspecialcharsbx("/bitrix/admin/searcher_dynamic_list.php?lang=".urlencode(LANGUAGE_ID)."&find_searcher_id=".urlencode($keyL)."&find_date1=".urlencode($arFilter["DATE1"])."&find_date2=".urlencode($arFilter["DATE2"])."&set_filter=Y")?>"><?=$arrL["NAME"]?></a><?
+						?>[<a title="<?=GetMessage("STAT_SEARCHER_LIST_OPEN")?> " href="<?= htmlspecialcharsbx("/bitrix/admin/searcher_list.php?lang=".urlencode(LANGUAGE_ID)."&find_id=".urlencode($keyL)."&set_filter=Y")?>"><?=$keyL?></a>]&nbsp;<a title="<?=GetMessage("STAT_SEARCHER_DYNAMIC")?>" href="<?= htmlspecialcharsbx("/bitrix/admin/searcher_dynamic_list.php?lang=".urlencode(LANGUAGE_ID)."&find_searcher_id=".urlencode($keyL)."&find_date1=".urlencode($arFilter["DATE1"])."&find_date2=".urlencode($arFilter["DATE2"])."&set_filter=Y")?>"><?=$arrL["NAME"]?></a><?
 					else :
 						?><?=GetMessage("STAT_SUMMARIZED")?><?
 					endif;

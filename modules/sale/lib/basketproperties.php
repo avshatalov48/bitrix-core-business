@@ -20,14 +20,11 @@ Loc::loadMessages(__FILE__);
 class BasketPropertiesCollection extends BasketPropertiesCollectionBase
 {
 	/**
-	 * @return BasketPropertiesCollection
+	 * @return string
 	 */
-	protected static function createBasketPropertiesCollectionObject()
+	public static function getRegistryType()
 	{
-		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
-		$basketPropertiesCollectionClassName = $registry->getBasketPropertiesCollectionClassName();
-
-		return new $basketPropertiesCollectionClassName();
+		return Registry::REGISTRY_TYPE_ORDER;
 	}
 
 	/**
@@ -50,16 +47,6 @@ class BasketPropertiesCollection extends BasketPropertiesCollectionBase
 	protected static function delete($primary)
 	{
 		return Internals\BasketPropertyTable::delete($primary);
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getBasketPropertiesCollectionElementClassName()
-	{
-		$registry  = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
-
-		return $registry->getBasketPropertyItemClassName();
 	}
 
 }

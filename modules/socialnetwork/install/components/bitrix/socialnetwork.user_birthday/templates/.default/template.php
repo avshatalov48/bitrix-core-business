@@ -1,4 +1,15 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?><?
+<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+/** @var CBitrixComponentTemplate $this */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CDatabase $DB */
+/** @global CUser $USER */
+/** @global CMain $APPLICATION */
+
+use Bitrix\Main\UI;
+
+UI\Extension::load("ui.tooltip");
+
 if(strlen($arResult["FatalError"])>0)
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
@@ -19,7 +30,7 @@ else
 
 				if (!empty($arResult["Users"]["List"]))
 				{
-					$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/main.user.link/templates/.default/style.css');
+					$APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/main.user.link/templates/.default/style.css');
 
 					$APPLICATION->IncludeComponent("bitrix:main.user.link",
 						'',
@@ -44,8 +55,6 @@ else
 					?><tr><?
 						?><td align="left"><?
 
-						$tooltip_id = randString(8);
-
 						$arTmpUser = array(
 							"ID" => $friend["USER_ID"],
 							"NAME" => htmlspecialcharsback($friend["NAME"]),
@@ -56,7 +65,7 @@ else
 
 						$link = CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_USER"], array("user_id" => $friend["USER_ID"], "USER_ID" => $friend["ID"], "ID" => $friend["ID"]));
 
-						?><table cellspacing="0" cellpadding="0" border="0" id="anchor_<?=$tooltip_id?>" class="bx-user-info-anchor"><?
+						?><table cellspacing="0" cellpadding="0" border="0" class="bx-user-info-anchor" bx-tooltip-user-id="<?=$friend["ID"]?>"><?
 						?><tr><?
 							?><td class="bx-user-info-anchor-cell"><?
 								?><div class="bx-user-info-thumbnail" align="center" valign="middle" style="width: 30px; height: 32px;"><?
@@ -68,9 +77,6 @@ else
 							?></td><?
 						?></tr><?
 						?></table><?
-						?><script type="text/javascript">
-							BX.tooltip(<?=$friend["ID"]?>, "anchor_<?=$tooltip_id?>");
-						</script><?
 
 						?><div style="padding-top:5px;"><?
 							if ($friend["NOW"])

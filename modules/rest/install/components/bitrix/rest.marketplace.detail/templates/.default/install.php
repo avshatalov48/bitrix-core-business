@@ -87,7 +87,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 			<?if (LANGUAGE_ID == "ru" || LANGUAGE_ID == "ua"):?>
 			<div style="margin-bottom: 8px;">
 				<input type="checkbox" id="mp_detail_license" value="N">
-				<label for="mp_detail_license"><?=GetMessage("BX24_APP_INSTALL_LICENSE_CHECKBOX")?></label>
+				<label for="mp_detail_license"><?=GetMessage("BX24_APP_INSTALL_LICENSE_CHECKBOX", ["#CODE#" => urlencode($arResult["APP"]["CODE"])])?></label>
 			</div>
 			<?endif?>
 			<div>

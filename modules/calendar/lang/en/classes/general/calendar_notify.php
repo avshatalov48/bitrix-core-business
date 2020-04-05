@@ -1,4 +1,21 @@
 <?
+$MESS["EC_NOTIFY_TITLE_CHANGED"] = "Event \"#OLD_TITLE#\" you are attending has been renamed to \"#NEW_TITLE#\", event date: #ACTIVE_FROM#";
+$MESS["EC_NOTIFY_DATE_FROM_CHANGED"] = "Event \"#TITLE#\" you are attending has changed start time from \"#OLD_DATE_FROM#\" to \"#NEW_DATE_FROM#\"";
+$MESS["EC_NOTIFY_DATE_TO_CHANGED"] = "Event \"#TITLE#\" you are attending has changed end time from \"#OLD_DATE_TO#\" to \"#NEW_DATE_TO#\"";
+$MESS["EC_NOTIFY_ATTENDEES_CHANGED"] = "Event \"#TITLE#\" you are attending has changed guests, event date: #ACTIVE_FROM#";
+$MESS["EC_NOTIFY_DESCRIPTION_CHANGED"] = "Event \"#TITLE#\" you are attending has changed description, event date: #ACTIVE_FROM#";
+$MESS["EC_NOTIFY_LOCATION_CHANGED"] = "Your event \"#TITLE#\" to take place on #ACTIVE_FROM# has changed location. New location: \"#NEW_VALUE#\"";
+$MESS["EC_NOTIFY_LOCATION_CHANGED_NONE"] = "Your event \"#TITLE#\" to take place on #ACTIVE_FROM# no longer has location. Please contact the event owner for further details.";
+$MESS["EC_NOTIFY_RRULE_CHANGED"] = "Recurring event \"#TITLE#\" you are attending has changed repeat rules";
+$MESS["EC_NOTIFY_IMPORTANCE_CHANGED"] = "Event \"#TITLE#\" you are attending on #ACTIVE_FROM# has been marked as important. Don't miss it.";
+$MESS["EC_NOTIFY_ENTRY_CHANGED"] = "Event \"#TITLE#\" you are attending on #ACTIVE_FROM# has changed. Changed parameters: #CHANGED_FIELDS_LIST#";
+$MESS["EC_NOTIFY_FIELD_NAME"] = "name";
+$MESS["EC_NOTIFY_FIELD_DATE_FROM"] = "date and time";
+$MESS["EC_NOTIFY_FIELD_RRULE"] = "repeat rules";
+$MESS["EC_NOTIFY_FIELD_DESCRIPTION"] = "description";
+$MESS["EC_NOTIFY_FIELD_LOCATION"] = "location";
+$MESS["EC_NOTIFY_FIELD_IMPORTANCE"] = "importance";
+$MESS["EC_NOTIFY_FIELD_ATTENDEES"] = "attendees";
 $MESS["EC_MESS_INVITE"] = "#OWNER_NAME# invites you to attend the event \"#TITLE#\" to take place on #ACTIVE_FROM#";
 $MESS["EC_MESS_INVITE_SITE"] = "I would like to invite you to the event \"[B]#TITLE#[/B]\". The said event will take place on [B]#ACTIVE_FROM#[/B].";
 $MESS["EC_MESS_REC_INVITE"] = "#OWNER_NAME# invites you to the recurring event \"#TITLE#\" #ACTIVE_FROM#, #RRULE#";

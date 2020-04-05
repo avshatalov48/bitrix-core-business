@@ -19,13 +19,12 @@ if ($arResult['FATAL'])
 }
 
 $request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
-$curUrl = $request->getRequestUri();
 $folderId = $request->get($arParams['ACTION_FOLDER']);
 
 // title
 if (isset($arResult['SITES'][$arParams['SITE_ID']]))
 {
-	\Bitrix\Landing\Manager::getApplication()->setTitle(
+	\Bitrix\Landing\Manager::setPageTitle(
 		\htmlspecialcharsbx($arResult['SITES'][$arParams['SITE_ID']]['TITLE'])
 	);
 }
@@ -57,12 +56,12 @@ echo $siteSelector;
 	<div class="grid-tile-inner" id="grid-tile-inner">
 
 	<?if ($folderId):
-		$curUrlWoFolder = new \Bitrix\Main\Web\Uri($curUrl);
+		$curUrlWoFolder = new \Bitrix\Main\Web\Uri($arResult['CUR_URI']);
 		$curUrlWoFolder->deleteParams(array(
 			$arParams['ACTION_FOLDER']
 		));
 		?>
-		<div class="landing-item landing-item-add-new">
+		<div class="landing-item landing-item-add-new" style="display: <?=$arResult['IS_DELETED'] ? 'none' : 'block';?>;">
 			<a class="landing-item-inner" href="<?= \htmlspecialcharsbx($curUrlWoFolder->getUri());?>">
 			<span class="landing-item-add-new-inner">
 				<span class="landing-item-add-icon landing-item-add-icon-up"></span>
@@ -72,7 +71,7 @@ echo $siteSelector;
 		</div>
 	<?endif;?>
 
-	<div class="landing-item landing-item-add-new">
+	<div class="landing-item landing-item-add-new" style="display: <?=$arResult['IS_DELETED'] ? 'none' : 'block';?>;">
 		<?
 		$arParams['PAGE_URL_LANDING_ADD'] = str_replace('#landing_edit#', 0, $arParams['PAGE_URL_LANDING_EDIT']);
 		if ($folderId)
@@ -96,41 +95,34 @@ echo $siteSelector;
 
 <?foreach (array_values($arResult['LANDINGS']) as $i => $item):
 
+	if ($item['DELETE_FINISH'])//@tmp
+	{
+		continue;
+	}
+
 	$uriFolder = null;
 	$urlEdit = str_replace('#landing_edit#', $item['ID'], $arParams['PAGE_URL_LANDING_EDIT']);
 	$urlView = str_replace('#landing_edit#', $item['ID'], $arParams['PAGE_URL_LANDING_VIEW']);
 
-	$uriDelete = new \Bitrix\Main\Web\Uri($urlEdit);
-	$uriDelete->addParams(array(
-		'fields' => array(
-			'delete' => 'Y'
-		),
-		'sessid' => bitrix_sessid()
-	));
-
-	$uriCopy = new \Bitrix\Main\Web\Uri($curUrl);
+	$uriCopy = new \Bitrix\Main\Web\Uri($arResult['CUR_URI']);
 	$uriCopy->addParams(array(
 		'action' => 'copy',
 		'param' => $item['ID'],
 		'sessid' => bitrix_sessid()
 	));
-	$uriCopy->deleteParams(array(
-		'IS_AJAX'
-	));
 
 	if ($item['FOLDER'] == 'Y' && $item['ID'] != $folderId)
 	{
-		$uriFolder = new \Bitrix\Main\Web\Uri($curUrl);
+		$uriFolder = new \Bitrix\Main\Web\Uri($arResult['CUR_URI']);
 		$uriFolder->addParams(array(
 			$arParams['ACTION_FOLDER'] => $item['ID']
-		));
-		$uriFolder->deleteParams(array(
-			'IS_AJAX'
 		));
 	}
 	?>
 	<?if ($uriFolder):?>
-		<div class="landing-item landing-item-folder<?= $item['ACTIVE'] != 'Y' ? ' landing-title-unactive' : ''?>">
+		<div class="landing-item landing-item-folder<?
+			?><?= $item['ACTIVE'] != 'Y' || $item['DELETED'] != 'N' ? ' landing-item-unactive' : '';?><?
+			?><?= $item['DELETED'] == 'Y' ? ' landing-item-deleted' : '';?>">
 			<div class="landing-title">
 				<div class="landing-title-wrap">
 					<div class="landing-title-overflow"><?= \htmlspecialcharsbx($item['TITLE'])?></div>
@@ -145,34 +137,47 @@ echo $siteSelector;
 				<div class="landing-item-folder-corner">
 					<div class="landing-item-folder-dropdown"
 						 onclick="showTileMenu(this,{
-								 viewSite: '<?= \CUtil::jsEscape($urlView);?>',
-								 ID: '<?= $item['ID']?>',
-								 publicUrl: '<?= \CUtil::jsEscape(\htmlspecialcharsbx($item['PUBLIC_URL']));?>',
-								 copyPage: '<?= \CUtil::jsEscape($uriCopy->getUri());?>',
-								 deletePage: '<?= \CUtil::jsEscape($uriDelete->getUri());?>',
-								 editPage: '<?= \CUtil::jsEscape($urlEdit);?>'
-								 }
-								 )">
+									viewSite: '<?= \CUtil::jsEscape($urlView);?>',
+									ID: '<?= $item['ID']?>',
+									publicUrl: '<?= \CUtil::jsEscape(\htmlspecialcharsbx($item['PUBLIC_URL']));?>',
+									copyPage: '<?= \CUtil::jsEscape($uriCopy->getUri());?>',
+									deletePage: '#',
+									publicPage: '#',
+									editPage: '<?= \CUtil::jsEscape($urlEdit);?>',
+							 		isFolder: <?= ($item['FOLDER'] == 'Y') ? 'true' : 'false';?>,
+							 		isActive: <?= ($item['ACTIVE'] == 'Y') ? 'true' : 'false';?>,
+							 		isDeleted: <?= ($item['DELETED'] == 'Y') ? 'true' : 'false';?>
+								})">
 						<span class="landing-item-folder-dropdown-inner"></span>
 					</div>
 				</div>
 			</div>
+			<?if ($item['DELETED'] == 'Y'):?>
+			<span class="landing-item-link"></span>
+			<?else:?>
 			<a href="<?= $uriFolder->getUri();?>" class="landing-item-link" target="_top"></a>
+			<?endif;?>
 		</div>
 	<?else:?>
-		<div class="landing-item<?= $item['ACTIVE'] != 'Y' ? ' landing-title-unactive' : ''?>">
+		<div class="landing-item<?
+			?><?= $item['ACTIVE'] != 'Y' || $item['DELETED'] != 'N' ? ' landing-item-unactive' : '';?><?
+			?><?= $item['DELETED'] == 'Y' ? ' landing-item-deleted' : '';?>">
 			<div class="landing-item-inner">
 				<div class="landing-title">
 					<div class="landing-title-btn"
 						 onclick="showTileMenu(this,{
-								 viewSite: '<?= \CUtil::jsEscape($urlView);?>',
-								 ID: '<?= $item['ID']?>',
-								 publicUrl: '<?= \CUtil::jsEscape(\htmlspecialcharsbx($item['PUBLIC_URL']));?>',
-								 copyPage: '<?= \CUtil::jsEscape($uriCopy->getUri());?>',
-								 deletePage: '<?= \CUtil::jsEscape($uriDelete->getUri());?>',
-								 editPage: '<?= \CUtil::jsEscape($urlEdit);?>'
-								 }
-								 )">
+									viewSite: '<?= \CUtil::jsEscape($urlView);?>',
+									ID: '<?= $item['ID'];?>',
+									isArea: <?= $item['IS_AREA'] ? 'true' : 'false';?>,
+									publicUrl: '<?= \CUtil::jsEscape(\htmlspecialcharsbx($item['PUBLIC_URL']));?>',
+									copyPage: '<?= \CUtil::jsEscape($uriCopy->getUri());?>',
+									deletePage: '#',
+							 		publicPage: '#',
+									editPage: '<?= \CUtil::jsEscape($urlEdit);?>',
+							 		isFolder: <?= ($item['FOLDER'] == 'Y') ? 'true' : 'false';?>,
+							 		isActive: <?= ($item['ACTIVE'] == 'Y') ? 'true' : 'false';?>,
+							 		isDeleted: <?= ($item['DELETED'] == 'Y') ? 'true' : 'false';?>
+								})">
 						<span class="landing-title-btn-inner"><?= Loc::getMessage('LANDING_TPL_ACTIONS');?></span>
 					</div>
 					<div class="landing-title-wrap">
@@ -186,17 +191,32 @@ echo $siteSelector;
 				<span class="landing-item-cover" <?if ($item['PREVIEW']) {?> style="background-image: url(<?=
 					\htmlspecialcharsbx($item['PREVIEW'])?>);"<?}?>></span>
 			</div>
+			<?if ($item['DELETED'] == 'Y'):?>
+			<span class="landing-item-link"></span>
+			<?else:?>
 			<a href="<?= $urlView;?>" class="landing-item-link" target="_top"></a>
-<!--			<div class="landing-item-status-block">
+			<?endif;?>
+			<div class="landing-item-status-block">
 				<div class="landing-item-status-inner">
-					<?/*if ($item['DATE_MODIFY_UNIX'] > $item['DATE_PUBLIC_UNIX']):*/?>
-					<span class="landing-item-status landing-item-status-unpublished"><?/*= Loc::getMessage('LANDING_TPL_UNPUBLIC');*/?></span>
-					<span class="landing-item-status landing-item-status-changed">Изменена</span>
-					<?/*else:*/?>
-					<span class="landing-item-status landing-item-status-published"><?/*= Loc::getMessage('LANDING_TPL_PUBLIC');*/?></span>
-					<?/*endif;*/?>
+					<?if ($item['DELETED'] == 'Y'):?>
+						<span class="landing-item-status landing-item-status-unpublished"><?= Loc::getMessage('LANDING_TPL_DELETED');?></span>
+					<?elseif ($item['ACTIVE'] != 'Y'):?>
+						<span class="landing-item-status landing-item-status-unpublished"><?= Loc::getMessage('LANDING_TPL_UNPUBLIC');?></span>
+					<?else:?>
+						<span class="landing-item-status landing-item-status-published"><?= Loc::getMessage('LANDING_TPL_PUBLIC');?></span>
+					<?endif;?>
+					<?if ($item['DELETED'] == 'Y'):?>
+						<span class="landing-item-status landing-item-status-changed">
+							<?= Loc::getMessage('LANDING_TPL_TTL_DELETE');?>:
+							<?= $item['DATE_DELETED_DAYS'];?>
+							<?= Loc::getMessage('LANDING_TPL_TTL_DELETE_D');?>
+						</span>
+					<?elseif ($item['DATE_MODIFY_UNIX'] > $item['DATE_PUBLIC_UNIX']):?>
+						<span class="landing-item-status landing-item-status-changed"><?= Loc::getMessage('LANDING_TPL_MODIF');?></span>
+					<?endif;?>
+
 				</div>
-			</div>-->
+			</div>
 		</div>
 	<?endif;?>
 <?endforeach;?>
@@ -205,39 +225,68 @@ echo $siteSelector;
 </div>
 
 
+<?if ($arResult['NAVIGATION']->getPageCount() > 1):?>
+	<div class="<?= (defined('ADMIN_SECTION') && ADMIN_SECTION === true) ? '' : 'landing-navigation';?>">
+		<?$APPLICATION->IncludeComponent(
+			'bitrix:main.pagenavigation',
+			'',//grid
+			array(
+				'NAV_OBJECT' => $arResult['NAVIGATION'],
+				'SEF_MODE' => 'N',
+				'BASE_LINK' => $arResult['CUR_URI']
+			),
+			false
+		);?>
+	</div>
+<?endif;?>
+
+
 <script type="text/javascript">
-	BX.SidePanel.Instance.bindAnchors({
-		rules: [
-			{
-				condition: [
-					'<?= str_replace(
-						array(
-							'#landing_edit#', '?'
-						),
-						array(
-							'(\\\d+)', '\\\?'
-						),
-						\CUtil::jsEscape($arParams['PAGE_URL_LANDING_EDIT'])
-					);?>',
-					'<?= str_replace(
-						array(
-							'#landing_edit#', '?'
-						),
-						array(
-							'(\\\d+)', '\\\?'
-						),
-						\CUtil::jsEscape($arParams['PAGE_URL_LANDING_ADD'])
-					);?>'
-				],
-				stopParameters: [
-					'action',
-					'fields%5Bdelete%5D'
-				],
-                options: {
-					allowChangeHistory: false
-				}
-			}]
-	});
+	BX.SidePanel.Instance.bindAnchors(
+		top.BX.clone({
+			rules: [
+				{
+					condition: [
+						'<?= str_replace(
+							array(
+								'#landing_edit#', '?'
+							),
+							array(
+								'(\\\d+)', '\\\?'
+							),
+							\CUtil::jsEscape($arParams['PAGE_URL_LANDING_EDIT'])
+						);?>',
+						'<?= str_replace(
+							array(
+								'#landing_edit#', '?'
+							),
+							array(
+								'(\\\d+)', '\\\?'
+							),
+							\CUtil::jsEscape($arParams['PAGE_URL_LANDING_ADD'])
+						);?>'
+					],
+					stopParameters: [
+						'action',
+						'fields%5Bdelete%5D',
+						'nav',
+						'slider'
+					],
+					options: {
+						allowChangeHistory: false,
+						events: {
+							onOpen: function(event)
+							{
+								if (BX.hasClass(BX('landing-create-element'), 'ui-btn-disabled'))
+								{
+									event.denyAction();
+								}
+							}
+						}
+					}
+				}]
+		})
+    );
 
 	BX.bind(document.querySelector('.landing-item-add-new span.landing-item-inner'), 'click', function(event) {
 		BX.SidePanel.Instance.open(event.currentTarget.dataset.href, {
@@ -261,6 +310,30 @@ echo $siteSelector;
 				maxWidth: 330
 			}
 		});
+
+		// disable some buttons for deleted
+		var createFolderEl = BX('landing-create-folder');
+		var createElement = BX('landing-create-element');
+
+		<?if ($arResult['IS_DELETED']):?>
+		if (createFolderEl)
+		{
+			BX.addClass(createFolderEl, 'ui-btn-disabled');
+		}
+		if (createElement)
+		{
+			BX.addClass(createElement, 'ui-btn-disabled');
+		}
+		<?else:?>
+		if (createFolderEl)
+		{
+			BX.removeClass(createFolderEl, 'ui-btn-disabled');
+		}
+		if (createElement)
+		{
+			BX.removeClass(createElement, 'ui-btn-disabled');
+		}
+		<?endif;?>
 	});
 
 
@@ -269,6 +342,7 @@ echo $siteSelector;
 		var menuItems = [
 			{
 				text: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_VIEW'));?>',
+				disabled: params.isDeleted,
 				onclick: function(e, item)
 				{
 					window.top.location.href = params.viewSite;
@@ -277,6 +351,7 @@ echo $siteSelector;
 			{
 				text: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_COPYLINK'));?>',
 				className: 'landing-popup-menu-item-icon',
+				disabled: params.isArea || params.isDeleted,
 				onclick: function(e, item)
 				{
 					if (BX.clipboard.isCopySupported())
@@ -301,11 +376,13 @@ echo $siteSelector;
 				text: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_GOTO'));?>',
 				className: 'landing-popup-menu-item-icon',
 				href: params.publicUrl,
-				target: '_blank'
+				target: '_blank',
+				disabled: params.isArea || params.isDeleted
 			},
 			{
 				text: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_EDIT'));?>',
 				href: params.editPage,
+				disabled: params.isDeleted,
 				onclick: function()
 				{
 					this.popupWindow.close();
@@ -313,7 +390,7 @@ echo $siteSelector;
 			},
 			{
 				text: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_COPY'));?>',
-				href: params.copyPage,
+				disabled: params.isDeleted || params.isFolder,
 				onclick: function(event)
 				{
 					event.preventDefault();
@@ -337,48 +414,91 @@ echo $siteSelector;
 				}
 			},
 			{
-				text: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_DELETE'));?>',
-				href: params.deletePage,
+				text: params.isActive
+					? '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_UNPUBLIC'));?>'
+					: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_PUBLIC'));?>',
+				href: params.publicPage,
+				disabled: params.isDeleted,
 				onclick: function(event)
 				{
 					event.preventDefault();
 
-					BX.Landing.UI.Tool.ActionDialog.getInstance()
-						.show({
-							content: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_DELETE_CONFIRM'));?>'
-						})
-						.then(
-							function() {
-								BX.Landing.History.getInstance().removePageHistory(params.ID);
+					tileGrid.action(
+						params.isActive
+						? 'Landing::unpublic'
+						: 'Landing::publication',
+						{
+							lid: params.ID
+						}
+					);
 
-								tileGrid.action(
-									'Landing::delete',
-									{
-										lid: params.ID
-									}
-								);
-							},
-							function() {
+					this.popupWindow.close();
+				}
+			},
+			{
+				text: params.isDeleted
+					? (
+						(params.isFolder && <?= !$folderId ? 'true' : 'false';?>)
+						? '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_UNDELETE_FOLDER'));?>'
+						: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_UNDELETE'));?>'
+					)
+					: (
+						(params.isFolder && <?= !$folderId ? 'true' : 'false';?>)
+						? '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_DELETE_FOLDER'));?>'
+						: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_DELETE'));?>'
+					),
+				href: params.deletePage,
+				<?if ($folderId):?>
+				disabled: params.isFolder,
+				<?endif;?>
+				onclick: function(event)
+				{
+					event.preventDefault();
 
+					this.popupWindow.close();
+
+					if (params.isDeleted)
+					{
+						tileGrid.action(
+							'Landing::markUndelete',
+							{
+								lid: params.ID
 							}
 						);
-					this.popupWindow.close();
+					}
+					else
+					{
+						BX.Landing.UI.Tool.ActionDialog.getInstance()
+							.show({
+								content: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_REC_CONFIRM'));?>'
+							})
+							.then(
+								function() {
+									//BX.Landing.History.getInstance().removePageHistory(params.ID);
+									tileGrid.action(
+										'Landing::markDelete',
+										{
+											lid: params.ID
+										}
+									);
+								},
+								function() {
+
+								}
+							);
+					}
 				}
 			}
 		];
 
-		BX.PopupMenu.show('landing-popup-menu' + params.ID, node, menuItems,{
+		var menu = new BX.PopupMenuWindow('landing-popup-menu' + params.ID, node, menuItems,{
 			autoHide : true,
 			offsetTop: -2,
-			offsetLeft: -60,
-			className: 'landing-popup-menu',
-			events: {
-				onPopupClose: function ()
-				{
-					BX.PopupMenu.destroy('landing-popup-menu' + params.ID);
-				}
-			}
+			offsetLeft: -55,
+			className: 'landing-popup-menu'
 		});
+
+		menu.show();
 	}
 
 </script>

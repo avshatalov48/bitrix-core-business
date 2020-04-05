@@ -120,4 +120,12 @@ class Company extends Restriction
 		return Manager::SEVERITY_STRICT;
 	}
 
+	/**
+	 * @return bool
+	 */
+	public static function isAvailable()
+	{
+		return IsModuleInstalled('crm') ? false : true;
+	}
+
 }

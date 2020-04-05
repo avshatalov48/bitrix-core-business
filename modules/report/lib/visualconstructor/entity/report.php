@@ -151,9 +151,11 @@ class Report extends ConfigurableModel
 	 * Find report handler by report class name,in report provider.
 	 * Return it if exist or return null.
 	 *
+	 * @param bool $isRuntime
+	 *
 	 * @return BaseReport|null
 	 */
-	public function getReportHandler()
+	public function getReportHandler($isRuntime = false)
 	{
 		if (!$this->reportHandler)
 		{
@@ -162,7 +164,10 @@ class Report extends ConfigurableModel
 			{
 				$this->reportHandler = new $reportHandlerFromEvent;
 				$this->reportHandler->setView($this->getWidget()->getWidgetHandler()->getView());
-				$this->loadAttribute('configurations');
+				if (!$isRuntime)
+				{
+					$this->loadAttribute('configurations');
+				}
 				$this->reportHandler->fillReport($this);
 			}
 			else

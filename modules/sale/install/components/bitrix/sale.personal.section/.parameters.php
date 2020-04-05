@@ -461,6 +461,13 @@ if ($arCurrentValues["SHOW_ORDER_PAGE"] !== "N")
 			"PARENT" => "ACCOUNT",
 		);
 
+		$arComponentParameters['PARAMETERS']['ORDER_DISALLOW_CANCEL'] = array(
+			"NAME" => GetMessage("SPS_DISALLOW_CANCEL"),
+			"TYPE" => "CHECKBOX",
+			"DEFAULT" => "N",
+			"PARENT" => "ORDER",
+		);
+
 		if (CBXFeatures::IsFeatureEnabled('SaleAccounts'))
 		{
 			$arComponentParameters['PARAMETERS']['ALLOW_INNER'] = array(

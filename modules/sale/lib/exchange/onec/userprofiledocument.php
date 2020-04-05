@@ -1,9 +1,7 @@
 <?php
 namespace Bitrix\Sale\Exchange\OneC;
 
-
 use Bitrix\Main;
-use Bitrix\Sale\Exchange\EntityType;
 
 class UserProfileDocument extends DocumentBase
 {
@@ -20,9 +18,9 @@ class UserProfileDocument extends DocumentBase
 	/**
 	 * @return int
 	 */
-	public function getOwnerEntityTypeId()
+	public function getTypeId()
 	{
-		return EntityType::USER_PROFILE;
+		return DocumentType::USER_PROFILE;
 	}
 
 	/**

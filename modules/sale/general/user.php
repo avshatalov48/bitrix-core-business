@@ -55,7 +55,7 @@ class CAllSaleUserAccount
 	}
 
 	//********** ADD, UPDATE, DELETE **************//
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && intval($arFields["USER_ID"]) <= 0)
 		{
@@ -90,7 +90,7 @@ class CAllSaleUserAccount
 		return true;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -195,6 +195,7 @@ class CAllSaleUserAccount
 					"CURRENT_BUDGET" => 0.0,
 					"CURRENCY" => $payCurrency,
 					"LOCKED" => "Y",
+					"=TIMESTAMP_X" => $DB->GetNowFunction(),
 					"=DATE_LOCKED" => $DB->GetNowFunction()
 				);
 			if (CSaleUserAccount::Add($arFields))
@@ -625,6 +626,7 @@ class CAllSaleUserAccount
 		{
 			$currentBudget = floatval($arUserAccount["CURRENT_BUDGET"]);
 			$arFields = array(
+					"=TIMESTAMP_X" => $DB->GetNowFunction(),
 					"CURRENT_BUDGET" => $arUserAccount["CURRENT_BUDGET"] + $sum
 				);
 
@@ -643,6 +645,7 @@ class CAllSaleUserAccount
 					"CURRENT_BUDGET" => $sum,
 					"CURRENCY" => $currency,
 					"LOCKED" => "Y",
+					"=TIMESTAMP_X" => $DB->GetNowFunction(),
 					"=DATE_LOCKED" => $DB->GetNowFunction()
 				);
 

@@ -25,7 +25,7 @@ class Contact extends Connector\BaseFilter
 	 */
 	public function getName()
 	{
-		return Loc::getMessage('SENDER_INTEGRATION_SENDER_CONNECTOR_CONTACT_NAME');
+		return Loc::getMessage('SENDER_INTEGRATION_SENDER_CONNECTOR_CONTACT_NAME1');
 	}
 
 	/**

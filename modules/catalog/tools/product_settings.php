@@ -143,12 +143,21 @@ else
 
 	$oneStepTime = CCatalogProductSettings::getDefaultExecutionTime();
 
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
+	if ($_REQUEST["public_mode"] == "Y")
+	{
+		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");
+	}
+	else
+	{
+		require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
+	}
 
 	$tabList = array(
 		array('DIV' => 'productSettingsTab01', 'TAB' => Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_TAB'), 'ICON' => 'sale', 'TITLE' => Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_TAB_TITLE'))
 	);
 	$tabControl = new CAdminTabControl('productSettings', $tabList, true, true);
+	if ($_REQUEST["public_mode"] == "Y")
+		$tabControl->SetPublicMode();
 	Main\Page\Asset::getInstance()->addJs('/bitrix/js/catalog/step_operations.js');
 
 	?><div id="product_settings_error_div" style="margin:0; display: none;">
@@ -190,10 +199,10 @@ else
 	?>
 	<input type="button" id="product_settings_start_button" value="<? echo Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_UPDATE_BTN')?>">
 	<input type="button" id="product_settings_stop_button" value="<? echo Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_STOP_BTN')?>" disabled>
+	<div id="reindexReport" style="display: none;"></div>
 	<?
 	$tabControl->End();
 	?></form>
-	<div id="reindexReport" style="display: none;"></div>
 	<?
 	$jsParams = array(
 		'url' => $APPLICATION->GetCurPage(),
@@ -231,5 +240,8 @@ else
 		var jsProductSettings = new BX.Catalog.ProductSettings(<? echo CUtil::PhpToJSObject($jsParams, false, true); ?>);
 	</script>
 	<?
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
+	if ($_REQUEST["public_mode"] != "Y")
+	{
+		require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
+	}
 }

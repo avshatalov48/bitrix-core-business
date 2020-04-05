@@ -11,6 +11,8 @@ class User
 	private $userId = 0;
 	private $userData = null;
 
+	static $formatNameTemplate = null;
+
 	const FILTER_LIMIT = 50;
 
 	const PHONE_ANY = 'PHONE_ANY';
@@ -18,6 +20,7 @@ class User
 	const PHONE_PERSONAL = 'personal_phone';
 	const PHONE_MOBILE = 'personal_mobile';
 	const PHONE_INNER = 'uf_phone_inner';
+
 
 	function __construct($userId = null)
 	{
@@ -104,6 +107,39 @@ class User
 		$fields = $this->getFields();
 
 		return $fields && $fields['avatar'] != '/bitrix/js/im/images/blank.gif'? $fields['avatar']: '';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAvatarHr()
+	{
+		$fields = $this->getFields();
+		if (!$fields)
+		{
+			return '';
+		}
+
+		if (array_key_exists('avatar_hr', $fields))
+		{
+			return $fields['avatar_hr'];
+		}
+		else if ($fields['avatar_id'])
+		{
+			$avatar = \CFile::ResizeImageGet(
+				$fields['avatar_id'],
+				array('width' => 200, 'height' => 200),
+				BX_RESIZE_IMAGE_EXACT,
+				false,
+				false,
+				true
+			);
+			$this->userData['user']['avatar_hr'] = $avatar['src'];
+
+			return $avatar['src'];
+		}
+
+		return '';
 	}
 
 	/**
@@ -445,6 +481,20 @@ class User
 			'ABSENT' => $this->isAbsent(),
 			'PHONES' => $this->getPhones(),
 		);
+		if ($options['HR_PHOTO'])
+		{
+			$result['AVATAR_HR'] = $this->getAvatarHr();
+		}
+
+		if ($options['LIVECHAT'])
+		{
+			$imolUserData = \Bitrix\ImOpenLines\Queue::getUserData($options['LIVECHAT'], $this->getId(), true);
+			if ($imolUserData)
+			{
+				$result = array_merge($result, $imolUserData);
+				$result['AVATAR_HR'] = $result['AVATAR'];
+			}
+		}
 
 		if ($options['JSON'])
 		{
@@ -454,7 +504,7 @@ class User
 				{
 					$result[$key] = date('c', $value->getTimestamp());
 				}
-				else if ($key == 'AVATAR' && is_string($value) && $value && strpos($value, 'http') !== 0)
+				else if (is_string($value) && is_string($key) && in_array($key, ['AVATAR', 'AVATAR_HR']) && is_string($value) && $value && strpos($value, 'http') !== 0)
 				{
 					$result[$key] = \Bitrix\Im\Common::getPublicDomain().$value;
 				}
@@ -586,11 +636,12 @@ class User
 			$filterOffset = false;
 		}
 
-		$filter = self::getListFilter($params);
-		if (is_null($filter))
+		$ormParams = self::getListParams($params);
+		if (is_null($ormParams))
 		{
 			return false;
 		}
+		$filter = $ormParams['filter'];
 		$filter['ACTIVE'] = 'Y';
 
 		$intranetInstalled = \Bitrix\Main\Loader::includeModule('intranet');
@@ -652,6 +703,18 @@ class User
 				true
 			);
 
+			if ($params['HR_PHOTO'])
+			{
+				$tmpFileHr = \CFile::ResizeImageGet(
+					$user["PERSONAL_PHOTO"],
+					array('width' => 200, 'height' => 200),
+					BX_RESIZE_IMAGE_EXACT,
+					false,
+					false,
+					true
+				);
+			}
+
 			$color = false;
 			if (isset($user['COLOR']) && strlen($user['COLOR']) > 0)
 			{
@@ -664,8 +727,8 @@ class User
 
 			$users[$user["ID"]] = Array(
 				'ID' => (int)$user["ID"],
-				'NAME' => \CUser::FormatName($nameTemplate, $user, true, false),
-				'FIRST_NAME' => $user['NAME'],
+				'NAME' => \Bitrix\Im\User::formatFullNameFromDatabase($user),
+				'FIRST_NAME' => \Bitrix\Im\User::formatNameFromDatabase($user),
 				'LAST_NAME' => $user['LAST_NAME'],
 				'WORK_POSITION' => $user['WORK_POSITION'],
 				'COLOR' => $color,
@@ -684,6 +747,10 @@ class User
 				'DEPARTMENTS' => is_array($user['UF_DEPARTMENT']) && !empty($user['UF_DEPARTMENT'])? $user['UF_DEPARTMENT']: [],
 				'ABSENT' => \CIMContactList::formatAbsentResult($user["ID"]),
 			);
+			if ($params['HR_PHOTO'])
+			{
+				$users[$user["ID"]]['AVATAR_HR'] = !empty($tmpFileHr['src'])? $tmpFileHr['src']: '';
+			}
 
 			if ($voximplantInstalled)
 			{
@@ -727,7 +794,7 @@ class User
 					{
 						$users[$key][$field] = date('c', $value->getTimestamp());
 					}
-					else if (is_string($value) && $value && in_array($field, Array('AVATAR')) && strpos($value, 'http') !== 0)
+					else if (is_string($value) && $value && is_string($field) &&  in_array($field, Array('AVATAR', 'AVATAR_HR')) && strpos($value, 'http') !== 0)
 					{
 						$users[$key][$field] = \Bitrix\Im\Common::getPublicDomain().$value;
 					}
@@ -743,7 +810,7 @@ class User
 		return $users;
 	}
 
-	public static function getListFilter($params)
+	public static function getListParams($params)
 	{
 		if (isset($params['FILTER']['SEARCH']))
 		{
@@ -820,7 +887,7 @@ class User
 			$filter['=ID'] = array_keys($filterByUsers);
 		}
 
-		return $filter;
+		return ['filter' => $filter];
 	}
 
 	public static function getBusiness($userId = null, $options = array())
@@ -926,7 +993,6 @@ class User
 		}
 
 
-
 		$filter = Array(
 			'=AUTHOR_ID' => $userId
 		);
@@ -953,20 +1019,27 @@ class User
 		if (isset($options['LIMIT']))
 		{
 			$options['LIMIT'] = intval($options['LIMIT']);
-			$limit = $options['LIMIT'] >= 50? 50: $options['LIMIT'];
+			$limit = $options['LIMIT'] >= 500? 500: $options['LIMIT'];
 		}
 		else
 		{
 			$limit = 50;
 		}
 
+		$skipMessage = isset($options['SKIP_MESSAGE']) && $options['SKIP_MESSAGE'] == 'Y';
+
+		$select = Array(
+			'ID', 'CHAT_ID', 'DATE_CREATE',
+			'CHAT_TITLE' => 'CHAT.TITLE'
+		);
+		if (!$skipMessage)
+		{
+			$select[] = 'MESSAGE';
+		}
 
 		$orm = \Bitrix\Im\Model\MessageTable::getList(array(
 			'filter' => $filter,
-			'select' => Array(
-				'ID', 'CHAT_ID', 'DATE_CREATE', 'MESSAGE',
-				'CHAT_TITLE' => 'CHAT.TITLE'
-			),
+			'select' => $select,
 			'order' => $order,
 			'limit' => $limit
 		));
@@ -980,6 +1053,11 @@ class User
 				'DATE' => $message['DATE_CREATE'],
 				'TEXT' => (string)$message['MESSAGE'],
 			);
+
+			if ($skipMessage)
+			{
+				unset($messages[$message['ID']]['TEXT']);
+			}
 
 			$messagesChat[$message['ID']] = Array(
 				'ID' => (int)$message['ID'],
@@ -1047,12 +1125,57 @@ class User
 						$result['FILES'][$key][$field] = \Bitrix\Im\Common::getPublicDomain().$url;
 					}
 				}
-
 			}
 
 			$result = array_change_key_case($result, CASE_LOWER);
 		}
 
 		return $result;
+	}
+
+	public static function formatNameFromDatabase($fields)
+	{
+		if (empty($fields['NAME']) && empty($fields['LAST_NAME']))
+		{
+			if (in_array($fields['EXTERNAL_AUTH_ID'], \Bitrix\Main\UserTable::getExternalUserTypes()))
+			{
+				return Loc::getMessage('IM_USER_GUEST_NAME');
+			}
+			else if (!empty($fields['LOGIN']))
+			{
+				return $fields['LOGIN'];
+			}
+			else
+			{
+				return Loc::getMessage('IM_USER_ANONYM_NAME');
+			}
+		}
+
+		return $fields['NAME'];
+	}
+	public static function formatFullNameFromDatabase($fields)
+	{
+		if (is_null(self::$formatNameTemplate))
+		{
+			self::$formatNameTemplate = \CSite::GetNameFormat(false);
+		}
+
+		if (empty($fields['NAME']) && empty($fields['LAST_NAME']))
+		{
+			if (in_array($fields['EXTERNAL_AUTH_ID'], \Bitrix\Main\UserTable::getExternalUserTypes()))
+			{
+				return Loc::getMessage('IM_USER_GUEST_NAME');
+			}
+			else if (!empty($fields['LOGIN']))
+			{
+				return $fields['LOGIN'];
+			}
+			else
+			{
+				return Loc::getMessage('IM_USER_ANONYM_NAME');
+			}
+		}
+
+		return \CUser::FormatName(self::$formatNameTemplate, $fields, true, false);
 	}
 }

@@ -1,52 +1,117 @@
-<?
-/** @global CMain $APPLICATION */
-use Bitrix\Main\Loader;
+<?php
+//region Head
+require_once $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php';
+require_once $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/translate/prolog.php';
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/translate/prolog.php");
-$TRANS_RIGHT = $APPLICATION->GetGroupRight("translate");
-if($TRANS_RIGHT=="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
-if (!check_bitrix_sessid()) die();
-Loader::includeModule('translate');
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Translate;
+use Bitrix\Main;
 
-$arTLangs = GetTLangList();
+Loc::loadLanguageFile(__FILE__);
 
-$NO_TRANSLATE = array_key_exists('download_translate_lang', $_REQUEST) && $_REQUEST['download_translate_lang'] == 'N';
-
-$path = $_REQUEST["path"];
-if(preg_match("#\.\.[\\/]#".BX_UTF_PCRE_MODIFIER, $path))
-	$path = "";
-
-$path = Rel2Abs("/", "/".$path."/");
-
-$IS_LANG_DIR = is_lang_dir($path);
-
-if ($IS_LANG_DIR)
+if (!\Bitrix\Main\Loader::includeModule('translate'))
 {
-	foreach ($arTLangs as $hlang)
+	require $_SERVER['DOCUMENT_ROOT']. '/bitrix/modules/main/include/prolog_admin_after.php';
+
+	\CAdminMessage::ShowMessage('Translate module not found');
+
+	require $_SERVER['DOCUMENT_ROOT']. '/bitrix/modules/main/include/epilog_admin.php';
+}
+
+$permissionRight = $APPLICATION->GetGroupRight('translate');
+if($permissionRight == Translate\Permission::DENY)
+{
+	$APPLICATION->AuthForm(GetMessage('ACCESS_DENIED'));
+}
+if (!check_bitrix_sessid())
+{
+	require $_SERVER['DOCUMENT_ROOT']. '/bitrix/modules/main/include/prolog_admin_after.php';
+
+	\CAdminMessage::ShowMessage(Loc::getMessage('main_include_decode_pass_sess'));
+
+	require $_SERVER['DOCUMENT_ROOT']. '/bitrix/modules/main/include/epilog_admin.php';
+	die();
+}
+
+//endregion
+
+//-----------------------------------------------------------------------------------
+//region handle GET,POST
+
+$request = Main\Context::getCurrent()->getRequest();
+
+$enabledLanguages = Translate\Translation::getEnabledLanguages();
+
+$isUtfMode = Translate\Translation::isUtfMode();
+
+$languages = $request->get('languages');
+if ($languages !== null && is_array($languages) && !empty($languages))
+{
+	$languages = array_intersect($languages, $enabledLanguages);
+}
+if (empty($languages))
+{
+	$languages = $enabledLanguages;
+}
+
+//$allowedEncodings = Translate\Translation::getAllowedEncodings();
+
+$encodingOut = '';
+$convertEncoding = ($request->get('convert_encoding') === 'Y');
+if ($convertEncoding)// || ($isUtfMode && !Main\Localization\Translation::useTranslationRepository()))
+{
+	$encodingOut = 'utf-8';
+}
+
+
+$filterByExistence = ($request->get('download_translate_lang') === 'N');
+
+$path = $request->get('path');
+if(preg_match("#\.\.[\\/]#".BX_UTF_PCRE_MODIFIER, $path))
+{
+	$path = '';
+}
+
+$path = Rel2Abs('/', '/'.$path.'/');
+
+if (Translate\Path::isLangDir($path))
+{
+	foreach ($languages as $langId)
 	{
-		$ph = add_lang_id($path, $hlang, $arTLangs);
-		if (strlen($ph)>0) GetTDirList($ph, true);
-		$ph = "";
+		$ph = Translate\Path::addLangId($path, $langId, $languages);
+		if (strlen($ph)>0)
+		{
+			GetTDirList($ph, true);
+		}
+		$ph = '';
 	}
 }
-else GetTDirList($path, true);
+else
+{
+	GetTDirList($path, true, $languages);
+}
 
 $strFile = '';
 $arFileFilter = array();
-if (isset($_REQUEST['file']))
-	$strFile = strval($_REQUEST['file']);
+if ($request->get('file') !== null)
+{
+	$strFile = strval($request->get('file'));
+}
 if(preg_match("#\.\.[\\/]#".BX_UTF_PCRE_MODIFIER, $strFile))
+{
 	$strFile = "";
+}
 if ('' != $strFile)
 {
-	$strFile = Rel2Abs("/", "/".$strFile);
+	$strFile = Rel2Abs('/', '/'.$strFile);
 
-	foreach ($arTLangs as $hlang)
+	foreach ($languages as $langId)
 	{
-		$ph = add_lang_id($strFile, $hlang, $arTLangs);
+		$ph = Translate\Path::addLangId($strFile, $langId, $languages);
 		if ('' != $ph)
+		{
 			$arFileFilter[] = $ph;
+		}
 	}
 }
 
@@ -61,68 +126,108 @@ if (!empty($arFileFilter) && !empty($arFiles))
 		}
 	}
 	if (isset($arOneFile))
+	{
 		unset($arOneFile);
+	}
 	$arFiles = $arTemp;
 }
 
-$customScriptsFile = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/langs.txt";
-if(file_exists($customScriptsFile) && $_REQUEST["use_custom_list"]=="Y")
+$customScriptsFile = Main\Application::getDocumentRoot(). '/'. Translate\COLLECT_CUSTOM_LIST;
+if (($request->get('use_custom_list') === 'Y') && file_exists($customScriptsFile))
 {
 	$customScriptsList = array();
 	$customScriptsListTemp = file($customScriptsFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-	foreach($customScriptsListTemp as $pathScript)
-		$customScriptsList[replace_lang_id($pathScript, '#LANG_ID#')] = true;
+	foreach ($customScriptsListTemp as $pathScript)
+	{
+		$customScriptsList[Translate\Path::replaceLangId($pathScript, '#LANG_ID#')] = true;
+	}
 
 	$arTemp = array();
 	foreach ($arFiles as $f)
 	{
-		$fname = replace_lang_id($f['PATH'], '#LANG_ID#');
-		if($customScriptsList[$fname])
+		$fname = Translate\Path::replaceLangId($f['PATH'], '#LANG_ID#');
+		if ($customScriptsList[$fname])
+		{
 			$arTemp[] = $f;
+		}
 	}
 	$arFiles = $arTemp;
 }
 
-$arrCSV = GetTCSVArray();
-$strCSV = '"file";"key";';
-foreach ($arTLangs as $l)
+/** @var Translate\CsvFile $csvFile */
+$csvFile = Translate\CsvFile::generateTemporalFile('translate', '.csv', .5);
+$csvFile
+	->setFieldDelimiter(Translate\CsvFile::DELIMITER_TZP)
+	->setRowDelimiter(Translate\CsvFile::LINE_DELIMITER_WIN)
+	->prefaceWithUtf8Bom($encodingOut === 'utf-8')
+	->openWrite();
+
+
+$row = array('file', 'key');
+foreach ($languages as $langId)
 {
-	$strCSV .= '"'.$l.'";';
+	$row[] = $langId;
 }
-$strCSV .= "\r\n";
+$csvFile->put($row);
 
+$arProcessed = array();
 
-foreach ($arrCSV as $file => $arTranslations)
+foreach ($arFiles as $fileParam)
 {
-	foreach ($arTranslations as $key => $arLangTexts)
+	$keyIndex = Translate\Path::replaceLangId($fileParam['PATH'], '#LANG_ID#');
+	if (isset($arProcessed[$keyIndex]))
 	{
-		$_strCSV = '';
-		$_strCSV .= '"'.$file.'";"'.$key.'";';
-		$_noTranslate = false;
-		foreach ($arTLangs as $l)
-		{
-			$val = str_replace('"', '""', $arLangTexts[$l]);
-			$val = str_replace("\\", "\\\\", $val);
-			$_strCSV .= '"'.$val.'";';
-			if (empty($val))
-				$_noTranslate = true;
-		}
-		$_strCSV .= "\r\n";
-		if (!$NO_TRANSLATE || ( $NO_TRANSLATE && $_noTranslate))
-			$strCSV .= $_strCSV;
+		continue;
 	}
+	$arrCSV = GetTCSVArray($keyIndex, $encodingOut, $languages);
+
+	/** @var array $arTranslations */
+	foreach ($arrCSV as $file => $arTranslations)
+	{
+		foreach ($arTranslations as $key => $arLangTexts)
+		{
+			$row = array($file, $key);
+			$hasNoTranslate = false;
+			foreach ($languages as $langId)
+			{
+				$row[] = $arLangTexts[$langId];
+				if (empty($arLangTexts[$langId]))
+				{
+					$hasNoTranslate = true;
+				}
+			}
+
+			if (!$filterByExistence || ($filterByExistence && $hasNoTranslate))
+			{
+				$csvFile->put($row);
+			}
+		}
+	}
+
+	$arProcessed[$keyIndex] = true;
 }
 
-$csv_fn = trim(str_replace('/', '_', $path), '_') . '.csv';
+$csvFile->close();
+
+$csvFileName = trim(str_replace('/', '_', $path), '_'). '_'. implode('_', $languages) .'.csv';
 
 ob_get_clean();
 
-if(CModule::IncludeModule("compression"))
-	CCompress::Disable2048Spaces();
+if(\CModule::IncludeModule('compression'))
+{
+	\CCompress::Disable2048Spaces();
+}
+/*
+header('Content-Type: text/csv; charset='.LANG_CHARSET);
+header('Content-Disposition: attachment; filename="'.$csvFileName.'"');
+*/
 
-header("Content-Type: text/csv; charset=".LANG_CHARSET);
-header('Content-Disposition: attachment; filename="'.$csv_fn.'"');
-
-echo $strCSV;
-
-//require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin_after.php");
+\CFile::viewByUser(
+	\CFile::makeFileArray($csvFile->getPhysicalPath()),
+	array(
+		'force_download' => true,
+		'cache_time' => 0,
+		'attachment_name' => $csvFileName,
+		'content_type' => 'text/csv',
+	)
+);

@@ -1,4 +1,6 @@
 <?
+$MESS["SBBL_SHOW_REGISTRATION"] = "Enable user registration";
+$MESS["SBBL_MAX_IMAGE_SIZE"] = "Maximum product image size";
 $MESS["SBBL_PATH_TO_BASKET"] = "Basket page";
 $MESS["SBBL_SHOW_NUM_PRODUCTS"] = "Show number of products";
 $MESS["SBBL_SHOW_TOTAL_PRICE"] = "Show total amount by product";
@@ -8,7 +10,6 @@ $MESS["SBBL_SHOW_PERSONAL_LINK"] = "Display link to Personal Section";
 $MESS["SBBL_PATH_TO_PERSONAL"] = "Personal Section";
 $MESS["SBBL_AUTHOR"] = "Authorization";
 $MESS["SBBL_SHOW_AUTHOR"] = "Allow authorization in the cart";
-$MESS["SBBL_SHOW_REGISTRATION"] = "Enable user registration";
 $MESS["SBBL_PATH_TO_REGISTER"] = "Registration page";
 $MESS["SBBL_PATH_TO_AUTHORIZE"] = "Authentication page";
 $MESS["SBBL_PATH_TO_PROFILE"] = "Profile page";

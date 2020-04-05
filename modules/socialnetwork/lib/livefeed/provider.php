@@ -5,6 +5,7 @@ use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\Item\Subscription;
+use Bitrix\Socialnetwork\LogTable;
 use Bitrix\Socialnetwork\UserContentViewTable;
 use Bitrix\Socialnetwork\Item\UserContentView;
 
@@ -20,6 +21,7 @@ abstract class Provider
 	const DATA_ENTITY_TYPE_BLOG_POST = 'BLOG_POST';
 	const DATA_ENTITY_TYPE_BLOG_COMMENT = 'BLOG_COMMENT';
 	const DATA_ENTITY_TYPE_TASKS_TASK = 'TASK';
+	const DATA_ENTITY_TYPE_FORUM_TOPIC = 'FORUM_TOPIC';
 	const DATA_ENTITY_TYPE_FORUM_POST = 'FORUM_POST';
 	const DATA_ENTITY_TYPE_CALENDAR_EVENT = 'CALENDAR_EVENT';
 	const DATA_ENTITY_TYPE_LOG_ENTRY = 'LOG_ENTRY';
@@ -28,6 +30,11 @@ abstract class Provider
 	const DATA_ENTITY_TYPE_PHOTOGALLERY_ALBUM = 'PHOTO_ALBUM';
 	const DATA_ENTITY_TYPE_PHOTOGALLERY_PHOTO = 'PHOTO_PHOTO';
 	const DATA_ENTITY_TYPE_LISTS_ITEM = 'LISTS_NEW_ELEMENT';
+	const DATA_ENTITY_TYPE_WIKI = 'WIKI';
+	const DATA_ENTITY_TYPE_TIMEMAN_ENTRY = 'TIMEMAN_ENTRY';
+	const DATA_ENTITY_TYPE_TIMEMAN_REPORT = 'TIMEMAN_REPORT';
+	const DATA_ENTITY_TYPE_INTRANET_NEW_USER = 'INTRANET_NEW_USER';
+	const DATA_ENTITY_TYPE_BITRIX24_NEW_USER = 'BITRIX24_NEW_USER';
 
 	const PERMISSION_DENY = 'D';
 	const PERMISSION_READ = 'I';
@@ -43,10 +50,16 @@ abstract class Provider
 	protected $cloneDiskObjects = false;
 	protected $sourceDescription = '';
 	protected $sourceTitle = '';
+	protected $sourceOriginalText = '';
+	protected $sourceAuxData = array();
 	protected $sourceAttachedDiskObjects = array();
 	protected $sourceDiskObjects = array();
 	protected $diskObjectsCloned = array();
 	protected $attachedDiskObjectsCloned = array();
+
+	protected $logEventId = null;
+	protected $logEntityType = null;
+	protected $logEntityId = null;
 
 	/**
 	 * @return string the fully qualified name of this class.
@@ -81,6 +94,11 @@ abstract class Provider
 		return false;
 	}
 
+	public function getCommentProvider()
+	{
+		return false;
+	}
+
 	final private static function getTypes()
 	{
 		return array(
@@ -89,45 +107,94 @@ abstract class Provider
 		);
 	}
 
-	final private static function getProvider($entityType)
+	final public static function getProvider($entityType)
 	{
-		switch ($entityType)
+		$provider = false;
+
+		$moduleEvent = new Main\Event(
+			'socialnetwork',
+			'onLogProviderGetProvider',
+			array(
+				'entityType' => $entityType
+			)
+		);
+		$moduleEvent->send();
+
+		foreach ($moduleEvent->getResults() as $moduleEventResult)
 		{
-			case self::DATA_ENTITY_TYPE_BLOG_POST:
-				$provider = new \Bitrix\Socialnetwork\Livefeed\BlogPost();
+			if ($moduleEventResult->getType() == \Bitrix\Main\EventResult::SUCCESS)
+			{
+				$moduleEventParams = $moduleEventResult->getParameters();
+
+				if (
+					is_array($moduleEventParams)
+					&& !empty($moduleEventParams['provider'])
+				)
+				{
+					$provider = $moduleEventParams['provider'];
+				}
 				break;
-			case self::DATA_ENTITY_TYPE_BLOG_COMMENT:
-				$provider = new \Bitrix\Socialnetwork\Livefeed\BlogComment();
+			}
+		}
+
+		if (!$provider)
+		{
+			switch ($entityType)
+			{
+				case self::DATA_ENTITY_TYPE_BLOG_POST:
+					$provider = new \Bitrix\Socialnetwork\Livefeed\BlogPost();
+					break;
+				case self::DATA_ENTITY_TYPE_BLOG_COMMENT:
+					$provider = new \Bitrix\Socialnetwork\Livefeed\BlogComment();
+					break;
+				case self::DATA_ENTITY_TYPE_TASKS_TASK:
+					$provider = new \Bitrix\Socialnetwork\Livefeed\TasksTask();
+					break;
+				case self::DATA_ENTITY_TYPE_FORUM_TOPIC:
+					$provider = new \Bitrix\Socialnetwork\Livefeed\ForumTopic();
+					break;
+				case self::DATA_ENTITY_TYPE_FORUM_POST:
+					$provider = new \Bitrix\Socialnetwork\Livefeed\ForumPost();
+					break;
+				case self::DATA_ENTITY_TYPE_CALENDAR_EVENT:
+					$provider = new \Bitrix\Socialnetwork\Livefeed\CalendarEvent();
+					break;
+				case self::DATA_ENTITY_TYPE_LOG_ENTRY:
+					$provider = new \Bitrix\Socialnetwork\Livefeed\LogEvent();
+					break;
+				case self::DATA_ENTITY_TYPE_LOG_COMMENT:
+					$provider = new \Bitrix\Socialnetwork\Livefeed\LogComment();
+					break;
+				case self::DATA_ENTITY_TYPE_RATING_LIST:
+					$provider = new \Bitrix\Socialnetwork\Livefeed\RatingVoteList();
+					break;
+				case self::DATA_ENTITY_TYPE_PHOTOGALLERY_ALBUM:
+					$provider = new \Bitrix\Socialnetwork\Livefeed\PhotogalleryAlbum();
+					break;
+				case self::DATA_ENTITY_TYPE_PHOTOGALLERY_PHOTO:
+					$provider = new \Bitrix\Socialnetwork\Livefeed\PhotogalleryPhoto();
+					break;
+				case self::DATA_ENTITY_TYPE_LISTS_ITEM:
+					$provider = new \Bitrix\Socialnetwork\Livefeed\ListsItem();
+					break;
+				case self::DATA_ENTITY_TYPE_WIKI:
+					$provider = new \Bitrix\Socialnetwork\Livefeed\Wiki();
+					break;
+				case self::DATA_ENTITY_TYPE_TIMEMAN_ENTRY:
+					$provider = new \Bitrix\Socialnetwork\Livefeed\TimemanEntry();
+					break;
+				case self::DATA_ENTITY_TYPE_TIMEMAN_REPORT:
+					$provider = new \Bitrix\Socialnetwork\Livefeed\TimemanReport();
+					break;
+			case self::DATA_ENTITY_TYPE_INTRANET_NEW_USER:
+				$provider = new \Bitrix\Socialnetwork\Livefeed\IntranetNewUser();
 				break;
-			case self::DATA_ENTITY_TYPE_TASKS_TASK:
-				$provider = new \Bitrix\Socialnetwork\Livefeed\TasksTask();
+			case self::DATA_ENTITY_TYPE_BITRIX24_NEW_USER:
+				$provider = new \Bitrix\Socialnetwork\Livefeed\Bitrix24NewUser();
 				break;
-			case self::DATA_ENTITY_TYPE_FORUM_POST:
-				$provider = new \Bitrix\Socialnetwork\Livefeed\ForumPost();
-				break;
-			case self::DATA_ENTITY_TYPE_CALENDAR_EVENT:
-				$provider = new \Bitrix\Socialnetwork\Livefeed\CalendarEvent();
-				break;
-			case self::DATA_ENTITY_TYPE_LOG_ENTRY:
-				$provider = new \Bitrix\Socialnetwork\Livefeed\LogEvent();
-				break;
-			case self::DATA_ENTITY_TYPE_LOG_COMMENT:
-				$provider = new \Bitrix\Socialnetwork\Livefeed\LogComment();
-				break;
-			case self::DATA_ENTITY_TYPE_RATING_LIST:
-				$provider = new \Bitrix\Socialnetwork\Livefeed\RatingVoteList();
-				break;
-			case self::DATA_ENTITY_TYPE_PHOTOGALLERY_ALBUM:
-				$provider = new \Bitrix\Socialnetwork\Livefeed\PhotogalleryAlbum();
-				break;
-			case self::DATA_ENTITY_TYPE_PHOTOGALLERY_PHOTO:
-				$provider = new \Bitrix\Socialnetwork\Livefeed\PhotogalleryPhoto();
-				break;
-			case self::DATA_ENTITY_TYPE_LISTS_ITEM:
-				$provider = new \Bitrix\Socialnetwork\Livefeed\ListsItem();
-				break;
-			default:
-				$provider = false;
+				default:
+					$provider = false;
+			}
 		}
 
 		return $provider;
@@ -159,10 +226,6 @@ abstract class Provider
 		return $provider;
 	}
 
-	public function initSourceFields()
-	{
-	}
-
 	public static function canRead($params)
 	{
 		return false;
@@ -187,14 +250,24 @@ abstract class Provider
 
 			if (!empty($eventId))
 			{
-				if ($this->getType() == 'entry')
+				if ($this->getType() == Provider::TYPE_POST)
 				{
+					$filter = array(
+						'EVENT_ID' => $eventId
+					);
+
+					if ($this->getId() == LogEvent::PROVIDER_ID)
+					{
+						$filter['=ID'] = $this->entityId;
+					}
+					else
+					{
+						$filter['=SOURCE_ID'] = $this->entityId;
+					}
+
 					$res = \CSocNetLog::getList(
 						array(),
-						array(
-							'SOURCE_ID' => $this->entityId,
-							'EVENT_ID' => $eventId
-						),
+						$filter,
 						false,
 						array('nTopCount' => 1),
 						array('ID')
@@ -208,14 +281,24 @@ abstract class Provider
 						$result = $this->logId = intval($logEntry['ID']);
 					}
 				}
-				elseif ($this->getType() == 'comment')
+				elseif ($this->getType() == Provider::TYPE_COMMENT)
 				{
+					$filter = array(
+						'EVENT_ID' => $eventId
+					);
+
+					if ($this->getId() == LogComment::PROVIDER_ID)
+					{
+						$filter['ID'] = $this->entityId;
+					}
+					else
+					{
+						$filter['SOURCE_ID'] = $this->entityId;
+					}
+
 					$res = \CSocNetLogComments::getList(
 						array(),
-						array(
-							'SOURCE_ID' => $this->entityId,
-							'EVENT_ID' => $eventId
-						),
+						$filter,
 						false,
 						array('nTopCount' => 1),
 						array('ID', 'LOG_ID')
@@ -320,7 +403,7 @@ abstract class Provider
 		return $result;
 	}
 
-	final protected function setEntityId($entityId)
+	public function setEntityId($entityId)
 	{
 		$this->entityId = $entityId;
 	}
@@ -330,7 +413,7 @@ abstract class Provider
 		return $this->entityId;
 	}
 
-	final protected function setLogId($logId)
+	final public function setLogId($logId)
 	{
 		$this->logId = $logId;
 	}
@@ -338,6 +421,11 @@ abstract class Provider
 	final protected function setSourceFields(array $fields)
 	{
 		$this->sourceFields = $fields;
+	}
+
+	public function initSourceFields()
+	{
+		return $this->sourceFields;
 	}
 
 	final protected function getSourceFields()
@@ -368,12 +456,12 @@ abstract class Provider
 		return $result;
 	}
 
-	final protected  function setSourceTitle($title)
+	final protected function setSourceTitle($title)
 	{
 		$this->sourceTitle = $title;
 	}
 
-	public  function getSourceTitle()
+	public function getSourceTitle()
 	{
 		if (empty($this->sourceFields))
 		{
@@ -381,6 +469,36 @@ abstract class Provider
 		}
 
 		return $this->sourceTitle;
+	}
+
+	final protected function setSourceOriginalText($text)
+	{
+		$this->sourceOriginalText = $text;
+	}
+
+	public function getSourceOriginalText()
+	{
+		if (empty($this->sourceFields))
+		{
+			$this->initSourceFields();
+		}
+
+		return $this->sourceOriginalText;
+	}
+
+	final protected function setSourceAuxData($auxData)
+	{
+		$this->sourceAuxData = $auxData;
+	}
+
+	public function getSourceAuxData()
+	{
+		if (empty($this->sourceFields))
+		{
+			$this->initSourceFields();
+		}
+
+		return $this->sourceAuxData;
 	}
 
 	final protected function setSourceAttachedDiskObjects(array $diskAttachedObjects)
@@ -583,6 +701,47 @@ abstract class Provider
 
 		$contentEntityType = $contentEntityId = false;
 
+		$moduleEvent = new Main\Event(
+			'socialnetwork',
+			'onLogProviderGetContentId',
+			array(
+				'eventFields' => $event
+			)
+		);
+		$moduleEvent->send();
+
+		foreach ($moduleEvent->getResults() as $moduleEventResult)
+		{
+			if ($moduleEventResult->getType() == \Bitrix\Main\EventResult::SUCCESS)
+			{
+				$moduleEventParams = $moduleEventResult->getParameters();
+
+				if (
+					is_array($moduleEventParams)
+					&& !empty($moduleEventParams['contentEntityType'])
+					&& !empty($moduleEventParams['contentEntityId'])
+				)
+				{
+					$contentEntityType = $moduleEventParams['contentEntityType'];
+					$contentEntityId = $moduleEventParams['contentEntityId'];
+				}
+				break;
+			}
+		}
+
+		if (
+			$contentEntityType
+			&& $contentEntityId > 0
+		)
+		{
+			return array(
+				'ENTITY_TYPE' => $contentEntityType,
+				'ENTITY_ID' => $contentEntityId
+			);
+		}
+
+		// getContent
+
 		if (
 			!empty($event["EVENT_ID"])
 			&& $event["EVENT_ID"] == 'photo'
@@ -600,6 +759,14 @@ abstract class Provider
 			$contentEntityId = intval($event["SOURCE_ID"]);
 		}
 		elseif (
+			!empty($event["EVENT_ID"])
+			&& $event["EVENT_ID"] == 'data'
+		)
+		{
+			$contentEntityType = self::DATA_ENTITY_TYPE_LOG_ENTRY;
+			$contentEntityId = intval($event["ID"]);
+		}
+		elseif (
 			!empty($event["RATING_TYPE_ID"])
 			&& !empty($event["RATING_ENTITY_ID"])
 			&& intval($event["RATING_ENTITY_ID"]) > 0
@@ -607,6 +774,51 @@ abstract class Provider
 		{
 			$contentEntityType = $event["RATING_TYPE_ID"];
 			$contentEntityId = intval($event["RATING_ENTITY_ID"]);
+
+			if (in_array($event["RATING_TYPE_ID"], array('IBLOCK_ELEMENT', 'IBLOCK_SECTION')))
+			{
+				$res = LogTable::getList(array(
+					'filter' => array(
+						'=RATING_TYPE_ID' => $event["RATING_TYPE_ID"],
+						'=RATING_ENTITY_ID' => $event["RATING_ENTITY_ID"],
+					),
+					'select' => array('EVENT_ID')
+				));
+				if ($logEntryFields = $res->fetch())
+				{
+					if ($event["RATING_TYPE_ID"] == 'IBLOCK_ELEMENT')
+					{
+						$found = false;
+						$photogalleryPhotoProvider = new \Bitrix\Socialnetwork\Livefeed\PhotogalleryPhoto;
+						if (in_array($logEntryFields['EVENT_ID'], $photogalleryPhotoProvider->getEventId()))
+						{
+							$contentEntityType = self::DATA_ENTITY_TYPE_PHOTOGALLERY_PHOTO;
+							$contentEntityId = intval($event["RATING_ENTITY_ID"]);
+							$found = true;
+						}
+
+						if (!$found)
+						{
+							$wikiProvider = new \Bitrix\Socialnetwork\Livefeed\Wiki;
+							if (in_array($logEntryFields['EVENT_ID'], $wikiProvider->getEventId()))
+							{
+								$contentEntityType = self::DATA_ENTITY_TYPE_WIKI;
+								$contentEntityId = intval($event["RATING_ENTITY_ID"]);
+								$found = true;
+							}
+						}
+					}
+					elseif ($event["RATING_TYPE_ID"] == 'IBLOCK_SECTION')
+					{
+						$photogalleryalbumProvider = new \Bitrix\Socialnetwork\Livefeed\PhotogalleryAlbum;
+						if (in_array($logEntryFields['EVENT_ID'], $photogalleryalbumProvider->getEventId()))
+						{
+							$contentEntityType = self::DATA_ENTITY_TYPE_PHOTOGALLERY_ALBUM;
+							$contentEntityId = intval($event["RATING_ENTITY_ID"]);
+						}
+					}
+				}
+			}
 		}
 		elseif (
 			!empty($event["EVENT_ID"])
@@ -622,6 +834,18 @@ abstract class Provider
 					break;
 				case "calendar":
 					$contentEntityType = self::DATA_ENTITY_TYPE_CALENDAR_EVENT;
+					$contentEntityId = intval($event["SOURCE_ID"]);
+					break;
+				case "timeman_entry":
+					$contentEntityType = self::DATA_ENTITY_TYPE_TIMEMAN_ENTRY;
+					$contentEntityId = intval($event["SOURCE_ID"]);
+					break;
+				case "report":
+					$contentEntityType = self::DATA_ENTITY_TYPE_TIMEMAN_REPORT;
+					$contentEntityId = intval($event["SOURCE_ID"]);
+					break;
+				case "lists_new_element":
+					$contentEntityType = self::DATA_ENTITY_TYPE_LISTS_ITEM;
 					$contentEntityId = intval($event["SOURCE_ID"]);
 					break;
 				default:
@@ -717,7 +941,7 @@ abstract class Provider
 							array(
 								'module_id' => 'contentview',
 								'command' => 'add',
-								'expiry' => 60,
+								'expiry' => 0,
 								'params' => array(
 									"USER_ID" => $userId,
 									"TYPE_ID" => $contentTypeId,
@@ -783,4 +1007,163 @@ abstract class Provider
 				: false
 		);
 	}
+
+	public function getSuffix()
+	{
+		return '';
+	}
+
+	public function add()
+	{
+		return false;
+	}
+
+	final public function setLogEventId($eventId = '')
+	{
+		if (strlen($eventId) <= 0)
+		{
+			return false;
+		}
+
+		$this->logEventId = $eventId;
+
+		return true;
+	}
+
+	final private function setLogEntityType($entityType = '')
+	{
+		if (strlen($entityType) <= 0)
+		{
+			return false;
+		}
+
+		$this->logEntityType = $entityType;
+
+		return true;
+	}
+
+	final private function setLogEntityId($entityId = 0)
+	{
+		if (intval($entityId) <= 0)
+		{
+			return false;
+		}
+
+		$this->logEntityId = $entityId;
+
+		return true;
+	}
+
+	final protected function getLogFields()
+	{
+		$return = array();
+
+		$logId = $this->getLogId();
+		if (intval($logId) <= 0)
+		{
+			return $return;
+		}
+
+		$res = LogTable::getList(array(
+			'filter' => array(
+				'ID' => $logId
+			),
+			'select' => array('EVENT_ID', 'ENTITY_TYPE', 'ENTITY_ID')
+		));
+		if ($logFields = $res->fetch())
+		{
+			$return = $logFields;
+
+			$this->setLogEventId($logFields['EVENT_ID']);
+			$this->setLogEntityType($logFields['ENTITY_TYPE']);
+			$this->setLogEntityId($logFields['ENTITY_ID']);
+		}
+
+		return $return;
+	}
+
+	protected function getLogEventId()
+	{
+		$result = false;
+
+		if ($this->logEventId !== null)
+		{
+			$result = $this->logEventId;
+		}
+		else
+		{
+			$logFields = $this->getLogFields();
+			if (!empty($logFields['EVENT_ID']))
+			{
+				$result = $logFields['EVENT_ID'];
+			}
+		}
+
+		return $result;
+	}
+
+	protected function getLogEntityType()
+	{
+		$result = false;
+
+		if ($this->logEntityType !== null)
+		{
+			$result = $this->logEntityType;
+		}
+		else
+		{
+			$logFields = $this->getLogFields();
+			if (!empty($logFields['ENTITY_TYPE']))
+			{
+				$result = $logFields['ENTITY_TYPE'];
+			}
+		}
+
+		return $result;
+	}
+
+	protected function getLogEntityId()
+	{
+		$result = false;
+
+		if ($this->logEntityId !== null)
+		{
+			$result = $this->logEntityId;
+		}
+		else
+		{
+			$logFields = $this->getLogFields();
+			if (!empty($logFields['ENTITY_ID']))
+			{
+				$result = $logFields['ENTITY_ID'];
+			}
+		}
+
+		return $result;
+	}
+
+	public function getAdditionalData($params = array())
+	{
+		return array();
+	}
+
+	protected function checkAdditionalDataParams(&$params)
+	{
+		if (
+			empty($params)
+			|| !is_array($params)
+			|| empty($params['id'])
+		)
+		{
+			return false;
+		}
+
+		if (!is_array($params['id']))
+		{
+			$params['id'] = array($params['id']);
+		}
+
+		return true;
+	}
+
 }

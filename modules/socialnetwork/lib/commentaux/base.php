@@ -110,6 +110,14 @@ abstract class Base
 		static $handlerManager = null;
 
 		$handler = false;
+		$needSetParams = true;
+		if (
+			isset($options['needSetParams'])
+			&& $options['needSetParams'] === false
+		)
+		{
+			$needSetParams = false;
+		}
 
 		if (
 			is_array($fields)
@@ -125,17 +133,22 @@ abstract class Base
 			if ($handler = $handlerManager->getHandlerByPostText($fields['POST_TEXT']))
 			{
 				$handler->setOptions($options);
-				$params = $handler->getParamsFromFields($fields);
-				if (!empty($params))
+
+				if ($needSetParams)
 				{
-					$handler->setParams($params);
-				}
-				else
-				{
-					$handler = false;
+					$params = $handler->getParamsFromFields($fields);
+					if (!empty($params))
+					{
+						$handler->setParams($params);
+					}
+					else
+					{
+						$handler = false;
+					}
 				}
 			}
 		}
+
 		return $handler;
 	}
 
@@ -162,7 +175,6 @@ abstract class Base
 		{
 			$options = $this->options;
 
-			$commentId = (!empty($params['commentId']) && intval($params['commentId']) > 0 ? intval($params['commentId']) : 0);
 			$commentAuthorId = (!empty($params['commentAuthorId']) && intval($params['commentAuthorId']) > 0 ? intval($params['commentAuthorId']) : 0);
 
 			$siteList = $intranetSiteId = $extranetSiteId = false;
@@ -182,21 +194,31 @@ abstract class Base
 				}
 			}
 
-			$liveFeedProvider = Livefeed\Provider::init(array(
-				'ENTITY_TYPE' => 'BLOG_COMMENT',
-				'ENTITY_ID' => $commentId,
-				'SITE_ID' => (!empty($options['siteId']) ? $options['siteId'] : SITE_ID)
+			$contentId = Livefeed\Provider::getContentId(array(
+				"RATING_TYPE_ID" => $params['ratingEntityTypeId'],
+				"RATING_ENTITY_ID" => $params['ratingEntityId']
 			));
-			$liveFeedProvider->initSourceFields();
-			$originalLink = $liveFeedProvider->getLiveFeedUrl();
 
-			$result = \CIMEvent::getMessageRatingEntityURL(
-				$originalLink,
-				$commentAuthorId,
-				$siteList,
-				$intranetSiteId,
-				$extranetSiteId
-			);
+			if (!empty($contentId['ENTITY_TYPE']))
+			{
+				if ($liveFeedProvider = Livefeed\Provider::init(array(
+					'ENTITY_TYPE' => $contentId['ENTITY_TYPE'],
+					'ENTITY_ID' => $contentId['ENTITY_ID'],
+					'SITE_ID' => (!empty($options['siteId']) ? $options['siteId'] : SITE_ID)
+				)))
+				{
+					$liveFeedProvider->initSourceFields();
+					$originalLink = $liveFeedProvider->getLiveFeedUrl();
+
+					$result = \CIMEvent::getMessageRatingEntityURL(
+						$originalLink,
+						$commentAuthorId,
+						$siteList,
+						$intranetSiteId,
+						$extranetSiteId
+					);
+				}
+			}
 		}
 
 		return $result;

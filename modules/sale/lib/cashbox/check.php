@@ -13,6 +13,7 @@ use Bitrix\Sale\Order;
 use Bitrix\Sale\Payment;
 use Bitrix\Sale\PaymentCollection;
 use Bitrix\Sale\PriceMaths;
+use Bitrix\Sale\Registry;
 use Bitrix\Sale\Result;
 use Bitrix\Sale\Shipment;
 use Bitrix\Sale\ShipmentCollection;
@@ -44,6 +45,12 @@ abstract class Check
 	const PAYMENT_TYPE_ADVANCE = 'advance';
 	const PAYMENT_TYPE_CASHLESS = 'cashless';
 	const PAYMENT_TYPE_CREDIT = 'credit';
+
+	const PAYMENT_OBJECT_COMMODITY = 'commodity';
+	const PAYMENT_OBJECT_EXCISE = 'excise';
+	const PAYMENT_OBJECT_JOB = 'job';
+	const PAYMENT_OBJECT_SERVICE = 'service';
+	const PAYMENT_OBJECT_PAYMENT = 'payment';
 
 	const SUPPORTED_ENTITY_TYPE_PAYMENT = 'payment';
 	const SUPPORTED_ENTITY_TYPE_SHIPMENT = 'shipment';
@@ -143,6 +150,7 @@ abstract class Check
 		$this->entities = $entities;
 
 		$orderId = null;
+		$entityRegistryType = null;
 
 		foreach ($this->entities as $entity)
 		{
@@ -151,15 +159,6 @@ abstract class Check
 				$this->fields['PAYMENT_ID'] = $entity->getId();
 				$this->fields['SUM'] = $entity->getSum();
 				$this->fields['CURRENCY'] = $entity->getField('CURRENCY');
-
-				/** @var PaymentCollection $col */
-				$col = $entity->getCollection();
-				$colOrderId = $col->getOrder()->getId();
-
-				if ($orderId === null)
-					$orderId = $colOrderId;
-				elseif ($orderId != $colOrderId)
-					throw new Main\ArgumentTypeException('entities');
 			}
 			elseif ($entity instanceof Shipment)
 			{
@@ -179,23 +178,37 @@ abstract class Check
 						$this->fields['SUM'] += PriceMaths::roundPrecision($item->getQuantity() * $basketItem->getPrice());
 					}
 				}
-
-				/** @var ShipmentCollection $col */
-				$col = $entity->getCollection();
-				$colOrderId = $col->getOrder()->getId();
-
-				if ($orderId === null)
-					$orderId = $colOrderId;
-				elseif ($orderId != $colOrderId)
-					throw new Main\ArgumentTypeException('entities');
 			}
 			else
+			{
+				throw new Main\ArgumentTypeException('entities');
+			}
+
+			if ($entityRegistryType === null)
+			{
+				$entityRegistryType = $entity->getRegistryType();
+			}
+			elseif ($entityRegistryType !== $entity->getRegistryType())
+			{
+				throw new Main\ArgumentTypeException('entities');
+			}
+
+			/** @var PaymentCollection|ShipmentCollection $collection */
+			$collection = $entity->getCollection();
+			$colOrderId = $collection->getOrder()->getId();
+
+			if ($orderId === null)
+			{
+				$orderId = $colOrderId;
+			}
+			elseif ($orderId != $colOrderId)
 			{
 				throw new Main\ArgumentTypeException('entities');
 			}
 		}
 
 		$this->fields['ORDER_ID'] = $orderId;
+		$this->fields['ENTITY_REGISTRY_TYPE'] = $entityRegistryType;
 	}
 
 	/**
@@ -210,7 +223,6 @@ abstract class Check
 	 * @return array
 	 * @throws Main\ArgumentException
 	 * @throws Main\ArgumentNullException
-	 * @throws Main\NotImplementedException
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
 	 */
@@ -219,10 +231,10 @@ abstract class Check
 		if ($this->relatedEntities)
 			return $this->relatedEntities;
 
-		$dbRes = CheckRelatedEntitiesTable::getList(array('filter' => array('CHECK_ID' => $this->getField('ID'))));
-
+		$registry = Registry::getInstance($this->fields['ENTITY_REGISTRY_TYPE']);
 		$order = null;
 
+		$dbRes = CheckRelatedEntitiesTable::getList(array('filter' => array('CHECK_ID' => $this->getField('ID'))));
 		while ($entity = $dbRes->fetch())
 		{
 			if ($order === null)
@@ -231,21 +243,29 @@ abstract class Check
 
 				if ($entity['ENTITY_TYPE'] === CheckRelatedEntitiesTable::ENTITY_TYPE_PAYMENT)
 				{
-					$dbResPayment = Payment::getList(array(
+					/** @var Payment $paymentClassName */
+					$paymentClassName = $registry->getPaymentClassName();
+					$dbResPayment = $paymentClassName::getList(array(
 						'select' => array('ORDER_ID'),
 						'filter' => array('ID' => $entity['ENTITY_ID'])
 					));
 					if ($data = $dbResPayment->fetch())
+					{
 						$orderId = $data['ORDER_ID'];
+					}
 				}
 				elseif ($entity['ENTITY_TYPE'] === CheckRelatedEntitiesTable::ENTITY_TYPE_SHIPMENT)
 				{
-					$dbResShipment = Shipment::getList(array(
+					/** @var Shipment $shipmentClassName */
+					$shipmentClassName = $registry->getShipmentClassName();
+					$dbResShipment = $shipmentClassName::getList(array(
 						'select' => array('ORDER_ID'),
 						'filter' => array('ID' => $entity['ENTITY_ID'])
 					));
 					if ($data = $dbResShipment->fetch())
+					{
 						$orderId = $data['ORDER_ID'];
+					}
 				}
 
 				if ($orderId > 0)
@@ -278,19 +298,25 @@ abstract class Check
 		if ($this->entities)
 			return $this->entities;
 
+		$registry = Registry::getInstance($this->fields['ENTITY_REGISTRY_TYPE']);
+
 		if ($this->fields['ORDER_ID'] > 0)
 		{
 			$orderId = $this->fields['ORDER_ID'];
 		}
 		elseif ($this->fields['PAYMENT_ID'] > 0)
 		{
-			$dbRes = Payment::getList(array('filter' => array('ID' => $this->fields['PAYMENT_ID'])));
+			/** @var Payment $paymentClassName */
+			$paymentClassName = $registry->getPaymentClassName();
+			$dbRes = $paymentClassName::getList(array('filter' => array('ID' => $this->fields['PAYMENT_ID'])));
 			$data = $dbRes->fetch();
 			$orderId = $data['ORDER_ID'];
 		}
 		elseif ($this->fields['SHIPMENT_ID'] > 0)
 		{
-			$dbRes = Shipment::getList(array('filter' => array('ID' => $this->fields['SHIPMENT_ID'])));
+			/** @var Shipment $shipmentClassName */
+			$shipmentClassName = $registry->getPaymentClassName();
+			$dbRes = $shipmentClassName::getList(array('filter' => array('ID' => $this->fields['SHIPMENT_ID'])));
 			$data = $dbRes->fetch();
 			$orderId = $data['ORDER_ID'];
 		}
@@ -301,7 +327,9 @@ abstract class Check
 
 		if ($orderId > 0)
 		{
-			$order = Order::load($orderId);
+			$orderClassName = $registry->getOrderClassName();
+			/** @var Order $order */
+			$order = $orderClassName::load($orderId);
 			if ($order)
 			{
 				if ($this->fields['PAYMENT_ID'] > 0)
@@ -415,9 +443,15 @@ abstract class Check
 
 		if ($entitiesData)
 		{
+			if (isset($entitiesData['ORDER']))
+			{
+				$result['order'] = $entitiesData['ORDER'];
+			}
+
 			foreach ($entitiesData['PAYMENTS'] as $payment)
 			{
 				$result['payments'][] = array(
+					'entity' => $payment['ENTITY'],
 					'type' => $payment['TYPE'],
 					'is_cash' => $payment['IS_CASH'],
 					'sum' => $payment['SUM']
@@ -429,12 +463,14 @@ abstract class Check
 				foreach ($entitiesData['PRODUCTS'] as $product)
 				{
 					$item = array(
+						'entity' => $product['ENTITY'],
 						'name' => $product['NAME'],
 						'base_price' => $product['BASE_PRICE'],
 						'price' => $product['PRICE'],
 						'sum' => $product['SUM'],
 						'quantity' => $product['QUANTITY'],
-						'vat' => $product['VAT']
+						'vat' => $product['VAT'],
+						'payment_object' => $product['PAYMENT_OBJECT'],
 					);
 
 					if ($product['DISCOUNT'])
@@ -454,12 +490,14 @@ abstract class Check
 				foreach ($entitiesData['DELIVERY'] as $delivery)
 				{
 					$item = array(
+						'entity' => $delivery['ENTITY'],
 						'name' => $delivery['NAME'],
 						'base_price' => $delivery['BASE_PRICE'],
 						'price' => $delivery['PRICE'],
 						'sum' => $delivery['SUM'],
 						'quantity' => $delivery['QUANTITY'],
-						'vat' => $delivery['VAT']
+						'vat' => $delivery['VAT'],
+						'payment_object' => $delivery['PAYMENT_OBJECT'],
 					);
 
 					if ($delivery['DISCOUNT'])
@@ -505,12 +543,19 @@ abstract class Check
 		$result = array();
 
 		$order = null;
+		$discounts = null;
+		$shopPrices = null;
 		$totalSum = 0;
 
 		foreach ($entities as $entity)
 		{
 			if ($order === null)
+			{
 				$order = CheckManager::getOrder($entity);
+				$discounts = $order->getDiscount();
+				$shopPrices = $discounts->getShowPrices();
+				$result['ORDER'] = $order;
+			}
 
 			if ($entity instanceof Payment)
 			{
@@ -518,6 +563,7 @@ abstract class Check
 				$type = $service->getField('IS_CASH') === 'Y' ? static::PAYMENT_TYPE_CASH : static::PAYMENT_TYPE_CASHLESS;
 
 				$result['PAYMENTS'][] = array(
+					'ENTITY' => $entity,
 					'IS_CASH' => $service->getField('IS_CASH'),
 					'TYPE' => $type,
 					'SUM' => $entity->getSum()
@@ -534,20 +580,30 @@ abstract class Check
 				foreach ($sellableItems as $shipmentItem)
 				{
 					$basketItem = $shipmentItem->getBasketItem();
+					$basketCode = $basketItem->getBasketCode();
+					if (!empty($shopPrices['BASKET'][$basketCode]))
+					{
+						$basketItem->setFieldNoDemand('BASE_PRICE', $shopPrices['BASKET'][$basketCode]['SHOW_BASE_PRICE']);
+						$basketItem->setFieldNoDemand('PRICE', $shopPrices['BASKET'][$basketCode]['SHOW_PRICE']);
+						$basketItem->setFieldNoDemand('DISCOUNT_PRICE', $shopPrices['BASKET'][$basketCode]['SHOW_DISCOUNT']);
+					}
+					unset($basketCode);
 
 					$item = array(
+						'ENTITY' => $basketItem,
 						'PRODUCT_ID' => $basketItem->getProductId(),
 						'NAME' => $basketItem->getField('NAME'),
-						'BASE_PRICE' => $basketItem->getBasePrice(),
-						'PRICE' => $basketItem->getPrice(),
-						'SUM' => $basketItem->getFinalPrice(),
+						'BASE_PRICE' => $basketItem->getBasePriceWithVat(),
+						'PRICE' => $basketItem->getPriceWithVat(),
+						'SUM' => $basketItem->getPriceWithVat() * $shipmentItem->getQuantity(),
 						'QUANTITY' => (float)$shipmentItem->getQuantity(),
-						'VAT' => $this->getProductVatId($basketItem)
+						'VAT' => $this->getProductVatId($basketItem),
+						'PAYMENT_OBJECT' => static::PAYMENT_OBJECT_COMMODITY
 					);
 
 					if ($basketItem->isCustomPrice())
 					{
-						$item['BASE_PRICE'] = $basketItem->getPrice();
+						$item['BASE_PRICE'] = $basketItem->getPriceWithVat();
 					}
 					else
 					{
@@ -563,24 +619,33 @@ abstract class Check
 					$result['PRODUCTS'][] = $item;
 				}
 
-				$baseDeliveryPrice = (float)$entity->getField('BASE_PRICE_DELIVERY');
-				if ($baseDeliveryPrice > 0)
+				$priceDelivery = (float)$entity->getPrice();
+				if ($priceDelivery > 0)
 				{
 					$item = array(
+						'ENTITY' => $entity,
 						'NAME' => Main\Localization\Loc::getMessage('SALE_CASHBOX_SELL_DELIVERY'),
-						'BASE_PRICE' => $baseDeliveryPrice,
+						'BASE_PRICE' => (float)$entity->getField('BASE_PRICE_DELIVERY'),
 						'PRICE' => (float)$entity->getPrice(),
 						'SUM' => (float)$entity->getPrice(),
 						'QUANTITY' => 1,
-						'VAT' => $this->getDeliveryVatId($entity)
+						'VAT' => $this->getDeliveryVatId($entity),
+						'PAYMENT_OBJECT' => static::PAYMENT_OBJECT_SERVICE
 					);
 
-					if (!$entity->isCustomPrice() && (float)$entity->getField('DISCOUNT_PRICE') != 0)
+					if ($entity->isCustomPrice())
 					{
-						$item['DISCOUNT'] = array(
-							'PRICE' => $entity->getField('DISCOUNT_PRICE'),
-							'TYPE' => 'C',
-						);
+						$item['BASE_PRICE'] = $entity->getPrice();
+					}
+					else
+					{
+						if ((float)$entity->getField('DISCOUNT_PRICE') != 0)
+						{
+							$item['DISCOUNT'] = array(
+								'PRICE' => $entity->getField('DISCOUNT_PRICE'),
+								'TYPE' => 'C',
+							);
+						}
 					}
 
 					$result['DELIVERY'][] = $item;
@@ -602,6 +667,8 @@ abstract class Check
 		}
 
 		$result['TOTAL_SUM'] = $totalSum;
+
+		unset($shopPrices, $discounts);
 
 		return $result;
 	}

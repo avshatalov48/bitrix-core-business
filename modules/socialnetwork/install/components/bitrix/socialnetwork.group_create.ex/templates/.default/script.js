@@ -157,6 +157,46 @@ function BXGCESubmitForm(e)
 
 		BX.BXGCE.disableSubmitButton(true);
 
+
+		var b24statAction = 'addSonetGroup';
+		if (
+			BX('SONET_GROUP_ID')
+			&& parseInt(BX('SONET_GROUP_ID').value) > 0
+		)
+		{
+			b24statAction = 'editSonetGroup';
+		}
+
+		actionURL = BX.util.add_url_param(actionURL, {
+			b24statAction: b24statAction
+		});
+
+		if (
+			document.forms.sonet_group_create_popup_form.elements.GROUP_PROJECT
+			&& (
+				document.forms.sonet_group_create_popup_form.elements.IS_EXTRANET_GROUP
+				|| document.forms.sonet_group_create_popup_form.elements.GROUP_OPENED
+			)
+		)
+		{
+			var b24statType = (document.forms.sonet_group_create_popup_form.elements.GROUP_PROJECT.checked ? 'project-' : 'group-');
+			if (
+				document.forms.sonet_group_create_popup_form.elements.IS_EXTRANET_GROUP
+				&& document.forms.sonet_group_create_popup_form.elements.IS_EXTRANET_GROUP.checked
+			)
+			{
+				b24statType += 'external';
+			}
+			else
+			{
+				b24statType += (document.forms.sonet_group_create_popup_form.elements.GROUP_OPENED.checked ? 'open' : 'closed');
+			}
+
+			actionURL = BX.util.add_url_param(actionURL, {
+				b24statType: b24statType,
+			});
+		}
+
 		BX.ajax.submitAjax(
 			document.forms.sonet_group_create_popup_form,
 			{
@@ -165,58 +205,64 @@ function BXGCESubmitForm(e)
 				dataType: 'json',
 				onsuccess: function(obResponsedata)
 				{
-					if (
-						typeof obResponsedata["ERROR"] != 'undefined'
-						&& obResponsedata["ERROR"].length > 0
-					)
+					if (BX.type.isNotEmptyString(obResponsedata.ERROR))
 					{
 						BX.BXGCE.showError(
 							(
-								typeof obResponsedata["WARNING"] != 'undefined'
-								&& obResponsedata["WARNING"].length > 0
-									? obResponsedata["WARNING"] + '<br>'
+								BX.type.isNotEmptyString(obResponsedata.WARNING)
+									? obResponsedata.WARNING + '<br>'
 									: ''
-							) + obResponsedata["ERROR"]
+							) + obResponsedata.ERROR
 						);
 
 						if (
-							typeof BX.SocNetLogDestination.obItems != 'undefined'
-							&& typeof obResponsedata["USERS_ID"] != 'undefined'
+							typeof obResponsedata["USERS_ID"] != 'undefined'
 							&& BX.type.isArray(obResponsedata["USERS_ID"])
 						)
 						{
-							var selectedUsersOld = false;
-							var selectedUsers = [];
-							var strUserCodeTmp = false;
-							var j = 0;
+							var
+								selectedUsersOld = false,
+								selectedUsers = [],
+								strUserCodeTmp = false,
+								j = 0,
+								entityType = null,
+								itemId = null;
 
 							for (j = 0; j < obResponsedata["USERS_ID"].length; j++)
 							{
 								selectedUsers['U' + obResponsedata['USERS_ID'][j]] = 'users';
 							}
 
+							var selectorInstance = null;
+
 							if (BX.BXGCE.arUserSelector.length > 0)
 							{
 								for (var i = 0; i < BX.BXGCE.arUserSelector.length; i++)
 								{
-									selectedUsersOld = BX.findChildren(BX('sonet_group_create_popup_users_item_post_' + BX.BXGCE.arUserSelector[i]), { className: "feed-add-post-destination-users" }, true);
+									selectorInstance = BX.UI.SelectorManager.instances[BX.BXGCE.arUserSelector[i]];
+									if (!BX.type.isNotEmptyObject(selectorInstance))
+									{
+										continue;
+									}
+
+									selectedUsersOld = BX.findChildren(BX('ui-tile-selector-' + BX.BXGCE.arUserSelector[i]), { className: "ui-tile-selector-item" }, true);
 									if (selectedUsersOld)
 									{
 										for (j = 0; j < selectedUsersOld.length; j++)
 										{
-											strUserCodeTmp = selectedUsersOld[j].getAttribute('data-id');
-											if (
-												strUserCodeTmp
-												&& strUserCodeTmp.length > 0
-											)
+											strUserCodeTmp = selectedUsersOld[j].getAttribute('data-bx-id');
+											if (BX.type.isNotEmptyString(strUserCodeTmp))
 											{
-												BX.SocNetLogDestination.deleteItem(strUserCodeTmp, 'users', BX.BXGCE.arUserSelector[i]);
+												selectorInstance.getRenderInstance().deleteItem({
+													entityType: 'USERS',
+													itemId: strUserCodeTmp
+												});
 											}
 										}
 									}
 
-									BX.SocNetLogDestination.obItemsSelected[BX.BXGCE.arUserSelector[i]] = selectedUsers;
-									BX.SocNetLogDestination.reInit(BX.BXGCE.arUserSelector[i]);
+									selectorInstance.itemsSelected = selectedUsers;
+									selectorInstance.reinit();
 								}
 							}
 						}
@@ -282,8 +328,16 @@ function BXGCESubmitForm(e)
 								{
 									BX.SocialnetworkUICommon.reload();
 
+									var currentSlider = BX.SidePanel.Instance.getSliderByWindow(window);
+									if (currentSlider)
+									{
+										window.top.BX.onCustomEvent(
+											"SidePanel.Slider:onClose",
+											[ currentSlider.getEvent('onClose') ]
+										);
+									}
+
 									window.top.BX.onCustomEvent("BX.Bitrix24.PageSlider:close", [false]);
-									window.top.BX.onCustomEvent("SidePanel.Slider:onClose", [false]);
 									window.top.BX.onCustomEvent('onSonetIframeCancelClick');
 								}
 							}
@@ -299,34 +353,6 @@ function BXGCESubmitForm(e)
 	}
 
 	e.preventDefault();
-}
-
-function __deleteExtranetEmail(item)
-{
-	var flag = false;
-
-	if (!item || !BX.type.isDomNode(item))
-		item = this;
-
-	if (item)
-	{
-		BX(item).parentNode.parentNode.removeChild(BX(item).parentNode);
-		var num = parseInt(BX(item).parentNode.id.substring(36));
-		top.BXExtranetMailList[num-1] = '';
-
-		BX('EMAILS').value = '';
-		for(var i=0; i<top.BXExtranetMailList.length; i++)
-		{
-			if (top.BXExtranetMailList[i].length > 0)
-			{
-				if (flag)
-					BX('EMAILS').value += ', ';
-
-				BX('EMAILS').value += top.BXExtranetMailList[i];
-				flag = true;
-			}
-		}
-	}
 }
 
 (function(){
@@ -476,12 +502,31 @@ BX.BXGCE.init = function(params) {
 		return e.preventDefault();
 	}, this));
 
-	BX.bind(BX("sonet_group_create_popup_form_button_submit"), "click", BXGCESubmitForm);
+	BX.bind(BX("sonet_group_create_popup_form_button_submit"), "click", function(e) {
+		BXGCESubmitForm(e);
 
-		window.top.BX.onCustomEvent("SidePanel.Slider:onClose", [false]);
+		var currentSlider = BX.SidePanel.Instance.getSliderByWindow(window);
+		if (currentSlider)
+		{
+			window.top.BX.onCustomEvent(
+				"SidePanel.Slider:onClose",
+				[ currentSlider.getEvent('onClose') ]
+			);
+		}
+	});
+
 	BX.bind(BX("sonet_group_create_popup_form_button_step_2_cancel"), "click", function(e) {
+
+		var currentSlider = BX.SidePanel.Instance.getSliderByWindow(window);
+		if (currentSlider)
+		{
+			window.top.BX.onCustomEvent(
+				"SidePanel.Slider:onClose",
+				[ currentSlider.getEvent('onClose') ]
+			);
+		}
+
 		window.top.BX.onCustomEvent("BX.Bitrix24.PageSlider:close", [false]);
-		window.top.BX.onCustomEvent("SidePanel.Slider:onClose", [false]);
 		window.top.BX.onCustomEvent('onSonetIframeCancelClick');
 
 		return e.preventDefault();
@@ -909,155 +954,34 @@ BX.BXGCE.setSelector = function(selectorName)
 	BX.BXGCE.userSelector = selectorName;
 };
 
-BX.BXGCE.disableBackspace = function(event)
+BX.BXGCE.showDepartmentHint = function(params)
 {
-	if (
-		BX.SocNetLogDestination.backspaceDisable 
-		|| BX.SocNetLogDestination.backspaceDisable != null
-	)
-	{
-		BX.unbind(window, 'keydown', BX.SocNetLogDestination.backspaceDisable);
-	}
-
-	BX.bind(window, 'keydown', BX.SocNetLogDestination.backspaceDisable = function(event) {
-		if (event.keyCode == 8)
-		{
-			event.preventDefault();
-			return false;
-		}
-	});
-	setTimeout(function(){
-		BX.unbind(window, 'keydown', BX.SocNetLogDestination.backspaceDisable);
-		BX.SocNetLogDestination.backspaceDisable = null;
-	}, 5000);
-};
-
-BX.BXGCE.selectCallback = function(params)
-{
-	if (
-		typeof params == 'undefined'
-		|| !BX.type.isNotEmptyString(params.name)
-		|| typeof params.item == 'undefined'
-		|| !BX.type.isNotEmptyString(params.type)
-	)
+	if (!BX.type.isNotEmptyString(params.selectorId))
 	{
 		return;
 	}
 
-	var
-		name = params.name,
-		type = params.type,
-		item = params.item;
-
-	var single = (
-		typeof BX.BXGCESelectorManager.controls[name] != 'undefined'
-		&& typeof BX.BXGCESelectorManager.controls[name].single != 'undefined'
-		&& !!BX.BXGCESelectorManager.controls[name].single
-	);
-
-	var controlName = (
-		typeof BX.BXGCESelectorManager.controls[name] != 'undefined'
-		&& typeof BX.BXGCESelectorManager.controls[name].controlName != 'undefined'
-		&& BX.BXGCESelectorManager.controls[name].controlName
-			? BX.BXGCESelectorManager.controls[name].controlName
-			: 'USER_CODES[]'
-	);
-
-	if(!BX.findChild(BX('sonet_group_create_popup_users_item_post_' + name), { attr : { 'data-id' : item.id }}, false, false))
+	var hintNode = BX('GROUP_ADD_DEPT_HINT_block');
+	if (!hintNode)
 	{
-		if (single)
-		{
-			BX.cleanNode(BX('sonet_group_create_popup_users_item_post_' + name));
-			BX('sonet_group_create_popup_users_input_post_' + name).style.display = 'none';
-		}
-
-		BX('sonet_group_create_popup_users_item_post_' + name).appendChild(
-			BX.create("span", { 
-				attrs : { 
-					'data-id' : item.id 
-				}, 
-				props : { 
-					className : "feed-add-post-destination feed-add-post-destination-" + type
-				}, 
-				children: [
-					BX.create("input", { 
-						attrs : { 
-							type : 'hidden',
-							name : controlName,
-							value : item.id
-						}
-					}),
-					BX.create("span", { 
-						props : { 
-							className : "feed-add-post-destination-text"
-						}, 
-						html : item.name
-					}),
-					BX.create("span", { 
-						props : { 
-							className : "feed-add-post-del-but"
-						}, 
-						events : {
-							click : function(e){
-								BX.SocNetLogDestination.deleteItem(item.id, type, name);
-								e.preventDefault();
-							}, 
-							mouseover : function(){
-								BX.addClass(this.parentNode, 'feed-add-post-destination-hover');
-							}, 
-							mouseout : function(){
-								BX.removeClass(this.parentNode, 'feed-add-post-destination-hover');
-							}
-						}
-					})
-				]
-			})
-		);
-
-		BX.BXGCE.showDepartmentHint(name);
+		return;
 	}
 
-	BX('sonet_group_create_popup_users_input_post_' + name).value = '';
-
-	if (!single)
+	var selectorInstance = BX.UI.SelectorManager.instances[params.selectorId];
+	if (!BX.type.isNotEmptyObject(selectorInstance))
 	{
-		BX.SocNetLogDestination.BXfpSetLinkName({
-			formName: name,
-			tagInputName: 'sonet_group_create_popup_users_tag_post_' + name,
-			tagLink1: BX.message('SONET_GCE_T_DEST_LINK_1'),
-			tagLink2: BX.message('SONET_GCE_T_DEST_LINK_2')
-		});
+		return;
 	}
-	else
-	{
-		BX.style(BX('sonet_group_create_popup_users_tag_post_' + name), 'display', 'none');
-		BX.SocNetLogDestination.closeDialog();
-	}
-};
 
-BX.BXGCE.selectCallbackOld = function(item, type, search, bUndeleted, name)
-{
-	BX.BXGCE.selectCallback({
-		name: name,
-		type: type,
-		item: item
-	});
-};
-
-BX.BXGCE.showDepartmentHint = function(name)
-{
-	if (
-		!BX.type.isPlainObject(BX.SocNetLogDestination.obItemsSelected[name])
-		|| !BX('GROUP_ADD_DEPT_HINT_block')
-	)
+	if (!BX.type.isNotEmptyObject(selectorInstance.itemsSelected))
 	{
 		return false;
 	}
 
 	var departmentFound = false;
-	for (var itemId in BX.SocNetLogDestination.obItemsSelected[name])
+	for (var itemId in selectorInstance.itemsSelected)
 	{
-		if (!BX.SocNetLogDestination.obItemsSelected[name].hasOwnProperty(itemId))
+		if (!selectorInstance.itemsSelected.hasOwnProperty(itemId))
 		{
 			continue;
 		}
@@ -1071,124 +995,14 @@ BX.BXGCE.showDepartmentHint = function(name)
 
 	if (departmentFound)
 	{
-		BX.addClass(BX('GROUP_ADD_DEPT_HINT_block'), 'visible');
+		BX.addClass(hintNode, 'visible');
 	}
 	else
 	{
-		BX.removeClass(BX('GROUP_ADD_DEPT_HINT_block'), 'visible');
+		BX.removeClass(hintNode, 'visible');
 	}
 
 	return departmentFound;
-};
-
-BX.BXGCE.unSelectCallback = function(params)
-{
-	if (
-		typeof params == 'undefined'
-		|| !BX.type.isNotEmptyString(params.name)
-		|| typeof params.item == 'undefined'
-	)
-	{
-		return;
-	}
-
-	var
-		name = params.name,
-		item = params.item;
-
-	var single = (
-		typeof BX.BXGCESelectorManager.controls[name] != 'undefined'
-		&& typeof BX.BXGCESelectorManager.controls[name].single != 'undefined'
-		&& !!BX.BXGCESelectorManager.controls[name].single
-	);
-
-	var tagLinkText1 = (
-		typeof BX.BXGCESelectorManager.controls[name] != 'undefined'
-		&& typeof BX.BXGCESelectorManager.controls[name].tagLinkText1 != 'undefined'
-		&& BX.BXGCESelectorManager.controls[name].tagLinkText1.length > 0
-			? BX.BXGCESelectorManager.controls[name].tagLinkText1
-			: BX.message('SONET_GCE_T_DEST_LINK_1')
-	);
-
-	var tagLinkText2 = (
-		typeof BX.BXGCESelectorManager.controls[name] != 'undefined'
-		&& typeof BX.BXGCESelectorManager.controls[name].tagLinkText2 != 'undefined'
-		&& BX.BXGCESelectorManager.controls[name].tagLinkText2.length > 0
-			? BX.BXGCESelectorManager.controls[name].tagLinkText2
-			: BX.message('SONET_GCE_T_DEST_LINK_2')
-	);
-
-	BX.delegate(BX.SocNetLogDestination.BXfpUnSelectCallback, {
-		formName: name,
-		inputContainerName: 'sonet_group_create_popup_users_item_post_' + name,
-		inputName: 'sonet_group_create_popup_users_input_post_' + name,
-		tagInputName: 'sonet_group_create_popup_users_tag_post_' + name,
-		tagLink1: tagLinkText1,
-		tagLink2: tagLinkText2
-	})(item);
-
-	if (!single)
-	{
-		BX.SocNetLogDestination.BXfpSetLinkName({
-			formName: name,
-			tagInputName: 'sonet_group_create_popup_users_tag_post_' + name,
-			tagLink1: BX.message('SONET_GCE_T_DEST_LINK_1'),
-			tagLink2: BX.message('SONET_GCE_T_DEST_LINK_2')
-		});
-	}
-	else
-	{
-		BX.style(BX('sonet_group_create_popup_users_tag_post_' + name), 'display', 'inline-block');
-	}
-};
-
-BX.BXGCE.unSelectCallbackOld = function(item, type, search, name)
-{
-	BX.SocNetLogDestination.BXfpUnSelectCallback.apply(this, [item, type, search, name]);
-	BX.BXGCE.showDepartmentHint(name);
-};
-
-BX.BXGCE.openDialogCallback = function(params)
-{
-	if (
-		typeof params == 'undefined'
-		|| !BX.type.isNotEmptyString(params.name)
-	)
-	{
-		return;
-	}
-
-	var name = params.name;
-
-	BX.PopupWindow.setOptions({
-		'popupZindex': 2100
-	});
-
-	var single = (
-		typeof BX.BXGCESelectorManager.controls[name] != 'undefined'
-		&& typeof BX.BXGCESelectorManager.controls[name].single != 'undefined'
-		&& !!BX.BXGCESelectorManager.controls[name].single
-	);
-
-	if (single)
-	{
-		BX('sonet_group_create_popup_users_input_post_' + name).style.display = 'inline-block';
-	}
-
-	BX.SocNetLogDestination.BXfpOpenDialogCallback.apply(this, arguments);
-};
-
-BX.BXGCE.openDialogCallbackOld = function(name)
-{
-	BX.BXGCE.openDialogCallback.apply(this, [ {
-		name: name
-	} ]);
-};
-
-BX.BXGCE.closeDialogCallback = function(params)
-{
-	var name = (typeof params != 'undefined' && BX.type.isNotEmptyString(params.name) ? params.name : '');
-	BX.SocNetLogDestination.BXfpCloseDialogCallback.apply(this, [ name ]);
 };
 
 BX.BXGCE.bindActionLink = function(oBlock)
@@ -1496,63 +1310,27 @@ BX.BXGCETagsForm.prototype.onKeyPress = function(event)
 
 BX.BXGCESelectorInstance = function(params)
 {
-	this.single = (
-		typeof params != 'undefined'
-		&& typeof params.single != 'undefined'
-		&& !!params.single
-	);
-
-	this.controlName = (
-		typeof params != 'undefined'
-		&& typeof params.controlName != 'undefined'
-			? params.controlName
-			: false
-	);
-
-	this.tagLinkText1 = (
-		typeof params != 'undefined'
-		&& typeof params.tagLinkText1 != 'undefined'
-			? params.tagLinkText1
-			: ''
-	);
-
-	this.tagLinkText2 = (
-		typeof params != 'undefined'
-		&& typeof params.tagLinkText2 != 'undefined'
-			? params.tagLinkText2
-			: ''
-	);
 };
 
 BX.BXGCESelectorInstance.prototype.init = function(openParams)
 {
-	BX.bind(
-		BX(openParams.contId),
-		'click',
-		function() {
-			var single = (
-				typeof openParams.id != 'undefined'
-				&& typeof BX.BXGCESelectorManager.controls[openParams.id] != 'undefined'
-				&& typeof BX.BXGCESelectorManager.controls[openParams.id].single != 'undefined'
-				&& !!BX.BXGCESelectorManager.controls[openParams.id].single
-			);
-
-			if (
-				!single
-				|| (
-					BX('sonet_group_create_popup_users_item_post_' + openParams.id)
-					&& BX('sonet_group_create_popup_users_item_post_' + openParams.id).children.length <= 0
-				)
-			)
-			{
-				BX.onCustomEvent(window, 'BX.BXGCE:open', [openParams]);
-			}
+	BX.addCustomEvent('BX.Main.User.SelectorController:select', function(params) {
+		if (params.selectorId == openParams.selectorId)
+		{
+			BX.BXGCE.showDepartmentHint({
+				selectorId: params.selectorId
+			});
 		}
-	);
-};
+	});
 
-BX.BXGCESelectorManager = {
-	controls: {}
+	BX.addCustomEvent('BX.Main.User.SelectorController:unSelect', function(params) {
+		if (params.selectorId == openParams.selectorId)
+		{
+			BX.BXGCE.showDepartmentHint({
+				selectorId: params.selectorId
+			});
+		}
+	});
 };
 
 })();

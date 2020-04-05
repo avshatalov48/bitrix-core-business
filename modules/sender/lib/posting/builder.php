@@ -21,7 +21,7 @@ use Bitrix\Sender\PostingTable;
 use Bitrix\Sender\ContactTable;
 use Bitrix\Sender\MailingGroupTable;
 use Bitrix\Sender\PostingRecipientTable;
-use Bitrix\Sender\Internals\Model\LetterSegmentTable;
+use Bitrix\Sender\Internals\Model;
 use Bitrix\Sender\Internals\SqlBatch;
 
 Loc::loadMessages(__FILE__);
@@ -120,8 +120,8 @@ class Builder
 		}
 
 
-		PostingTable::update(
-			array('ID' => $postingId),
+		Model\PostingTable::update(
+			$postingId,
 			array(
 				'COUNT_SEND_ALL' => PostingRecipientTable::getCount(array('POSTING_ID' => $postingId))
 			)
@@ -152,12 +152,12 @@ class Builder
 		// import recipients
 		foreach($groups as $group)
 		{
-			if (is_array($group['ENDPOINT']))
+			if (is_array($group['ENDPOINT']) && !(isset($group['CONNECTOR']) && $group['CONNECTOR'] instanceof Connector\Base))
 			{
 				$group['CONNECTOR'] = Connector\Manager::getConnector($group['ENDPOINT']);
 			}
 
-			if(!$group['CONNECTOR'])
+			if(empty($group['CONNECTOR']))
 			{
 				continue;
 			}
@@ -190,8 +190,8 @@ class Builder
 	{
 		$primary = array('POSTING_ID' => $postingId);
 		PostingRecipientTable::delete($primary);
-		PostingTable::update(
-			array('ID' => $postingId),
+		Model\PostingTable::update(
+			$postingId,
 			array(
 				'COUNT_SEND_ALL' => 0,
 				'COUNT_SEND_NONE' => 0,
@@ -255,7 +255,7 @@ class Builder
 	protected function getLetterConnectors($letterId)
 	{
 		$groups = array();
-		$groupConnectors = LetterSegmentTable::getList(array(
+		$groupConnectors = Model\LetterSegmentTable::getList(array(
 			'select' => array(
 				'INCLUDE',
 				'CONNECTOR_ENDPOINT' => 'SEGMENT.GROUP_CONNECTOR.ENDPOINT',

@@ -478,7 +478,7 @@ else
 					"USER_LAST_NAME" => $arUserRequest["FIRST_USER_LAST_NAME"],
 					"USER_FIRST_NAME" => $arUserRequest["FIRST_USER_FIRST_NAME"],
 					"USER_LOGIN" => $arUserRequest["FIRST_USER_LOGIN"],
-					"USER_NAME_FORMATTED" => $strNameFormatted,			
+					"USER_NAME_FORMATTED" => $strNameFormatted,
 					"USER_PERSONAL_PHOTO" => $arUserRequest["FIRST_USER_PERSONAL_PHOTO"],
 					"USER_PERSONAL_PHOTO_IMG" => $arImage,
 					"USER_PROFILE_URL" => $pu,

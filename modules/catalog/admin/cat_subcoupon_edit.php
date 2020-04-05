@@ -399,7 +399,14 @@ if (!$boolMulti)
 			});
 		}
 	});
-	top.BX.WindowManager.Get().adjustSizeEx();
+	if (top.BX.WindowManager.Get())
+	{
+		top.BX.WindowManager.Get().adjustSizeEx();
+	}
+	else
+	{
+		BX.WindowManager.Get().adjustSizeEx();
+	}
 	</script><?
 }
 else
@@ -463,6 +470,16 @@ else
 	echo BeginNote();
 	?><span class="required" style="vertical-align: super; font-size: smaller;">1</span> <? echo GetMessage('DSC_CPN_ONE_ORDER_NOTE');
 	echo EndNote();
-	?><script type="text/javascript">top.BX.WindowManager.Get().adjustSizeEx();</script><?
+	?>
+	<script type="text/javascript">
+		if (top.BX.WindowManager.Get())
+		{
+			top.BX.WindowManager.Get().adjustSizeEx();
+		}
+		else
+		{
+			BX.WindowManager.Get().adjustSizeEx();
+		}
+	</script><?
 }?>
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>

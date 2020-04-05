@@ -3,7 +3,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/order_tax.p
 
 class CSaleOrderTax extends CAllSaleOrderTax
 {
-	function GetList($arOrder = array("TAX_NAME" => "ASC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = array("TAX_NAME" => "ASC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -29,7 +29,7 @@ class CSaleOrderTax extends CAllSaleOrderTax
 		{
 			$strSql =
 				"SELECT ".$arSqls["SELECT"]." ".
-				"FROM b_sale_order_tax T ".
+				"FROM ".static::getTableName()." T ".
 				"	".$arSqls["FROM"]." ";
 			if (strlen($arSqls["WHERE"]) > 0)
 				$strSql .= "WHERE ".$arSqls["WHERE"]." ";
@@ -47,7 +47,7 @@ class CSaleOrderTax extends CAllSaleOrderTax
 
 		$strSql = 
 			"SELECT ".$arSqls["SELECT"]." ".
-			"FROM b_sale_order_tax T ".
+			"FROM ".static::getTableName()." T ".
 			"	".$arSqls["FROM"]." ";
 		if (strlen($arSqls["WHERE"]) > 0)
 			$strSql .= "WHERE ".$arSqls["WHERE"]." ";
@@ -60,7 +60,7 @@ class CSaleOrderTax extends CAllSaleOrderTax
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".
-				"FROM b_sale_order_tax T ".
+				"FROM ".static::getTableName()." T ".
 				"	".$arSqls["FROM"]." ";
 			if (strlen($arSqls["WHERE"]) > 0)
 				$strSql_tmp .= "WHERE ".$arSqls["WHERE"]." ";
@@ -101,14 +101,14 @@ class CSaleOrderTax extends CAllSaleOrderTax
 		return $dbRes;
 	}
 
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB;
 
-		if (!CSaleOrderTax::CheckFields("ADD", $arFields))
+		if (!static::CheckFields("ADD", $arFields))
 			return false;
 
-		$dbResult = CSaleOrderTax::GetList(
+		$dbResult = static::GetList(
 			array(),
 			array(
 				"ORDER_ID" => $arFields['ORDER_ID'],
@@ -124,9 +124,9 @@ class CSaleOrderTax extends CAllSaleOrderTax
 			return false;
 		}
 
-		$arInsert = $DB->PrepareInsert("b_sale_order_tax", $arFields);
+		$arInsert = $DB->PrepareInsert(static::getTableName(), $arFields);
 		$strSql =
-			"INSERT INTO b_sale_order_tax(".$arInsert[0].") ".
+			"INSERT INTO ".static::getTableName()."(".$arInsert[0].") ".
 			"VALUES(".$arInsert[1].")";
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 

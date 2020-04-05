@@ -51,7 +51,7 @@ class CAllSaleOrder
 		foreach(GetModuleEvents("sale", "OnSaleCalculateOrderShoppingCart", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array(&$arOrder));
 
-		CSalePersonType::DoProcessOrder($arOrder, $personTypeId, $arErrors);
+		CSalePersonType::DoProcessOrder($arOrder, $personTypeId, $arErrors, $arOptions);
 		if (count($arErrors) > 0)
 			return null;
 
@@ -981,7 +981,7 @@ class CAllSaleOrder
 	}
 
 	//*************** COMMON UTILS *********************/
-	function GetFilterOperation($key)
+	public static function GetFilterOperation($key)
 	{
 		$strNegative = "N";
 		if (substr($key, 0, 1)=="!")
@@ -1040,7 +1040,7 @@ class CAllSaleOrder
 		return array("FIELD" => $key, "NEGATIVE" => $strNegative, "OPERATION" => $strOperation, "OR_NULL" => $strOrNull);
 	}
 
-	function PrepareSql(&$arFields, $arOrder, &$arFilter, $arGroupBy, $arSelectFields, $obUserFieldsSql = false, $callback = false, $arOptions = array())
+	public static function PrepareSql(&$arFields, $arOrder, &$arFilter, $arGroupBy, $arSelectFields, $obUserFieldsSql = false, $callback = false, $arOptions = array())
 	{
 		global $DB;
 
@@ -1522,7 +1522,7 @@ class CAllSaleOrder
 
 
 	//*************** SELECT *********************/
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 		
@@ -2412,13 +2412,6 @@ class CAllSaleOrder
 			return false;
 		}
 
-		if ($isOrderConverted == 'N')
-		{
-			foreach(GetModuleEvents("sale", "OnSaleBeforeStatusOrder", true) as $arEvent)
-				if (ExecuteModuleEventEx($arEvent, Array($ID, $val))===false)
-					return false;
-		}
-
 		$arFields = array(
 			"STATUS_ID" => $val,
 			"=DATE_STATUS" => $DB->GetNowFunction(),
@@ -2427,9 +2420,6 @@ class CAllSaleOrder
 		$res = CSaleOrder::Update($ID, $arFields);
 
 		unset($GLOBALS["SALE_ORDER"]["SALE_ORDER_CACHE_".$ID]);
-
-		foreach(GetModuleEvents("sale", "OnSaleStatusOrder", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, Array($ID, $val));
 
 		CTimeZone::Disable();
 		$arOrder = CSaleOrder::GetByID($ID);
@@ -2464,37 +2454,8 @@ class CAllSaleOrder
 			);
 
 			foreach(GetModuleEvents("sale", "OnSaleStatusEMail", true) as $arEvent)
-				$arFields["TEXT"] = ExecuteModuleEventEx($arEvent, Array($ID, $arStatus["ID"]));
-
-			if ($isOrderConverted == 'N')
 			{
-				$eventName = "SALE_STATUS_CHANGED_".$arOrder["STATUS_ID"];
-
-				$bSend = true;
-				foreach(GetModuleEvents("sale", "OnOrderStatusSendEmail", true) as $arEvent)
-					if (ExecuteModuleEventEx($arEvent, Array($ID, &$eventName, &$arFields, $arOrder["STATUS_ID"]))===false)
-						$bSend = false;
-
-				if($bSend)
-				{
-					$b = '';
-					$o = '';
-					$eventMessage = new CEventMessage;
-					$dbEventMessage = $eventMessage->GetList(
-							$b,
-							$o,
-							array(
-									"EVENT_NAME" => $eventName,
-									"SITE_ID" => $arOrder["LID"],
-									'ACTIVE' => 'Y'
-							)
-					);
-					if (!($arEventMessage = $dbEventMessage->Fetch()))
-						$eventName = "SALE_STATUS_CHANGED";
-					unset($o, $b);
-					$event = new CEvent;
-					$event->Send($eventName, $arOrder["LID"], $arFields, "N");
-				}
+				$arFields["TEXT"] = ExecuteModuleEventEx($arEvent, Array($ID, $arStatus["ID"]));
 			}
 		}
 
@@ -2660,6 +2621,13 @@ class CAllSaleOrder
 								$payerEMail = $arUser["EMAIL"];
 						}
 
+						$publicLink = '';
+						$order = Sale\Order::load($arOrder['ID']);
+						if (Sale\Helpers\Order::isAllowGuestView($order))
+						{
+							$publicLink = Sale\Helpers\Order::getPublicLink($order);
+						}
+
 						$arFields = Array(
 							"ORDER_ID" => $arOrder["ACCOUNT_NUMBER"],
 							"ORDER_DATE" => $date_insert,
@@ -2668,7 +2636,8 @@ class CAllSaleOrder
 							"BCC" => COption::GetOptionString("sale", "order_email", "order@".$_SERVER["SERVER_NAME"]),
 							"EMAIL" => $payerEMail,
 							"ORDER_LIST" => $strOrderList,
-							"SALE_EMAIL" => COption::GetOptionString("sale", "order_email", "order@".$_SERVER['SERVER_NAME'])
+							"SALE_EMAIL" => COption::GetOptionString("sale", "order_email", "order@".$_SERVER['SERVER_NAME']),
+							"ORDER_PUBLIC_URL" => $publicLink
 						);
 
 						$eventName = "SALE_ORDER_REMIND_PAYMENT";
@@ -2681,7 +2650,7 @@ class CAllSaleOrder
 						if($bSend)
 						{
 							$event = new CEvent;
-							$event->Send($eventName, $arOrder["LID"], $arFields, "N");
+							$event->Send($eventName, $arOrder["LID"], $arFields, "Y");
 						}
 					}
 				}
@@ -2694,6 +2663,111 @@ class CAllSaleOrder
 			}
 		}
 		return "CSaleOrder::RemindPayment();";
+	}
+
+	/**
+	 * @deprecated
+	 *
+	 * Use \Bitrix\Main\Numerator\Numerator::previewNextNumber instead
+	 *
+	 * Generates next account number according to the scheme selected in the module options
+	 *
+	 * @param int $orderID - order ID
+	 * @param string $templateType - account number template type code
+	 * @param string $param - account number template param
+	 * @return mixed - generated number or false
+	*/
+	public static function GetNextAccountNumber($orderID, $templateType, $param)
+	{
+		global $DB;
+		$value = false;
+
+		switch ($templateType)
+		{
+			case 'NUMBER':
+
+				$param = intval($param);
+				$maxLastID = 0;
+
+				$strSql = "SELECT ID, ACCOUNT_NUMBER FROM b_sale_order WHERE ACCOUNT_NUMBER IS NOT NULL ORDER BY ID DESC LIMIT 1";
+
+				$dbres = $DB->Query($strSql, true);
+				if ($arRes = $dbres->GetNext())
+				{
+					if (strlen($arRes["ACCOUNT_NUMBER"]) === strlen(intval($arRes["ACCOUNT_NUMBER"])))
+						$maxLastID = intval($arRes["ACCOUNT_NUMBER"]);
+				}
+
+				$value = ($maxLastID >= $param) ? $maxLastID + 1 : $param;
+				break;
+
+			case 'PREFIX':
+
+				$value = $param.$orderID;
+				break;
+
+			case 'RANDOM':
+
+				$rand = randString(intval($param), array("ABCDEFGHIJKLNMOPQRSTUVWXYZ", "0123456789"));
+				$dbres = $DB->Query("SELECT ID, ACCOUNT_NUMBER FROM b_sale_order WHERE ACCOUNT_NUMBER = '".$rand."'", true);
+				$value = ($arRes = $dbres->GetNext()) ? false : $rand;
+				break;
+
+			case 'USER':
+
+				$dbres = $DB->Query("SELECT USER_ID FROM b_sale_order WHERE ID = '".$orderID."'", true);
+
+				if ($arRes = $dbres->GetNext())
+				{
+					$userID = $arRes["USER_ID"];
+
+					$strSql = "SELECT MAX(CAST(SUBSTRING(ACCOUNT_NUMBER, LENGTH('".$userID."_') + 1) as UNSIGNED)) as NUM_ID FROM b_sale_order WHERE ACCOUNT_NUMBER LIKE '".$userID."\_%'";
+					$dbres = $DB->Query($strSql, true);
+					if ($arRes = $dbres->GetNext())
+					{
+						$numID = (intval($arRes["NUM_ID"]) > 0) ? $arRes["NUM_ID"] + 1 : 1;
+						$value = $userID."_".$numID;
+					}
+					else
+						$value = $userID."_1";
+				}
+				else
+					$value = false;
+
+				break;
+
+			case 'DATE':
+
+				switch ($param)
+				{
+					// date in the site format but without delimeters
+					case 'day':
+						$date = date($DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")), mktime(0, 0, 0, date("m"), date("d"), date("Y")));
+						$date = preg_replace("/[^0-9]/", "", $date);
+						break;
+					case 'month':
+						$date = date($DB->DateFormatToPHP(str_replace("DD", "", CSite::GetDateFormat("SHORT"))), mktime(0, 0, 0, date("m"), date("d"), date("Y")));
+						$date = preg_replace("/[^0-9]/", "", $date);
+						break;
+					case 'year':
+						$date = date('Y');
+						break;
+				}
+
+				$strSql = "SELECT MAX(CAST(SUBSTRING(ACCOUNT_NUMBER, LENGTH('".$date." / ') + 1) as UNSIGNED)) as NUM_ID FROM b_sale_order WHERE ACCOUNT_NUMBER LIKE '".$date." / %'";
+				$dbres = $DB->Query($strSql, true);
+				if ($arRes = $dbres->GetNext())
+				{
+					$numID = (intval($arRes["NUM_ID"]) > 0) ? $arRes["NUM_ID"] + 1 : 1;
+					$value = $date." / ".$numID;
+				}
+				else
+					$value = $date." / 1";
+
+				break;
+		}
+
+		return $value;
 	}
 
 	function __SaleOrderCount($arFilter, $strCurrency = '')
@@ -3022,413 +3096,52 @@ class CAllSaleOrder
 	public static function setAccountNumberById($id)
 	{
 		$result = new Sale\Result();
-		$id = intval($id);
-		if ($id <= 0)
-		{
-			$result->addError(new Sale\ResultError(Loc::getMessage('SALE_ORDER_GENERATE_ACCOUNT_NUMBER_ORDER_NUMBER_WRONG_ID'), 'SALE_ORDER_GENERATE_ACCOUNT_NUMBER_ORDER_NUMBER_WRONG_ID'));
-			return $result;
-		}
-
-		$type = COption::GetOptionString("sale", "account_number_template", "");
-		$isOrderConverted = \Bitrix\Main\Config\Option::get("main", "~sale_converted_15", 'Y');
-
-		$accountNumber = null;
-		$isCustomAlgorithm = false;
-		$value = null;
-		/** @var Sale\Result $r */
-		$r = static::generateCustomAccountNumber($id);
-		if ($r->isSuccess())
-		{
-			if ($accountData = $r->getData())
-			{
-				if (array_key_exists('IS_CUSTOM', $accountData))
-				{
-					$isCustomAlgorithm = $accountData['IS_CUSTOM'];
-				}
-				if (array_key_exists('VALUE', $accountData))
-				{
-					$value = $accountData['VALUE'];
-				}
-			}
-
-		}
-
-		if ($isCustomAlgorithm)
-		{
-			if ($isOrderConverted != 'N')
-			{
-				try
-				{
-					/** @var \Bitrix\Sale\Result $r */
-					$r = \Bitrix\Sale\Internals\OrderTable::update($id, array("ACCOUNT_NUMBER" => $value));
-					$res = $r->isSuccess(true);
-				}
-				catch (\Bitrix\Main\DB\SqlQueryException $exception)
-				{
-					$res = false;
-				}
-
-			}
-			else
-			{
-				$res = CSaleOrder::Update($id, array("ACCOUNT_NUMBER" => $value), false);
-			}
-
-			if ($res)
-			{
-				$accountNumber = $value;
-			}
-		}
-		else
-		{
-			$r = static::generateAccountNumber($id);
-			if ($res = $r->isSuccess())
-			{
-				if ($accountData = $r->getData())
-				{
-					if (array_key_exists('VALUE', $accountData))
-					{
-						$accountNumber = $accountData['VALUE'];
-					}
-				}
-			}
-		}
-
-		if ($type == "" || !$res) // if no special template is used or error occured
-		{
-			$r = static::setIdAsAccountNumber($id);
-			$res = $r->isSuccess();
-
-			if ($res)
-			{
-				if ($accountData = $r->getData())
-				{
-					if (array_key_exists('ACCOUNT_NUMBER', $accountData))
-					{
-						$accountNumber = $accountData['ACCOUNT_NUMBER'];
-					}
-				}
-			}
-		}
-
-		$result->setData(array(
-							'ACCOUNT_NUMBER' => $accountNumber
-						 ));
-		return $result;
-	}
-
-	/**
-	 * @param $id
-	 *
-	 * @return Sale\Result
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 */
-	protected static function generateCustomAccountNumber($id)
-	{
-		$result = new Sale\Result();
 
 		$id = intval($id);
 		if ($id <= 0)
 		{
-			$result->addError(new Sale\ResultError(Loc::getMessage('SALE_ORDER_GENERATE_ACCOUNT_NUMBER_ORDER_NUMBER_WRONG_ID'), 'SALE_ORDER_GENERATE_ACCOUNT_NUMBER_ORDER_NUMBER_WRONG_ID'));
+			$result->addError(
+				new Sale\ResultError(
+					Loc::getMessage('SALE_ORDER_GENERATE_ACCOUNT_NUMBER_ORDER_NUMBER_WRONG_ID'),
+					'SALE_ORDER_GENERATE_ACCOUNT_NUMBER_ORDER_NUMBER_WRONG_ID'
+				)
+			);
+
 			return $result;
 		}
 
-		$type = \Bitrix\Main\Config\Option::get("sale", "account_number_template", "");
-
-		$isCustomAlgorithm = false;
-		$value = null;
-		foreach(GetModuleEvents("sale", "OnBeforeOrderAccountNumberSet", true) as $arEvent)
+		$order = Sale\Order::load($id);
+		if (!$order)
 		{
-			$tmpRes = ExecuteModuleEventEx($arEvent, array($id, $type));
-			if ($tmpRes !== false)
-			{
-				$isCustomAlgorithm = true;
-				$value = $tmpRes;
-			}
+			$result->addError(
+				new \Bitrix\Main\Error(
+					Bitrix\Main\Localization\Loc::getMessage('ERROR')
+				)
+			);
+
+			return $result;
 		}
 
-		$result->setData(array(
-							 'IS_CUSTOM' => $isCustomAlgorithm,
-							 'VALUE' => $value
-						 ));
+		$accountNumber = Internals\AccountNumberGenerator::generateForOrder($order);
+
+		$r = Internals\OrderTable::update($id, ['ACCOUNT_NUMBER' => $accountNumber]);
+		if (!$r->isSuccess())
+		{
+			$result->addErrors($r->getErrors());
+		}
 
 		return $result;
-	}
-
-	/**
-	 * @internal
-	 * @param $id
-	 *
-	 * @return Sale\Result
-	 * @throws Exception
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 */
-	protected static function generateAccountNumber($id)
-	{
-		$result = new Sale\Result();
-
-		$id = intval($id);
-		if ($id <= 0)
-		{
-			$result->addError(new Sale\ResultError(Loc::getMessage('SALE_ORDER_GENERATE_ACCOUNT_NUMBER_ORDER_NUMBER_WRONG_ID'), 'SALE_ORDER_GENERATE_ACCOUNT_NUMBER_ORDER_NUMBER_WRONG_ID'));
-			return $result;
-		}
-
-		$type = \Bitrix\Main\Config\Option::get("sale", "account_number_template", "");
-		$param = \Bitrix\Main\Config\Option::get("sale", "account_number_data", "");
-		$isOrderConverted = \Bitrix\Main\Config\Option::get("main", "~sale_converted_15", 'Y');
-
-		$res = false;
-		$value = null;
-		if ($type != "") // if special template is selected
-		{
-			for ($i = 0; $i < 10; $i++)
-			{
-				$value = CSaleOrder::GetNextAccountNumber($id, $type, $param);
-
-				if ($value)
-				{
-					if ($isOrderConverted != 'N')
-					{
-						try
-						{
-							/** @var \Bitrix\Sale\Result $r */
-							$r = \Bitrix\Sale\Internals\OrderTable::update($id, array("ACCOUNT_NUMBER" => $value));
-							$res = $r->isSuccess();
-						}
-						catch(\Bitrix\Main\DB\SqlQueryException $exception)
-						{
-							$res = false;
-						}
-
-					}
-					else
-					{
-						$res = CSaleOrder::Update($id, array("ACCOUNT_NUMBER" => $value), false);
-					}
-
-					if ($res)
-						break;
-				}
-			}
-		}
-
-		if (!$res)
-		{
-			$result->addError(new Sale\ResultError(Loc::getMessage('SALE_ORDER_GENERATE_ACCOUNT_NUMBER_ORDER_NUMBER_IS_NOT_SET'), 'SALE_ORDER_GENERATE_ACCOUNT_NUMBER_ORDER_NUMBER_IS_NOT_SET'));
-			return $result;
-		}
-
-		$result->setData(array(
-							'VALUE' => (strval($value) != '')? $value : null,
-						 ));
-
-		return $result;
-	}
-
-	/**
-	 * @internal
-	 * @param $id
-	 *
-	 * @return Sale\Result
-	 * @throws Exception
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 */
-	protected static function setIdAsAccountNumber($id)
-	{
-		$result = new Sale\Result();
-		$isOrderConverted = \Bitrix\Main\Config\Option::get("main", "~sale_converted_15", 'Y');
-		if ($isOrderConverted != 'N')
-		{
-			$accountNumber = $id;
-			for ($i = 1; $i <= 10; $i++)
-			{
-				try
-				{
-					/** @var \Bitrix\Sale\Result $r */
-					$r = \Bitrix\Sale\Internals\OrderTable::update($id, array("ACCOUNT_NUMBER" => $accountNumber));
-					$res = $r->isSuccess(true);
-				}
-				catch (\Bitrix\Main\DB\SqlQueryException $exception)
-				{
-					$res = false;
-					$accountNumber = $id."-".$i;
-				}
-
-				if ($res)
-					break;
-			}
-
-		}
-		else
-		{
-			$res = CSaleOrder::Update($id, array("ACCOUNT_NUMBER" => $id), false);
-		}
-
-		if (!$res)
-		{
-			$result->addError(new Sale\ResultError(Loc::getMessage('SALE_ORDER_GENERATE_ACCOUNT_NUMBER_ORDER_NUMBER_IS_NOT_SET_AS_ID'), 'SALE_ORDER_GENERATE_ACCOUNT_NUMBER_ORDER_NUMBER_IS_NOT_SET_AS_ID'));
-			return $result;
-		}
-
-		$result->setData(array(
-							'ACCOUNT_NUMBER' => $id
-						 ));
-
-		return $result;
-	}
-
-	/**
-	* Generates next account number according to the scheme selected in the module options
-	*
-	* @param int $orderID - order ID
-	* @param string $templateType - account number template type code
-	* @param string $param - account number template param
-	* @return mixed - generated number or false
-	*/
-	public static function GetNextAccountNumber($orderID, $templateType, $param)
-	{
-		global $DB;
-		$value = false;
-
-		switch ($templateType)
-		{
-			case 'NUMBER':
-
-				$param = intval($param);
-				$maxLastID = 0;
-
-				switch(strtolower($DB->type))
-				{
-					case "mysql":
-						$strSql = "SELECT ID, ACCOUNT_NUMBER FROM b_sale_order WHERE ACCOUNT_NUMBER IS NOT NULL ORDER BY ID DESC LIMIT 1";
-						break;
-					case "oracle":
-						$strSql = "SELECT ID, ACCOUNT_NUMBER FROM b_sale_order WHERE ACCOUNT_NUMBER IS NOT NULL AND ROWNUM <= 1 ORDER BY ID DESC";
-						break;
-					case "mssql":
-						$strSql = "SELECT TOP 1 ID, ACCOUNT_NUMBER FROM b_sale_order WHERE ACCOUNT_NUMBER IS NOT NULL ORDER BY ID DESC";
-						break;
-				}
-
-				$dbres = $DB->Query($strSql, true);
-				if ($arRes = $dbres->GetNext())
-				{
-					if (strlen($arRes["ACCOUNT_NUMBER"]) === strlen(intval($arRes["ACCOUNT_NUMBER"])))
-						$maxLastID = intval($arRes["ACCOUNT_NUMBER"]);
-				}
-
-				$value = ($maxLastID >= $param) ? $maxLastID + 1 : $param;
-				break;
-
-			case 'PREFIX':
-
-				$value = $param.$orderID;
-				break;
-
-			case 'RANDOM':
-
-				$rand = randString(intval($param), array("ABCDEFGHIJKLNMOPQRSTUVWXYZ", "0123456789"));
-				$dbres = $DB->Query("SELECT ID, ACCOUNT_NUMBER FROM b_sale_order WHERE ACCOUNT_NUMBER = '".$rand."'", true);
-				$value = ($arRes = $dbres->GetNext()) ? false : $rand;
-				break;
-
-			case 'USER':
-
-				$dbres = $DB->Query("SELECT USER_ID FROM b_sale_order WHERE ID = '".$orderID."'", true);
-
-				if ($arRes = $dbres->GetNext())
-				{
-					$userID = $arRes["USER_ID"];
-
-					switch (strtolower($DB->type))
-					{
-						case "mysql":
-							$strSql = "SELECT MAX(CAST(SUBSTRING(ACCOUNT_NUMBER, LENGTH('".$userID."_') + 1) as UNSIGNED)) as NUM_ID FROM b_sale_order WHERE ACCOUNT_NUMBER LIKE '".$userID."\_%'";
-							break;
-						case "oracle":
-							$strSql = "SELECT MAX(CAST(SUBSTR(ACCOUNT_NUMBER, LENGTH('".$userID."_') + 1) as NUMBER)) as NUM_ID FROM b_sale_order WHERE ACCOUNT_NUMBER LIKE '".$userID."_%'";
-							break;
-						case "mssql":
-							$strSql = "SELECT MAX(CAST(SUBSTRING(ACCOUNT_NUMBER, LEN('".$userID."_') + 1, LEN(ACCOUNT_NUMBER)) as INT)) as NUM_ID FROM b_sale_order WHERE ACCOUNT_NUMBER LIKE '".$userID."_%'";
-							break;
-					}
-
-					$dbres = $DB->Query($strSql, true);
-					if ($arRes = $dbres->GetNext())
-					{
-						$numID = (intval($arRes["NUM_ID"]) > 0) ? $arRes["NUM_ID"] + 1 : 1;
-						$value = $userID."_".$numID;
-					}
-					else
-						$value = $userID."_1";
-				}
-				else
-					$value = false;
-
-				break;
-
-			case 'DATE':
-
-				switch ($param)
-				{
-					// date in the site format but without delimeters
-					case 'day':
-						$date = date($DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")), mktime(0, 0, 0, date("m"), date("d"), date("Y")));
-						$date = preg_replace("/[^0-9]/", "", $date);
-						break;
-					case 'month':
-						$date = date($DB->DateFormatToPHP(str_replace("DD", "", CSite::GetDateFormat("SHORT"))), mktime(0, 0, 0, date("m"), date("d"), date("Y")));
-						$date = preg_replace("/[^0-9]/", "", $date);
-						break;
-					case 'year':
-						$date = date('Y');
-						break;
-				}
-
-				switch (strtolower($DB->type))
-				{
-					case "mysql":
-						$strSql = "SELECT MAX(CAST(SUBSTRING(ACCOUNT_NUMBER, LENGTH('".$date." / ') + 1) as UNSIGNED)) as NUM_ID FROM b_sale_order WHERE ACCOUNT_NUMBER LIKE '".$date." / %'";
-						break;
-					case "oracle":
-						$strSql = "SELECT MAX(CAST(SUBSTR(ACCOUNT_NUMBER, LENGTH('".$date." / ') + 1) as NUMBER)) as NUM_ID FROM b_sale_order WHERE ACCOUNT_NUMBER LIKE '".$date." / %'";
-						break;
-					case "mssql":
-						$strSql = "SELECT MAX(CAST(SUBSTRING(ACCOUNT_NUMBER, LEN('".$date." / ') + 1, LEN(ACCOUNT_NUMBER)) as INT)) as NUM_ID FROM b_sale_order WHERE ACCOUNT_NUMBER LIKE '".$date." / %'";
-						break;
-				}
-
-				$dbres = $DB->Query($strSql, true);
-				if ($arRes = $dbres->GetNext())
-				{
-					$numID = (intval($arRes["NUM_ID"]) > 0) ? $arRes["NUM_ID"] + 1 : 1;
-					$value = $date." / ".$numID;
-				}
-				else
-					$value = $date." / 1";
-
-				break;
-
-			default: // if unknown template
-
-				$value = false;
-				break;
-		}
-
-		return $value;
 	}
 
 	/**
 	* The agent function. Moves reserved quantity back to the quantity field for each product
 	* for orders which were placed earlier than specific date
 	*
-	* @return agent name string
+	* @return string
 	*/
 	public static function ClearProductReservedQuantity()
 	{
-		global $DB, $USER;
+		global $USER;
 
 		if (!is_object($USER))
 			$USER = new CUser;
@@ -3437,109 +3150,83 @@ class CAllSaleOrder
 
 		if ($days_ago > 0)
 		{
-
-			$shipmentList = array();
 			$date = new \Bitrix\Main\Type\DateTime();
 
-			$filter = array(
-				'filter' => array(
-					"<=DATE_INSERT" => $date->add('-'.$days_ago.' day'),
-					"=SHIPMENT.RESERVED" => "Y",
-					"=SHIPMENT.DEDUCTED" => "N",
-					"=SHIPMENT.MARKED" => "N",
-					"=SHIPMENT.ALLOW_DELIVERY" => "N",
-					"=PAYED" => "N",
-					"=CANCELED" => "N",
-				),
+			$parameters = [
 				'select' => array(
-					"ID",
-					"SHIPMENT_ID" => "SHIPMENT.ID",
-					"SHIPMENT_RESERVED" => "SHIPMENT.RESERVED",
-					"SHIPMENT_DEDUCTED" => "SHIPMENT.DEDUCTED",
-					"DATE_INSERT", "PAYED", "CANCELED", "MARKED"
+					"ORDER_ID" => "DELIVERY.ORDER.ID",
 				),
+				'filter' => [
+					"<=DELIVERY.ORDER.DATE_INSERT" => $date->add('-'.$days_ago.' day'),
+					'>RESERVED_QUANTITY' => 0,
+					"=DELIVERY.DEDUCTED" => "N",
+					"=DELIVERY.MARKED" => "N",
+					"=DELIVERY.ALLOW_DELIVERY" => "N",
+					"=DELIVERY.ORDER.PAYED" => "N",
+					"=DELIVERY.ORDER.CANCELED" => "N",
+				],
+				'group' => ['ORDER_ID'],
 				'limit' => 100
-			);
+			];
 
-			$res = \Bitrix\Sale\Internals\OrderTable::getList($filter);
+			$res = Sale\ShipmentItem::getList($parameters);
+
 			while($data = $res->fetch())
 			{
-				if (!array_key_exists($data['ID'], $shipmentList))
+				/** @var Sale\Order $order */
+				$order = Sale\Order::load($data['ORDER_ID']);
+				$orderSaved = false;
+				$errors = array();
+
+				try
 				{
-					$shipmentList[$data['ID']] = array();
-				}
-
-				if (in_array($data['SHIPMENT_ID'], $shipmentList[$data['ID']]))
-				{
-					continue;
-				}
-
-				$shipmentList[$data['ID']][] = $data['SHIPMENT_ID'];
-			}
-
-
-			if (!empty($shipmentList))
-			{
-				foreach ($shipmentList as $orderId => $shipmentData)
-				{
-					/** @var Sale\Order $order */
-					$order = Sale\Order::load($orderId);
-					$orderSaved = false;
-					$errors = array();
-
-					try
+					/** @var Sale\ShipmentCollection $shipmentCollection */
+					if ($shipmentCollection = $order->getShipmentCollection())
 					{
-						/** @var Sale\ShipmentCollection $shipmentCollection */
-						if ($shipmentCollection = $order->getShipmentCollection())
+						/** @var Sale\Shipment $shipment */
+						foreach ($shipmentCollection as $shipment)
 						{
-							foreach ($shipmentData as $shipmentId)
+							$r = $shipment->tryUnreserve();
+							if (!$r->isSuccess())
 							{
-								/** @var Sale\Shipment $shipment */
-								if ($shipment = $shipmentCollection->getItemById($shipmentId))
+								Sale\EntityMarker::addMarker($order, $shipment, $r);
+								if (!$shipment->isSystem())
 								{
-									$r = $shipment->tryUnreserve();
-									if (!$r->isSuccess())
-									{
-										Sale\EntityMarker::addMarker($order, $shipment, $r);
-										if (!$shipment->isSystem())
-										{
-											$shipment->setField('MARKED', 'Y');
-										}
-									}
+									$shipment->setField('MARKED', 'Y');
 								}
 							}
 						}
-
-						$r = $order->save();
-						if ($r->isSuccess())
-						{
-							$orderSaved = true;
-						}
-						else
-						{
-							$errors = $r->getErrorMessages();
-						}
-					}
-					catch(Exception $e)
-					{
-						$errors[] = $e->getMessage();
 					}
 
-					if (!$orderSaved)
+					$r = $order->save();
+					if ($r->isSuccess())
 					{
-						if (!empty($errors))
-						{
-							$oldErrorText = $order->getField('REASON_MARKED');
-							foreach($errors as $error)
-							{
-								$oldErrorText .= (strval($oldErrorText) != '' ? "\n" : ""). $error;
-							}
+						$orderSaved = true;
+					}
+					else
+					{
+						$errors = $r->getErrorMessages();
+					}
+				}
+				catch(Exception $e)
+				{
+					$errors[] = $e->getMessage();
+				}
 
-							Sale\Internals\OrderTable::update($order->getId(), array(
-								"MARKED" => "Y",
-								"REASON_MARKED" => $oldErrorText
-							));
+				if (!$orderSaved)
+				{
+					if (!empty($errors))
+					{
+						$oldErrorText = $order->getField('REASON_MARKED');
+						foreach($errors as $error)
+						{
+							$oldErrorText .= (strval($oldErrorText) != '' ? "\n" : ""). $error;
 						}
+
+						Sale\Internals\OrderTable::update($order->getId(), array(
+							"MARKED" => "Y",
+							"REASON_MARKED" => $oldErrorText
+						));
 					}
 				}
 			}

@@ -49,3 +49,10 @@ td.statset {background: url(/bitrix/images/bizproc/stat_sett.gif) 50% center no-
 .bizproc-wf-settings-tab-content-variables .bizproc-valign-top {
 	vertical-align: top;
 }
+
+.adm-workarea .adm-btn
+{
+	box-sizing: content-box !important;
+	-moz-box-sizing: content-box !important;
+	-webkit-box-sizing: content-box !important;
+}

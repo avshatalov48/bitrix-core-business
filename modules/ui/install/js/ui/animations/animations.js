@@ -140,7 +140,31 @@ BX.UI.Animations = {
 			className: classes.more
 		}, true);
 
-		if (moreButtonNode)
+		var doExpand = (!!moreButtonNode);
+		if (doExpand)
+		{
+			var contentViewNode = BX.findChild(contentNode, {
+				className: classes[type].outer
+			}, true);
+
+			if (contentViewNode)
+			{
+				var contentId = contentViewNode.getAttribute('bx-content-view-xml-id');
+				if (BX.type.isNotEmptyString(contentId))
+				{
+					var viewedContent = BX.localStorage.get('viewedContent');
+					if (BX.type.isArray(viewedContent))
+					{
+						if (BX.util.in_array(contentId, viewedContent))
+						{
+							doExpand = false;
+						}
+					}
+				}
+			}
+		}
+
+		if (doExpand)
 		{
 			BX.UI.Animations.expand({
 				moreButtonNode: moreButtonNode,

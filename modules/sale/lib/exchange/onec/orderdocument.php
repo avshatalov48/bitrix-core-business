@@ -1,8 +1,6 @@
 <?php
 namespace Bitrix\Sale\Exchange\OneC;
 
-use Bitrix\Sale\Exchange;
-
 class OrderDocument extends DocumentBase
 {
 	protected static $FIELD_INFOS = null;
@@ -10,9 +8,9 @@ class OrderDocument extends DocumentBase
     /**
      * @return int
      */
-    public function getOwnerEntityTypeId()
+    public function getTypeId()
     {
-        return Exchange\EntityType::ORDER;
+        return DocumentType::ORDER;
     }
 
     /**

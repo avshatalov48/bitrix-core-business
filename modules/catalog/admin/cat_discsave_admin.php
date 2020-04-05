@@ -1,6 +1,7 @@
 <?
 use Bitrix\Main,
-	Bitrix\Currency;
+	Bitrix\Currency,
+	Bitrix\Catalog;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
@@ -12,7 +13,7 @@ if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_di
 CModule::IncludeModule("catalog");
 $bReadOnly = !$USER->CanDoOperation('catalog_discount');
 
-if (!CBXFeatures::IsFeatureEnabled('CatDiscountSave'))
+if (!Catalog\Config\Feature::isCumulativeDiscountsEnabled())
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	ShowError(GetMessage("CAT_FEATURE_NOT_ALLOW"));

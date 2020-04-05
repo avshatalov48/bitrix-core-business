@@ -55,7 +55,8 @@ class Reference
 			'BANDEROL' => 3,
 			'BUSINESS_COURIER' => 30,
 			'BUSINESS_COURIER_ES' => 31,
-			'PARCEL_CLASS_1' => 47
+			'PARCEL_CLASS_1' => 47,
+			'BANDEROL_CLASS_1' => 16
 		);
 	}
 
@@ -75,7 +76,8 @@ class Reference
 			'BANDEROL' => Loc::getMessage('SALE_DLVRS_ADD_DREQ_REF_RK_07'),
 			'BUSINESS_COURIER' => Loc::getMessage('SALE_DLVRS_ADD_DREQ_REF_RK_08'),
 			'BUSINESS_COURIER_ES' => Loc::getMessage('SALE_DLVRS_ADD_DREQ_REF_RK_09'),
-			'PARCEL_CLASS_1' => Loc::getMessage('SALE_DLVRS_ADD_DREQ_REF_RK_09')
+			'PARCEL_CLASS_1' => Loc::getMessage('SALE_DLVRS_ADD_DREQ_REF_RK_09'),
+			'BANDEROL_CLASS_1' => Loc::getMessage('SALE_DLVRS_ADD_DREQ_REF_B1C'),
 		);
 
 		return isset($kinds[$kind]) ? $kinds[$kind] : $kind;

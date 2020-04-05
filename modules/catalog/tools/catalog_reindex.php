@@ -99,23 +99,7 @@ elseif (
 		'limit' => 1
 	))->fetch();
 	if (empty($emptyAvailable))
-	{
-		$adminNotifyIterator = CAdminNotify::GetList(array(), array('MODULE_ID' => 'catalog', 'TAG' => 'CATALOG_16'));
-		if ($adminNotifyIterator)
-		{
-			if ($adminNotify = $adminNotifyIterator->Fetch())
-				CAdminNotify::Delete($adminNotify['ID']);
-			unset($adminNotify);
-		}
-		$adminNotifyIterator = CAdminNotify::GetList(array(), array('MODULE_ID' => 'catalog', 'TAG' => 'CATALOG_REINDEX'));
-		if ($adminNotifyIterator)
-		{
-			if ($adminNotify = $adminNotifyIterator->Fetch())
-				CAdminNotify::Delete($adminNotify['ID']);
-			unset($adminNotify);
-		}
-		unset($adminNotifyIterator);
-	}
+		\CCatalogIblockReindex::removeNotify();
 	unset($emptyAvailable);
 	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin_after.php');
 }

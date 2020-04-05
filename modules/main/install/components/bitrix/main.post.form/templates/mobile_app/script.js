@@ -191,9 +191,19 @@
 							for (ii = 0; ii < files.length; ii++)
 							{
 								file = files[ii];
-								if (file.propertyName == this.propertyName && parseInt(file.fileId) > 0)
+								if (file.propertyName == this.propertyName)
 								{
-									text = text.replace("[DISK FILE ID=n" + file.fileId + "]", "[DISK FILE ID=" + file.id + "]");
+									if (parseInt(file.fileId) > 0) // edit, already saved disk file
+									{
+										text = text.replace("[DISK FILE ID=n" + file.fileId + "]", "[DISK FILE ID=" + file.id + "]");
+									}
+									else if (
+										files.length == 1
+										&& BX.util.in_array(file.type, ['gif','jpg','jpeg','png','jpe','bmp'])
+									) // only one image in the attachment
+									{
+										text += "\n[DISK FILE ID=" + (file.fieldValue ? file.fieldValue : "n" + file.fileId) + "]";
+									}
 								}
 							}
 						}
@@ -221,7 +231,7 @@
 						for (ii = 0; ii < attachments.length; ii++)
 						{
 							file = attachments[ii];
-							if (!file["propertyName"] && file["base64"]) // I am sorry
+							if (!file["propertyName"] && (!file["disk"] || file["base64"])) // I am sorry
 							{
 								file["propertyName"] = this.propertyName;
 								files.push(file);
@@ -438,7 +448,7 @@
 						this.writingParams.text += e.text;
 						this.writingParams["~text"] = e.text;
 
-						window.BXMobileApp.onCustomEvent("main.post.form/text", [e.text], true, true);
+						BX.onCustomEvent("main.post.form/text", [e.text]);
 
 						if (this.writingParams.text.length > 4)
 						{

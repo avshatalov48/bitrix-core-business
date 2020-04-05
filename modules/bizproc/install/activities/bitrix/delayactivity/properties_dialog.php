@@ -60,6 +60,19 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 	<td align="right" width="40%"><?= GetMessage("CPAD_DP_TIME1") ?>:</td>
 	<td width="60%">
 		<?=CBPDocument::ShowParameterField('datetime', 'delay_date', $arCurrentValues["delay_date"])?>
+
+		<br>
+		<label><input type="radio" name="delay_date_is_local" value="N"
+			<?=($arCurrentValues["delay_date_is_local"] === 'N') ? ' checked' : ''?>
+		>
+			<?=GetMessage('CPAD_DP_TIME_SERVER')?>
+		</label>
+		<br>
+		<label><input type="radio" name="delay_date_is_local" value="Y"
+			<?=($arCurrentValues["delay_date_is_local"] === 'Y') ? ' checked' : ''?>
+		>
+			<?=GetMessage('CPAD_DP_TIME_LOCAL')?>
+		</label>
 	</td>
 </tr>
 <script type="text/javascript">

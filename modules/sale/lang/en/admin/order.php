@@ -245,4 +245,13 @@ $MESS["SALE_F_RESPONSIBLE_ID"] = "Responsible person";
 $MESS["SOAN_MARKETPLACE_ADD_NEW"] = "Install from Marketplace";
 $MESS["SOAN_MARKETPLACE_ADD_NEW_TITLE"] = "Install from Marketplace";
 $MESS["SALE_SEND_DELIVERY_REQUEST"] = "Submit transportation orders";
+$MESS["SALE_F_DELIVERY_DOC_DATE"] = "Shipment document date";
+$MESS["SOA_DELIVERY_DOC_DATE"] = "Shipment document date";
+$MESS["SALE_O_CONTEXT_B_DELIVERY_REQUESTS"] = "Transportation orders";
+$MESS["SALE_O_CONTEXT_B_DELIVERY_REQUESTS_TITLE"] = "Submit transportation orders for orders on list";
+$MESS["SALE_O_CONTEXT_B_DELIVERY_REQUESTS_SL"] = "Added an option to submit transportation orders to Russian Post and get printable forms";
+$MESS["SALE_O_CONTEXT_B_DELIVERY_REQUESTS_SELECTED"] = "Submit selected";
+$MESS["SALE_O_CONTEXT_B_DELIVERY_REQUESTS_ALL"] = "Submit all items on page";
+$MESS["SALE_O_CONTEXT_B_DELIVERY_REQUESTS_SELECTION_NEEDED"] = "Select at least one order";
+$MESS["SALE_O_SHIPMENT_ID_TITLE"] = "Shipment #&quot;#SHIPMENT_ID#&quot;";
 ?>

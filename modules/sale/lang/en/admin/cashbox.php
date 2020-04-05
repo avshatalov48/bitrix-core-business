@@ -17,6 +17,7 @@ $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_5"] = "Install cash register driver
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_6"] = "Update BSM to version 17.xx";
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_7"] = "Update BSM to version 17.xx";
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_8"] = "Tick the \"Enable receipt printing\" option <a class=\"adm-cashbox-list-load-link\" href=\"/bitrix/admin/sale_pay_system.php?lang=en\" target=\"_blank\">in the payment system options</a> if receipts are required.";
+$MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_8_PUBLIC"] = "Tick the \"Enable receipt printing\" option <a class=\"adm-cashbox-list-load-link\" href=\"#URL#\" target=\"_blank\">in the payment system options</a> if receipts are required.";
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_5_HELP_DRIVER_1"] = "Cash register driver for receipt printing";
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_5_HELP_DRIVER_1_DESC"] = "This driver is required to enable virtual COM ports. Driver package includes a driver test application (fptr_t.exe in the nt-x86-mingw directory) required to test and view ports.";
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_5_HELP_DRIVER_2"] = "Cash register driver to send data to OFD";
@@ -27,4 +28,5 @@ $MESS["SALE_CASHBOX_CONNECT_TO_ESHOP"] = "Connect the cash register to your web 
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_APP_STEP_1"] = "Specify this URL in the app settings:";
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_APP_STEP_2"] = "Start our cash register desktop application";
 $MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_APP_STEP_3"] = "To configure and activate the cash register, proceed to the <a href=\"/bitrix/admin/sale_cashbox_list.php?lang=ru\">list form</a>";
+$MESS["SALE_CASHBOX_CONNECT_INSTRUCTION_APP_STEP_3_PUBLIC"] = "To configure and activate the cash register, proceed to the <a href=\"#URL#\">list form</a>";
 ?>

@@ -68,4 +68,9 @@ class Group extends Base
 	{
 		return true;
 	}
+
+	public static function isHandlerCompatible()
+	{
+		return true;
+	}
 } 

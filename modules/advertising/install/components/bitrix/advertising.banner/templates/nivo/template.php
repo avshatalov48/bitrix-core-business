@@ -6,8 +6,6 @@
 	$this->addExternalCss("/bitrix/components/bitrix/advertising.banner/templates/nivo/nivo-slider.css");
 	$this->addExternalCss("/bitrix/components/bitrix/advertising.banner/templates/nivo/themes/default/default.css");
 	$this->addExternalCss("/bitrix/themes/.default/banner.css");
-	if ($arParams['JQUERY'] == 'Y' || isset($arParams['PREVIEW']))
-		CJSCore::Init(array("jquery2"));
 	$this->addExternalJs("/bitrix/components/bitrix/advertising.banner/templates/nivo/jquery.nivo.slider.pack.js");
 
 	$arParams['WIDTH'] = intval($arResult['SIZE']['WIDTH']);

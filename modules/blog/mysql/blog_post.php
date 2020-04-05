@@ -839,6 +839,11 @@ class CBlogPost extends CAllBlogPost
 				}
 				else
 				{
+					$currentExtranetSite = (
+						\Bitrix\Main\ModuleManager::isModuleInstalled('extranet')
+						&& ($extranetSiteId = \Bitrix\Main\Config\Option::get("extranet", "extranet_site"))
+						&& $extranetSiteId == SITE_ID
+					);
 					if(strlen($arSqls["WHERE"]) > 0)
 						$arSqls["WHERE"] .= " AND ";
 					$arSqls["WHERE"] .=
@@ -848,8 +853,9 @@ class CBlogPost extends CAllBlogPost
 							"LEFT JOIN b_user_access UA ON (UA.ACCESS_CODE = SRX.ENTITY AND UA.USER_ID = ".IntVal($arFilter["FOR_USER"]).") ".
 							"WHERE P.ID = SRX.POST_ID 
 								AND (
-									(SRX.ENTITY = 'AU') 
-									OR (UA.ACCESS_CODE = SRX.ENTITY AND UA.USER_ID = ".IntVal($arFilter["FOR_USER"]).") ".
+									".($currentExtranetSite ? "" : " (SRX.ENTITY = 'AU') OR ")." 
+									(UA.ACCESS_CODE = SRX.ENTITY AND UA.USER_ID = ".IntVal($arFilter["FOR_USER"]).") ".
+									($currentExtranetSite ? " AND NOT (SRX.ENTITY = 'G2') " : "").
 								")".
 						")";
 				}

@@ -1,6 +1,8 @@
 <?
 //<title>CSV (new)</title>
-use Bitrix\Main;
+use Bitrix\Main,
+	Bitrix\Catalog;
+
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/import_setup_templ.php');
 /** @global string $ACTION */
 /** @global string $URL_DATA_FILE */
@@ -290,9 +292,15 @@ $context->Show();
 
 if (!empty($arSetupErrors))
 	ShowError(implode('<br>', $arSetupErrors));
+
+$actionParams = "";
+if ($adminSidePanelHelper->isSidePanel())
+{
+	$actionParams = "?IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER";
+}
 ?>
 <!--suppress JSUnresolvedVariable -->
-<form method="POST" action="<? echo $APPLICATION->GetCurPage(); ?>" ENCTYPE="multipart/form-data" name="dataload">
+<form method="POST" action="<? echo $APPLICATION->GetCurPage().$actionParams; ?>" ENCTYPE="multipart/form-data" name="dataload">
 <?
 $aTabs = array(
 	array("DIV" => "edit1", "TAB" => GetMessage("CAT_ADM_CSV_IMP_TAB1"), "ICON" => "store", "TITLE" => GetMessage("CAT_ADM_CSV_IMP_TAB1_TITLE")),
@@ -500,7 +508,7 @@ if ($STEP == 3)
 	if (isset($arOneCatalogAvailProdFields_tmp))
 		unset($arOneCatalogAvailProdFields_tmp);
 
-	$properties = CIBlockProperty::GetList(array("SORT"=>"ASC", "ID"=>"ASC"), array("IBLOCK_ID"=>$IBLOCK_ID, "ACTIVE"=>"Y", 'CHECK_PERMISSIONS' => 'N'));
+	$properties = CIBlockProperty::GetList(array("SORT"=>"ASC", "NAME" => "ASC", "ID"=>"ASC"), array("IBLOCK_ID"=>$IBLOCK_ID, "ACTIVE"=>"Y", 'CHECK_PERMISSIONS' => 'N'));
 	while ($prop_fields = $properties->Fetch())
 	{
 		$arAvailFields[$intCount] = array(
@@ -572,7 +580,7 @@ if ($STEP == 3)
 
 	if ($boolCatalog)
 	{
-		$boolUseStoreControl = 'Y' == COption::GetOptionString('catalog', 'default_use_store_control', 'N');
+		$boolUseStoreControl = Catalog\Config\State::isUsedInventoryManagement();
 		$arDisableFields = array(
 			'CP_QUANTITY' => true,
 			'CP_PURCHASING_PRICE' => true,

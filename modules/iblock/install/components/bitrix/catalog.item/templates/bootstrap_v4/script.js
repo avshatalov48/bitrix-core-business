@@ -7,8 +7,8 @@
 	var BasketButton = function(params)
 	{
 		BasketButton.superclass.constructor.apply(this, arguments);
-		this.buttonNode = BX.create('span', {
-			props: {className: 'btn btn-default btn-buy btn-sm', id: this.id},
+		this.buttonNode = BX.create('button', {
+			props: {className: 'btn btn-primary btn-buy btn-sm', id: this.id},
 			style: typeof params.style === 'object' ? params.style : {},
 			text: params.text,
 			events: this.contextEvents
@@ -975,17 +975,15 @@
 
 						this.checkPriceRange(curValue);
 
+						intCount = Math.floor(
+							Math.round(curValue * this.precisionFactor / this.stepQuantity) / this.precisionFactor
+						) || 1;
+						curValue = (intCount <= 1 ? this.stepQuantity : intCount * this.stepQuantity);
+						curValue = Math.round(curValue * this.precisionFactor) / this.precisionFactor;
+
 						if (curValue < this.minQuantity)
 						{
 							curValue = this.minQuantity;
-						}
-						else
-						{
-							intCount = Math.round(
-									Math.round(curValue * this.precisionFactor / this.stepQuantity) / this.precisionFactor
-								) || 1;
-							curValue = (intCount <= 1 ? this.stepQuantity : intCount * this.stepQuantity);
-							curValue = Math.round(curValue * this.precisionFactor) / this.precisionFactor;
 						}
 
 						this.obQuantity.value = curValue;

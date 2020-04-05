@@ -27,9 +27,9 @@
 		for(var i=0; i<slen; i++) {
 			if (
 				"href" in document.styleSheets[i] && (
-				document.styleSheets[i].href.indexOf("/templates/landing24/themes/") !== -1 ||
-				document.styleSheets[i].href.indexOf("/landing24/template_") !== -1) ||
-				(stylePath && document.styleSheets[i].href.indexOf(stylePath) !== -1)
+				document.styleSheets[i].href && document.styleSheets[i].href.indexOf("/templates/landing24/themes/") !== -1 ||
+				document.styleSheets[i].href && document.styleSheets[i].href.indexOf("/landing24/template_") !== -1) ||
+				(stylePath && document.styleSheets[i].href && document.styleSheets[i].href.indexOf(stylePath) !== -1)
 			)
 			{
 				var rules = document.styleSheets[i].cssRules;

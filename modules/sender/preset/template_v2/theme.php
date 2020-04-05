@@ -1,4 +1,4 @@
-<html xmlns="http://www.w3.org/1999/xhtml"><head>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"><html xmlns="http://www.w3.org/1999/xhtml"><head>
 	<meta name="viewport" content="width=device-width">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
@@ -249,9 +249,9 @@
 
 <table class="mail-grid"   width="100%" border="0" cellpadding="0" cellspacing="0" align="center">
 <tr>
-<td id="bxStylistHeader">
+<td id="bxStylistHeader" align="center">
 
-	<table class="mail-grid" width="640" border="0" cellpadding="0" cellspacing="0">
+	<table class="mail-grid" width="640" border="0" cellpadding="0" cellspacing="0" align="center">
 		<tr>
 			<td>
 
@@ -293,9 +293,9 @@
 
 <table class="mail-grid"   width="100%" border="0" cellpadding="0" cellspacing="0" align="center">
 <tr>
-<td id="bxStylistBody">
+<td id="bxStylistBody" align="center">
 
-	<table class="mail-grid" width="640" border="0" cellpadding="0" cellspacing="0">
+	<table class="mail-grid" width="640" border="0" cellpadding="0" cellspacing="0" align="center">
 		<tr>
 			<td>
 
@@ -319,9 +319,9 @@
 
 <table class="mail-grid"   width="100%" border="0" cellpadding="0" cellspacing="0" align="center">
 <tr>
-<td class="darkFooter" id="bxStylistFooter">
+<td class="darkFooter" id="bxStylistFooter" align="center">
 
-		<table class="mail-grid" width="640" border="0" cellpadding="0" cellspacing="0">
+		<table class="mail-grid" width="640" border="0" cellpadding="0" cellspacing="0" align="center">
 			<tr>
 				<td class="footer">
 

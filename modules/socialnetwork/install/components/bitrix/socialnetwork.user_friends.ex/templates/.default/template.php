@@ -1,12 +1,22 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?
+<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+/** @var CBitrixComponentTemplate $this */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CDatabase $DB */
+/** @global CUser $USER */
+/** @global CMain $APPLICATION */
+
+use Bitrix\Main\UI;
+
+UI\Extension::load("ui.tooltip");
+
 if(strlen($arResult["FatalError"])>0)
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
 else
 {
-	CUtil::InitJSCore(array("tooltip", "popup"));
+	CUtil::InitJSCore(array("popup"));
 
 	if(strlen($arResult["ErrorMessage"])>0)
 	{
@@ -107,7 +117,6 @@ else
 			?><div class="sonet-members-member-block-shift"><?
 				foreach ($arResult["Friends"]["List"] as $arFriend)
 				{
-					$tooltip_id = randString(8);
 					$arUserTmp = array(
 						"ID" => $arFriend["USER_ID"],
 						"NAME" => htmlspecialcharsback($arFriend["USER_NAME"]),
@@ -133,20 +142,17 @@ else
 							?><span class="sonet-members-member-title"><?
 							if ($arFriend["SHOW_PROFILE_LINK"])
 							{
-								?><a id="anchor_<?=$tooltip_id?>" href="<?=htmlspecialcharsback($arFriend["USER_PROFILE_URL"])?>" class="sonet-members-membet-link"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></a><?
+								?><a href="<?=htmlspecialcharsback($arFriend["USER_PROFILE_URL"])?>" class="sonet-members-membet-link" bx-tooltip-user-id="<?=$arFriend["USER_ID"]?>"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></a><?
 							}
 							else
 							{
-								?><span id="anchor_<?=$tooltip_id?>" class="sonet-members-membet-link"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></span><?
-							}							
+								?><span class="sonet-members-membet-link" bx-tooltip-user-id="<?=$arFriend["USER_ID"]?>"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></span><?
+							}
 							?></span><?
 							if (IsModuleInstalled("intranet"))
 							{
 								?><span class="sonet-members-member-description"><?=$arFriend["USER_WORK_POSITION"]?></span><?
 							}
-							?><script type="text/javascript">
-								BX.tooltip(<?=$arFriend["USER_ID"]?>, "anchor_<?=$tooltip_id?>");
-							</script><?
 						?></span><?
 					?></span><?
 				}
@@ -178,7 +184,6 @@ else
 			?><div class="sonet-members-member-block-shift"><?
 				foreach ($arResult["Banned"]["List"] as $arBanned)
 				{
-					$tooltip_id = randString(8);
 					$arUserTmp = array(
 						"ID" => $arBanned["USER_ID"],
 						"NAME" => htmlspecialcharsback($arBanned["USER_NAME"]),
@@ -196,7 +201,7 @@ else
 						?>><?
 							?><span class="sonet-members-member-img" style="<?=(is_array($arBanned["USER_PERSONAL_PHOTO_IMG"]) && strlen($arBanned["USER_PERSONAL_PHOTO_IMG"]["src"]) > 0 ? "background: url('".$arBanned["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span><?
 							if ($arBanned["CAN_UNBAN"])
-							{							
+							{
 								?><input class="sonet-members-checkbox" type="checkbox"/><?
 							}
 						?></span><?
@@ -204,11 +209,11 @@ else
 							?><span class="sonet-members-member-title"><?
 							if ($arBanned["SHOW_PROFILE_LINK"])
 							{
-								?><a id="anchor_<?=$tooltip_id?>" href="<?=htmlspecialcharsback($arBanned["USER_PROFILE_URL"])?>" class="sonet-members-membet-link"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></a><?
+								?><a href="<?=htmlspecialcharsback($arBanned["USER_PROFILE_URL"])?>" class="sonet-members-membet-link" bx-tooltip-user-id="<?=$arBanned["USER_ID"]?>"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></a><?
 							}
 							else
 							{
-								?><span id="anchor_<?=$tooltip_id?>" class="sonet-members-membet-link"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></span><?
+								?><span class="sonet-members-membet-link" bx-tooltip-user-id="<?=$arBanned["USER_ID"]?>"><?=CUser::FormatName(str_replace(array("#NOBR#", "#/NOBR#"), array("", ""), $arParams["NAME_TEMPLATE"]), $arUserTmp, $arParams["SHOW_LOGIN"] != "N")?></span><?
 							}
 							?></span><?
 							if (IsModuleInstalled("intranet"))
@@ -216,9 +221,6 @@ else
 								?><span class="sonet-members-member-description"><?=$arBanned["USER_WORK_POSITION"]?></span><?
 							}
 						?></span><?
-						?><script type="text/javascript">
-							BX.tooltip(<?=$arBanned["USER_ID"]?>, "anchor_<?=$tooltip_id?>");
-						</script><?
 					?></span><?
 				}
 			?></div><?

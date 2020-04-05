@@ -116,7 +116,7 @@ if (
 				? $properties['parameters']['PROPS']
 				: array());
 		$bCopy = $_POST["bCopy"] == 'Y';
-		if (count($properties['parameters']['PROPS']) > 0)
+		if (!empty($properties['parameters']['PROPS']) && is_array($properties['parameters']['PROPS']))
 		{
 			foreach ($properties['parameters']['PROPS'] as $id => $prop)
 			{
@@ -404,17 +404,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["app
 	if (!is_array($TEMPLATE_FILES_del))
 		$TEMPLATE_FILES_del = array();
 	if (!is_array($TEMPLATE_FILES))
-		$TEMPLATE_FILES = array();
+		$TEMPLATE_FILES = $request->getFile('TEMPLATE_FILES');
 
 	//array for save if show error
 	$templateFilesErr = array();
-	foreach ($TEMPLATE_FILES as $tfk => $tfv)
+	if (is_array($TEMPLATE_FILES))
 	{
-		$before_ = substr($tfk, 0, strpos($tfk, '_'));
-		$after_ = substr($tfk, strpos($tfk, '_') + 1);
-		if (is_array($tfv))
-			$tfv = '';
-		$templateFilesErr[$before_][$after_] = $tfv;
+		foreach ($TEMPLATE_FILES as $tfk => $tfv)
+		{
+			$before_ = substr($tfk, 0, strpos($tfk, '_'));
+			$after_ = substr($tfk, strpos($tfk, '_') + 1);
+			if (is_array($tfv))
+				$tfv = '';
+			$templateFilesErr[$before_][$after_] = $tfv;
+		}
 	}
 
 	if (!is_array($TEMPLATE_FILES['name']))
@@ -426,14 +429,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["app
 			else
 				$TEMPLATE_FILES[$k2]['del'] = 'Y';
 		}
-		foreach ($TEMPLATE_FILES as $k => $v)
+		if (is_array($TEMPLATE_FILES))
 		{
-			$template_file_id = $_REQUEST["TEMPLATE_FILES"][$k] ? $_REQUEST["TEMPLATE_FILES"][$k] : $_REQUEST["TEMPLATE_FILES_copy"][$k];
-			$TEMPLATE_FILES[$k] = CAdvBanner_all::makeFileArray(
-				$template_file_id,
-				$TEMPLATE_FILES_del[$k] === "Y",
-				$TEMPLATE_FILES_descr[$k]
-			);
+			foreach ($TEMPLATE_FILES as $k => $v)
+			{
+				$template_file_id = $_REQUEST["TEMPLATE_FILES"][$k] ? $_REQUEST["TEMPLATE_FILES"][$k] : $_REQUEST["TEMPLATE_FILES_copy"][$k];
+				$TEMPLATE_FILES[$k] = CAdvBanner_all::makeFileArray(
+					$template_file_id,
+					$TEMPLATE_FILES_del[$k] === "Y",
+					$TEMPLATE_FILES_descr[$k]
+				);
+			}
 		}
 	}
 	else
@@ -520,12 +526,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["app
 		}
 
 		$arrTemplateFiles = array();
-		foreach ($TEMPLATE_FILES as $tfk => $tfv)
-		{
-			$before_ = substr($tfk, 0, strpos($tfk, '_'));
-			$after_ = substr($tfk, strpos($tfk, '_') + 1);
-			$arrTemplateFiles[$before_][$after_] = $tfv;
-			$arrTemplateFiles[$before_][$after_]['lastKey'] = $before_;
+		if (is_array($TEMPLATE_FILES)){
+			foreach ($TEMPLATE_FILES as $tfk => $tfv)
+			{
+				$before_ = substr($tfk, 0, strpos($tfk, '_'));
+				$after_ = substr($tfk, strpos($tfk, '_') + 1);
+				$arrTemplateFiles[$before_][$after_] = $tfv;
+				$arrTemplateFiles[$before_][$after_]['lastKey'] = $before_;
+			}
 		}
 
 		$arTemplateProperties = array();
@@ -1182,7 +1190,7 @@ $context->Show();
 
 		<tr<? if (!$isEditMode) echo ' style="display: none;"'; ?> id='banner_type' valign="top">
 			<td>
-				<?=GetMessage("AD_TYPE")?><span class="required"><sup>3</sup></span>
+				<?=GetMessage("AD_TYPE_TEMPLATE")?><span class="required"><sup>3</sup></span>
 			</td>
 			<td align="left">
 				<select onchange='setType(this);' name="AD_TYPE">

@@ -135,109 +135,121 @@ class Event extends \IRestService
 	 */
 	public static function eventBind($query, $n, \CRestServer $server)
 	{
+		global $USER;
+
 		if($server->getAuthType() !== \Bitrix\Rest\OAuth\Auth::AUTH_TYPE)
 		{
 			throw new AuthTypeException();
 		}
 
-		if(\CRestUtil::isAdmin())
+		$query = array_change_key_case($query, CASE_UPPER);
+
+		$eventName = ToUpper($query['EVENT']);
+		$eventType = ToLower($query['EVENT_TYPE']);
+		$eventUser = intval($query['AUTH_TYPE']);
+		$eventCallback = $query['HANDLER'];
+
+		if($eventUser > 0)
 		{
-			$query = array_change_key_case($query, CASE_UPPER);
-
-			$eventName = ToUpper($query['EVENT']);
-			$eventType = ToLower($query['EVENT_TYPE']);
-			$eventUser = intval($query['AUTH_TYPE']);
-			$eventCallback = $query['HANDLER'];
-
-			$authData = $server->getAuthData();
-
-			$connectorId = isset($authData['auth_connector']) ? $authData['auth_connector'] : '';
-
-			if(strlen($eventName) <= 0)
+			if(!\CRestUtil::isAdmin() && $eventUser !== intval($USER->GetID()))
 			{
-				throw new ArgumentNullException("EVENT");
+				throw new AccessException('Event binding with AUTH_TYPE requires administrator access rights');
 			}
+		}
+		elseif(!\CRestUtil::isAdmin())
+		{
+			$eventUser = intval($USER->GetID());
+		}
 
-			if(strlen($eventType) > 0)
+		$authData = $server->getAuthData();
+
+		$connectorId = isset($authData['auth_connector']) ? $authData['auth_connector'] : '';
+
+		if(strlen($eventName) <= 0)
+		{
+			throw new ArgumentNullException("EVENT");
+		}
+
+		if(strlen($eventType) > 0)
+		{
+			if(!in_array($eventType, array(EventTable::TYPE_ONLINE, EventTable::TYPE_OFFLINE)))
 			{
-				if(!in_array($eventType, array(EventTable::TYPE_ONLINE, EventTable::TYPE_OFFLINE)))
-				{
-					throw new ArgumentException('Value must be one of {'.EventTable::TYPE_ONLINE.'|'.EventTable::TYPE_OFFLINE.'}', 'EVENT_TYPE');
-				}
-			}
-			else
-			{
-				$eventType = EventTable::TYPE_ONLINE;
-			}
-
-			if($eventType === EventTable::TYPE_OFFLINE)
-			{
-				$eventCallback = '';
-				$eventUser = 0;
-			}
-			elseif(strlen($eventCallback) <= 0 && $eventType === EventTable::TYPE_ONLINE)
-			{
-				throw new ArgumentNullException("HANDLER");
-			}
-
-			$clientInfo = AppTable::getByClientId($server->getClientId());
-
-			if(strlen($eventCallback) <= 0 || HandlerHelper::checkCallback($eventCallback, $clientInfo))
-			{
-				$scopeList = $server->getAuthScope();
-				$scopeList[] = \CRestUtil::GLOBAL_SCOPE;
-
-				$serviceDescription = $server->getServiceDescription();
-
-				foreach($scopeList as $scope)
-				{
-					if(
-						isset($serviceDescription[$scope])
-						&& is_array($serviceDescription[$scope][\CRestUtil::EVENTS])
-						&& array_key_exists($eventName, $serviceDescription[$scope][\CRestUtil::EVENTS])
-					)
-					{
-						$eventInfo = $serviceDescription[$scope][\CRestUtil::EVENTS][$eventName];
-						if(is_array($eventInfo))
-						{
-							$eventHandlerFields = array(
-								'APP_ID' => $clientInfo['ID'],
-								'EVENT_NAME' => $eventName,
-								'EVENT_HANDLER' => $eventCallback,
-								'CONNECTOR_ID' => $connectorId,
-							);
-
-							if($eventUser > 0)
-							{
-								$eventHandlerFields['USER_ID'] = $eventUser;
-							}
-
-							$result = EventTable::add($eventHandlerFields);
-							if($result->isSuccess())
-							{
-								\Bitrix\Rest\Event\Sender::bind($eventInfo[0], $eventInfo[1]);
-							}
-							else
-							{
-								$errorMessage = $result->getErrorMessages();
-								throw new RestException('Unable to set event handler: '.implode('. ', $errorMessage), RestException::ERROR_CORE);
-							}
-						}
-
-						return true;
-					}
-				}
-
-				throw new RestException('Event not found', EventTable::ERROR_EVENT_NOT_FOUND);
-			}
-			else
-			{
-				return false;
+				throw new ArgumentException('Value must be one of {'.EventTable::TYPE_ONLINE.'|'.EventTable::TYPE_OFFLINE.'}', 'EVENT_TYPE');
 			}
 		}
 		else
 		{
-			throw new AccessException();
+			$eventType = EventTable::TYPE_ONLINE;
+		}
+
+		if($eventType === EventTable::TYPE_OFFLINE)
+		{
+			if(!\CRestUtil::isAdmin())
+			{
+				throw new AccessException('Offline events binding requires administrator access rights');
+			}
+
+			$eventCallback = '';
+			$eventUser = 0;
+		}
+		elseif(strlen($eventCallback) <= 0 && $eventType === EventTable::TYPE_ONLINE)
+		{
+			throw new ArgumentNullException("HANDLER");
+		}
+
+		$clientInfo = AppTable::getByClientId($server->getClientId());
+
+		if(strlen($eventCallback) <= 0 || HandlerHelper::checkCallback($eventCallback, $clientInfo))
+		{
+			$scopeList = $server->getAuthScope();
+			$scopeList[] = \CRestUtil::GLOBAL_SCOPE;
+
+			$serviceDescription = $server->getServiceDescription();
+
+			foreach($scopeList as $scope)
+			{
+				if(
+					isset($serviceDescription[$scope])
+					&& is_array($serviceDescription[$scope][\CRestUtil::EVENTS])
+					&& array_key_exists($eventName, $serviceDescription[$scope][\CRestUtil::EVENTS])
+				)
+				{
+					$eventInfo = $serviceDescription[$scope][\CRestUtil::EVENTS][$eventName];
+					if(is_array($eventInfo))
+					{
+						$eventHandlerFields = array(
+							'APP_ID' => $clientInfo['ID'],
+							'EVENT_NAME' => $eventName,
+							'EVENT_HANDLER' => $eventCallback,
+							'CONNECTOR_ID' => $connectorId,
+						);
+
+						if($eventUser > 0)
+						{
+							$eventHandlerFields['USER_ID'] = $eventUser;
+						}
+
+						$result = EventTable::add($eventHandlerFields);
+						if($result->isSuccess())
+						{
+							\Bitrix\Rest\Event\Sender::bind($eventInfo[0], $eventInfo[1]);
+						}
+						else
+						{
+							$errorMessage = $result->getErrorMessages();
+							throw new RestException('Unable to set event handler: '.implode('. ', $errorMessage), RestException::ERROR_CORE);
+						}
+					}
+
+					return true;
+				}
+			}
+
+			throw new RestException('Event not found', EventTable::ERROR_EVENT_NOT_FOUND);
+		}
+		else
+		{
+			return false;
 		}
 	}
 
@@ -271,138 +283,150 @@ class Event extends \IRestService
 	 */
 	public static function eventUnbind($query, $n, \CRestServer $server)
 	{
+		global $USER;
+
 		if($server->getAuthType() !== Auth::AUTH_TYPE)
 		{
 			throw new AuthTypeException();
 		}
 
-		if(\CRestUtil::isAdmin())
+		$query = array_change_key_case($query, CASE_UPPER);
+
+		$eventName = ToUpper($query['EVENT']);
+		$eventType = ToLower($query['EVENT_TYPE']);
+		$eventCallback = $query['HANDLER'];
+
+		if(strlen($eventName) <= 0)
 		{
-			$query = array_change_key_case($query, CASE_UPPER);
+			throw new ArgumentNullException("EVENT");
+		}
 
-			$eventName = ToUpper($query['EVENT']);
-			$eventType = ToLower($query['EVENT_TYPE']);
-			$eventCallback = $query['HANDLER'];
-
-			if(strlen($eventName) <= 0)
+		if(strlen($eventType) > 0)
+		{
+			if(!in_array($eventType, array(EventTable::TYPE_ONLINE, EventTable::TYPE_OFFLINE)))
 			{
-				throw new ArgumentNullException("EVENT");
+				throw new ArgumentException('Value must be one of {'.EventTable::TYPE_ONLINE.'|'.EventTable::TYPE_OFFLINE.'}', 'EVENT_TYPE');
 			}
-
-			if(strlen($eventType) > 0)
-			{
-				if(!in_array($eventType, array(EventTable::TYPE_ONLINE, EventTable::TYPE_OFFLINE)))
-				{
-					throw new ArgumentException('Value must be one of {'.EventTable::TYPE_ONLINE.'|'.EventTable::TYPE_OFFLINE.'}', 'EVENT_TYPE');
-				}
-			}
-			else
-			{
-				$eventType = EventTable::TYPE_ONLINE;
-			}
-
-			if($eventType === EventTable::TYPE_OFFLINE)
-			{
-				$eventCallback = '';
-			}
-			elseif(strlen($eventCallback) <= 0)
-			{
-				throw new ArgumentNullException("HANDLER");
-			}
-
-			$clientInfo = AppTable::getByClientId($server->getClientId());
-
-			$filter = array(
-				'=APP_ID' => $clientInfo["ID"],
-				'=EVENT_NAME' => $eventName,
-				'=EVENT_HANDLER' => $eventCallback,
-			);
-
-			if($eventType === EventTable::TYPE_OFFLINE)
-			{
-				$authData = $server->getAuthData();
-				$filter['=CONNECTOR_ID'] = isset($authData['auth_connector']) ? $authData['auth_connector'] : '';
-			}
-			else
-			{
-				if(isset($query['AUTH_TYPE']))
-				{
-					$filter['=USER_ID'] = intval($query['AUTH_TYPE']);
-				}
-			}
-
-			$dbRes = EventTable::getList(array(
-				'filter' => $filter
-			));
-
-			$cnt = 0;
-			while($eventInfo = $dbRes->fetch())
-			{
-				$result = EventTable::delete($eventInfo["ID"]);
-				if($result->isSuccess())
-				{
-					// we shouldn't make Unbind here, it'll be done during the first event call
-					$cnt++;
-				}
-			}
-
-			return array('count' => $cnt);
 		}
 		else
 		{
-			throw new AccessException();
+			$eventType = EventTable::TYPE_ONLINE;
 		}
+
+		if($eventType === EventTable::TYPE_OFFLINE)
+		{
+			if(!\CRestUtil::isAdmin())
+			{
+				throw new AccessException('Offline events unbinding requires administrator access rights');
+			}
+
+			$eventCallback = '';
+		}
+		elseif(strlen($eventCallback) <= 0)
+		{
+			throw new ArgumentNullException("HANDLER");
+		}
+
+		$clientInfo = AppTable::getByClientId($server->getClientId());
+
+		$filter = array(
+			'=APP_ID' => $clientInfo["ID"],
+			'=EVENT_NAME' => $eventName,
+			'=EVENT_HANDLER' => $eventCallback,
+		);
+
+		if($eventType === EventTable::TYPE_OFFLINE)
+		{
+			$authData = $server->getAuthData();
+			$filter['=CONNECTOR_ID'] = isset($authData['auth_connector']) ? $authData['auth_connector'] : '';
+		}
+		else
+		{
+			if(isset($query['AUTH_TYPE']))
+			{
+				if(!\CRestUtil::isAdmin() && $query['AUTH_TYPE'] !== intval($USER->GetID()))
+				{
+					throw new AccessException('Event unbinding with AUTH_TYPE requires administrator access rights');
+				}
+
+				$filter['=USER_ID'] = intval($query['AUTH_TYPE']);
+			}
+			elseif(!\CRestUtil::isAdmin())
+			{
+				$filter['=USER_ID'] = intval($USER->GetID());
+			}
+		}
+
+		$dbRes = EventTable::getList(array(
+			'filter' => $filter,
+			'select' => ['ID']
+		));
+
+		$cnt = 0;
+		while($eventInfo = $dbRes->fetch())
+		{
+			$result = EventTable::delete($eventInfo["ID"]);
+			if($result->isSuccess())
+			{
+				// we shouldn't make Unbind here, it'll be done during the first event call
+				$cnt++;
+			}
+		}
+
+		return array('count' => $cnt);
 	}
 
 
 	public static function eventGet($query, $n, \CRestServer $server)
 	{
+		global $USER;
+
 		if($server->getAuthType() !== Auth::AUTH_TYPE)
 		{
 			throw new AuthTypeException();
 		}
 
-		if(\CRestUtil::isAdmin())
+		$result = array();
+
+		$clientInfo = AppTable::getByClientId($server->getClientId());
+
+		$filter = array(
+			"=APP_ID" => $clientInfo["ID"],
+		);
+
+		if(!\CRestUtil::isAdmin())
 		{
-			$result = array();
+			$filter['=USER_ID'] = $USER->GetID();
+		}
 
-			$clientInfo = AppTable::getByClientId($server->getClientId());
-
-			$dbRes = EventTable::getList(array(
-				"filter" => array(
-					"=APP_ID" => $clientInfo["ID"],
-				),
-				'order' => array(
-					"ID" => "ASC",
-				),
-			));
-			while($eventHandler = $dbRes->fetch())
+		$dbRes = EventTable::getList(array(
+			"filter" => $filter,
+			'order' => array(
+				"ID" => "ASC",
+			),
+		));
+		while($eventHandler = $dbRes->fetch())
+		{
+			if(strlen($eventHandler['EVENT_HANDLER']) > 0)
 			{
-				if(strlen($eventHandler['EVENT_HANDLER']) > 0)
-				{
-					$result[] = array(
-						"event" => $eventHandler['EVENT_NAME'],
-						"handler" => $eventHandler['EVENT_HANDLER'],
-						"auth_type" => $eventHandler['USER_ID'],
-						"offline" => 0
-					);
-				}
-				else
-				{
-					$result[] = array(
-						"event" => $eventHandler['EVENT_NAME'],
-						"connector_id" => $eventHandler['CONNECTOR_ID'] === null ? '' : $eventHandler['CONNECTOR_ID'],
-						"offline" => 1
-					);
-				}
+				$result[] = array(
+					"event" => $eventHandler['EVENT_NAME'],
+					"handler" => $eventHandler['EVENT_HANDLER'],
+					"auth_type" => $eventHandler['USER_ID'],
+					"offline" => 0
+				);
 			}
+			else
+			{
+				$result[] = array(
+					"event" => $eventHandler['EVENT_NAME'],
+					"connector_id" => $eventHandler['CONNECTOR_ID'] === null ? '' : $eventHandler['CONNECTOR_ID'],
+					"offline" => 1
+				);
+			}
+		}
 
-			return $result;
-		}
-		else
-		{
-			throw new AccessException();
-		}
+		return $result;
 	}
 
 
@@ -449,7 +473,7 @@ class Event extends \IRestService
 			throw new LicenseException('extended offline events handling');
 		}
 
-		$filter = isset($query['filter']) ? $query['filter'] : null;
+		$filter = isset($query['filter']) ? $query['filter'] : array();
 		$order = isset($query['order']) ? $query['order'] : array('TIMESTAMP_X' => 'ASC');
 		$limit = isset($query['limit']) ? intval($query['limit']) : static::LIST_LIMIT;
 
@@ -460,26 +484,9 @@ class Event extends \IRestService
 
 		$returnProcessId = !$clearEvents;
 
-		if($filter !== null)
-		{
-			if(!is_array($query['filter']))
-			{
-				throw new ArgumentException('Parameter value must be an array', 'FILTER');
-			}
-		}
-		else
-		{
-			$filter = array();
-		}
-
 		if($limit <= 0)
 		{
 			throw new ArgumentException('Value must be positive integer', 'LIMIT');
-		}
-
-		if(!is_array($order))
-		{
-			throw new ArgumentException('Value must be an array', 'ORDER');
 		}
 
 		$queryFilter = static::sanitizeFilter($filter);
@@ -669,28 +676,11 @@ class Event extends \IRestService
 
 		$query = array_change_key_case($query, CASE_LOWER);
 
-		$filter = isset($query['filter']) ? $query['filter'] : null;
+		$filter = isset($query['filter']) ? $query['filter'] : array();
 		$order = isset($query['order']) ? $query['order'] : array('ID' => 'ASC');
 
 		$authData = $server->getAuthData();
 		$connectorId = isset($authData['auth_connector']) ? $authData['auth_connector'] : '';
-
-		if($filter !== null)
-		{
-			if(!is_array($query['filter']))
-			{
-				throw new ArgumentException('Parameter value must be an array', 'FILTER');
-			}
-		}
-		else
-		{
-			$filter = array();
-		}
-
-		if(!is_array($order))
-		{
-			throw new ArgumentException('Value must be an array', 'ORDER');
-		}
 
 		$queryFilter = static::sanitizeFilter($filter, array('ID', 'TIMESTAMP_X', 'EVENT_NAME', 'MESSAGE_ID', 'PROCESS_ID', 'ERROR'));
 
@@ -735,10 +725,19 @@ class Event extends \IRestService
 		));
 	}
 
-	protected static function sanitizeFilter(array $filter, $allowedFields = array('ID', 'TIMESTAMP_X', 'EVENT_NAME', 'MESSAGE_ID'))
+	protected static function sanitizeFilter($filter, array $availableFields = null, $valueCallback = null, array $availableOperations = null)
 	{
-		return static::sanitizeFilterInternal(
-			function($field, $value, $operation)
+		static $defaultFields = array('ID', 'TIMESTAMP_X', 'EVENT_NAME', 'MESSAGE_ID');
+
+		if($availableFields === null)
+		{
+			$availableFields = $defaultFields;
+		}
+
+		return parent::sanitizeFilter(
+			$filter,
+			$availableFields,
+			function($field, $value)
 			{
 				switch($field)
 				{
@@ -748,18 +747,21 @@ class Event extends \IRestService
 
 					break;
 				}
-
 				return $value;
-
-			},
-			$filter,
-			$allowedFields
+			}
 		);
 	}
 
-	protected static function sanitizeOrder(array $order, $allowedFields = array('ID', 'TIMESTAMP_X', 'EVENT_NAME', 'MESSAGE_ID'))
+	protected static function sanitizeOrder($order, array $availableFields = null)
 	{
-		return static::sanitizeOrderInternal($order, $allowedFields);
+		static $defaultFields = array('ID', 'TIMESTAMP_X', 'EVENT_NAME', 'MESSAGE_ID');
+
+		if($availableFields === null)
+		{
+			$availableFields = $defaultFields;
+		}
+
+		return parent::sanitizeOrder($order, $availableFields);
 	}
 
 	protected static function isExtendedModeEnabled()

@@ -612,6 +612,8 @@ class CCaptcha
 
 	function DrawText()
 	{
+		global $APPLICATION;
+
 		if ($this->bTransparentText)
 			$alpha = floor($this->transparentTextPercent / 100 * 127);
 
@@ -637,10 +639,12 @@ class CCaptcha
 		for ($i = 0; $i < $this->codeLength; $i++)
 		{
 			$char = substr($this->code, $i, 1);
+			$utf = $APPLICATION->ConvertCharset($char, LANG_CHARSET, "utf-8");
+
 			$ttfFile = $_SERVER["DOCUMENT_ROOT"].$this->ttfFilesPath."/".$this->arTTFFiles[rand(1, count($this->arTTFFiles)) - 1];
 			$angle = rand($this->textAngleFrom, $this->textAngleTo);
 
-			$bounds = imagettfbbox($this->textFontSize, $angle, $ttfFile, $char);
+			$bounds = imagettfbbox($this->textFontSize, $angle, $ttfFile, $utf);
 
 			$height = max($bounds[1], $bounds[3], $bounds[5], $bounds[7]) - min($bounds[1], $bounds[3], $bounds[5], $bounds[7]);
 			$width = max($bounds[0], $bounds[2], $bounds[4], $bounds[6]) - min($bounds[0], $bounds[2], $bounds[4], $bounds[6]);
@@ -653,7 +657,7 @@ class CCaptcha
 				$img = $this->InitImage($width, $this->imageHeight);
 				$tmp = imagecolorallocate($img, $not_bg_color[0], $not_bg_color[1], $not_bg_color[2]);
 				$dx = -min($bounds[0], $bounds[2], $bounds[4], $bounds[6]);
-				imagettftext($img, $this->textFontSize, $angle, $dx, $y, $tmp, $ttfFile, $char);
+				imagettftext($img, $this->textFontSize, $angle, $dx, $y, $tmp, $ttfFile, $utf);
 
 				$arLeftBounds = array();
 				for($yy=0; $yy < $this->imageHeight; $yy++)
@@ -726,6 +730,7 @@ class CCaptcha
 				$arLeftBounds,	//5
 				$arRightBounds,	//6
 				$dx,		//7
+				$utf,		//8
 			);
 
 		}
@@ -739,7 +744,7 @@ class CCaptcha
 			else
 				$color = imagecolorallocate($this->image, $arTextColor[0], $arTextColor[1], $arTextColor[2]);
 
-			$bounds = imagettftext($this->image, $this->textFontSize, $pos[0], $pos[1], $pos[2], $color, $pos[3], $pos[4]);
+			$bounds = imagettftext($this->image, $this->textFontSize, $pos[0], $pos[1], $pos[2], $color, $pos[3], $pos[8]);
 
 			$x2 = $pos[1] + ($bounds[2] - $bounds[0]);
 		}
@@ -954,7 +959,7 @@ class CCaptcha
 			return false;
 
 		if ($bUpperCode)
-			$userCode = strtoupper($userCode);
+			$userCode = ToUpper($userCode);
 
 		$res = $DB->Query("SELECT CODE FROM b_captcha WHERE ID = '".$DB->ForSQL($sid,32)."' ");
 		if (!$ar = $res->Fetch())
@@ -980,7 +985,7 @@ class CCaptcha
 			return False;
 
 		if ($bUpperCode)
-			$userCode = strtoupper($userCode);
+			$userCode = ToUpper($userCode);
 
 		if ($_SESSION["CAPTCHA_CODE"][$sid] != $userCode)
 			return False;
@@ -1002,7 +1007,7 @@ class CCaptcha
 			return False;
 
 		if ($bUpperCode)
-			$userCode = strtoupper($userCode);
+			$userCode = ToUpper($userCode);
 
 		$code = $this->CryptData($codeCrypt, "D", $_SESSION["CAPTCHA_PASSWORD"]);
 
@@ -1085,13 +1090,20 @@ class CCaptcha
 			$arFields["~DATE_CREATE"] = CDatabase::CurrentTimeFunction();
 		}
 
+		$pool = \Bitrix\Main\Application::getInstance()->getConnectionPool();
+		$pool->useMasterOnly(true);
+
 		$arInsert = $DB->PrepareInsert("b_captcha", $arFields);
 
-		if (!$DB->Query("INSERT INTO b_captcha (".$arInsert[0].") VALUES (".$arInsert[1].")", true))
-			return false;
+		$result = $DB->Query("INSERT INTO b_captcha (".$arInsert[0].") VALUES (".$arInsert[1].")", true);
 
-		return $arFields["ID"];
+		$pool->useMasterOnly(false);
 
+		if($result)
+		{
+			return $arFields["ID"];
+		}
+		return false;
 	}
 
 	function Delete($sid)

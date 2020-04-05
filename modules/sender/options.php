@@ -15,6 +15,7 @@ $arAllOptions = array(
 	array("reiterate_method", GetMessage("opt_reiterate_method"), array("selectbox", array("agent"=>GetMessage("opt_method_agent"), "cron"=>GetMessage("opt_method_cron")))),
 	array("reiterate_interval", GetMessage("opt_reiterate_interval"), array("text", 10)),
 	array("link_protocol", GetMessage("opt_link_protocol"), array("selectbox", array(""=>"http", "https"=>"https"))),
+	array("track_mails", GetMessage("opt_track_mails"), array("checkbox", 35)),
 	array("unsub_link", GetMessage("opt_unsub_link"), array("text", 35)),
 	array("sub_link", GetMessage("opt_sub_link"), array("text", 35)),
 	array("address_from", GetMessage("opt_address_from"), array("text-list", 3, 20)),

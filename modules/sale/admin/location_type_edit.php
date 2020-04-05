@@ -12,6 +12,10 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/prolog.php');
 
 Loc::loadMessages(__FILE__);
 
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+$listUrl = Helper::getListUrl();
+$listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
+
 if($APPLICATION->GetGroupRight("sale") < "W")
 	$APPLICATION->AuthForm(Loc::getMessage("SALE_MODULE_ACCES_DENIED"));
 
@@ -30,6 +34,8 @@ try
 	#####################################
 
 	$actionFailure = false;
+
+	$adminSidePanelHelper->decodeUriComponent();
 
 	$id = intval($_REQUEST['id']) ? intval($_REQUEST['id']) : false;
 	$copyId = intval($_REQUEST['copy_id']) ? intval($_REQUEST['copy_id']) : false;
@@ -52,6 +58,8 @@ try
 		{
 			$DB->StartTransaction();
 
+			$saveUrl = "";
+			$applyUrl = "";
 
 			if($saveAsId) // existed, updating
 			{
@@ -61,7 +69,7 @@ try
 				if($res['success']) // on successfull update ...
 				{
 					if($actionSave)
-						$redirectUrl = $returnUrl ? $returnUrl : Helper::getListUrl(); // go to the page of just created item
+						$saveUrl = $returnUrl ? $returnUrl : $listUrl; // go to the page of just created item
 
 					// $actionApply : do nothing
 				}
@@ -72,16 +80,16 @@ try
 				if($res['success']) // on successfull add ...
 				{
 					if($actionSave)
-						$redirectUrl = $returnUrl ? $returnUrl : Helper::getListUrl(); // go to the list page
+						$saveUrl = $returnUrl ? $returnUrl : $listUrl; // go to the list page
 
 					if($actionApply)
-						$redirectUrl = $returnUrl ? $returnUrl : Helper::getEditUrl(array('id' => $res['id'])); // go to the page of just created item
+						$applyUrl = $returnUrl ? $returnUrl : Helper::getEditUrl(array('id' => $res['id'])); // go to the page of just created item
 				}
 			}
 
 			// no matter we updated or added a new item - we go to blank page on $actionSaveAndAdd
 			if($res['success'] && $actionSaveAndAdd)
-				$redirectUrl = Helper::getEditUrl(); // go to the blank page
+				$applyUrl = Helper::getEditUrl(); // go to the blank page
 
 			// on failure just show sad message
 			if(!$res['success'])
@@ -89,8 +97,24 @@ try
 
 			$DB->Commit();
 
-			if($redirectUrl)
+			$baseId = ($saveAsId ? $saveAsId : $res['id']);
+			$adminSidePanelHelper->sendSuccessResponse("base", array("element[ID]" => $baseId));
+
+			if($saveUrl)
+			{
+				$adminSidePanelHelper->localRedirect($saveUrl);
+				LocalRedirect($saveUrl);
+			}
+			elseif($applyUrl)
+			{
+				$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
+				LocalRedirect($applyUrl);
+			}
+			else
+			{
+				$adminSidePanelHelper->localRedirect($redirectUrl);
 				LocalRedirect($redirectUrl);
+			}
 		}
 		catch(Main\SystemException $e)
 		{
@@ -99,9 +123,11 @@ try
 			$code = $e->getCode();
 			$message = $e->getMessage().(!empty($code) ? ' ('.$code.')' : '');
 
-			$actionFailureMessage = Loc::getMessage('SALE_LOCATION_E_CANNOT_'.($saveAsId ? 'UPDATE' : 'SAVE').'_ITEM').(strlen($message) ? ': <br /><br />'.$message : '');
+			$actionFailureMessage = Loc::getMessage('SALE_LOCATION_E_CANNOT_'.($saveAsId ? 'UPDATE' : 'SAVE').'_ITEM').(strlen($message) ? ': '.$message : '');
 
 			$DB->Rollback();
+
+			$adminSidePanelHelper->sendJsonErrorResponse($actionFailureMessage);
 		}
 	}
 
@@ -145,6 +171,8 @@ catch(Main\SystemException $e)
 
 	$code = $e->getCode();
 	$fatalFailureMessage = $e->getMessage().(!empty($code) ? ' ('.$code.')' : '');
+
+	$adminSidePanelHelper->sendJsonErrorResponse($fatalFailureMessage);
 }
 
 #####################################
@@ -156,7 +184,7 @@ if(!$fatalFailure) // no fatals like "module not installed, etc."
 	$topMenu = new CAdminContextMenu(array(
 		array(
 			"TEXT" => GetMessage("SALE_LOCATION_E_GO_BACK"),
-			"LINK" => Helper::getListUrl(array('id' => $parentId)),
+			"LINK" => $adminSidePanelHelper->editUrlToPublicPage(Helper::getListUrl(array('id' => $parentId))),
 			"ICON" => "btn_list",
 		)
 	));
@@ -213,10 +241,9 @@ $APPLICATION->SetTitle(strlen($nameToDisplay) ? Loc::getMessage('SALE_LOCATION_E
 	$args = array();
 	if(intval($_REQUEST['id']))
 		$args['id'] = intval($_REQUEST['id']);
-
-	$tabControl->Begin(array(
-		"FORM_ACTION" => Helper::getEditUrl($args) // generally, it is not safe to leave action empty
-	));
+	$formActionUrl = Helper::getEditUrl($args); // generally, it is not safe to leave action empty
+	$formActionUrl = $adminSidePanelHelper->setDefaultQueryParams($formActionUrl);
+	$tabControl->Begin(array("FORM_ACTION" => $formActionUrl));
 	$tabControl->BeginNextFormTab();
 	?>
 
@@ -285,7 +312,7 @@ $APPLICATION->SetTitle(strlen($nameToDisplay) ? Loc::getMessage('SALE_LOCATION_E
 		"btnSaveAndAdd" => true,
 		"btnApply" => true,
 		"btnCancel" => true,
-		"back_url" => $returnUrl,
+		"back_url" => $listUrl,
 	));
 
 	$tabControl->Show();

@@ -3,6 +3,8 @@
 
 	BX.namespace("BX.Landing.UI.Panel");
 
+	var proxy = BX.Landing.Utils.proxy;
+	var getSelectedElement = BX.Landing.Utils.getSelectedElement;
 
 	/**
 	 * Implements interface of editor actions panel.
@@ -112,7 +114,6 @@
 		BX.Landing.UI.Panel.EditorPanel.getInstance().adjustPosition(target);
 	}
 
-
 	/**
 	 * Makes editor as draggable
 	 * @param {BX.Landing.UI.Panel.EditorPanel} editor
@@ -166,53 +167,63 @@
 	function registerBaseActions(editor)
 	{
 		editor.addButton(new BX.Landing.UI.Button.EditorAction("bold", {
-			html: "<span class=\"fa fa-bold\"><em></em></span>",
-			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_BOLD")}
+			html: "<span class=\"landing-ui-icon-editor-bold\"></span>",
+			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_BOLD")},
+			onClick: proxy(editor.adjustButtonsState, editor)
 		}));
 
 		editor.addButton(new BX.Landing.UI.Button.EditorAction("italic", {
-			html: "<span class=\"fa fa-italic\"><em></em></span>",
-			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_ITALIC")}
+			html: "<span class=\"landing-ui-icon-editor-italic\"></span>",
+			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_ITALIC")},
+			onClick: proxy(editor.adjustButtonsState, editor)
 		}));
 
 		editor.addButton(new BX.Landing.UI.Button.EditorAction("underline", {
-			html: "<span class=\"fa fa-underline\"><em></em></span>",
-			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_UNDERLINE")}
+			html: "<span class=\"landing-ui-icon-editor-underline\"></span>",
+			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_UNDERLINE")},
+			onClick: proxy(editor.adjustButtonsState, editor)
 		}));
 
 		editor.addButton(new BX.Landing.UI.Button.EditorAction("strikeThrough", {
-			html: "<span class=\"fa fa-strikethrough\"><em></em></span>",
-			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_STRIKE")}
+			html: "<span class=\"landing-ui-icon-editor-strike\"></span>",
+			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_STRIKE")},
+			onClick: proxy(editor.adjustButtonsState, editor)
 		}));
 
 		editor.addButton(new BX.Landing.UI.Button.EditorAction("justifyLeft", {
-			html: "<span class=\"fa fa-align-left\"><em></em></span>",
-			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_ALIGN_LEFT")}
+			html: "<span class=\"landing-ui-icon-editor-left\"></span>",
+			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_ALIGN_LEFT")},
+			onClick: proxy(editor.adjustButtonsState, editor)
 		}));
 
 		editor.addButton(new BX.Landing.UI.Button.EditorAction("justifyCenter", {
-			html: "<span class=\"fa fa-align-center\"><em></em></span>",
-			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_ALIGN_CENTER")}
+			html: "<span class=\"landing-ui-icon-editor-center\"></span>",
+			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_ALIGN_CENTER")},
+			onClick: proxy(editor.adjustButtonsState, editor)
 		}));
 
 		editor.addButton(new BX.Landing.UI.Button.EditorAction("justifyRight", {
-			html: "<span class=\"fa fa-align-right\"><em></em></span>",
-			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_ALIGN_RIGHT")}
+			html: "<span class=\"landing-ui-icon-editor-right\"></span>",
+			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_ALIGN_RIGHT")},
+			onClick: proxy(editor.adjustButtonsState, editor)
 		}));
 
 		editor.addButton(new BX.Landing.UI.Button.EditorAction("justifyFull", {
-			html: "<span class=\"fa fa-align-justify\"><em></em></span>",
-			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_ALIGN_JUSTIFY")}
+			html: "<span class=\"landing-ui-icon-editor-justify\"></span>",
+			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_ALIGN_JUSTIFY")},
+			onClick: proxy(editor.adjustButtonsState, editor)
 		}));
 
 		editor.addButton(new BX.Landing.UI.Button.CreateLink("createLink", {
-			html: "<span class=\"fa fa-link\"><em></em></span>",
-			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_CREATE_LINK")}
+			html: "<span class=\"landing-ui-icon-editor-link\"></span>",
+			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_CREATE_LINK")},
+			onClick: proxy(editor.adjustButtonsState, editor)
 		}));
 
 		editor.addButton(new BX.Landing.UI.Button.EditorAction("unlink", {
-			html: "<span class=\"fa fa-unlink\"><em></em></span>",
-			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_UNLINK")}
+			html: "<span class=\"landing-ui-icon-editor-unlink\"></span>",
+			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_UNLINK")},
+			onClick: proxy(editor.adjustButtonsState, editor)
 		}));
 
 		// editor.addButton(new BX.Landing.UI.Button.FontAction("font", {
@@ -220,14 +231,16 @@
 		// 	attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_FONT")}
 		// }));
 
-		editor.addButton(new BX.Landing.UI.Button.ColorAction("foreColor", {
-			text: BX.message("EDITOR_ACTION_SET_FORE_COLOR"),
-			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_COLOR")}
+		editor.addButton(new BX.Landing.UI.Button.EditorAction("removeFormat", {
+			html: "<span class=\"landing-ui-icon-editor-eraser\"></span>",
+			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_CLEAR")},
+			onClick: proxy(editor.adjustButtonsState, editor)
 		}));
 
-		editor.addButton(new BX.Landing.UI.Button.EditorAction("removeFormat", {
-			html: "<span class=\"fa fa-eraser\"><em></em></span>",
-			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_CLEAR")}
+		editor.addButton(new BX.Landing.UI.Button.ColorAction("foreColor", {
+			text: BX.message("EDITOR_ACTION_SET_FORE_COLOR"),
+			attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_COLOR")},
+			onClick: proxy(editor.adjustButtonsState, editor)
 		}));
 	}
 
@@ -371,6 +384,7 @@
 				document.addEventListener("mousedown", onMousedown, true);
 				document.addEventListener("mouseup", onMouseUp, true);
 				document.addEventListener("click", onClick, true);
+				this.currentElement.addEventListener("click", proxy(this.adjustButtonsState, this), true);
 
 				setTimeout(function() {
 					this.layout.classList.add("landing-ui-transition");
@@ -385,6 +399,7 @@
 			}.bind(this));
 
 			onShow(element);
+			this.adjustButtonsState();
 		},
 
 		hide: function()
@@ -395,6 +410,7 @@
 				document.removeEventListener("mousedown", onMousedown, true);
 				document.removeEventListener("mouseup", onMouseUp, true);
 				document.removeEventListener("click", onClick, true);
+				this.currentElement.removeEventListener("click", proxy(this.adjustButtonsState, this), true);
 
 				setTimeout(function() {
 					this.rect = this.layout.getBoundingClientRect();
@@ -404,6 +420,83 @@
 
 			BX.Landing.UI.Panel.BaseButtonPanel.prototype.hide.call(this, arguments);
 			onHide();
+		},
+
+		adjustButtonsState: function()
+		{
+			var getAction = function(value) {
+				return (!value ? "de" : "") + "activate";
+			};
+
+			var button = function(key) {
+				return this.buttons.get(key);
+			}.bind(this);
+
+			requestAnimationFrame(function() {
+				var format = this.getFormat();
+				void (button("bold") && button("bold")[getAction(format.bold)]());
+				void (button("italic") && button("italic")[getAction(format.italic)]());
+				void (button("underline") && button("underline")[getAction(format.underline)]());
+				void (button("strikeThrough") && button("strikeThrough")[getAction(format.strike)]());
+				void (button("justifyLeft") && button("justifyLeft")[getAction(format.align === "left")]());
+				void (button("justifyCenter") && button("justifyCenter")[getAction(format.align === "center")]());
+				void (button("justifyRight") && button("justifyRight")[getAction(format.align === "right")]());
+				void (button("justifyFull") && button("justifyFull")[getAction(format.align === "justify")]());
+			}.bind(this));
+		},
+
+		getFormat: function()
+		{
+			var element = getSelectedElement();
+			var format = {};
+
+			if (element)
+			{
+				var style = getComputedStyle(element);
+
+				switch (style.getPropertyValue("font-weight"))
+				{
+					case "bold":
+					case "bolder":
+					case "500":
+					case "600":
+					case "700":
+					case "800":
+					case "900":
+						format["bold"] = true;
+						break;
+				}
+
+				if (style.getPropertyValue("font-style") === "italic")
+				{
+					format["italic"] = true;
+				}
+
+				if (style.getPropertyValue("text-decoration").includes("underline") ||
+					style.getPropertyValue("text-decoration-line").includes("underline"))
+				{
+					format["underline"] = true;
+				}
+
+				if (style.getPropertyValue("text-decoration").includes("line-through") ||
+					style.getPropertyValue("text-decoration-line").includes("line-through"))
+				{
+					format["strike"] = true;
+				}
+
+				var align = style.getPropertyValue("text-align") || "left";
+				if (align.match(/[left|center|rigth|custiffy]/))
+				{
+					format["align"] = align;
+				}
+
+				if (this.currentElement.nodeName === "A" || this.currentElement.closest("a"))
+				{
+					format["link"] = true;
+				}
+			}
+
+			return format;
 		},
 
 		adjustPosition: function(node, position, force)

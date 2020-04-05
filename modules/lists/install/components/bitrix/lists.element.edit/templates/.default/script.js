@@ -37,10 +37,18 @@ BX.Lists.ListsElementEditClass = (function ()
 		{
 			for(var k = 0; k < this.listAction.length; k++)
 			{
-				this.actionPopupItems.push({
-					text : this.listAction[k].text,
-					onclick : this.listAction[k].action
-				});
+				var item = {
+					text : this.listAction[k].text
+				};
+				if (this.listAction[k].hasOwnProperty("url"))
+				{
+					item.href = this.listAction[k].url;
+				}
+				else
+				{
+					item.onclick = this.listAction[k].action;
+				}
+				this.actionPopupItems.push(item);
 			}
 		}
 		if(!BX.PopupMenu.getMenuById(this.actionPopupId))

@@ -7,6 +7,7 @@ use Bitrix\Main\Loader;
 
 use Bitrix\Sender\Transport;
 use Bitrix\Sender\Security;
+use Bitrix\Sender\Integration;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -22,7 +23,7 @@ class SenderConfigLimitsComponent extends CBitrixComponent
 
 	protected function checkRequiredParams()
 	{
-		return true;
+		return Integration\Bitrix24\Service::isAvailable();
 	}
 
 	protected function initParams()
@@ -78,11 +79,14 @@ class SenderConfigLimitsComponent extends CBitrixComponent
 				$initialLimit = $isCountLimiter ? $limiter->getInitialLimit() : 0;
 				$initialLimit = $initialLimit ?: 1;
 
+				$percentage = $isCountLimiter ? ceil(($current / $initialLimit) * 100) : 0;
+				$percentage = $percentage > 100 ? 100 : 0;
+
 				$limits[] = array(
 					'NAME' => $isCountLimiter ? $limiter->getName() : null,
 					'AVAILABLE' => number_format($available, 0, '.', ' '),
 					'CURRENT' => number_format($current, 0, '.', ' '),
-					'CURRENT_PERCENTAGE' => $isCountLimiter ? ceil(($current / $initialLimit) * 100) : 0,
+					'CURRENT_PERCENTAGE' => $percentage,
 					'LIMIT' => number_format($limit, 0, '.', ' '),
 					'UNIT_NAME' => $limiter->getUnitName(),
 					'CAPTION' => $limiter->getCaption(),

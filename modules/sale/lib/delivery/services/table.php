@@ -5,6 +5,7 @@ namespace Bitrix\Sale\Delivery\Services;
 use Bitrix\Main\Application;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DeleteResult;
 use Bitrix\Sale\Delivery\Services;
 
 Loc::loadMessages(__FILE__);
@@ -121,7 +122,10 @@ class Table extends Entity\DataManager
 			'VAT_ID' => array(
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('DELIVERY_SERVICE_ENTITY_VAT_ID_FIELD')
-			)
+			),
+			'XML_ID' => array(
+				'data_type' => 'string',
+			),
 		);
 	}
 
@@ -170,7 +174,7 @@ class Table extends Entity\DataManager
 
 	/**
 	 * @param mixed $primary
-	 * @return Entity\DeleteResult
+	 *	@return DeleteResult
 	 * @throws \Exception
 	 */
 	public static function delete($primary)

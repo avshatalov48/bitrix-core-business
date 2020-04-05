@@ -4,6 +4,16 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+\Bitrix\Main\UI\Extension::load(array("ui.tilegrid", "ui.buttons"));
+\CJSCore::init("sidepanel", "loader");
+
+$arResult['SLIDER'] = \CRestUtil::isSlider();
+
+if ($arParams['NO_BACKGROUND'] == "Y")
+{
+	$bodyClasses = 'pagetitle-toolbar-field-view no-hidden no-all-paddings no-background';
+	$APPLICATION->setPageProperty('BodyClass', trim(sprintf('%s %s', $bodyClass, $bodyClasses)));
+}
 
 /**
  * Bitrix vars
@@ -15,116 +25,232 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
  * @global CMain $APPLICATION
  * @global CUser $USER
  */
-?>
 
-<h2 class="mp_title_section"><?=htmlspecialcharsbx($arResult["CAT_NAME"])?></h2>
-<?php
-if (is_array($arResult["ITEMS"])):
-?>
-<div class="mp_section_container">
-	<div class="mp_sc_container">
-		<div class="mp_sc_slide">
-			<ul class="mp_sc_list_solutions">
-<?php
-	foreach($arResult["ITEMS"] as $app):
-		$appUrl = str_replace(
-			array("#app#"),
-			array(urlencode($app['CODE'])),
-			$arParams['DETAIL_URL_TPL']
-		);
-		$appInstalled = in_array($app['CODE'], $arResult['ITEMS_INSTALLED'])
-?>
-				<li>
-					<span class="mp_sc_ls_img">
-<?php
-		if($app["ICON"]):
-?>
-						<span><img src="<?=htmlspecialcharsbx($app["ICON"])?>" alt=""></span>
-<?php
-		else:
-?>
-						<span class="mp_empty_icon"></span>
-<?php
-		endif;
-?>
-					</span>
-					<a href="<?=$appUrl?>" class="mp_sc_ls_shadow" target="_self">
-<?php
-		if ($app["PROMO"] == "Y"):
-?>
-						<span class="mp_discount_icon"></span>
-<?php
-		endif;
-?>
-					</a>
-<?php
-if($appInstalled):
-?>
-					<span class="mp_installed_icon"><?=GetMessage('MARKETPLACE_INSTALLED')?></span>
-<?php
-endif;
-?>
-					<div class="mp_sc_ls_container">
-						<a class="mp_sc_ls_title crop" href="<?=$appUrl;?>" target="_self"><?=htmlspecialcharsbx(strlen($app["NAME"]) <= 25 ? $app["NAME"] :  substr($app["NAME"], 0, 25)."...")?></a>
-						<span class="mp_sc_ls_price">
-<?php
-		if (is_array($app["PRICE"]) && !empty($app["PRICE"][1])):
-?>
-							<?=GetMessage("MARKETPLACE_APP_PRICE", array("#PRICE#" => $app["PRICE"][1]))?>
-<?php
-		else:
-?>
-							<?=GetMessage("MARKETPLACE_APP_FREE")?>
-<?php
-		endif;
-?>
-						</span>
-						<!--<span class="mp_sc_ls_stars">12</span>-->
-					</div>
-					<div class="mp_sc_ls_li_hover"><a href="<?=$appUrl;?>" target="_self"><?=GetMessage("MARKETPLACE_SHOW_APP")?></a></div>
-				</li>
-<?php
-	endforeach;
-?>
-			</ul>
-		</div>
-		<div style="clear:both;"></div>
-	</div>
-</div>
-<br/>
-<?php
-	$APPLICATION->IncludeComponent(
-		"bitrix:main.pagenavigation",
-		"",
-		array(
-			"NAV_OBJECT" => $arResult['NAV'],
-			"SEF_MODE" => "N",
-		),
-		$component
-	);
-?>
-<script>
-(function(){
-	BX.rest.Marketplace.bindPageAnchors({allowChangeHistory: <?=$arParams['IFRAME'] ? 'false' : 'true'?>});
-<?
-if($arParams['IFRAME']):
-?>
-
-	var installCallback = function()
+if ($arParams['SHOW_FILTER'] == "Y")
+{
+	if (!$arResult['SLIDER'])
 	{
-		top.BX.removeCustomEvent(top, 'Rest:AppLayout:ApplicationInstall', installCallback);
-		location.reload();
-	};
-	top.BX.addCustomEvent(top, 'Rest:AppLayout:ApplicationInstall', installCallback);
-<?php
-endif;
+		$this->setViewTarget("inside_pagetitle", 10);
+	}
+	?>
+
+	<div class="pagetitle-container pagetitle-flexible-space">
+		<?
+		$APPLICATION->IncludeComponent(
+			'bitrix:main.ui.filter',
+			'',
+			array(
+				'FILTER_ID'				=> $arResult["FILTER"]["FILTER_ID"],
+				'FILTER'				=> $arResult['FILTER']['FILTER'],
+				'FILTER_PRESETS'		=> $arResult['FILTER']['FILTER_PRESETS'],
+				'ENABLE_LIVE_SEARCH'	=> true,
+				'ENABLE_LABEL'			=> true,
+				'RESET_TO_DEFAULT_MODE'	=> true,
+				"VALUE_REQUIRED"		=> true
+			),
+			$component
+		);
+		?>
+	</div>
+
+	<?
+	if (!$arResult['SLIDER'])
+	{
+		$this->endViewTarget();
+	}
+}
 ?>
-})();
+
+<script>
+	BX.message({
+		"MARKETPLACE_SHOW_APP": "<?=GetMessageJS("MARKETPLACE_SHOW_APP")?>",
+		"MARKETPLACE_INSTALLED": "<?=GetMessageJS("MARKETPLACE_INSTALLED")?>",
+		"MARKETPLACE_SALE": "<?=GetMessageJS("MARKETPLACE_SALE")?>"
+	});
 </script>
 
-<?php
-else:
-?>
-<?=GetMessage("MARKETPLACE_EMPTY_CATEGORY")?>
-<?php
-endif;
+<div id="mp-category-block">
+	<?
+	if ($arResult["AJAX_MODE"])
+	{
+		$APPLICATION->RestartBuffer();
+	}
+
+	if (is_array($arResult["ITEMS"]))
+	{
+	?>
+		<div class="mp<? if (isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y"): ?> mp-slider<? endif; ?>">
+			<div class="mp-container">
+				<div class="mp-container" id="mp-elements-block"></div>
+				<?if ($arResult["CURRENT_PAGE"] < $arResult["PAGE_COUNT"]):?>
+				<div class="mp-container-more">
+					<span class="ui-btn ui-btn-light-border mp-btn-more" id="mp-more-button"><?=GetMessage("MARKETPLACE_MORE_APPS")?></span>
+				</div>
+				<?endif?>
+			</div>
+		</div>
+
+		<script>
+			BX.ready(function () {
+				window.gridTile = new BX.TileGrid.Grid(
+					{
+						id: 'mp_category',
+						container: document.getElementById('mp-elements-block'),
+						items: <?=CUtil::PhpToJSObject($arResult["ITEMS"])?>,
+						itemHeight: 105,
+						itemMinWidth: 300,
+						itemType: 'BX.Rest.Marketplace.TileGrid.Item'
+					}
+				);
+
+				gridTile.draw();
+			});
+		</script>
+	<?
+	}
+	elseif (
+		is_array($arResult["NEW_ITEMS_PAID"]) || is_array($arResult["NEW_ITEMS_FREE"])
+		||is_array($arResult["TOP_ITEMS_PAID"]) || is_array($arResult["TOP_ITEMS_FREE"])
+	)
+	{
+	?>
+		<div class="mp<? if (isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y"): ?> mp-slider<? endif; ?>">
+			<div class="mp-title"><?=GetMessage("MARKETPLACE_TITLE_NEW")?></div>
+
+			<?if (is_array($arResult["NEW_ITEMS_PAID"]) && !empty($arResult["NEW_ITEMS_PAID"])):?>
+			<div class="mp-container">
+				<div class="mp-title"><?=GetMessage("MARKETPLACE_PRICE_PAID")?></div>
+				<div class="mp-container" id="mp-new-block-paid"></div>
+			</div>
+			<?endif?>
+
+			<?if (is_array($arResult["NEW_ITEMS_FREE"]) && !empty($arResult["NEW_ITEMS_FREE"])):?>
+			<div class="mp-container">
+				<div class="mp-title"><?=GetMessage("MARKETPLACE_PRICE_FREE")?></div>
+				<div class="mp-container" id="mp-new-block-free"></div>
+			</div>
+			<?endif?>
+
+			<div class="mp-title"><?=GetMessage("MARKETPLACE_TITLE_BEST")?></div>
+
+			<?if (is_array($arResult["TOP_ITEMS_PAID"]) && !empty($arResult["TOP_ITEMS_PAID"])):?>
+			<div class="mp-container">
+				<div class="mp-title"><?=GetMessage("MARKETPLACE_PRICE_PAID")?></div>
+				<div class="mp-container" id="mp-top-block-paid"></div>
+			</div>
+			<?endif?>
+
+			<?if (is_array($arResult["TOP_ITEMS_FREE"]) && !empty($arResult["TOP_ITEMS_FREE"])):?>
+			<div class="mp-container">
+				<div class="mp-title"><?=GetMessage("MARKETPLACE_PRICE_FREE")?></div>
+				<div class="mp-container" id="mp-top-block-free"></div>
+			</div>
+			<?endif?>
+		</div>
+
+		<script>
+			BX.ready(function () {
+				<?if (is_array($arResult["NEW_ITEMS_PAID"]) && !empty($arResult["NEW_ITEMS_PAID"])):?>
+					var gridTileNew = new BX.TileGrid.Grid(
+						{
+							id: 'mp_category_new_paid',
+							container: document.getElementById('mp-new-block-paid'),
+							items: <?=CUtil::PhpToJSObject($arResult["NEW_ITEMS_PAID"])?>,
+							itemHeight: 105,
+							itemMinWidth: 300,
+							itemType: 'BX.Rest.Marketplace.TileGrid.Item'
+						}
+					);
+					gridTileNew.draw();
+				<?endif?>
+
+				<?if (is_array($arResult["NEW_ITEMS_FREE"]) && !empty($arResult["NEW_ITEMS_FREE"])):?>
+					var gridTileNew = new BX.TileGrid.Grid(
+						{
+							id: 'mp_category_new_free',
+							container: document.getElementById('mp-new-block-free'),
+							items: <?=CUtil::PhpToJSObject($arResult["NEW_ITEMS_FREE"])?>,
+							itemHeight: 105,
+							itemMinWidth: 300,
+							itemType: 'BX.Rest.Marketplace.TileGrid.Item'
+						}
+					);
+					gridTileNew.draw();
+				<?endif?>
+
+				<?if (is_array($arResult["TOP_ITEMS_PAID"]) && !empty($arResult["TOP_ITEMS_PAID"])):?>
+					var gridTileTop = new BX.TileGrid.Grid(
+						{
+							id: 'mp_category_top_paid',
+							container: document.getElementById('mp-top-block-paid'),
+							items: <?=CUtil::PhpToJSObject($arResult["TOP_ITEMS_PAID"])?>,
+							itemHeight: 105,
+							itemMinWidth: 300,
+							itemType: 'BX.Rest.Marketplace.TileGrid.Item'
+						}
+					);
+					gridTileTop.draw();
+				<?endif?>
+
+				<?if (is_array($arResult["TOP_ITEMS_FREE"]) && !empty($arResult["TOP_ITEMS_FREE"])):?>
+					var gridTileTop = new BX.TileGrid.Grid(
+						{
+							id: 'mp_category_top_free',
+							container: document.getElementById('mp-top-block-free'),
+							items: <?=CUtil::PhpToJSObject($arResult["TOP_ITEMS_FREE"])?>,
+							itemHeight: 105,
+							itemMinWidth: 300,
+							itemType: 'BX.Rest.Marketplace.TileGrid.Item'
+						}
+					);
+					gridTileTop.draw();
+				<?endif?>
+			});
+		</script>
+	<?
+	}
+	else
+	{
+		echo GetMessage("MARKETPLACE_EMPTY_CATEGORY");
+	}
+
+	$jsParams = array(
+		"ajaxPath" => POST_FORM_ACTION_URI,
+		"pageCount" => isset($arResult["PAGE_COUNT"]) ? $arResult["PAGE_COUNT"] : "",
+		"currentPage" => isset($arResult["CURRENT_PAGE"]) ? $arResult["CURRENT_PAGE"] : "",
+		"filterId" => isset($arResult["FILTER"]["FILTER_ID"]) ? $arResult["FILTER"]["FILTER_ID"] : ""
+	);
+	?>
+	<script>
+		BX.ready(function () {
+			BX.Rest.Markeplace.Category.init(<?=CUtil::PhpToJSObject($jsParams)?>);
+		});
+	</script>
+	<?
+	if ($arResult["AJAX_MODE"])
+	{
+		CMain::FinalActions();
+		die();
+	}
+	?>
+</div>
+
+<script>
+	<?if ($arParams['SHOW_FILTER'] == "Y"):?>
+		BX.ready(function () {
+			BX.Rest.Markeplace.Category.initEvents();
+		});
+	<?endif?>
+
+	(function(){
+		BX.rest.Marketplace.bindPageAnchors({allowChangeHistory: <?=$arParams['IFRAME'] ? 'false' : 'true'?>});
+		<?if($arParams['IFRAME']):?>
+			var installCallback = function()
+			{
+				top.BX.removeCustomEvent(top, 'Rest:AppLayout:ApplicationInstall', installCallback);
+				location.reload();
+			};
+			top.BX.addCustomEvent(top, 'Rest:AppLayout:ApplicationInstall', installCallback);
+		<?endif;?>
+	})();
+</script>

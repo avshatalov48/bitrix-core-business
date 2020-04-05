@@ -46,7 +46,7 @@
 </body>
 </html>';
 
-$dbEvent = CEventMessage::GetList($b="ID", $order="ASC", Array("EVENT_NAME" => SALE_NEW_ORDER));
+$dbEvent = CEventMessage::GetList($b="ID", $order="ASC", Array("EVENT_NAME" => "SALE_NEW_ORDER"));
 if(!($dbEvent->Fetch()))
 {
 	$langs = CLanguage::GetList(($b=""), ($o=""));

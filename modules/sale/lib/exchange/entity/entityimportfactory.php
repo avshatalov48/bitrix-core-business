@@ -11,14 +11,14 @@ use Bitrix\Sale\Exchange;
  */
 class EntityImportFactory
 {
-    /**
-     * @param $entityTypeID
-     * @param null $parentEntityContext
-     * @return OrderImport|PaymentCardImport|PaymentCashImport|PaymentCashLessImport|Exchange\ProfileImport|ShipmentImport|UserProfileImport|UserProfileImport
-     * @throws Main\ArgumentException
-     * @throws Main\NotSupportedException
-     */
-    public static function create($entityTypeID, $parentEntityContext = null)
+	/**
+	 * @param $entityTypeID
+	 * @param null $parentEntityContext
+	 * @return Exchange\ImportBase
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\NotSupportedException
+	 */
+	public static function create($entityTypeID, $parentEntityContext = null)
     {
         if(!is_int($entityTypeID))
         {
@@ -54,6 +54,26 @@ class EntityImportFactory
         {
             return new UserProfileImport();
         }
+		elseif($entityTypeID === Exchange\EntityType::INVOICE)
+		{
+			return new Invoice(null);
+		}
+		elseif($entityTypeID === Exchange\EntityType::INVOICE_SHIPMENT)
+		{
+			return new ShipmentInvoice($parentEntityContext);
+		}
+		elseif($entityTypeID === Exchange\EntityType::INVOICE_PAYMENT_CASH)
+		{
+			return new PaymentCashInvoice($parentEntityContext);
+		}
+		elseif($entityTypeID === Exchange\EntityType::INVOICE_PAYMENT_CASH_LESS)
+		{
+			return new PaymentCashLessInvoice($parentEntityContext);
+		}
+		elseif($entityTypeID === Exchange\EntityType::INVOICE_PAYMENT_CARD_TRANSACTION)
+		{
+			return new PaymentCardInvoice($parentEntityContext);
+		}
         else
         {
             throw new Main\NotSupportedException("Entity type: '".Exchange\EntityType::ResolveName($entityTypeID)."' is not supported in current context");

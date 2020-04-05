@@ -276,15 +276,16 @@ class SaleOrderPaymentChange extends \CBitrixComponent
 		{
 			return;
 		}
-
-		$this->order = Sale\Order::loadByAccountNumber($this->arParams['ACCOUNT_NUMBER']);
+		$registry = Sale\Registry::getInstance(Sale\Order::getRegistryType());
+		$orderClassName = $registry->getOrderClassName();
+		$this->order = $orderClassName::loadByAccountNumber($this->arParams['ACCOUNT_NUMBER']);
 
 		if (empty($this->order))
 		{
 			return;
 		}
-
-		$paymentList = Sale\Payment::getList(
+		$paymentClassName = $registry->getPaymentClassName();
+		$paymentList = $paymentClassName::getList(
 			array(
 				"filter" => array("ACCOUNT_NUMBER" => $this->arParams['PAYMENT_NUMBER']),
 				"select" => array('*')
@@ -441,6 +442,8 @@ class SaleOrderPaymentChange extends \CBitrixComponent
 			return;
 		}
 
+		\Bitrix\Sale\DiscountCouponsManagerBase::freezeCouponStorage();
+
 		/** @var \Bitrix\Sale\Payment $payment */
 		$paymentCollection = $this->order->getPaymentCollection();
 		$payment = $paymentCollection->getItemById($this->arResult['PAYMENT']['ID']);
@@ -452,6 +455,7 @@ class SaleOrderPaymentChange extends \CBitrixComponent
 
 		if (!$paymentResult->isSuccess())
 		{
+			\Bitrix\Sale\DiscountCouponsManagerBase::unFreezeCouponStorage();
 			$this->errorCollection->add($paymentResult->getErrors());
 			return;
 		}
@@ -470,6 +474,8 @@ class SaleOrderPaymentChange extends \CBitrixComponent
 
 		$resultSaving = $this->order->save();
 
+		\Bitrix\Sale\DiscountCouponsManagerBase::unFreezeCouponStorage();
+
 		if ($resultSaving->isSuccess())
 		{
 			if ($this->arResult['IS_ALLOW_PAY'] == 'Y')
@@ -480,7 +486,7 @@ class SaleOrderPaymentChange extends \CBitrixComponent
 					"ORDER_DATE" => $this->order->getDateInsert()->toString(),
 					"PAYMENT_ID" => $payment->getField("ACCOUNT_NUMBER"),
 					"PAY_SYSTEM_NAME" => $payment->getField("PAY_SYSTEM_NAME"),
-					"IS_CASH" => $paySystemObject->isCash(),
+					"IS_CASH" => $paySystemObject->isCash() || $paySystemObject->getField("ACTION_FILE") === 'cash',
 					"NAME_CONFIRM_TEMPLATE" => $this->arParams['NAME_CONFIRM_TEMPLATE']
 				);
 

@@ -1,7 +1,9 @@
 <?php
 namespace Bitrix\Sale;
 
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\Loc,
+	Bitrix\Main\Loader,
+	Bitrix\Catalog;
 
 Loc::loadMessages(__FILE__);
 
@@ -172,14 +174,13 @@ class Configuration
 	 * Returns flag enable use stores.
 	 *
 	 * @return bool
-	 * @throws \Bitrix\Main\ArgumentNullException
 	 */
 	public static function useStoreControl()
 	{
-		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
-		$optionClassName = $registry->get(Registry::ENTITY_OPTIONS);
+		if (!Loader::includeModule('catalog'))
+			return false;
 
-		return ((string)$optionClassName::get('catalog', 'default_use_store_control') === 'Y');
+		return Catalog\Config\State::isUsedInventoryManagement();
 	}
 
 	/**

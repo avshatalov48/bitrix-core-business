@@ -2,6 +2,7 @@
 Class CIdeaManagment
 {
 	//User Fields Id
+	const UFBlockPostDocField = 'UF_BLOG_POST_DOC';
 	const UFStatusField = 'UF_STATUS';
 	const UFAnswerIdField = 'UF_ANSWER_ID';
 	const UFCategroryCodeField = 'UF_CATEGORY_CODE';
@@ -28,6 +29,7 @@ Class CIdeaManagment
 	public function GetUserFieldsArray()
 	{
 		return array(
+			self::UFBlockPostDocField,
 			self::UFStatusField,
 			self::UFAnswerIdField,
 			self::UFCategroryCodeField,

@@ -6,6 +6,8 @@
  * @copyright 2001-2013 Bitrix
  */
 
+use Bitrix\Main;
+
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/user.php");
 
 class CUser extends CAllUser
@@ -29,8 +31,8 @@ class CUser extends CAllUser
 		else
 		{
 			unset($arFields["ID"]);
-			if(is_set($arFields, "ACTIVE") && $arFields["ACTIVE"]!="Y")
-				$arFields["ACTIVE"]="N";
+
+			$arFields['ACTIVE'] = is_set($arFields, 'ACTIVE') && $arFields['ACTIVE'] != 'Y' ? 'N' : 'Y';
 
 			if($arFields["PERSONAL_GENDER"]=="NOT_REF" || ($arFields["PERSONAL_GENDER"]!="M" && $arFields["PERSONAL_GENDER"]!="F"))
 				$arFields["PERSONAL_GENDER"] = "";
@@ -99,9 +101,22 @@ class CUser extends CAllUser
 			if(is_set($arFields, "GROUP_ID"))
 				CUser::SetUserGroup($ID, $arFields["GROUP_ID"], true);
 
+			if(isset($arFields["PHONE_NUMBER"]) && $arFields["PHONE_NUMBER"] <> '')
+			{
+				Main\UserPhoneAuthTable::add(array(
+					"USER_ID" => $ID,
+					"PHONE_NUMBER" => $arFields["PHONE_NUMBER"],
+				));
+			}
+
 			//update digest hash for http digest authorization
 			if(COption::GetOptionString('main', 'use_digest_auth', 'N') == 'Y')
 				CUser::UpdateDigest($ID, $original_pass);
+
+			if(Main\Config\Option::get("main", "user_profile_history") === "Y")
+			{
+				Main\UserProfileHistoryTable::addHistory($ID, Main\UserProfileHistoryTable::TYPE_ADD);
+			}
 
 			$Result = $ID;
 			$arFields["ID"] = &$ID;
@@ -522,13 +537,6 @@ class CUser extends CAllUser
 					IF(U.SECOND_NAME IS NULL OR U.SECOND_NAME = '', 1, U.SECOND_NAME) %1\$s,
 					U.LOGIN %1\$s", $dir
 				);
-			}
-			else
-			{
-				$field = "TIMESTAMP_X";
-				$arSqlOrder[$field] = "U.".$field." ".$dir;
-				if ($bSingleBy)
-					$by = strtolower($field);
 			}
 		}
 

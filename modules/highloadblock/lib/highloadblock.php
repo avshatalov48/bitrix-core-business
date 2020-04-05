@@ -62,7 +62,7 @@ class HighloadBlockTable extends Entity\DataManager
 			'LANG' => new Entity\ReferenceField(
 				'LANG',
 				'Bitrix\Highloadblock\HighloadBlockLangTable',
-				array('=this.ID' => 'ref.ID', 'ref.LID' => new \Bitrix\Main\DB\SqlExpression('?', LANG))
+				array('=this.ID' => 'ref.ID', 'ref.LID' => new Main\DB\SqlExpression('?', LANGUAGE_ID))
 			),
 		);
 
@@ -315,6 +315,42 @@ class HighloadBlockTable extends Entity\DataManager
 
 	/**
 	 * @param array|int|string $hlblock Could be a block, ID or NAME of block.
+	 * @return array|null
+	 */
+	public static function resolveHighloadblock($hlblock)
+	{
+		if (!is_array($hlblock))
+		{
+			if (is_int($hlblock) || is_numeric(substr($hlblock, 0, 1)))
+			{
+				// we have an id
+				$hlblock = HighloadBlockTable::getById($hlblock)->fetch();
+			}
+			elseif (is_string($hlblock) && $hlblock !== '')
+			{
+				// we have a name
+				$hlblock = HighloadBlockTable::query()->addSelect('*')->where('NAME', $hlblock)->exec()->fetch();
+			}
+			else
+			{
+				$hlblock = null;
+			}
+		}
+		if (empty($hlblock))
+			return null;
+
+		if (!isset($hlblock['ID']))
+			return null;
+		if (!isset($hlblock['NAME']) || !preg_match('/^[a-z0-9_]+$/i', $hlblock['NAME']))
+			return null;
+		if (empty($hlblock['TABLE_NAME']))
+			return null;
+
+		return $hlblock;
+	}
+
+	/**
+	 * @param array|int|string $hlblock Could be a block, ID or NAME of block.
 	 *
 	 * @return Entity\Base
 	 * @throws \Bitrix\Main\SystemException
@@ -322,6 +358,16 @@ class HighloadBlockTable extends Entity\DataManager
 	public static function compileEntity($hlblock)
 	{
 		global $USER_FIELD_MANAGER;
+
+		$rawBlock = $hlblock;
+		$hlblock = static::resolveHighloadblock($hlblock);
+		if (empty($hlblock))
+		{
+			throw new Main\SystemException(sprintf(
+				'Invalid highloadblock description `%s`.', mydump($rawBlock)
+			));
+		}
+		unset($rawBlock);
 
 		// generate entity & data manager
 		$fieldsMap = array();
@@ -333,33 +379,9 @@ class HighloadBlockTable extends Entity\DataManager
 			'autocomplete' => true
 		);
 
-		// get hlblock
-		if (!is_array($hlblock))
-		{
-			if (is_numeric(substr($hlblock, 0, 1)))
-			{
-				// we have an id
-				$hlblock = HighloadBlockTable::getById($hlblock)->fetch();
-			}
-			else
-			{
-				// we have a name
-				$hlblock = HighloadBlockTable::query()->addSelect('*')->where('NAME', $hlblock)->exec()->fetch();
-			}
-		}
-
 		// build datamanager class
 		$entity_name = $hlblock['NAME'];
-		$entity_data_class = $hlblock['NAME'];
-
-		if (!preg_match('/^[a-z0-9_]+$/i', $entity_data_class))
-		{
-			throw new Main\SystemException(sprintf(
-				'Invalid entity name `%s`.', $entity_data_class
-			));
-		}
-
-		$entity_data_class .= 'Table';
+		$entity_data_class = $hlblock['NAME'].'Table';
 
 		if (class_exists($entity_data_class))
 		{
@@ -753,4 +775,3 @@ class HighloadBlockTable extends Entity\DataManager
 		return true;
 	}
 }
-

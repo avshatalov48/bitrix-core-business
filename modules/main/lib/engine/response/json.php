@@ -63,12 +63,13 @@ class Json extends Main\HttpResponse
 
 		if ($data instanceof DateTime)
 		{
-			return $data->toString();
+			return date('c' , $data->getTimestamp());
 		}
 
 		if ($data instanceof Main\Type\Date)
 		{
-			return $data->toString();
+			/** @see \CRestUtil::ConvertDate */
+			return date('c', makeTimeStamp($data, FORMAT_DATE) + date("Z"));
 		}
 
 		if ($data instanceof Main\Web\Uri)

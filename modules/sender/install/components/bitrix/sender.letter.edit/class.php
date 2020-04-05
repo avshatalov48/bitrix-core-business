@@ -15,7 +15,7 @@ use Bitrix\Sender\Templates;
 use Bitrix\Sender\Integration;
 use Bitrix\Sender\UI;
 
-use Bitrix\Fileman\Block as FilemanBlock;
+use Bitrix\Fileman;
 use Bitrix\Sender\Internals\PostFiles;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
@@ -42,6 +42,7 @@ class SenderLetterEditComponent extends CBitrixComponent
 	{
 		$this->arParams['ID'] = isset($this->arParams['ID']) ? (int) $this->arParams['ID'] : 0;
 		$this->arParams['ID'] = $this->arParams['ID'] ? $this->arParams['ID'] : (int) $this->request->get('ID');
+		$this->arParams['IS_OUTSIDE'] = isset($this->arParams['IS_OUTSIDE']) ? (bool) $this->arParams['IS_OUTSIDE'] : $this->request->get('isOutside') === 'Y';
 
 		if (empty($this->arParams['CAMPAIGN_ID']))
 		{
@@ -127,10 +128,7 @@ class SenderLetterEditComponent extends CBitrixComponent
 					break;
 				case Message\ConfigurationOption::TYPE_MAIL_EDITOR:
 					$value = Security\Sanitizer::fixReplacedStyles($value);
-					Loader::includeModule('fileman');
-					$canEditPhp = Security\User::current()->canEditPhp();
-					$canUseLpa = Security\User::current()->canUseLpa();
-					$value = FilemanBlock\EditorMail::removePhpFromHtml($value, $option->getValue(), $canEditPhp, $canUseLpa);
+					$value = Security\Sanitizer::sanitizeHtml($value, $option->getValue());
 					break;
 			}
 			$option->setValue($value);
@@ -196,33 +194,36 @@ class SenderLetterEditComponent extends CBitrixComponent
 		$message = $this->request->get('CONFIGURATION_MESSAGE');
 		$name = $this->request->get('CONFIGURATION_SUBJECT') ?: $this->letter->get('TITLE');
 
-		if (!$templateType || !$templateType || !$message)
+		if (!$message)
 		{
 			return;
 		}
 
-		$template = Templates\Selector::create()
-			->withMessageCode($this->letter->getMessage()->getCode())
-			->withTypeId($templateType)
-			->withId($templateId)
-			->get();
-
-		if (!$template || !$template['FIELDS']['MESSAGE']['VALUE'])
+		if ($templateType && $templateType)
 		{
-			return;
-		}
+			$template = Templates\Selector::create()
+				->withMessageCode($this->letter->getMessage()->getCode())
+				->withTypeId($templateType)
+				->withId($templateId)
+				->get();
 
-		$useBlockEditor = false;
-		Loader::includeModule('fileman');
-
-		$message = FilemanBlock\Content\Engine::fillHtmlTemplate($template['FIELDS']['MESSAGE']['VALUE'], $message);
-		if ($message)
-		{
-			$useBlockEditor = true;
+			if ($template && $template['FIELDS']['MESSAGE']['VALUE'])
+			{
+				$templateHtml = $template['FIELDS']['MESSAGE']['VALUE'];
+				Loader::includeModule('fileman');
+				if (Fileman\Block\Editor::isContentSupported($templateHtml))
+				{
+					$message = Fileman\Block\Content\Engine::fillHtmlTemplate($templateHtml, $message);
+					if (!$message)
+					{
+						return;
+					}
+				}
+			}
 		}
 
 		$addResult = \Bitrix\Sender\TemplateTable::add(array('NAME' => $name, 'CONTENT' => $message));
-		if($useBlockEditor && $addResult->isSuccess())
+		if($addResult->isSuccess())
 		{
 			$templateType = Templates\Type::getCode(Templates\Type::USER);
 			$templateId = $addResult->getId();
@@ -238,7 +239,7 @@ class SenderLetterEditComponent extends CBitrixComponent
 		// agreement accept check
 		if(!Security\User::current()->isAgreementAccepted())
 		{
-			$this->errors->setError(new Error(Loc::getMessage('SENDER_COMP_LETTER_EDIT_ERROR_AGR')));
+			$this->errors->setError(new Error(Security\Agreement::getErrorText()));
 		}
 
 		// prepare letter
@@ -293,7 +294,16 @@ class SenderLetterEditComponent extends CBitrixComponent
 				{
 					$uri->addParams(array('IS_SAVED' => 'Y'));
 				}
+				if ($this->arParams['IS_OUTSIDE'])
+				{
+					$uri->addParams(array('isOutside' => 'Y'));
+				}
 			}
+			if (is_array($this->request->get('DISPATCH')))
+			{
+				$uri->addParams($this->request->get('DISPATCH'));
+			}
+
 			LocalRedirect($uri->getLocator());
 		}
 	}
@@ -337,15 +347,6 @@ class SenderLetterEditComponent extends CBitrixComponent
 			return false;
 		}
 
-		// get row
-		$this->arResult['ROW'] = $this->letter->getData();
-		if ($this->arResult['ROW']['IS_TRIGGER'] === 'Y')
-		{
-			$this->arParams['SHOW_SEGMENTS'] = false;
-			$this->arParams['SHOW_CAMPAIGNS'] = false;
-			$this->arParams['GOTO_URI_AFTER_SAVE'] = null;
-		}
-
 		// Process POST
 		if ($this->request->isPost() && check_bitrix_sessid() && $this->arParams['CAN_EDIT'])
 		{
@@ -353,7 +354,16 @@ class SenderLetterEditComponent extends CBitrixComponent
 		}
 		else if (!$this->letter->getId())
 		{
-			$this->letter->set('SEGMENTS_INCLUDE', Entity\Segment::getDefaultIds());
+			$this->prepareDefaultSegments();
+		}
+
+		// get row
+		$this->arResult['ROW'] = $this->letter->getData();
+		if ($this->arResult['ROW']['IS_TRIGGER'] === 'Y')
+		{
+			$this->arParams['SHOW_SEGMENTS'] = false;
+			$this->arParams['SHOW_CAMPAIGNS'] = false;
+			$this->arParams['GOTO_URI_AFTER_SAVE'] = null;
 		}
 
 		// get campaign
@@ -413,14 +423,14 @@ class SenderLetterEditComponent extends CBitrixComponent
 		{
 			if ($this->arParams['IFRAME'] && $this->arResult['SHOW_TEMPLATE_SELECTOR'])
 			{
-				$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_COMP_LETTER_EDIT_TITLE_TEMPLATES'));
+				$GLOBALS['APPLICATION']->SetTitle($this->getLocMessage('SENDER_COMP_LETTER_EDIT_TITLE_TEMPLATES'));
 			}
 			else
 			{
 				$GLOBALS['APPLICATION']->SetTitle($this->letter->getId() ?
-					Loc::getMessage('SENDER_COMP_LETTER_EDIT_TITLE_EDIT')
+					$this->getLocMessage('SENDER_COMP_LETTER_EDIT_TITLE_EDIT')
 					:
-					Loc::getMessage('SENDER_COMP_LETTER_EDIT_TITLE_ADD')
+					$this->getLocMessage('SENDER_COMP_LETTER_EDIT_TITLE_ADD')
 				);
 			}
 		}
@@ -439,6 +449,24 @@ class SenderLetterEditComponent extends CBitrixComponent
 		$this->arResult['IS_SAVED'] = $this->request->get('IS_SAVED') == 'Y';
 
 		return true;
+	}
+
+	protected function prepareDefaultSegments()
+	{
+		$segments = $this->request->get('SEGMENTS_INCLUDE');
+		$segments = (!empty($segments) && is_array($segments))
+			?
+			array_filter(
+				$segments,
+				function ($segmentId)
+				{
+					return $segmentId && is_numeric($segmentId);
+				}
+			)
+			:
+			Entity\Segment::getDefaultIds();
+
+		$this->letter->set('SEGMENTS_INCLUDE', $segments);
 	}
 
 	protected function initTemplates()
@@ -512,5 +540,19 @@ class SenderLetterEditComponent extends CBitrixComponent
 
 		$templateName = $this->request->get('showTime') == 'y' ? 'time' : '';
 		$this->includeComponentTemplate($templateName);
+	}
+
+	public function getLocMessage($messageCode, $replace = [])
+	{
+		if (!empty($this->arParams['MESS'][$messageCode]))
+		{
+			$message = $this->arParams['MESS'][$messageCode];
+		}
+		else
+		{
+			$message = Loc::getMessage($messageCode, $replace);
+		}
+
+		return str_replace(array_keys($replace), array_values($replace), $message);
 	}
 }

@@ -8,10 +8,12 @@
 namespace Bitrix\Socialnetwork;
 
 use Bitrix\Main\Entity;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\DB\SqlQueryException;
+use Bitrix\Main\UserTable;
 
 /**
  * Class UserContentViewTable
@@ -66,6 +68,8 @@ class UserContentViewTable extends Entity\DataManager
 
 	public static function set($params = array())
 	{
+		static $controllerUser = array();
+
 		$userId = (isset($params['userId']) ? intval($params['userId']) : 0);
 		$typeId = (isset($params['typeId']) ? trim($params['typeId']) : false);
 		$entityId = (isset($params['entityId']) ? intval($params['entityId']) : 0);
@@ -81,6 +85,36 @@ class UserContentViewTable extends Entity\DataManager
 		}
 
 		$saved = false;
+
+		if (ModuleManager::isModuleInstalled('bitrix24'))
+		{
+			if (!isset($controllerUser[$userId]))
+			{
+				$res = UserTable::getList(array(
+					'filter' => array(
+						'=ID' => $userId,
+						'=EXTERNAL_AUTH_ID' => '__controller'
+					),
+					'select' => array('ID')
+				));
+				if ($res->fetch())
+				{
+					$controllerUser[$userId] = true;
+				}
+				else
+				{
+					$controllerUser[$userId] = false;
+				}
+			}
+
+			if ($controllerUser[$userId])
+			{
+				return array(
+					'success' => true,
+					'savedInDB' => false
+				);
+			}
+		}
 
 		try
 		{

@@ -6,6 +6,8 @@ CModule::IncludeModule("iblock");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/prolog.php");
 IncludeModuleLangFile(__FILE__);
 
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+
 CUtil::JSPostUnescape();
 /*
  * this page only for actions and get info
@@ -54,7 +56,7 @@ if ($bBadBlock)
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
 	ShowError(GetMessage("IBLOCK_BAD_IBLOCK"));?>
-	<a href="/bitrix/admin/iblock_admin.php?lang=<?echo LANGUAGE_ID?>&type=<?echo htmlspecialcharsbx($strSubIBlockType)?>"><?echo GetMessage("IBLOCK_BACK_TO_ADMIN")?></a>
+	<a href="<?=$selfFolderUrl?>iblock_admin.php?lang=<?echo LANGUAGE_ID?>&type=<?echo htmlspecialcharsbx($strSubIBlockType)?>"><?echo GetMessage("IBLOCK_BACK_TO_ADMIN")?></a>
 	<?
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
@@ -96,7 +98,8 @@ if (0 >= $intSubPropValue)
 		die();
 	}
 }
-$strSubElementAjaxPath = '/bitrix/admin/iblock_subelement_admin.php?WF=Y&IBLOCK_ID='.$intSubIBlockID.'&type='.urlencode($strSubIBlockType).'&lang='.LANGUAGE_ID.'&find_section_section=0&find_el_property_'.$arSubCatalog['SKU_PROPERTY_ID'].'='.$intSubPropValue.'&TMP_ID='.urlencode($strSubTMP_ID);
+$additionalParams = (defined("SELF_FOLDER_URL") ? "&public=y" : "");
+$strSubElementAjaxPath = $selfFolderUrl.'iblock_subelement_admin.php?WF=Y&IBLOCK_ID='.$intSubIBlockID.'&type='.urlencode($strSubIBlockType).'&lang='.LANGUAGE_ID.'&find_section_section=0&find_el_property_'.$arSubCatalog['SKU_PROPERTY_ID'].'='.$intSubPropValue.'&TMP_ID='.urlencode($strSubTMP_ID).$additionalParams;
 require($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/iblock/admin/templates/iblock_subelement_list.php');
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_popup_admin.php");
 ?>

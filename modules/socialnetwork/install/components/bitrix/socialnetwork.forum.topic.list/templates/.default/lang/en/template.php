@@ -31,7 +31,7 @@ $MESS ['F_MANAGE_OPEN'] = "Open topics";
 $MESS ['F_MANAGE_CLOSE'] = "Close topics";
 $MESS ['F_MANAGE_DELETE'] = "Delete topics";
 $MESS ['JS_NO_ACTION'] = "No action selected to be performed on the topics. Please select an action.";
-$MESS ['F_CREATE_NEW_TOPIC'] = "<a href='#HREF#'>Create a first topic</a>.";
+$MESS ['F_CREATE_NEW_TOPIC'] = "<a href=\"#HREF#\">Create a first topic</a>.";
 $MESS ['F_NO_TOPICS_HERE'] = "There are no topics here.";
 $MESS ['F_TOPIC_START'] = "Start date";
 $MESS ['FTL_EMAIL_INTEGRATION'] = "E-mail Discussions:";

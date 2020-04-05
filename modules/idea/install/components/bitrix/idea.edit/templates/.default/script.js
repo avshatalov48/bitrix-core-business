@@ -13,7 +13,7 @@
 	{
 		// add style for cut-image
 		var cutCss = "\nimg.bxed-cut{background: transparent url('/bitrix/images/blog/editor/cut_image.gif') left top repeat-x; margin: 2px; width: 100%; height: 12px;}\n";
-		if(editor.iframeCssText.length > 0)
+		if(editor.iframeCssText != undefined && editor.iframeCssText.length > 0)
 			editor.iframeCssText += cutCss;
 		else
 			editor.iframeCssText = cutCss;

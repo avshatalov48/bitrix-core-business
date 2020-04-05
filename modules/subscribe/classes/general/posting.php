@@ -748,6 +748,7 @@ class CPostingGeneral
 
 		$context = new Mail\Context();
 		$context->setCategory(Mail\Context::CAT_EXTERNAL);
+		$context->setPriority(Mail\Context::PRIORITY_LOW);
 
 		if($post_arr["DIRECT_SEND"] == "Y")
 		{

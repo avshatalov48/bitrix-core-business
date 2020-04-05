@@ -72,8 +72,14 @@ $context->Show();
 
 if (!empty($arSetupErrors))
 	ShowError(implode('<br />', $arSetupErrors));
+
+$actionParams = "";
+if ($adminSidePanelHelper->isSidePanel())
+{
+	$actionParams = "?IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER";
+}
 ?>
-<form method="POST" action="<? echo $APPLICATION->GetCurPage(); ?>" ENCTYPE="multipart/form-data" name="dataload">
+<form method="POST" action="<? echo $APPLICATION->GetCurPage().$actionParams; ?>" ENCTYPE="multipart/form-data" name="dataload">
 <?
 $aTabs = array(
 	array("DIV" => "edit1", "TAB" => GetMessage("CAT_ADM_CML1_IMP_TAB1"), "ICON" => "store", "TITLE" => GetMessage("CAT_ADM_CML1_IMP_TAB1_TITLE")),

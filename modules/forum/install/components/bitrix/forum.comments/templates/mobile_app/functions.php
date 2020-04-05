@@ -5,7 +5,6 @@ function forumCommentsCommentMobile(
 	array $arResult,
 	ForumCommentsComponent $component)
 {
-	global $APPLICATION;
 	$arParams["AVATAR_SIZE"] = (intval($arParams["AVATAR_SIZE"]) ?: 58);
 
 	static $parser = null;
@@ -50,6 +49,11 @@ function forumCommentsCommentMobile(
 		"BEFORE_RECORD" => "",
 		"AFTER_RECORD" => ""
 	);
+
+	if ($arParams["SHOW_RATING"] == "Y")
+	{
+		$res["RATING_VOTE_ID"] = 'FORUM_POST_'.$res['ID'].'-'.(time()+rand(0, 1000));
+	}
 
 	return $res;
 }

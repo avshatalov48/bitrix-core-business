@@ -19,19 +19,20 @@ BX.SidePanel.Slider = function(url, options)
 	options = BX.type.isPlainObject(options) ? options : {};
 	this.options = options;
 
-	this.slider = null;
-
 	this.contentCallback = BX.type.isFunction(options.contentCallback) ? options.contentCallback : null;
 	this.contentCallbackInvoved = false;
 
 	this.zIndex = 3000;
-	this.offset = 0;
+	this.offset = null;
 	this.width = BX.type.isNumber(options.width) ? options.width : null;
 	this.cacheable = options.cacheable !== false;
 	this.autoFocus = options.autoFocus !== false;
 	this.printable = options.printable === true;
 	this.allowChangeHistory = options.allowChangeHistory !== false;
 	this.data = new BX.SidePanel.Dictionary(BX.type.isPlainObject(options.data) ? options.data : {});
+
+	this.customLeftBoundary = null;
+	this.setCustomLeftBoundary(options.customLeftBoundary);
 
 	/**
 	 *
@@ -51,6 +52,9 @@ BX.SidePanel.Slider = function(url, options)
 	this.hidden = false;
 	this.destroyed = false;
 	this.loaded = false;
+
+	this.handleFrameKeyDown = this.handleFrameKeyDown.bind(this);
+	this.handleFrameFocus = this.handleFrameFocus.bind(this);
 
 	/**
 	 *
@@ -251,11 +255,11 @@ BX.SidePanel.Slider.prototype =
 
 	/**
 	 * @public
-	 * @param {number} offset
+	 * @param {?number} offset
 	 */
 	setOffset: function(offset)
 	{
-		if (BX.type.isNumber(offset))
+		if (BX.type.isNumber(offset) || offset === null)
 		{
 			this.offset = offset;
 		}
@@ -263,7 +267,7 @@ BX.SidePanel.Slider.prototype =
 
 	/**
 	 * @public
-	 * @returns {number}
+	 * @returns {?number}
 	 */
 	getOffset: function()
 	{
@@ -561,6 +565,21 @@ BX.SidePanel.Slider.prototype =
 	},
 
 	/**
+	 * @protected
+	 * @return {number}
+	 */
+	calculateLeftBoundary: function()
+	{
+		var customLeftBoundary = this.getCustomLeftBoundary();
+		if (customLeftBoundary !== null)
+		{
+			return customLeftBoundary;
+		}
+
+		return this.getLeftBoundary();
+	},
+
+	/**
 	 * @public
 	 * @returns {number}
 	 */
@@ -581,6 +600,27 @@ BX.SidePanel.Slider.prototype =
 
 	/**
 	 * @public
+	 * @param {number} boundary
+	 */
+	setCustomLeftBoundary: function(boundary)
+	{
+		if (BX.type.isNumber(boundary) || boundary === null)
+		{
+			this.customLeftBoundary = boundary;
+		}
+	},
+
+	/**
+	 * @public
+	 * @return {number}
+	 */
+	getCustomLeftBoundary: function()
+	{
+		return this.customLeftBoundary;
+	},
+
+	/**
+	 * @public
 	 * @returns {number}
 	 */
 	getRightBoundary: function()
@@ -597,14 +637,23 @@ BX.SidePanel.Slider.prototype =
 		this.firePageEvent("onDestroy");
 		this.fireFrameEvent("onDestroy");
 
+		var frameWindow = this.getFrameWindow();
+		if (frameWindow)
+		{
+			frameWindow.removeEventListener("keydown", this.handleFrameKeyDown);
+			frameWindow.removeEventListener("focus", this.handleFrameFocus);
+		}
+
 		BX.remove(this.layout.overlay);
 
 		this.layout.container = null;
 		this.layout.overlay = null;
 		this.layout.content = null;
 		this.layout.closeBtn = null;
-		this.iframe = null;
+		this.layout.printBtn = null;
+		this.layout.loader = null;
 
+		this.iframe = null;
 		this.destroyed = true;
 
 		if (this.options.events)
@@ -651,7 +700,9 @@ BX.SidePanel.Slider.prototype =
 		topBoundary = isTopBoundaryVisible ? topBoundary : scrollTop;
 
 		var height = isTopBoundaryVisible > 0 ? windowHeight - topBoundary + scrollTop : windowHeight;
-		var leftBoundary = Math.max(this.getLeftBoundary(), this.getMinLeftBoundary()) + this.getOffset();
+		var offset = this.getOffset() !== null ? this.getOffset() : 0;
+
+		var leftBoundary = Math.max(this.calculateLeftBoundary(), this.getMinLeftBoundary()) + offset;
 
 		this.getOverlay().style.left = window.pageXOffset + "px";
 		this.getOverlay().style.top = topBoundary + "px";
@@ -1166,8 +1217,7 @@ BX.SidePanel.Slider.prototype =
 	 */
 	animateOpening: function()
 	{
-		BX.addClass(this.getOverlay(), "side-panel-overlay-open");
-		BX.addClass(this.getContainer(), "side-panel-container-open");
+		BX.addClass(this.getOverlay(), "side-panel-overlay-open side-panel-overlay-opening");
 
 		if (this.isPrintable())
 		{
@@ -1229,6 +1279,8 @@ BX.SidePanel.Slider.prototype =
 		{
 			this.currentParams = this.endParams;
 
+			BX.removeClass(this.getOverlay(), "side-panel-overlay-opening");
+
 			this.firePageEvent("onBeforeOpenComplete");
 			this.fireFrameEvent("onBeforeOpenComplete");
 
@@ -1244,8 +1296,7 @@ BX.SidePanel.Slider.prototype =
 		{
 			this.currentParams = this.startParams;
 
-			BX.removeClass(this.getOverlay(), "side-panel-overlay-open");
-			BX.removeClass(this.getContainer(), "side-panel-container-open");
+			BX.removeClass(this.getOverlay(), "side-panel-overlay-open side-panel-overlay-opening");
 
 			this.getContainer().style.removeProperty("width");
 			this.getContainer().style.removeProperty("right");
@@ -1408,8 +1459,8 @@ BX.SidePanel.Slider.prototype =
 			return;
 		}
 
-		frameWindow.addEventListener("keydown", this.handleFrameKeyDown.bind(this));
-		frameWindow.addEventListener("focus", this.handleFrameFocus.bind(this));
+		frameWindow.addEventListener("keydown", this.handleFrameKeyDown);
+		frameWindow.addEventListener("focus", this.handleFrameFocus);
 
 		if (BX.browser.IsMobile())
 		{
@@ -1483,10 +1534,8 @@ BX.SidePanel.Slider.prototype =
 			return;
 		}
 
-		if (this.canCloseByEsc())
-		{
-			this.close();
-		}
+		this.firePageEvent("onEscapePress");
+		this.fireFrameEvent("onEscapePress");
 	},
 
 	/**

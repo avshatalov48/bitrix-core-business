@@ -1,48 +1,9 @@
 /*
-For colors, than white in dark themes and vice versa
-Use color from standart H
-*/
-h2.g-theme-light-color-dark, h4.g-theme-light-color-dark {color: #000;}
-
-
 /* Fix for complex button with icon. Need no bg color */
 .u-btn-inset > .u-btn-darkgray {
 	background-color: transparent;
 }
 
-/* for overwrite P color */
-.g-color-primary,
-.g-color-primary *,
-.g-color-primary p {
-	color: #9dba04;
-}
-
-
-
-
-
-
-
-
-/* ***********
-THEMES CUSTOM COLORS
-*********** */
-
-.landing-block-node-menu-list.navbar-nav .nav-item .nav-link:hover, .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link {
-	color: #9dba04 !important;
-}
-
-.g-bg-white .landing-block-node-menu-list.navbar-nav .nav-item .nav-link-color-hover:hover {
-	background-color: #9dba04 !important;
-}
-
-.g-bg-white .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link-color-hover {
-	background-color: #9dba04 !important;
-}
-
-.g-color-primary--hover:hover * {
-	color: #9dba04 !important;
-}
 
 .u-btn-inset::before {
 	border-color: #9dba04 !important;
@@ -63,19 +24,6 @@ THEMES CUSTOM COLORS
 	background-color: #9dba04 !important;
 }
 
-.g-theme-business-bg-blue-dark-v1-opacity-0_9 .hamburger-inner {
-	background-color: #fff !important;
-}
-
-.g-theme-business-bg-blue-dark-v1-opacity-0_9 .hamburger-inner:before, .g-theme-business-bg-blue-dark-v1-opacity-0_9 .hamburger-inner:after {
-	background-color: #fff !important;
-}
-
-
-/* RESTAURANT */
-.u-theme-restaurant-shadow-v1 {
-	box-shadow: inset 2px 2px 2px #88a103;
-}
 
 /* BUTTON HOVERS */
 

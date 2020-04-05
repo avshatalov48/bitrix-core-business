@@ -42,12 +42,18 @@ elseif ($arEvents == 'inactive_feature')
 elseif (is_array($arEvents))
 {
 	if (strpos($arParams['DETAIL_URL'], '?') !== FALSE)
+	{
 		$arParams['DETAIL_URL'] = substr($arParams['DETAIL_URL'], 0, strpos($arParams['DETAIL_URL'], '?'));
+	}
 	$arParams['DETAIL_URL'] = str_replace('#user_id#', $curUserId, strtolower($arParams['DETAIL_URL']));
 
 	for ($i = 0, $l = count($arEvents); $i < $l; $i++)
 	{
-		$arEvents[$i]['_DETAIL_URL'] = $arParams['DETAIL_URL'].'?EVENT_ID='.$arEvents[$i]['ID'].'&EVENT_DATE='.$arEvents[$i]['DATE_FROM'];
+		$arEvents[$i]['_DETAIL_URL'] = CHTTP::urlAddParams($arParams['DETAIL_URL'], array(
+			'EVENT_ID' => $arEvents[$i]['ID'],
+			'EVENT_DATE' => CCalendar::Date(CCalendar::Timestamp($arEvents[$i]['DATE_FROM']), false)
+		));
+
 		if ($arEvents[$i]['IS_MEETING'] && $arEvents[$i]['MEETING_STATUS'] == 'Q')
 		{
 			$arEvents[$i]['_ADD_CLASS'] = ' calendar-not-confirmed';

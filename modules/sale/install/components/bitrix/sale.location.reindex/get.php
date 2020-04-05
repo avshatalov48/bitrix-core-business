@@ -25,8 +25,11 @@ $result = CBitrixSaleLocationReindexComponent::doAjaxStuff(array(
 	'INITIAL_TIME' => $initialTime
 ));
 
+$APPLICATION->restartBuffer();
+
 header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
-print(CUtil::PhpToJSObject(array(
+
+die(CUtil::PhpToJSObject(array(
 	'result' => empty($result['ERRORS']),
 	'errors' => $result['ERRORS'],
 	'data' => $result['DATA']

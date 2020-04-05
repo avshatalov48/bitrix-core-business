@@ -76,6 +76,8 @@ class LogFollow
 
 		foreach($destUserIdList as $destUserId)
 		{
+			$subscribeTypeList = array();
+
 			if (
 				(
 					!isset($userFollowValue[$destUserId])
@@ -88,13 +90,16 @@ class LogFollow
 				)
 			)
 			{
-				\CSocNetLogFollow::set(
-					intval($destUserId),
-					"L".$logId,
-					"Y",
-					ConvertTimeStamp(time() + \CTimeZone::getOffset(), "FULL", SITE_ID)
-				);
+				$subscribeTypeList[] = 'FOLLOW';
 			}
+
+			\Bitrix\Socialnetwork\ComponentHelper::userLogSubscribe(array(
+				'logId' => $logId,
+				'userId' => $destUserId,
+				'typeList' => $subscribeTypeList,
+				'followDate' => 'CURRENT'
+			));
+
 		}
 
 		return true;

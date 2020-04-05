@@ -25,6 +25,7 @@ CModule::AddAutoloadClasses(
 		"CCloudStorageService_HotBox" =>  "classes/general/storage_service_hotbox.php",
 		"CCloudStorageUpload" => "classes/general/storage_upload.php",
 		"CCloudSecurityService_AmazonS3" => "classes/general/security_service_s3.php",
+		"CCloudSecurityService_HotBox" => "classes/general/security_service_hotbox.php",
 		"CCloudTempFile" => "classes/general/temp_file.php",
 	)
 );

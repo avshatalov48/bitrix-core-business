@@ -630,7 +630,6 @@ final class Manager
 	/**
 	 * @param int[] $shipmentIds
 	 * @return int[] Choose ids only for existing shipments.
-	 * @throws Main\ArgumentException
 	 */
 	protected static function filterExistIds(array $shipmentIds)
 	{
@@ -651,7 +650,6 @@ final class Manager
 	/**
 	 * @param int[] $shipmentIds
 	 * @return int[]
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	protected static function filterAddedIds(array $shipmentIds)
 	{
@@ -753,7 +751,6 @@ final class Manager
 	/**
 	 * @param int $shipmentId
 	 * @return int Request ID
-	 * @throws Main\ArgumentException
 	 */
 	public static function getRequestIdByShipmentId($shipmentId)
 	{

@@ -397,14 +397,11 @@ class Indexer
 			));
 			while ($link = $propertyList->fetch())
 			{
-				if ($link["IBLOCK_SECTION_PROPERTY_PROPERTY_PROPERTY_TYPE"] === "N")
-					$this->propertyFilter[Storage::NUMERIC][] = $link["PROPERTY_ID"];
-				elseif ($link["IBLOCK_SECTION_PROPERTY_PROPERTY_USER_TYPE"] === "DateTime")
-					$this->propertyFilter[Storage::DATETIME][] = $link["PROPERTY_ID"];
-				elseif ($link["IBLOCK_SECTION_PROPERTY_PROPERTY_PROPERTY_TYPE"] === "S")
-					$this->propertyFilter[Storage::STRING][] = $link["PROPERTY_ID"];
-				else
-					$this->propertyFilter[Storage::DICTIONARY][] = $link["PROPERTY_ID"];
+				$storageType = $this->getPropertyStorageType(array(
+					"PROPERTY_TYPE" => $link["IBLOCK_SECTION_PROPERTY_PROPERTY_PROPERTY_TYPE"],
+					"USER_TYPE" => $link["IBLOCK_SECTION_PROPERTY_PROPERTY_USER_TYPE"],
+				));
+				$this->propertyFilter[$storageType][] = $link["PROPERTY_ID"];
 			}
 		}
 		return $this->propertyFilter[$propertyType];
@@ -430,5 +427,27 @@ class Indexer
 			}
 		}
 		return $this->priceFilter;
+	}
+
+	/**
+	 * Returns storage type for the property.
+	 * - N - maps to Indexer::NUMERIC
+	 * - S - to Indexer::STRING
+	 * - F, E, G, L - to Indexer::DICTIONARY
+	 *
+	 * @param array[string]string $property Property description.
+	 *
+	 * @return integer
+	 */
+	public static function getPropertyStorageType($property)
+	{
+		if ($property["PROPERTY_TYPE"] === "N")
+			return Storage::NUMERIC;
+		elseif ($property["USER_TYPE"] === "DateTime")
+			return Storage::DATETIME;
+		elseif ($property["PROPERTY_TYPE"] === "S")
+			return Storage::STRING;
+		else
+			return Storage::DICTIONARY;
 	}
 }

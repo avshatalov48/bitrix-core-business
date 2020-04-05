@@ -10,7 +10,7 @@ return array(
 	'block' =>
 		array(
 			'name' => Loc::getMessage('LANDING_BLOCK_7_TWO_COLS_FIX_IMG_TITLE_TEXT_NAME'),
-			'section' => array('text', 'text_image', 'columns'),
+			'section' => array('text_image', 'columns'),
 		),
 	'cards' =>
 		array(

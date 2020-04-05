@@ -69,7 +69,9 @@ class CSocNetGroup extends CAllSocNetGroup
 				|| strlen($arFields["IMAGE_ID"]["MODULE_ID"]) <= 0
 			)
 		)
+		{
 			$arFields["IMAGE_ID"]["MODULE_ID"] = "socialnetwork";
+		}
 
 		CFile::SaveForDB($arFields, "IMAGE_ID", "socialnetwork");
 
@@ -123,6 +125,28 @@ class CSocNetGroup extends CAllSocNetGroup
 
 				$USER_FIELD_MANAGER->Update("SONET_GROUP", $ID, $arFields);
 				CSocNetGroup::SearchIndex($ID, $arSiteID);
+				if (!empty($arFields["KEYWORDS"]))
+				{
+					$tagsList = explode(',', $arFields["KEYWORDS"]);
+					if (
+						!empty($tagsList)
+						&& is_array($tagsList)
+					)
+					{
+						$tagsList = array_map(function($a) { return trim($a, ' '); }, $tagsList);
+						$tagsList = array_filter($tagsList, function($a) { return (strlen($a) > 0); });
+					}
+					if (
+						!empty($tagsList)
+						&& is_array($tagsList)
+					)
+					{
+						\Bitrix\Socialnetwork\WorkgroupTagTable::set([
+							'groupId' => $ID,
+							'tags' => $tagsList
+						]);
+					}
+				}
 
 				Workgroup::setIndex(array(
 					'fields' => $arFields
@@ -328,6 +352,29 @@ class CSocNetGroup extends CAllSocNetGroup
 			}
 			CSocNetGroup::SearchIndex($ID, false, $arGroupOld, $bAutoSubscribe);
 
+			if (!empty($arFields["KEYWORDS"]))
+			{
+				$tagsList = explode(',', $arFields["KEYWORDS"]);
+				if (
+					!empty($tagsList)
+					&& is_array($tagsList)
+				)
+				{
+					$tagsList = array_map(function($a) { return trim($a, ' '); }, $tagsList);
+					$tagsList = array_filter($tagsList, function($a) { return (strlen($a) > 0); });
+				}
+				if (
+					!empty($tagsList)
+					&& is_array($tagsList)
+				)
+				{
+					\Bitrix\Socialnetwork\WorkgroupTagTable::set([
+						'groupId' => $ID,
+						'tags' => $tagsList
+					]);
+				}
+			}
+
 			Workgroup::setIndex(array(
 				'fields' => array_merge($arFields, array('ID' => $ID))
 			));
@@ -424,7 +471,7 @@ class CSocNetGroup extends CAllSocNetGroup
 		global $DB, $USER_FIELD_MANAGER;
 
 		if (count($arSelectFields) <= 0)
-			$arSelectFields = array("ID", "SITE_ID", "NAME", "DESCRIPTION", "DATE_CREATE", "DATE_UPDATE", "ACTIVE", "VISIBLE", "OPENED", "CLOSED", "SUBJECT_ID", "OWNER_ID", "KEYWORDS", "IMAGE_ID", "NUMBER_OF_MEMBERS", "INITIATE_PERMS", "SPAM_PERMS", "DATE_ACTIVITY", "SUBJECT_NAME");
+			$arSelectFields = array("ID", "SITE_ID", "NAME", "DESCRIPTION", "DATE_CREATE", "DATE_UPDATE", "ACTIVE", "VISIBLE", "OPENED", "CLOSED", "SUBJECT_ID", "OWNER_ID", "KEYWORDS", "IMAGE_ID", "NUMBER_OF_MEMBERS", "INITIATE_PERMS", "SPAM_PERMS", "DATE_ACTIVITY", "SUBJECT_NAME", "PROJECT");
 
 		static $arFields1 = array(
 			"ID" => Array("FIELD" => "G.ID", "TYPE" => "int"),

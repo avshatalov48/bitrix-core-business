@@ -43,6 +43,7 @@ Class photogallery extends CModule
 		RegisterModuleDependences("iblock", "OnAfterIBlockElementAdd", "photogallery", "CPhotogalleryElement", "OnAfterIBlockElementAdd");
 		RegisterModuleDependences("search", "BeforeIndex", "photogallery", "CRatingsComponentsPhotogallery", "BeforeIndex");
 		RegisterModuleDependences("im", "OnGetNotifySchema", "photogallery", "CPhotogalleryNotifySchema", "OnGetNotifySchema");
+		RegisterModuleDependences("socialnetwork", "OnSocNetGroupDelete", "photogallery", "\\Bitrix\\Photogallery\\Integration\\Socialnetwork\\Group", "onSocNetGroupDelete");
 		return true;
 	}
 
@@ -52,6 +53,7 @@ Class photogallery extends CModule
 		UnRegisterModuleDependences("iblock", "OnAfterIBlockElementAdd", "photogallery", "CPhotogalleryElement", "OnAfterIBlockElementAdd");
 		UnRegisterModuleDependences("search", "BeforeIndex", "photogallery", "CRatingsComponentsPhotogallery", "BeforeIndex");
 		UnRegisterModuleDependences("im", "OnGetNotifySchema", "photogallery", "CPhotogalleryNotifySchema", "OnGetNotifySchema");
+		UnRegisterModuleDependences("socialnetwork", "OnSocNetGroupDelete", "photogallery", "\\Bitrix\\Photogallery\\Integration\\Socialnetwork\\Group", "onSocNetGroupDelete");
 		UnRegisterModule("photogallery");
 		return true;
 	}

@@ -8,9 +8,12 @@
 	{
 		this.renderTo = options.renderTo;
 		this.boardId = options.boardId;
+		this.filterId = options.filterId;
+		this.isNowFiltering = false;
 		this.rows = options.rows;
 		this.dashboard = null;
 		this.demoMode = options.demoMode || false;
+		this.defaultBoard = options.defaultBoard || false;
 		this.layout = {
 			demoModeFlagContainer: null
 		};
@@ -21,14 +24,8 @@
 	BX.VisualConstructor.BoardBase.prototype = {
 		init: function ()
 		{
-			this.dashboard  = new BX.Report.Dashboard.Board({
-				id: this.getBoardId(),
-				renderTo: this.renderTo,
-				rows: this.rows,
-				designerMode: false,
-				defaultWidgetClass: 'BX.VisualConstructor.Widget'
-			});
-			this.dashboard.render();
+			this.buildDashboard();
+			this.getDashboard().render();
 			this.renderTo.style.position = 'relative';
 			this.renderTo.appendChild(this.getDemoModeFlagContainer());
 
@@ -122,13 +119,42 @@
 				}, this)
 			});
 		},
-		onBeforeApplyFilter: function()
+		onBeforeApplyFilter: function(filterId)
 		{
+			if (this.filterId !== filterId)
+			{
+				return;
+			}
+
+			if (this.isNowFiltering)
+			{
+				return;
+			}
+
 			this.getDashboard().clearRows();
 			this.getDashboard().destroy();
+
 		},
-		onApplyFilter: function()
+		onApplyFilter: function(filterId, data, ctx, promise, params)
 		{
+
+
+
+
+			if (this.filterId !== filterId)
+			{
+				return;
+			}
+
+
+			if (this.isNowFiltering)
+			{
+
+				return;
+			}
+
+			this.isNowFiltering = true;
+
 			BX.Report.VC.Core.ajaxGet('widget.loadByBoardId', {
 				urlParams: {
 					'boardId': this.getBoardId()
@@ -137,6 +163,7 @@
 				{
 					if (result.data.rows)
 					{
+						this.isNowFiltering = false;
 						this.getDashboard().addRows(result.data.rows);
 						this.getDashboard().render();
 					}
@@ -303,6 +330,28 @@
 		getDashboard: function()
 		{
 			return this.dashboard;
+		},
+		buildDashboard: function()
+		{
+			this.dashboard  = new BX.Report.Dashboard.Board({
+				id: this.getBoardId(),
+				renderTo: this.renderTo,
+				rows: this.rows,
+				designerMode: false,
+				defaultWidgetClass: 'BX.VisualConstructor.Widget',
+				isDefault: this.defaultBoard
+			});
+		},
+		reBuildDashboard: function(rows)
+		{
+			this.dashboard = new BX.Report.Dashboard.Board({
+				id: this.getBoardId(),
+				renderTo: this.renderTo,
+				rows: rows,
+				designerMode: false,
+				defaultWidgetClass: 'BX.VisualConstructor.Widget',
+				isDefault: this.defaultBoard
+			});
 		}
 	};
 
@@ -458,7 +507,15 @@
 			{
 				BX.cleanNode(contentWrapper);
 			}
-			contentWrapper.appendChild(this.getWidgetTimePeriodMark());
+
+			if (this.getCell() !== null && !this.getCell().getRow().getBoard().isDefault)
+			{
+				contentWrapper.appendChild(this.getWidgetTimePeriodMark());
+			}
+			else if(this.getCell() === null)
+			{
+				contentWrapper.appendChild(this.getWidgetTimePeriodMark());
+			}
 
 			return contentWrapper;
 		},
@@ -485,7 +542,15 @@
 		getControlsContainer: function()
 		{
 			var controlsContainer = BX.Report.Dashboard.Widget.prototype.getControlsContainer.call(this);
-			controlsContainer.appendChild(this.settingsButtonInHeader());
+			if (!this.getCell().getRow().getBoard().isDefault)
+			{
+				controlsContainer.appendChild(this.settingsButtonInHeader());
+			}
+			else
+			{
+				controlsContainer.classList.add('report-visualconstuctor-widget-property-invisible');
+			}
+
 
 
 			return controlsContainer;

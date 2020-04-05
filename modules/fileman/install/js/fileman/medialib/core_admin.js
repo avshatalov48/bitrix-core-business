@@ -152,7 +152,7 @@ BXMedialibAdmin.prototype =
 				menuIc = titleDiv.appendChild(BX.create("IMG", {props:{src: '/bitrix/images/1.gif', className: 'ml-col-menu', id: 'mlccm_' + oCol.id}})),
 				span = titleDiv.appendChild(BX.create("SPAN", {props: {title: bxspcharsback(oCol.desc || oCol.name)}, text: oCol.name})),
 				childDiv = BX.create("DIV"),
-				childTbl = childDiv.appendChild(BX.create("TABLE"));
+				childTbl = childDiv.appendChild(BX.create("TABLE")),
 				itemsTd = childTbl.insertRow(-1).insertCell(-1),
 				colsTd = childTbl.insertRow(-1).insertCell(-1),
 				cellX = childTbl.insertRow(-1).insertCell(-1);
@@ -1112,10 +1112,28 @@ BXMedialibAdmin.prototype =
 
 		// Link
 		//D.pLink.href = oItem.path;
-		D.pLink.onclick = function () { jsUtils.Redirect([], 'fileman_file_download.php?path='+BX.util.urlencode(oItem.path)); };
+		D.pLink.onclick = function () {
+			if(oItem.path.substr(0,1) !== '/' || oItem.path !== oItem.path_external)
+			{
+				var link = oItem.path_external
+			}
+			else
+			{
+				link = 'fileman_file_download.php?path=' + BX.util.urlencode(oItem.path);
+			}
+			jsUtils.Redirect([], link);
+		};
 
-        D.pCopyLink.onclick = function() {
-            D.pCopyInput.value = oItem.path.substr(0,1) !== '/' ? oItem.path : window.location.protocol + '//' + window.location.host + oItem.path;
+		D.pCopyLink.onclick = function() {
+			if(oItem.path.substr(0,1) !== '/' || oItem.path !== oItem.path_external)
+			{
+				D.pCopyInput.value = oItem.path_external;
+			}
+			else
+			{
+				D.pCopyInput.value = window.location.protocol + '//' + window.location.host + oItem.path;
+			}
+
             D.pCopyInput.style.display = 'block';
             D.pCopyInput.select();
         };

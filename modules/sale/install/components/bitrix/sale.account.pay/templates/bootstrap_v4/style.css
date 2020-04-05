@@ -48,10 +48,12 @@
 	height: 0;
 	border: 2px solid #c3cace;
 	border-radius: 2px;
+	transition: 180ms linear all;
 	background: #fff;
 }
+.sale-accountpay-pp-company-graf-container:hover{ border-color: #a8afb2;}
 
-.sale-accountpay-pp-company.bx-selected .sale-accountpay-pp-company-graf-container { border-color: var(--theme-color-primary); }
+.sale-accountpay-pp-company.bx-selected .sale-accountpay-pp-company-graf-container {border-color: var(--theme-color-primary);}
 
 .sale-accountpay-pp-company.bx-error .sale-accountpay-pp-company-graf-container { border-color: #db4a29; }
 

@@ -19,31 +19,48 @@
 	 * Implements interface for works with template preview
 	 * @constructor
 	 */
-	BX.Landing.TemplatePreview = function()
+	BX.Landing.TemplatePreview = function(params)
 	{
 		this.closeButton = document.querySelector(".landing-template-preview-close");
 		this.createButton = document.querySelector(".landing-template-preview-create");
+		this.createByImportButton = document.querySelector(".landing-template-preview-create-by-import");
+		this.title = document.querySelector(".landing-template-preview-input-title");
+		this.description = document.querySelector(".landing-template-preview-input-description");
 		this.palette = document.querySelector(".landing-template-preview-palette");
+		this.paletteSiteColor = document.querySelector(".landing-template-preview-palette-sitecolor");
 		this.imageContainer = document.querySelector(".preview-desktop-body-image");
 		this.loaderContainer = document.querySelector(".preview-desktop-body-loader-container");
 		this.previewFrame = document.querySelector(".preview-desktop-body-preview-frame");
 		this.loader = new BX.Loader({});
+		this.messages = params.messages || {};
+		this.loaderText = null;
+		this.progressBar = null;
+		this.IsLoadedFrame = false;
+		this.createStore = false;
+		if (BX.type.isBoolean(params.createStore))
+			this.createStore = params.createStore;
+
+		this.ajaxUrl = '';
+		this.ajaxParams = {};
 
 		this.onCreateButtonClick = proxy(this.onCreateButtonClick, this);
 		this.onCancelButtonClick = proxy(this.onCancelButtonClick, this);
+		this.onFrameLoad = proxy(this.onFrameLoad, this);
 
 		this.init();
+
+		return this;
 	};
 
 	/**
 	 * Gets instance of BX.Landing.TemplatePreview
 	 * @return {BX.Landing.TemplatePreview}
 	 */
-	BX.Landing.TemplatePreview.getInstance = function()
+	BX.Landing.TemplatePreview.getInstance = function(params)
 	{
 		return (
 			BX.Landing.TemplatePreview.instance ||
-			(BX.Landing.TemplatePreview.instance = new BX.Landing.TemplatePreview())
+			(BX.Landing.TemplatePreview.instance = new BX.Landing.TemplatePreview(params))
 		);
 	};
 
@@ -53,52 +70,42 @@
 		 */
 		init: function()
 		{
-			slice(this.palette.children)
-				.forEach(this.initSelectableItem, this);
+			var colorItems = slice(this.palette.children);
+			if(this.paletteSiteColor)
+			{
+				colorItems = colorItems.concat(slice(this.paletteSiteColor.children));
+			}
+			colorItems.forEach(this.initSelectableItem, this);
 
+			bind(this.previewFrame, "load", this.onFrameLoad);
 			bind(this.closeButton, "click", this.onCancelButtonClick);
 			bind(this.createButton, "click", this.onCreateButtonClick);
 
-			bind(this.imageContainer, "mouseover", this.onMouseOver.bind(this));
-			bind(this.imageContainer, "mouseleave", this.onMouseLeave.bind(this));
-
-			void this.showPreview(data(this.palette.querySelector(".active"), "data-src"));
+			void this.showPreview(data(this.getActiveColorNode(), "data-src"));
 		},
 
-		/**
-		 * Handles mouse over event
-		 */
-		onMouseOver: function()
-		{
-			bind(window, !!window.onwheel || BX.browser.IsFirefox() ? "wheel" : "mousewheel", proxy(this.onMouseWheel, this));
-			bind(window, "touchmove", proxy(this.onMouseWheel, this));
+		onFrameLoad: function() {
+			if (this.createStore)
+			{
+				new BX.Landing.SaveBtn(document.querySelector(".landing-template-preview-create"));
+			}
+			this.IsLoadedFrame = true;
 		},
 
-
-		/**
-		 * Handles mouse leave event
-		 */
-		onMouseLeave: function()
+		getActiveColorNode: function()
 		{
-			unbind(window, !!window.onwheel || BX.browser.IsFirefox() ? "wheel" : "mousewheel", proxy(this.onMouseWheel, this));
-			unbind(window, "touchmove", proxy(this.onMouseWheel, this));
-		},
+			var active = this.palette.querySelector(".active");
+			if(!active && this.paletteSiteColor)
+			{
+				active = this.paletteSiteColor.querySelector(".active");
+			}
+			// by default - first
+			if(!active)
+			{
+				active = this.palette.firstElementChild;
+			}
 
-		/**
-		 * Handles mousewheel event
-		 * @param event
-		 */
-		onMouseWheel: function(event)
-		{
-			event.stopPropagation();
-			event.preventDefault();
-
-			var delta = getDeltaFromEvent(event);
-			var scrollTop = this.previewFrame.contentWindow.scrollY;
-
-			requestAnimationFrame(function() {
-				this.previewFrame.contentWindow.scrollTo(0, scrollTop - delta.y);
-			}.bind(this));
+			return active;
 		},
 
 		/**
@@ -220,7 +227,15 @@
 		getValue: function()
 		{
 			var result = {};
-			result[data(this.palette, "data-name")] = data(this.palette.querySelector(".active"), "data-value");
+
+			if(this.paletteSiteColor && this.getActiveColorNode().parentElement === this.paletteSiteColor)
+			{
+				// add theme_use_site flag
+				result[data(this.paletteSiteColor, "data-name")] = 'Y';
+			}
+			result[data(this.palette, "data-name")] = data(this.getActiveColorNode(), "data-value");
+			result[data(this.title, "data-name")] = this.title.value;
+			result[data(this.description, "data-name")] = this.description.value;
 
 			return result;
 		},
@@ -252,11 +267,78 @@
 		{
 			event.preventDefault();
 
-			this.showLoader()
-				.then(this.delay(200))
-				.then(function() {
-					top.location = this.getCreateUrl();
-				}.bind(this));
+			if(this.isStore() && this.IsLoadedFrame) {
+				this.loaderText = BX.create("div", { props: { className: "landing-template-preview-loader-text"},
+					text: this.messages.LANDING_LOADER_WAIT});
+
+				this.progressBar = new BX.UI.ProgressBar({
+					column: true
+				});
+
+				this.progressBar.getContainer().classList.add("ui-progressbar-landing-preview");
+
+				this.loaderContainer.appendChild(this.loaderText);
+				this.loaderContainer.appendChild(this.progressBar.getContainer());
+			}
+
+			if (this.isStore())
+			{
+				if (this.IsLoadedFrame)
+				{
+					this.showLoader();
+					this.initCatalogParams();
+					this.createCatalog();
+				}
+			}
+			else
+			{
+				this.showLoader()
+					.then(this.delay(200))
+					.then(function() {
+						top.location = this.getCreateUrl();
+					}.bind(this));
+			}
+		},
+
+		initCatalogParams: function()
+		{
+			if (this.createButton.hasAttribute('data-href'))
+			{
+				this.ajaxUrl = this.createButton.getAttribute('data-href');
+			}
+			this.ajaxParams = this.getValue();
+			this.ajaxParams['start'] = 'Y';
+		},
+
+		createCatalog: function()
+		{
+			if (this.ajaxUrl === '')
+			{
+				this.hideLoader();
+				return;
+			}
+			BX.ajax({
+				'method': 'POST',
+				'dataType': 'json',
+				'url': this.ajaxUrl,
+				'data':  BX.ajax.prepareData(this.ajaxParams),
+				'onsuccess': BX.proxy(this.createCatalogResult, this)
+			})
+		},
+
+		createCatalogResult: function(data)
+		{
+			if (data.status === 'continue')
+			{
+				this.ajaxParams['start'] = 'N';
+				this.progressBar.update(data.progress);
+				this.progressBar.setTextAfter(data.message);
+				this.createCatalog();
+			}
+			else
+			{
+				top.location = data.url;
+			}
 		},
 
 		/**
@@ -276,13 +358,36 @@
 		{
 			event.preventDefault();
 
-			removeClass(event.currentTarget.parentElement.querySelector(".active"), "active");
-			addClass(event.currentTarget, "active");
-
-			if (event.currentTarget.parentElement === this.palette)
+			if (
+				event.currentTarget.parentElement === this.palette ||
+				(this.paletteSiteColor && event.currentTarget.parentElement === this.paletteSiteColor)
+			)
 			{
-				this.showPreview(data(event.currentTarget.parentElement.querySelector(".active"), "data-src"));
+				removeClass(this.getActiveColorNode(), "active");
+				addClass(event.currentTarget, "active");
+				this.showPreview(data(this.getActiveColorNode(), "data-src"));
 			}
+
+			if (BX.type.isDomNode(this.createByImportButton))
+			{
+				this.createByImportButton.setAttribute(
+					'href',
+					addQueryParams(
+						this.createByImportButton.getAttribute('href'),
+						{
+							"create_url": BX.util.urlencode(addQueryParams(
+								this.createByImportButton.getAttribute("data-create-url"),
+								this.getValue()
+							))
+						}
+					)
+				);
+			}
+		},
+
+		isStore: function()
+		{
+			return this.createStore;
 		}
 	};
 })();

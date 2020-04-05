@@ -389,7 +389,7 @@ class SenderLetterListComponent extends CBitrixComponent
 			$list[] = [
 				"id" => "CAMPAIGN_NAME",
 				"name" => Loc::getMessage('SENDER_LETTER_LIST_COMP_UI_COLUMN_CAMPAIGN'),
-				"sort" => "CAMPAIGN_NAME",
+				"sort" => "CAMPAIGN.NAME",
 				"default" => true,
 			];
 		}

@@ -2,6 +2,10 @@
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
 
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+$listUrl = $selfFolderUrl."cat_vat_admin.php?lang=".LANGUAGE_ID;
+$listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
+
 if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_vat')))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 CModule::IncludeModule("catalog");
@@ -18,6 +22,8 @@ $ID = intval($ID);
 
 if ('POST' == $_SERVER['REQUEST_METHOD'] && strlen($Update)>0 && !$bReadOnly && check_bitrix_sessid())
 {
+	$adminSidePanelHelper->decodeUriComponent();
+
 	$DB->StartTransaction();
 
 	$arFields = array(
@@ -40,10 +46,18 @@ if ('POST' == $_SERVER['REQUEST_METHOD'] && strlen($Update)>0 && !$bReadOnly && 
 	if ($res)
 	{
 		$DB->Commit();
-		if (strlen($apply)<=0)
-			LocalRedirect("/bitrix/admin/cat_vat_admin.php?lang=".LANGUAGE_ID."&".GetFilterParams("filter_", false));
+		$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
+		if (strlen($apply) <= 0)
+		{
+			$adminSidePanelHelper->localRedirect($listUrl);
+			LocalRedirect($listUrl);
+		}
 		else
-			LocalRedirect("/bitrix/admin/cat_vat_edit.php?lang=".LANGUAGE_ID."&ID=".$ID."&".GetFilterParams("filter_", false));
+		{
+			$applyUrl = $selfFolderUrl."cat_vat_edit.php?lang=".$lang."&ID=".$ID;
+			$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
+			LocalRedirect($applyUrl);
+		}
 	}
 	else
 	{
@@ -53,6 +67,8 @@ if ('POST' == $_SERVER['REQUEST_METHOD'] && strlen($Update)>0 && !$bReadOnly && 
 			$errorMessage .= (0 < $ID ? str_replace('#ID#', $ID, GetMessage('CVAT_ERR_UPDATE')) : GetMessage('CVAT_ERR_ADD'));
 		$bVarsFromForm = true;
 		$DB->Rollback();
+
+		$adminSidePanelHelper->sendJsonErrorResponse($errorMessage);
 	}
 }
 
@@ -83,24 +99,31 @@ $aMenu = array(
 	array(
 		"TEXT" => GetMessage("CVAT_LIST"),
 		"ICON" => "btn_list",
-		"LINK" => "/bitrix/admin/cat_vat_admin.php?lang=".LANGUAGE_ID."&".GetFilterParams("filter_", false)
+		"LINK" => $listUrl
 	)
 );
 
 if ($ID > 0 && !$bReadOnly)
 {
 	$aMenu[] = array("SEPARATOR" => "Y");
-
+	$addUrl = $selfFolderUrl."cat_vat_edit.php?lang=".LANGUAGE_ID;
+	$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
 	$aMenu[] = array(
 		"TEXT" => GetMessage("CVAT_NEW"),
 		"ICON" => "btn_new",
-		"LINK" => "/bitrix/admin/cat_vat_edit.php?lang=".LANGUAGE_ID."&".GetFilterParams("filter_", false)
+		"LINK" => $addUrl
 	);
-
+	$deleteUrl = $selfFolderUrl."cat_vat_admin.php?action=delete&ID[]=".$ID."&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."#tb";
+	$buttonAction = "LINK";
+	if ($adminSidePanelHelper->isPublicFrame())
+	{
+		$deleteUrl = $adminSidePanelHelper->editUrlToPublicPage($deleteUrl);
+		$buttonAction = "ONCLICK";
+	}
 	$aMenu[] = array(
 		"TEXT" => GetMessage("CVAT_DELETE"),
 		"ICON" => "btn_delete",
-		"LINK" => "javascript:if(confirm('".GetMessageJS("CVAT_DELETE_CONFIRM")."')) window.location='/bitrix/admin/cat_vat_admin.php?action=delete&ID[]=".$ID."&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."#tb';",
+		$buttonAction => "javascript:if(confirm('".GetMessageJS("CVAT_DELETE_CONFIRM")."')) top.window.location.href='".$deleteUrl."';",
 		"WARNING" => "Y"
 	);
 }
@@ -108,7 +131,12 @@ $context = new CAdminContextMenu($aMenu);
 $context->Show();
 
 CAdminMessage::ShowMessage($errorMessage);
-?><form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?" name="vat_edit">
+?>
+<?
+$actionUrl = $APPLICATION->GetCurPage();
+$actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
+?>
+<form method="POST" action="<?=$actionUrl?>" name="vat_edit">
 <?echo GetFilterHiddens("filter_");?>
 <input type="hidden" name="Update" value="Y">
 <input type="hidden" name="lang" value="<? echo LANGUAGE_ID; ?>">
@@ -156,12 +184,7 @@ $tabControl->BeginNextTab();
 <?
 $tabControl->EndTab();
 
-$tabControl->Buttons(
-	array(
-		"disabled" => $bReadOnly,
-		"back_url" => "/bitrix/admin/cat_vat_admin.php?lang=".LANGUAGE_ID."&".GetFilterParams("filter_", false)
-	)
-);
+$tabControl->Buttons(array("disabled" => $bReadOnly, "back_url" => $listUrl));
 $tabControl->End();
 ?>
 </form>

@@ -2,7 +2,7 @@
 namespace Bitrix\Main\DB;
 
 use Bitrix\Main\ArgumentException;
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Fields\ScalarField;
 
 abstract class MysqlCommonConnection extends Connection
 {
@@ -120,7 +120,7 @@ abstract class MysqlCommonConnection extends Connection
 	 *
 	 * @param string $tableName The table name.
 	 *
-	 * @return Entity\ScalarField[] An array of objects with columns information.
+	 * @return ScalarField[] An array of objects with columns information.
 	 * @throws \Bitrix\Main\Db\SqlQueryException
 	 */
 	public function getTableFields($tableName)
@@ -129,7 +129,11 @@ abstract class MysqlCommonConnection extends Connection
 		{
 			$this->connectInternal();
 
-			$query = $this->queryInternal("SELECT * FROM ".$this->getSqlHelper()->quote($tableName)." LIMIT 0");
+			$sqlTableName = ($tableName{0} === '(')
+				? $sqlTableName = $tableName.' AS xyz' // subquery
+				: $sqlTableName = $this->getSqlHelper()->quote($tableName); // regular table name
+
+			$query = $this->queryInternal("SELECT * FROM {$sqlTableName} LIMIT 0");
 
 			$result = $this->createResult($query);
 
@@ -139,10 +143,10 @@ abstract class MysqlCommonConnection extends Connection
 	}
 
 	/**
-	 * @param string $tableName Name of the new table.
-	 * @param \Bitrix\Main\Entity\ScalarField[] $fields Array with columns descriptions.
-	 * @param string[] $primary Array with primary key column names.
-	 * @param string[] $autoincrement Which columns will be auto incremented ones.
+	 * @param string        $tableName     Name of the new table.
+	 * @param ScalarField[] $fields        Array with columns descriptions.
+	 * @param string[]      $primary       Array with primary key column names.
+	 * @param string[]      $autoincrement Which columns will be auto incremented ones.
 	 *
 	 * @return void
 	 * @throws \Bitrix\Main\ArgumentException
@@ -155,7 +159,7 @@ abstract class MysqlCommonConnection extends Connection
 
 		foreach ($fields as $columnName => $field)
 		{
-			if (!($field instanceof Entity\ScalarField))
+			if (!($field instanceof ScalarField))
 			{
 				throw new ArgumentException(sprintf(
 					'Field `%s` should be an Entity\ScalarField instance', $columnName

@@ -6,7 +6,7 @@ class CAllSocNetLogCounter
 		return CSocNetLogCounter::GetSubSelect(
 			array(
 				"LOG_ID" => $entityId,
-				"TYPE" => (is_array($arParams) && !empty($arParams["TYPE"]) ? $arParams["TYPE"] : "L"),
+				"TYPE" => (is_array($arParams) && !empty($arParams["TYPE"]) ? $arParams["TYPE"] : CSocNetLogCounter::TYPE_LOG_ENTRY),
 				"CODE" => (is_array($arParams) && !empty($arParams["CODE"]) ? $arParams["CODE"] : false),
 				"DECREMENT" => (is_array($arParams) && $arParams["DECREMENT"]),
 				"FOR_ALL_ACCESS" => (is_array($arParams) && $arParams["FOR_ALL_ACCESS"]),
@@ -20,7 +20,7 @@ class CAllSocNetLogCounter
 		);
 	}
 
-	public static function GetSubSelect($entityId, $entity_type = false, $entity_id = false, $event_id = false, $created_by_id = false, $arOfEntities = false, $arAdmin = false, $transport = false, $visible = "Y", $type = "L", $params = array(), $bDecrement = false, $bForAllAccess = false)
+	public static function GetSubSelect($entityId, $entity_type = false, $entity_id = false, $event_id = false, $created_by_id = false, $arOfEntities = false, $arAdmin = false, $transport = false, $visible = "Y", $type = CSocNetLogCounter::TYPE_LOG_ENTRY, $params = array(), $bDecrement = false, $bForAllAccess = false)
 	{
 		global $DB;
 
@@ -39,7 +39,7 @@ class CAllSocNetLogCounter
 			$arOfEntities  = (isset($arFields["ENTITIES"]) ? $arFields["ENTITIES"] : false);
 			$transport  = (isset($arFields["TRANSPORT"]) ? $arFields["TRANSPORT"] : false);
 			$visible  = (isset($arFields["VISIBLE"]) ? $arFields["VISIBLE"] : "Y");
-			$type  = (isset($arFields["TYPE"]) ? $arFields["TYPE"] : "L");
+			$type  = (isset($arFields["TYPE"]) ? $arFields["TYPE"] : CSocNetLogCounter::TYPE_LOG_ENTRY);
 			$code  = (isset($arFields["CODE"]) ? $arFields["CODE"] : false);
 			$params  = (isset($arFields["PARAMS"]) ? $arFields["PARAMS"] : array());
 			$bDecrement = (isset($arFields["DECREMENT"]) ? $arFields["DECREMENT"] : false);
@@ -100,7 +100,10 @@ class CAllSocNetLogCounter
 				)
 		);
 
-		if ($type == "L" && ($arLog = CSocNetLog::GetByID($entityId)))
+		if (
+			$type == CSocNetLogCounter::TYPE_LOG_ENTRY
+			&& ($arLog = CSocNetLog::GetByID($entityId))
+		)
 		{
 			$logId = $entityId;
 			$entity_type = $arLog["ENTITY_TYPE"];
@@ -109,7 +112,10 @@ class CAllSocNetLogCounter
 			$created_by_id = $arLog["USER_ID"];
 			$log_user_id = $arLog["USER_ID"];
 		}
-		elseif ($type == "LC" && ($arLogComment = CSocNetLogComments::GetByID($entityId)))
+		elseif (
+			$type == CSocNetLogCounter::TYPE_LOG_COMMENT
+			&& ($arLogComment = CSocNetLogComments::GetByID($entityId))
+		)
 		{
 			$entity_type = $arLogComment["ENTITY_TYPE"];
 			$entity_id = $arLogComment["ENTITY_ID"];
@@ -195,7 +201,7 @@ class CAllSocNetLogCounter
 		$followJoin = $followWhere = "";
 
 		if (
-			$type == "LC" 
+			$type == CSocNetLogCounter::TYPE_LOG_COMMENT
 			&& (
 				!defined("DisableSonetLogFollow") 
 				|| DisableSonetLogFollow !== true)
@@ -205,8 +211,12 @@ class CAllSocNetLogCounter
 
 			if ($default_follow == "Y")
 			{
-				$followJoin = " LEFT JOIN b_sonet_log_follow LFW ON LFW.USER_ID = U.ID AND (LFW.CODE = 'L".$logId."' OR LFW.CODE = '**') ";
-				$followWhere = "AND (LFW.USER_ID IS NULL OR LFW.TYPE = 'Y')";
+				$followWhere = "
+					AND (
+						NOT EXISTS (SELECT USER_ID FROM b_sonet_log_follow WHERE USER_ID = U.ID AND TYPE='N' AND (CODE = 'L".$logId."' OR CODE = '**'))
+						OR EXISTS (SELECT USER_ID FROM b_sonet_log_follow WHERE USER_ID = U.ID AND TYPE='Y' AND CODE = 'L".$logId."')
+					)
+				";
 			}
 			else
 			{
@@ -339,7 +349,7 @@ class CAllSocNetLogCounter
 				AND CASE WHEN U.EXTERNAL_AUTH_ID IN ('".implode("','", \Bitrix\Main\UserTable::getExternalUserTypes())."') THEN 'N' ELSE 'Y' END = 'Y'
 				".(
 					(
-						$type == "LC"
+						$type == CSocNetLogCounter::TYPE_LOG_COMMENT
 						||
 						(	array_key_exists("USE_CB_FILTER", $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type])
 							&& $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["USE_CB_FILTER"] == "Y"

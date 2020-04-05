@@ -1,12 +1,74 @@
-.bx-contentview-wrap-block {display:inline-block; max-height:182px; position:relative; font-family: Verdana, Tahoma, sans-serif; overflow:hidden; width:186px; }
-.bx-contentview-wrap-block .bx-contentview-popup { max-height: 135px; }
+.bx-contentview-wrap-block {
+	display:inline-block;
+	position:relative;
+	font-family: Verdana, Tahoma, sans-serif;
+	overflow:hidden;
+}
+.bx-contentview-wrap-block .bx-contentview-popup-outer {
+	display: block;
+	max-height: 100%;
+	overflow-y: auto;
+	scrollbar-track-color: #F9FAFB;
+	scrollbar-base-color: #D4D7D9;
+	scrollbar-shadow-color: #D4D7D9;
+	scrollbar-highlight-color: #D4D7D9;
+}
+.bx-contentview-wrap-block .bx-contentview-popup {
+	background-color:#fff;
+	display: block;
+	margin: 0 0 2px 0;
+	padding: 0 17px 8px 8px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	width: auto;
+	min-width: 174px;
+	min-height: 50px;
+	max-height: 200px;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	user-select: none;
+	scrollbar-track-color: #F9FAFB;
+	scrollbar-base-color: #D4D7D9;
+	scrollbar-shadow-color: #D4D7D9;
+	scrollbar-highlight-color: #D4D7D9;
+}
+
+.bx-contentview-wrap-block .bx-contentview-popup::-webkit-scrollbar {
+	width: 6px;
+}
+.bx-contentview-wrap-block .bx-contentview-popup::-webkit-scrollbar-track {
+	border-radius: 3px;
+	background: rgba(216,216,216,.2);
+}
+.bx-contentview-wrap-block .bx-contentview-popup::-webkit-scrollbar-thumb {
+	border-radius: 3px;
+	background: #D8D8D8;
+}
+
 * html .bx-contentview-wrap-block {width:186px;}
 .bx-contentview-popup {background-color:#fff; display:inline-block; max-height:121px;  margin: 0 0 2px 0; padding: 0 6px 5px 0; overflow-y:auto; overflow-x:hidden; width:180px; -moz-user-select: none; -khtml-user-select: none; user-select: none;}
 * html .bx-contentview-popup {width:186px;height:130px;}
-.bx-contentview-popup-img {display:block; color:#656365; text-decoration:none; overflow:hidden; zoom:1; height: 23px;white-space: nowrap;}
+.bx-contentview-popup .bx-contentview-popup-img {
+	display:block;
+	color:#656365;
+	text-decoration:none;
+	overflow:hidden;
+	zoom:1;
+	white-space: nowrap;
+	margin-bottom: 8px;
+}
+.bx-contentview-popup .bx-contentview-popup-img:last-child {
+	margin-bottom: 0;
+}
 .bx-contentview-popup-img:link span,
-.bx-contentview-popup-img:visited span{color:#50688e; text-decoration:none;}
-.bx-contentview-popup-img:hover span{color:#50688e; text-decoration:underline;}
+.bx-contentview-popup-img:visited span {
+	color:#525C69;
+	text-decoration:none;
+}
+.bx-contentview-popup-img:hover span {
+	color:#525C69;
+	text-decoration:underline;
+}
 .bx-contentview-popup-img-extranet:link span,
 .bx-contentview-popup-img-extranet:visited span{color:#ca7b00!important; text-decoration:none;}
 .bx-contentview-popup-img-extranet:hover span{color:#ca7b00!important; text-decoration:underline;}
@@ -26,14 +88,27 @@
 .bx-contentview-wait { background: url(images/i-like-wait.gif) no-repeat center center; width:183px; height:26px; display: block;margin-top: 2px;}
 .bx-contentview-popup-img img {border:none; background-color:#FFF; border-radius: 50%;}
 .bx-contentview-popup-name {cursor:pointer; display:block; font-size:11px; padding-left:3px; height:15px; text-decoration:underline; overflow:hidden; text-overflow:ellipsis; -o-text-overflow:ellipsis; padding-top:2px; white-space:nowrap; min-width:100px;}
-.bx-contentview-popup-name-new {cursor:pointer; display:inline-block; font-size:11px; padding-left:5px; height:15px; text-decoration:underline; overflow:hidden; text-overflow:ellipsis; -o-text-overflow:ellipsis; padding-top:2px; white-space:nowrap; min-width:100px; max-width:150px; vertical-align: middle;}
+.bx-contentview-popup .bx-contentview-popup-name-new {
+	cursor: pointer;
+	display: inline-block;
+	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	padding-left: 6px;
+	height: 15px;
+	text-decoration: underline;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	padding-top: 1px;
+	white-space: nowrap;
+	min-width: 100px;
+	vertical-align: middle;
+}
 * html .bx-contentview-popup-name,
 * html .bx-contentview-popup-name-new {width:135px;}
 
 
 .popup-window-contentview {
-	padding-top: 7px;
-	padding-left: 14px;
+	padding: 6px 10px 10px 10px;
+	border-radius: 18px;
 }
 
 .bx-contentview-popup-name-new.contentview-counter-hidden {
@@ -44,15 +119,15 @@
 }
 
 .bx-contentview-popup-name-new.contentview-name {
+	height: 18px;
 	display: block;
 	text-decoration: none;
 	cursor: auto;
-	padding-left: 0;
-	font-size: 12px;
-	color: #9FA7B2;
-	border-bottom: 1px solid #efefef;
-	padding-bottom: 9px;
-	margin-bottom: 9px;
+	padding: 10px 0 9px 0;
+	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #525C69;
+	border-bottom: 1px solid #D8D8D8;
+	margin: 0 8px 9px 8px;
 	max-width: 190px;
 }
 

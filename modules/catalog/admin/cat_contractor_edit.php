@@ -5,6 +5,10 @@ global $APPLICATION;
 global $DB;
 global $USER;
 
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+$listUrl = $selfFolderUrl."cat_contractor_list.php?lang=".LANGUAGE_ID;
+$listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
+
 if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_store')))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 CModule::IncludeModule("catalog");
@@ -32,6 +36,8 @@ $userId = (int)$USER->GetID();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid() && strlen($_REQUEST["Update"]) > 0 && !$bReadOnly)
 {
+	$adminSidePanelHelper->decodeUriComponent();
+
 	if($PERSON_TYPE == CONTRACTOR_INDIVIDUAL)
 		$INN = $KPP = $COMPANY = '';
 	$PERSON_NAME = ($_REQUEST["PERSON_NAME"] == GetMessage("CONTRACTOR_NAME")) ? '' : $_REQUEST["PERSON_NAME"];
@@ -61,25 +67,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid() && strlen($_RE
 		$ID = $res;
 		$DB->Commit();
 
-		if (strlen($_REQUEST["apply"])<=0)
-			LocalRedirect("/bitrix/admin/cat_contractor_list.php?lang=".LANG."&".GetFilterParams("filter_", false));
+		$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
+
+		if (strlen($_REQUEST["apply"]) <= 0)
+		{
+			$adminSidePanelHelper->localRedirect($listUrl);
+			LocalRedirect($listUrl);
+		}
 		else
-			LocalRedirect("/bitrix/admin/cat_contractor_edit.php?lang=".LANG."&ID=".$ID."&".GetFilterParams("filter_", false));
+		{
+			$applyUrl = $selfFolderUrl."cat_contractor_edit.php?lang=".LANGUAGE_ID."&ID=".$ID;
+			$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
+			LocalRedirect($applyUrl);
+		}
 	}
 	elseif (strlen($errorMessage) == 0 && $ID == 0 && $res = CCatalogContractor::Add($arFields))
 	{
 		$ID = $res;
 		$DB->Commit();
-		if (strlen($_REQUEST["apply"])<=0)
-			LocalRedirect("/bitrix/admin/cat_contractor_list.php?lang=".LANG."&".GetFilterParams("filter_", false));
+
+		$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
+
+		if (strlen($_REQUEST["apply"]) <= 0)
+		{
+			$adminSidePanelHelper->localRedirect($listUrl);
+			LocalRedirect($listUrl);
+		}
 		else
-			LocalRedirect("/bitrix/admin/cat_contractor_edit.php?lang=".LANG."&ID=".$ID."&".GetFilterParams("filter_", false));
+		{
+			$applyUrl = $selfFolderUrl."cat_contractor_edit.php?lang=".LANGUAGE_ID."&ID=".$ID;
+			$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
+			LocalRedirect($applyUrl);
+		}
 	}
 	else
 	{
 		$bVarsFromForm = true;
 		$errorMessage = $APPLICATION->GetException()->GetString();
 		$DB->Rollback();
+
+		$adminSidePanelHelper->sendJsonErrorResponse($errorMessage);
 	}
 }
 
@@ -126,7 +153,7 @@ $aMenu = array(
 	array(
 		"TEXT" => GetMessage("CONTRACTOR_LIST"),
 		"ICON" => "btn_list",
-		"LINK" => "/bitrix/admin/cat_contractor_list.php?lang=".LANG."&".GetFilterParams("filter_", false)
+		"LINK" => $listUrl
 	)
 );
 
@@ -134,16 +161,22 @@ if ($ID > 0 && !$bReadOnly)
 {
 	$aMenu[] = array("SEPARATOR" => "Y");
 
+	$addUrl = $selfFolderUrl."cat_contractor_edit.php?lang=".LANGUAGE_ID;
+	$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
 	$aMenu[] = array(
 		"TEXT" => GetMessage("CONTRACTOR_NEW"),
 		"ICON" => "btn_new",
-		"LINK" => "/bitrix/admin/cat_contractor_edit.php?lang=".LANG."&".GetFilterParams("filter_", false)
+		"LINK" => $addUrl
 	);
-
+	$deleteUrl = $selfFolderUrl."cat_contractor_list.php?action=delete&ID[]=".$ID."&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."#tb";
+	if ($adminSidePanelHelper->isPublicFrame())
+	{
+		$deleteUrl = $adminSidePanelHelper->editUrlToPublicPage($deleteUrl);
+	}
 	$aMenu[] = array(
 		"TEXT" => GetMessage("CONTRACTOR_DELETE"),
 		"ICON" => "btn_delete",
-		"LINK" => "javascript:if(confirm('".GetMessage("CONTRACTOR_DELETE_CONFIRM")."')) window.location='/bitrix/admin/cat_contractor_list.php?action=delete&ID[]=".$ID."&lang=".LANG."&".bitrix_sessid_get()."#tb';",
+		"LINK" => "javascript:if(confirm('".GetMessage("CONTRACTOR_DELETE_CONFIRM")."')) top.window.location='".$deleteUrl."';",
 		"WARNING" => "Y"
 	);
 }
@@ -181,8 +214,11 @@ $context->Show();
 		}
 
 	</script>
-
-	<form enctype="multipart/form-data" method="POST" action="<?echo $APPLICATION->GetCurPage()?>?" name="contractor_edit">
+	<?
+	$actionUrl = $APPLICATION->GetCurPage();
+	$actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
+	?>
+	<form enctype="multipart/form-data" method="POST" action="<?=$actionUrl?>" name="contractor_edit">
 		<?echo GetFilterHiddens("filter_");?>
 		<input type="hidden" name="Update" value="Y">
 		<input type="hidden" name="lang" value="<?echo LANG ?>">
@@ -289,12 +325,7 @@ $context->Show();
 		<?echo
 		$tabControl->EndTab();
 
-		$tabControl->Buttons(
-			array(
-				"disabled" => $bReadOnly,
-				"back_url" => "/bitrix/admin/cat_contractor_list.php?lang=".LANG."&".GetFilterParams("filter_", false)
-			)
-		);
+		$tabControl->Buttons(array("disabled" => $bReadOnly, "back_url" => $listUrl));
 		$tabControl->End();
 		?>
 	</form>

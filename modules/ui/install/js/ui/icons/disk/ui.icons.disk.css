@@ -1,0 +1,101 @@
+/*region File icons*/
+.ui-icon[class*=ui-icon-file-] > i {
+	background: url(/bitrix/js/ui/icons/disk/images/sprite-files.min.svg?v1.3) no-repeat center;
+	background-size: 100% auto;
+	--icon-file-col: 14;
+}
+
+/**/
+.ui-icon.ui-icon-file-empty > i { background-position: 0 calc(100% / var(--icon-file-col) * 0) }
+
+.ui-icon.ui-icon-file-txt > i { background-position: 0 calc(100% / var(--icon-file-col) * 1) }
+
+.ui-icon.ui-icon-file-doc > i { background-position: 0 calc(100% / var(--icon-file-col) * 2) }
+
+.ui-icon.ui-icon-file-xls > i { background-position: 0 calc(100% / var(--icon-file-col) * 3) }
+
+.ui-icon.ui-icon-file-php > i { background-position: 0 calc(100% / var(--icon-file-col) * 4) }
+
+.ui-icon.ui-icon-file-pdf > i { background-position: 0 calc(100% / var(--icon-file-col) * 5) }
+
+.ui-icon.ui-icon-file-ppt > i { background-position: 0 calc(100% / var(--icon-file-col) * 6) }
+
+.ui-icon.ui-icon-file-rar > i { background-position: 0 calc(100% / var(--icon-file-col) * 7) }
+
+.ui-icon.ui-icon-file-zip > i { background-position: 0 calc(100% / var(--icon-file-col) * 8) }
+
+.ui-icon.ui-icon-file-set > i { background-position: 0 calc(100% / var(--icon-file-col) * 9) }
+
+.ui-icon.ui-icon-file-mov > i { background-position: 0 calc(100% / var(--icon-file-col) * 10) }
+
+.ui-icon.ui-icon-file-img > i { background-position: 0 calc(100% / var(--icon-file-col) * 11) }
+
+.ui-icon.ui-icon-file-folder > i { background-position: 0 calc(100% / var(--icon-file-col) * 12) }
+
+.ui-icon.ui-icon-file-folder-shared > i { background-position: 0 calc(100% / var(--icon-file-col) * 13) }
+
+.ui-icon.ui-icon-file-folder-shared-2 > i { background-position: 0 calc(100% / var(--icon-file-col) * 14) }
+
+/*region Fix for IE*/
+.bx-ie .ui-icon-file,
+.bx-ie .ui-icon-file-empty > i { background-position: 0 0 }
+
+.bx-ie .ui-icon-file-txt > i { background-position: 0 7.14% }
+
+.bx-ie .ui-icon-file-doc > i { background-position: 0 14.28% }
+
+.bx-ie .ui-icon-file-xls > i { background-position: 0 21.42% }
+
+.bx-ie .ui-icon-file-php > i { background-position: 0 28.58% }
+
+.bx-ie .ui-icon-file-pdf > i { background-position: 0 35.72% }
+
+.bx-ie .ui-icon-file-ppt > i { background-position: 0 42.86% }
+
+.bx-ie .ui-icon-file-rar > i { background-position: 0 50% }
+
+.bx-ie .ui-icon-file-zip > i { background-position: 0 57.14% }
+
+.bx-ie .ui-icon-file-set > i { background-position: 0 64.28% }
+
+.bx-ie .ui-icon-file-mov > i { background-position: 0 71.42% }
+
+.bx-ie .ui-icon-file-img > i { background-position: 0 78.58% }
+
+.bx-ie .ui-icon-file-folder > i { background-position: 0 85.72% }
+
+.bx-ie .ui-icon-file-folder-shared > i { background-position: 0 92.86% }
+
+.bx-ie .ui-icon-file-folder-shared-2 > i { background-position: 0 100% }
+
+/*endregion*/
+
+/*endregion*/
+.ui-icon-service-vkontakte > i,
+.ui-icon-service-facebook > i,
+
+.ui-icon-service-office365 > i {
+	background-color: #fff;
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-office365.svg);
+}
+
+.ui-icon-service-yandex > i,
+.ui-icon-service-ya > i {
+	background-color: #fff;
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya.svg);
+}
+
+.ui-icon-service-liveid > i {
+	background-color: #fff;
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-liveid.svg);
+}
+
+.ui-icon-service-twitter > i {
+	background-color: #1ea1f2;
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-twitter.svg);
+}
+
+.ui-icon-service-google > i {
+	background-color: #fff;
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-google.svg);
+}

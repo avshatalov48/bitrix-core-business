@@ -11,13 +11,15 @@ use Bitrix\Main\UI\Extension;
 
 Loc::loadMessages(__FILE__);
 
-/** @var CAllMain $APPLICATION */
+/** @var \CAllMain $APPLICATION */
+/** @var \SenderLetterEditComponent $component */
 /** @var array $arParams */
 /** @var array $arResult */
 $containerId = 'bx-sender-letter-edit';
 
 Extension::load("ui.buttons");
 Extension::load("ui.buttons.icons");
+Extension::load("ui.notification");
 ?>
 <script type="text/javascript">
 	BX.ready(function () {
@@ -27,12 +29,17 @@ Extension::load("ui.buttons.icons");
 			'actionUrl' => $arResult['ACTION_URL'],
 			'isFrame' => $arParams['IFRAME'] == 'Y',
 			'isSaved' => $arResult['IS_SAVED'],
+			'isOutside' => $arParams['IS_OUTSIDE'],
 			'isTemplateShowed' => $arResult['SHOW_TEMPLATE_SELECTOR'],
 			'letterTile' => $arResult['LETTER_TILE'],
 			'prettyDateFormat' => PrettyDate::getDateFormat(),
 			'mess' => array(
 				'patternTitle' => Loc::getMessage('SENDER_COMP_TMPL_LETTER_PATTERN_TITLE'),
 				'name' => $arResult['MESSAGE_NAME'],
+				'outsideSaveSuccess' => $component->getLocMessage(
+					'SENDER_LETTER_EDIT_OUTSIDE_ADD_SUCCESS',
+					['%path%' => $arParams['PATH_TO_LIST']]
+				)
 			)
 		))?>);
 	});
@@ -70,6 +77,7 @@ Extension::load("ui.buttons.icons");
 					"",
 					array(
 						"MESSAGE_CODE" => $arParams['MESSAGE_CODE'],
+						"IS_TRIGGER" => $arParams['IS_TRIGGER'],
 						"CACHE_TIME" => "60",
 						"CACHE_TYPE" => "N",
 					)
@@ -84,6 +92,12 @@ Extension::load("ui.buttons.icons");
 
 			<input data-role="template-type" type="hidden" name="TEMPLATE_TYPE" value="<?=htmlspecialcharsbx($arResult['ROW']['TEMPLATE_TYPE'])?>">
 			<input data-role="template-id" type="hidden" name="TEMPLATE_ID" value="<?=htmlspecialcharsbx($arResult['ROW']['TEMPLATE_ID'])?>">
+
+			<input data-role="dispatch" data-code="METHOD_CODE" type="hidden" name="DISPATCH[METHOD_CODE]">
+			<input data-role="dispatch" data-code="DAYS_OF_WEEK" type="hidden" name="DISPATCH[DAYS_OF_WEEK]">
+			<input data-role="dispatch" data-code="DAYS_OF_MONTH" type="hidden" name="DISPATCH[DAYS_OF_MONTH]">
+			<input data-role="dispatch" data-code="MONTHS_OF_YEAR" type="hidden" name="DISPATCH[MONTHS_OF_YEAR]">
+			<input data-role="dispatch" data-code="TIMES_OF_DAY" type="hidden" name="DISPATCH[TIMES_OF_DAY]">
 
 			<?
 			if ($arResult['USE_TEMPLATES'] && $arResult['CAN_CHANGE_TEMPLATE']):

@@ -102,7 +102,7 @@ class Dashboard
 
 
 	/**
-	 * @param string $boardKey Board key.
+	 * @param string $board Key Board key.
 	 * @return bool
 	 */
 	public static function getBoardModeIsDemo($boardKey)
@@ -130,6 +130,7 @@ class Dashboard
 			{
 				self::setBoardCustomDefaultModeIsDemo($boardKey, $demo);
 			}
+			
 		}
 		else
 		{

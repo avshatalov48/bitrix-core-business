@@ -8,6 +8,7 @@ use \Bitrix\Main\Localization\Loc;
 	<input type="hidden" name="id" value="landing">
 	<input type="hidden" name="uninstall" value="Y">
 	<input type="hidden" name="step" value="2">
+	<input type="hidden" name="savedata" value="N">
 	<p><?= Loc::getMessage('MOD_UNINST_SAVE');?></p>
 	<p>
 		<input type="checkbox" name="savedata" id="savedata" value="Y" checked>

@@ -109,10 +109,14 @@
 				library.categories.forEach(function(category) {
 					if (id === category.id)
 					{
+						var map = new Map();
+
 						var categoryCard = new BX.Landing.UI.Card.BaseCard({
 							title: category.name,
 							className: "landing-ui-card-icons"
 						});
+
+						this.appendCard(categoryCard);
 
 						category.items.forEach(function(item) {
 							var iconCard = new BX.Landing.UI.Card.IconPreview({
@@ -122,8 +126,18 @@
 								}.bind(this)
 							});
 							categoryCard.body.appendChild(iconCard.layout);
+
+							var styles = getComputedStyle(iconCard.body.firstChild, ":before");
+
+							if (map.has(styles.content))
+							{
+								iconCard.layout.hidden = true;
+							}
+							else
+							{
+								map.set(styles.content, true);
+							}
 						}, this);
-						this.appendCard(categoryCard);
 					}
 				}, this);
 			}, this);

@@ -99,9 +99,9 @@ class CBPAbsenceActivity
 	{
 		$arErrors = array();
 
-		if (!array_key_exists("AbsenceUser", $arTestProperties) || count($arTestProperties["AbsenceUser"]) <= 0)
+		if (!array_key_exists("AbsenceUser", $arTestProperties) || empty($arTestProperties["AbsenceUser"]))
 			$arErrors[] = array("code" => "NotExist", "parameter" => "AbsenceUser", "message" => GetMessage("BPSNMA_EMPTY_ABSENCEUSER"));
-		if (!array_key_exists("AbsenceName", $arTestProperties) || count($arTestProperties["AbsenceName"]) <= 0)
+		if (!array_key_exists("AbsenceName", $arTestProperties) || empty($arTestProperties["AbsenceName"]))
 			$arErrors[] = array("code" => "NotExist", "parameter" => "AbsenceName", "message" => GetMessage("BPSNMA_EMPTY_ABSENCENAME"));
 		if (!array_key_exists("AbsenceFrom", $arTestProperties) || strlen($arTestProperties["AbsenceFrom"]) <= 0)
 			$arErrors[] = array("code" => "NotExist", "parameter" => "AbsenceFrom", "message" => GetMessage("BPSNMA_EMPTY_ABSENCEFROM"));

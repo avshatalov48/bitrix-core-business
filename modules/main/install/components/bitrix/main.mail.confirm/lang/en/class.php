@@ -1,4 +1,9 @@
 <?
+$MESS["MAIN_MAIL_CONFIRM_DELETE"] = "Delete";
+$MESS["MAIN_MAIL_DELETE_SENDER_ERROR"] = "Error deleting sender";
+$MESS["MAIN_MAIL_CONFIRM_BACK"] = "Back";
+$MESS["MAIN_MAIL_CONFIRM_EMAIL_HINT_SMTP_2"] = "Enter name and email (provide <a href=\"#\" class=\"new-from-email-dialog-smtp-link\">SMTP server information</a> if required). The system will send you a confirmation message.";
+$MESS["MAIN_MAIL_CONFIRM_DELETE_SENDER_CONFIRM"] = "Are you sure you want to delete sender?";
 $MESS["MAIN_MAIL_CONFIRM_AUTH"] = "Authentication error";
 $MESS["MAIN_MAIL_CONFIRM_AJAX_ERROR"] = "Error processing the request.";
 $MESS["MAIN_MAIL_CONFIRM_MENU"] = "Add sender";
@@ -17,7 +22,6 @@ $MESS["MAIN_MAIL_CONFIRM_EMPTY_EMAIL"] = "Enter e-mail address";
 $MESS["MAIN_MAIL_CONFIRM_INVALID_EMAIL"] = "Invalid e-mail address";
 $MESS["MAIN_MAIL_CONFIRM_EMPTY_CODE"] = "Enter verification code";
 $MESS["MAIN_MAIL_CONFIRM_INVALID_CODE"] = "Incorrect verification code";
-$MESS["MAIN_MAIL_CONFIRM_MESSAGE_SUBJECT"] = "Confirm email address";
 $MESS["MAIN_MAIL_CONFIRM_EMAIL_HINT_SMTP"] = "Enter your name and email in the fields below. A message with the verification code will be sent to this address. You can enter the code to verify the email, or <a href=\"#\" class=\"new-from-email-dialog-smtp-link\">provide SMTP server details</a>.";
 $MESS["MAIN_MAIL_CONFIRM_SMTP_SERVER"] = "Server";
 $MESS["MAIN_MAIL_CONFIRM_SMTP_LOGIN"] = "Login";

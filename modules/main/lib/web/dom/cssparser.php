@@ -89,7 +89,7 @@ class CssParser
 		return implode("\n", $cssList);
 	}
 
-	public static function getDeclarationArray($declarationBlock)
+	public static function getDeclarationArray($declarationBlock, $singleStyle = true)
 	{
 		$styleList = array();
 		$declarationBlock = trim($declarationBlock);
@@ -114,7 +114,20 @@ class CssParser
 					continue;
 				}
 
-				$styleList[trim($matches[1])] = trim($matches[2]);
+				$matches[1] = trim($matches[1]);
+
+				if ($singleStyle)
+				{
+					$styleList[$matches[1]] = trim($matches[2]);
+				}
+				else
+				{
+					if (!isset($styleList[$matches[1]]))
+					{
+						$styleList[$matches[1]] = [];
+					}
+					$styleList[$matches[1]][] = trim($matches[2]);
+				}
 			}
 		}
 
@@ -126,7 +139,17 @@ class CssParser
 		$result = '';
 		foreach($declarationList as $property => $value)
 		{
-			$result .= trim($property) . ': ' . trim($value) . ';';
+			if (is_array($value))
+			{
+				foreach ($value as $valueChunk)
+				{
+					$result .= trim($property) . ': ' . trim($valueChunk) . ';';
+				}
+			}
+			else
+			{
+				$result .= trim($property) . ': ' . trim($value) . ';';
+			}
 		}
 
 		return $result;

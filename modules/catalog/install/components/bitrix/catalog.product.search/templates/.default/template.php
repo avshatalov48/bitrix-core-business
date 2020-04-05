@@ -13,6 +13,11 @@
 use Bitrix\Main,
 	Bitrix\Iblock;
 
+if ($_REQUEST['public_mode'] == "Y")
+{
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");
+}
+
 if (!$arResult['IS_ADMIN_SECTION'])
 	return;
 $listImageSize = (int)Main\Config\Option::get('iblock', 'list_image_size');
@@ -391,20 +396,12 @@ else
 		// double click patch
 		var rows = BX.findChildren(BX('<?=$tableId?>'), {className: 'adm-list-table-row'}, true);
 		if (rows) {
-			var i;
 			for (i = 0; i < rows.length; ++i) {
 
 				var isExpandable = BX.findChildren(rows[i], {className: 'expand-sku'}, true);
-				if (isExpandable.length==0)
+				if (isExpandable.length !== 0)
 				{
 					rows[i].onclick = function () {
-						BX.toggleClass(this, 'row-sku-selected')
-					};
-				}
-				else
-				{
-					rows[i].onclick = function () {
-						BX.toggleClass(this, 'row-sku-selected');
 						this.ondblclick();
 					};
 				}
@@ -416,7 +413,7 @@ else
 				}
 			}
 		}
-		if (typeof <?=$tableId?>_helper != 'undefined')
+		if (typeof <?=$tableId?>_helper !== 'undefined')
 		{
 			<?=$tableId?>_helper.setBreadcrumbs(<?=CUtil::PhpToJSObject($arResult['BREADCRUMBS'])?>);
 			<?if (!empty($_REQUEST['set_filter']) && $_REQUEST['set_filter'] == 'Y'):?>
@@ -497,9 +494,14 @@ else
 
 				</div>
 				<div class="adm-s-search-control-box">
-					<input class="adm-s-search-submit" type="submit" value="">
+					<input class="adm-s-search-submit" type="submit" value="" onclick="<?= $tableId ?>_helper.search();">
 					<span class="adm-s-search-box-separator" id="<?= $tableId ?>_query_clear_separator" style="<?= $arFilter['QUERY'] ? '' : 'display:none' ?>"></span>
 					<input class="adm-s-search-reset" id="<?= $tableId ?>_query_clear" type="reset" value="" style="<?= $arFilter['QUERY'] ? '' : 'display:none' ?>" onclick="return <?= $tableId ?>_helper.clearQuery()">
+				</div>
+			</div>
+			<div class="adm-s-search-query-settings-container">
+				<div class="adm-s-search-query-settings">
+					<input type="checkbox" value="Y" <?=($arFilter['USE_SUBSTRING_QUERY'] == 'Y' ? ' checked="checked"' : '');?>name="USE_SUBSTRING_QUERY" id="<?= $tableId ?>_query_substring" onclick="return <?= $tableId ?>_helper.checkSubstring()">&nbsp;<?=GetMessage('BX_CATALOG_CPS_TPL_MESS_USE_SUBSTRING_QUERY'); ?>
 				</div>
 			</div>
 
@@ -507,6 +509,7 @@ else
 				<input type="hidden" name="mode" value="list">
 				<input type="hidden" name="SECTION_ID" value="<?= (int)$arResult['SECTION_ID'] ?>" id="<?= $tableId ?>_section_id">
 				<input type="hidden" name="QUERY" value="<?= htmlspecialcharsbx($arFilter['QUERY']) ?>" id="<?= $tableId ?>_query_value">
+				<input type="hidden" name="USE_SUBSTRING_QUERY" value="<?=htmlspecialcharsbx($arFilter['USE_SUBSTRING_QUERY']) ?>" id="<?= $tableId ?>_query_substring_value">
 				<input type="hidden" name="func_name" value="<? echo htmlspecialcharsbx($arResult['JS_CALLBACK']) ?>">
 				<input type="hidden" name="event" value="<? echo htmlspecialcharsbx($arResult['JS_EVENT']) ?>">
 				<input type="hidden" name="lang" value="<? echo LANGUAGE_ID ?>">

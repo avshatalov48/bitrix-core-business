@@ -1,4 +1,8 @@
 <?
+
+use Bitrix\Main\Composite\Engine;
+use Bitrix\Main\Composite\Helper;
+
 IncludeModuleLangFile(__FILE__);
 
 class CAdminInformer
@@ -143,7 +147,7 @@ class CAdminInformer
 		if(!$USER->IsAuthorized())
 			return false;
 
-		if ($USER->CanDoOperation("cache_control") && !\Bitrix\Main\Composite\Helper::isOn())
+		if ($USER->CanDoOperation("cache_control") && !Helper::isOn() && !Engine::isSelfHostedPortal())
 		{
 			self::AddItem(array(
 				"TITLE" => GetMessage("top_panel_ai_composite_title"),

@@ -49,7 +49,7 @@ $containerId = 'sender-start-container';
 			<?endforeach;?>
 		</div>
 
-		<div class="sender-start-block-inner" style="<?=(count($arResult['MESSAGES']['OTHER_LIST']) === 0 ? 'display: none;' : '')?>">
+		<div class="sender-start-block-inner" style="<?=(count($arResult['MESSAGES']['MAILING']['OTHER_LIST']) === 0 ? 'display: none;' : '')?>">
 			<a data-role="letter-other" class="sender-start-link sender-start-link-small-grey-bold">
 				<?=Loc::getMessage('SENDER_START_ADDITIONAL')?>
 			</a>

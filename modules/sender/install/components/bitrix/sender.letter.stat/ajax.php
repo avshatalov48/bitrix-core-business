@@ -18,6 +18,7 @@ if (!Loader::includeModule('sender'))
 	return;
 }
 
+$modifyLetterChecker = CommonAjax\Checker::getModifyLetterPermissionChecker();
 $actions = array();
 $actions[] = Controller\Action::create('getClickMap')
 	->setRequestMethodGet()
@@ -51,6 +52,16 @@ $actions[] = Controller\Action::create('getReadByTime')
 			$content->add('readingByTimeList', $stat->getReadingByDayTime());
 		}
 	);
+$actions[] = Controller\Action::create('resendErrors')
+	->setHandler(
+		function (HttpRequest $request, Controller\Response $response)
+		{
+			$letter = new Entity\Letter($request->get('letterId'));
+			$letter->sendErrors();
+
+			$response->initContentJson()->getErrorCollection()->add($letter->getErrors());
+		}
+	)->addChecker($modifyLetterChecker);
 $actions[] = Controller\Action::create('getData')
 	->setHandler(
 		function (HttpRequest $request, Controller\Response $response)

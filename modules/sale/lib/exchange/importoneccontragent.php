@@ -115,4 +115,9 @@ final class ImportOneCContragent extends ImportOneCBase
 		}
 		return parent::logger($items);
 	}
+
+	protected function resolveOwnerEntityTypeId($typeId)
+	{
+		return $typeId;
+	}
 }

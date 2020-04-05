@@ -1,4 +1,8 @@
 <?
+$MESS["BIZVAL_CODE_ORDER_USER_DESCRIPTION"] = "Nutzerkommentar";
+$MESS["BIZVAL_CODE_ORDER_ORDER_TOPIC"] = "Betreff";
+$MESS["BIZVAL_CODE_ORDER_DATE_BILL"] = "Erstellt am";
+$MESS["BIZVAL_CODE_ORDER_DATE_BILL_DATE"] = "Erstellt am (ohne Zeitangabe)";
 $MESS["BIZVAL_PROVIDER_VALUE"] = "Wert";
 $MESS["BIZVAL_PROVIDER_USER"] = "Nutzer";
 $MESS["BIZVAL_PROVIDER_ORDER"] = "Bestellung";

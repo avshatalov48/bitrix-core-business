@@ -76,23 +76,37 @@ if($USER->CanDoOperation("clouds_upload") && is_array($arID))
 			elseif(substr($ID, 0, 1) === "D")
 			{
 				$arFiles = $obBucket->ListFiles($path.substr($ID, 1), true);
-				foreach($arFiles["file"] as $i => $file)
+				if (is_array($arFiles))
 				{
-					if(!$obBucket->DeleteFile($path.substr($ID, 1)."/".$file))
+					foreach($arFiles["file"] as $i => $file)
 					{
-						$e = $APPLICATION->GetException();
-						if(is_object($e))
-							$lAdmin->AddUpdateError($e->GetString(), $ID);
+						if(!$obBucket->DeleteFile($path.substr($ID, 1)."/".$file))
+						{
+							$e = $APPLICATION->GetException();
+							if(is_object($e))
+								$lAdmin->AddUpdateError($e->GetString(), $ID);
+							else
+								$lAdmin->AddUpdateError(GetMessage("CLO_STORAGE_FILE_UNKNOWN_ERROR", array(
+									"#CODE#" => "D02",
+								)), $ID);
+							break;
+						}
 						else
-							$lAdmin->AddUpdateError(GetMessage("CLO_STORAGE_FILE_UNKNOWN_ERROR", array(
-								"#CODE#" => "D02",
-							)), $ID);
-						break;
+						{
+							$obBucket->DecFileCounter($arFiles["file_size"][$i]);
+						}
 					}
+				}
+				else
+				{
+					$e = $APPLICATION->GetException();
+					if(is_object($e))
+						$lAdmin->AddUpdateError($e->GetString(), $ID);
 					else
-					{
-						$obBucket->DecFileCounter($arFiles["file_size"][$i]);
-					}
+						$lAdmin->AddUpdateError(GetMessage("CLO_STORAGE_FILE_UNKNOWN_ERROR", array(
+							"#CODE#" => "D03",
+						)), $ID);
+					break;
 				}
 			}
 			break;

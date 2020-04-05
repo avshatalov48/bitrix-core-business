@@ -22,9 +22,20 @@ class Exception extends \Bitrix\Sale\Location\Exception
 		{
 			$message .= ' (ID = '.intval($aInfo['ID']).')';
 		}
+
 		if(isset($aInfo['CODE']))
 		{
 			$message .= ' (CODE = '.intval($aInfo['CODE']).')';
+		}
+
+		if(isset($aInfo['RIGHT_MARGIN']))
+		{
+			$message .= ' (RIGHT_MARGIN = '.intval($aInfo['RIGHT_MARGIN']).')';
+		}
+
+		if(isset($aInfo['LEFT_MARGIN']))
+		{
+			$message .= ' (LEFT_MARGIN = '.intval($aInfo['LEFT_MARGIN']).')';
 		}
 
 		return $message;

@@ -86,6 +86,7 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 			"entityType" => 'LOG_ENTRY',
 			"entityId" => $arParams["LOG_ID"]
 		),
+		"IS_POSTS_LIST" => ($arParams["bFromList"] ? "Y" : "N"),
 	),
 	$this->__component
 );
@@ -105,7 +106,8 @@ if ($_REQUEST["empty_get_comments"] == "Y")
 	while(ob_get_clean());
 	echo CUtil::PhpToJSObject(array(
 		"TEXT" => $arResult["OUTPUT_LIST"]["HTML"],
-		"POST_NUM_COMMENTS" => intval($arResult["Post"]["NUM_COMMENTS"])
+		"POST_NUM_COMMENTS" => intval($arResult["Post"]["NUM_COMMENTS"]),
+		"POST_PERM" => $arResult["PostPerm"]
 	));
 	die();
 }

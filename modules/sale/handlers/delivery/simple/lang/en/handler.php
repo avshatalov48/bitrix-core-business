@@ -5,4 +5,5 @@ $MESS["SALE_DLVR_HANDL_SMPL_TAB_MAIN"] = "Tariff settings";
 $MESS["SALE_DLVR_HANDL_SMPL_TAB_MAIN_DESCR"] = "Set delivery service tariffs";
 $MESS["SALE_DLVR_HANDL_SMPL_DEFAULT"] = "Default";
 $MESS["SALE_DLVR_HANDL_SMPL_CURRENCY"] = "Currency";
+$MESS["SALE_DLVR_HANDL_SMPL_TITLE2"] = "Delivery by location groups";
 ?>

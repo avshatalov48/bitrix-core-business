@@ -12,6 +12,11 @@ if ($saleModulePermissions < "W")
 Loc::loadMessages(__FILE__);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 Page\Asset::getInstance()->addJs("/bitrix/js/sale/cashbox.js");
+$publicMode = $adminPage->publicMode;
+if ($publicMode)
+{
+	Page\Asset::getInstance()->addCss("/bitrix/themes/.default/sale.css");
+}
 
 $APPLICATION->SetTitle(Loc::getMessage('SALE_CASHBOX_PAGE_TITLE'));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
@@ -41,6 +46,8 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 			</div><!--adm-cashbox-advantage-->
 			<div class="adm-cashbox-border"></div>
 		</div><!--adm-cashbox-container-->
+
+		<? if (!$publicMode): ?>
 
 		<div class="adm-cashbox-container">
 			<div class="adm-promo-title">
@@ -80,6 +87,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 				</li>
 				<li class="adm-cashbox-list-item cashbox-list-item-7"><?=Loc::getMessage('SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_7')?></li>
 				<li class="adm-cashbox-list-item cashbox-list-item-8"><?=Loc::getMessage('SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_8')?></li>
+				<li class="adm-cashbox-list-item cashbox-list-item-9"><?=Loc::getMessage('SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_9')?></li>
 			</ul>
 			<div class="adm-cashbox-border"></div>
 		</div><!--adm-cashbox-container-->
@@ -100,6 +108,27 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 				</ul>
 			</div>
 		</div>
+		<?else:?>
+			<div class="adm-cashbox-container">
+				<div class="adm-promo-title">
+					<span class="adm-promo-title-item"><?=Loc::getMessage('SALE_CASHBOX_CONNECT_INSTRUCTION_TITLE')?></span>
+				</div>
+				<div class="adm-cashbox-desc"><?=Loc::getMessage('SALE_CASHBOX_CONNECT_INSTRUCTION')?></div>
+				<ul class="adm-cashbox-list adm-cashbox-inner">
+					<li class="adm-cashbox-list-item cashbox-list-item-1"><?=Loc::getMessage('SALE_CASHBOX_CLOUD_CONNECT_INSTRUCTION_STEP_1')?></li>
+					<li class="adm-cashbox-list-item cashbox-list-item-2"><?=Loc::getMessage('SALE_CASHBOX_CLOUD_CONNECT_INSTRUCTION_STEP_2')?></li>
+					<li class="adm-cashbox-list-item cashbox-list-item-3"><?=Loc::getMessage('SALE_CASHBOX_CLOUD_CONNECT_INSTRUCTION_STEP_3')?></li>
+					<li class="adm-cashbox-list-item cashbox-list-item-4">
+						<?=Loc::getMessage('SALE_CASHBOX_CLOUD_CONNECT_INSTRUCTION_STEP_4', [
+							"#URL#" => ($_REQUEST['SEF_FOLDER'] ? htmlspecialcharsbx($_REQUEST['SEF_FOLDER'])."menu_sale_pay_system/" : "/menu_sale_pay_system/")]);
+						?>
+					</li>
+					<li class="adm-cashbox-list-item cashbox-list-item-5"><?=Loc::getMessage('SALE_CASHBOX_CONNECT_INSTRUCTION_STEP_9')?></li>
+				</ul>
+				<div class="adm-cashbox-border"></div>
+			</div><!--adm-cashbox-container-->
+		<? endif; ?>
+
 	</div>
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

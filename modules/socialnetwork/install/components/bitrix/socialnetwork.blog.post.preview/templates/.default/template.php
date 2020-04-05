@@ -1,11 +1,10 @@
 <?
-use Bitrix\Main\Localization\Loc;
-
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
-?>
+use Bitrix\Main\UI;
+UI\Extension::load("ui.tooltip");
 
-<div class="blog-post-preview">
+?><div class="blog-post-preview">
 	<table class="blog-post-preview-info">
 		<tr>
 			<td>
@@ -15,10 +14,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 			</td>
 			<td>
 				<span class="blog-post-preview-header-title">
-					<script>
-						BX.tooltip(<?=htmlspecialcharsbx($arResult["POST"]["AUTHOR"])?>, "a_<?=htmlspecialcharsbx($arResult["POST"]['AUTHOR_UNIQID'])?>", "");
-					</script>
-					<a id="a_<?=htmlspecialcharsbx($arResult["POST"]['AUTHOR_UNIQID'])?>" href="<?=htmlspecialcharsbx($arResult["POST"]["AUTHOR_PROFILE"])?>">
+					<a href="<?=htmlspecialcharsbx($arResult["POST"]["AUTHOR_PROFILE"])?>" bx-tooltip-user-id="<?=htmlspecialcharsbx($arResult["POST"]["AUTHOR"])?>">
 						<?=htmlspecialcharsbx($arResult["POST"]['AUTHOR_FORMATTED_NAME'])?>
 					</a>
 					<span class="urlpreview__time-wrap">

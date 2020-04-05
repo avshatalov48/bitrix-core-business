@@ -188,10 +188,8 @@ function sonet_dynev_out_msg_fr(data)
 	
 	var s = '';
 
-	var anchor_id = Math.floor(Math.random()*100000) + 1;
-
 	if (data[6] == 'Y')
-		s += "<a href=\"" + data[5] + "\" id=\"anchor_" + anchor_id + "\">";	
+		s += '<a href="' + data[5] + '" bx-tooltip-user-id="' + (sonetDynevUseTooltip == 'Y' ? data[2] : '') + '">';
 	s += data[3];
 	if (data[6] == 'Y')
 		s += "</a>";
@@ -200,9 +198,6 @@ function sonet_dynev_out_msg_fr(data)
 
 	document.getElementById('sonet_events_fr_sender_desc').innerHTML = s;
 
-	if (sonetDynevUseTooltip == 'Y')
-		BX.tooltip(data[2], "anchor_" + anchor_id, sonetDynevMULAjaxPage);
-	
 	document.getElementById('sonet_events_fr_date').innerHTML = data[8];
 	document.getElementById('sonet_events_fr_message').innerHTML = data[9];
 
@@ -246,20 +241,14 @@ function sonet_dynev_out_msg_gr(data)
 	document.getElementById('sonet_events_gr_group_desc').innerHTML = s;
 	document.getElementById('sonet_events_gr_date').innerHTML = data[7];
 
-	var anchor_id = Math.floor(Math.random()*100000) + 1;
-
 	s = sonetDynevTrGrInv + ': ';
 	if (data[6] == 'Y')
-		s += "<a href=\"" + data[5] + "\" id=\"anchor_" + anchor_id + "\">";	
+		s += '<a href="' + data[5] + '" bx-tooltip-user-id="' + (sonetDynevUseTooltip == 'Y' ? data[2] : '') + '">';
 	s += data[3];
 	if (data[6] == 'Y')
 		s += "</a>";
 	
 	document.getElementById('sonet_events_gr_sender').innerHTML = s;
-
-	if (sonetDynevUseTooltip == 'Y')
-		BX.tooltip(data[2], "anchor_" + anchor_id, sonetDynevMULAjaxPage);
-
 	document.getElementById('sonet_events_gr_message').innerHTML = data[12];
 
 	jsUtils.addEvent(document.getElementById('sonet_events_gr_add'), "click", function () {sonet_dynev_msgs_set(data[13]);});
@@ -294,10 +283,8 @@ function sonet_dynev_out_msg_ms(data)
 	
 	var s = '';
 
-	var anchor_id = Math.floor(Math.random()*100000) + 1;
-
 	if (data[6] == 'Y')
-		s += "<a href=\"" + data[5] + "\" id=\"anchor_" + anchor_id + "\">";
+		s += '<a href="' + data[5] + '" bx-tooltip-user-id="' + (sonetDynevUseTooltip == 'Y' ? data[2] : '') + '">';
 	s += data[3];
 	if (data[6] == 'Y')
 		s += "</a>";
@@ -305,10 +292,6 @@ function sonet_dynev_out_msg_ms(data)
 		s += "<br><span class=\"sonet_online\">" + sonetDynevTrOnline + "</span>";
 
 	document.getElementById('sonet_events_ms_sender_desc').innerHTML = s;
-
-	if (sonetDynevUseTooltip == 'Y')
-		BX.tooltip(data[2], "anchor_" + anchor_id, sonetDynevMULAjaxPage);
-
 	document.getElementById('sonet_events_ms_date').innerHTML = data[8];
 	document.getElementById('sonet_events_ms_message').innerHTML = data[10].replace(/<WBR\/>&shy;/gi, " ");
 

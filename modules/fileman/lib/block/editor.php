@@ -20,6 +20,7 @@ class Editor
 {
 	CONST SLICE_SECTION_ID = 'BX_BLOCK_EDITOR_EDITABLE_SECTION';
 	CONST BLOCK_PLACE_ATTR = 'data-bx-block-editor-place';
+	CONST BLOCK_PHP_ATTR = 'data-bx-editor-php-slice';
 	CONST STYLIST_TAG_ATTR = 'data-bx-stylist-container';
 	CONST BLOCK_PLACE_ATTR_DEF_VALUE = 'body';
 	CONST BLOCK_COUNT_PER_PAGE = 14;
@@ -142,8 +143,8 @@ HTML
 
 								<div style="clear: both;"></div>
 								<div class="block-pager adm-nav-pages-block">
-									<span class="adm-nav-page adm-nav-page-prev"></span>
-									<span class="adm-nav-page adm-nav-page-next"></span>
+									<span class="adm-nav-page adm-nav-page-prev #nav-display#"></span>
+									<span class="adm-nav-page adm-nav-page-next #nav-display#"></span>
 								</div>
 
 							</div>
@@ -980,6 +981,7 @@ HTML
 				'blocks' => $blocks,
 				'tools' => $tools,
 				'devices' => $devices,
+				'nav-display' => count($this->blocks) <= static::BLOCK_COUNT_PER_PAGE ? 'bx-block-hide' : '',
 				'MESS_ACCESS_DENIED' => Loc::getMessage('ACCESS_DENIED'),
 				'MESS_STYLES' => Loc::getMessage('BLOCK_EDITOR_UI_STYLES'),
 				'MESS_BLOCKS' => Loc::getMessage('BLOCK_EDITOR_UI_BLOCKS'),
@@ -1002,7 +1004,6 @@ HTML
 
 		return $this->getUI('main', array(
 			'TEXTAREA' => $textArea,
-			'id' => htmlspecialcharsbx($this->id),
 			'id' => htmlspecialcharsbx($this->id),
 			'tabs' => $tabs,
 			'panels' => $panels,
@@ -1087,8 +1088,9 @@ HTML
 		$phpList = \PHPParser::ParseFile($html);
 		foreach($phpList as $php)
 		{
+			$phpFormatted = htmlspecialcharsbx(str_replace(["\r", "\n"], "", $php[2]));
 			$id = 'bx_block_php_' . mt_rand();
-			$surrogate = '<span id="' . $id . '" data-bx-editor-php-slice="' . htmlspecialcharsbx($php[2]) . '" class="bxhtmled-surrogate" title=""></span>';
+			$surrogate = '<span id="' . $id . '" ' . self::BLOCK_PHP_ATTR . '="' . ($phpFormatted) . '" class="bxhtmled-surrogate" title=""></span>';
 			$html = str_replace($php[2], $surrogate, $html);
 		}
 

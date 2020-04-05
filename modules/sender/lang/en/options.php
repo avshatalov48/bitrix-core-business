@@ -1,4 +1,5 @@
 <?
+$MESS["opt_track_mails"] = "Track email views and link clicks:";
 $MESS["MAIN_RESTORE_DEFAULTS"] = "Default";
 $MESS["opt_def_from"] = "Default sender address:";
 $MESS["opt_method_agent"] = "Agent";

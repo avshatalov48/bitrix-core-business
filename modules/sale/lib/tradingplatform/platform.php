@@ -3,8 +3,11 @@
 namespace Bitrix\Sale\TradingPlatform;
 
 use Bitrix\Main\ArgumentNullException;
+use Bitrix\Main\ArgumentOutOfRangeException;
 use Bitrix\Main\Entity\EventResult;
 use Bitrix\Main\Entity\Result;
+use Bitrix\Main\SystemException;
+use Bitrix\Sale;
 use Bitrix\Sale\TradingPlatformTable;
 use Bitrix\Main\EventManager;
 
@@ -15,6 +18,8 @@ use Bitrix\Main\EventManager;
  */
 abstract class Platform
 {
+	const LINK_TYPE_PUBLIC_DETAIL_ORDER = 'PUBLIC_DETAIL_ORDER';
+
 	protected $logger;
 	protected $logLevel = Logger::LOG_LEVEL_ERROR;
 	
@@ -26,6 +31,7 @@ abstract class Platform
 	protected $isNeedCatalogSectionsTab = false;
 	
 	protected $id;
+	protected $fields = [];
 	
 	protected static $instances = array();
 	
@@ -55,6 +61,7 @@ abstract class Platform
 			
 			$this->isInstalled = true;
 			$this->id = $platform["ID"];
+			$this->fields = $platform;
 		}
 		
 		$this->logger = new Logger($this->logLevel);
@@ -99,7 +106,22 @@ abstract class Platform
 	{
 		return $this->logger->addRecord($level, $type, $itemId, $description);
 	}
-	
+
+	public function getField($fieldName)
+	{
+		if(!isset($this->fields[$fieldName]))
+		{
+			return '';
+		}
+
+		return $this->fields[$fieldName];
+	}
+
+	public function getRealName()
+	{
+		return $this->getField('NAME');
+	}
+
 	/**
 	 * @return bool Is the platfor active?.
 	 */
@@ -323,6 +345,24 @@ abstract class Platform
 	public static function onAfterUpdateShipment(\Bitrix\Main\Event $event, array $additional)
 	{
 		return new EventResult();
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getInfo()
+	{
+		return [];
+	}
+
+	/**
+	 * @param $type
+	 * @param Sale\Order $order
+	 * @return string
+	 */
+	public function getExternalLink($type, Sale\Order $order)
+	{
+		return '';
 	}
 }
 

@@ -26,19 +26,35 @@ class NumberField extends AbstractField
 		$filterKey = $this->getFilterKey();
 		$data = $this->calcNumbers();
 
-		if ($data['op'] === FilterNumberType::SINGLE)
+		switch ($data['op'])
 		{
-			$filter["=$filterKey"] = $data['from'];
-			return;
+			case FilterNumberType::SINGLE:
+				if (is_numeric($data['from']))
+				{
+					$filter["=$filterKey"] = $data['from'];
+				}
+				return;
+
+			case FilterNumberType::MORE:
+			case FilterNumberType::LESS:
+				$opMore = '>';
+				$opLess = '<';
+				break;
+
+			default:
+				$opMore = '>=';
+				$opLess = '<=';
+				break;
+
 		}
 
 		if (is_numeric($data['from']))
 		{
-			$filter[">=$filterKey"] = $data['from'];
+			$filter["{$opMore}$filterKey"] = $data['from'];
 		}
 		if (is_numeric($data['to']))
 		{
-			$filter["<=$filterKey"] = $data['to'];
+			$filter["{$opLess}$filterKey"] = $data['to'];
 		}
 	}
 

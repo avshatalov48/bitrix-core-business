@@ -25,7 +25,6 @@ Loc::loadMessages(__FILE__);
  *
  * @package Bitrix\Main\Rating
  **/
-
 class ResultsTable extends Main\Entity\DataManager
 {
 	/**
@@ -78,7 +77,7 @@ class ResultsTable extends Main\Entity\DataManager
 				'data_type' => 'integer',
 			),
 			'RATING' => array(
-				'data_type' => 'Bitrix\Rating\Rating',
+				'data_type' => RatingTable::class,
 				'reference' => array('=this.RATING_ID' => 'ref.ID'),
 			),
 		);

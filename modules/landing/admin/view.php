@@ -10,6 +10,15 @@ else
 {
 	define('SITE_TEMPLATE_ID', 'landing24');
 }
+if (
+	isset($_GET['site']) &&
+	preg_match('/^[a-z0-9_]+$/i', $_GET['site'])
+)
+{
+	define('SITE_ID', $_GET['site']);
+}
+
+define('B24CONNECTOR_SKIP', true);
 require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/header.php');
 
 use \Bitrix\Main\Application;
@@ -24,6 +33,7 @@ $application = \Bitrix\Landing\Manager::getApplication();
 $site = $request->get('site');
 $template = $request->get('template');
 $landingId = $request->get('id');
+define('SMN_SITE_ID', $site);
 
 // check rights
 if ($application->getGroupRight('landing') < 'W')
@@ -45,7 +55,7 @@ if ($request->get('IFRAME') == 'N')
 		window.top.location.href = "<?= \CUtil::JSEscape($redirect->getUri());?>";
 	</script>
 	<?
-	include '/bitrix/modules/landing/install/components/bitrix/landing.start/templates/.default/slider_header.php';;
+	include $_SERVER['DOCUMENT_ROOT'] . '/bitrix/components/bitrix/landing.start/templates/.default/slider_header.php';
 	\CMain::finalActions();
 	die();
 }
@@ -66,11 +76,12 @@ if ($landing = $res->fetch())
 	// paths
 	$mainPage = 'landing_site.php?lang=' . LANGUAGE_ID . '&site=' . $site;
 	$mainPageLogo = 'landing_site.php?lang=' . LANGUAGE_ID . '&logo&site=' . $site;
-	$landingsPage = 'landing_site.php?lang=' . LANGUAGE_ID . ($site ? '&site=' . $site : '');
-	$editPage = $landingsPage . '&cmp=landing_edit&id=#landing_edit#' .  ($site ? '&site=' . $site : '');
-	$editSite = $landingsPage . '&cmp=site_edit' . ($site ? '&site=' . $site : '');
+	$landingsPage = 'landing_site.php?lang=' . LANGUAGE_ID . '&siteId=#site_show#' . ($site ? '&site=' . $site : '');
+	$editPage = $landingsPage . '&cmp=landing_edit&id=#landing_edit#';
+	$editSite = $landingsPage . '&cmp=site_edit';
+	$editSite .= ($template ? '&template=' . $template : '');
 	$viewPage ='landing_view.php?lang=' . LANGUAGE_ID . '&id=#landing_edit#'.  ($site ? '&site=' . $site : '');
-	$viewPage .= $template ? '&template=' . $template : '';
+	$viewPage .= ($template ? '&template=' . $template : '');
 
 	$replace = array(
 		'#site_show#' => $landing['SITE_ID'],
@@ -92,8 +103,8 @@ if ($landing = $res->fetch())
 				'sef_url' => array(
 					'landing_edit' => $editPage,
 					'landing_view' => $viewPage,
-					'site_edit' => $editSite,
-					'site_show' => $landingsPage
+					'site_show' => $landingsPage,
+					'site_edit' => str_replace('#site_show#', '#site_edit#', $editSite)
 				)
 			)
 		),

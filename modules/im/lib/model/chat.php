@@ -65,10 +65,14 @@ class ChatTable extends Entity\DataManager
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateTitle'),
 				'title' => Loc::getMessage('CHAT_ENTITY_TITLE_FIELD'),
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'DESCRIPTION' => array(
 				'data_type' => 'text',
 				'title' => Loc::getMessage('CHAT_ENTITY_DESCRIPTION_FIELD'),
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'COLOR' => array(
 				'data_type' => 'string',
@@ -158,8 +162,73 @@ class ChatTable extends Entity\DataManager
 				'required' => false,
 				'default_value' => array(__CLASS__, 'getCurrentDate'),
 			),
+			'INDEX' => array(
+				'data_type' => 'Bitrix\Im\Model\ChatIndex',
+				'reference' => array('=this.ID' => 'ref.CHAT_ID'),
+				'join_type' => 'INNER',
+			),
 		);
 	}
+
+
+	public static function onAfterAdd(\Bitrix\Main\ORM\Event $event)
+	{
+		$id = $event->getParameter("id");
+		static::indexRecord($id);
+		return new Entity\EventResult();
+	}
+
+	public static function onAfterUpdate(\Bitrix\Main\ORM\Event $event)
+	{
+		$primary = $event->getParameter("id");
+		$id = $primary["ID"];
+		static::indexRecord($id);
+		return new Entity\EventResult();
+	}
+
+	public static function indexRecord($id)
+	{
+		$id = (int)$id;
+		if($id == 0)
+			return;
+
+		$record = parent::getByPrimary($id)->fetch();
+		if(!is_array($record))
+			return;
+
+		if (!in_array($record['TYPE'], [\Bitrix\Im\Chat::TYPE_OPEN, \Bitrix\Im\Chat::TYPE_GROUP]))
+			return;
+
+		if ($record['ENTITY_TYPE'] == 'LIVECHAT')
+			return;
+
+		ChatIndexTable::merge(array(
+			'CHAT_ID' => $id,
+			'SEARCH_TITLE' => $record['TITLE'],
+			'SEARCH_CONTENT' => self::generateSearchContent($record)
+		));
+	}
+
+	/**
+	 * @param array $fields Record as returned by getList
+	 * @return string
+	 */
+	public static function generateSearchContent(array $fields)
+	{
+		$indexTitle = $fields['TITLE'];
+
+		$record = ChatIndexTable::getByPrimary($fields['ID'])->fetch();
+		if ($record && $record['SEARCH_USERS'])
+		{
+			$indexTitle .= ' '.$record['SEARCH_USERS'];
+		}
+
+		$result = \Bitrix\Main\Search\MapBuilder::create()->addText($indexTitle)->build();
+
+		return $result;
+	}
+
+
 	public static function validateTitle()
 	{
 		return array(

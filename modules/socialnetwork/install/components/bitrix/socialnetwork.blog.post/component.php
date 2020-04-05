@@ -49,11 +49,6 @@ if (SITE_TEMPLATE_ID == 'bitrix24')
 	$arParams["PATH_TO_LOG_TAG"] .= "&apply_filter=Y";
 }
 
-if ($arResult["bExtranetUser"])
-{
-	$arUserIdVisible = CExtranet::GetMyGroupsUsersSimple(SITE_ID);
-}
-
 if(!is_array($arParams["GROUP_ID"]))
 {
 	$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
@@ -68,6 +63,11 @@ foreach($arParams["GROUP_ID"] as $k=>$v)
 }
 
 $arResult["bPublicPage"] = (isset($arParams["PUB"]) && $arParams["PUB"] == "Y");
+
+if ($arResult["bExtranetUser"] && !$arResult["bPublicPage"])
+{
+	$arUserIdVisible = CExtranet::GetMyGroupsUsersSimple(SITE_ID);
+}
 
 $arResult["bTasksInstalled"] = CModule::IncludeModule("tasks");
 $arResult["bTasksAvailable"] = (
@@ -366,23 +366,6 @@ if(
 			}
 		}
 
-		if (
-			!$arResult["bFromList"]
-			&& $_SERVER["REQUEST_METHOD"] != "POST"
-		)
-		{
-			CBlogPost::counterInc($arPost["ID"]);
-
-			if ($liveFeedEntity = Livefeed\BlogPost::init(array(
-				'ENTITY_TYPE' => Livefeed\Provider::DATA_ENTITY_TYPE_BLOG_POST,
-				'ENTITY_ID' => $arPost["ID"],
-				'LOG_ID' => (isset($arParams["LOG_ID"]) ? intval($arParams["LOG_ID"]) : false)
-			)))
-			{
-				$liveFeedEntity->setContentView();
-			}
-		}
-
 		$arPost = CBlogTools::htmlspecialcharsExArray($arPost);
 
 		if($arPost["AUTHOR_ID"] == $user_id)
@@ -484,6 +467,7 @@ if(
 							'TYPE' => 'post_general',
 							'POST_ID' => $arParams["ID"]
 						)));
+						BXClearCache(true, CComponentEngine::MakeComponentPath("bitrix:socialnetwork.blog.blog"));
 
 						LocalRedirect($url);
 					}
@@ -556,6 +540,23 @@ if(
 
 		if ($arResult["PostPerm"] > BLOG_PERMS_DENY)
 		{
+			if (
+				!$arResult["bFromList"]
+				&& $_SERVER["REQUEST_METHOD"] != "POST"
+			)
+			{
+				CBlogPost::counterInc($arPost["ID"]);
+
+				if ($liveFeedEntity = Livefeed\BlogPost::init(array(
+					'ENTITY_TYPE' => Livefeed\Provider::DATA_ENTITY_TYPE_BLOG_POST,
+					'ENTITY_ID' => $arPost["ID"],
+					'LOG_ID' => (isset($arParams["LOG_ID"]) ? intval($arParams["LOG_ID"]) : false)
+				)))
+				{
+					$liveFeedEntity->setContentView();
+				}
+			}
+
 			/* share */
 			if(
 				$_SERVER["REQUEST_METHOD"] == "POST" 
@@ -567,12 +568,8 @@ if(
 				CUtil::JSPostUnescape();
 				$APPLICATION->RestartBuffer();
 
-				$spermNew = $_POST["SPERM"];
-				$spermOld = CBlogPost::GetSocNetPerms($arParams["ID"]);
 				$perms2update = array();
-				$arNewRights = array();
-				$comId = false;
-
+				$spermOld = CBlogPost::getSocNetPerms($arParams["ID"]);
 				foreach($spermOld as $type => $val)
 				{
 					foreach($val as $id => $values)
@@ -592,6 +589,44 @@ if(
 					}
 				}
 
+				$arNewRights = array();
+
+				if (isset($_POST['DEST_CODES']))
+				{
+					$_POST['SPERM'] = array(
+						'UA' => array(),
+						'U' => array(),
+						'UE' => array(),
+						'SG' => array(),
+						'DR' => array()
+					);
+					foreach($_POST['DEST_CODES'] as $destCode)
+					{
+						if ($destCode == 'UA')
+						{
+							$_POST['SPERM']['UA'][] = 'UA';
+						}
+						elseif (preg_match('/^UE(.+)$/i', $destCode, $matches))
+						{
+							$_POST['SPERM']['UE'][] = $matches[1];
+						}
+						elseif (preg_match('/^U(\d+)$/i', $destCode, $matches))
+						{
+							$_POST['SPERM']['U'][] = 'U'.$matches[1];
+						}
+						elseif (preg_match('/^SG(\d+)$/i', $destCode, $matches))
+						{
+							$_POST['SPERM']['SG'][] = 'SG'.$matches[1];
+						}
+						elseif (preg_match('/^DR(\d+)$/i', $destCode, $matches))
+						{
+							$_POST['SPERM']['DR'][] = 'DR'.$matches[1];
+						}
+					}
+					unset($_POST['DEST_CODES']);
+				}
+
+				$spermNew = $_POST["SPERM"];
 				$tmp = $_POST;
 				$tmp['SPERM'] = $spermNew;
 				ComponentHelper::processBlogPostNewMailUser($tmp, $arResult);
@@ -683,7 +718,20 @@ if(
 			/* end share */
 			if(!$arResult["bFromList"])
 			{
-				$strTitle = ($arPost["MICRO"] != "Y" ? $arPost["TITLE"] : TruncateText(blogTextParser::killAllTags($arPost["DETAIL_TEXT"]), 100));
+				if ($arPost["MICRO"] != "Y")
+				{
+					$strTitle = $arPost["TITLE"];
+				}
+				else
+				{
+					$strTitle = blogTextParser::killAllTags($arPost["DETAIL_TEXT"]);
+
+					$parser = new \CTextParser();
+					$parser->allow = array('CLEAR_SMILES' => 'Y');
+					$strTitle = preg_replace("/&nbsp;/is".BX_UTF_PCRE_MODIFIER, "", $parser->convertText($strTitle));
+
+					$strTitle = htmlspecialcharsback(TruncateText($strTitle, 100));
+				}
 
 				if ($arResult["bIntranetInstalled"])
 				{
@@ -791,8 +839,6 @@ if(
 						}
 					}
 				}
-
-				CBitrixComponentTemplate::ApplyCachedData($Vars["templateCachedData"]);
 				$cache->Output();
 			}
 			else
@@ -1352,7 +1398,6 @@ if(
 				if ($arParams["CACHE_TIME"] > 0)
 				{
 					$arCacheData = Array(
-						"templateCachedData" => $this->GetTemplateCachedData(),
 						"Post" => $arResult["Post"],
 						"images" => $arResult["images"],
 						"Category" => $arResult["Category"],
@@ -1403,7 +1448,7 @@ if(
 			{
 				$arResult["Post"]["SPERM_HIDDEN"] = 0;
 				$arGroupID = CSocNetLogTools::GetAvailableGroups(
-					($arResult["bExtranetUser"] ? "Y" : "N"),
+					($arResult["bExtranetUser"] && !$arResult["bPublicPage"] ? "Y" : "N"),
 					($arResult["bExtranetSite"] ? "Y" : "N")
 				);
 
@@ -1427,6 +1472,7 @@ if(
 							|| (
 								$group_code == "DR"
 								&& $arResult["bExtranetUser"]
+								&& !$arResult["bPublicPage"]
 							)
 							|| (
 								$group_code == "U"
@@ -1438,9 +1484,14 @@ if(
 								$group_code == "U"
 								&& isset($arBlogSPermDesc["IS_EXTRANET"])
 								&& $arBlogSPermDesc["IS_EXTRANET"] == "Y"
-								&& isset($arAvailableExtranetUserID)
-								&& is_array($arAvailableExtranetUserID)
-								&& !in_array($entity_id, $arAvailableExtranetUserID)
+								&& (
+									$arResult["bPublicPage"]
+									|| (
+										isset($arAvailableExtranetUserID)
+										&& is_array($arAvailableExtranetUserID)
+										&& !in_array($entity_id, $arAvailableExtranetUserID)
+									)
+								)
 							)
 						)
 						{

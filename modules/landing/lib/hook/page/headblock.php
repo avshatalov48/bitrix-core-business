@@ -20,7 +20,7 @@ class HeadBlock extends \Bitrix\Landing\Hook\Page
 			)),
 			'CODE' => new Field\Textarea('CODE', array(
 				'title' => Loc::getMessage('LANDING_HOOK_HEADBLOCK_CODE'),
-				'help' => Loc::getMessage('LANDING_HOOK_HEADBLOCK_CODE_HELP'),
+				'help' => Loc::getMessage('LANDING_HOOK_HEADBLOCK_CODE_HELP2'),
 				'placeholder' => '<script>
 	var googletag = googletag || {};
 	googletag.cmd = googletag.cmd || [];
@@ -30,6 +30,9 @@ class HeadBlock extends \Bitrix\Landing\Hook\Page
 				'title' => Loc::getMessage('LANDING_HOOK_HEADBLOCK_CSS_CODE'),
 				'help' => Loc::getMessage('LANDING_HOOK_HEADBLOCK_CSS_CODE_HELP'),
 				'placeholder' => '* {display: none;}'
+			)),
+			'CSS_FILE' => new Field\Textarea('CSS_FILE', array(
+				'title' => Loc::getMessage('LANDING_HOOK_HEADBLOCK_CSS_FILE')
 			))
 		);
 	}
@@ -76,9 +79,9 @@ class HeadBlock extends \Bitrix\Landing\Hook\Page
 	 */
 	public function exec()
 	{
-		$use = $this->fields['USE']->getValue() == 'Y';
 		$code = trim($this->fields['CODE']);
 		$cssCode = trim($this->fields['CSS_CODE']);
+		$cssFile = trim($this->fields['CSS_FILE']);
 
 		if ($code != '')
 		{
@@ -91,6 +94,10 @@ class HeadBlock extends \Bitrix\Landing\Hook\Page
 		if ($cssCode != '')
 		{
 			echo '<style type="text/css">' . $cssCode . '</style>';
+		}
+		if ($cssFile != '')
+		{
+			echo '<link href="' . \htmlspecialcharsbx($cssFile) . '" type="text/css"  rel="stylesheet" />';
 		}
 	}
 }

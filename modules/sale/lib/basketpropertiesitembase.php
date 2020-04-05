@@ -24,19 +24,6 @@ abstract class BasketPropertyItemBase extends Internals\CollectableEntity
 	/**
 	 * @return array
 	 */
-	public static function getAllFields()
-	{
-		static $mapFields = array();
-
-		if (!$mapFields)
-			$mapFields = parent::getAllFieldsByMap(static::getFieldMap());
-
-		return $mapFields;
-	}
-
-	/**
-	 * @return array
-	 */
 	public static function getAvailableFields()
 	{
 		return array(
@@ -44,13 +31,14 @@ abstract class BasketPropertyItemBase extends Internals\CollectableEntity
 			'VALUE',
 			'CODE',
 			'SORT',
+			'XML_ID'
 		);
 	}
 
 	/**
 	 * @return array
 	 */
-	public static function getMeaningfulFields()
+	protected static function getMeaningfulFields()
 	{
 		return array();
 	}
@@ -65,11 +53,21 @@ abstract class BasketPropertyItemBase extends Internals\CollectableEntity
 
 	/**
 	 * @throws NotImplementedException
-	 * @return BasketPropertyItemBase
 	 */
-	protected static function createBasketPropertyItemObject()
+	public static function getRegistryType()
 	{
 		throw new NotImplementedException();
+	}
+
+	/**
+	 * @return BasketPropertyItem
+	 */
+	private static function createBasketPropertyItemObject()
+	{
+		$registry = Registry::getInstance(static::getRegistryType());
+		$basketPropertyItemClassName = $registry->getBasketPropertyItemClassName();
+
+		return new $basketPropertyItemClassName();
 	}
 
 	/**
@@ -81,7 +79,17 @@ abstract class BasketPropertyItemBase extends Internals\CollectableEntity
 		$basketPropertyItem = static::createBasketPropertyItemObject();
 		$basketPropertyItem->setCollection($basketPropertiesCollection);
 
+		$basketPropertyItem->setField('XML_ID', static::generateXmlId());
+
 		return $basketPropertyItem;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected static function generateXmlId()
+	{
+		return uniqid('bx_');
 	}
 
 	/**
@@ -96,7 +104,7 @@ abstract class BasketPropertyItemBase extends Internals\CollectableEntity
 
 		if (empty($map))
 		{
-			$map = static::getFieldMap();
+			$map = static::getFieldsMap();
 		}
 
 		if ($id > 0)
@@ -182,7 +190,7 @@ abstract class BasketPropertyItemBase extends Internals\CollectableEntity
 
 		if (empty($map))
 		{
-			$map = static::getFieldMap();
+			$map = static::getFieldsMap();
 		}
 
 		$fieldValues = $fields = $this->fields->getValues();
@@ -232,12 +240,4 @@ abstract class BasketPropertyItemBase extends Internals\CollectableEntity
 	 */
 	abstract protected function updateInternal($primary, array $data);
 
-	/**
-	 * @throws NotImplementedException
-	 * @return array
-	 */
-	protected static function getFieldMap()
-	{
-		throw new NotImplementedException();
-	}
 }

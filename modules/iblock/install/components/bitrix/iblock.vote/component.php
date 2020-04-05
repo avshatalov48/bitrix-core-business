@@ -6,6 +6,8 @@
 if(!defined("B_PROLOG_INCLUDED") && isset($_REQUEST["AJAX_CALL"]) && $_REQUEST["AJAX_CALL"]=="Y")
 {
 	define('PUBLIC_AJAX_MODE', true);
+	define('NOT_CHECK_PERMISSIONS', true);
+
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 	/** @global CMain $APPLICATION */
 	global $APPLICATION;

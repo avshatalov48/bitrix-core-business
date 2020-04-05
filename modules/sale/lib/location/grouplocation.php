@@ -19,6 +19,11 @@ class GroupLocationTable extends Connector
 		return 'b_sale_location2location_group';
 	}
 
+	public static function getTypeField()
+	{
+		return '';
+	}
+
 	public function getLinkField()
 	{
 		return 'LOCATION_GROUP_ID';

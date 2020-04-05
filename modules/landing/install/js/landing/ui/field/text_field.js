@@ -5,7 +5,9 @@
 
 	var isFunction = BX.Landing.Utils.isFunction;
 	var isBoolean = BX.Landing.Utils.isBoolean;
+	var clone = BX.Landing.Utils.clone;
 	var bind = BX.Landing.Utils.bind;
+	var remove = BX.Landing.Utils.remove;
 	var escapeHtml = BX.Landing.Utils.escapeHtml;
 	var fireCustomEvent = BX.Landing.Utils.fireCustomEvent;
 
@@ -70,12 +72,6 @@
 			this.onValueChangeHandler(this);
 
 			fireCustomEvent(this, "BX.Landing.UI.Field:change", [this.getValue()]);
-
-			// TMP disable live reload changes
-			// if (this.bind instanceof HTMLElement)
-			// {
-			// 	this.bind.innerHTML = this.input.innerHTML;
-			// }
 		},
 
 
@@ -193,13 +189,15 @@
 			BX.Landing.UI.Tool.ColorPicker.hideAll();
 			BX.Landing.UI.Button.FontAction.hideAll();
 
-			if (event.target.nodeName === "A")
-			{
-				var range = document.createRange();
-				range.selectNode(event.target);
-				window.getSelection().removeAllRanges();
-				window.getSelection().addRange(range);
-			}
+			requestAnimationFrame(function() {
+				if (event.target.nodeName === "A")
+				{
+					var range = document.createRange();
+					range.selectNode(event.target);
+					window.getSelection().removeAllRanges();
+					window.getSelection().addRange(range);
+				}
+			});
 
 			this.fromInput = true;
 
@@ -270,9 +268,32 @@
 			return this.input.isContentEditable;
 		},
 
+
 		reset: function()
 		{
 			this.setValue("");
+		},
+
+
+		/**
+		 * @param {HTMLElement} element
+		 * @return {HTMLElement}
+		 */
+		adjustTags: function(element)
+		{
+			if (element.lastChild && element.lastChild.nodeName === "BR")
+			{
+				remove(element.lastChild);
+				this.adjustTags(element);
+			}
+
+			return element;
+		},
+
+
+		getValue: function()
+		{
+			return this.adjustTags(clone(this.input)).innerHTML;
 		}
 	}
 })();

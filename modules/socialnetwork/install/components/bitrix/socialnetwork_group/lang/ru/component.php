@@ -23,6 +23,7 @@ $MESS["SONET_GALLERY_NOT_FOUND"] = "Фотографий нет.";
 $MESS["SONET_PHOTO"] = "Фото";
 $MESS["SONET_FILES_IS_NOT_ACTIVE"] = "Функционал 'Файлы' выключен";
 $MESS["SONET_PHOTO_IS_NOT_ACTIVE"] = "Функционал 'Фото' выключен";
+$MESS["SONET_APP_IS_NOT_ACTIVE"] = "Приложение не найдено";
 $MESS["SONET_WD_MODULE_IS_NOT_INSTALLED"] = "Модуль библиотеки документов не установлен.";
 $MESS["SONET_GROUP_NOT_EXISTS"] = "Группа не существует.";
 $MESS["SONET_IBLOCK_ID_EMPTY"] = "Не указан инфоблок.";

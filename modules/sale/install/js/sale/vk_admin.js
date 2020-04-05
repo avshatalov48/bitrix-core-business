@@ -191,7 +191,6 @@
 		loadExportMap: function(exportId) {
 			if(!BX.Sale.VkAdmin.loadExportMapOk) {
 
-				BX.showWait();
 				var postData = {
 					action: "loadExportMap",
 					exportId: exportId,
@@ -203,10 +202,10 @@
 					method: 'POST',
 					dataType: 'json',
 					url: BX.Sale.VkAdmin.ajaxUrl,
+					async: true,
 					data: postData,
 
 					onsuccess: function (result) {
-						BX.closeWait();
 
 						if (result && result.COMPLETED) {
 							BX.adjust(BX('vk_export_map_edit_table__content'), {html: result.MAP});
@@ -214,14 +213,9 @@
 						}
 					},
 					onfailure: function () {
-						BX.closeWait();
 						BX.debug('LOAD EXPORT MAP ERROR');
 					}
 				});
-
-
-				// BX.adjust(BX('vk_export_map_edit_table__content'), {html: 'map'});
-				// BX.Sale.VkAdmin.loadExportMapOk = true;
 			}
 		},
 

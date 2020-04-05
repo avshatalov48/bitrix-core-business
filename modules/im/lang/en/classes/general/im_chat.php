@@ -1,4 +1,5 @@
 <?
+$MESS["IM_CHAT_GENERAL_LEAVE_F"] = "#USER_NAME# was dismissed";
 $MESS["IM_ERROR_EMPTY_FROM_USER_ID"] = "The message sender is not specified.";
 $MESS["IM_ERROR_EMPTY_USER_ID_BY_PRIVACY"] = "These users deny being invited to chat";
 $MESS["IM_ERROR_EMPTY_TO_CHAT_ID"] = "The message recipient is not specified.";
@@ -40,7 +41,7 @@ $MESS["IM_GENERAL_TITLE"] = "General chat";
 $MESS["IM_GENERAL_DESCRIPTION"] = "A General chat is open to all of your colleagues. Use this chat to discuss topics that are of importance to anybody in your company.";
 $MESS["IM_CHAT_GENERAL_JOIN"] = "#USER_NAME# has been hired";
 $MESS["IM_CHAT_GENERAL_JOIN_PLURAL"] = "#USER_NAME# have been hired";
-$MESS["IM_CHAT_GENERAL_LEAVE"] = "#USER_NAME# has been dismissed";
+$MESS["IM_CHAT_GENERAL_LEAVE_M"] = "#USER_NAME# has been dismissed";
 $MESS["IM_CHAT_GENERAL_JOIN_F"] = "#USER_NAME# has been hired";
 $MESS["IM_PERSONAL_DESCRIPTION"] = "Only you can see messages in this chat.[br] Post here message drafts, notes, links and files to keep them handy.";
 $MESS["IM_CHAT_CHANGE_TITLE"] = "Chat \"#CHAT_TITLE#\" subject changed";

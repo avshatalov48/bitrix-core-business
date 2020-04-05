@@ -26,11 +26,13 @@
 			BX.SidePanel.Instance.open(this.sliderId, {
 				contentCallback: BX.delegate(this.create, this),
 				width: this.SLIDER_WIDTH,
-				animationDuration: this.SLIDER_DURATION
+				animationDuration: this.SLIDER_DURATION,
+				events: {
+					onClose: BX.proxy(this.hide, this),
+					onCloseComplete: BX.proxy(this.destroy, this)
+				}
 			});
 
-			BX.addCustomEvent("SidePanel.Slider:onClose", BX.proxy(this.hide, this));
-			BX.addCustomEvent("SidePanel.Slider:onCloseComplete", BX.proxy(this.destroy, this));
 			this.calendar.disableKeyHandler();
 		},
 
@@ -809,7 +811,7 @@
 		{
 			var
 				_this = this,
-				id = this.calendar.id, editWrap,
+				id = this.calendar.id,
 				conDiv = this.calDavSyncDialog.DOM.list.appendChild(BX.create("DIV", {props: {id: id + '_dav_con_' + ind, className: 'calendar-caldav-item'}})),
 				title = conDiv.appendChild(BX.create("DIV", {props: {className: 'calendar-caldav-item-title'}})),
 				status = title.appendChild(BX.create("IMG", {props: {src: "/bitrix/images/1.gif", className: 'bxec-dav-item-status'}})),
@@ -819,7 +821,7 @@
 
 			if (con.id > 0 && (con.account_type == 'google_api_oauth' || con.account_type == 'caldav_google_oauth'))
 			{
-				editWrap = conDiv.appendChild(BX.create("DIV", {
+				conDiv.appendChild(BX.create("DIV", {
 					props: {className: 'bxec-dav-new-form'},
 					html: '<div class="calendar-caldav-field-container-wrap">' +
 							'<div  class="calendar-caldav-sections-outer-wrap" id="' + id + '_dav_sections_cont_outer' + ind + '">' +
@@ -831,12 +833,12 @@
 			}
 			else
 			{
-				editWrap = conDiv.appendChild(BX.create("DIV", {
+				conDiv.appendChild(BX.create("DIV", {
 					props: {className: 'bxec-dav-new-form'},
 					html: '<div  class="calendar-caldav-field-container-wrap">' +
-						'<div class="calendar-field-container calendar-field-container-string"><div class="calendar-field-block"><input id="' + id + '_caldav_name' + ind + '" type="text" placeholder="' + BX.message('EC_ADD_CALDAV_NAME') + '" class="calendar-field calendar-field-string"></div></div>' +
-						'<div class="calendar-field-container calendar-field-container-string"><div class="calendar-field-block"><input id="' + id + '_caldav_link' + ind + '" type="text" placeholder="' + BX.message('EC_ADD_CALDAV_LINK') + '" class="calendar-field calendar-field-string"></div></div>' +
-						'<div class="calendar-field-container calendar-field-container-string"><div class="calendar-field-block"><input id="' + id + '_caldav_username' + ind + '" type="text" placeholder="' + BX.message('EC_ADD_CALDAV_USER_NAME') + '" class="calendar-field calendar-field-string"></div></div>' +
+						'<div class="calendar-field-container calendar-field-container-string"><div class="calendar-field-block"><input id="' + id + '_caldav_name' + ind + '" type="text" placeholder="' + BX.message('EC_ADD_CALDAV_NAME') + '" class="calendar-field calendar-field-string" value="' + BX.util.htmlspecialchars(con.name) + '"></div></div>' +
+						'<div class="calendar-field-container calendar-field-container-string"><div class="calendar-field-block"><input id="' + id + '_caldav_link' + ind + '" type="text" placeholder="' + BX.message('EC_ADD_CALDAV_LINK') + '" class="calendar-field calendar-field-string" value="' + BX.util.htmlspecialchars(con.link) + '"></div></div>' +
+						'<div class="calendar-field-container calendar-field-container-string"><div class="calendar-field-block"><input id="' + id + '_caldav_username' + ind + '" type="text" placeholder="' + BX.message('EC_ADD_CALDAV_USER_NAME') + '" class="calendar-field calendar-field-string" value="' + BX.util.htmlspecialchars(con.user_name) + '"></div></div>' +
 						'<div class="calendar-field-container calendar-field-container-string"><div class="calendar-field-block"><input id="' + id + '_caldav_password' + ind + '" type="password" placeholder="' + BX.message('EC_ADD_CALDAV_PASS') + '" class="calendar-field calendar-field-string"></div></div>' +
 						'<div  class="calendar-caldav-sections-outer-wrap" id="' + id + '_dav_sections_cont_outer' + ind + '">' +
 						'<div class="calendar-caldav-sections-title">' + BX.message('EC_ADD_CALDAV_SECTIONS')+ ' : </div>' +
@@ -914,13 +916,15 @@
 				}
 				else
 				{
-
+					con.del = true;
+					_this.saveCalDavConnections();
+					_this.closeCalDavSyncDialog();
 				}
 				return BX.PreventDefault(e);
 			};
 		},
 
-		saveCalDavConnections: function(Calback)
+		saveCalDavConnections: function(calback)
 		{
 			var connections = [];
 			this.connections.forEach(function(connection)
@@ -960,8 +964,10 @@
 				handler: BX.delegate(function(response)
 				{
 					setTimeout(function(){
-						if (BX.type.isFunction(Calback))
-							Calback(true);
+						if (BX.type.isFunction(calback))
+						{
+							calback(true);
+						}
 					}, 100);
 
 					if (response.result === false)
@@ -972,10 +978,12 @@
 				onerror: BX.delegate(function(response)
 				{
 					setTimeout(function(){
-						if (BX.type.isFunction(Calback))
-							Calback(false);
+						if (BX.type.isFunction(calback))
+						{
+							calback(false);
+						}
 					}, 100);
-				}, this),
+				}, this)
 			});
 			return true;
 		},
@@ -987,36 +995,39 @@
 			this.calDavSyncDialog = null;
 		},
 
-		showICalExportDialog: function(section)
-		{
-			var _this = this;
+		showICalExportDialog: function(section) {
+			var content;
 
 			if (!this.exportDialog)
 			{
-				var content = BX.create('DIV', {html: '<span>' + BX.message('EC_EXP_TEXT') + '</span>'});
+				content = BX.create('DIV', {html: '<span>' + BX.message('EC_EXP_TEXT') + '</span>'});
 
 				this.exportDialog = new BX.PopupWindow("export_dialog" + this.calendar.id, null, {
 					autoHide: false,
-					closeByEsc : true,
+					closeByEsc: true,
 					zIndex: 4000,
 					offsetLeft: 0,
 					offsetTop: 0,
 					width: 800,
 					draggable: true,
 					titleBar: BX.message('EC_JS_EXPORT_TILE'),
-					closeIcon: {right : "12px", top : "10px"},
+					closeIcon: {right: "12px", top: "10px"},
 					className: "bxc-popup-window",
-					buttons: [
-						new BX.PopupWindowButtonLink({
-							text: BX.message('EC_SEC_SLIDER_CLOSE'),
-							className: "popup-window-button-link-cancel",
-							events: {click : function(){_this.exportDialog.close();}}
-						})
-					],
+					buttons: [new BX.PopupWindowButtonLink({
+						text: BX.message('EC_SEC_SLIDER_CLOSE'),
+						className: "popup-window-button-link-cancel",
+						events: {
+							click: BX.delegate(function(){this.exportDialog.close();}, this)
+						}
+					})],
 					content: content
 				});
 
 				this.exportDialog.DOM = {};
+			}
+			else
+			{
+				content = this.exportDialog.contentContainer;
 			}
 			this.exportDialog.show();
 
@@ -1028,7 +1039,10 @@
 				link += 'action=export' + section.data.EXPORT.LINK;
 			}
 
-
+			if (this.exportDialog.DOM.link)
+			{
+				BX.remove(this.exportDialog.DOM.link);
+			}
 			this.exportDialog.DOM.link = content.appendChild(BX.create('DIV', {props: {className: ''}}))
 				.appendChild(BX.create('A', {
 					props: {

@@ -141,7 +141,7 @@ class ByProductCategory extends Base
 		$result =  array(
 			"CATEGORIES" => array(
 				"TYPE" => "DELIVERY_PRODUCT_CATEGORIES",
-				"URL" => "/bitrix/admin/cat_section_search.php?lang=ru&m=y&n=SECTIONS_IDS",
+				"URL" => "cat_section_search.php?lang=ru&m=y&n=SECTIONS_IDS",
 				"SCRIPT" => "window.InS".md5('SECTIONS_IDS')."=function(id, name){BX.Sale.Delivery.addRestrictionProductSection(id, name, this);};",
 				"LABEL" => Loc::getMessage("SALE_DLVR_RSTR_BY_PC_CATEGORIES"),
 				"ID" => 'sale-admin-delivery-restriction-cat-add'

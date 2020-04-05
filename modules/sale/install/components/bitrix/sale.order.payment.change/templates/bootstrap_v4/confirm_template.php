@@ -33,7 +33,7 @@ else
 		?>
 		<div class="bx-sopc" id="bx-sopc<?=$wrapperId?>">
 			<div class="sale-paysystem-wrapper">
-				<div class="row">
+				<div class="col">
 					<div class="sale-order-payment-change-pp row">
 						<div class="row sale-order-payment-change-inner-row">
 							<div class="sale-order-payment-change-inner-row-body">
@@ -151,7 +151,7 @@ else
 	else
 	{
 		?>
-		<div class='row'>
+		<div class='col'>
 			<div class='col-xs-12'>
 				<p><?=Loc::getMessage("SOPC_ORDER_SUC", array("#ORDER_ID#"=>$arResult['ORDER_ID'],"#ORDER_DATE#"=>$arResult['ORDER_DATE']))?></p>
 				<p><?=Loc::getMessage("SOPC_PAYMENT_SUC", array("#PAYMENT_ID#"=>$arResult['PAYMENT_ID']))?></p>
@@ -167,7 +167,7 @@ else
 			</div>
 		</div>
 		<?
-		if (!$arResult['IS_CASH'])
+		if (!$arResult['IS_CASH'] && strlen($arResult['PAYMENT_LINK']))
 		{
 			?>
 			<script type="text/javascript">

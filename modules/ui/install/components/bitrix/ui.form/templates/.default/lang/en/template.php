@@ -1,0 +1,4 @@
+<?
+$MESS['UI_FORM_BUTTON_CANCEL'] = "Cancel";
+$MESS['UI_FORM_BUTTON_SAVE'] = "Save";
+?>

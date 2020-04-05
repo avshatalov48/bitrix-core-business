@@ -68,7 +68,7 @@ class SimpleProduct extends SelectProductPreset
 			BX.ready(function(){
 				new BX.Sale.Admin.DiscountPreset.SelectProduct({
 					presetId: "' . \CUtil::JSEscape($this->className()) . '",
-					siteId: "' . $lid . '",
+					siteId: "' . \CUtil::JSEscape($lid) . '",
 					sectionCount: ' . $sectionCount . ',
 					products: ' . \CUtil::PhpToJSObject($this->generateProductsData($state->get('discount_product'), $lid)) . '
 				});

@@ -34,13 +34,19 @@
 				 data-form-style-second-font-color="1"
 			>
 			</div>
+
+<!--		for resource booking-->
+			<div class="g-bg-primary-opacity-0_4"
+				 data-form-style-main-bg-light="1"
+			>
+			</div>
 		</div>
 
 		<div class="container g-pos-rel g-z-index-1 g-py-100">
 			<div class="row">
 				<div class="col-sm-12 col-lg-6 js-animation fadeInLeft landing-block-node-form align-self-center">
 					<div class="g-bg-white g-rounded-5 g-pa-0">
-						<div class="bitrix24forms g-py-30 g-brd-white-opacity-0_6"
+						<div class="bitrix24forms g-py-30 g-brd-white-opacity-0_6 u-form-alert-v2"
 							 data-b24form=""
 							 data-b24form-use-style="Y"
 							 data-b24form-show-header="N"

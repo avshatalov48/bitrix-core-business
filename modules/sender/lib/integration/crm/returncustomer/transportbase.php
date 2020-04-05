@@ -109,7 +109,7 @@ class TransportBase implements Transport\iBase
 	{
 		$config = $message->getConfiguration();
 		$authorId = $config->get('LETTER_CREATED_BY_ID');
-		$text = $config->get('COMMENT');
+		$text = $message->replaceFields($config->get('COMMENT'));
 		$crmEntityId = $message->getRecipientCode();
 		$crmEntityTypeId = Service::getTypeIdByRecipientType($message->getRecipientType());
 
@@ -253,7 +253,7 @@ class TransportBase implements Transport\iBase
 		if ($facility->getSelector()->getContactId())
 		{
 			$categoryFilters[] = [
-				'=COMPANY_ID' => $facility->getSelector()->getContactId()
+				'=CONTACT_ID' => $facility->getSelector()->getContactId()
 			];
 		}
 		foreach ($categoryFilters as $categoryFilter)

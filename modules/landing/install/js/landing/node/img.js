@@ -4,6 +4,9 @@
 	BX.namespace("BX.Landing");
 
 	var attr = BX.Landing.Utils.attr;
+	var data = BX.Landing.Utils.data;
+	var encodeDataValue = BX.Landing.Utils.encodeDataValue;
+	var decodeDataValue = BX.Landing.Utils.decodeDataValue;
 
 	/**
 	 * Implements interface for works with image node
@@ -74,10 +77,33 @@
 	 */
 	function getBackgroundUrl(node)
 	{
-		var background = node.node.style.backgroundImage;
-		background = !!background ? background : "";
+		var style = node.node.getAttribute('style');
+		var res = style.split(";")[0].match(/url\((.*?)\)/);
 
-		return background.slice(4, -1).replace(/["|']/g, "");
+		if (res && res[1])
+		{
+			return res[1].replace(/["|']/g, "");
+		}
+
+		return "";
+	}
+
+	/**
+	 * Gets background url 2x
+	 * @param {BX.Landing.Block.Node.Img} node
+	 * @return {boolean}
+	 */
+	function getBackgroundUrl2x(node)
+	{
+		var style = node.node.getAttribute('style');
+		var res = style.match(/1x, url\(["|'](.*)["|']\) 2x\); /);
+
+		if (res && res[1])
+		{
+			return res[1].replace(/["|']/g, "");
+		}
+
+		return "";
 	}
 
 
@@ -89,6 +115,17 @@
 	function getFileId(node)
 	{
 		var fileId = parseInt(node.node.dataset.fileid);
+		return fileId === fileId ? fileId : -1;
+	}
+
+	/**
+	 * Gets file id 2x
+	 * @param {BX.Landing.Block.Node.Img} node
+	 * @return {int}
+	 */
+	function getFileId2x(node)
+	{
+		var fileId = parseInt(node.node.dataset.fileid2x);
 		return fileId === fileId ? fileId : -1;
 	}
 
@@ -104,6 +141,12 @@
 		return !!alt ? alt : "";
 	}
 
+	function getPseudoUrl(node)
+	{
+		var url = data(node.node, "data-pseudo-url");
+		return !!url ? url : "";
+	}
+
 
 	/**
 	 * Gets image src
@@ -114,6 +157,17 @@
 	{
 		var src = attr(node.node, "src");
 		return !!src ? src : "";
+	}
+
+	/**
+	 * Gets image src 2x
+	 * @param {BX.Landing.Block.Node.Img} node
+	 * @return {string}
+	 */
+	function getImageSrc2x(node)
+	{
+		var src = attr(node.node, "srcset");
+		return !!src ? src.replace(" 2x", "") : "";
 	}
 
 
@@ -139,6 +193,8 @@
 			node.node.src = value.src;
 			node.node.alt = value.alt;
 			node.node.dataset.fileid = value.id || -1;
+			node.node.srcset = value.src2x ? value.src2x + " 2x" : "";
+			node.node.dataset.fileid2x = value.fileid2x || -1;
 		}
 	}
 
@@ -165,8 +221,31 @@
 		}
 		else
 		{
-			node.node.style.backgroundImage = "url(\""+value.src+"\")";
+			if (value.src)
+			{
+				node.node.style.backgroundImage = "url(\""+value.src+"\")";
+
+				if (value.src2x)
+				{
+					var style = [
+						"background-image: url(\""+value.src+"\");",
+						"background-image: -webkit-image-set(url(\""+value.src+"\") 1x, url(\""+value.src2x+"\") 2x);",
+						"background-image: image-set(url(\""+value.src+"\") 1x, url(\""+value.src2x+"\") 2x);"
+					].join(' ');
+
+					node.node.setAttribute("style", style);
+				}
+			}
+			else
+			{
+				if (node.node.style)
+				{
+					node.node.style.removeProperty("background-image");
+				}
+			}
+
 			node.node.dataset.fileid = value.id || -1;
+			node.node.dataset.fileid2x = value.id2x || -1;
 		}
 	}
 
@@ -227,7 +306,6 @@
 				this.editPanel.appendForm(form);
 				this.editPanel.show();
 				BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
-				BX.Landing.UI.Panel.SmallEditorPanel.getInstance().hide();
 			}
 		},
 
@@ -265,11 +343,17 @@
 					description += this.manifest.dimensions.height + "px";
 				}
 
+				var value = this.getValue();
+				value.url = decodeDataValue(value.url);
+
+				var disableLink = !!this.node.closest("a");
+
 				this.field = new BX.Landing.UI.Field.Image({
 					selector: this.selector,
 					title: this.manifest.name,
 					description: description,
-					content: this.getValue(),
+					disableLink: disableLink,
+					content: value,
 					dimensions: !!this.manifest.dimensions ? this.manifest.dimensions : {},
 					disableAltField: isBackground(this),
 					uploadParams: this.uploadParams
@@ -311,13 +395,18 @@
 				setBackgroundValue(this, value);
 			}
 
+			if (value.url)
+			{
+				attr(this.node, "data-pseudo-url", value.url);
+			}
+
 			this.onChange();
 
 			if (!preventHistory)
 			{
 				BX.Landing.History.getInstance().push(
 					new BX.Landing.History.Entry({
-						block: top.BX.Landing.Block.storage.getByChildNode(this.node).id,
+						block: this.getBlock().id,
 						selector: this.selector,
 						command: "editImage",
 						undo: this.lastValue,
@@ -329,29 +418,37 @@
 			this.lastValue = this.getValue();
 		},
 
-
 		/**
 		 * Gets node value
 		 * @return {{src: string}}
 		 */
 		getValue: function()
 		{
-			var value = {type: "", src: "", id: -1, alt: ""};
+			var value = {type: "", src: "", src2x: "", id: -1, id2x: -1, alt: "", url: ""};
 
 			if (isBackground(this))
 			{
 				value.type = "background";
 				value.src = getBackgroundUrl(this);
+				value.src2x = getBackgroundUrl2x(this);
 				value.id = getFileId(this);
+				value.id2x = getFileId2x(this);
 			}
 
 			if (isImage(this))
 			{
 				value.type = "image";
 				value.src = getImageSrc(this);
+				value.src2x = getImageSrc2x(this);
 				value.id = getFileId(this);
+				value.id2x = getFileId2x(this);
 				value.alt = getAlt(this);
 			}
+
+			value.url = (
+				encodeDataValue(getPseudoUrl(this)) ||
+				{text: "", href: "", target: "_self", enabled: false}
+			);
 
 			return value;
 		}

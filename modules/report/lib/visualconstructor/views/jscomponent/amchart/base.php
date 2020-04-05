@@ -45,7 +45,7 @@ abstract class Base extends \Bitrix\Report\VisualConstructor\Views\JsComponent\B
 	 * @param BaseWidget $widgetHandler Widget handler.
 	 * @return void
 	 */
-	public function collectWidgetHandlerFormElements($widgetHandler)
+	public function collectWidgetHandlerFormElements(BaseWidget $widgetHandler)
 	{
 		parent::collectWidgetHandlerFormElements($widgetHandler);
 		$widgetHandler->getFormElement('color')->setDisplay(false);

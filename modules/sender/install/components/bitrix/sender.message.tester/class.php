@@ -86,18 +86,18 @@ class SenderMessageTestComponent extends CBitrixComponent
 
 	protected function prepareRecipients(array $codes)
 	{
-		$this->arResult['DEFAULT_RECIPIENTS'] = array();
-		$this->arResult['LAST_RECIPIENTS'] = array();
+		$this->arResult['DEFAULT_RECIPIENTS'] = [];
+		$this->arResult['LAST_RECIPIENTS'] = [];
 
 		foreach ($codes as $code)
 		{
 			if (count($this->arResult['DEFAULT_RECIPIENTS']) === 0)
 			{
-				$this->arResult['DEFAULT_RECIPIENTS'][] = array(
+				$this->arResult['DEFAULT_RECIPIENTS'][] = [
 					'id' => $code,
 					'name' => $code,
-					'data' => array(),
-				);
+					'data' => [],
+				];
 			}
 
 			$this->arResult['LAST_RECIPIENTS'][] = $code;

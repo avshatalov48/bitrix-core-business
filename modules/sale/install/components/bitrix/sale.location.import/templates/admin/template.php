@@ -45,6 +45,15 @@ Loc::loadMessages(__FILE__);
 		),
 	);
 
+	global $adminSidePanelHelper;
+	if (!is_object($adminSidePanelHelper))
+	{
+		require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/admin_lib.php");
+		$adminSidePanelHelper = new \CAdminSidePanelHelper();
+	}
+	$arResult['URLS']['TYPE_LIST'] = $adminSidePanelHelper->editUrlToPublicPage($arResult['URLS']['TYPE_LIST']);
+	$arResult['URLS']['EXTERNAL_SERVICE_LIST'] = $adminSidePanelHelper->editUrlToPublicPage($arResult['URLS']['EXTERNAL_SERVICE_LIST']);
+
 	$tabControl = new CAdminTabControl("tabctrl_import", $aTabs, false, true);
 
 	CJSCore::Init();
@@ -128,9 +137,20 @@ Loc::loadMessages(__FILE__);
 					</div>
 
 					<?=BeginNote();?>
+					<?
+					if ($adminSidePanelHelper->isPublicSidePanel())
+					{
+						$anchorExtServs = '';
+					}
+					else
+					{
+						$anchorExtServs = '<a href="'.$arResult['URLS']['EXTERNAL_SERVICE_LIST'].'" target="_blank">';
+					}
+					$externalServiceHtml = ($adminSidePanelHelper->isPublicSidePanel() ?  :'<a href="'.$arResult['URLS']['EXTERNAL_SERVICE_LIST'].'" target="_blank">');
+					?>
 						<?=Loc::getMessage('SALE_SLI_SOURCE_FILE_NOTES', array(
 							'#ANCHOR_LOCTYPES#' => '<a href="'.$arResult['URLS']['TYPE_LIST'].'" target="_blank">', 
-							'#ANCHOR_EXT_SERVS#' => '<a href="'.$arResult['URLS']['EXTERNAL_SERVICE_LIST'].'" target="_blank">',
+							'#ANCHOR_EXT_SERVS#' => $anchorExtServs,
 							'#ANCHOR_END#' => '</a>'
 						))?>
 					<?=EndNote();?>

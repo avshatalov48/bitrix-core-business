@@ -1642,7 +1642,7 @@ class CAllSaleDelivery
 		else
 			$id = \Bitrix\Sale\Delivery\Services\Manager::getIdByCode($code);
 
-		return $id;
+		return (int)$id;
 	}
 
 	/**

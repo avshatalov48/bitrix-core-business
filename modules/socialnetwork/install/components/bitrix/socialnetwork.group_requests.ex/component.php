@@ -364,13 +364,23 @@ else
 					{
 						$arResult["RequestsOut"]["List"] = false;
 
+						$requestsFilter = array(
+							"GROUP_ID" => $arResult["Group"]["ID"],
+							"ROLE" => SONET_ROLES_REQUEST,
+							"INITIATED_BY_TYPE" => SONET_INITIATED_BY_GROUP
+						);
+
+						if (
+							!$arResult['CurrentUserPerms']['UserCanProcessRequestsIn']
+							&& !\CSocNetUser::isCurrentUserModuleAdmin()
+						)
+						{
+							$requestsFilter['INITIATED_BY_USER_ID'] = $USER->getID();
+						}
+
 						$dbRequests = CSocNetUserToGroup::GetList(
 							array("DATE_CREATE" => "ASC"),
-							array(
-								"GROUP_ID" => $arResult["Group"]["ID"],
-								"ROLE" => SONET_ROLES_REQUEST,
-								"INITIATED_BY_TYPE" => SONET_INITIATED_BY_GROUP
-							),
+							$requestsFilter,
 							false,
 							$arNavParams,
 							array("ID", "USER_ID", "DATE_CREATE", "DATE_UPDATE", "MESSAGE", "USER_NAME", "USER_LAST_NAME", "USER_SECOND_NAME", "USER_LOGIN", "USER_PERSONAL_PHOTO", "USER_PERSONAL_GENDER", "USER_WORK_POSITION")

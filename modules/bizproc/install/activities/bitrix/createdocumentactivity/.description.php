@@ -10,4 +10,11 @@ $arActivityDescription = array(
 	"CATEGORY" => array(
 		"ID" => "document",
 	),
+	'FILTER' => array(
+		'EXCLUDE' => array(
+			['crm', 'Bitrix\Crm\Integration\BizProc\Document\Order'],
+			['crm', 'Bitrix\Crm\Integration\BizProc\Document\Invoice'],
+			['tasks'],
+		)
+	)
 );

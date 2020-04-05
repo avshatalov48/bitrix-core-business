@@ -74,7 +74,8 @@ $APPLICATION->IncludeComponent(
 		"IMAGE_MAX_HEIGHT" => $arParams["BLOG_IMAGE_MAX_HEIGHT"],
 		"ALLOW_POST_CODE" => $arParams["BLOG_ALLOW_POST_CODE"],
 		"USE_GOOGLE_CODE" => $arParams["BLOG_USE_GOOGLE_CODE"],	
-		"USE_CUT" => $arParams["BLOG_USE_CUT"]
+		"USE_CUT" => $arParams["BLOG_USE_CUT"],
+		"SELECTOR_VERSION" => 2
 	),
 	$this->getComponent()
 );

@@ -48,7 +48,12 @@ if ($result !== true || !$USER->IsAuthorized())
 		"success" => false,
 	);
 
-	if ($APPLICATION->NeedCAPTHAForLogin($_POST['login']))
+	if (\Bitrix\Main\Loader::includeModule('bitrix24') && ($captchaInfo = CBitrix24::getStoredCaptcha()))
+	{
+		$answer["captchaCode"] = $captchaInfo["captchaCode"];
+		$answer["captchaURL"] = $captchaInfo["captchaURL"];
+	}
+	elseif ($APPLICATION->NeedCAPTHAForLogin($_POST['login']))
 	{
 		$answer["captchaCode"] = $APPLICATION->CaptchaGetCode();
 	}

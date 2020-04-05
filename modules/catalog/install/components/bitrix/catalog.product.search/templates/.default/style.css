@@ -146,7 +146,7 @@
 	border-bottom: 1px solid #aeb6be;
 	box-shadow: inset 0 1px 1px 0 #d2d9dd, 0 1px 0 0 #ecf2f3;
 	border-radius: 3px;
-	margin-bottom: 30px;
+	margin-bottom: 0;
 }
 .catalog-product-search-dialog .adm-s-search-box
 {
@@ -344,4 +344,12 @@
 .catalog-product-search-dialog .root-submenu .adm-s-arrow-cont
 {
 	margin-left: -20px !important;
+}
+.catalog-product-search-dialog .adm-s-search-query-settings-container
+{
+	margin-bottom: 20px;
+}
+.catalog-product-search-dialog .adm-s-search-query-settings-container .adm-s-search-query-settings
+{
+	margin: 5px 10px 0 20px;
 }

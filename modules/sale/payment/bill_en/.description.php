@@ -9,3 +9,5 @@ $psDescription = GetMessage("SBLP_DDESCR");
 $isAffordPdf = true;
 
 include \Bitrix\Main\Application::getDocumentRoot().'/bitrix/modules/sale/handlers/paysystem/billen/.description.php';
+
+$data['IS_AVAILABLE'] = \Bitrix\Sale\PaySystem\Manager::HANDLER_AVAILABLE_FALSE;

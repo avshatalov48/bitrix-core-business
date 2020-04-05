@@ -201,7 +201,11 @@
 				.getInstance()
 				.download(item)
 				.then(function(path) {
-					this.onChange({link: path, ext: getFileExtension(path)});
+					this.onChange({
+						link: path,
+						ext: getFileExtension(path),
+						name: item.id + '.' + getFileExtension(path)
+					});
 				}.bind(this));
 		}
 	};

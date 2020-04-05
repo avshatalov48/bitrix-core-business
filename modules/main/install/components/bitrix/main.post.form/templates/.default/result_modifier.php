@@ -1,5 +1,16 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
+/** @var SocialnetworkBlogPostComment $this */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @var string $componentPath */
+/** @var string $componentName */
+/** @var string $componentTemplate */
+/** @global CDatabase $DB */
+/** @global CUser $USER */
+/** @global CUserTypeManager $USER_FIELD_MANAGER */
+/** @global CMain $APPLICATION */
+
 __IncludeLang(dirname(__FILE__)."/lang/".LANGUAGE_ID."/result_modifier.php");
 
 /********************************************************************
@@ -38,6 +49,9 @@ if(isset($userOption["showBBCode"]) && $userOption["showBBCode"] == "Y")
 $arParams["PIN_EDITOR_PANEL"] = (isset($userOption["pinEditorPanel"]) && $userOption["pinEditorPanel"] == "Y") ? "Y" : "N";
 
 $arParams["ADDITIONAL"] = (is_array($arParams["~ADDITIONAL"]) ? $arParams["~ADDITIONAL"] : array());
+
+$arResult["SELECTOR_VERSION"] = (!empty($arParams["SELECTOR_VERSION"]) ? intval($arParams["SELECTOR_VERSION"]) : 1);
+
 $addSpan = true;
 if (!empty($arParams["ADDITIONAL"]))
 {
@@ -84,14 +98,19 @@ $arParams["DESTINATION_USE_CLIENT_DATABASE"] = (
 );
 $arParams["DESTINATION"] = (array_key_exists("VALUE", $arParams["DESTINATION"]) ? $arParams["DESTINATION"]["VALUE"] : $arParams["DESTINATION"]);
 
+$arResult["bExtranetUser"] = (
+	\Bitrix\Main\Loader::includeModule("extranet")
+	&& !CExtranet::IsIntranetUser()
+);
+
 if (!empty($arParams["DEST_SORT"]))
 {
 	$arResult["DEST_SORT"] = $arParams["DEST_SORT"];
 }
 elseif (
-	IsModuleInstalled("socialnetwork")
-	&& $GLOBALS["USER"]->IsAuthorized()
-	&& method_exists('CSocNetLogDestination','GetDestinationSort')
+	$arResult["SELECTOR_VERSION"] < 2
+	&& \Bitrix\Main\Loader::includeModule("socialnetwork")
+	&& $USER->IsAuthorized()
 )
 {
 	$arResult["DEST_SORT"] = CSocNetLogDestination::GetDestinationSort(array(
@@ -104,7 +123,8 @@ else
 }
 
 if (
-	empty($arParams["DESTINATION"])
+	$arResult["SELECTOR_VERSION"] < 2
+	&& empty($arParams["DESTINATION"])
 	&& in_array("MentionUser", $arParams["BUTTONS"])
 	&& CModule::IncludeModule("socialnetwork")
 )
@@ -126,10 +146,7 @@ if (
 		}
 	}
 
-	if (
-		CModule::IncludeModule('extranet')
-		&& !CExtranet::IsIntranetUser()
-	)
+	if ($arResult["bExtranetUser"])
 	{
 		$arParams["DESTINATION"]['EXTRANET_USER'] = 'Y';
 		$arParams["DESTINATION"]['USERS'] = CSocNetLogDestination::GetExtranetUser();
@@ -147,12 +164,12 @@ if (
 	}
 }
 
-if (in_array("MentionUser", $arParams["BUTTONS"]))
+if (
+	in_array("MentionUser", $arParams["BUTTONS"])
+	&& $arResult["SELECTOR_VERSION"] < 2
+)
 {
-	if (
-		CModule::IncludeModule("socialnetwork")
-		&& method_exists('CSocNetLogDestination','GetDestinationSort')
-	)
+	if (CModule::IncludeModule("socialnetwork"))
 	{
 		$arResult["MENTION_DEST_SORT"] = CSocNetLogDestination::GetDestinationSort(array(
 			"DEST_CONTEXT" => "MENTION"
@@ -185,8 +202,7 @@ if (in_array("MentionUser", $arParams["BUTTONS"]))
 	}
 
 	$arParams["DESTINATION"]['MENTION_USERS'] = (
-		CModule::IncludeModule('extranet')
-		&& !CExtranet::IsIntranetUser()
+		$arResult["bExtranetUser"]
 			? $arParams["DESTINATION"]['USERS']
 			: (
 				!empty($arDestUser)

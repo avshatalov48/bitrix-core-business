@@ -11,6 +11,7 @@ return array(
 		array(
 			'name' => Loc::getMessage('LANDING_BLOCK_43.1.BIG_TILES_WITH_SLIDER_NAME'),
 			'section' => array('image'),
+//			'subtype' => 'carousel',
 		),
 	'cards' =>
 		array(
@@ -26,7 +27,7 @@ return array(
 				array(
 					'name' => Loc::getMessage('LANDING_BLOCK_43.1.BIG_TILES_WITH_SLIDER_NODES_LANDINGBLOCKNODEIMG1'),
 					'type' => 'img',
-					'dimensions' => array('width' => 1200, 'height' => 781),
+					'dimensions' => array('width' => 960, 'height' => 625),
 				),
 			'.landing-block-node-subtitle' =>
 				array(
@@ -52,13 +53,13 @@ return array(
 				array(
 					'name' => Loc::getMessage('LANDING_BLOCK_43.1.BIG_TILES_WITH_SLIDER_NODES_LANDINGBLOCKNODEIMG2'),
 					'type' => 'img',
-					'dimensions' => array('width' => 1200, 'height' => 781),
+					'dimensions' => array('width' => 960, 'height' => 625),
 				),
 			'.landing-block-node-card-img' =>
 				array(
 					'name' => Loc::getMessage('LANDING_BLOCK_43.1.BIG_TILES_WITH_SLIDER_NODES_LANDINGBLOCKNODECARDIMG'),
 					'type' => 'img',
-					'dimensions' => array('width' => 1200, 'height' => 781),
+					'dimensions' => array('width' => 960, 'height' => 625),
 				),
 		),
 	'style' =>

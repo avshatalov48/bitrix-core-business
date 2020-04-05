@@ -15,17 +15,25 @@ foreach ($arResult['ERRORS'] as $error)
 
 foreach ($arResult['ROWS'] as $index => $data)
 {
+	foreach ($data as $dataKey => $dataValue)
+	{
+		if (is_string($data[$dataKey]))
+		{
+			$data[$dataKey] = htmlspecialcharsbx($dataValue);
+		}
+	}
+
 	if ($data['USER'] && $data['USER_PATH'])
 	{
 		$data['USER'] = '<a href="' . htmlspecialcharsbx($data['USER_PATH']) . '" target="_blank">'
-			.  htmlspecialcharsbx($data['USER'])
+			.  ($data['USER'])
 			. '</a>';
 	}
 
 	if ($data['NAME'] && $data['URLS']['EDIT'])
 	{
 		$data['NAME'] = '<a onclick="' . "BX.Sender.Page.open('" . CUtil::JSEscape($data['URLS']['EDIT']) . "'); return false;" . '" href="' . htmlspecialcharsbx($data['URLS']['EDIT']) . '">'
-			.  htmlspecialcharsbx($data['NAME'])
+			.  ($data['NAME'])
 			. '</a>';
 	}
 

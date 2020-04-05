@@ -16,7 +16,7 @@
 		<div class="container u-bg-overlay__inner g-width-900">
 			<div class="js-carousel g-pb-70"
 				 data-infinite="true"
-				 data-arrows-classes="u-arrow-v1 g-absolute-centered--x g-bottom-0 g-width-40 g-height-40 g-rounded-50x g-font-size-default g-theme-color-gray-light-v2 g-color-white--hover g-bg-white g-bg-primary--hover g-transition-0_2 g-transition--ease-in"
+				 data-arrows-classes="u-arrow-v1 g-absolute-centered--x g-bottom-0 g-width-40 g-height-40 g-rounded-50x g-font-size-default g-color-gray-light-v2 g-color-white--hover g-bg-white g-bg-primary--hover g-transition-0_2 g-transition--ease-in"
 				 data-arrow-left-classes="fa fa-angle-left g-ml-minus-30"
 				 data-arrow-right-classes="fa fa-angle-right g-ml-30">
 				<div class="landing-block-node-card js-slide">

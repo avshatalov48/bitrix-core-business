@@ -1,6 +1,7 @@
 <?
 
 use Bitrix\Socialnetwork\Integration;
+use Bitrix\Main\Localization\Loc;
 
 class CAllSocNetSubscription
 {
@@ -22,7 +23,7 @@ class CAllSocNetSubscription
 			&& IntVal($arFields["USER_ID"]) <= 0
 		)
 		{
-			$APPLICATION->ThrowException(GetMessage("SONET_SS_EMPTY_USER_ID"), "EMPTY_USER_ID");
+			$APPLICATION->ThrowException(Loc::getMessage("SONET_SS_EMPTY_USER_ID"), "EMPTY_USER_ID");
 			return false;
 		}
 		elseif (is_set($arFields, "USER_ID"))
@@ -30,7 +31,7 @@ class CAllSocNetSubscription
 			$dbResult = CUser::GetByID($arFields["USER_ID"]);
 			if (!$dbResult->Fetch())
 			{
-				$APPLICATION->ThrowException(GetMessage("SONET_SS_ERROR_NO_USER_ID"), "ERROR_NO_USER_ID");
+				$APPLICATION->ThrowException(Loc::getMessage("SONET_SS_ERROR_NO_USER_ID"), "ERROR_NO_USER_ID");
 				return false;
 			}
 		}
@@ -40,7 +41,7 @@ class CAllSocNetSubscription
 			&& strlen(trim($arFields["CODE"])) <= 0
 		)
 		{
-			$APPLICATION->ThrowException(GetMessage("SONET_SS_EMPTY_CODE"), "EMPTY_CODE");
+			$APPLICATION->ThrowException(Loc::getMessage("SONET_SS_EMPTY_CODE"), "EMPTY_CODE");
 			return false;
 		}
 
@@ -209,6 +210,17 @@ class CAllSocNetSubscription
 			$arFields["EXCLUDE_USERS"] = array_unique($arFields["EXCLUDE_USERS"]);
 		}
 
+		$roleList = array();
+
+		if (
+			!empty($arFields['PERMISSION'])
+			&& !empty($arFields['PERMISSION']['FEATURE'])
+			&& !empty($arFields['PERMISSION']['OPERATION'])
+		)
+		{
+			$roleList = \CSocNetFeaturesPerms::getOperationPerm(SONET_ENTITY_GROUP, $arFields["GROUP_ID"], $arFields['PERMISSION']['FEATURE'], $arFields['PERMISSION']['OPERATION']);
+		}
+
 		$chatData = $chatIdList = array();
 		if (!empty($arFields["MESSAGE_CHAT"]))
 		{
@@ -220,10 +232,9 @@ class CAllSocNetSubscription
 		if (!empty($chatData))
 		{
 			$arFields["GROUP_ID"] = array_diff($arFields["GROUP_ID"], array_unique(array_keys($chatData)));
-			$chatIdList = array_unique(array_values($chatData));
 		}
 
-		if (!empty($chatIdList))
+		if (!empty($chatData))
 		{
 			$tmp = \CSocNetLogTools::processPath(
 				array(
@@ -247,8 +258,17 @@ class CAllSocNetSubscription
 				$chatMessageFields["FROM_USER_ID"] = intval($arFields["FROM_USER_ID"]);
 			}
 
-			foreach($chatIdList as $chatId)
+			foreach($chatData as $groupId => $chatId)
 			{
+				// don't send message to chat if it's unavailable for all members
+				if (
+					isset($roleList[$groupId])
+					&& $roleList[$groupId] < \Bitrix\Socialnetwork\UserToGroupTable::ROLE_USER
+				)
+				{
+					continue;
+				}
+
 				\CIMChat::addMessage(array_merge(
 					$chatMessageFields, array(
 						"TO_CHAT_ID" => $chatId
@@ -347,8 +367,36 @@ class CAllSocNetSubscription
 		$groupUrlTemplate = COption::GetOptionString("socialnetwork", "group_path_template", "/workgroups/group/#group_id#/", SITE_ID);
 		$groupUrlTemplate = "#GROUPS_PATH#".substr($groupUrlTemplate, strlen($workgroupsPage), strlen($groupUrlTemplate)-strlen($workgroupsPage));
 
+		$canViewUserIdList = array();
+
 		foreach($arUserToSend as $arUser)
 		{
+			$groupId = $arUser['GROUP_ID'];
+
+			if (isset($roleList[$groupId]))
+			{
+				if (!isset($canViewUserIdList[$groupId]))
+				{
+					$canViewUserIdList[$groupId] = array();
+					$res = \Bitrix\Socialnetwork\UserToGroupTable::getList(array(
+						'filter' => array(
+							'=GROUP_ID' => $groupId,
+							'<=ROLE' => $roleList[$groupId]
+						),
+						'select' => array('USER_ID')
+					));
+					while($relation = $res->fetch())
+					{
+						$canViewUserIdList[$groupId][] = $relation['USER_ID'];
+					}
+				}
+
+				if (!in_array($arUser["USER_ID"], $canViewUserIdList[$groupId]))
+				{
+					continue;
+				}
+			}
+
 			$arMessageFields["TO_USER_ID"] = $arUser["USER_ID"];
 			if (intval($arFields["LOG_ID"]) > 0)
 			{
@@ -384,6 +432,56 @@ class CAllSocNetSubscription
 				array("#URL#", "#url#", "#group_name#"), 
 				array($serverName.$url, $serverName.$url, $group_name),
 				$arFields["MESSAGE_OUT"]
+			);
+
+			$arMessageFields["PUSH_PARAMS"] = array(
+				"ACTION" => "sonet_group_event",
+				"TAG" => $arMessageFields["NOTIFY_TAG"]
+			);
+
+			if (intval($arFields["FROM_USER_ID"]) > 0)
+			{
+				$dbAuthor = \CUser::getByID($arFields["FROM_USER_ID"]);
+				if($arAuthor = $dbAuthor->fetch())
+				{
+					if (!empty($arAuthor["PERSONAL_PHOTO"]))
+					{
+						$imageResized = CFile::resizeImageGet(
+							$arAuthor["PERSONAL_PHOTO"],
+							array(
+								"width" => 100,
+								"height" => 100
+							),
+							BX_RESIZE_IMAGE_EXACT
+						);
+						if ($imageResized)
+						{
+							$authorAvatarUrl = \Bitrix\Im\Common::getPublicDomain().$imageResized["src"];
+						}
+					}
+
+					$authorName = CUser::formatName(\CSite::getNameFormat(), $arAuthor, true);
+				}
+			}
+
+			if (empty($authorName))
+			{
+				$authorName = Loc::getMessage("SONET_SS_PUSH_USER");
+			}
+
+			$arMessageFields["PUSH_PARAMS"]["ADVANCED_PARAMS"] = array(
+				'senderName' => $authorName
+			);
+
+			if (!empty($authorAvatarUrl))
+			{
+				$arMessageFields["PUSH_PARAMS"]["ADVANCED_PARAMS"]["avatarUrl"] = $authorAvatarUrl;
+			}
+
+			$arMessageFields["PUSH_MESSAGE"] = str_replace(
+				array("[URL=#URL#]", "[URL=#url#]", "[/URL]", "#group_name#", "#GROUP_ID#", "#group_id#"),
+				array('', '', '', $group_name, $arUser["GROUP_ID"], $arUser["GROUP_ID"]),
+				$arFields["MESSAGE"]
 			);
 
 			$arMessageFields2Send = $arMessageFields;

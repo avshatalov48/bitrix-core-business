@@ -1,7 +1,6 @@
 <?php
 namespace Bitrix\Landing\Update\Block;
 
-use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\File;
 use \Bitrix\Landing\Internals\BlockTable;
 use \Bitrix\Main\Entity;

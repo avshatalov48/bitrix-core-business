@@ -12,12 +12,16 @@
 /** @var CBitrixComponent $component */
 $this->setFrameMode(true);
 ?>
-<div class="bx_banner_container">
-	<a href="http://marketplace.1c-bitrix.ru/?utm_source=demoshop&utm_medium=referral&utm_campaign=marketplace" target="_blank" class="bx_banner_container_link">
-		<img src="<?=$this->GetFolder()?>/images/<?=LANGUAGE_ID?>/content.png" height="41" width="787" alt="">
+<div class="marketplace-banner">
+	<a href="http://marketplace.1c-bitrix.ru/?utm_source=demoshop&utm_medium=referral&utm_campaign=marketplace" target="_blank" class="marketplace-banner-link">
+		<?=GetMessage("ESHOP_BANNER_CONTENT")?>
 	</a>
 	<?if ($USER->IsAdmin()):?>
-	<a href="javascript:void(0)" class="bx_banner_container_close" onclick="eshopBannerClose(this.parentNode);"><?=GetMessage("ESHOP_BANNER_CLOSE")?> [X]</a>
+	<a href="javascript:void(0)"
+	   class="marketplace-banner-close"
+	   onclick="eshopBannerClose(this.parentNode);">
+			<?=GetMessage("ESHOP_BANNER_CLOSE")?>
+	</a>
 
 	<script>
 		function eshopBannerClose(banner)

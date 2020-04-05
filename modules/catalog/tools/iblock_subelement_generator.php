@@ -3,7 +3,8 @@
 /**	@global CUser $USER */
 use Bitrix\Main,
 	Bitrix\Highloadblock as HL,
-	Bitrix\Currency;
+	Bitrix\Currency,
+	Bitrix\Catalog;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 IncludeModuleLangFile(__FILE__);
@@ -33,7 +34,7 @@ $arSKUInfo = CCatalogSku::GetInfoByOfferIBlock($subIBlockId);
 CUtil::decodeURIComponent($_POST['PRODUCT_NAME']);
 $parentProductName = trim($_POST['PRODUCT_NAME']);
 
-$useStoreControl = ((string)Main\Config\Option::get('catalog', 'default_use_store_control') == 'Y');
+$useStoreControl = Catalog\Config\State::isUsedInventoryManagement();
 
 if($arSKUInfo == false)
 {
@@ -103,9 +104,14 @@ function __showPopup($element_id, $items)
 {
 	echo
 		'<script type="text/javascript">
-			top.BX.ready(function(){
-				top.BX.bind(top.BX("'.$element_id.'"), "click", function() {
-					top.BX.adminShowMenu(this, '.CAdminPopup::PhpToJavaScript($items).');
+			var currentWindow = top.window;
+			if (top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
+			{
+				currentWindow = top.BX.SidePanel.Instance.getTopSlider().getWindow();
+			}
+			currentWindow.BX.ready(function(){
+				currentWindow.BX.bind(currentWindow.BX("'.$element_id.'"), "click", function() {
+					currentWindow.BX.adminShowMenu(this, '.CAdminPopup::PhpToJavaScript($items).');
 				});
 			});
 		</script>';
@@ -544,12 +550,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !$bReadOnly && check_bitrix_sessid()
 		{
 			?>
 			<script type="text/javascript">
-				top.BX.closeWait();
-				if (!!top.BX.WindowManager.Get())
+				var currentWindow = top.window;
+				if (top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
 				{
-					top.BX.WindowManager.Get().AllowClose(); top.BX.WindowManager.Get().Close();
-					if (!!top.ReloadSubList)
-						top.ReloadSubList();
+					currentWindow = top.BX.SidePanel.Instance.getTopSlider().getWindow();
+				}
+				currentWindow.BX.closeWait();
+				if (!!currentWindow.BX.WindowManager.Get())
+				{
+					currentWindow.BX.WindowManager.Get().AllowClose();
+					currentWindow.BX.WindowManager.Get().Close();
+					if (!!currentWindow.ReloadSubList)
+						currentWindow.ReloadSubList();
 				}
 			</script>
 			<?
@@ -797,6 +809,7 @@ else
 		<?
 		if ($USER->CanDoOperation('catalog_purchas_info') && !$useStoreControl)
 		{
+			$baseCurrency = Currency\CurrencyManager::getBaseCurrency();
 		?>
 		<tr>
 			<td class="adm-detail-content-cell-l"><? echo GetMessage("IB_SEG_PURCHASING_PRICE") ?></td>
@@ -807,7 +820,7 @@ else
 				<?
 				foreach (Currency\CurrencyManager::getCurrencyList() as $id => $title)
 				{
-					?><option value="<?=$id; ?>"><?=htmlspecialcharsbx($title); ?></option><?
+					?><option value="<?=$id; ?>"<?=($id == $baseCurrency ? ' selected' : ''); ?>><?=htmlspecialcharsbx($title); ?></option><?
 				}
 				unset($id, $title);
 				?>

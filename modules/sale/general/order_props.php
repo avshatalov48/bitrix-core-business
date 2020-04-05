@@ -31,38 +31,71 @@ class CSaleOrderProps
 
 		$arUser = null;
 
-		$arFilter = array(
+		$arFilter = [
 			"PERSON_TYPE_ID" => $arOrder["PERSON_TYPE_ID"],
 			"ACTIVE" => "Y"
-		);
+		];
 
-		if ($paysystemId != 0)
+		$relationFilter = [];
+		if ($paysystemId > 0)
 		{
-			$arFilter["RELATED"]["PAYSYSTEM_ID"] = $paysystemId;
-			$arFilter["RELATED"]["TYPE"] = "WITH_NOT_RELATED";
+			$relationFilter[] = [
+				'=Bitrix\Sale\Internals\OrderPropsRelationTable:lPROPERTY.ENTITY_TYPE' => 'P',
+				'=Bitrix\Sale\Internals\OrderPropsRelationTable:lPROPERTY.ENTITY_ID' => $paysystemId,
+			];
 		}
 
 		if (strlen($deliveryId) > 0)
 		{
-			$arFilter["RELATED"]["DELIVERY_ID"] = $deliveryId;
-			$arFilter["RELATED"]["TYPE"] = "WITH_NOT_RELATED";
+			if ($paysystemId > 0)
+			{
+				$relationFilter['LOGIC'] = 'OR';
+			}
+
+			$relationFilter[] = [
+				'=Bitrix\Sale\Internals\OrderPropsRelationTable:lPROPERTY.ENTITY_TYPE' => 'D',
+				'=Bitrix\Sale\Internals\OrderPropsRelationTable:lPROPERTY.ENTITY_ID' => \CSaleDelivery::getIdByCode($deliveryId),
+			];
 		}
 
-		$dbOrderProps = CSaleOrderProps::GetList(
-			array("SORT" => "ASC"),
-			$arFilter,
-			false,
-			false,
-			array("ID", "NAME", "TYPE", "IS_LOCATION", "IS_LOCATION4TAX", "IS_PROFILE_NAME", "IS_PAYER", "IS_EMAIL",
-				"REQUIED", "SORT", "IS_ZIP", "CODE", "DEFAULT_VALUE")
-		);
-		while ($arOrderProp = $dbOrderProps->Fetch())
+		$arFilter[] = [
+			'LOGIC' => 'OR',
+			$relationFilter,
+			[
+				'=Bitrix\Sale\Internals\OrderPropsRelationTable:lPROPERTY.PROPERTY_ID' => null
+			],
+		];
+
+		if (isset($arOptions['ORDER'])
+			&& $arOptions['ORDER'] instanceof \Bitrix\Sale\Order
+		)
 		{
+			$registry = \Bitrix\Sale\Registry::getInstance($arOptions['ORDER']::getRegistryType());
+			$property = $registry->getPropertyClassName();
+		}
+		else
+		{
+			$property = \Bitrix\Sale\Property::class;
+		}
+
+		/** @var Bitrix\Main\DB\Result $dbRes */
+		$dbRes = $property::getlist([
+			'select' => [
+				'ID', 'NAME', 'TYPE', 'IS_LOCATION', 'IS_LOCATION4TAX', 'IS_PROFILE_NAME', 'IS_PAYER', 'IS_EMAIL',
+				'REQUIRED', 'SORT', 'IS_ZIP', 'CODE', 'DEFAULT_VALUE'
+			],
+			'filter' => $arFilter,
+			'order' => ['SORT' => 'ASC']
+		]);
+
+		while ($arOrderProp = $dbRes->fetch())
+		{
+			$arOrderProp = CSaleOrderPropsAdapter::convertNewToOld($arOrderProp);
 			if (!array_key_exists($arOrderProp["ID"], $arOrderPropsValues))
 			{
 				$curVal = $arOrderProp["DEFAULT_VALUE"];
 
-				if (strlen($curVal) <= 0)
+				if (!is_array($curVal) && strlen($curVal) <= 0)
 				{
 					if ($arOrderProp["IS_EMAIL"] == "Y" || $arOrderProp["IS_PAYER"] == "Y")
 					{
@@ -365,6 +398,11 @@ class CSaleOrderProps
 			$arSelectFields = array();
 		}
 
+		if (is_array($arFilter))
+		{
+			$arFilter['ENTITY_REGISTRY_TYPE'] = \Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER;
+		}
+
 		$defaultSelectFields = array(
 			"ID",
 			"PERSON_TYPE_ID",
@@ -424,8 +462,8 @@ class CSaleOrderProps
 			'PERSON_TYPE_NAME'     => 'PERSON_TYPE.NAME',
 			'PERSON_TYPE_SORT'     => 'PERSON_TYPE.SORT',
 			'PERSON_TYPE_ACTIVE'   => 'PERSON_TYPE.ACTIVE',
-			'PAYSYSTEM_ID'         => 'Bitrix\Sale\Internals\OrderPropsRelationTable:lPROPERTY.PROPERTY_ID',
-			'DELIVERY_ID'          => 'Bitrix\Sale\Internals\OrderPropsRelationTable:lPROPERTY.PROPERTY_ID',
+			'PAYSYSTEM_ID'         => 'Bitrix\Sale\Internals\OrderPropsRelationTable:lPROPERTY.ENTITY_ID',
+			'DELIVERY_ID'          => 'Bitrix\Sale\Internals\OrderPropsRelationTable:lPROPERTY.ENTITY_ID',
 		));
 
 		// relations
@@ -601,7 +639,10 @@ class CSaleOrderProps
 			return false;
 
 		$newProperty = CSaleOrderPropsAdapter::convertOldToNew($arFields);
-		$ID = OrderPropsTable::add(array_intersect_key($newProperty, CSaleOrderPropsAdapter::$allFields))->getId();
+		$fields = array_intersect_key($newProperty, CSaleOrderPropsAdapter::$allFields);
+		$fields['ENTITY_REGISTRY_TYPE'] = \Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER;
+
+		$ID = OrderPropsTable::add($fields)->getId();
 
 		foreach(GetModuleEvents('sale', 'OnOrderPropsAdd', true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array($ID, $arFields));

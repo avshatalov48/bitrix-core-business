@@ -7,6 +7,7 @@
 	var isString = BX.Landing.Utils.isString;
 	var random = BX.Landing.Utils.random;
 	var clone = BX.Landing.Utils.clone;
+	var fireCustomEvent = BX.Landing.Utils.fireCustomEvent;
 
 	/**
 	 * Implements base interface for works with fields
@@ -21,7 +22,8 @@
 	 * 		[property]: string,
 	 * 		[attribute]: string,
 	 * 		[style]: string,
-	 * 		[onValueChange]: function
+	 * 		[onValueChange]: function,
+	 * 		[hidden]: boolean
 	 * 	}} data
 	 *
 	 * @constructor
@@ -37,6 +39,7 @@
 		this.className = isString(data.className) ? data.className : "";
 		this.descriptionText = isString(data.description) ? data.description : "";
 		this.attribute = isString(data.attribute) ? data.attribute : "";
+		this.hidden = data.hidden ? data.hidden : false;
 		this.description = null;
 		this.property = isString(data.property) ? data.property : "";
 		this.style = "style" in data ? data.style : "";
@@ -122,15 +125,31 @@
 		{
 			event.preventDefault();
 
+			var text;
+
 			// Prevents XSS and prevents insert potential dangerously code
 			if (event.clipboardData && event.clipboardData.getData)
 			{
-				document.execCommand("insertText", false, event.clipboardData.getData("text/plain"));
+				text = event.clipboardData.getData("text/plain");
+
+				if (!this.textOnly)
+				{
+					text = text.replace(new RegExp('\n', 'g'), '<br>');
+				}
+
+				document.execCommand("insertHTML", false, text);
 			}
 			else
 			{
 				// ie11
-				document.execCommand("paste", true, window.clipboardData.getData("text"));
+				text = window.clipboardData.getData("text");
+
+				if (!this.textOnly)
+				{
+					text = text.replace(new RegExp('\n', 'g'), '<br>');
+				}
+
+				document.execCommand("paste", true, text);
 			}
 		},
 
@@ -185,6 +204,7 @@
 			value = this.textOnly ? escapeHtml(value) : value;
 			this.input.innerHTML = value.toString().trim();
 			this.onValueChangeHandler(this);
+			fireCustomEvent(this, "BX.Landing.UI.Field:change", [this.getValue()]);
 		},
 
 		enable: function()
@@ -204,9 +224,9 @@
 
 		},
 
-		clone: function()
+		clone: function(data)
 		{
-			return new this.constructor(clone(this.data));
+			return new this.constructor(clone(data || this.data));
 		}
 	}
 })();

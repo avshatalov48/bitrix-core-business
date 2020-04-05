@@ -437,6 +437,11 @@ if (strlen($arResult["FatalError"]) <= 0)
 			{
 				$template = &$this->GetTemplate();
 				$arResult["FOLDER_PATH"] = $folderPath = $template->GetFolder();
+				$arResult["VERSION"] = (!empty($_GET["version"]) ? intval($_GET["version"]) : 1);
+				if ($arResult["VERSION"] >= 2)
+				{
+					$arParams['THUMBNAIL_DETAIL_SIZE'] = 57;
+				}
 				include($_SERVER["DOCUMENT_ROOT"].$folderPath."/card.php");
 			}
 
@@ -534,8 +539,10 @@ if (strlen($arResult["FatalError"]) <= 0)
 				"Toolbar" => $strToolbar,
 				"ToolbarItems" => $intToolbarItems,
 				"Toolbar2" => $strToolbar2,
+				"Name" => $strNameFormatted,
 				"Card" => $strCard,
 				"Photo" => $strPhoto,
+				"Position" => $strPosition,
 				"Scripts" => (!empty($arScripts) ? $arScripts : array())
 			);
 

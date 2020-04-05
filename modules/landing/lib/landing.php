@@ -18,10 +18,28 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	public static $internalClass = 'LandingTable';
 
 	/**
+	 * Enabled updated or not.
+	 * @var bool
+	 */
+	protected static $enabledUpdate = true;
+
+	/**
+	 * Check deleted pages or not.
+	 * @var bool
+	 */
+	protected static $checkDelete = true;
+
+	/**
 	 * Current mode is edit.
 	 * @var boolean
 	 */
 	protected static $editMode = false;
+
+	/**
+	 * Current mode is preview.
+	 * @var boolean
+	 */
+	protected static $previewMode = false;
 
 	/**
 	 * External variables of Landing.
@@ -36,8 +54,14 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	protected $mainInstance = true;
 
 	/**
-	 * All blocks of current landing.
+	 * Additional data of current landing.
 	 * @var array
+	 */
+	protected $metaData = array();
+
+	/**
+	 * All blocks of current landing.
+	 * @var Block[]
 	 */
 	protected $blocks = array();
 
@@ -66,10 +90,22 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	protected $xmlId = '';
 
 	/**
+	 * Some fields from landing's site.
+	 * @var array
+	 */
+	protected $siteRow = [];
+
+	/**
 	 * Site id of current landing.
 	 * @var int
 	 */
 	protected $siteId = 0;
+
+	/**
+	 * Folder id of current landing.
+	 * @var int
+	 */
+	protected $folderId = 0;
 
 	/**
 	 * Current template id.
@@ -103,14 +139,24 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	protected function __construct($id, $params = array())
 	{
 		$this->error = new Error;
+		$filter = array(
+			'ID' => $id
+		);
+		if (
+			isset($params['force_deleted']) &&
+			$params['force_deleted'] === true
+		)
+		{
+			$filter['=DELETED'] = ['Y', 'N'];
+			$filter['=SITE.DELETED'] = ['Y', 'N'];
+		}
 		$landing = self::getList(array(
 			'select' => array(
 				'*',
-				'SITE_TPL_ID' => 'SITE.TPL_ID'
+				'SITE_TPL_ID' => 'SITE.TPL_ID',
+				'SITE_LANDING_ID_INDEX' => 'SITE.LANDING_ID_INDEX'
 			),
-			'filter' => array(
-				'ID' => $id
-			)
+			'filter' => $filter
 		))->fetch();
 
 		if ($landing)
@@ -125,7 +171,12 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			$this->xmlId = $landing['XML_ID'];
 			$this->id = (int)$landing['ID'];
 			$this->siteId = (int)$landing['SITE_ID'];
+			$this->folderId = (int)$landing['FOLDER_ID'];
 			$this->active = $landing['ACTIVE'] == 'Y';
+			$this->siteRow = [
+				'TPL_ID' => $landing['SITE_TPL_ID'],
+				'LANDING_ID_INDEX' => $landing['SITE_LANDING_ID_INDEX']
+			];
 			$this->tplId = $landing['TPL_ID'] > 0
 							? $landing['TPL_ID']
 							: (
@@ -147,7 +198,8 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 				if ($landing['PUBLIC'] == 'Y')
 				{
 					self::update($id, array(
-						'PUBLIC' => 'N'
+						'PUBLIC' => 'N',
+						'DATE_MODIFY' => false
 					));
 					Block::cloneForEdit($this);
 				}
@@ -171,6 +223,15 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 						'deleted' => isset($params['deleted']) && $params['deleted'] === true
 					)
 				);
+			}
+			// fill meta data
+			$keys = ['CREATED_BY_ID', 'MODIFIED_BY_ID', 'DATE_CREATE', 'DATE_MODIFY'];
+			foreach ($keys as $key)
+			{
+				if (isset($landing[$key]))
+				{
+					$this->metaData[$key] = $landing[$key];
+				}
 			}
 		}
 		// landing not found
@@ -204,6 +265,70 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	}
 
 	/**
+	 * Set work mode to preview.
+	 * @param boolean $mode Preview mode.
+	 * @return void
+	 */
+	public static function setPreviewMode($mode = true)
+	{
+		self::$previewMode = (boolean) $mode;
+	}
+
+	/**
+	 * Get state of preview mode.
+	 * @return boolean
+	 */
+	public static function getPreviewMode()
+	{
+		return self::$previewMode;
+	}
+
+	/**
+	 * Check delete pages or not.
+	 * @return bool
+	 */
+	public static function checkDeleted()
+	{
+		return self::$checkDelete;
+	}
+
+	/**
+	 * Disable check delete.
+	 * @return void
+	 */
+	public static function disableCheckDeleted()
+	{
+		self::$checkDelete = false;
+	}
+
+	/**
+	 * Enable check delete.
+	 * @return void
+	 */
+	public static function enableCheckDeleted()
+	{
+		self::$checkDelete = true;
+	}
+
+	/**
+	 * Disable update.
+	 * @return void
+	 */
+	public static function disableUpdate()
+	{
+		self::$enabledUpdate = false;
+	}
+
+	/**
+	 * Enable update.
+	 * @return void
+	 */
+	public static function enableUpdate()
+	{
+		self::$enabledUpdate = true;
+	}
+
+	/**
 	 * Create current instance.
 	 * @param int $id Landing id.
 	 * @param array $params Additional params.
@@ -215,19 +340,62 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	}
 
 	/**
-	 * Delete landing by id and its blocks.
-	 * @param int $id Landing id.
+	 * Mark entity as deleted.
+	 * @param int $id Entity id.
 	 * @return \Bitrix\Main\Result
 	 */
-	public static function delete($id)
+	public static function markDelete($id)
+	{
+		if (TemplateRef::landingIsArea($id))
+		{
+			$result = new \Bitrix\Main\Entity\UpdateResult();
+			$result->addError(
+				new \Bitrix\Main\Error(
+					Loc::getMessage('LANDING_BLOCK_UNABLE_DEL_INC'),
+					'UNABLE_DELETE_INCLUDE'
+				)
+			);
+			return $result;
+		}
+		return parent::update($id, array(
+			'DELETED' => 'Y'
+		));
+	}
+
+
+	/**
+	 * Mark entity as restored.
+	 * @param int $id Entity id.
+	 * @return \Bitrix\Main\Result
+	 */
+	public static function markUnDelete($id)
+	{
+		return parent::update($id, array(
+			'DELETED' => 'N'
+		));
+	}
+
+	/**
+	 * Delete landing by id and its blocks.
+	 * @param int $id Landing id.
+	 * @param bool $forceDeleted Force delete throw an errors.
+	 * @return \Bitrix\Main\Result
+	 */
+	public static function delete($id, $forceDeleted = false)
 	{
 		$result = new \Bitrix\Main\Entity\DeleteResult();
+		$params = [];
+
+		if ($forceDeleted)
+		{
+			$params['force_deleted'] = true;
+		}
 
 		// first check
 		foreach (array('draft', 'public') as $code)
 		{
 			self::setEditMode($code == 'draft');
-			$landing = self::createInstance($id);
+			$landing = self::createInstance($id, $params);
 			if ($landing->exist())
 			{
 				foreach ($landing->getBlocks() as $block)
@@ -244,23 +412,23 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 					}
 				}
 			}
+			else
+			{
+				$result->addError(
+					$landing->getError()->getErrors()[0]
+				);
+				return $result;
+			}
 		}
 
 		// delete blocks
 		foreach (array('draft', 'public') as $code)
 		{
 			self::setEditMode($code == 'draft');
-			$landing = self::createInstance($id);
+			$landing = self::createInstance($id, $params);
 			if ($landing->exist())
 			{
-				foreach ($landing->getBlocks() as $block)
-				{
-					if (!$block->unlink())
-					{
-						$result->addErrors($block->getError()->getErrors());
-						return $result;
-					}
-				}
+				Block::deleteAll($id);
 				File::deleteFromLanding($id);
 			}
 		}
@@ -337,7 +505,14 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	 */
 	public function getPreview()
 	{
-		if (Manager::isB24())
+		if (
+			(
+				!defined('LANDING_DISABLE_CLOUD')
+				||
+				LANDING_DISABLE_CLOUD !== true
+			)
+			&&
+			Manager::isB24())
 		{
 			return $this->getPublicUrl() . 'preview.jpg';
 		}
@@ -346,7 +521,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 
 		if ($hookPics === null)
 		{
-			$hookPics = \Bitrix\Landing\Hook\Page\MetaOg::getAllImages();
+			$hookPics = Hook\Page\MetaOg::getAllImages();
 		}
 
 		if (isset($hookPics[$this->id]))
@@ -354,7 +529,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			$pic = $hookPics[$this->id];
 			if (intval($pic) > 0)
 			{
-				$pic = \CFile::getPath($pic);
+				$pic = File::getFilePath($pic);
 			}
 			return $pic;
 		}
@@ -376,14 +551,18 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			$id = $this->id;
 		}
 
+		$siteId = Manager::getMainSiteId();
 		$bitrix24 = Manager::isB24();
+		$disableCloud = defined('LANDING_DISABLE_CLOUD') &&
+						LANDING_DISABLE_CLOUD === true;
 
 		$domainDefault = null;
 		$data = array();
-		$res = self::getList(array(
+		$res = Landing::getList(array(
 			'select' => array(
 				'ID',
 				'CODE',
+				'SITE_ID',
 				'SITE_ID_INDEX' => 'SITE.LANDING_ID_INDEX',
 				'SITE_PROTOCOL' => 'SITE.DOMAIN.PROTOCOL',
 				'SITE_DOMAIN' => 'SITE.DOMAIN.DOMAIN',
@@ -392,7 +571,8 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 				'FOLDER_CODE' => 'LF.CODE'
 			),
 			'filter' => array(
-				'ID' => $id
+				'ID' => $id,
+				'=DELETED' => ['Y', 'N']
 			),
 			'runtime' => array(
 				new \Bitrix\Main\Entity\ReferenceField(
@@ -405,6 +585,8 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 		while ($row = $res->fetch())
 		{
 			$domainReplace = false;
+			$row['SITE_ID_ORIG'] = $row['SITE_ID'];
+			// build site domain by default
 			if (!$row['SITE_DOMAIN'])
 			{
 				if (!$domainDefault)
@@ -425,11 +607,16 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 				}
 				$domainReplace = true;
 			}
-			if ($domainReplace || !Manager::isB24())
+			// force https
+			if (Manager::isHttps())
+			{
+				$row['SITE_PROTOCOL'] = 'https';
+			}
+			if ($domainReplace || !$bitrix24 || $disableCloud)
 			{
 				$pubPath = Manager::getPublicationPath(
 					null,
-					$row['SITE_SMN_ID'] ? $row['SITE_SMN_ID'] : SITE_ID,
+					$row['SITE_SMN_ID'] ? $row['SITE_SMN_ID'] : $siteId,
 					$createPubPath
 				);
 				$pubPath = rtrim($pubPath, '/');
@@ -439,22 +626,39 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			{
 				Manager::getPublicationPath(
 					null,
-					$row['SITE_SMN_ID'] ? $row['SITE_SMN_ID'] : SITE_ID,
+					$row['SITE_SMN_ID'] ? $row['SITE_SMN_ID'] : $siteId,
 					$createPubPath
 				);
 			}
-			$data[$row['ID']] = (
+			if (isset($row['SITE_ID']))
+			{
+				$row['SITE_ID'] = '/' . $row['SITE_ID'] . '/';
+			}
+			if ($disableCloud)
+			{
+				$data[$row['ID']] = $pubPath .
+									$row['SITE_ID'] .
+									(self::$previewMode ? 'preview/' . Site::getPublicHash($row['SITE_ID_ORIG'], $row['SITE_DOMAIN']) . '/' : '') .
+									($row['FOLDER_CODE'] ? $row['FOLDER_CODE'] . '/' : '') .
+									(($row['ID'] == $row['SITE_ID_INDEX']) ? '' : $row['CODE'] . '/');
+			}
+			else
+			{
+				$data[$row['ID']] = (
 									$absolute
-									? (
-										$row['SITE_PROTOCOL'] . '://' .
-										$row['SITE_DOMAIN']
-									)
-									: ''
-								).
-								(($domainReplace || !$bitrix24) ? $pubPath : '') .
-								((($domainReplace || !$bitrix24) && Manager::isB24()) ? $row['SITE_CODE'] : '/') .
-								($row['FOLDER_CODE'] ? $row['FOLDER_CODE'] . '/' : '') .
-								(($row['ID'] == $row['SITE_ID_INDEX']) ? '' : $row['CODE'] . '/');
+										? (
+											$row['SITE_PROTOCOL'] . '://' .
+											$row['SITE_DOMAIN']
+										)
+										: ''
+									) .
+									(($domainReplace || !$bitrix24) ? $pubPath : '') .
+									((self::$previewMode && !$bitrix24) ? '/preview/' . Site::getPublicHash($row['SITE_ID_ORIG'], $row['SITE_DOMAIN']) : '') .
+									(($domainReplace && $bitrix24) ? $row['SITE_ID'] : '/') .
+									((self::$previewMode && $bitrix24) ? 'preview/' . Site::getPublicHash($row['SITE_ID_ORIG'], $row['SITE_DOMAIN']) . '/' : '') .
+									($row['FOLDER_CODE'] ? $row['FOLDER_CODE'] . '/' : '') .
+									(($row['ID'] == $row['SITE_ID_INDEX']) ? '' : $row['CODE'] . '/');
+			}
 
 		}
 
@@ -493,31 +697,24 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 		// title
 		if ($this->mainInstance)
 		{
-			Manager::getApplication()->setTitle(
+			Manager::setPageTitle(
 				\htmlspecialcharsbx($this->title)
 			);
 		}
 
 		// add chain item if need
-		if ($this->folderId && $this->mainInstance)
+		if ($this->mainInstance)
 		{
-			if ($this->folderId == $this->id)
-			{
-				Manager::getApplication()->addChainItem(
-					$this->title,
-					'#landing' . $this->id
-				);
-			}
-			else
+			if ($this->folderId)
 			{
 				$res = self::getList(array(
-										 'select' => array(
-											 'ID', 'TITLE'
-										 ),
-										 'filter' => array(
-											 'ID' => $this->folderId
-										 )
-									 ));
+					 'select' => array(
+						'ID', 'TITLE'
+					 ),
+					'filter' => array(
+						'ID' => $this->folderId
+					)
+		 		));
 				if ($row = $res->fetch())
 				{
 					Manager::getApplication()->addChainItem(
@@ -525,6 +722,13 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 						'#landing' . $row['ID']
 					);
 				}
+			}
+			else
+			{
+				Manager::getApplication()->addChainItem(
+					$this->title,
+					'#landing' . $this->id
+				);
 			}
 		}
 
@@ -613,7 +817,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 		}
 
 		// breadcrumb (see chain_template.php in tpl) and title
-		if ($this->mainInstance)
+		if (!$blockEditMode && $this->mainInstance)
 		{
 			ob_start();
 			echo Manager::getApplication()->getNavChain(
@@ -635,7 +839,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 		}
 
 		// parse links between landings
-		if ($params['parse_link'] === true)
+		if ($params['parse_link'] === true && !$blockEditMode)
 		{
 			echo $this->parseLocalUrl($content);
 		}
@@ -752,13 +956,32 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	 */
 	protected function parseLocalUrl($content)
 	{
-		$pattern = '/([",\']{1})#(landing)([\d]+)\@{0,1}([^\'"]*)([",\']{1})/is';
+		$pattern = '/([",\'\;]{1})#(landing|block)([\d]+)\@{0,1}([^\'"]*)([",\'\&]{1})/is';
+
+		// replace catalog links in preview mode
+		if (self::$previewMode)
+		{
+			$content = preg_replace_callback(
+				'/href\="#catalog(Element|Section)([\d]+)"/i',
+				function($href)
+				{
+					return 'href="' . PublicAction\Utils::getIblockURL(
+							$href[2],
+							strtolower($href[1])
+						) . '"';
+				},
+				$content);
+		}
 
 		// prepare system pages
 		$sysPages = array();
 		foreach (Syspage::get($this->siteId) as $syspage)
 		{
 			$sysPages['@#system_' . $syspage['TYPE'] . '@'] = '#landing' . $syspage['LANDING_ID'];
+		}
+		if ($this->siteRow['LANDING_ID_INDEX'] > 0)
+		{
+			$sysPages['@#system_mainpage@'] = '#landing' . $this->siteRow['LANDING_ID_INDEX'];
 		}
 		if (!empty($sysPages))
 		{
@@ -788,14 +1011,62 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 				}
 			}
 			// get parent landings for blocks
+			// and public version of blocks too
+			$anchorsId = array();
+			$anchorsPublicId = array();
 			if (!empty($urls['BLOCK']))
 			{
-				$urls['BLOCK'] = Block::getLandingIdByBlockId($urls['BLOCK']);
+				$urls['BLOCK'] = Block::getRowByBlockId(
+					$urls['BLOCK'],
+					array(
+						'ID', 'LID', 'PARENT_ID', 'ANCHOR'
+					)
+				);
+				foreach ($urls['BLOCK'] as $bid => &$bidRow)
+				{
+					if (
+						!self::$previewMode &&
+						$bidRow['PARENT_ID']
+					)
+					{
+						$anchorsPublicId[$bid] = $bidRow['PARENT_ID'];
+					}
+					else
+					{
+						$anchorsId[$bid] = $bidRow['ANCHOR']
+											? \htmlspecialcharsbx($bidRow['ANCHOR'])
+											: Block::getAnchor($bidRow['ID']);
+					}
+					$bidRow = $bidRow['LID'];
+				}
+				unset($bidRow);
 				$urls['LANDING'] = array_unique(array_merge(
 					$urls['LANDING'],
 					$urls['BLOCK']
 				));
 			}
+			// get anchors for public version
+			if ($anchorsPublicId)
+			{
+				$anchorsPublicIdTmp = Block::getRowByBlockId(
+					$anchorsPublicId,
+					array(
+						'ID', 'LID', 'PARENT_ID', 'ANCHOR'
+					)
+				);
+				foreach ($anchorsPublicId as $bid => $bidParent)
+				{
+					if (!isset($anchorsPublicIdTmp[$bidParent]))
+					{
+						continue;
+					}
+					$bidParent = $anchorsPublicIdTmp[$bidParent];
+					$anchorsPublicId[$bid] = $bidParent['ANCHOR']
+											? \htmlspecialcharsbx($bidParent['ANCHOR'])
+											: Block::getAnchor($bidParent['ID']);
+				}
+			}
+			$anchorsPublicId += $anchorsId;
 			// get landing and blocks urls
 			if (!empty($urls['LANDING']))
 			{
@@ -807,8 +1078,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 				{
 					if (isset($urls['LANDING'][$lid]))
 					{
-						$urls['BLOCK'][$bid] = $urls['LANDING'][$lid] .
-												'#' . Block::getAnchor($bid);
+						$urls['BLOCK'][$bid] = $urls['LANDING'][$lid] . '#' . $anchorsPublicId[$bid];
 					}
 					else
 					{
@@ -872,8 +1142,8 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 		foreach ($hooksExec as $hook)
 		{
 			if (
-				$hook->enabledInEditMode() ||
-				!$this->getEditMode()
+				!$this->getEditMode() ||
+				$hook->enabledInEditMode()
 			)
 			{
 				$hook->exec();
@@ -888,6 +1158,15 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	public function exist()
 	{
 		return $this->id > 0;
+	}
+
+	/**
+	 * Active or not the landing.
+	 * @return boolean
+	 */
+	public function isActive()
+	{
+		return $this->active;
 	}
 
 	/**
@@ -918,6 +1197,14 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	}
 
 	/**
+	 * Get metadata of current landing.
+	 */
+	public function getMeta()
+	{
+		return $this->metaData;
+	}
+
+	/**
 	 * Get site id of current landing.
 	 * @return int
 	 */
@@ -932,6 +1219,8 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	 */
 	public function getSmnSiteId()
 	{
+		$siteId = Manager::getMainSiteId();
+
 		if ($this->siteId)
 		{
 			$res = Site::getList(array(
@@ -944,16 +1233,18 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			));
 			if ($row = $res->fetch())
 			{
-				return $row['SMN_SITE_ID'];
+				return $row['SMN_SITE_ID']
+						? $row['SMN_SITE_ID']
+						: $siteId;
 			}
 		}
 
-		return SITE_ID;
+		return $siteId;
 	}
 
 	/**
 	 * Get all blocks of current landing.
-	 * @return array
+	 * @return Block[]
 	 */
 	public function getBlocks()
 	{
@@ -1001,13 +1292,45 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	}
 
 	/**
+	 * Cancel publication of landing.
+	 * @return boolean
+	 */
+	public function unpublic()
+	{
+		$date = new \Bitrix\Main\Type\DateTime;
+		$res = parent::update($this->id, array(
+			'ACTIVE' => 'N',
+			'PUBLIC' => 'N',
+			'DATE_MODIFY' => false
+		));
+		if ($res->isSuccess())
+		{
+			if (Manager::isB24())
+			{
+				Site::update($this->siteId, array());
+			}
+			return true;
+		}
+		else
+		{
+			$this->error->addFromResult($res);
+			return false;
+		}
+	}
+
+	/**
 	 * Add new block to the landing.
-	 * @param array $code Code of block.
+	 * @param string $code Code of block.
 	 * @param array $data Data array of block.
 	 * @return int|false Id of new block or false on failure.
 	 */
 	public function addBlock($code, $data = array())
 	{
+		if (!isset($data['PUBLIC']))
+		{
+			$data['PUBLIC'] = $this::$editMode ? 'N' : 'Y';
+		}
+
 		$block = Block::createFromRepository($this, $code, $data);
 
 		if ($block)
@@ -1063,7 +1386,11 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			$this->blocks[$id] = new Block($id);
 		}
 
-		if (isset($this->blocks[$id]))
+		if (
+			isset($this->blocks[$id]) &&
+			$this->blocks[$id]->exist() &&
+			$this->blocks[$id]->getLandingId() == $this->getId()
+		)
 		{
 			if ($this->blocks[$id]->getAccess() >= $this->blocks[$id]->ACCESS_X)
 			{
@@ -1107,6 +1434,8 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			);
 			return false;
 		}
+
+		return false;
 	}
 
 	/**
@@ -1391,10 +1720,18 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	 */
 	public function copyBlock($id, $afterId)
 	{
-		return $this->changeParentOfBlock($id, array(
+		$blockId = $this->changeParentOfBlock($id, array(
 			'MOVE' => false,
 			'AFTER_ID' => $afterId
 		));
+		if (!$blockId)
+		{
+			$this->error->addError(
+				'BLOCK_NOT_FOUND',
+				Loc::getMessage('LANDING_BLOCK_NOT_FOUND')
+			);
+		}
+		return $blockId;
 	}
 
 	/**
@@ -1464,9 +1801,35 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	 */
 	public function moveBlock($id, $afterId)
 	{
-		return $this->changeParentOfBlock($id, array(
+		$blockId = $this->changeParentOfBlock($id, array(
 			'MOVE' => true,
 			'AFTER_ID' => $afterId
 		));
+		if (!$blockId)
+		{
+			$this->error->addError(
+				'BLOCK_NOT_FOUND',
+				Loc::getMessage('LANDING_BLOCK_NOT_FOUND')
+			);
+		}
+		return $blockId;
+	}
+
+	/**
+	 * Update the landing.
+	 * @param int $id Landing id.
+	 * @param array $fields Fields.
+	 * @return \Bitrix\Main\Result
+	 */
+	public static function update($id, $fields = array())
+	{
+		if (self::$enabledUpdate)
+		{
+			return parent::update($id, $fields);
+		}
+		else
+		{
+			return new \Bitrix\Main\Result;
+		}
 	}
 }

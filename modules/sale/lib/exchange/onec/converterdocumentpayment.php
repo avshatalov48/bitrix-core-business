@@ -2,7 +2,9 @@
 
 namespace Bitrix\Sale\Exchange\OneC;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Sale\Exchange\ISettings;
 use Bitrix\Sale\Exchange\ISettingsExport;
+use Bitrix\Sale\Exchange\ISettingsImport;
 use Bitrix\Sale\Payment;
 
 
@@ -92,35 +94,8 @@ class ConverterDocumentPayment extends Converter
 						$fields[$k] = $params['REK_VALUES']['1C_RETURN_REASON'];
 					break;
 				case 'PAY_SYSTEM_ID':
-					$paySystemId = 0;
-					if(isset($params['REK_VALUES']['PAY_SYSTEM_ID']))
-					{
-						$paySystemId = $params['REK_VALUES']['PAY_SYSTEM_ID'];
-					}
-
-					if($paySystemId<=0)
-					{
-						if(isset($params['REK_VALUES']['PAY_SYSTEM_ID_DEFAULT']))
-						{
-							$paySystemId = $params['REK_VALUES']['PAY_SYSTEM_ID_DEFAULT'];
-						}
-					}
-					/** @var ImportSettings $settings */
-					$settings = $this->getSettings();
-
-					if($paySystemId<=0)
-					{
-						$paySystemId = $settings->paySystemIdFor($documentImport->getOwnerEntityTypeId());
-					}
-
-					if($paySystemId<=0)
-					{
-						$paySystemId = $settings->paySystemIdDefaultFor($documentImport->getOwnerEntityTypeId());
-					}
-
-					$fields[$k] = $paySystemId;
+					$fields[$k] = $this->getPaySystemId($params['REK_VALUES']);
 					break;
-
 				case 'CASH_BOX_CHECKS':
 					if(is_array($params[$k]))
 					{
@@ -153,10 +128,45 @@ class ConverterDocumentPayment extends Converter
 	}
 
 	/**
+	 * @param $fields
+	 * @return int
+	 */
+	public function getPaySystemId($fields)
+	{
+		$paySystemId = 0;
+		if(isset($fields['PAY_SYSTEM_ID']))
+		{
+			$paySystemId = $fields['PAY_SYSTEM_ID'];
+		}
+
+		if($paySystemId<=0)
+		{
+			if(isset($fields['PAY_SYSTEM_ID_DEFAULT']))
+			{
+				$paySystemId = $fields['PAY_SYSTEM_ID_DEFAULT'];
+			}
+		}
+		/** @var ImportSettings $settings */
+		$settings = $this->getSettings();
+
+		if($paySystemId<=0)
+		{
+			$paySystemId = $settings->paySystemIdFor($this->getEntityTypeId());
+		}
+
+		if($paySystemId<=0)
+		{
+			$paySystemId = $settings->paySystemIdDefaultFor($this->getEntityTypeId());
+		}
+
+		return $paySystemId;
+	}
+
+	/**
 	 * @param Payment|null $payment
 	 * @param array $fields
 	 */
-	public function sanitizeFields($payment=null, array &$fields)
+	static public function sanitizeFields($payment=null, array &$fields, ISettings $settings)
 	{
 		if(!empty($payment) && !($payment instanceof Payment))
 			throw new ArgumentException("Entity must be instanceof Payment");
@@ -182,7 +192,8 @@ class ConverterDocumentPayment extends Converter
 
 		if(empty($payment))
 		{
-			$fields['CURRENCY'] = $this->settings->getCurrency();
+			/** @var ISettingsImport $settings */
+			$fields['CURRENCY'] = $settings->getCurrency();
 		}
 		unset($fields['ID']);
 	}
@@ -215,7 +226,7 @@ class ConverterDocumentPayment extends Converter
 					$value = $traits['DATE_BILL'];
 					break;
 				case 'OPERATION':
-					$value = DocumentBase::resolveDocumentTypeName($this->getOwnerEntityTypeId());
+					$value = DocumentBase::resolveDocumentTypeName($this->getDocmentTypeId());
 					break;
 				case 'ROLE':
 					$value = DocumentBase::getLangByCodeField('SELLER');
@@ -257,6 +268,9 @@ class ConverterDocumentPayment extends Converter
 						{
 							case '1C_PAYED_DATE':
 								$valueRV = $traits['DATE_PAID'];
+								break;
+							case '1C_PAYED_NUM':
+								$valueRV = $traits['PAY_VOUCHER_NUM'];
 								break;
 							case 'CANCEL':
 								$valueRV = 'N';
@@ -339,36 +353,5 @@ class ConverterDocumentPayment extends Converter
 		}
 
 		return $result;
-	}
-}
-
-class ConverterDocumentPaymentCash extends ConverterDocumentPayment
-{
-	/**
-	 * @return int
-	 */
-	public function getOwnerEntityTypeId()
-	{
-		return DocumentType::PAYMENT_CASH;
-	}
-}
-class ConverterDocumentPaymentCashLess extends ConverterDocumentPayment
-{
-	/**
-	 * @return int
-	 */
-	public function getOwnerEntityTypeId()
-	{
-		return DocumentType::PAYMENT_CASH_LESS;
-	}
-}
-class ConverterDocumentPaymentCard extends ConverterDocumentPayment
-{
-	/**
-	 * @return int
-	 */
-	public function getOwnerEntityTypeId()
-	{
-		return DocumentType::PAYMENT_CARD_TRANSACTION;
 	}
 }

@@ -1,6 +1,6 @@
 <?
 /*
-This is callback page for Dropbox OAuth 2.0 authentication.
+This is callback page for Facebook OAuth 2.0 authentication.
 Dropbox redirects only to specific back url set in the OAuth application.
 The page opens in popup window after user authorized on Dropbox.
 */

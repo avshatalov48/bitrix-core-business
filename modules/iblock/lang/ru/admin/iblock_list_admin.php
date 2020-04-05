@@ -44,6 +44,7 @@ $MESS["IBLIST_A_CATALOG_QUANTITY_EXT"] = "Доступное количеств�
 $MESS["IBLIST_A_CATALOG_QUANTITY_RESERVED"] = "Зарезервировано";
 $MESS["IBLIST_A_CATALOG_QUANTITY_TRACE"] = "Уменьшать количество при заказе";
 $MESS["IBLIST_A_CATALOG_WEIGHT"] = "Вес (грамм)";
+$MESS["IBLIST_A_LIST_TITLE"] = "#IBLOCK_NAME#: Список товаров";
 $MESS["IBLIST_A_LIST"] = "Перейти в список подразделов";
 $MESS["IBLIST_A_EDIT"] = "Редактировать элемент";
 $MESS["IBLIST_A_USERINFO"] = "Посмотреть параметры пользователя";
@@ -143,4 +144,7 @@ $MESS["IBLIST_A_CATALOG_WIDTH"] = "Ширина (мм)";
 $MESS["IBLIST_A_CATALOG_LENGTH"] = "Длина (мм)";
 $MESS["IBLIST_A_CATALOG_HEIGHT"] = "Высота (мм)";
 $MESS["IBLIST_A_CATALOG_EXTRA_DESCRIPTION"] = "Наценка #VALUE# к базовой цене";
+$MESS["IBLIST_A_ERR_PRODUCT_LIMIT"] = "Превышено ограничение на количество товаров, используемых в лендингах. В каталоге найдено #COUNT# таких товаров (лимит - #LIMIT#).";
+$MESS["IBLIST_PRODUCTS_INSTAGRAM"] = "Товары Instagram";
+$MESS["IBLIST_A_CATALOG_SKU_PRICE"] = "от #PRICE#";
 ?>

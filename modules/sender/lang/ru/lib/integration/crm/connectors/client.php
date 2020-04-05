@@ -30,4 +30,9 @@ $MESS["SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_DEAL_OPPORTUNITY"] = "Су�
 $MESS["SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_DEAL_CLOSEDATE"] = "Предполагаемая дата завершения сделки";
 $MESS["SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_CONTACT_TYPE"] = "Тип контакта";
 $MESS["SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_COMPANY_INDUSTRY"] = "Сфера деятельности компании";
+$MESS["SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_PRESET_BIRTH"] = "День рождения через 5 дней";
+$MESS["SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_PRESET_SEGMENT_BIRTH"] = "Контакты. День рождения через 5 дней";
+$MESS["SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_PRESET_AFTER_CLOSE_DEAL"] = "После закрытия сделки";
+$MESS["SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_PRESET_SEGMENT_AFTER_CLOSE_DEAL"] = "Закрытые сделки 30 дней назад";
+$MESS["SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_PRESET_HOLIDAY"] = "Продажи на %holiday_name%";
 ?>

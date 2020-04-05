@@ -3,6 +3,7 @@
 
 	BX.namespace("BX.Landing.MediaService");
 
+	var isArray = BX.Landing.Utils.isArray;
 
 	/**
 	 * Implements base interface for works with media services
@@ -57,6 +58,13 @@
 			if (form)
 			{
 				result = form.fields.fetchValues();
+
+				Object.keys(result).forEach(function(key) {
+					if (isArray(result[key]))
+					{
+						result[key] = encodeURIComponent(result[key].join(", "));
+					}
+				});
 			}
 
 			return result;

@@ -26,6 +26,15 @@
 		});
 	});
 
+	onCustomEvent("BX.Landing.UI.Panel.URLList:show", function(layout) {
+		var allObservableElements = slice(layout.querySelectorAll('.js-animation'));
+
+		allObservableElements.forEach(function(element) {
+			prepareAnimatedElement(element);
+			observer.observe(element);
+		});
+	});
+
 	onCustomEvent("BX.Landing.Block:updateStyle", function(event) {
 		if (isPlainObject(event.data) && isPlainObject(event.data.affect))
 		{

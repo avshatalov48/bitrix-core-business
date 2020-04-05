@@ -44,12 +44,17 @@ abstract class Cashbox
 		if (!$handlerList)
 		{
 			$handlerList = array(
-				'\Bitrix\Sale\Cashbox\CashboxBitrix' => '/bitrix/modules/sale/lib/cashbox/cashboxbitrix.php',
-				'\Bitrix\Sale\Cashbox\Cashbox1C' => '/bitrix/modules/sale/lib/cashbox/cashbox1c.php',
 				'\Bitrix\Sale\Cashbox\CashboxAtolFarm' => '/bitrix/modules/sale/lib/cashbox/cashboxatolfarm.php',
 				'\Bitrix\Sale\Cashbox\CashboxAtolFarmV4' => '/bitrix/modules/sale/lib/cashbox/cashboxatolfarmv4.php',
 				'\Bitrix\Sale\Cashbox\CashboxOrangeData' => '/bitrix/modules/sale/lib/cashbox/cashboxorangedata.php'
 			);
+
+			if (!IsModuleInstalled('bitrix24'))
+			{
+				$handlerList['\Bitrix\Sale\Cashbox\CashboxBitrixV2'] = '/bitrix/modules/sale/lib/cashbox/cashboxbitrixv2.php';
+				$handlerList['\Bitrix\Sale\Cashbox\CashboxBitrix'] = '/bitrix/modules/sale/lib/cashbox/cashboxbitrix.php';
+				$handlerList['\Bitrix\Sale\Cashbox\Cashbox1C'] = '/bitrix/modules/sale/lib/cashbox/cashbox1c.php';
+			}
 
 			$event = new Main\Event('sale', static::EVENT_ON_GET_CUSTOM_CASHBOX_HANDLERS);
 			$event->send();

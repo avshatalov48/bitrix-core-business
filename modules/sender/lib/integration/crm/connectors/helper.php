@@ -10,6 +10,7 @@ namespace Bitrix\Sender\Integration\Crm\Connectors;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Page\Asset;
@@ -32,7 +33,7 @@ Loc::loadMessages(__FILE__);
  */
 class Helper
 {
-	protected static $runtimeByEntity = [];
+	public static $runtimeByEntity = [];
 
 	/**
 	 * Get personalize field list.
@@ -66,15 +67,51 @@ class Helper
 		$crmUserType = new \CCrmUserType($ufManager, $ufEntityId);
 		$logicFilter = array();
 		$crmUserType->prepareListFilterFields($list, $logicFilter);
+		$originalList = $crmUserType->getFields();
+		$restrictedTypes = ['address', 'file', 'crm'];
+
+		$list = array_filter(
+			$list,
+			function ($field) use ($originalList, $restrictedTypes)
+			{
+				if (empty($originalList[$field['id']]))
+				{
+					return false;
+				}
+
+				$type = $originalList[$field['id']]['USER_TYPE']['USER_TYPE_ID'];
+				return !in_array($type, $restrictedTypes);
+			}
+		);
 
 		foreach ($list as $index => $field)
 		{
-			if ($field['type'] !== 'date')
+			if ($field['type'] === 'date')
 			{
-				continue;
+				$list[$index]['include'] = [
+					AdditionalDateType::CUSTOM_DATE,
+					AdditionalDateType::PREV_DAY,
+					AdditionalDateType::NEXT_DAY,
+					AdditionalDateType::MORE_THAN_DAYS_AGO,
+					AdditionalDateType::AFTER_DAYS,
+				];
+				if (!isset($list[$index]['allow_years_switcher']))
+				{
+					$list[$index]['allow_years_switcher'] = true;
+				}
 			}
 
-			$list[$index]['include'] = [AdditionalDateType::CUSTOM_DATE];
+			if ($field['type'] === 'custom_entity' && !empty($field['selector']) && $field['selector']['TYPE'] == 'user')
+			{
+				$list[$index]['sender_segment_callback'] = function ($field) use ($entityTypeId)
+				{
+					return Helper::getFilterFieldUserSelector(
+						$field['selector']['DATA'],
+						'crm_segment_' . ($entityTypeId === \CCrmOwnerType::Lead ? 'lead' : 'client')
+					);
+				};
+				$list[$index]['params'] = ['multiple' => 'Y'];
+			}
 		}
 
 		return $list;
@@ -323,7 +360,7 @@ class Helper
 			return false;
 		}
 
-		if (!isset($values[$id]) || !$values[$id])
+		if (!isset($values[$id]) || (!$values[$id] && !is_numeric($values[$id])))
 		{
 			return false;
 		}
@@ -331,9 +368,28 @@ class Helper
 		return true;
 	}
 
+	/**
+	 * Get filter by fields.
+	 *
+	 * @param array $fields Fields.
+	 * @param array $values Values.
+	 * @param string $entityTypeName Entity type name.
+	 * @return array
+	 */
 	public static function getFilterByFields(array $fields = array(), array $values = array(), $entityTypeName = '')
 	{
-		self::$runtimeByEntity = [];
+		if ($entityTypeName)
+		{
+			if (!empty(self::$runtimeByEntity[$entityTypeName]))
+			{
+				self::$runtimeByEntity[$entityTypeName] = [];
+			}
+		}
+		else
+		{
+			self::$runtimeByEntity = [];
+		}
+
 		$filter = array();
 		foreach ($fields as $field)
 		{
@@ -446,6 +502,13 @@ class Helper
 		}
 	}
 
+	/**
+	 * Get "user selector" filter field
+	 *
+	 * @param array $userSelector User-selector.
+	 * @param string $filterID ID of filter.
+	 * @return string
+	 */
 	public static function getFilterFieldUserSelector(array $userSelector, $filterID)
 	{
 		if(empty($userSelector))
@@ -457,42 +520,107 @@ class Helper
 		Asset::getInstance()->addJs('/bitrix/js/crm/common.js');
 		ob_start();
 		$componentName = "{$filterID}_FILTER_USER";
-		$GLOBALS['APPLICATION']->includeComponent(
-			'bitrix:intranet.user.selector.new',
-			'',
-			array(
-				'MULTIPLE' => 'N',
-				'NAME' => $componentName,
-				'INPUT_NAME' => strtolower($componentName),
-				'SHOW_EXTRANET_USERS' => 'NONE',
-				'POPUP' => 'Y',
-				'SITE_ID' => SITE_DIR,
-				//'NAME_TEMPLATE' => $nameTemplate
-			),
-			null,
-			array('HIDE_ICONS' => 'Y')
-		);
-		?><script type="text/javascript"><?
-		foreach($userSelectors as $userSelector)
+
+		/** @var \CAllMain $GLOBALS['APPLICATION'] */
+		if (true)
 		{
-			$selectorID = $userSelector['ID'];
-			$fieldID = $userSelector['FIELD_ID'];
-			?>
-			BX.ready(
-				function()
-				{
-					BX.FilterUserSelector.create(
-						"<?=\CUtil::JSEscape($selectorID)?>",
-						{
-							fieldId: "<?=\CUtil::JSEscape($fieldID)?>",
-							componentName: "<?=\CUtil::JSEscape($componentName)?>"
-						}
-					);
-				}
-			);
-			<?
+			foreach($userSelectors as $userSelector)
+			{
+				$selectorID = $userSelector['ID'];
+				$fieldID = $userSelector['FIELD_ID'];
+
+				Loader::includeModule('socialnetwork');
+				$GLOBALS['APPLICATION']->includeComponent(
+					"bitrix:main.ui.selector",
+					".default",
+					array(
+						'ID' => $selectorID,
+						'ITEMS_SELECTED' =>  array(),
+						'CALLBACK' => array(
+							'select' => 'BX.CrmUIFilterUserSelector.processSelection',
+							'unSelect' => '',
+							'openDialog' => 'BX.CrmUIFilterUserSelector.processDialogOpen',
+							'closeDialog' => 'BX.CrmUIFilterUserSelector.processDialogClose',
+							'openSearch' => ''
+						),
+						'OPTIONS' => array(
+							'eventInit' => 'BX.Crm.FilterUserSelector:openInit',
+							'eventOpen' => 'BX.Crm.FilterUserSelector:open',
+							'context' => 'FEED_FILTER_CREATED_BY',
+							'contextCode' => 'U',
+							'useSearch' => 'N',
+							'useClientDatabase' => 'Y',
+							'allowEmailInvitation' => 'N',
+							'enableDepartments' => 'Y',
+							'enableSonetgroups' => 'N',
+							'departmentSelectDisable' => 'Y',
+							'allowAddUser' => 'N',
+							'allowAddCrmContact' => 'N',
+							'allowAddSocNetGroup' => 'N',
+							'allowSearchEmailUsers' => 'N',
+							'allowSearchCrmEmailUsers' => 'N',
+							'allowSearchNetworkUsers' => 'N',
+							'allowSonetGroupsAjaxSearchFeatures' => 'N'
+						)
+					),
+					false,
+					array("HIDE_ICONS" => "Y")
+				);
+				?><script type="text/javascript"><?
+				?>BX.ready(
+					function()
+					{
+						BX.CrmUIFilterUserSelector.create(
+							"<?=\CUtil::jsEscape($selectorID)?>",
+							{
+								filterId: "<?=\CUtil::jsEscape($filterID)?>",
+								fieldId: "<?=\CUtil::jsEscape($fieldID)?>"
+							}
+						);
+					}
+				);<?
+				?></script><?
+			}
 		}
-		?></script><?
+		else
+		{
+			$GLOBALS['APPLICATION']->includeComponent(
+				'bitrix:intranet.user.selector.new',
+				'',
+				array(
+					'MULTIPLE' => 'N',
+					'NAME' => $componentName,
+					'INPUT_NAME' => strtolower($componentName),
+					'SHOW_EXTRANET_USERS' => 'NONE',
+					'POPUP' => 'Y',
+					'SITE_ID' => SITE_DIR,
+					//'NAME_TEMPLATE' => $nameTemplate
+				),
+				null,
+				array('HIDE_ICONS' => 'Y')
+			);
+			?><script type="text/javascript"><?
+			foreach($userSelectors as $userSelector)
+			{
+				$selectorID = $userSelector['ID'];
+				$fieldID = $userSelector['FIELD_ID'];
+				?>
+				BX.ready(
+					function()
+					{
+						BX.FilterUserSelector.create(
+							"<?=\CUtil::JSEscape($selectorID)?>",
+							{
+								fieldId: "<?=\CUtil::JSEscape($fieldID)?>",
+								componentName: "<?=\CUtil::JSEscape($componentName)?>"
+							}
+						);
+					}
+				);
+				<?
+			}
+			?></script><?
+		}
 
 		return ob_get_clean();
 	}
@@ -500,7 +628,7 @@ class Helper
 	/**
 	 * Callback on draw of result view.
 	 *
-	 * @param array $row Row.
+	 * @param array &$row Row.
 	 * @return void
 	 */
 	public function onResultViewDraw(array &$row)
@@ -519,12 +647,12 @@ class Helper
 				break;
 			case \CCrmOwnerType::Contact:
 				$crmRow = ContactTable::getRowById($row['CRM_ENTITY_ID']);
-				 $row['~NAME'] = self::getResultViewTitle(
+				$row['~NAME'] = self::getResultViewTitle(
 					$row['CRM_ENTITY_TYPE_ID'],
 					$row['CRM_ENTITY_ID'],
 					$row['NAME'],
-					 \CCrmOwnerType::GetDescription($row['CRM_ENTITY_TYPE_ID']),
-					 self::getCrmStatusName('SOURCE', $crmRow['SOURCE_ID'])
+					\CCrmOwnerType::GetDescription($row['CRM_ENTITY_TYPE_ID']),
+					self::getCrmStatusName('SOURCE', $crmRow['SOURCE_ID'])
 				);
 				break;
 			case \CCrmOwnerType::Lead:
@@ -533,8 +661,8 @@ class Helper
 					$row['CRM_ENTITY_TYPE_ID'],
 					$row['CRM_ENTITY_ID'],
 					$crmRow['TITLE'],
-					$crmRow['IS_RETURN_CUSTOMER'] === 'Y' ? Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_LEAD_FIELD_RC_LEAD') : null,
-					self::getCrmStatusName('SOURCE', $crmRow['SOURCE_ID'])
+					self::getCrmStatusName('SOURCE', $crmRow['SOURCE_ID']),
+					$crmRow['IS_RETURN_CUSTOMER'] === 'Y' ? Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_LEAD_FIELD_RC_LEAD') : null
 				);
 				break;
 		}

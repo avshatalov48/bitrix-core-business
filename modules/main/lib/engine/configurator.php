@@ -195,9 +195,19 @@ final class Configurator
 				$configurations[$actionName]['prefilters'] = $this->wrapFiltersClosure($configuration['prefilters']);
 			}
 
+			if (!empty($configuration['+prefilters']))
+			{
+				$configurations[$actionName]['+prefilters'] = $this->wrapFiltersClosure($configuration['+prefilters']);
+			}
+
 			if (!empty($configuration['postfilters']))
 			{
 				$configurations[$actionName]['postfilters'] = $this->wrapFiltersClosure($configuration['postfilters']);
+			}
+
+			if (!empty($configuration['+postfilters']))
+			{
+				$configurations[$actionName]['+postfilters'] = $this->wrapFiltersClosure($configuration['+postfilters']);
 			}
 		}
 

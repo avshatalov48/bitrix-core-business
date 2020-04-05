@@ -1,4 +1,5 @@
 <?
+$MESS["LANDING_CMP_MODULE_NOT_INSTALLED_CRM"] = "Cannot prepare CRM data.";
 $MESS["LANDING_CMP_ACCESS_DENIED2"] = "Insufficient permission.";
 $MESS["LANDING_CMP_TITLE"] = "Sites";
 $MESS["LANDING_CMP_MODULE_NOT_INSTALLED"] = "Bitirix24.Sites service is currently unavailable.";

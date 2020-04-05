@@ -329,7 +329,6 @@ class Uploader
 		global $APPLICATION;
 
 		$APPLICATION->RestartBuffer();
-		while(ob_end_clean());
 
 		$version = IsIE();
 		if ( !(0 < $version && $version < 10) )

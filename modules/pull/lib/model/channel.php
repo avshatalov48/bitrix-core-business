@@ -60,6 +60,11 @@ class ChannelTable extends Main\Entity\DataManager
 				'required' => true,
 				'validation' => array(__CLASS__, 'validateChannelId'),
 			),
+			'CHANNEL_PUBLIC_ID' => array(
+				'data_type' => 'string',
+				'required' => true,
+				'validation' => array(__CLASS__, 'validateChannelId'),
+			),
 			'LAST_ID' => array(
 				'data_type' => 'integer',
 			),

@@ -98,7 +98,7 @@ if (!$iblockFix)
 	$lAdmin = new CAdminList($sTableID);
 	$lAdmin->InitFilter(array('find_iblock_id'));
 	/* this code - for delete filter */
-	/** @var string $filter_iblock_id */
+	/** @var string $find_iblock_id */
 	$IBLOCK_ID = (int)(isset($_GET['IBLOCK_ID']) && (int)$_GET['IBLOCK_ID'] > 0 ? $_GET['IBLOCK_ID'] : $find_iblock_id);
 	unset($lAdmin);
 }

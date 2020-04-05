@@ -640,7 +640,7 @@ class CAllForumTopic
 
 	public static function Delete($ID)
 	{
-		global $DB;
+		global $DB, $USER_FIELD_MANAGER;
 		$ID = intVal($ID);
 		$arTopic = CForumTopic::GetByID($ID);
 		if (empty($arTopic)):
@@ -661,6 +661,7 @@ class CAllForumTopic
 				$arAuthor[intVal($res["AUTHOR_ID"])] = $res["AUTHOR_ID"];
 			if ($res["PARAM1"] == "VT" && intVal($res["PARAM2"]) > 0)
 				$arVotes[] = intVal($res["PARAM2"]);
+			$USER_FIELD_MANAGER->Delete("FORUM_MESSAGE", $res["ID"]);
 		}
 		if (!empty($arVotes) && IsModuleInstalled("vote") && CModule::IncludeModule("vote")):
 			foreach ($arVotes as $res)

@@ -5,6 +5,8 @@
 
 
 	/**
+	 * @deprecated since - use BX.Loader instead of this
+	 *
 	 * @extends {BX.Landing.UI.Card.BaseCard}
 	 * @constructor
 	 */

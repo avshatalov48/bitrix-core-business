@@ -80,7 +80,6 @@ class LPA
 					$src = '<?'.substr($src, 5);
 
 				//If it's Component 2 - we handle it's params, non components2 will be somehow erased
-				$success = false;
 				$isComponent2Begin = false;
 				$component2FunctionName = '';
 				$arIncludeComponentFunctionStrings = PHPParser::getComponentFunctionStrings();
@@ -94,13 +93,12 @@ class LPA
 						break;
 					}
 				}
+
 				if ($isComponent2Begin)
 				{
 					$arRes = PHPParser::CheckForComponent2($src);
-
 					if ($arRes)
 					{
-						$success = true;
 						$comp_name = $arRes['COMPONENT_NAME'];
 						$template_name = $arRes['TEMPLATE_NAME'];
 						$arParams = $arRes['PARAMS'];
@@ -173,10 +171,6 @@ class LPA
 						$code = '<?'.$code.'?>';
 						$new_filesrc .= $code;
 					}
-				}
-				if(!$success)
-				{
-					$new_filesrc .= "<??>";
 				}
 			}
 			$new_filesrc .= self::EncodePHPTags(substr($filesrc, $end));

@@ -231,7 +231,8 @@ final class BusinessValueControl
 							$file = Input\Manager::getValue($fileInput, $file);
 						}
 
-						$result = BusinessValue::setMapping($codeKey, $consumerKey, $personTypeId, $mapping, true);
+						$common = IsModuleInstalled('bitrix24') ? false : true;
+						$result = BusinessValue::setMapping($codeKey, $consumerKey, $personTypeId, $mapping, $common);
 					}
 
 					if (! $result->isSuccess())
@@ -1066,9 +1067,13 @@ final class BusinessValueControl
 							$fieldOptions[$field['GROUP']][$fieldKey] = $field['NAME'] ?: $fieldKey;
 
 					if (count($fieldOptions) == 1)
+					{
 						$fieldOptions = reset($fieldOptions);
+					}
 					elseif (is_array($provider['FIELDS_GROUPS']))
+					{
 						self::sortRenameGroups($fieldOptions, $provider['FIELDS_GROUPS']);
+					}
 
 					if (! empty($fieldOptions))
 					{

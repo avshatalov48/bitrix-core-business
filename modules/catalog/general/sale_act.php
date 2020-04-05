@@ -462,7 +462,7 @@ class CCatalogGifterProduct extends CGlobalCondCtrlAtoms
 						'id' => 'Value',
 						'name' => 'Value',
 						'type' => 'multiDialog',
-						'popup_url' => '/bitrix/admin/cat_product_search_dialog.php',
+						'popup_url' => 'cat_product_search_dialog.php',
 						'popup_params' => array(
 							'lang' => LANGUAGE_ID,
 							'caller' => 'discount_rules',

@@ -67,10 +67,11 @@ ob_start();
 						<div class="feed-post-text-more-but"><div class="feed-post-text-more-left"></div><div class="feed-post-text-more-right"></div></div>
 					</div><?
 					?><script>
-						var arCommentsMoreButtonID = (arCommentsMoreButtonID || []);
-						arCommentsMoreButtonID.push({
-							'bodyBlockID' : 'record-#FULL_ID#-text',
-							'moreButtonBlockID' : 'record-#FULL_ID#-more'
+						BX.ready(function() {
+							BX.onCustomEvent(window, 'OnUCMoreButtonAdd', [{
+								bodyBlockID : 'record-#FULL_ID#-text',
+								moreButtonBlockID : 'record-#FULL_ID#-more'
+							}]);
 						});
 					</script><?
 					?></div>
@@ -126,14 +127,9 @@ if (empty($arParams["RECORDS"]))
 }
 else
 {
-	if (!!$arParams["NAV_STRING"] && !!$arParams["NAV_RESULT"])
+	if (!!$arParams["NAV_STRING"])
 	{
-		$count = $arParams["NAV_RESULT"]->NavRecordCount;
-		if ($arParams["VISIBLE_RECORDS_COUNT"] > 0)
-			$count -= $arParams["VISIBLE_RECORDS_COUNT"];
-		else
-			$count -= ($arParams["NAV_RESULT"]->NavPageNomer * $arParams["NAV_RESULT"]->NavPageSize);
-		if ($count > 0)
+		if ($arResult["NAV_STRING_COUNT_MORE"] > 0)
 		{
 			ob_start();
 
@@ -141,10 +137,11 @@ else
 			{
 				?><div id="<?=$arParams["ENTITY_XML_ID"]?>_hidden_records" class="feed-hidden-post" style="display:none; overflow:hidden;"></div> <?
 			}
-			?><div class="feed-com-header">
-			<a class="feed-com-all" href="<?=$arParams["NAV_STRING"]?>" id="<?=$arParams["ENTITY_XML_ID"]?>_page_nav"><?
-				?><?=($arParams["PREORDER"] == "Y" ? GetMessage("BLOG_C_VIEW1") : GetMessage("BLOG_C_VIEW2"))?> <span class="feed-com-all-count"><?=$count?></span><i></i></a>
-			</div><?
+			?><div class="feed-com-header"><?
+				?><a class="feed-com-all" href="<?=$arParams["NAV_STRING"]?>" id="<?=$arParams["ENTITY_XML_ID"]?>_page_nav"><?
+					?><?=($arParams["PREORDER"] == "Y" ? GetMessage("BLOG_C_VIEW1") : GetMessage("BLOG_C_VIEW2"))?> <span class="feed-com-all-count"><?=$arResult["NAV_STRING_COUNT_MORE"]?></span><i></i><?
+				?></a><?
+			?></div><?
 			if ($arParams["PREORDER"] != "Y")
 			{
 				?><div id="<?=$arParams["ENTITY_XML_ID"]?>_hidden_records" class="feed-hidden-post" style="display:none; overflow:hidden;"></div> <?
@@ -163,6 +160,11 @@ else
 	?><!--RCRDLIST_<?=$arParams["ENTITY_XML_ID"]?>--><?
 	foreach ($arParams["RECORDS"] as $res)
 	{
+		if (intval($res["ID"]) <= 0)
+		{
+			continue;
+		}
+
 		$res["AUTHOR"] = (is_array($res["AUTHOR"]) ? $res["AUTHOR"] : array());
 		$iCount++;
 		?><div id="record-<?=$arParams["ENTITY_XML_ID"]?>-<?=$res["ID"]?>-cover" class="feed-com-block-cover"><?

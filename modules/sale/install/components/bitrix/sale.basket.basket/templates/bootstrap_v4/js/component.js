@@ -70,7 +70,7 @@
 			this.template = parameters.template || '';
 			this.signedParamsString = parameters.signedParamsString || '';
 			this.siteId = parameters.siteId || '';
-			this.ajaxUrl = parameters.ajaxUrl || '';
+			this.ajaxUrl = this.params.AJAX_PATH || '';
 			this.templateFolder = parameters.templateFolder || '';
 
 			this.useDynamicScroll = this.params.USE_DYNAMIC_SCROLL === 'Y';
@@ -383,11 +383,6 @@
 			if (this.result.EVENT_ONCHANGE_ON_START === 'Y')
 			{
 				BX.onCustomEvent('OnBasketChange');
-			}
-
-			if (this.result.GIFTS_RELOAD)
-			{
-				// ToDo call some event for gifts reload
 			}
 		},
 
@@ -2326,13 +2321,34 @@
 
 			for (var i in data.basket)
 			{
-				if (data.basket.hasOwnProperty(i) && i.indexOf('QUANTITY_') >= 0)
+				if (data.basket.hasOwnProperty(i))
 				{
-					itemId = i.substr(9);
-
-					if (this.items[itemId])
+					if (i.indexOf('QUANTITY_') >= 0)
 					{
-						itemsDiff[itemId] = parseFloat(data.basket[i]) - parseFloat(BX(this.ids.quantity + itemId).getAttribute('data-value'));
+						itemId = i.substr(9);
+
+						if (this.items[itemId])
+						{
+							itemsDiff[itemId] = parseFloat(data.basket[i]) - parseFloat(BX(this.ids.quantity + itemId).getAttribute('data-value'));
+						}
+					}
+					else if (i.indexOf('DELETE_') >= 0)
+					{
+						itemId = i.substr(7);
+
+						if (this.items[itemId])
+						{
+							itemsDiff[itemId] = -parseFloat(this.items[itemId].QUANTITY);
+						}
+					}
+					else if (i.indexOf('RESTORE_') >= 0)
+					{
+						itemId = i.substr(8);
+
+						if (this.items[itemId])
+						{
+							itemsDiff[itemId] = parseFloat(this.items[itemId].QUANTITY);
+						}
 					}
 				}
 			}
@@ -2407,7 +2423,7 @@
 
 			return {
 				'name': this.items[itemId].NAME || '',
-				'id': this.items[itemId].ID || '',
+				'id': this.items[itemId].PRODUCT_ID || '',
 				'price': this.items[itemId].PRICE || 0,
 				'brand': brand,
 				'variant': variants.join('/'),

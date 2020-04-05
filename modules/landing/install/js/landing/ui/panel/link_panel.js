@@ -9,8 +9,10 @@
 	var random = BX.Landing.Utils.random;
 	var setTextContent = BX.Landing.Utils.setTextContent;
 	var isPlainObject = BX.Landing.Utils.isPlainObject;
+	var isString = BX.Landing.Utils.isString;
 	var textToPlaceholders = BX.Landing.Utils.textToPlaceholders;
 	var findParent = BX.Landing.Utils.findParent;
+	var escapeText = BX.Landing.Utils.escapeText;
 
 
 	/**
@@ -139,9 +141,9 @@
 				this.field = new BX.Landing.UI.Field.Link({
 					title: BX.message("FIELD_LINK_TEXT_LABEL"),
 					content: {
-						text: textToPlaceholders(link ? link.innerHTML : this.range.toString()),
-						href: href,
-						target: target
+						text: textToPlaceholders(escapeText(link ? link.innerText : this.range.toString())),
+						href: escapeText(href),
+						target: escapeText(target)
 					},
 					options: {
 						siteId: BX.Landing.Main.getInstance().options.site_id,
@@ -176,12 +178,15 @@
 					document.getSelection().addRange(this.range);
 					this.node.enableEdit();
 
-					var tmpHref = join(value.href, random());
+					var tmpHref = escapeText(join(value.href, random()));
 					var selection = document.getSelection();
 
 					document.execCommand("createLink", false, tmpHref);
 
-					var link = selection.anchorNode.parentElement.parentElement
+					var link = selection.anchorNode
+						.parentElement
+						.parentElement
+						.parentElement
 						.querySelector(join("[href=\"", tmpHref, "\"]"));
 
 					if (link)
@@ -189,21 +194,23 @@
 						attr(link, "href", value.href);
 						attr(link, "target", value.target);
 
-						if (value.text.includes("{{name}}"))
+						if (isString(value.text))
 						{
-							this.field.hrefInput.getPlaceholderData(value.href)
-								.then(function(placeholdersData) {
-									link.innerHTML = value.text.replace(
-										new RegExp("{{name}}"),
-										"<span data-placeholder=\"name\">"+placeholdersData.name+"</span>"
-									);
-								}.bind(this));
+							if (value.text.includes("{{name}}"))
+							{
+								this.field.hrefInput.getPlaceholderData(value.href)
+									.then(function(placeholdersData) {
+										link.innerHTML = value.text.replace(
+											new RegExp("{{name}}"),
+											"<span data-placeholder=\"name\">"+placeholdersData.name+"</span>"
+										);
+									}.bind(this));
+							}
+							else
+							{
+								setTextContent(link, value.text);
+							}
 						}
-						else
-						{
-							setTextContent(link, value.text);
-						}
-
 
 						if (isPlainObject(value.attrs))
 						{

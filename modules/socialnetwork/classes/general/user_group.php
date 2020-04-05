@@ -3,9 +3,9 @@ IncludeModuleLangFile(__FILE__);
 
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\Item\UserToGroup;
-use Bitrix\Socialnetwork\Item\Workgroup;
 use Bitrix\Socialnetwork\Integration;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Loader;
 
 class CAllSocNetUserToGroup
 {
@@ -1696,19 +1696,7 @@ class CAllSocNetUserToGroup
 
 		$bSuccess = true;
 		$arSuccessRelations = array();
-		$bIMIncluded = false;
-		$groupSiteId = SITE_ID;
 
-		if (CModule::IncludeModule("im"))
-		{
-			$bIMIncluded = true;
-			$groupSiteId = CSocNetGroup::GetDefaultSiteId($groupID, $arGroup["SITE_ID"]);
-		}
-
-		$workgroupsPage = COption::GetOptionString("socialnetwork", "workgroups_page", "/workgroups/", SITE_ID);
-		$groupUrlTemplate = COption::GetOptionString("socialnetwork", "group_path_template", "/workgroups/group/#group_id#/", SITE_ID);
-		$groupUrlTemplate = "#GROUPS_PATH#".substr($groupUrlTemplate, strlen($workgroupsPage), strlen($groupUrlTemplate)-strlen($workgroupsPage));
-		$groupUrl = str_replace(array("#group_id#", "#GROUP_ID#"), $groupID, $groupUrlTemplate);
 		$relationsToUpdateCount = 0;
 
 		foreach($arRelationID as $key => $relationId)
@@ -1735,60 +1723,15 @@ class CAllSocNetUserToGroup
 				"ROLE" => SONET_ROLES_MODERATOR,
 				"=DATE_UPDATE" => $DB->CurrentTimeFunction(),
 			);
-			if (CSocNetUserToGroup::Update($arRelation["ID"], $arFields))
+			if (CSocNetUserToGroup::update($arRelation["ID"], $arFields))
 			{
 				$arSuccessRelations[] = $arRelation;
-
-				if ($bIMIncluded)
-				{
-					$arTmp = CSocNetLogTools::ProcessPath(
-						array(
-							"GROUP_URL" => $groupUrl
-						), 
-						$arRelation["USER_ID"],
-						$groupSiteId
-					);
-					$groupUrl = $arTmp["URLS"]["GROUP_URL"];
-
-					$serverName = (
-						strpos($groupUrl, "http://") === 0
-						|| strpos($groupUrl, "https://") === 0
-							? ""
-							: $arTmp["SERVER_NAME"]
-					);
-					$domainName = (
-						strpos($groupUrl, "http://") === 0
-						|| strpos($groupUrl, "https://") === 0
-							? ""
-							: (
-								isset($arTmp["DOMAIN"]) 
-								&& !empty($arTmp["DOMAIN"]) 
-									? "//".$arTmp["DOMAIN"]
-									: ""
-							)
-					);
-
-					$arMessageFields = array(
-						"TO_USER_ID" => $arRelation["USER_ID"],
-						"FROM_USER_ID" => $userID,
-						"NOTIFY_TYPE" => IM_NOTIFY_FROM,
-						"NOTIFY_MODULE" => "socialnetwork",
-						"NOTIFY_EVENT" => "moderators_group",
-						"NOTIFY_TAG" => "SOCNET|MOD_GROUP|".intval($userID)."|".$groupID."|".$arRelation["ID"]."|".$arRelation["USER_ID"],
-						"NOTIFY_MESSAGE" => str_replace(
-							array("#NAME#"), 
-							array("<a href=\"".$domainName.$groupUrl."\" class=\"bx-notifier-item-action\">".$arGroup["NAME"]."</a>"), 
-							GetMessage("SONET_UG_MEMBER2MOD_MESSAGE")
-						),
-						"NOTIFY_MESSAGE_OUT" => str_replace(
-							array("#NAME#"), 
-							array($arGroup["NAME"]), 
-							GetMessage("SONET_UG_MEMBER2MOD_MESSAGE")
-						)." (".$serverName.$groupUrl.")"
-					);
-
-					CIMNotify::Add($arMessageFields);
-				}
+				self::notifyModeratorAdded(array(
+					'userId' => $userID,
+					'groupId' => $groupID,
+					'relationFields' => $arRelation,
+					'groupFields' => $arGroup
+				));
 			}
 			else
 			{
@@ -2424,6 +2367,7 @@ class CAllSocNetUserToGroup
 			$arReturn["UserIsAutoMember"] = false;
 			$arReturn["UserIsOwner"] = false;
 			$arReturn["UserCanInitiate"] = false;
+			$arReturn["UserCanProcessRequestsIn"] = false;
 			$arReturn["UserCanViewGroup"] = ($groupVisible == "Y");
 			$arReturn["UserCanAutoJoinGroup"] = false;
 			$arReturn["UserCanModifyGroup"] = false;
@@ -2461,6 +2405,7 @@ class CAllSocNetUserToGroup
 			if ($bCurrentUserIsAdmin)
 			{
 				$arReturn["UserCanInitiate"] = true;
+				$arReturn["UserCanProcessRequestsIn"] = true;
 				$arReturn["UserCanViewGroup"] = true;
 				$arReturn["UserCanAutoJoinGroup"] = true;
 				$arReturn["UserCanModifyGroup"] = true;
@@ -2474,9 +2419,19 @@ class CAllSocNetUserToGroup
 				{
 					$arReturn["UserCanInitiate"] = (
 						($groupInitiatePerms == SONET_ROLES_OWNER && $arReturn["UserIsOwner"])
-						|| ($groupInitiatePerms == SONET_ROLES_MODERATOR
-							&& in_array($arReturn["UserRole"], array(SONET_ROLES_OWNER, SONET_ROLES_MODERATOR)))
-						|| ($groupInitiatePerms == SONET_ROLES_USER && $arReturn["UserIsMember"]));
+						|| (
+							$groupInitiatePerms == SONET_ROLES_MODERATOR
+							&& in_array($arReturn["UserRole"], array(SONET_ROLES_OWNER, SONET_ROLES_MODERATOR))
+						)
+						|| (
+							$groupInitiatePerms == SONET_ROLES_USER
+							&& $arReturn["UserIsMember"]
+						)
+					);
+					$arReturn["UserCanProcessRequestsIn"] = (
+						$arReturn["UserCanInitiate"]
+						&& in_array($arReturn["UserRole"], array(SONET_ROLES_OWNER, SONET_ROLES_MODERATOR))
+					);
 					$arReturn["UserCanViewGroup"] = true;
 					$arReturn["UserCanAutoJoinGroup"] = false;
 					$arReturn["UserCanModifyGroup"] = $arReturn["UserIsOwner"];
@@ -2540,7 +2495,7 @@ class CAllSocNetUserToGroup
 			CSocNetUserToGroup::__SpeedFileDelete($userID);
 	}
 
-	function __SpeedFileCreate($userID)
+	public static function __SpeedFileCreate($userID)
 	{
 		global $CACHE_MANAGER;
 
@@ -2778,6 +2733,127 @@ class CAllSocNetUserToGroup
 	public static function getMessage($message)
 	{
 		return Loc::getMessage($message);
+	}
+
+	public static function notifyModeratorAdded($params)
+	{
+		static $groupCache = array();
+
+		$userId = (!empty($params['userId']) ? intval($params['userId']) : 0);
+		$relationFields = (!empty($params['relationFields']) && is_array($params['relationFields']) ? $params['relationFields'] : array());
+		$groupFields = (!empty($params['groupFields']) && is_array($params['groupFields']) ? $params['groupFields'] : array());
+		$groupId = (
+			!empty($params['groupId'])
+				? intval($params['groupId'])
+				: (!empty($groupFields['ID']) ? intval($groupFields['ID']) : 0)
+		);
+		$relationId = (
+			!empty($params['relationId'])
+				? intval($params['relationId'])
+				: (!empty($relationFields['ID']) ? intval($relationFields['ID']) : 0)
+		);
+
+		if (
+			empty($groupFields)
+			&& $groupId > 0
+		)
+		{
+			if (isset($groupCache[$groupId]))
+			{
+				$groupFields = $groupCache[$groupId];
+			}
+			else
+			{
+				$res = \Bitrix\Socialnetwork\WorkgroupTable::getList(array(
+					'filter' => array(
+						'=ID' => $groupId
+					),
+					'select' => array('ID', 'NAME', 'SITE_ID')
+				));
+				$groupFields = $groupCache[$groupId] = $res->fetch();
+			}
+		}
+
+		if (
+			empty($relationFields)
+			&& $relationId > 0
+		)
+		{
+			$res = \Bitrix\Socialnetwork\UserToGroupTable::getList(array(
+				'filter' => array(
+					'=ID' => $relationId
+				),
+				'select' => array('ID', 'USER_ID')
+			));
+			$relationFields = $res->fetch();
+		}
+
+		if (
+			$groupId <= 0
+			|| empty($relationFields)
+			|| empty($relationFields['ID'])
+			|| empty($relationFields['USER_ID'])
+			|| empty($groupFields)
+			|| !Loader::includeModule('im')
+		)
+		{
+			return;
+		}
+
+		$groupSiteId = CSocNetGroup::getDefaultSiteId($groupId, $groupFields["SITE_ID"]);
+
+		$workgroupsPage = COption::getOptionString("socialnetwork", "workgroups_page", "/workgroups/", SITE_ID);
+		$groupUrlTemplate = COption::getOptionString("socialnetwork", "group_path_template", "/workgroups/group/#group_id#/", SITE_ID);
+		$groupUrlTemplate = "#GROUPS_PATH#".substr($groupUrlTemplate, strlen($workgroupsPage), strlen($groupUrlTemplate)-strlen($workgroupsPage));
+		$groupUrl = str_replace(array("#group_id#", "#GROUP_ID#"), $groupId, $groupUrlTemplate);
+
+		$arTmp = CSocNetLogTools::processPath(
+			array(
+				"GROUP_URL" => $groupUrl
+			),
+			$relationFields["USER_ID"],
+			$groupSiteId
+		);
+		$groupUrl = $arTmp["URLS"]["GROUP_URL"];
+
+		$serverName = (
+			strpos($groupUrl, "http://") === 0
+			|| strpos($groupUrl, "https://") === 0
+				? ""
+				: $arTmp["SERVER_NAME"]
+		);
+		$domainName = (
+			strpos($groupUrl, "http://") === 0
+			|| strpos($groupUrl, "https://") === 0
+				? ""
+				: (
+					isset($arTmp["DOMAIN"])
+					&& !empty($arTmp["DOMAIN"])
+						? "//".$arTmp["DOMAIN"]
+						: ""
+				)
+		);
+
+		$arMessageFields = array(
+			"TO_USER_ID" => $relationFields["USER_ID"],
+			"FROM_USER_ID" => $userId,
+			"NOTIFY_TYPE" => IM_NOTIFY_FROM,
+			"NOTIFY_MODULE" => "socialnetwork",
+			"NOTIFY_EVENT" => "moderators_group",
+			"NOTIFY_TAG" => "SOCNET|MOD_GROUP|".intval($userId)."|".$groupId."|".$relationFields["ID"]."|".$relationFields["USER_ID"],
+			"NOTIFY_MESSAGE" => str_replace(
+				array("#NAME#"),
+				array("<a href=\"".$domainName.$groupUrl."\" class=\"bx-notifier-item-action\">".$groupFields["NAME"]."</a>"),
+				GetMessage("SONET_UG_MEMBER2MOD_MESSAGE")
+			),
+			"NOTIFY_MESSAGE_OUT" => str_replace(
+					array("#NAME#"),
+					array($groupFields["NAME"]),
+					Loc::getMessage("SONET_UG_MEMBER2MOD_MESSAGE")
+				)." (".$serverName.$groupUrl.")"
+		);
+
+		CIMNotify::add($arMessageFields);
 	}
 
 }

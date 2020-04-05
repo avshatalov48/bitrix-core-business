@@ -42,11 +42,11 @@ $request = $context->getRequest();
 // title
 if ($arParams['SITE_ID'])
 {
-	$APPLICATION->setTitle($this->__component->getMessageType('LANDING_TPL_TITLE_EDIT'));
+	Manager::setPageTitle(Loc::getMessage('LANDING_TPL_TITLE_EDIT'));
 }
 else
 {
-	$APPLICATION->setTitle($this->__component->getMessageType('LANDING_TPL_TITLE_ADD'));
+	Manager::setPageTitle(Loc::getMessage('LANDING_TPL_TITLE_ADD'));
 }
 
 // assets
@@ -68,6 +68,25 @@ $uriSave->addParams(array(
 ));
 ?>
 
+<script type="text/javascript">
+	BX.ready(function(){
+		var editComponent = new BX.Landing.EditComponent();
+		top.window['landingSettingsSaved'] = false;
+		<?if ($arParams['SUCCESS_SAVE']):?>
+		top.window['landingSettingsSaved'] = true;
+		top.BX.onCustomEvent('BX.Main.Filter:apply');
+		editComponent.actionClose();
+		<?endif;?>
+	});
+</script>
+
+<?
+if ($arParams['SUCCESS_SAVE'])
+{
+	return;
+}
+?>
+
 <form method="post" action="/bitrix/tools/landing/ajax.php?action=Site::uploadFile" enctype="multipart/form-data" id="landing-form-favicon-form">
 	<?= bitrix_sessid_post();?>
 	<input type="hidden" name="data[id]" value="<?= $arParams['SITE_ID'];?>" />
@@ -77,9 +96,6 @@ $uriSave->addParams(array(
 <form action="<?= \htmlspecialcharsbx($uriSave->getUri());?>" method="post" class="ui-form ui-form-gray-padding landing-form-collapsed landing-form-settings" id="landing-site-set-form">
 	<input type="hidden" name="fields[SAVE_FORM]" value="Y" />
 	<input type="hidden" name="fields[TYPE]" value="<?= $arParams['TYPE'];?>" />
-	<?if (count($arResult['LANDINGS']) == 1):?>
-		<input name="fields[LANDING_ID_INDEX]" type="hidden" value="<?= array_pop(array_keys($arResult['LANDINGS']))?>" />
-	<?endif;?>
 	<?= bitrix_sessid_post();?>
 
 	<div class="ui-form-title-block">
@@ -105,11 +121,21 @@ $uriSave->addParams(array(
 								$domainNameOriginal = $domainName;
 								$domainName = $puny->decode($domainName);
 								$zone = Manager::getZone();
+								if ($row['TYPE']['CURRENT'] == 'STORE')
+								{
+									$b24Postfix = $zone == 'by'
+												? '.bitrix24shop.by'
+												: '.bitrix24.shop';
+								}
+								else
+								{
+									$b24Postfix = $zone == 'by'
+												? '.bitrix24site.by'
+												: '.bitrix24.site';
+								}
 								$allowedDomains = array(
 									'b24' => array(
-										'postfix' => $zone == 'by'
-													? '.bitrix24site.by'
-													: '.bitrix24.site',
+										'postfix' => $b24Postfix,
 										'title' => 'B24 domain'
 									),
 									'own' => array(
@@ -118,10 +144,10 @@ $uriSave->addParams(array(
 									)
 								);
 								?>
-								<input type="hidden" name="fields[CODE]" value="<?= $row['CODE']['CURRENT']?>" />
+								<input type="hidden" name="fields[CODE]" value="<?= $row['CODE']['CURRENT'];?>" />
 								<input type="hidden" name="fields[DOMAIN_ID]" id="ui-domainname-text" value="<?= $domainName;?>" />
 								<span class="landing-form-site-name-wrap">
-									<span class="landing-form-site-name-label" id="ui-domainname-title"><?= $domainName?></span>
+									<span class="landing-form-site-name-label" id="ui-domainname-title"><?= $domainName;?></span>
 									<span class="ui-title-input-btn  ui-domain-input-btn-js ui-editing-pen"></span>
 								</span>
 								<div id="ui-editable-domain-content" class="ui-editable-domain-content" style="display: none;">
@@ -144,29 +170,72 @@ $uriSave->addParams(array(
 									?>
 										<?if ($domainCode != 'own'):?>
 											<div class="ui-control-wrap landing-popup-control-wrap">
-												<input type="radio" id="landing-domain-name-<?= $counter?>" name="DOMAIN_NAME" value="<?= $domainItem['postfix']?>"<?if ($selected) {?> checked="checked"<?}?> class="ui-radio ui-postfix" />
+												<input type="radio" id="landing-domain-name-<?= $counter;?>" name="DOMAIN_NAME" value="<?= $domainItem['postfix'];?>"<?if ($selected) {?> checked="checked"<?}?> class="ui-radio ui-postfix" />
 												<div class="landing-form-domainname-wrap">
-													<label class="ui-form-control-label" for="landing-domain-name-<?= $counter?>"><?= Loc::getMessage('LANDING_TPL_DOMAIN_NAME_' . strtoupper($domainCode));?></label>
-													<input type="text" value="<?= $selected ? $domainNameLocal : ''?>" class="ui-input ui-domainname" /> <span class="landing-site-name-postfix"><?= $domainItem['postfix']?></span>
+													<label class="ui-form-control-label" for="landing-domain-name-<?= $counter;?>"><?= Loc::getMessage('LANDING_TPL_DOMAIN_NAME_' . strtoupper($domainCode));?></label>
+													<input type="text" value="<?= $selected ? $domainNameLocal : '';?>" class="ui-input ui-domainname ui-domainname-subdomain" data-postfix="<?= $domainItem['postfix'];?>" />
+													<span class="landing-site-name-postfix"><?= $domainItem['postfix'];?></span>
+													<span class="landing-site-name-status" id="landing-site-name-status-subdomain"></span>
 												</div>
 											</div>
 										<?elseif ($domainCode == 'own'):?>
 											<div class="ui-control-wrap landing-popup-control-wrap">
-												<input type="radio" name="DOMAIN_NAME" id="landing-domain-name-<?= $counter?>" value="<?= $domainItem['postfix']?>"<?if ($selected) {?> checked="checked"<?}?> class="ui-radio ui-postfix" />
+												<input type="radio" name="DOMAIN_NAME" id="landing-domain-name-<?= $counter;?>" value="<?= $domainItem['postfix'];?>"<?if ($selected) {?> checked="checked"<?}?> class="ui-radio ui-postfix" />
 												<div class="landing-form-domainname-wrap">
-													<label class="ui-form-control-label" for="landing-domain-name-<?= $counter ?>"><?= Loc::getMessage('LANDING_TPL_DOMAIN_NAME_' . strtoupper($domainCode));?></label>
-													<input type="text" id="landing-form-domain-name-field" value="<?= $selected ? $domainNameLocal : ''?>" class="ui-input ui-domainname" />
+													<label class="ui-form-control-label" for="landing-domain-name-<?= $counter;?>"><?= Loc::getMessage('LANDING_TPL_DOMAIN_NAME_' . strtoupper($domainCode));?></label>
+													<input type="text" id="landing-form-domain-name-field" maxlength="64" value="<?= $selected ? $domainNameLocal : '';?>" class="ui-input ui-domainname" data-postfix="" />
+													<span class="landing-site-name-status" id="landing-site-name-status-domain"></span>
 												</div>
 											</div>
 											<div class="landing-alert landing-alert-info">
 												<p class="landing-alert-paragraph">
-													<span id="landing-form-domain-instr"><strong><?= Loc::getMessage('LANDING_TPL_DOMAIN_ATTENTION');?></strong> <?= Loc::getMessage('LANDING_TPL_DOMAIN_OWN_DOMAIN_INSTRUCT');?></span>
-													<span id="landing-form-domain-any-instr" style="display: none;"><strong><?= Loc::getMessage('LANDING_TPL_DOMAIN_ATTENTION');?></strong> <?= Loc::getMessage('LANDING_TPL_DOMAIN_OWN_DOMAIN_ANY_INSTRUCT');?></span>
+													<?= Loc::getMessage('LANDING_TPL_DOMAIN_OWN_DOMAIN_ANY_INSTRUCT');?>
+												</p>
+												<table class="landing-alert-table">
+													<tr class="landing-alert-table-header">
+														<td>
+															<span class="landing-alert-header-text"><?= Loc::getMessage('LANDING_TPL_DOMAIN_OWN_DOMAIN_DNS_1');?></span>
+														</td>
+														<td>
+															<span class="landing-alert-header-text"><?= Loc::getMessage('LANDING_TPL_DOMAIN_OWN_DOMAIN_DNS_2');?></span>
+														</td>
+														<td>
+															<span class="landing-alert-header-text"><?= Loc::getMessage('LANDING_TPL_DOMAIN_OWN_DOMAIN_DNS_3');?></span>
+														</td>
+													</tr>
+													<tr class="landing-alert-table-content">
+														<td id="landing-form-domain-name-text">
+															<?= $domainNameOriginal ? $domainNameOriginal : 'landing.mydomain';?>
+														</td>
+														<td>CNAME</td>
+														<td>lb<?= $b24Postfix;?>.</td>
+													</tr>
+													<tr class="landing-alert-table-content">
+														<td id="landing-form-domain-any-name-text">
+															<?= $domainNameOriginal ? $domainNameOriginal : 'landing.mydomain.ru';?>
+														</td>
+														<td>A</td>
+														<td><?= $arResult['IP_FOR_DNS'];?></td>
+													</tr>
+												</table>
+											</div>
+											<div class="landing-alert landing-alert-warning">
+												<p class="landing-alert-paragraph">
+													<i style="display: none;">
+																<span id="landing-form-domain-any-name-textAAA" class="landing-form-domain-name-text">
+																	</span>.
+														IN A
+													</i>
 												</p>
 												<p class="landing-alert-paragraph">
-													<i><span id="landing-form-domain-name-text" class="landing-form-domain-name-text"><?= $domainNameOriginal ? $domainNameOriginal : 'landing.mydomain';?></span>. IN CNAME lb<?= $zone == 'by' ? '.bitrix24site.by' : '.bitrix24.site';?>.</i><br/>
-													<i style="display: none;"><span id="landing-form-domain-any-name-text" class="landing-form-domain-name-text"><?= $domainNameOriginal ? $domainNameOriginal : 'landing.mydomain.ru';?></span>. IN A <?= $arResult['IP_FOR_DNS'];?></i>
+													<strong><?= Loc::getMessage('LANDING_TPL_DOMAIN_ATTENTION');?></strong>
+													<?= Loc::getMessage('LANDING_TPL_DOMAIN_OWN_DOMAIN_AAAA');?>
 												</p>
+												<?if ($helpUrl = \Bitrix\Landing\Help::getHelpUrl('DOMAIN_EDIT')):?>
+													<p class="landing-alert-paragraph">
+														<a class="landing-alert-more" href="<?= $helpUrl;?>" target="_blank"><?= Loc::getMessage('LANDING_TPL_DOMAIN_OWN_DOMAIN_HELP');?></a>
+													</p>
+												<?endif;?>
 											</div>
 											<?if (!$arResult['CUSTOM_DOMAIN']):?>
 											<script type="text/javascript">
@@ -214,15 +283,15 @@ $uriSave->addParams(array(
 							));
 							?>
 							<?if (ModuleManager::isModuleInstalled('crm')):?>
-							<a href="/crm/button/" class="landing-form-input-right" target="_top">
+							<a href="/crm/button/" class="landing-form-input-right" target="_blank">
 								<?= Loc::getMessage('LANDING_TPL_ACTION_SETTINGS');?>
 							</a>
 							<?elseif (ModuleManager::isModuleInstalled('b24connector')):?>
-							<a href="/bitrix/admin/b24connector_b24connector.php?lang=<?= LANGUAGE_ID;?>" class="landing-form-input-right" target="_top">
+							<a href="/bitrix/admin/b24connector_b24connector.php?lang=<?= LANGUAGE_ID;?>" class="landing-form-input-right" target="_blank">
 								<?= Loc::getMessage('LANDING_TPL_ACTION_SETTINGS');?>
 							</a>
 							<?else:?>
-							<a href="/bitrix/admin/module_admin.php?lang=<?= LANGUAGE_ID;?>" class="landing-form-input-right" target="_top">
+							<a href="/bitrix/admin/module_admin.php?lang=<?= LANGUAGE_ID;?>" class="landing-form-input-right" target="_blank">
 								<?= Loc::getMessage('LANDING_TPL_ACTION_INSTALL_B24');?>
 							</a>
 							<?endif;?>
@@ -269,7 +338,7 @@ $uriSave->addParams(array(
 									id="<?=$selectParams['id'];?>_select_color"
 									type="hidden"
 									name="<?=$pageFields['THEME_CODE']->getName('fields[ADDITIONAL_FIELDS][#field_code#]');?>"
-									value="<?=$selectParams['value'];?>"
+									value="<?= \htmlspecialcharsbx($selectParams['value']);?>"
 								/>
 								<div class="ui-select select-color-wrap"
 									 id="<?=$selectParams['id'];?>_select_color_wrap">
@@ -305,12 +374,16 @@ $uriSave->addParams(array(
 				<?
 				endif;
 			endif;?>
-				<?if (count($arResult['LANDINGS']) > 1):?>
 				<tr>
 					<td class="ui-form-label"><?= Loc::getMessage('LANDING_TPL_PAGE_INDEX')?></td>
 					<td class="ui-form-right-cell ui-form-field-wrap-align-m">
 						<select name="fields[LANDING_ID_INDEX]" class="ui-select">
-							<?foreach ($arResult['LANDINGS'] as $item):?>
+							<?foreach ($arResult['LANDINGS'] as $item):
+								if ($item['IS_AREA'])
+								{
+									continue;
+								}
+								?>
 							<option value="<?= $item['ID']?>"<?if ($item['ID'] == $row['LANDING_ID_INDEX']['CURRENT']){?> selected="selected"<?}?>>
 								<?= \htmlspecialcharsbx($item['TITLE'])?>
 							</option>
@@ -318,23 +391,26 @@ $uriSave->addParams(array(
 						</select>
 					</td>
 				</tr>
-				<?endif;?>
 				<tr>
 					<td class="ui-form-right-cell ui-form-collapse" colspan="2">
 						<div class="ui-form-collapse-block landing-form-collapse-block-js">
 							<span class="ui-form-collapse-label"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL');?></span>
 							<span class="landing-additional-alt-promo-wrap">
+								<span class="landing-additional-alt-promo-text">Favicon</span>
 								<span class="landing-additional-alt-promo-text"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL_BG');?></span>
 								<span class="landing-additional-alt-promo-text"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL_METRIKA');?></span>
 								<?/*<span class="landing-additional-alt-promo-text"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL_MAPS');?></span>*/?>
 								<span class="landing-additional-alt-promo-text"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL_VIEW');?></span>
 								<span class="landing-additional-alt-promo-text"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL_LAYOUT');?></span>
-								<?if (count($arResult['LANDINGS']) > 1):?>
-								<span class="landing-additional-alt-promo-text"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL_404');?></span>
+								<?if (!empty($arResult['LANG_CODES']) && Manager::isB24() && $row['LANG']):?>
+								<span class="landing-additional-alt-promo-text"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL_LANG');?></span>
 								<?endif;?>
+								<span class="landing-additional-alt-promo-text"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL_404');?></span>
 								<?if (isset($hooks['ROBOTS'])):?>
 								<span class="landing-additional-alt-promo-text"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL_ROBOTS');?></span>
 								<?endif;?>
+								<span class="landing-additional-alt-promo-text">HTML/CSS</span>
+								<span class="landing-additional-alt-promo-text"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL_OFF');?></span>
 							</span>
 						</div>
 					</td>
@@ -458,7 +534,7 @@ $uriSave->addParams(array(
 						<?$template->showSimple('GACOUNTER');?>
 						<?$template->showSimple('GTM');?>
 						<?
-						if (in_array(Manager::getZone(), array('ru', 'by', 'kz')))
+						if (Manager::availableOnlyForZone('ru'))
 						{
 							$template->showSimple('YACOUNTER');
 						}
@@ -466,10 +542,24 @@ $uriSave->addParams(array(
 					</td>
 				</tr>
 				<?endif;?>
-				<?if (false && isset($hooks['GMAP'])):?>
+				<?if (isset($hooks['PIXELFB']) || isset($hooks['PIXELVK'])):?>
+					<tr class="landing-form-hidden-row">
+						<td class="ui-form-label ui-form-label-align-top"><?= Loc::getMessage('LANDING_TPL_HOOK_PIXEL');?></td>
+						<td class="ui-form-right-cell ui-form-right-cell-pixel">
+							<?$template->showSimple('PIXELFB');?>
+							<?
+							if (Manager::availableOnlyForZone('ru'))
+							{
+								$template->showSimple('PIXELVK');
+							}
+							?>
+						</td>
+					</tr>
+				<?endif;?>
+				<?if (isset($hooks['GMAP'])):?>
 				<tr class="landing-form-hidden-row">
 					<td class="ui-form-label ui-form-label-align-top"><?= Loc::getMessage('LANDING_TPL_HOOK_GMAP');?></td>
-					<td class="ui-form-right-cell">
+					<td class="ui-form-right-cell ui-form-right-cell-map">
 						<?$template->showSimple('GMAP');?>
 					</td>
 				</tr>
@@ -592,7 +682,37 @@ $uriSave->addParams(array(
 					</td>
 				</tr>
 				<?endif;?>
-				<?if (count($arResult['LANDINGS']) > 1):?>
+				<?if (!empty($arResult['LANG_CODES']) && Manager::isB24() && $row['LANG']):?>
+					<tr class="landing-form-hidden-row">
+						<td class="ui-form-label"><?= $row['LANG']['TITLE'];?></td>
+						<td class="ui-form-right-cell">
+							<div class="landing-form-flex-box">
+								<?
+								$selectParams = array();
+								$selectParams['id'] = \randString(5);
+								$selectParams['value'] = $row['LANG']['CURRENT'];
+								$selectParams['options'] = $arResult['LANG_CODES'];
+								if (!$selectParams['value']) {
+									$selectParams['value'] = LANGUAGE_ID;
+								}
+								?>
+								<input
+									id="<?= $selectParams['id'];?>_select_lang"
+									type="hidden"
+									name="fields[LANG]"
+									value="<?= \htmlspecialcharsbx($selectParams['value']);?>"
+								/>
+								<div class="ui-select select-lang-wrap"
+									 id="<?= $selectParams['id'];?>_select_lang_wrap">
+								</div>
+								<script>
+									var SelectLang = new BX.Landing.SelectLang(<?=\CUtil::PhpToJSObject($selectParams);?>);
+									SelectLang.show();
+								</script>
+							</div>
+						</td>
+					</tr>
+				<?endif;?>
 				<tr class="landing-form-hidden-row">
 					<td class="ui-form-label ui-form-label-align-top"><?= Loc::getMessage('LANDING_TPL_PAGE_404')?></td>
 					<td class="ui-form-right-cell">
@@ -605,7 +725,12 @@ $uriSave->addParams(array(
 								</label>
 								<select name="fields[LANDING_ID_404]" class="ui-select" id="landing-form-404-select">
 									<option></option>
-									<?foreach ($arResult['LANDINGS'] as $item):?>
+									<?foreach ($arResult['LANDINGS'] as $item):
+										if ($item['IS_AREA'])
+										{
+											continue;
+										}
+										?>
 									<option value="<?= $item['ID']?>"<?if ($item['ID'] == $row['LANDING_ID_404']['CURRENT']){?> selected="selected"<?}?>>
 										<?= \htmlspecialcharsbx($item['TITLE'])?>
 									</option>
@@ -615,7 +740,6 @@ $uriSave->addParams(array(
 						</div>
 					</td>
 				</tr>
-				<?endif;?>
 				<?if (isset($hooks['ROBOTS'])):
 					$pageFields = $hooks['ROBOTS']->getPageFields();
 					?>
@@ -654,7 +778,90 @@ $uriSave->addParams(array(
 					</td>
 				</tr>
 				<?endif;?>
-			<?if (isset($hooks['COPYRIGHT'])):
+				<?if (isset($hooks['HEADBLOCK'])):
+					$pageFields = $hooks['HEADBLOCK']->getPageFields();
+					?>
+					<tr class="landing-form-hidden-row">
+						<td class="ui-form-label ui-form-label-align-top"><?= $hooks['HEADBLOCK']->getTitle();?></td>
+						<td class="ui-form-right-cell">
+							<div class="ui-checkbox-hidden-input landing-form-custom-fields">
+								<?
+								if (isset($pageFields['HEADBLOCK_USE']))
+								{
+									$pageFields['HEADBLOCK_USE']->viewForm(array(
+										'class' => 'ui-checkbox',
+										'id' => 'checkbox-headblock-use',
+										'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
+									));
+								}
+								?>
+								<div class="ui-checkbox-hidden-input-inner">
+									<?if (isset($pageFields['HEADBLOCK_USE'])):?>
+										<label class="ui-checkbox-label" for="checkbox-headblock-use">
+											<?= $pageFields['HEADBLOCK_USE']->getLabel();?>
+										</label>
+									<?endif;?>
+									<?if (isset($pageFields['HEADBLOCK_CODE'])):?>
+										<div class="ui-control-wrap">
+											<div class="ui-form-control-label">
+												<div class="ui-form-control-label-title"><?= $pageFields['HEADBLOCK_CODE']->getLabel();?></div>
+												<div><?= $pageFields['HEADBLOCK_CODE']->getHelpValue();?></div>
+											</div>
+											<?
+											$pageFields['HEADBLOCK_CODE']->viewForm(array(
+												'class' => 'ui-textarea',
+												'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
+											));
+											?>
+										</div>
+									<?endif;?>
+									<?if (isset($pageFields['HEADBLOCK_CSS_CODE'])):?>
+										<div class="ui-control-wrap">
+											<div class="ui-form-control-label">
+												<div class="ui-form-control-label-title"><?= $pageFields['HEADBLOCK_CSS_CODE']->getLabel();?></div>
+												<div><?= $pageFields['HEADBLOCK_CSS_CODE']->getHelpValue();?></div>
+											</div>
+											<?
+											$pageFields['HEADBLOCK_CSS_CODE']->viewForm(array(
+												'class' => 'ui-textarea',
+												'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
+											));
+											?>
+										</div>
+									<?endif;?>
+								</div>
+							</div>
+						</td>
+					</tr>
+				<?endif;?>
+					<tr class="landing-form-hidden-row">
+						<td class="ui-form-label ui-form-label-align-top"><?= Loc::getMessage('LANDING_TPL_PAGE_503')?></td>
+						<td class="ui-form-right-cell">
+							<div class="ui-checkbox-hidden-input">
+								<input type="checkbox" class="ui-checkbox" id="checkbox-503-use"<?
+								?> <?if ($row['LANDING_ID_503']['CURRENT']){?> checked="checked"<?}?> />
+								<div class="ui-checkbox-hidden-input-inner">
+									<label class="ui-checkbox-label" for="checkbox-503-use">
+										<?= Loc::getMessage('LANDING_TPL_PAGE_503_USE');?>
+									</label>
+									<select name="fields[LANDING_ID_503]" class="ui-select" id="landing-form-503-select">
+										<option></option>
+										<?foreach ($arResult['LANDINGS'] as $item):
+											if ($item['IS_AREA'])
+											{
+												continue;
+											}
+											?>
+											<option value="<?= $item['ID']?>"<?if ($item['ID'] == $row['LANDING_ID_503']['CURRENT']){?> selected="selected"<?}?>>
+												<?= \htmlspecialcharsbx($item['TITLE'])?>
+											</option>
+										<?endforeach;?>
+									</select>
+								</div>
+							</div>
+						</td>
+					</tr>
+				<?if (isset($hooks['COPYRIGHT'])):
 				$pageFields = $hooks['COPYRIGHT']->getPageFields();
 				if (isset($pageFields['COPYRIGHT_SHOW'])):
 				?>
@@ -705,7 +912,7 @@ $uriSave->addParams(array(
 
 	<div class="<?if ($request->get('IFRAME') == 'Y'){?>landing-edit-footer-fixed <?}?>pinable-block">
 		<div class="landing-form-footer-container">
-			<button type="submit" class="ui-btn ui-btn-success"  name="submit"  value="<?= Loc::getMessage('LANDING_TPL_BUTTON_' . ($arParams['SITE_ID'] ? 'SAVE' : 'ADD'));?>">
+			<button id="landing-save-btn" type="submit" class="ui-btn ui-btn-success"  name="submit"  value="<?= Loc::getMessage('LANDING_TPL_BUTTON_' . ($arParams['SITE_ID'] ? 'SAVE' : 'ADD'));?>">
 				<?= Loc::getMessage('LANDING_TPL_BUTTON_' . ($arParams['SITE_ID'] ? 'SAVE' : 'ADD'));?>
 			</button>
 			<a class="ui-btn ui-btn-md ui-btn-link"<?if ($request->get('IFRAME') == 'Y'){?> id="action-close" href="#"<?} else {?> href="<?= $arParams['PAGE_URL_SITES']?>"<?}?>>
@@ -722,6 +929,8 @@ $uriSave->addParams(array(
 		new BX.Landing.ToggleFormFields(BX('landing-site-set-form'));
 		new BX.Landing.Favicon();
 		new BX.Landing.Custom404();
+		new BX.Landing.Custom503();
+		new BX.Landing.Copyright();
 		new BX.Landing.Metrika();
 		new BX.Landing.Layout({
 			siteId: '<?= $row['ID']['CURRENT'];?>',
@@ -742,16 +951,10 @@ $uriSave->addParams(array(
 			messages: {
 				title: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_DOMAIN_POPUP'));?>',
 				errorEmpty:'<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_DOMAIN_ERROR_EMPTY'));?>'
-			}
+			},
+			domainId: <?= (int)$row['DOMAIN_ID']['CURRENT'];?>
 		});
-		// for save
-		var editComponent = new BX.Landing.EditComponent();
-		top.window['landingSettingsSaved'] = false;
-	<?if ($arParams['SUCCESS_SAVE']):?>
-		top.window['landingSettingsSaved'] = true;
-		top.BX.onCustomEvent('BX.Main.Filter:apply');
-		editComponent.actionClose();
-	<?endif;?>
+		new BX.Landing.SaveBtn(BX('landing-save-btn'));
 	});
 
 </script>

@@ -2,7 +2,7 @@
 $MESS["BLOG_MODULE_NOT_INSTALL"] = "Модуль блогов не установлен.";
 $MESS["BLOG_BLOG_BLOG_MES_DELED"] = "Сообщение удалено";
 $MESS["BLOG_BLOG_BLOG_MES_DEL_ERROR"] = "Ошибка удаления сообщения";
-$MESS["BLOG_BLOG_BLOG_MES_DEL_NO_RIGHTS"] = "У вас нет прав не удаление этого сообщения";
+$MESS["BLOG_BLOG_BLOG_MES_DEL_NO_RIGHTS"] = "У вас нет прав на удаление этого сообщения";
 $MESS["BLOG_BLOG_BLOG_FRIENDS_ONLY"] = "Недостаточно прав для чтения сообщений.";
 $MESS["MESSAGE_COUNT"] = "Сообщения";
 $MESS["BLOG_SONET_MODULE_NOT_AVAIBLE"] = "Сообщения недоступны для этой группы";

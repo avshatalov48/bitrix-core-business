@@ -275,7 +275,7 @@ class CAllFormField
 							CFormAnswer::Copy($arAnswer["ID"], $NEW_ID);
 
 						// валидаторы
-						$dbValidators = CFormValidator::GetList($ID);
+						$dbValidators = CFormValidator::GetList($ID, array(), $by='C_SORT', $order='ASC');
 						while ($arVal = $dbValidators->Fetch())
 						{
 							CFormValidator::Set($arField['FORM_ID'], $NEW_ID, $arVal['NAME'], $arVal['PARAMS'], $arVal['C_SORT']);

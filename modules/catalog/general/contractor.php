@@ -59,7 +59,7 @@ class CAllCatalogContractor
 			$dbDocument = CCatalogDocs::getList(array(), array("CONTRACTOR_ID" => $id));
 			if($arDocument = $dbDocument->Fetch())
 			{
-				$GLOBALS["APPLICATION"]->ThrowException(Loc::getMessage("CC_CONTRACTOR_HAVE_DOCS"));
+				$GLOBALS["APPLICATION"]->ThrowException(Loc::getMessage("CC_CONTRACTOR_HAVE_DOCS_EXT"));
 				return false;
 			}
 

@@ -170,6 +170,8 @@ class CIMConvert
 			self::$nextConvertPerStep = $step*2;
 		else
 			self::$nextConvertPerStep = $step;
+
+		return true;
 	}
 
 	public static function UndeliveredMessageAgent()
@@ -217,6 +219,8 @@ class CIMConvert
 
 		if ($row = $res->Fetch())
 			return intval($row['CNT']);
+
+		return 0;
 	}
 }
 

@@ -15,16 +15,13 @@ $MESS["SALE_CASHBOX_ATOL_FARM_SNO_ESN"] = "unified agricultural tax";
 $MESS["SALE_CASHBOX_ATOL_FARM_SNO_PATENT"] = "patent";
 $MESS["SALE_CASHBOX_ATOL_FARM_SETTINGS_SERVICE"] = "Company information";
 $MESS["SALE_CASHBOX_ATOL_FARM_SETTINGS_SERVICE_INN_LABEL"] = "Company TID";
+$MESS["SALE_CASHBOX_ATOL_FARM_SETTINGS_SERVICE_URL_LABEL"] = "Web store URL";
 $MESS["SALE_CASHBOX_ATOL_FARM_SETTINGS_P_TYPE"] = "Payment preferences";
-$MESS["SALE_CASHBOX_ATOL_FARM_SETTINGS_P_TYPE_LABEL_Y"] = "Cash money";
-$MESS["SALE_CASHBOX_ATOL_FARM_SETTINGS_P_TYPE_LABEL_N"] = "Cashless";
-$MESS["SALE_CASHBOX_ATOL_FARM_SETTINGS_P_TYPE_LABEL_A"] = "Card transaction";
 $MESS["SALE_CASHBOX_ATOL_VALIDATE_E_NUMBER_KKM"] = "Cash register external ID is not specified";
 $MESS["SALE_CASHBOX_ATOL_VALIDATE_E_INN"] = "Company TID is not specified";
 $MESS["SALE_CASHBOX_ATOL_VALIDATE_E_ADDRESS"] = "Settlement address is not specified";
 $MESS["SALE_CASHBOX_ATOL_REQUEST_TOKEN_ERROR"] = "Error getting token";
 $MESS["SALE_CASHBOX_ATOL_CHECK_REG_ERROR"] = "Error registering receipt";
 $MESS["SALE_CASHBOX_ATOL_ERR_EMPTY_PHONE_EMAIL"] = "ATOL.Online: incorrect data. No customer phone or email were specified.";
-$MESS["SALE_CASHBOX_ATOL_FARM_SETTINGS_SERVICE_URL_LABEL"] = "Web store URL";
 $MESS["SALE_CASHBOX_ATOL_ERR_EMPTY_TAX"] = "ATOL.Online: incorrect tax rate parameters";
 ?>

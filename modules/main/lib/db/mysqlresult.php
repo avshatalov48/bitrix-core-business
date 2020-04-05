@@ -3,7 +3,7 @@ namespace Bitrix\Main\DB;
 
 class MysqlResult extends Result
 {
-	/** @var \Bitrix\Main\Entity\ScalarField[]  */
+	/** @var \Bitrix\Main\ORM\Fields\ScalarField[]  */
 	protected $resultFields = null;
 
 	/**
@@ -29,7 +29,7 @@ class MysqlResult extends Result
 	/**
 	 * Returns an array of fields according to columns in the result.
 	 *
-	 * @return \Bitrix\Main\Entity\ScalarField[]
+	 * @return \Bitrix\Main\ORM\Fields\ScalarField[]
 	 */
 	public function getFields()
 	{

@@ -13,6 +13,18 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/prolog.php');
 
 Loc::loadMessages(__FILE__);
 
+$id = intval($_REQUEST['id']) ? intval($_REQUEST['id']) : false;
+$copyId = intval($_REQUEST['copy_id']) ? intval($_REQUEST['copy_id']) : false;
+
+// the following parameter will be present visibly only when copying or creating blank with the same parent
+$parentId = intval($_REQUEST['parent_id']) ? intval($_REQUEST['parent_id']) : '0';
+if(!$parentId && $id)
+	$parentId = Helper::getParentId($id);
+
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+$listUrl = Helper::getListUrl($parentId);
+$listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
+
 if($APPLICATION->GetGroupRight("sale") < "W")
 	$APPLICATION->AuthForm(Loc::getMessage("SALE_MODULE_ACCES_DENIED"));
 
@@ -38,13 +50,7 @@ try
 
 	$actionFailure = false;
 
-	$id = intval($_REQUEST['id']) ? intval($_REQUEST['id']) : false;
-	$copyId = intval($_REQUEST['copy_id']) ? intval($_REQUEST['copy_id']) : false;
-
-	// the following parameter will be present visibly only when copying or creating blank with the same parent
-	$parentId = intval($_REQUEST['parent_id']) ? intval($_REQUEST['parent_id']) : '0';
-	if(!$parentId && $id)
-		$parentId = Helper::getParentId($id);
+	$adminSidePanelHelper->decodeUriComponent();
 
 	$actionSave = isset($_REQUEST['save']);
 	$actionApply = isset($_REQUEST['apply']);
@@ -69,6 +75,9 @@ try
 		{
 			$DB->StartTransaction();
 
+			$saveUrl = "";
+			$applyUrl = "";
+
 			if($saveAsId) // existed, updating
 			{
 				$res = Helper::update($saveAsId, $_REQUEST['element']);
@@ -76,9 +85,10 @@ try
 				if($res['success']) // on successfull update ...
 				{
 					if($actionSave)
-						$redirectUrl = $returnUrl ? $returnUrl : Helper::getListUrl($parentId); // go to the parent page
+						$saveUrl = $returnUrl ? $returnUrl : $listUrl; // go to the parent page
 
-					// $actionApply : do nothing
+					if($actionApply)
+						$applyUrl = $returnUrl ? $returnUrl : Helper::getEditUrl($saveAsId);
 				}
 			}
 			else // new or copyed item
@@ -87,16 +97,16 @@ try
 				if($res['success']) // on successfull add ...
 				{
 					if($actionSave)
-						$redirectUrl = $returnUrl ? $returnUrl : Helper::getListUrl($parentId); // go to the parent list page
+						$saveUrl = $returnUrl ? $returnUrl : $listUrl; // go to the parent list page
 
 					if($actionApply)
-						$redirectUrl = $returnUrl ? $returnUrl : Helper::getEditUrl($res['id']); // go to the page of just created item
+						$applyUrl = $returnUrl ? $returnUrl : Helper::getEditUrl($res['id']); // go to the page of just created item
 				}
 			}
 
 			// no matter we updated or added a new item - we go to blank page on $actionSaveAndAdd
 			if($res['success'] && $actionSaveAndAdd)
-				$redirectUrl = Helper::getEditUrl(false, array('parent_id' => $parentId)); // go to the blank page with correct parent_id to create
+				$applyUrl = Helper::getEditUrl(false, array('parent_id' => $parentId)); // go to the blank page with correct parent_id to create
 
 			// on failure just show sad message
 			if(!$res['success'])
@@ -104,8 +114,24 @@ try
 
 			$DB->Commit();
 
-			if($redirectUrl)
+			$baseId = ($saveAsId ? $saveAsId : $res['id']);
+			$adminSidePanelHelper->sendSuccessResponse("base", array("element[ID]" => $baseId));
+
+			if($saveUrl)
+			{
+				$adminSidePanelHelper->localRedirect($saveUrl);
+				LocalRedirect($saveUrl);
+			}
+			elseif($applyUrl)
+			{
+				$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
+				LocalRedirect($applyUrl);
+			}
+			else
+			{
+				$adminSidePanelHelper->localRedirect($redirectUrl);
 				LocalRedirect($redirectUrl);
+			}
 		}
 		catch(Main\SystemException $e)
 		{
@@ -117,6 +143,8 @@ try
 			$actionFailureMessage = Loc::getMessage('SALE_LOCATION_E_CANNOT_'.($saveAsId ? 'UPDATE' : 'SAVE').'_ITEM').(strlen($message) ? ': <br /><br />'.$message : '');
 
 			$DB->Rollback();
+
+			$adminSidePanelHelper->sendJsonErrorResponse($actionFailureMessage);
 		}
 	}
 
@@ -186,7 +214,7 @@ if(!$fatalFailure) // no fatals like "module not installed, etc."
 	$topMenu = new CAdminContextMenu(array(
 		array(
 			"TEXT" => GetMessage("SALE_LOCATION_E_GO_BACK"),
-			"LINK" => Helper::getListUrl($parentId),
+			"LINK" => $listUrl,
 			"ICON" => "btn_list",
 		)
 	));
@@ -249,9 +277,9 @@ $APPLICATION->SetTitle(strlen($nameToDisplay) ? Loc::getMessage('SALE_LOCATION_E
 	if(intval($_REQUEST['parent_id']))
 		$args['parent_id'] = intval($_REQUEST['parent_id']);
 
-	$tabControl->Begin(array(
-		"FORM_ACTION" => Helper::getEditUrl(intval($_REQUEST[Helper::URL_PARAM_ID]) ? intval($_REQUEST[Helper::URL_PARAM_ID]) : false, $args) // generally, it is not safe to leave action empty
-	));
+	$formActionUrl = Helper::getEditUrl(intval($_REQUEST[Helper::URL_PARAM_ID]) ? intval($_REQUEST[Helper::URL_PARAM_ID]) : false, $args); // generally, it is not safe to leave action empty
+	$formActionUrl = $adminSidePanelHelper->setDefaultQueryParams($formActionUrl);
+	$tabControl->Begin(array("FORM_ACTION" => $formActionUrl));
 	$tabControl->BeginNextFormTab();
 	?>
 
@@ -461,7 +489,7 @@ $APPLICATION->SetTitle(strlen($nameToDisplay) ? Loc::getMessage('SALE_LOCATION_E
 		"btnSaveAndAdd" => true,
 		"btnApply" => true,
 		"btnCancel" => true,
-		"back_url" => $returnUrl,
+		"back_url" => $listUrl,
 	));
 
 	$tabControl->Show();

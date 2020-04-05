@@ -679,10 +679,21 @@ BX.Sale.Admin.OrderShipment.prototype.setDeliveryBasePrice = function(basePrice)
 
 BX.Sale.Admin.OrderShipment.prototype.setDeliveryPrice = function(price)
 {
-	if(!BX('PRICE_DELIVERY_'+this.index))
-		return;
+	var priceCell = BX('PRICE_DELIVERY_'+this.index);
 
-	BX('PRICE_DELIVERY_'+this.index).value = price;
+	if(!priceCell)
+	{
+		return;
+	}
+
+	if(priceCell.tagName === 'INPUT')
+	{
+		priceCell.value = price;
+	}
+	else if(priceCell.tagName === 'TD')
+	{
+		priceCell.innerHTML = BX.Sale.Admin.OrderEditPage.currencyFormat(price);
+	}
 };
 
 BX.Sale.Admin.OrderShipment.prototype.setCalculatedPriceDelivery = function(deliveryPrice)

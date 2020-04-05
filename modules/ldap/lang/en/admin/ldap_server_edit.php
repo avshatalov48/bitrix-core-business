@@ -3,7 +3,7 @@ $MESS["LDAP_EDIT_TITLE_NEW"] = "New server";
 $MESS["LDAP_EDIT_LIST"] = "List of the AD / LDAP servers";
 $MESS["LDAP_EDIT_NEW"] = "Add a new server";
 $MESS["LDAP_EDIT_DEL"] = "Delete this server";
-$MESS["LDAP_EDIT_DEL_CONF"] = "Server will be deleted and all the users registered through it won\'t be able to authorize anymore. Delete anyway?";
+$MESS["LDAP_EDIT_DEL_CONF"] = "Server will be deleted and all the users registered through it won't be able to authorize anymore. Delete anyway?";
 $MESS["LDAP_EDIT_ID"] = "Identifier:";
 $MESS["LDAP_EDIT_TSTAMP"] = "Last modified:";
 $MESS["LDAP_EDIT_ACT"] = "Active:";
@@ -79,4 +79,8 @@ $MESS["LDAP_EDIT_MAX_PAGE_SIZE"] = "Maximum number of results returned in one se
 $MESS["LDAP_EDIT_SYNC_USER_ADD"] = "Create missing users";
 $MESS["LDAP_EDIT_CONNECTION_TYPE"] = "Connection type";
 $MESS["LDAP_EDIT_NO_CRYPT"] = "No encryption";
+$MESS["LDAP_EDIT_SET_DEPARTMENT_HEAD"] = "Assign heads of departments";
+$MESS["LDAP_EDIT_LDAP_OPT_TIMELIMIT"] = "Number of seconds to wait for search results [LDAP_OPT_TIMELIMIT]";
+$MESS["LDAP_EDIT_LDAP_OPT_TIMEOUT"] = "Timeout for synchronous OpenLDAP API calls [LDAP_OPT_TIMEOUT]";
+$MESS["LDAP_EDIT_LDAP_OPT_NETWORK_TIMEOUT"] = "Network timeout [LDAP_OPT_NETWORK_TIMEOUT]";
 ?>

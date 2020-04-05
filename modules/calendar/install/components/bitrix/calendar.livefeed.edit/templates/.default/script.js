@@ -381,14 +381,18 @@
 							if ((!check || check == 'reserved') && BX("blog-submit-button-save"))
 							{
 								setBlogPostFormSubmitted(false);
-								BX.removeClass(BX("blog-submit-button-save"), 'feed-add-button-load');
+								BX.removeClass(BX("blog-submit-button-save"), 'ui-btn-clock');
 							}
 
 							if (!check)
+							{
 								return alert(_this.config.message.MRReserveErr);
+							}
 
 							if (check == 'reserved')
+							{
 								return alert(_this.config.message.MRNotReservedErr);
+							}
 
 							_this.bLocationChecked = true;
 							BX('event-location-new' + _this.id).name = _this.pLocation.name;

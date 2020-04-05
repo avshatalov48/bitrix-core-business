@@ -1,4 +1,5 @@
 <?
+$MESS["LANDING_BLOCK_2_THREE_COLS_4_NODES_LANDINGBLOCK_COLS"] = "Columns";
 $MESS["LANDING_BLOCK_2_THREE_COLS_4_NAME"] = "Three columns: text columns across the page on a color background";
 $MESS["LANDING_BLOCK_2_THREE_COLS_4_DESCRIPTION"] = "Three columns with titles and text";
 $MESS["LANDING_BLOCK_2_THREE_COLS_4_NODES_LANDINGBLOCK_CARD"] = "Column";

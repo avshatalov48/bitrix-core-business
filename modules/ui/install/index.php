@@ -54,6 +54,10 @@ class UI extends \CModule
 			$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$this->MODULE_ID."/install/js",
 			$_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true
 		);
+		CopyDirFiles(
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$this->MODULE_ID."/install/components",
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true
+		);
 
 		return true;
 	}

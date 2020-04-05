@@ -8,8 +8,8 @@ use \Bitrix\Main\Localization\Loc;
 
 return array(
 	'block' => array(
-//		'name' => Loc::getMessage('LANDING_BLOCK_15.2.SOCIAL_NAME'),
-		'section' => array('other'),
+		'name' => Loc::getMessage('LANDING_BLOCK_15.2.SOCIAL_NAME'),
+		'section' => array('social'),
 	),
 	'cards' => array(
 		'.landing-block-node-list-item' => array(

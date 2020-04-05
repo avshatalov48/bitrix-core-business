@@ -2,7 +2,7 @@
 $MESS["BLOG_MODULE_NOT_INSTALL"] = "Модуль блогов не установлен.";
 $MESS["BLOG_BLOG_BLOG_MES_DELED"] = "Сообщение удалено";
 $MESS["BLOG_BLOG_BLOG_MES_DEL_ERROR"] = "Ошибка удаления сообщения";
-$MESS["BLOG_BLOG_BLOG_MES_DEL_NO_RIGHTS"] = "У вас нет прав не удаление этого сообщения";
+$MESS["BLOG_BLOG_BLOG_MES_DEL_NO_RIGHTS"] = "У вас нет прав на удаление этого сообщения";
 $MESS["BLOG_BLOG_BLOG_FRIENDS_ONLY"] = "Недостаточно прав для чтения сообщений.";
 $MESS["BLOG_BLOG_BLOG_NO_BLOG"] = "Блог не найден";
 $MESS["MESSAGE_COUNT"] = "Сообщения";
@@ -15,5 +15,6 @@ $MESS["BLOG_DR_ANOTHER_USER_DRAFT"] = "Вы не можете просматри
 $MESS["BLOG_DR_TITLE"] = "Черновики";
 $MESS["BLOG_DR_PUB"] = "Опубликовать";
 $MESS["BLOG_DR_DELETE"] = "Удалить";
+$MESS["BLOG_DR_EDIT"] = "Редактировать";
 $MESS["BLOG_DR_DELETE_CONFIRM"] = "Вы уверены, что хотите удалить сообщение?";
 ?>

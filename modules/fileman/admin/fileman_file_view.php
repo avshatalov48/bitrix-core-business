@@ -26,6 +26,16 @@ $arPath = Array($site, $path);
 
 $APPLICATION->SetTitle(GetMessage("FILEMAN_FILEVIEW_TITLE")." \"".$arParsedPath["LAST"]."\"");
 
+if(count($arParsedPath["AR_PATH"]) == 1)
+{
+	$adminChain->AddItem(
+		array(
+			"TEXT" => htmlspecialcharsex($DOC_ROOT),
+			"LINK" => "fileman_admin.php?lang=".LANGUAGE_ID."&site=".urlencode($site)."&path=/"
+		)
+	);
+}
+
 foreach ($arParsedPath["AR_PATH"] as $chainLevel)
 {
 	$adminChain->AddItem(

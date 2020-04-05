@@ -76,7 +76,10 @@
 			return new BX.Landing.UI.Button.BaseButton(item.value, {
 				html: item.name,
 				active: item.active,
-				attrs: {value: item.value},
+				attrs: {
+					value: item.value,
+					title: item.title ? BX.Landing.Utils.escapeText(item.title) : null
+				},
 				onClick: this.onButtonClick
 			});
 		},

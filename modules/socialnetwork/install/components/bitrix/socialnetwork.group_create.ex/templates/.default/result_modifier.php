@@ -75,4 +75,17 @@ if (
 	}
 }
 
+if ($arParams["GROUP_ID"] > 0)
+{
+	$arResult["typeCode"] = \Bitrix\Socialnetwork\Item\Workgroup::getTypeCodeByParams(array(
+		'typesList' => $arResult['Types'],
+		'fields' => array(
+			'VISIBLE' => (isset($arResult["POST"]['VISIBLE']) && $arResult["POST"]['VISIBLE'] == 'Y' ? 'Y' : 'N'),
+			'OPENED' => (isset($arResult["POST"]['OPENED']) && $arResult["POST"]['OPENED'] == 'Y' ? 'Y' : 'N'),
+			'PROJECT' => (isset($arResult["POST"]['PROJECT']) && $arResult["POST"]['PROJECT'] == 'Y' ? 'Y' : 'N'),
+			'EXTERNAL' => (isset($arResult["POST"]["IS_EXTRANET_GROUP"]) && $arResult["POST"]["IS_EXTRANET_GROUP"] == 'Y' ? 'Y' : 'N')
+		)
+	));
+}
+
 ?>

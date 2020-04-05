@@ -41,7 +41,13 @@ return array(
 			'block' => array(
 				'type' => array('block-default-background-overlay', 'animation'),
 			),
-			'nodes' => array(),
+			'nodes' => array(
+				'.landing-block-card-carousel-element' =>
+					array(
+						'name' => Loc::getMessage('LANDING_BLOCK_9_IMAGE_CAROUSEL_6_COLS_FIX_2_CARDS_LANDINGBLOCKCARDCAROUSELELEMENT'),
+						'type' => 'align-items',
+					),
+			),
 		),
 	'assets' => array(
 		'ext' => array('landing_carousel'),

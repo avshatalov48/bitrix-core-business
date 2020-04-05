@@ -1,12 +1,13 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
-$arParams['SUPPRESS_ERRORS'] = 				$this->__component->tryParseBoolean($arParams['SUPPRESS_ERRORS']);
-$arParams['DISABLE_KEYBOARD_INPUT'] = 		$this->__component->tryParseBoolean($arParams['DISABLE_KEYBOARD_INPUT']);
-$arParams['JS_CONTROL_GLOBAL_ID'] = 		$this->__component->tryParseStringStrict($arParams['JS_CONTROL_GLOBAL_ID']);
-$arParams['JS_CONTROL_DEFERRED_INIT'] = 	$this->__component->tryParseStringStrict($arParams['JS_CONTROL_DEFERRED_INIT']);
-$arParams['JS_CALLBACK'] = 					$this->__component->tryParseStringStrict($arParams['JS_CALLBACK']);
-$arParams['INITIALIZE_BY_GLOBAL_EVENT'] = 	$this->__component->tryParseStringStrict($arParams['INITIALIZE_BY_GLOBAL_EVENT']);
+$arParams['SUPPRESS_ERRORS'] = $this->__component->tryParseBoolean($arParams['SUPPRESS_ERRORS']);
+$arParams['DISABLE_KEYBOARD_INPUT'] = $this->__component->tryParseBoolean($arParams['DISABLE_KEYBOARD_INPUT']);
+$arParams['RANDOM_TAG'] = $this->__component->tryParseString($arParams['RANDOM_TAG']);
+$arParams['JS_CONTROL_GLOBAL_ID'] = $this->__component->tryParseString($arParams['JS_CONTROL_GLOBAL_ID']);
+$arParams['JS_CONTROL_DEFERRED_INIT'] = $this->__component->tryParseString($arParams['JS_CONTROL_DEFERRED_INIT']);
+$arParams['JS_CALLBACK'] = $this->__component->tryParseStringStrict($arParams['JS_CALLBACK']);
+$arParams['INITIALIZE_BY_GLOBAL_EVENT'] = $this->__component->tryParseStringStrict($arParams['INITIALIZE_BY_GLOBAL_EVENT']);
 
 $arResult['PRECACHED_POOL_JSON'] = array('a' => array()); // force PhpToJSObject to map this to {}, not to []
 
@@ -35,8 +36,8 @@ if(is_array($arResult['PRECACHED_POOL']))
 	}
 }
 
-$arResult['RANDOM_TAG'] = rand(999, 99999);
-$arResult['ADMIN_MODE'] = ADMIN_SECTION == 1;
+$arResult['RANDOM_TAG'] = !empty($arParams['RANDOM_TAG']) ? $arParams['RANDOM_TAG'] : rand(999, 99999);
+$arResult['ADMIN_MODE'] = defined('ADMIN_SECTION') && ADMIN_SECTION == 1;
 
 // trunk
 $arResult['ROOT_NODE'] = 0;
@@ -54,7 +55,7 @@ if(is_array($arResult['TREE_TRUNK']) && !empty($arResult['TREE_TRUNK']))
 
 // modes
 $modes = array();
-if(ADMIN_SECTION == 1 || $arParams['ADMIN_MODE'] == 'Y')
+if($arResult['ADMIN_MODE'] || $arParams['ADMIN_MODE'] == 'Y')
 	$modes[] = 'admin';
 
 foreach($modes as &$mode)

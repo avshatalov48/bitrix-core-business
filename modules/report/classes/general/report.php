@@ -517,12 +517,13 @@ class CReport
 	 */
 	public static function prepareSelectViewElement($elem, $select, $is_init_entity_aggregated, $fList, $fChainList, $helper_class, Entity\Base $entity)
 	{
-		$result = null;
+		$selectElem = null;
+		$totalInfo = null;
 		$alias = null;
 
 		if (empty($elem['aggr']) && !strlen($elem['prcnt']))
 		{
-			$result = $elem['name'];
+			$selectElem = $elem['name'];
 		}
 		else
 		{
@@ -531,7 +532,7 @@ class CReport
 			/** @var Entity\Field $field */
 			$field = $fList[$elem['name']];
 			$chain = $fChainList[$elem['name']];
-			$alias = $chain->getAlias();
+			$sourceAlias = $alias = $chain->getAlias();
 
 			$dataType = call_user_func(array($helper_class, 'getFieldDataType'), $field);
 
@@ -665,23 +666,37 @@ class CReport
 						$alias = $alias . '_FROM_' . $remoteAlias;
 					}
 
-					$exprDef = '('.$localDef.') / ('.$remoteDef.') * 100';
-
-					$expression = array_merge(array($exprDef), $localMembers, $remoteMembers);
-
+					// Expression
 					// 'ROUND(STATUS / ID * 100)'
 					// 'ROUND( (EX1(F1, F2)) / (EX2(F3, F1)) * 100)',
 					// F1, F2, F3, F1
+					$exprDef = '('.$localDef.') / ('.$remoteDef.') * 100';
+					$expression = array_merge(array($exprDef), $localMembers, $remoteMembers);
+
+					// Total expression
+					$totalInfo = [
+						'type' => 'prcntFromCol',
+						'local' => [
+							'alias' => $sourceAlias.'_PRCNTFC',
+							'def' => [
+								'data_type' => $dataType,
+								'expression' => array_merge(array($localDef), $localMembers)
+							]
+						],
+						'remote' => [
+							'alias' => $remoteAlias
+						]
+					];
 				}
 			}
 
-			$result = array(
+			$selectElem = array(
 				'data_type' => $dataType,
 				'expression' => $expression
 			);
 		}
 
-		return array($alias, $result);
+		return array($alias, $selectElem, $totalInfo);
 	}
 
 	public static function getFullColumnTitle($view, $viewColumns, $fullHumanTitles)
@@ -1001,11 +1016,11 @@ class CReport
 
 	public static function sqlizeFilter($filter)
 	{
-		$newFilter = array();
+		$newFilter = [];
 
 		foreach ($filter as $fId => $filterInfo)
 		{
-			$iFilterItems = array();
+			$iFilterItems = [];
 
 			foreach ($filterInfo as $key => $subFilter)
 			{
@@ -1021,14 +1036,23 @@ class CReport
 					$compare = self::$iBlockCompareVariations[$subFilter['compare']];
 					$name = $subFilter['name'];
 					$value = $subFilter['value'];
-					if ($compare === '>%')
+
+					switch ($compare)
 					{
-						$compare = '';
-						$value = $value.'%';
+						case '!':
+							$iFilterItems[] = [
+								'LOGIC' => 'OR',
+								$compare.$name => $value,
+								'='.$name => false
+							];
+							break;
+						/** @noinspection PhpMissingBreakStatementInspection */
+						case '>%':
+							$compare = '';
+							$value = $value.'%';
+						default:
+							$iFilterItems[] = [$compare.$name => $value];
 					}
-					$iFilterItems[] = array(
-						$compare.$name => $value
-					);
 				}
 				else if ($subFilter['type'] == 'filter')
 				{

@@ -1,0 +1,45 @@
+.bx-icon {
+	position: relative;
+	display: inline-block;
+	width: 36px;
+	transition: 250ms linear all;
+}
+
+.bx-icon > i {
+	position: relative;
+	display: block;
+	padding-top: 100%;
+	width: 100%;
+	border-radius: 50%;
+	background-color: #ebeff2;
+	background-position: center;
+	background-size: 100% auto;
+	background-repeat: no-repeat;
+}
+
+.bx-icon:hover { opacity: .8; }
+
+.bx-icon-service-in > i {
+	background-color: #d56c9a;
+	background-image: url(images/ui-service-light-instagram.svg);
+}
+
+.bx-icon-service-vk > i {
+	background-color: #3871ba;
+	background-image: url(images/ui-service-light-vk.svg);
+}
+
+.bx-icon-service-fb > i {
+	background-color: #38659f;
+	background-image: url(images/ui-service-light-fb.svg);
+}
+
+.bx-icon-service-tw > i {
+	background-color: #2fc6f6;
+	background-image: url(images/ui-service-light-twitter.svg);
+}
+
+.bx-icon-service-gp > i {
+	background-color: #dc4e41;
+	background-image: url(images/ui-service-light-google-plus.svg);
+}

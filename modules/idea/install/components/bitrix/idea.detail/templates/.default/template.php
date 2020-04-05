@@ -136,6 +136,23 @@ elseif(!empty($arResult["Post"])>0)
 				</div>
 				<div class="post-title"><h2><a title="<?=$arResult["Post"]["TITLE"]?>"><?=$arResult["Post"]["TITLE"]?></a></h2></div>
 				<div class="blog-post-text"><?=$arResult["Post"]["textFormated"]?></div>
+
+				<?if (!empty($arResult["POST_PROPERTIES"]["DATA"][CBlogPost::UF_NAME])):
+					$eventHandlerID = false;
+					$eventHandlerID = AddEventHandler("main", "system.field.view.file", Array("CBlogTools", "blogUFfileShow"));
+					$blogPostDoc = $arResult["POST_PROPERTIES"]["DATA"][CBlogPost::UF_NAME];
+					if (!empty($blogPostDoc["VALUE"])): ?>
+						<div class="blog-post-files">
+							<?$APPLICATION->IncludeComponent(
+								"bitrix:system.field.view",
+								$blogPostDoc["USER_TYPE"]["USER_TYPE_ID"],
+								array("arUserField" => $blogPostDoc), null, array("HIDE_ICONS"=>"N"));?>
+						</div>
+					<? endif;
+					if ($eventHandlerID !== false && (intval($eventHandlerID) > 0))
+						RemoveEventHandler("main", "system.field.view.file", $eventHandlerID);
+				endif; ?>
+
 				<?if($USER->IsAuthorized() || strLen($arResult["urlToHide"])>0 || strLen($arResult["urlToShow"])>0 || strLen($arResult["urlToEdit"])>0 || strLen($arResult["urlToDelete"])>0):?>
 					<div class="idea-post-meta">
 						<div class="idea-post-meta-util">

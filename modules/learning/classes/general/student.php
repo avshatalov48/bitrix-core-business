@@ -114,8 +114,11 @@ class CStudent
 			CLearnHelper::FireEvent('OnBeforeStudentUpdate', $arFields);
 
 			$strUpdate = $DB->PrepareUpdate("b_learn_student", $arFields, "learning");
-			$strSql = "UPDATE b_learn_student SET ".$strUpdate." WHERE USER_ID=".$ID;
-			$DB->QueryBind($strSql, $arBinds, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			if($strUpdate <> '')
+			{
+				$strSql = "UPDATE b_learn_student SET ".$strUpdate." WHERE USER_ID=".$ID;
+				$DB->QueryBind($strSql, $arBinds, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			}
 
 			CLearnHelper::FireEvent('OnAfterStudentUpdate', $arFields);
 
@@ -140,8 +143,14 @@ class CStudent
 		$records = CCertification::GetList(Array(), Array("STUDENT_ID" => $ID));
 		while($arRecord = $records->Fetch())
 		{
-			if(!CCertification::Delete($arRecord["ID"]))
-				return false;
+			\CCertification::Delete($arRecord["ID"]);
+		}
+
+		//GradeBook
+		$gradeBooks = \CGradeBook::GetList([], ["STUDENT_ID" => $ID]);
+		while ($gradeBook = $gradeBooks->Fetch())
+		{
+			\CGradeBook::Delete($gradeBook["ID"]);
 		}
 
 		$strSql = "DELETE FROM b_learn_student WHERE USER_ID = ".$ID;
@@ -245,18 +254,22 @@ class CStudent
 
 		$strSqlOrder = "";
 		DelDuplicateSort($arSqlOrder);
-		for ($i = 0, $length = count($arSqlOrder); $i < $length; $i++)
-		{
-			if ($i == 0)
-			{
-				$strSqlOrder = " ORDER BY ";
-			}
-			else
-			{
-				$strSqlOrder .= ",";
-			}
 
-			$strSqlOrder .= $arSqlOrder[$i];
+		if (!empty($arSqlOrder) && is_array($arSqlOrder))
+		{
+			for ($i = 0, $length = count($arSqlOrder); $i < $length; $i++)
+			{
+				if ($i == 0)
+				{
+					$strSqlOrder = " ORDER BY ";
+				}
+				else
+				{
+					$strSqlOrder .= ",";
+				}
+
+				$strSqlOrder .= $arSqlOrder[$i];
+			}
 		}
 
 		$strSql .= $strSqlOrder;

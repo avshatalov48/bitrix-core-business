@@ -1,4 +1,5 @@
 <?php
+
 $MESS['LD_BLOCK_SECTION_OTHER'] = 'Другое';
 $MESS['LD_BLOCK_SECTION_MENU_NEW'] = 'Меню и шапка сайта';
 $MESS['LD_BLOCK_SECTION_FOOTER'] = 'Подвал сайта';
@@ -16,7 +17,8 @@ $MESS['LD_BLOCK_SECTION_CONTACTS'] = 'Контакты';
 $MESS['LD_BLOCK_SECTION_SOCIAL'] = 'Социальные сети';
 $MESS['LD_BLOCK_SECTION_PARTNERS'] = 'Партнеры';
 $MESS['LD_BLOCK_SECTION_FEEDBACK'] = 'Отзывы';
-$MESS['LD_BLOCK_SECTION_TILES_NEW'] = 'Кнопки и ссылка';
+$MESS['LD_BLOCK_SECTION_TILES_NEW2'] = 'Кнопки и ссылки';
+$MESS['LD_BLOCK_SECTION_COUNTDOWNS'] = 'Таймеры для акций';
 $MESS['LD_BLOCK_SECTION_SEPARATOR'] = 'Разделитель';
 $MESS['LD_BLOCK_SECTION_TEAM'] = 'Команда';
 $MESS['LD_BLOCK_SECTION_SCHEDULE'] = 'Расписание';

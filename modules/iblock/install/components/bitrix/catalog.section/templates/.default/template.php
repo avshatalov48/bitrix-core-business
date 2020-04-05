@@ -10,6 +10,14 @@ use \Bitrix\Main\Localization\Loc;
  * @var CBitrixComponentTemplate $this
  * @var string $templateName
  * @var string $componentPath
+ *
+ *  _________________________________________________________________________
+ * |	Attention!
+ * |	The following comments are for system use
+ * |	and are required for the component to work correctly in ajax mode:
+ * |	<!-- items-container -->
+ * |	<!-- pagination-container -->
+ * |	<!-- component-end -->
  */
 
 $this->setFrameMode(true);
@@ -781,7 +789,7 @@ $signedParams = $signer->sign(base64_encode(serialize($arResult['ORIGINAL_PARAME
 		SITE_ID: '<?=CUtil::JSEscape($component->getSiteId())?>'
 	});
 	var <?=$obName?> = new JCCatalogSectionComponent({
-		siteId: '<?=CUtil::JSEscape(SITE_ID)?>',
+		siteId: '<?=CUtil::JSEscape($component->getSiteId())?>',
 		componentPath: '<?=CUtil::JSEscape($componentPath)?>',
 		navParams: <?=CUtil::PhpToJSObject($navParams)?>,
 		deferredLoad: false, // enable it for deferred load
@@ -795,3 +803,4 @@ $signedParams = $signer->sign(base64_encode(serialize($arResult['ORIGINAL_PARAME
 		container: '<?=$containerName?>'
 	});
 </script>
+<!-- component-end -->

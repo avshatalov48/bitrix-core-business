@@ -218,7 +218,7 @@ if (!sizeof($errors))
 		$APPLICATION->SetTitle($arResult["TEST"]["NAME"]);
 
 	//Actions
-	$bTestCreate = ($_SERVER["REQUEST_METHOD"]=="POST" && !isset($sessAttemptID));
+	$bTestCreate = ($_SERVER["REQUEST_METHOD"]=="POST" && !isset($sessAttemptID) && isset($_POST["next"]));
 	$bPostAnswer = ($_SERVER["REQUEST_METHOD"]=="POST" && isset($sessAttemptID) && $_POST["ANSWERED"] == "Y");
 
 	$arResult["COMPLETE_PERCENT"] = 0;

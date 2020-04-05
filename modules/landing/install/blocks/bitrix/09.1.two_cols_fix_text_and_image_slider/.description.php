@@ -10,7 +10,7 @@ return array(
 	'block' =>
 		array(
 			'name' => Loc::getMessage('LANDING_BLOCK_5_TWO_COLS_FIX_TEXT_AND_IMAGE_SLIDER_NAME'),
-			'section' => array('image', 'text_image', 'about'),
+			'section' => array('text_image', 'about'),
 		),
 	'cards' =>
 		array(
@@ -59,7 +59,7 @@ return array(
 			'.landing-block-node-text-container' =>
 				array(
 					'name' => Loc::getMessage('LANDING_BLOCK_5_TWO_COLS_FIX_TEXT_AND_IMAGE_SLIDER_NODES_LANDINGBLOCKNODETEXT'),
-					'type' => 'animation'
+					'type' => array('animation', 'align-items')
 				),
 			'.landing-block-node-carousel-container' =>
 				array(

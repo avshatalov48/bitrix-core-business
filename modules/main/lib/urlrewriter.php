@@ -334,13 +334,9 @@ class UrlRewriter
 		return $ns["CNT"];
 	}
 
-	protected static function recursiveReindex($rootPath, $path, $arSites, $maxExecutionTime = 0, &$ns)
+	protected static function recursiveReindex($rootPath, $path, $arSites, $maxExecutionTime, &$ns)
 	{
 		$pathAbs = IO\Path::combine($rootPath, $path);
-
-		$dir = new IO\Directory($pathAbs);
-		if (!$dir->isExists())
-			return 0;
 
 		$siteId = "";
 		foreach ($arSites as $site)
@@ -352,6 +348,10 @@ class UrlRewriter
 			}
 		}
 		if (empty($siteId))
+			return 0;
+
+		$dir = new IO\Directory($pathAbs, $siteId);
+		if (!$dir->isExists())
 			return 0;
 
 		$arChildren = $dir->getChildren();

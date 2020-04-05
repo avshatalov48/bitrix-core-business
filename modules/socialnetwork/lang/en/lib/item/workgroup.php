@@ -1,4 +1,8 @@
 <?
+$MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_CLOSED_VISIBLE"] = "Private project (visible)";
+$MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_CLOSED_VISIBLE_DESC"] = "The project is visible to all employees. Invitation is required to join.";
+$MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_VISIBLE"] = "Private workgroup (visible)";
+$MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_VISIBLE_DESC"] = "The workgroup is visible to all employees. The workgroup moderator's approval is required to join.";
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_OPEN"] = "Open Project";
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_OPEN_DESC"] = "The project is visible to everyone. Anyone can become a project member.";
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_CLOSED"] = "Private Project";

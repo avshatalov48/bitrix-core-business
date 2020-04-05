@@ -8,6 +8,7 @@
 /** @global CMain $APPLICATION */
 
 $LHEditorId = 'LHEIdeaId';
+$formId = $arResult['FORM_NAME'];
 
 $bbCode = true;
 if (
@@ -38,9 +39,10 @@ $APPLICATION->IncludeComponent(
 	"bitrix:main.post.form",
 	"",
 	Array(
-		"FORM_ID" => $arResult['FORM_NAME'],
+		"FORM_ID" => $formId,
 		"SHOW_MORE" => "Y",
-		"PARSER" => blogTextParser::GetEditorToolbar(array('blog' => $arResult['Blog'])),
+		"PARSER" => blogTextParser::GetEditorToolbar(array("blog" => $arResult["Blog"])),
+		"BUTTONS" => array("UploadImage"),
 		"LHE" => array(
 			'id' => $LHEditorId,
 			'bSetDefaultCodeView' => $arParams['EDITOR_CODE_DEFAULT'],
@@ -50,15 +52,31 @@ $APPLICATION->IncludeComponent(
 			'setFocusAfterShow' => false,
 			'BBCode' => $bbCode,
 			'bConvertContentFromBBCodes' => $bConvertContentFromBBCodes,
-			'bUseFileDialogs' => false,
-			'bUseMedialib' => false,
-			'bSaveOnBlur' => false,
-			'bQuoteFromSelection' => true,
-			'bBBParseImageSize' => true
+			'controlsMap' => array(
+				array('id' => 'Bold',  'compact' => true, 'sort' => 10),
+				array('id' => 'Italic',  'compact' => true, 'sort' => 20),
+				array('id' => 'Underline',  'compact' => true, 'sort' => 30),
+				array('id' => 'Strikeout',  'compact' => true, 'sort' => 40),
+				array('id' => 'RemoveFormat',  'compact' => true, 'sort' => 50),
+				array('id' => 'Color',  'compact' => true, 'sort' => 60),
+				array('id' => 'FontSelector',  'compact' => false, 'sort' => 70),
+				array('id' => 'FontSize',  'compact' => false, 'sort' => 80),
+				array('separator' => true, 'compact' => false, 'sort' => 90),
+				array('id' => 'OrderedList',  'compact' => true, 'sort' => 100),
+				array('id' => 'UnorderedList',  'compact' => true, 'sort' => 110),
+				array('id' => 'AlignList', 'compact' => false, 'sort' => 120),
+				array('separator' => true, 'compact' => false, 'sort' => 130),
+				array('id' => 'InsertLink',  'compact' => true, 'sort' => 140, 'wrap' => 'bx-b-link-'.$formId),
+				array('id' => 'InsertImage',  'compact' => false, 'sort' => 150),
+				array('id' => 'InsertVideo',  'compact' => true, 'sort' => 160, 'wrap' => 'bx-b-video-'.$formId),
+				array('id' => 'InsertTable',  'compact' => false, 'sort' => 170),
+				array('id' => 'Code',  'compact' => true, 'sort' => 180),
+				array('id' => 'Quote',  'compact' => true, 'sort' => 190, 'wrap' => 'bx-b-quote-'.$formId),
+				array('separator' => true, 'compact' => false, 'sort' => 200),
+				array('id' => 'BbCode',  'compact' => true, 'sort' => 220),
+				array('id' => 'More',  'compact' => true, 'sort' => 230),
+			),
 		),
-
-		"ADDITIONAL" => array(),
-
 		"TEXT" => Array(
 			"ID" => "POST_MESSAGE",
 			"NAME" => "POST_MESSAGE",
@@ -69,20 +87,14 @@ $APPLICATION->IncludeComponent(
 		"UPLOAD_FILE_PARAMS" => array('width' => $arParams["IMAGE_MAX_WIDTH"], 'height' => $arParams["IMAGE_MAX_HEIGHT"]),
 		"PROPERTIES" => array(
 			array_merge(
-				(is_array($arResult["POST_PROPERTIES"]["DATA"][CBlogPost::UF_NAME]) ? $arResult["POST_PROPERTIES"]["DATA"][CBlogPost::UF_NAME] : array()),
+				(is_array($arResult["POST_PROPERTIES"]["DATA"][CBlogPost::UF_NAME]) ?
+					$arResult["POST_PROPERTIES"]["DATA"][CBlogPost::UF_NAME] : array()),
 				(is_array($_POST[CBlogPost::UF_NAME]) ? array("VALUE" => $_POST[CBlogPost::UF_NAME]) : array()),
-				array("POSTFIX" => "file")
-			),
+				array("POSTFIX" => "file")),
 			array_key_exists("UF_BLOG_POST_URL_PRV", $arResult["POST_PROPERTIES"]["DATA"]) ?
 				array_merge(
 					$arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_URL_PRV"],
-					array(
-						'ELEMENT_ID' => 'url_preview_'.$LHEditorId,
-						'STYLE' => 'margin: 0 18px'
-					)
-				)
-				:
-				array()
+					array('ELEMENT_ID' => 'url_preview_'.$LHEditorId, 'STYLE' => 'margin: 0 18px')) : array()
 		),
 		"SMILES" => COption::GetOptionInt("blog", "smile_gallery_id", 0),
 		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],

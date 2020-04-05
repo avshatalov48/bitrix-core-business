@@ -10,12 +10,17 @@
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Web\Json;
+use Bitrix\Iblock;
 
 if (!Loader::includeModule('iblock'))
 	return;
 
 $boolCatalog = Loader::includeModule('catalog');
 CBitrixComponent::includeComponentClass($componentName);
+
+$usePropertyFeatures = Iblock\Model\PropertyFeature::isEnabledFeatures();
+
+$iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
 
 $defaultValue = array('-' => GetMessage('CP_BCS_TPL_PROP_EMPTY'));
 $arSKU = false;
@@ -150,7 +155,7 @@ $arAllPropList = array();
 $arFilePropList = $defaultValue;
 $arListPropList = array();
 
-if (isset($arCurrentValues['IBLOCK_ID']) && intval($arCurrentValues['IBLOCK_ID']) > 0)
+if ($iblockExists)
 {
 	$rsProps = CIBlockProperty::GetList(
 		array('SORT' => 'ASC', 'ID' => 'ASC'),
@@ -178,11 +183,31 @@ if (isset($arCurrentValues['IBLOCK_ID']) && intval($arCurrentValues['IBLOCK_ID']
 		}
 	}
 
-	if (!empty($arCurrentValues['PROPERTY_CODE']))
+	$showedProperties = [];
+	if ($usePropertyFeatures)
+	{
+		if ($iblockExists)
+		{
+			$showedProperties = Iblock\Model\PropertyFeature::getListPageShowPropertyCodes(
+				$arCurrentValues['IBLOCK_ID'],
+				['CODE' => 'Y']
+			);
+			if ($showedProperties === null)
+				$showedProperties = [];
+		}
+	}
+	else
+	{
+		if (!empty($arCurrentValues['PROPERTY_CODE']) && is_array($arCurrentValues['PROPERTY_CODE']))
+		{
+			$showedProperties = $arCurrentValues['PROPERTY_CODE'];
+		}
+	}
+	if (!empty($showedProperties))
 	{
 		$selected = array();
 
-		foreach ($arCurrentValues['PROPERTY_CODE'] as $code)
+		foreach ($showedProperties as $code)
 		{
 			if (isset($arAllPropList[$code]))
 			{
@@ -198,6 +223,7 @@ if (isset($arCurrentValues['IBLOCK_ID']) && intval($arCurrentValues['IBLOCK_ID']
 			'VALUES' => $selected
 		);
 	}
+	unset($showedProperties);
 
 	if (isset($arCurrentValues['ENLARGE_PRODUCT']) && $arCurrentValues['ENLARGE_PRODUCT'] === 'PROP')
 	{
@@ -336,16 +362,19 @@ if (isset($arCurrentValues['IBLOCK_ID']) && intval($arCurrentValues['IBLOCK_ID']
 			'DEFAULT' => '-',
 			'VALUES' => $arFileOfferPropList
 		);
-		$arTemplateParameters['OFFER_TREE_PROPS'] = array(
-			'PARENT' => 'VISUAL',
-			'NAME' => GetMessage('CP_BCS_TPL_OFFER_TREE_PROPS'),
-			'TYPE' => 'LIST',
-			'MULTIPLE' => 'Y',
-			'ADDITIONAL_VALUES' => 'N',
-			'REFRESH' => 'N',
-			'DEFAULT' => '-',
-			'VALUES' => $arTreeOfferPropList
-		);
+		if (!$usePropertyFeatures)
+		{
+			$arTemplateParameters['OFFER_TREE_PROPS'] = array(
+				'PARENT' => 'VISUAL',
+				'NAME' => GetMessage('CP_BCS_TPL_OFFER_TREE_PROPS'),
+				'TYPE' => 'LIST',
+				'MULTIPLE' => 'Y',
+				'ADDITIONAL_VALUES' => 'N',
+				'REFRESH' => 'N',
+				'DEFAULT' => '-',
+				'VALUES' => $arTreeOfferPropList
+			);
+		}
 	}
 }
 

@@ -5,6 +5,8 @@ class CSocNetLogToolsPhoto
 {
 	public static function OnAfterPhotoUpload($arFields, $arComponentParams, $arComponentResult)
 	{
+		global $USER, $DB;
+
 		static $arSiteWorkgroupsPage;
 
 		if (!CModule::IncludeModule("iblock"))
@@ -161,7 +163,7 @@ class CSocNetLogToolsPhoto
 			);
 
 			$arSonetFields = array(
-				"=LOG_UPDATE" => $GLOBALS["DB"]->CurrentTimeFunction(),
+				"=LOG_UPDATE" => $DB->CurrentTimeFunction(),
 				"PARAMS" => serialize($arLogParams)
 			);
 
@@ -185,18 +187,17 @@ class CSocNetLogToolsPhoto
 			);
 
 			$sAuthorName = GetMessage("SONET_PHOTO_LOG_GUEST");
-			$sAuthorUrl = "";
-			if ($GLOBALS["USER"]->IsAuthorized())
+			if ($USER->IsAuthorized())
 			{
-				$sAuthorName = trim($GLOBALS["USER"]->GetFullName());
-				$sAuthorName = (empty($sAuthorName) ? $GLOBALS["USER"]->GetLogin() : $sAuthorName);
+				$sAuthorName = trim($USER->GetFullName());
+				$sAuthorName = (empty($sAuthorName) ? $USER->GetLogin() : $sAuthorName);
 			}
 
 			$arSonetFields = array(
 				"ENTITY_TYPE" => $entity_type,
 				"ENTITY_ID" => $entity_id,
 				"EVENT_ID" => "photo",
-				"=LOG_DATE" => $GLOBALS["DB"]->CurrentTimeFunction(),
+				"=LOG_DATE" => $DB->CurrentTimeFunction(),
 				"TITLE_TEMPLATE" => str_replace("#AUTHOR_NAME#", $sAuthorName, GetMessage("SONET_PHOTO_LOG_1")),
 				"TITLE" => str_replace("#COUNT#", "1", GetMessage("SONET_PHOTO_LOG_2")),
 				"MESSAGE" => "",
@@ -208,28 +209,28 @@ class CSocNetLogToolsPhoto
 				"SOURCE_ID" => $arFields["IBLOCK_SECTION"]
 			);
 
-			$serverName = (defined("SITE_SERVER_NAME") && strLen(SITE_SERVER_NAME) > 0) ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name");
-
 			$arSonetFields["TEXT_MESSAGE"] = str_replace(array("#TITLE#"),
 				array($strSectionName),
 				GetMessage("SONET_PHOTO_LOG_MAIL_TEXT"));
 
-			if ($GLOBALS["USER"]->IsAuthorized())
-				$arSonetFields["USER_ID"] = $GLOBALS["USER"]->GetID();
+			if ($USER->IsAuthorized())
+				$arSonetFields["USER_ID"] = $USER->GetID();
 
 			$logID = CSocNetLog::Add($arSonetFields, false);
 			if (intval($logID) > 0)
 			{
+				$uniqueId = round((microtime(true) - mktime(0,0,0,1,1,2017))*10);
+
 				CSocNetLog::Update($logID, array(
 					"TMP_ID" => $logID,
 					"RATING_TYPE_ID" => "IBLOCK_SECTION",
-					"RATING_ENTITY_ID" => $arFields["IBLOCK_SECTION"]
+					"RATING_ENTITY_ID" => $uniqueId
 				));
 
 				if ($bPassword)
 				{
 					CSocNetLogRights::DeleteByLogID($logID);
-					CSocNetLogRights::Add($logID, array("U".$GLOBALS["USER"]->GetID(), "SA"));
+					CSocNetLogRights::Add($logID, array("U".$USER->GetID(), "SA"));
 				}
 				else
 				{
@@ -698,6 +699,8 @@ class CSocNetPhotoCommentEvent
 {
 	function AddComment_PhotoAlbum($arFields)
 	{
+		global $USER;
+
 		$dbResult = CSocNetLog::GetList(
 			array(),
 			array(
@@ -717,7 +720,7 @@ class CSocNetPhotoCommentEvent
 			!$sError
 			&& intval($arLog["USER_ID"]) > 0
 			&& intval($arLog["SOURCE_ID"]) > 0
-			&& $arLog["USER_ID"] != $GLOBALS["USER"]->GetID()
+			&& $arLog["USER_ID"] != $USER->GetID()
 			&& CModule::IncludeModule("im")
 			&& CModule::IncludeModule("iblock")
 		)
@@ -740,7 +743,7 @@ class CSocNetPhotoCommentEvent
 					$arMessageFields = array(
 						"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,
 						"TO_USER_ID" => $arLog["USER_ID"],
-						"FROM_USER_ID" => $GLOBALS["USER"]->GetID(),
+						"FROM_USER_ID" => $USER->GetID(),
 						"NOTIFY_TYPE" => IM_NOTIFY_FROM,
 						"NOTIFY_MODULE" => "photogallery",
 						"NOTIFY_EVENT" => "comment",
@@ -776,7 +779,7 @@ class CSocNetPhotoCommentEvent
 		);
 	}
 	
-	function FindLogType($logID)
+	public static function FindLogType($logID)
 	{
 		$dbResult = CSocNetLog::GetList(
 			array(),
@@ -841,6 +844,8 @@ class CSocNetPhotoCommentEvent
 
 	public static function AddComment_Photo($arFields)
 	{
+		global $USER;
+
 		$arLogType = self::FindLogType($arFields["LOG_ID"]);
 
 		if ($arLogType["TYPE"] == "FORUM")
@@ -870,11 +875,9 @@ class CSocNetPhotoCommentEvent
 				"TITLE" => $arLogType["LOG"]["TITLE"],
 				"MESSAGE" => $arReturn["IM_MESSAGE"],
 				"URL" => $arLogType["LOG"]["URL"],
-				"SECTION_NAME" => $log_section_name,
-				"SECTION_URL" => $log_section_url,
 				"ID" => $arLogType["LOG"]["SOURCE_ID"],
 				"PHOTO_AUTHOR_ID" => $arLogType["LOG"]["USER_ID"],
-				"COMMENT_AUTHOR_ID" => $GLOBALS["USER"]->GetID(),
+				"COMMENT_AUTHOR_ID" => $USER->GetID(),
 			);
 			CSocNetPhotoCommentEvent::NotifyIm($arFieldsIM);
 		}
@@ -884,6 +887,8 @@ class CSocNetPhotoCommentEvent
 
 	public static function AddComment_Photo_Forum($arFields, $FORUM_ID, $arLog)
 	{
+		global $USER_FIELD_MANAGER;
+
 		if (!CModule::IncludeModule("forum"))
 			return false;
 
@@ -941,7 +946,7 @@ class CSocNetPhotoCommentEvent
 					"APPROVED" => "Y"
 				);
 
-				$GLOBALS["USER_FIELD_MANAGER"]->EditFormAddFields("SONET_COMMENT", $arTmp);
+				$USER_FIELD_MANAGER->EditFormAddFields("SONET_COMMENT", $arTmp);
 				if (is_array($arTmp))
 				{
 					if (array_key_exists("UF_SONET_COM_DOC", $arTmp))
@@ -965,7 +970,7 @@ class CSocNetPhotoCommentEvent
 					while ($arAddedMessageFiles = $dbAddedMessageFiles->Fetch())
 						$ufFileID[] = $arAddedMessageFiles["FILE_ID"];
 
-					$ufDocID = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFieldValue("FORUM_MESSAGE", "UF_FORUM_MESSAGE_DOC", $messageID, LANGUAGE_ID);
+					$ufDocID = $USER_FIELD_MANAGER->GetUserFieldValue("FORUM_MESSAGE", "UF_FORUM_MESSAGE_DOC", $messageID, LANGUAGE_ID);
 
 					CSocNetLogTools::AddComment_Review_UpdateElement_Forum($arElement, $TOPIC_ID, $bNewTopic);
 				}
@@ -1167,6 +1172,8 @@ class CSocNetPhotoCommentEvent
 
 	function OnAfterPhotoCommentAddForum($ID, $arFields)
 	{
+		global $USER, $DB;
+
 		static $arSiteWorkgroupsPage;
 
 		if (!CModule::IncludeModule('iblock'))
@@ -1356,7 +1363,7 @@ class CSocNetPhotoCommentEvent
 						if ($bPassword)
 						{
 							CSocNetLogRights::DeleteByLogID($log_id);
-							CSocNetLogRights::Add($log_id, array("U".$GLOBALS["USER"]->GetID(), "SA"));
+							CSocNetLogRights::Add($log_id, array("U".$USER->GetID(), "SA"));
 						}
 						else
 						{
@@ -1395,14 +1402,11 @@ class CSocNetPhotoCommentEvent
 				{
 					$arMessage = CForumMessage::GetByIDEx($ID);
 
-					$url = CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"],
-						array("FID" => $arMessage["FORUM_ID"], "TID" => $arMessage["TOPIC_ID"], "MID" => $ID));
-
 					$arFieldsForSocnet = array(
 						"ENTITY_TYPE" => $entity_type,
 						"ENTITY_ID" => $entity_id,
 						"EVENT_ID" => "photo_comment",
-						"=LOG_DATE" => $GLOBALS["DB"]->CurrentTimeFunction(),
+						"=LOG_DATE" => $DB->CurrentTimeFunction(),
 						"MESSAGE" => $parser->convert(empty($arFields["POST_MESSAGE_FILTER"]) ? $arFields["POST_MESSAGE"] : $arFields["POST_MESSAGE_FILTER"], $arAllow),
 						"TEXT_MESSAGE" => $parser->convert4mail(empty($arFields["POST_MESSAGE_FILTER"]) ? $arFields["POST_MESSAGE"] : $arFields["POST_MESSAGE_FILTER"]),
 						"MODULE_ID" => false,
@@ -1443,14 +1447,11 @@ class CSocNetPhotoCommentEvent
 
 					while ($arComment = $dbComments->GetNext())
 					{
-						$url = CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"],
-							array("FID" => $arComment["FORUM_ID"], "TID" => $arComment["TOPIC_ID"], "MID" => $arComment["ID"]));
-
 						$arFieldsForSocnet = array(
 							"ENTITY_TYPE" => $entity_type,
 							"ENTITY_ID" => $entity_id,
 							"EVENT_ID" => "photo_comment",
-							"=LOG_DATE" => $GLOBALS["DB"]->CharToDateFunction($arComment["POST_DATE"], "FULL", SITE_ID),
+							"=LOG_DATE" => $DB->CharToDateFunction($arComment["POST_DATE"], "FULL", SITE_ID),
 							"MESSAGE" => $parser->convert(empty($arComment["POST_MESSAGE_FILTER"]) ? $arComment["POST_MESSAGE"] : $arComment["POST_MESSAGE_FILTER"], $arAllow),
 							"TEXT_MESSAGE" => $parser->convert4mail(empty($arComment["POST_MESSAGE_FILTER"]) ? $arComment["POST_MESSAGE"] : $arComment["POST_MESSAGE_FILTER"]),
 							"MODULE_ID" => false,
@@ -1496,6 +1497,8 @@ class CSocNetPhotoCommentEvent
 
 	function OnAfterPhotoCommentAddBlog($ID, $arFields)
 	{
+		global $USER, $DB;
+
 		if (!CModule::IncludeModule('iblock'))
 			return;
 
@@ -1662,7 +1665,7 @@ class CSocNetPhotoCommentEvent
 						if ($bPassword)
 						{
 							CSocNetLogRights::DeleteByLogID($log_id);
-							CSocNetLogRights::Add($log_id, array("U".$GLOBALS["USER"]->GetID(), "SA"));
+							CSocNetLogRights::Add($log_id, array("U".$USER->GetID(), "SA"));
 						}
 						else
 						{
@@ -1686,7 +1689,7 @@ class CSocNetPhotoCommentEvent
 						"ENTITY_TYPE" => $entity_type,
 						"ENTITY_ID" => $entity_id,
 						"EVENT_ID" => "photo_comment",
-						"=LOG_DATE" => $GLOBALS["DB"]->CurrentTimeFunction(),
+						"=LOG_DATE" => $DB->CurrentTimeFunction(),
 						"MESSAGE" => $text4message,
 						"TEXT_MESSAGE" => $text4mail,
 						"MODULE_ID" => false,
@@ -1739,7 +1742,7 @@ class CSocNetPhotoCommentEvent
 							"ENTITY_TYPE" => $entity_type,
 							"ENTITY_ID" => $entity_id,
 							"EVENT_ID" => "photo_comment",
-							"=LOG_DATE" => $GLOBALS["DB"]->CharToDateFunction($arComment["DATE_CREATE"], "FULL", SITE_ID),
+							"=LOG_DATE" => $DB->CharToDateFunction($arComment["DATE_CREATE"], "FULL", SITE_ID),
 							"MESSAGE" => $text4message,
 							"TEXT_MESSAGE" => $text4mail,
 							"MODULE_ID" => false,
@@ -1780,7 +1783,7 @@ class CSocNetPhotoCommentEvent
 			}
 		}
 	}
-	
+
 	function InheriteAlbumFollow($albumId, $logId, $authorId = false)
 	{
 		$albumId = intval($albumId);
@@ -1816,15 +1819,34 @@ class CSocNetPhotoCommentEvent
 
 			while ($arFollower = $rsFollower->Fetch())
 			{
-				if (
-					$authorId
-					&& intval($authorId) == $arFollower["USER_ID"]
+				if ($arFollower["TYPE"] == 'Y')
+				{
+					$subscribeTypeList = array(
+						'COUNTER_COMMENT_PUSH'
+					);
+
+					if (
+						!$authorId
+						|| intval($authorId) != $arFollower["USER_ID"]
+					)
+					{
+						$subscribeTypeList[] = 'FOLLOW';
+					}
+
+					\Bitrix\Socialnetwork\ComponentHelper::userLogSubscribe(array(
+						'logId' => $logId,
+						'userId' => $arFollower["USER_ID"],
+						'typeList' => $subscribeTypeList,
+						'followDate' => 'CURRENT'
+					));
+				}
+				elseif (
+					!$authorId
+					|| intval($authorId) != $arFollower["USER_ID"]
 				)
 				{
-					continue;
+					CSocNetLogFollow::Set($arFollower["USER_ID"], "L".$logId, 'N', ConvertTimeStamp(time() + CTimeZone::GetOffset(), "FULL", SITE_ID));
 				}
-
-				CSocNetLogFollow::Set($arFollower["USER_ID"], "L".$logId, $arFollower["TYPE"], ConvertTimeStamp(time() + CTimeZone::GetOffset(), "FULL", SITE_ID));							
 			}
 		}
 	}
@@ -1871,7 +1893,7 @@ class CSocNetPhotoCommentEvent
 		}
 	}
 
-	function NotifyIm($arParams)
+	public static function NotifyIm($arParams)
 	{
 		if(
 			!CModule::IncludeModule("im")

@@ -57,7 +57,7 @@ class Favicon extends \Bitrix\Landing\Hook\Page
 			{
 				list($w, $h) = explode('x', $size);
 				$file = \CFile::resizeImageGet(
-					$picture,
+					\Bitrix\Landing\File::getFileArray($picture),
 					array(
 						'width' => $w,
 						'height' => $h
@@ -74,7 +74,7 @@ class Favicon extends \Bitrix\Landing\Hook\Page
 			{
 				list($w, $h) = explode('x', $size);
 				$file = \CFile::resizeImageGet(
-					$picture,
+					\Bitrix\Landing\File::getFileArray($picture),
 					array(
 						'width' => $w,
 						'height' => $h
@@ -82,7 +82,7 @@ class Favicon extends \Bitrix\Landing\Hook\Page
 					BX_RESIZE_IMAGE_EXACT
 				);
 				$icons .= '<link rel="apple-touch-icon"' .
-						  '" href="' . $file['src'] . '" sizes="' . $size . '">';
+						  ' href="' . $file['src'] . '" sizes="' . $size . '">';
 			}
 			if ($icons)
 			{

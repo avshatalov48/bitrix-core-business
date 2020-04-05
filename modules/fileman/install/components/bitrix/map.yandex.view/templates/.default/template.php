@@ -19,6 +19,7 @@ else:
 		'CONTROLS' => $arParams['CONTROLS'],
 		'OPTIONS' => $arParams['OPTIONS'],
 		'MAP_ID' => $arParams['MAP_ID'],
+		'API_KEY' => $arParams['API_KEY'],
 		'LOCALE' => $arParams['LOCALE'],
 		'ONMAPREADY' => 'BX_SetPlacemarks_'.$arParams['MAP_ID'],
 	);

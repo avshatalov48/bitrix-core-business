@@ -112,7 +112,7 @@ $arComponentParameters = Array(
 			"MULTIPLE" => "N",
 			"VALUES" => Array(
 				"{#ORDER_ID#}" => "{#ORDER_ID#}",
-				"{#ID#}" => "{#ID#}",
+				"{#ORDER_REAL_ID#}" => "{#ORDER_REAL_ID#}",
 			),
 			"ADDITIONAL_VALUES" => "Y",
 			"DEFAULT" => Array(

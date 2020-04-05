@@ -1,0 +1,47 @@
+<section
+		class="landing-block g-flex-centered g-bg-black-opacity-0_8--after g-pt-60 g-pb-45">
+	<div class="landing-block-node-container container">
+		<div class="text-center g-mb-40 g-mb-60--sm container g-max-width-800">
+			<h2 class="landing-block-node-title g-color-gray-dark-v1 g-font-weight-300">Upcoming event</h2>
+		</div>
+
+			<div class="landing-block-node-date row js-countdown u-countdown text-center justify-content-center"
+				 data-end-date="1555056180000"
+				 data-days-format="%D"
+				 data-hours-format="%H"
+				 data-minutes-format="%M"
+				 data-seconds-format="%S"
+				 data-days-expired-classes="u-countdown--days-expiried"
+			>
+
+				<div class="landing-block-node-number landing-block-node-number-days u-countdown--days-hide text-center col-lg-3 col-sm-6 g-mb-50 g-mb-0--lg">
+					<div class="landing-block-node-number-number landing-block-node-number-number-days g-color-gray-dark-v1 g-font-size-35 g-width-160 g-height-160 mx-auto g-rounded-50x g-brd-15 g-brd-primary g-brd-around d-flex align-items-center justify-content-center g-mb-20">
+						<div class="js-cd-days">12</div>
+					</div>
+					<span class="landing-block-node-number-text landing-block-node-number-text-days text-uppercase g-color-gray-dark-v1 g-font-weight-700 g-font-size-16">Days</span>
+				</div>
+
+				<div class="landing-block-node-number landing-block-node-number-hours text-center col-lg-3 col-sm-6 g-mb-50 g-mb-0--lg">
+					<div class="landing-block-node-number-number landing-block-node-number-number-hours g-color-gray-dark-v1 g-font-size-35 g-width-160 g-height-160 mx-auto g-rounded-50x g-brd-15 g-brd-primary g-brd-around d-flex align-items-center justify-content-center g-mb-20">
+						<span class="js-cd-hours">01</span>
+					</div>
+					<span class="landing-block-node-number-text landing-block-node-number-text-hours text-uppercase g-color-gray-dark-v1 g-font-weight-700 g-font-size-16">Hours</span>
+				</div>
+
+				<div class="landing-block-node-number landing-block-node-number-minutes text-center col-lg-3 col-sm-6 g-mb-50 g-mb-0--md">
+					<div class="landing-block-node-number-number landing-block-node-number-number-minutes g-color-gray-dark-v1 g-font-size-35 g-width-160 g-height-160 mx-auto g-rounded-50x g-brd-15 g-brd-primary g-brd-around d-flex align-items-center justify-content-center g-mb-20">
+						<span class="js-cd-minutes">52</span>
+					</div>
+					<span class="landing-block-node-number-text landing-block-node-number-text-minutes text-uppercase g-color-gray-dark-v1 g-font-weight-700 g-font-size-16">Minutes</span>
+				</div>
+
+				<div class="landing-block-node-number landing-block-node-number-seconds text-center col-lg-3 col-sm-6 g-mb-0">
+					<div class="landing-block-node-number-number landing-block-node-number-number-seconds g-color-gray-dark-v1 g-font-size-35 g-width-160 g-height-160 mx-auto g-rounded-50x g-brd-15 g-brd-primary g-brd-around d-flex align-items-center justify-content-center g-mb-20">
+						<span class="js-cd-seconds">52</span>
+					</div>
+					<span class="landing-block-node-number-text landing-block-node-number-text-seconds text-uppercase g-color-gray-dark-v1 g-font-weight-700 g-font-size-16">Seconds</span>
+				</div>
+
+			</div>
+	</div>
+</section>

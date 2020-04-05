@@ -2,7 +2,6 @@
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ErrorCollection;
-use Bitrix\Sender\UI\PageNavigation;
 use Bitrix\Main\UI\Filter\Options as FilterOptions;
 use Bitrix\Main\Grid\Options as GridOptions;
 use Bitrix\Main\Loader;
@@ -12,6 +11,9 @@ use Bitrix\Sender\Entity;
 use Bitrix\Sender\ContactTable;
 use Bitrix\Sender\Recipient;
 use Bitrix\Sender\Security;
+
+use Bitrix\Sender\Internals\DataExport;
+use Bitrix\Sender\UI\PageNavigation;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -70,6 +72,25 @@ class SenderBlackListListComponent extends CBitrixComponent
 		}
 	}
 
+	protected function prepareExport()
+	{
+		$list = ContactTable::getList(array(
+			'select' => $this->getDataSelectedFields(),
+			'filter' => $this->getDataFilter(),
+			'order' => $this->getGridOrder()
+		));
+
+		DataExport::toCsv(
+			$this->getUiGridColumns(),
+			$list,
+			function ($item)
+			{
+				$item['TYPE_ID'] = Recipient\Type::getName($item['TYPE_ID']);
+				return $item;
+			}
+		);
+	}
+
 	protected function prepareResult()
 	{
 		/* Set title */
@@ -101,15 +122,19 @@ class SenderBlackListListComponent extends CBitrixComponent
 		// set ui grid columns
 		$this->setUiGridColumns();
 
+		// export
+		if ($this->request->get('export'))
+		{
+			$this->prepareExport();
+		}
+
 		// create nav
 		$nav = new PageNavigation("page-sender-blacklist");
 		$nav->allowAllRecords(false)->setPageSize(10)->initFromUri();
 
 		// get rows
 		$list = ContactTable::getList(array(
-			'select' => array(
-				'ID', 'NAME', 'TYPE_ID', 'CODE', 'DATE_INSERT'
-			),
+			'select' => $this->getDataSelectedFields(),
 			'filter' => $this->getDataFilter(),
 			'offset' => $nav->getOffset(),
 			'limit' => $nav->getLimit(),
@@ -129,6 +154,11 @@ class SenderBlackListListComponent extends CBitrixComponent
 		$this->arResult['NAV_OBJECT'] = $nav;
 
 		return true;
+	}
+
+	protected function getDataSelectedFields()
+	{
+		return ['ID', 'NAME', 'TYPE_ID', 'CODE', 'DATE_INSERT'];
 	}
 
 	protected function getDataFilter()

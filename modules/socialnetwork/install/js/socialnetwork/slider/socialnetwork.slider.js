@@ -1,6 +1,9 @@
 (function() {
 
-var BX = window.BX;
+if(window.top !== window)
+{
+	return;
+}
 
 if (!BX.type.isNotEmptyString(BX.message.SONET_SLIDER_USER_SEF))
 {

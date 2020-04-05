@@ -39,8 +39,10 @@ class InnerHandler extends PaySystem\BaseServiceHandler implements PaySystem\IRe
 				if ($res->isSuccess())
 				{
 					$res = $order->save();
-					if ($res)
+					if (!$res->isSuccess())
+					{
 						$result->addErrors($res->getErrors());
+					}
 				}
 				else
 				{

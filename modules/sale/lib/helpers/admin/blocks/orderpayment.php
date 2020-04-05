@@ -288,9 +288,9 @@ class OrderPayment
 
 		$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 
-		$paid = ($post) ? $post['PAID'] : $data['PAID'];
-		$id = ($post) ? $post['PAYMENT_ID'] : $data['ID'];
-		$priceCod = ($post) ? $post['PRICE_COD'] : $data['PRICE_COD'];
+		$paid = ($post) ? htmlspecialcharsbx($post['PAID']) : $data['PAID'];
+		$id = ($post) ? (int)$post['PAYMENT_ID'] : $data['ID'];
+		$priceCod = ($post) ? htmlspecialcharsbx($post['PRICE_COD']) : $data['PRICE_COD'];
 		$paidString = ($paid == 'Y') ? 'YES' : 'NO';
 		if (!$post)
 		{
@@ -480,7 +480,7 @@ class OrderPayment
 				<input type="hidden" name="PAYMENT['.$index.'][PAYMENT_ID]" id="payment_id_'.$index.'" value="'.$id.'">
 				<input type="hidden" name="PAYMENT['.$index.'][INDEX]" value="'.$index.'" class="index">
 				<input type="hidden" name="PAYMENT['.$index.'][PAID]" id="PAYMENT_PAID_'.$index.'" value="'.(empty($paid) ? 'N' : $paid).'">
-				<input type="hidden" name="PAYMENT['.$index.'][IS_RETURN]" id="PAYMENT_IS_RETURN_'.$index.'" value="'.($post['IS_RETURN'] ? $post['IS_RETURN'] : 'N').'">
+				<input type="hidden" name="PAYMENT['.$index.'][IS_RETURN]" id="PAYMENT_IS_RETURN_'.$index.'" value="'.($post['IS_RETURN'] ? htmlspecialcharsbx($post['IS_RETURN']) : 'N').'">
 				'.$hiddenPaySystemInnerId.'
 				<div class="adm-bus-component-content-container">
 					<div class="adm-bus-pay-section">
@@ -1276,13 +1276,6 @@ class OrderPayment
 				$setResult = $paymentItem->setFields($paymentFields);
 				if (!$setResult->isSuccess())
 					$result->addErrors($setResult->getErrors());
-
-				if ($paymentItem->getField('PAID') != $payment['PAID'] && $paymentItem->getField('IS_RETURN') == 'Y')
-				{
-					$setResult = $paymentItem->setReturn('N');
-					if (!$setResult->isSuccess())
-						$result->addErrors($setResult->getErrors());
-				}
 
 				if ($isReturn && $payment['OPERATION_ID'])
 				{

@@ -10,8 +10,8 @@ use Bitrix\Main\Type;
 use Bitrix\Main\Security\Sign\BadSignatureException;
 use Bitrix\Main\Security\Sign\TimeSigner;
 use Bitrix\Main\Security\Random;
-use Bitrix\Security\Codec\Base32;
-
+use Bitrix\Main\Text\Base32;
+use Bitrix\Main\Security\Mfa\OtpAlgorithm;
 
 Loc::loadMessages(__FILE__);
 
@@ -32,8 +32,8 @@ class Otp
 
 	protected static $availableTypes = array(self::TYPE_HOTP, self::TYPE_TOTP);
 	protected static $typeMap = array(
-		self::TYPE_HOTP => '\Bitrix\Security\Mfa\HotpAlgorithm',
-		self::TYPE_TOTP => '\Bitrix\Security\Mfa\TotpAlgorithm',
+		self::TYPE_HOTP => '\Bitrix\Main\Security\Mfa\HotpAlgorithm',
+		self::TYPE_TOTP => '\Bitrix\Main\Security\Mfa\TotpAlgorithm',
 	);
 	protected $algorithmClass = null;
 	protected $regenerated = false;
@@ -264,6 +264,7 @@ class Otp
 	 *
 	 * @param string $inputA First code.
 	 * @param string $inputB Second code.
+	 * @throws \Bitrix\Main\Security\OtpException
 	 * @return string
 	 */
 	public function getSyncParameters($inputA, $inputB)
@@ -300,7 +301,7 @@ class Otp
 		{
 			$params = $this->getSyncParameters($inputA, $inputB);
 		}
-		catch (OtpException $e)
+		catch (\Bitrix\Main\Security\OtpException $e)
 		{
 			throw new OtpException(Loc::getMessage('SECURITY_OTP_ERROR_SYNC_ERROR'));
 		}
@@ -812,7 +813,7 @@ class Otp
 	 * Set context of the current request.
 	 *
 	 * @param \Bitrix\Main\Context $context Application context.
-	 * @return \Bitrix\Main\Context
+	 * @return $this
 	 */
 	public function setContext(\Bitrix\Main\Context $context)
 	{
@@ -1409,13 +1410,18 @@ class Otp
 	 */
 	public static function getTypesDescription()
 	{
-		$result = array();
-		foreach(static::getAvailableTypes() as $type)
-		{
-			$result[$type] = call_user_func(array(static::$typeMap[$type], 'getDescription'));
-		}
-
-		return $result;
+		return array(
+			self::TYPE_HOTP => array(
+				'type' => self::TYPE_HOTP,
+				'title' => Loc::getMessage('SECURITY_HOTP_TITLE'),
+				'required_two_code' => true,
+			),
+			self::TYPE_TOTP => array(
+				'type' => self::TYPE_TOTP,
+				'title' => Loc::getMessage('SECURITY_TOTP_TITLE'),
+				'required_two_code' => false,
+			)
+		);
 	}
 
 	/**

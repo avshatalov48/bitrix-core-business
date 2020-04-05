@@ -12,6 +12,7 @@
 	use Bitrix\Main\UI\Filter\DateType;
 	use Bitrix\Main\UI\Filter\AdditionalDateType;
 	use Bitrix\Main\UI\Filter\NumberType;
+	\Bitrix\Main\UI\Extension::load("ui.buttons", "ui.fonts.opensans");
 
 	if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	{
@@ -133,12 +134,10 @@
 
 				<div class="main-ui-filter-field-preset-button-container">
 					<div class="main-ui-filter-field-button-inner">
-						<span class="webform-small-button webform-small-button-blue main-ui-filter-field-button main-ui-filter-find">
-							<span class="main-ui-filter-field-button-item"><?=Loc::getMessage("MAIN_UI_FILTER__FIND")?></span>
-						</span>
-						<span class="webform-small-button webform-small-button-transparent main-ui-filter-field-button main-ui-filter-reset">
-							<span class="main-ui-filter-field-button-item"><?=Loc::getMessage("MAIN_UI_FILTER__RESET")?></span>
-						</span>
+						<button class="ui-btn ui-btn-primary ui-btn-icon-search main-ui-filter-field-button  main-ui-filter-find">
+							<?=Loc::getMessage("MAIN_UI_FILTER__FIND")?></button>
+						<span class="ui-btn ui-btn-light-border main-ui-filter-field-button main-ui-filter-reset">
+							<?=Loc::getMessage("MAIN_UI_FILTER__RESET")?></span>
 					</div>
 				</div>
 				<div class="main-ui-filter-field-button-container">
@@ -149,12 +148,10 @@
 								<span class="main-ui-filter-field-button-item"><?=Loc::getMessage("MAIN_UI_FILTER__CONFIRM_APPLY_FOR_ALL_CHECKBOX")?></span>
 							</label>
 						<? endif; ?>
-						<span class="webform-small-button webform-small-button-accept main-ui-filter-field-button main-ui-filter-save">
-							<span class="main-ui-filter-field-button-item"><?=Loc::getMessage("MAIN_UI_FILTER__BUTTON_SAVE")?></span>
-						</span>
-						<span class="webform-small-button webform-small-button-transparent main-ui-filter-field-button main-ui-filter-cancel">
-							<span class="main-ui-filter-field-button-item"><?=Loc::getMessage("MAIN_UI_FILTER__BUTTON_CANCEL")?></span>
-						</span>
+						<span class="ui-btn ui-btn-success main-ui-filter-field-button main-ui-filter-save">
+							<?=Loc::getMessage("MAIN_UI_FILTER__BUTTON_SAVE")?></span>
+						<span class="ui-btn ui-btn-light-border main-ui-filter-field-button main-ui-filter-cancel">
+							<?=Loc::getMessage("MAIN_UI_FILTER__BUTTON_CANCEL")?></span>
 					</div>
 				</div>
 			</div><!--main-ui-filter-bottom-controls-->
@@ -162,9 +159,13 @@
 	</div><!--main-ui-filter-wrapper-->
 </script>
 
+<?
+    $frame->end();
+?>
+
 <script>
 	BX.Main.filterManager.push(
-		'<?=$arParams["FILTER_ID"]?>',
+		'<?=\CUtil::jSEscape($arParams["FILTER_ID"])?>',
 		new BX.Main.Filter(
 			<?=CUtil::PhpToJSObject($arResult)?>,
 			<?=CUtil::PhpToJSObject($arParams["CONFIG"])?>,
@@ -176,8 +177,6 @@
 	);
 </script>
 <?
-	$frame->end();
-
 	if (!empty($arResult["TARGET_VIEW_ID"]))
 	{
 		$this->EndViewTarget();

@@ -19,17 +19,17 @@ $context = $instance->getContext();
 $request = $context->getRequest();
 
 $oSort = new CAdminSorting($sTableID, "ID", "asc");
-$lAdmin = new CAdminList($sTableID, $oSort);
+$lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $result = \Bitrix\Sale\PaySystem\Manager::getDataRefundablePage();
 
 $dbRes = new CDBResult();
 $dbRes->InitFromArray($result);
 
-$dbRes = new CAdminResult($dbRes, $sTableID);
+$dbRes = new CAdminUiResult($dbRes, $sTableID);
 $dbRes->NavStart();
 
-$lAdmin->NavText($dbRes->GetNavPrint(GetMessage("SALE_PRLIST")));
+$lAdmin->SetNavigationParams($dbRes, array("BASE_LINK" => "/bitrix/admin/sale_ps_handler_refund.php"));
 
 $lAdmin->AddHeaders(array(
 	array("id" => "EXTERNAL_ID", "content" => GetMessage("SALE_REFUND_HANDLERS_LIST_EXTERNAL_ID"), "default" => true),
@@ -39,13 +39,13 @@ $lAdmin->AddHeaders(array(
 
 $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 
-while ($arCCard = $dbRes->NavNext(true, "f_"))
+while ($arCCard = $dbRes->NavNext(false))
 {
-	$row =& $lAdmin->AddRow($f_EXTERNAL_ID, $arCCard, "sale_ps_handler_refund_edit.php?".$f_LINK_PARAMS."&handler=".ToLower($f_HANDLER)."&lang=".LANG);
+	$row =& $lAdmin->AddRow($arCCard["EXTERNAL_ID"], $arCCard, "sale_ps_handler_refund_edit.php?".$arCCard["LINK_PARAMS"]."&handler=".ToLower($arCCard["HANDLER"])."&lang=".LANGUAGE_ID);
 
-	$row->AddField("EXTERNAL_ID", "<a href=\"sale_ps_handler_refund_edit.php?".$f_LINK_PARAMS.'&handler='.ToLower($f_HANDLER)."&lang=".LANG."\">".$f_EXTERNAL_ID."</a>");
-	$row->AddField("NAME", htmlspecialcharsbx($f_NAME));
-	$row->AddField("CONFIGURED", GetMessage("SALE_REFUND_HANDLERS_LIST_CONFIGURED_".$f_CONFIGURED));
+	$row->AddField("EXTERNAL_ID", "<a href=\"sale_ps_handler_refund_edit.php?".$arCCard["LINK_PARAMS"].'&handler='.ToLower($arCCard["HANDLER"])."&lang=".LANGUAGE_ID."\">".$arCCard["EXTERNAL_ID"]."</a>");
+	$row->AddField("NAME", htmlspecialcharsbx($arCCard["NAME"]));
+	$row->AddField("CONFIGURED", GetMessage("SALE_REFUND_HANDLERS_LIST_CONFIGURED_".$arCCard["CONFIGURED"]));
 }
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");

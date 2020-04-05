@@ -292,7 +292,7 @@ $MESS["SALE_CHECK_PRINT_HTML_TEXT"] = "
 
 #CHECK_LINK#
 
-Для получения подробной информации по заказу №#ORDER_ID# от #ORDER_DATE# пройдите на сайт http://#SERVER_NAME#/personal/order/detail/#ORDER_ACCOUNT_NUMBER_ENCODE#/
+Для получения подробной информации по заказу №#ORDER_ID# от #ORDER_DATE# пройдите на сайт #LINK_URL#
 ";
 
 $MESS["SALE_CHECK_PRINT_ERROR_TYPE_NAME"] = "Уведомление об ошибке при печати чека";
@@ -307,7 +307,7 @@ $MESS["SALE_CHECK_PRINT_ERROR_HTML_TEXT"] = "
 По какой-то причине чек №#CHECK_ID# по заказу №#ORDER_ACCOUNT_NUMBER# от #ORDER_DATE# не удалось распечатать!
 
 Перейдите по ссылке, чтобы устранить причину возникшей ситуации:
-http://#SERVER_NAME#/bitrix/admin/sale_order_view.php?ID=#ORDER_ID#
+#LINK_URL#
 ";
 
 $MESS["SALE_ORDER_TRACKING_NUMBER_TYPE_NAME"] = "Уведомление об изменении идентификатора почтового отправления";

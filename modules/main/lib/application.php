@@ -184,7 +184,7 @@ abstract class Application
 	public function terminate($status = 0)
 	{
 		/** @noinspection PhpUndefinedClassInspection */
-		\CMain::finalActions();
+		\CMain::runFinalActionsInternal();
 		exit($status);
 	}
 

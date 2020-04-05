@@ -70,18 +70,26 @@ class CMailDomainRegistrar
 
 	public static function createDomain($user, $password, $domain, $params, &$error)
 	{
-		$domain = CharsetConverter::ConvertCharset($domain, SITE_CHARSET, 'UTF-8');
+		$params = array_merge(
+			$params,
+			array(
+				'period' => 1,
+				'nss' => array(
+					'ns0' => 'ns1.reg.ru.',
+					'ns1' => 'ns2.reg.ru.',
+				),
+			)
+		);
 
-		$result = CMailRegru::createDomain($user, $password, $domain, array(
-			'period'       => 1,
-			'enduser_ip'   => $params['ip'],
-			'profile_type' => $params['profile_type'],
-			'profile_name' => $params['profile_name'],
-			'nss'          => array(
-				'ns0' => 'ns1.reg.ru.',
-				'ns1' => 'ns2.reg.ru.'
-			),
-		), $error);
+		if (array_key_exists('ip', $params))
+		{
+			$params['enduser_ip'] = $params['ip'];
+		}
+
+		$domain = \Bitrix\Main\Text\Encoding::convertEncoding($domain, SITE_CHARSET, 'UTF-8');
+		$params = \Bitrix\Main\Text\Encoding::convertEncoding($params, SITE_CHARSET, 'UTF-8');
+
+		$result = CMailRegru::createDomain($user, $password, $domain, $params, $error);
 
 		if ($result !== false)
 		{

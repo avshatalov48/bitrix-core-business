@@ -106,7 +106,7 @@ final class ReportManager
 
 			if ($prevPrintDate->getTimestamp() - $datePrintStartTs > static::MIN_TIME_RESENDING_REPORT)
 			{
-				$dbChecksCount = Internals\CashboxCheckTable::getList(
+				$dbChecksCount = CheckManager::getList(
 					array(
 						'select' => array('CNT'),
 						'filter' => array(

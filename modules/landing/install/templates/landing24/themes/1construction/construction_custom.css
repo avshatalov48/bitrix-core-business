@@ -1,57 +1,12 @@
-/*
-For colors, than white in dark themes and vice versa
-Use color from standart H
-*/
-h2.g-theme-light-color-dark, h4.g-theme-light-color-dark {color: #000;}
-
-
 /* Fix for complex button with icon. Need no bg color */
 .u-btn-inset > .u-btn-darkgray {
 	background-color: transparent;
 }
 
-/* for overwrite P color */
-.g-color-primary,
-.g-color-primary *,
-.g-color-primary p {
-	color: #f7b70b;
-}
-
-
 
 /* ***********
 THEMES CUSTOM COLORS
 *********** */
-
-.landing-block-node-menu-list.navbar-nav .nav-item .nav-link:hover, .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link {
-	color: #f7b70b !important;
-}
-
-.g-bg-white .landing-block-node-menu-list.navbar-nav .nav-item .nav-link-color-hover:hover {
-	background-color: #f7b70b !important;
-}
-
-.g-bg-white .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link-color-hover {
-	background-color: #f7b70b !important;
-}
-
-.g-bg-gray-dark-v1 .navbar-nav .nav-item .nav-link {
-	color: #fff;
-}
-
-.g-bg-gray-dark-v1 .navbar-nav .nav-item .nav-link:hover {
-	color: #f7b70b;
-}
-
-.g-bg-gray-light-v1 {
-	background-color: #efefef !important;
-}
-
-.g-color-primary--hover:hover * {
-	color: #f7b70b !important;
-}
-
-
 
 /* B24 BUTTON */
 .landing-b24button-use-style .b24-widget-button-popup, .landing-b24button-use-style .b24-widget-button-popup-triangle, .landing-b24button-use-style .b24-widget-button-pulse {
@@ -67,11 +22,6 @@ THEMES CUSTOM COLORS
 }
 
 
-
-/* RESTAURANT */
-.u-theme-restaurant-shadow-v1 {
-	box-shadow: inset 2px 2px 2px #e1a607;
-}
 
 /* BUTTON HOVERS */
 

@@ -119,8 +119,14 @@ if ($IBLOCK_CATALOG_ID)
 	}
 
 //demo discount
-	$dbDiscount = CCatalogDiscount::GetList(array(), Array("SITE_ID" => WIZARD_SITE_ID));
-	if(!($dbDiscount->Fetch()))
+	$iterator = \Bitrix\Catalog\DiscountTable::getList([
+		'select' => ['ID'],
+		'filter' => ['=SITE_ID' => WIZARD_SITE_ID],
+		'limit' => 1
+	]);
+	$row = $iterator->fetch();
+	unset($iterator);
+	if (empty($row))
 	{
 		if (CModule::IncludeModule("iblock"))
 		{
@@ -143,8 +149,6 @@ if ($IBLOCK_CATALOG_ID)
 		$arF = Array (
 			"SITE_ID" => WIZARD_SITE_ID,
 			"ACTIVE" => "Y",
-			//"ACTIVE_FROM" => ConvertTimeStamp(mktime(0,0,0,12,15,2011), "FULL"),
-			//"ACTIVE_TO" => ConvertTimeStamp(mktime(0,0,0,03,15,2012), "FULL"),
 			"RENEWAL" => "N",
 			"NAME" => GetMessage("WIZ_DISCOUNT"),
 			"SORT" => 100,
@@ -160,6 +164,7 @@ if ($IBLOCK_CATALOG_ID)
 		);
 		CCatalogDiscount::Add($arF);
 	}
+	unset($row);
 
 	if(\Bitrix\Main\Loader::includeModule('sale'))
 	{

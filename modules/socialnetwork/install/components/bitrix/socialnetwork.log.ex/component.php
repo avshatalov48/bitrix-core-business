@@ -28,29 +28,33 @@ if (!CModule::IncludeModule("socialnetwork"))
 
 $arResult["isExtranetSite"] = (CModule::IncludeModule('extranet') && CExtranet::IsExtranetSite());
 
-$pathToUser = COption::GetOptionString("main", "TOOLTIP_PATH_TO_USER", false, SITE_ID);
-$pathToUser = ($pathToUser ? $pathToUser : SITE_DIR."company/personal/user/#user_id#/");
-
 $folderUsers = COption::GetOptionString("socialnetwork", "user_page", false, SITE_ID);
-$folderUsers = ($folderUsers ? $folderUsers : ($arResult["isExtranetSite"] ? SITE_DIR."contacts/personal/" : SITE_DIR."company/personal/"));
+$folderUsers = (
+	$folderUsers
+		? $folderUsers
+		: ($arResult["isExtranetSite"] ? SITE_DIR."contacts/personal/" : SITE_DIR."company/personal/")
+);
+
+$pathToUser = COption::GetOptionString("main", "TOOLTIP_PATH_TO_USER", false, SITE_ID);
+$pathToUser = ($pathToUser ? $pathToUser : $folderUsers."user/#user_id#/");
 
 $folderWorkgroups = COption::GetOptionString("socialnetwork", "workgroups_page", false, SITE_ID);
 $folderWorkgroups = ($folderWorkgroups ? $folderWorkgroups : SITE_DIR."workgroups/");
 
 $pathToUserBlogPost = COption::GetOptionString("socialnetwork", "userblogpost_page", false, SITE_ID);
-$pathToUserBlogPost = ($pathToUserBlogPost ? $pathToUserBlogPost : SITE_DIR."company/personal/user/#user_id#/blog/#post_id#/");
+$pathToUserBlogPost = ($pathToUserBlogPost ? $pathToUserBlogPost : $folderUsers."user/#user_id#/blog/#post_id#/");
 
 $pathToLogEntry = COption::GetOptionString("socialnetwork", "log_entry_page", false, SITE_ID);
-$pathToLogEntry = ($pathToLogEntry ? $pathToLogEntry : SITE_DIR."company/personal/log/#log_id#/");
+$pathToLogEntry = ($pathToLogEntry ? $pathToLogEntry : $folderUsers."personal/log/#log_id#/");
 
 $pathToSmile = COption::GetOptionString("socialnetwork", "smile_page", false, SITE_ID);
 $pathToSmile = ($pathToSmile ? $pathToSmile : "/bitrix/images/socialnetwork/smile/");
 
 $pathToMessagesChat = COption::GetOptionString("main", "TOOLTIP_PATH_TO_MESSAGES_CHAT", false, SITE_ID);
-$pathToMessagesChat = ($pathToMessagesChat ? $pathToMessagesChat : SITE_DIR."company/personal/messages/chat/#user_id#/");
+$pathToMessagesChat = ($pathToMessagesChat ? $pathToMessagesChat : $folderUsers."messages/chat/#user_id#/");
 
 $pathToVideoCall = COption::GetOptionString("main", "TOOLTIP_PATH_TO_VIDEO_CALL", false, SITE_ID);
-$pathToVideoCall = ($pathToVideoCall ? $pathToVideoCall : SITE_DIR."company/personal/video/#user_id#/");
+$pathToVideoCall = ($pathToVideoCall ? $pathToVideoCall : $folderUsers."video/#user_id#/");
 
 if (
 	!array_key_exists("CHECK_PERMISSIONS_DEST", $arParams) 
@@ -80,6 +84,8 @@ if(isset($arParams["DISPLAY"]))
 {
 	$arParams["USE_FOLLOW"] = "N";
 }
+
+$arResult["SHOW_FOLLOW_CONTROL"] = $arParams["USE_FOLLOW"];
 
 if(!IsModuleInstalled("crm"))
 {
@@ -311,8 +317,12 @@ $arParams["SET_LOG_COUNTER"] = (
 		!$arResult["AJAX_CALL"]
 		|| $arResult["bReload"]
 	)
-	? "Y"
-	: "N"
+	&& (
+		empty($_POST["action"])
+		|| $_POST["action"] != "SBPE_get_full_form"
+	)
+		? "Y"
+		: "N"
 );
 $arParams["SET_LOG_PAGE_CACHE"] = ($arParams["LOG_ID"] <= 0 ? "Y" : "N");
 
@@ -742,6 +752,8 @@ $arResult["FILTER_ID"] = "LIVEFEED".(!empty($arParams["GROUP_ID"]) ? '_SG'.$arPa
 
 CSocNetTools::InitGlobalExtranetArrays();
 
+$arListParams = array();
+
 if (
 	$USER->IsAuthorized()
 	|| $arParams["AUTH"] == "Y" 
@@ -812,7 +824,6 @@ if (
 			$arResult["IS_FILTERED"] = true;
 			$arParams["SET_LOG_COUNTER"] = $arParams["SET_LOG_PAGE_CACHE"] = "N";
 			$arResult["SHOW_UNREAD"] = $arParams["SHOW_UNREAD"] = "N";
-			$arParams["USE_FOLLOW"] = "N";
 		}
 		elseif($arParams["DISPLAY"] === "mine")
 		{
@@ -820,7 +831,6 @@ if (
 			$arResult["IS_FILTERED"] = true;
 			$arParams["SET_LOG_COUNTER"] = $arParams["SET_LOG_PAGE_CACHE"] = "N";
 			$arResult["SHOW_UNREAD"] = $arParams["SHOW_UNREAD"] = "N";
-			$arParams["USE_FOLLOW"] = "N";
 		}
 		elseif($arParams["DISPLAY"] === "my")
 		{
@@ -834,7 +844,6 @@ if (
 			}
 			$arFilter["LOG_RIGHTS"] = $arAccessCodes;
 			$arParams["SET_LOG_PAGE_CACHE"] = "N";
-			$arParams["USE_FOLLOW"] = "N";
 		}
 		elseif($arParams["DISPLAY"] > 0)
 		{
@@ -842,7 +851,6 @@ if (
 			$arResult["IS_FILTERED"] = true;
 			$arParams["SET_LOG_COUNTER"] = $arParams["SET_LOG_PAGE_CACHE"] = "N";
 			$arResult["SHOW_UNREAD"] = $arParams["SHOW_UNREAD"] = "N";
-			$arParams["USE_FOLLOW"] = "N";
 		}
 	}
 
@@ -867,9 +875,17 @@ if (
 		$ENTITY_ID = $arParams["GROUP_ID"];
 
 		$arFilter["LOG_RIGHTS"] = "SG".intval($arParams["GROUP_ID"]);
-		$arFilter["LOG_RIGHTS_SG"] = "OSG".intval($arParams["GROUP_ID"]).'_'.($USER->IsAuthorized() ? SONET_ROLES_AUTHORIZED : SONET_ROLES_ALL);
+
+		if (
+			isset($arResult["Group"])
+			&& $arResult["Group"]['OPENED'] == 'Y'
+		)
+		{
+			$arFilter["LOG_RIGHTS_SG"] = "OSG".intval($arParams["GROUP_ID"]).'_'.($USER->IsAuthorized() ? SONET_ROLES_AUTHORIZED : SONET_ROLES_ALL);
+		}
 		$arParams["SET_LOG_PAGE_CACHE"] = "Y";
 		$arParams["USE_FOLLOW"] = "N";
+		$arResult["SHOW_FOLLOW_CONTROL"] = "N";
 		$arParams["SET_LOG_COUNTER"] = "N";
 		$arResult["SHOW_UNREAD"] = $arParams["SHOW_UNREAD"] = "N";
 	}
@@ -879,6 +895,7 @@ if (
 		$arFilter["!USER_ID"] = $arParams["TO_USER_ID"];
 		$arParams["SET_LOG_PAGE_CACHE"] = "N";
 		$arParams["USE_FOLLOW"] = "N";
+		$arResult["SHOW_FOLLOW_CONTROL"] = "N";
 
 		$rsUsers = CUser::GetList(
 			($by="ID"),
@@ -913,16 +930,23 @@ if (
 		$arParams["SET_LOG_COUNTER"] = $arParams["SET_LOG_PAGE_CACHE"] = "N";
 		$arResult["SHOW_UNREAD"] = $arParams["SHOW_UNREAD"] = "N";
 		$arParams["USE_FOLLOW"] = "N";
+		$arResult["SHOW_FOLLOW_CONTROL"] = "N";
 		$arResult["IS_FILTERED"] = true;
 	}
 	elseif (strlen($arParams["FIND"]) > 0)
 	{
 		$operation = \Bitrix\Socialnetwork\LogIndexTable::getEntity()->fullTextIndexEnabled("CONTENT") ? '*' : '*%';
 		$arFilter[$operation."CONTENT"] = \Bitrix\Socialnetwork\Item\LogIndex::prepareToken($arParams["FIND"]);
+/*
+		$arListParams["FILTER_BY_CONTENT"] = array(
+			$operation."CONTENT" => \Bitrix\Socialnetwork\Item\LogIndex::prepareToken($arParams["FIND"])
+		);
+*/
 
 		$arParams["SET_LOG_COUNTER"] = $arParams["SET_LOG_PAGE_CACHE"] = "N";
 		$arResult["SHOW_UNREAD"] = $arParams["SHOW_UNREAD"] = "N";
 		$arParams["USE_FOLLOW"] = "N";
+		$arResult["SHOW_FOLLOW_CONTROL"] = "N";
 		$arResult["IS_FILTERED"] = true;
 	}
 	else
@@ -938,6 +962,7 @@ if (
 		$arParams["SET_LOG_COUNTER"] = $arParams["SET_LOG_PAGE_CACHE"] = "N";
 		$arResult["SHOW_UNREAD"] = $arParams["SHOW_UNREAD"] = "N";
 		$arParams["USE_FOLLOW"] = "N";
+		$arResult["SHOW_FOLLOW_CONTROL"] = "N";
 	}
 	if (isset($arParams["EXACT_EVENT_ID"]))
 	{
@@ -946,6 +971,7 @@ if (
 		$arParams["SET_LOG_COUNTER"] = $arParams["SET_LOG_PAGE_CACHE"] = "N";
 		$arResult["SHOW_UNREAD"] = $arParams["SHOW_UNREAD"] = "N";
 		$arParams["USE_FOLLOW"] = "N";
+		$arResult["SHOW_FOLLOW_CONTROL"] = "N";
 	}
 	elseif (is_array($arParams["EVENT_ID"]))
 	{
@@ -960,6 +986,7 @@ if (
 			$arParams["SET_LOG_COUNTER"] = $arParams["SET_LOG_PAGE_CACHE"] = "N";
 			$arResult["SHOW_UNREAD"] = $arParams["SHOW_UNREAD"] = "N";
 			$arParams["USE_FOLLOW"] = "N";
+			$arResult["SHOW_FOLLOW_CONTROL"] = "N";
 		}
 	}
 	elseif ($arParams["EVENT_ID"])
@@ -969,6 +996,7 @@ if (
 		$arParams["SET_LOG_COUNTER"] = $arParams["SET_LOG_PAGE_CACHE"] = "N";
 		$arResult["SHOW_UNREAD"] = $arParams["SHOW_UNREAD"] = "N";
 		$arParams["USE_FOLLOW"] = "N";
+		$arResult["SHOW_FOLLOW_CONTROL"] = "N";
 	}
 	elseif ($preset_filter_id == "extranet")
 	{
@@ -976,6 +1004,7 @@ if (
 		$arParams["SET_LOG_COUNTER"] = $arParams["SET_LOG_PAGE_CACHE"] = "N";
 		$arResult["SHOW_UNREAD"] = $arParams["SHOW_UNREAD"] = "N";
 		$arParams["USE_FOLLOW"] = "N";
+		$arResult["SHOW_FOLLOW_CONTROL"] = "N";
 	}
 
 	if (IntVal($arParams["CREATED_BY_ID"]) > 0)
@@ -993,6 +1022,7 @@ if (
 		$arParams["SET_LOG_COUNTER"] = $arParams["SET_LOG_PAGE_CACHE"] = "N";
 		$arResult["SHOW_UNREAD"] = $arParams["SHOW_UNREAD"] = "N";
 		$arParams["USE_FOLLOW"] = "N";
+		$arResult["SHOW_FOLLOW_CONTROL"] = "N";
 		unset($arFilter["!USER_ID"]);
 	}
 
@@ -1035,6 +1065,7 @@ if (
 		$arParams["SET_LOG_COUNTER"] = $arParams["SET_LOG_PAGE_CACHE"] = "N";
 		$arResult["SHOW_UNREAD"] = $arParams["SHOW_UNREAD"] = "N";
 		$arParams["USE_FOLLOW"] = "N";
+		$arResult["SHOW_FOLLOW_CONTROL"] = "N";
 		$arResult["IS_FILTERED"] = true;
 	}
 	else
@@ -1052,6 +1083,7 @@ if (
 		$arParams["SET_LOG_COUNTER"] = $arParams["SET_LOG_PAGE_CACHE"] = "N";
 		$arResult["SHOW_UNREAD"] = $arParams["SHOW_UNREAD"] = "N";
 		$arParams["USE_FOLLOW"] = "N";
+		$arResult["SHOW_FOLLOW_CONTROL"] = "N";
 		$arResult["IS_FILTERED"] = true;
 	}
 	else
@@ -1078,14 +1110,6 @@ if (
 		{
 			$filtered = true;
 			$arFilter["USER_ID"] = intval($matches[1]);
-
-			if (intval($matches[1]) > 0)
-			{
-				\Bitrix\Main\FinderDestTable::merge(array(
-					"CONTEXT" => "FEED_FILTER_CREATED_BY",
-					"CODE" => 'U'.intval($matches[1])
-				));
-			}
 		}
 
 		if (!empty($filterData["TO"]))
@@ -1106,16 +1130,12 @@ if (
 			{
 				$arFilter["LOG_RIGHTS"] = 'DR'.intval($matches[1]);
 			}
+			elseif ($filterData["TO"] == 'UA')
+			{
+				$arFilter["LOG_RIGHTS"] = 'G2';
+			}
 
 			$filtered = !empty($arFilter["LOG_RIGHTS"]);
-
-			if (!empty($arFilter["LOG_RIGHTS"]))
-			{
-				\Bitrix\Main\FinderDestTable::merge(array(
-					"CONTEXT" => "FEED_FILTER_TO",
-					"CODE" => $arFilter["LOG_RIGHTS"]
-				));
-			}
 		}
 
 		if (
@@ -1175,6 +1195,11 @@ if (
 
 			$operation = \Bitrix\Socialnetwork\LogIndexTable::getEntity()->fullTextIndexEnabled("CONTENT") ? '*' : '*%';
 			$arFilter[$operation."CONTENT"] = \Bitrix\Socialnetwork\Item\LogIndex::prepareToken($filterContent);
+/*
+			$arListParams["FILTER_BY_CONTENT"] = array(
+				$operation."CONTENT" => \Bitrix\Socialnetwork\Item\LogIndex::prepareToken($filterContent)
+			);
+*/
 		}
 
 		if (
@@ -1188,12 +1213,14 @@ if (
 			$arFilter["!EVENT_ID"] = array("lists_new_element", "tasks", "timeman_entry", "report", "crm_activity_add");
 		}
 
+//		$arListParams["FILTER_BY_CONTENT_DATE"] = array();
 		if (!empty($filterData["DATE_CREATE_from"]))
 		{
 			$filtered = true;
 			if (!empty($filterContent))
 			{
 				$arFilter[">=CONTENT_DATE_CREATE"] = $filterData["DATE_CREATE_from"];
+//				$arListParams["FILTER_BY_CONTENT_DATE"][">=DATE_CREATE"] = $filterData["DATE_CREATE_from"];
 			}
 			else
 			{
@@ -1209,6 +1236,7 @@ if (
 			if (!empty($filterContent))
 			{
 				$arFilter["<=CONTENT_DATE_CREATE"] = $dateCreateToValue;
+//				$arListParams["FILTER_BY_CONTENT_DATE"]["<=DATE_CREATE"] = $dateCreateToValue;
 			}
 			else
 			{
@@ -1290,6 +1318,7 @@ if (
 	if ($bGetComments)
 	{
 		$arOrder = (!empty($filterContent) ? array("CONTENT_LOG_UPDATE" => "DESC") : array("LOG_UPDATE" => "DESC"));
+//		$arOrder = (!empty($filterContent) ? array() : array("LOG_UPDATE" => "DESC"));
 	}
 	elseif ($arParams["USE_FOLLOW"] == "Y")
 	{
@@ -1298,6 +1327,7 @@ if (
 	elseif ($arParams["USE_COMMENTS"] == "Y")
 	{
 		$arOrder = (!empty($filterContent) ? array("CONTENT_LOG_UPDATE" => "DESC") : array("LOG_UPDATE" => "DESC"));
+//		$arOrder = (!empty($filterContent) ? array() : array("LOG_UPDATE" => "DESC"));
 	}
 	else
 	{
@@ -1383,10 +1413,10 @@ if (
 
 	if ($arParams["IS_CRM"] == "Y")
 	{
-		$arListParams = array(
+		$arListParams = array_merge($arListParams, array(
 			"IS_CRM" => "Y",
 			"CHECK_CRM_RIGHTS" => "Y"
-		);
+		));
 
 		$filterParams = array(
 			"ENTITY_TYPE" => $arParams["CRM_ENTITY_TYPE"],
@@ -1429,9 +1459,9 @@ if (
 			);
 		}
 
-		$arListParams = array(
+		$arListParams = array_merge($arListParams, array(
 			"CHECK_RIGHTS" => "Y"
-		);
+		));
 
 		if (
 			$arParams["LOG_ID"] <= 0
@@ -1521,17 +1551,19 @@ if (
 		{
 			$res = UserToGroupTable::getList(array(
 				'order' => array(
-					'DATE_CREATE' => 'ASC'
+					'GROUP_DATE_CREATE' => 'ASC'
 				),
 				'filter' => array(
 					'USER_ID' => $arResult["currentUserId"],
 					'@ROLE' => UserToGroupTable::getRolesMember()
 				),
-				'select' => array('DATE_CREATE')
+				'select' => array(
+					'GROUP_DATE_CREATE' => 'GROUP.DATE_CREATE'
+				)
 			));
 			if ($relation = $res->fetch())
 			{
-				$arFilter[">=LOG_UPDATE"] = $relation['DATE_CREATE'];
+				$arFilter[">=LOG_UPDATE"] = $relation['GROUP_DATE_CREATE'];
 			}
 		}
 		elseif (
@@ -1716,8 +1748,8 @@ if (
 	}
 	elseif (
 		$dbEventsID
-		&& $dbEventsID->NavContinue()
-		&& $arEvents = $dbEventsID->GetNext()
+		&& $dbEventsID->navContinue()
+		&& $arEvents = $dbEventsID->getNext()
 	)
 	{
 		$next_page_date = ($arParams["USE_FOLLOW"] == "Y" ? $arEvents["DATE_FOLLOW"] : $arEvents["LOG_UPDATE"]);

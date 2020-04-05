@@ -75,7 +75,7 @@ class CBPAllWorkflowPersister
 		return $buffer;
 	}
 
-	protected function InsertWorkflow($id, $buffer, $status, $bUnlocked)
+	protected function InsertWorkflow($id, $buffer, $status, $bUnlocked, array $creationData = [])
 	{
 		global $DB;
 
@@ -116,9 +116,26 @@ class CBPAllWorkflowPersister
 			}
 			else
 			{
+				$status = (int) $status;
+				$ownerId = ($bUnlocked ? "NULL" : "'".$DB->ForSql($this->serviceInstanceId)."'");
+				$ownedUntil = ($bUnlocked ? "NULL" : $DB->CharToDateFunction(date($GLOBALS["DB"]->DateFormatToPHP(FORMAT_DATETIME), $this->GetOwnershipTimeout())));
+
+				$moduleId = isset($creationData['MODULE_ID']) ? $creationData['MODULE_ID'] : '';
+				$entity = isset($creationData['ENTITY']) ? $creationData['ENTITY'] : '';
+				$documentId = isset($creationData['DOCUMENT_ID']) ? $creationData['DOCUMENT_ID'] : '';
+				$tplId = isset($creationData['WORKFLOW_TEMPLATE_ID']) ? (int) $creationData['WORKFLOW_TEMPLATE_ID'] : 0;
+				$startedBy = isset($creationData['STARTED_BY']) ? (int) $creationData['STARTED_BY'] : 0;
+				$startedEventType = isset($creationData['STARTED_EVENT_TYPE']) ? (int) $creationData['STARTED_EVENT_TYPE'] : 0;
+
 				$DB->Query(
-					"INSERT INTO b_bp_workflow_instance (ID, WORKFLOW, STATUS, MODIFIED, OWNER_ID, OWNED_UNTIL) ".
-					"VALUES ('".$DB->ForSql($id)."', '".$DB->ForSql($buffer)."', ".intval($status).", ".$DB->CurrentTimeFunction().", ".($bUnlocked ? "NULL" : "'".$DB->ForSql($this->serviceInstanceId)."'").", ".($bUnlocked ? "NULL" : $DB->CharToDateFunction(date($GLOBALS["DB"]->DateFormatToPHP(FORMAT_DATETIME), $this->GetOwnershipTimeout()))).")"
+					"INSERT INTO b_bp_workflow_instance (
+						ID, WORKFLOW, STATUS, MODIFIED, OWNER_ID, OWNED_UNTIL,
+						MODULE_ID, ENTITY, DOCUMENT_ID, WORKFLOW_TEMPLATE_ID, STARTED, STARTED_BY, STARTED_EVENT_TYPE
+					) ".
+					"VALUES ('".$DB->ForSql($id)."', '".$DB->ForSql($buffer)."', ".$status.", ".
+					$DB->CurrentTimeFunction().", ".$ownerId.", ".$ownedUntil.", '".
+					$DB->ForSql($moduleId)."', '".$DB->ForSql($entity)."', '".$DB->ForSql($documentId)."', ".
+					$tplId.", ".$DB->CurrentTimeFunction().", ".$startedBy.", ".$startedEventType.")"
 				);
 			}
 		}
@@ -169,7 +186,24 @@ class CBPAllWorkflowPersister
 		if (($workflowStatus != CBPWorkflowStatus::Completed) && ($workflowStatus != CBPWorkflowStatus::Terminated))
 			$buffer = $this->GetSerializedForm($rootActivity);
 
-		$this->InsertWorkflow($rootActivity->GetWorkflowInstanceId(), $buffer, $workflowStatus, $bUnlocked);
+		$creationData = [];
+		if ($rootActivity->workflow->isNew())
+		{
+			$dt = $rootActivity->GetDocumentId();
+			$creationData['MODULE_ID'] = $dt[0];
+			$creationData['ENTITY'] = $dt[1];
+			$creationData['DOCUMENT_ID'] = $dt[2];
+			$creationData['WORKFLOW_TEMPLATE_ID'] = $rootActivity->GetWorkflowTemplateId();
+			$creationData['STARTED_EVENT_TYPE'] = $rootActivity->getDocumentEventType();
+
+			$startedBy = $rootActivity->{\CBPDocument::PARAM_TAGRET_USER};
+			if ($startedBy)
+			{
+				$creationData['STARTED_BY'] = \CBPHelper::StripUserPrefix($startedBy);
+			}
+		}
+
+		$this->InsertWorkflow($rootActivity->GetWorkflowInstanceId(), $buffer, $workflowStatus, $bUnlocked, $creationData);
 	}
 
 	private function GetSerializedForm(CBPActivity $rootActivity)

@@ -1,13 +1,3 @@
-/*
-For colors, than white in dark themes and vice versa
-Use color from standard H, standard classses
-*/
-h2.g-theme-dark-color-white, h4.g-theme-dark-color-white {color: #fff !important;}
-.g-theme-dark-color-white-opacity-0_7{color: rgba(255, 255, 255, 0.7) !important;}
-
-
-
-
 
 /* fix for carousel controls */
 .u-carousel-indicators-v1 li span{
@@ -34,31 +24,6 @@ h2.g-theme-dark-color-white, h4.g-theme-dark-color-white {color: #fff !important
 THEMES CUSTOM COLORS
 *********** */
 
-
-.g-bg-gray-dark-v1 .navbar-nav .nav-item .nav-link {
-	color: #fff;
-}
-
-.g-bg-gray-dark-v1 .navbar-nav .nav-item .nav-link:hover {
-	color: #3949a0;
-}
-
-.g-bg-gray-dark-v3 .g-mb-30 {
-	color: #999;
-}
-
-.landing-block-node-menu-list.navbar-nav .nav-item .nav-link:hover, .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link {
-	color: #3949a0 !important;
-}
-
-.g-bg-white .landing-block-node-menu-list.navbar-nav .nav-item .nav-link-color-hover:hover {
-	background-color: #3949a0 !important;
-}
-
-.g-bg-white .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link-color-hover {
-	background-color: #3949a0 !important;
-}
-
 .g-bg-black-opacity-0_3.g-py-7 .landing-block-node-menu-list.navbar-nav .nav-item .nav-link:hover {
 	font-weight: normal;
 }
@@ -73,14 +38,6 @@ THEMES CUSTOM COLORS
 
 .g-bg-black-opacity-0_7.js-header-change-moment.g-py-7 .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link {
 	font-weight: normal;
-}
-
-.g-bg-black-opacity-0_7--after .g-mb-90 .landing-block-node-card .landing-block-node-card-text p {
-	color: #999 !important;
-}
-
-.g-color-primary--hover:hover * {
-	color: #3949a0 !important;
 }
 
 .u-btn-inset::before {
@@ -103,18 +60,8 @@ THEMES CUSTOM COLORS
 }
 
 
-
-.dark-theme.g-bg-white .hamburger-inner, .dark-theme.g-bg-white .hamburger-inner::after, .dark-theme.g-bg-white .hamburger-inner::before {
-	background-color: #000;
-}
-
 .slick-slider .slick-slide .g-bg-img-hero .landing-block-node-card-price {
 	color: #fff !important;
-}
-
-/* RESTAURANT */
-.u-theme-restaurant-shadow-v1 {
-	box-shadow: inset 2px 2px 2px #32408d;
 }
 
 /* BUTTON HOVERS */

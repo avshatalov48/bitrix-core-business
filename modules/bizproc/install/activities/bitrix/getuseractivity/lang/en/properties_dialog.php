@@ -1,8 +1,9 @@
 <?
+$MESS["BPCRU_PD_SKIP_RESERVE"] = "Apply to backup users";
+$MESS["BPCRU_PD_USER2"] = "Backup users";
 $MESS["BPCRU_PD_TYPE"] = "Type";
 $MESS["BPCRU_PD_USER_RANDOM"] = "From users";
 $MESS["BPCRU_PD_USER_BOSS"] = "For user";
-$MESS["BPCRU_PD_USER1"] = "If no Supervisor is determined, send to";
 $MESS["BPCRU_PD_MAX_LEVEL"] = "Supervisor Level (the more the higher)";
 $MESS["BPCRU_PD_TYPE_RANDOM"] = "any";
 $MESS["BPCRU_PD_TYPE_BOSS"] = "supervisor";

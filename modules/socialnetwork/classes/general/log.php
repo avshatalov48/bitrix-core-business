@@ -669,7 +669,7 @@ class CAllSocNetLog
 						if (StrLen($siteID) <= 0)
 							$siteID = $arSubscriber["USER_LID"];
 						if (StrLen($siteID) <= 0)
-							continue;
+							break;
 
 						$event = new CEvent;
 						$event->Send($mailTemplate, $siteID, $arFields, "N");
@@ -704,7 +704,7 @@ class CAllSocNetLog
 			'ENTITY_ID' => $arLog["ID"],
 			'EVENT_ID' => $arLog["EVENT_ID"],
 			'OF_ENTITIES' => $arOfEntities,
-			'TYPE' => 'L',
+			'TYPE' => CSocNetLogCounter::TYPE_LOG_ENTRY,
 			'FOR_ALL_ACCESS' => $bHasAccessAll,
 			'USERS_TO_PUSH' => (
 				$bHasAccessAll
@@ -718,7 +718,7 @@ class CAllSocNetLog
 		return true;
 	}
 
-	public static function CounterIncrement($entityId, $event_id = false, $arOfEntities = false, $type = "L", $bForAllAccess = false, $arUserIdToPush = array())
+	public static function CounterIncrement($entityId, $event_id = false, $arOfEntities = false, $type = CSocNetLogCounter::TYPE_LOG_ENTRY, $bForAllAccess = false, $arUserIdToPush = array())
 	{
 		if (
 			is_array($entityId)
@@ -729,7 +729,7 @@ class CAllSocNetLog
 			$entityId = $arFields["ENTITY_ID"];
 			$event_id = (isset($arFields["EVENT_ID"]) ? $arFields["EVENT_ID"] : false);
 			$arOfEntities = (isset($arFields["OF_ENTITIES"]) ? $arFields["OF_ENTITIES"] : false);
-			$type = (isset($arFields["TYPE"]) ? $arFields["TYPE"] : 'L');
+			$type = (isset($arFields["TYPE"]) ? $arFields["TYPE"] : CSocNetLogCounter::TYPE_LOG_ENTRY);
 			$bForAllAccess = (isset($arFields["FOR_ALL_ACCESS"]) ? $arFields["FOR_ALL_ACCESS"] : false);
 			$arUserIdToPush = (isset($arFields["USERS_TO_PUSH"]) ? $arFields["USERS_TO_PUSH"] : array());
 			$bSendToAuthor = (
@@ -826,7 +826,7 @@ class CAllSocNetLog
 				CSocNetLogCounter::GetSubSelect2(
 					$entityId,
 					array(
-						"TYPE" => "L", 
+						"TYPE" => CSocNetLogCounter::TYPE_LOG_ENTRY,
 						"CODE" => "'BLOG_POST_IMPORTANT'",
 						"FOR_ALL_ACCESS" => $bForAllAccess,
 						"MULTIPLE" => "N",
@@ -835,9 +835,16 @@ class CAllSocNetLog
 				)
 			);
 		}
+
+		if ($type == CSocNetLogCounter::TYPE_LOG_COMMENT)
+		{
+			\Bitrix\Socialnetwork\Item\LogSubscribe::sendPush(array(
+				'commentId' => $entityId
+			));
+		}
 	}
 
-	function CounterDecrement($log_id, $event_id = false, $type = "L", $bForAllAccess = false)
+	function CounterDecrement($log_id, $event_id = false, $type = CSocNetLogCounter::TYPE_LOG_ENTRY, $bForAllAccess = false)
 	{
 		if (intval($log_id) <= 0)
 			return false;
@@ -859,7 +866,7 @@ class CAllSocNetLog
 				CSocNetLogCounter::GetSubSelect2(
 					$log_id, 
 					array(
-						"TYPE" => "L",
+						"TYPE" => CSocNetLogCounter::TYPE_LOG_ENTRY,
 						"CODE" => "'BLOG_POST_IMPORTANT'",
 						"DECREMENT" => true,
 						"FOR_ALL_ACCESS" => $bForAllAccess
@@ -961,7 +968,6 @@ class CAllSocNetLog
 					$arEvent["MESSAGE_FORMAT"] = $messageTmp;
 					break;
 				default:
-					continue;
 					break;
 			}
 		}
@@ -1120,7 +1126,7 @@ class CAllSocNetLog
 		return CSocNetLogTools::ShowUser($arEntityDesc, $strEntityURL, $arParams);
 	}
 
-	function FormatEvent_FillTooltip($arFields, $arParams)
+	static function FormatEvent_FillTooltip($arFields, $arParams)
 	{
 		return CSocNetLogTools::FormatEvent_FillTooltip($arFields, $arParams);
 	}
@@ -1130,7 +1136,7 @@ class CAllSocNetLog
 		return CSocNetLogTools::FormatEvent_CreateAvatar($arFields, $arParams, $source);
 	}
 
-	function FormatEvent_IsMessageShort($message, $short_message = false)
+	static function FormatEvent_IsMessageShort($message, $short_message = false)
 	{
 		return CSocNetLogTools::FormatEvent_IsMessageShort($message, $short_message);
 	}

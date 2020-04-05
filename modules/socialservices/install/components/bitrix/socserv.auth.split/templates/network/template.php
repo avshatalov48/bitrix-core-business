@@ -29,7 +29,7 @@ if($bNetwork)
 		)?><br><br>
 
 	<div class="network-link">
-		<a class="webform-small-button" href="<?=$networkUrl?>" target="_blank"><span class="webform-small-button-left"></span><span class="webform-small-button-text"><?=$bSelf ? GetMessage('SAL_N_PASSPORT') : GetMessage('SAL_N_PASSPORT_OTHER')?></span><span class="webform-small-button-right"></span></a>
+		<a class="webform-small-button" href="<?=CSocServBitrix24Net::NETWORK_URL.'/'?>" target="_blank"><span class="webform-small-button-left"></span><span class="webform-small-button-text"><?=$bSelf ? GetMessage('SAL_N_PASSPORT') : GetMessage('SAL_N_PASSPORT_OTHER')?></span><span class="webform-small-button-right"></span></a>
 	</div>
 </div>
 

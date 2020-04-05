@@ -74,7 +74,7 @@ class CClock
 				<?
 				break;
 			default: //input
-				?><input id="<?=$inputId?>" <?=($arParams['inputName']? 'name="'.$inputName.'"' : '')?> type="text" value="<?=$initTime?>" size="<?=IsAmPmMode() ? 6 : 4?>" <?=($arParams['inputTitle']? 'title="'.$inputTitle.'"' : '')?> <?=($arParams['inputClass']? 'class="'.$arParams['inputClass'].'"' : '')?>/><?
+				?><input id="<?=$inputId?>" <?=($arParams['inputName']? 'name="'.$inputName.'"' : '')?> type="text" value="<?=$initTime?>" size="<?=IsAmPmMode() ? 6 : 4?>" <?=($arParams['inputTitle']? 'title="'.$inputTitle.'"' : '')?> <?=($arParams['inputClass']? 'class="'.$arParams['inputClass'].'"' : '')?> autocomplete="off"/><?
 				break;
 		}
 		// Show icon

@@ -67,10 +67,10 @@ foreach($arResult["COMMENTS"] as $key => $arComment)
 		"APPROVED" => "Y",
 		"AUTHOR" => array(
 			"ID" => $arResult["AUTHORS"][$authorId]["ID"],
-			"NAME" => $arResult["AUTHORS"][$authorId]["NAME"],
-			"LAST_NAME" => $arResult["AUTHORS"][$authorId]["LAST_NAME"],
-			"SECOND_NAME" => $arResult["AUTHORS"][$authorId]["SECOND_NAME"],
-			"LOGIN" => $arResult["AUTHORS"][$authorId]["LOGIN"],
+			"NAME" => $arResult["AUTHORS"][$authorId]["~NAME"],
+			"LAST_NAME" => $arResult["AUTHORS"][$authorId]["~LAST_NAME"],
+			"SECOND_NAME" => $arResult["AUTHORS"][$authorId]["~SECOND_NAME"],
+			"LOGIN" => $arResult["AUTHORS"][$authorId]["~LOGIN"],
 			"AVATAR" => $arResult["AUTHORS"][$authorId]["AVATAR_COMMENT_URL"],
 			"EXTERNAL_AUTH_ID" => $arResult["AUTHORS"][$authorId]["EXTERNAL_AUTH_ID"]
 		),

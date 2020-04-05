@@ -283,6 +283,6 @@ class Uri implements \JsonSerializable
 	 */
 	public function jsonSerialize()
 	{
-		return $this->getLocator();
+		return $this->getUri();
 	}
 }

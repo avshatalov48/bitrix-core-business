@@ -29,7 +29,7 @@ if($REQUEST_METHOD == 'POST' && strlen($Update) > 0 && $salePermissions >= 'W' &
 ?>
 	<tr>
 		<td colspan="2">
-			<a href="sale_business_value_ptypes.php?lang=<?=LANGUAGE_ID?>"><?=Loc::getMessage('BIZVAL_PAGE_LINK_PTYPES')?></a>
+			<?=Loc::getMessage('BIZVAL_PAGE_LINK_PTYPES_V2')?>
 			<br>&nbsp;
 		</td>
 	</tr>

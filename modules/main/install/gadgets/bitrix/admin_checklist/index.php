@@ -23,7 +23,7 @@ else
 	$arReports = CCheckListResult::GetList(Array(),Array("REPORT"=>"Y"));
 	if ($arReports)
 	{
-		$arReport = $arReports->Fetch();
+		$arReport = $arReports->GetNext();
 		$arReportData = new CCheckList($arReport["ID"]);
 		$arReportInfo = $arReportData->GetReportInfo();
 		$arStat = $arReportInfo["STAT"];

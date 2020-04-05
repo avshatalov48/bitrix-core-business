@@ -42,7 +42,7 @@ class CCalendarPlanner
 			BX.ready(function()
 			{
 				BX.Calendar.Planner.Init(
-					'<?= $config['id']?>',
+					'<?= CUtil::JSEscape($config['id'])?>',
 					<?=\Bitrix\Main\Web\Json::encode($config, false);?>,
 					<?=\Bitrix\Main\Web\Json::encode($initialParams);?>
 				);
@@ -139,7 +139,9 @@ class CCalendarPlanner
 			foreach($entries as $entry)
 			{
 				if (in_array($entry['ID'], $skipEntryList))
+				{
 					continue;
+				}
 
 				if (isset($entry['DT_FROM']) && !isset($entry['DATE_FROM']))
 				{
@@ -154,6 +156,7 @@ class CCalendarPlanner
 				{
 					$fromTs = CCalendar::Timestamp($entry['DATE_FROM']);
 					$toTs = CCalendar::Timestamp($entry['DATE_TO']);
+
 					if ($entry['DT_SKIP_TIME'] !== "Y")
 					{
 						$fromTs -= $entry['~USER_OFFSET_FROM'];
@@ -161,6 +164,7 @@ class CCalendarPlanner
 						$fromTs += $deltaOffset;
 						$toTs += $deltaOffset;
 					}
+
 					$result['accessibility'][$userId][] = array(
 						'id' => $entry['ID'],
 						'dateFrom' => CCalendar::Date($fromTs, $entry['DT_SKIP_TIME'] != 'Y'),

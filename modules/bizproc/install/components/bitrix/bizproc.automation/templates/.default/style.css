@@ -75,10 +75,8 @@
 	flex: 1;
 	min-width: 190px;
 	max-width: 400px;
-	padding: 0 3px;
 	position: relative;
 	padding: 0 0 23px 0;
-	border-bottom: 1px solid #d8d8d8;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
@@ -145,46 +143,40 @@
 }
 
 .bizproc-automation-status-name {
-	display: block;
+	display: flex;
+	align-items: center;
 	overflow: hidden;
 	position: relative;
 	margin: 0 0 7px 0;
 }
 
-.bizproc-automation-status-name:before {
-	content: '';
-	position: absolute;
-	width: 100%;
+.bizproc-automation-status-line {
 	height: 1px;
+	flex: 1;
 	background: #d8d8d8;
-	top: 9px;
 }
 
 .bizproc-automation-status-name-bg {
 	display: inline-block;
 	font-size: 16px;
 	color: #333;
-	background: #fff;
 	padding: 0 8px 0 0;
 	position: relative;
 	z-index: 9;
 }
 
 .bizproc-automation-status-help {
-	background: #bfc5ca;
-	border-radius: 50%;
-	color: #fff;
 	display: inline-block;
-	font-size: 11px;
-	height: 16px;
-	line-height: 16px;
-	margin: 0 0 0 7px;
-	right: 0;
-	text-align: center;
-	top: 12px;
 	vertical-align: middle;
 	width: 16px;
-	cursor: help;
+	margin: 0 0 0 7px;
+}
+
+.bizproc-automation-status-help .ui-hint-icon {
+	margin-top: 5px;
+	width: 16px;
+	height: 16px;
+	vertical-align: top;
 }
 
 .bizproc-automation-status-help-right {
@@ -301,7 +293,7 @@
 	font-size: 15px;
 	border-radius: 3px;
 	color: #555c6d;
-	border: 1px solid #dfe0e3;
+	border: 1px solid #acf2fa;
 	padding: 0 10px;
 	position: relative;
 	-webkit-transition: .1s;
@@ -381,7 +373,7 @@
 	line-height: 20px;
 	color: #555c6d;
 	cursor: pointer;
-	border: 1px solid #ccc;
+	border: 1px solid #acf2fa;
 	border-top: none;
 	border-radius: 0 0 3px 3px;
 	-webkit--transition: .1s;
@@ -390,13 +382,17 @@
 }
 
 .automation-base-node-top {
-	clear: both;
-	display: block;
+	display: flex;
+	align-items: center;
 	width: 100%;
 	overflow: hidden;
-	line-height: 70px;
+	min-height: 70px;
 	border-bottom: 1px solid #d8d8d8;
 	margin: 0 0 17px 0;
+}
+
+.automation-base-button {
+	margin-left: auto;
 }
 
 .automation-base-node-edit {
@@ -834,6 +830,24 @@
 	opacity: 1;
 }
 
+.bizproc-automation-robot-btn-copy {
+	position: absolute;
+	bottom: 15px;
+	left: 5px;
+	z-index: 9;
+	width: 13px;
+	height: 13px;
+	opacity: .4;
+	cursor: pointer;
+	-webkit-transition: .1s;
+	-moz-transition: .1s;
+	transition: .1s;
+	color: #b1b7c5;
+}
+.bizproc-automation-robot-btn-copy:hover {
+	opacity: 1;
+}
+
 .bizproc-automation-robot-btn-settings {
 	clear: both;
 	display: block;
@@ -911,33 +925,8 @@
 	margin-right: 3px;
 }
 
-.bizproc-automation-buttons {
-	clear: both;
-	display: block;
-	margin: 30px 0 0 0;
-	padding: 15px;
+.bizproc-automation-buttons .ui-button-panel{
 	text-align: center;
-	border: 1px solid #e1e2e3;
-	border-radius: 3px;
-}
-
-.bizproc-automation-buttons-fixed {
-	position: fixed;
-	padding: 15px;
-	bottom: 0;
-	left: 240px;
-	right: 64px;
-	background: #fff;
-	text-align: center;
-	z-index: 9;
-	-webkit-box-shadow: 0 0 9px 0 #c6c9cb;
-	box-shadow: 0 0 9px 0 #c6c9cb;
-}
-
-.task-iframe-popup .bizproc-automation-buttons-fixed,
-.bizproc-automation-buttons-fixed-slider {
-	left: 0;
-	right: 0;
 }
 
 .menu-collapsed-mode .bizproc-automation-buttons-fixed {
@@ -1064,6 +1053,10 @@
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	margin: 0 13px 0 0;
+}
+
+.bizproc-automation-popup-select-block .bizproc-automation-status-help-right {
+	margin-top: 8px;
 }
 
 .bizproc-automation-popup-select-item .bizproc-automation-popup-settings-title-auto-width {
@@ -1809,3 +1802,11 @@
 }
 
 .bizproc-automation-popup-sms-symbol-counter-number-overhead { color: #d0011b; }
+.bizproc-automation-condition-wrapper:last-of-type .bizproc-automation-condition-joiner {
+	display: none;
+}
+
+.bizproc-automation-condition-joiner {
+	color: #80868e;
+	border-bottom-color: #80868e;
+}

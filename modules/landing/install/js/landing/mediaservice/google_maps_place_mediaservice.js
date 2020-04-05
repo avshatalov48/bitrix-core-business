@@ -20,7 +20,7 @@
 
 			if (matched[8])
 			{
-				result = "//maps.google." + matched[2] + "/maps?q=" + matched[8] + "&output=embed"
+				result = "//maps.google." + matched[2] + "/maps?q=" + decodeURI(decodeURI(matched[8])) + "&output=embed"
 			}
 
 			return result;

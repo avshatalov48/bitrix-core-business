@@ -1,4 +1,6 @@
 <?
+$MESS["SALE_DLVRS_ADDP_Y"] = "Yes";
+$MESS["SALE_DLVRS_ADDP_N"] = "No";
 $MESS["SALE_DLVRS_ADDP_NAME"] = "Profile for extra delivery services";
 $MESS["SALE_DLVRS_ADDP_DESCRIPTION"] = "Provides profile for extra delivery services";
 $MESS["SALE_DLVRS_ADDP_MAIN_TITLE"] = "Settings";

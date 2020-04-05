@@ -19,13 +19,29 @@ final class CurrencyClassifier
 	private static $separatorsTypes = array();
 
 	/**
+	 * Returns currency description with language settings.
+	 *
+	 * @param string $currency		Currency identifier.
+	 * @param array $languages		Language id list.
+	 * @return array|null
+	 */
+	public static function getCurrency($currency, array $languages)
+	{
+		$currency = CurrencyManager::checkCurrencyID($currency);
+		if (!$currency)
+			return null;
+		self::prepare($languages, '');
+		return (isset(self::$currencyClassifier[$currency]) ? self::$currencyClassifier[$currency] : null);
+	}
+
+	/**
 	 * Return classifier
 	 *
 	 * @param array $languageIds - Array of languages
 	 * @param string $baseLanguageId - Base language
 	 * @return array
 	 */
-	public static function get($languageIds, $baseLanguageId)
+	public static function get(array $languageIds, $baseLanguageId)
 	{
 		self::prepare($languageIds, $baseLanguageId);
 		return self::$currencyClassifier;
@@ -95,10 +111,24 @@ final class CurrencyClassifier
 	 */
 	private static function sort($baseLanguageId)
 	{
+		$baseLanguageId = strtoupper(trim($baseLanguageId));
+		if ($baseLanguageId === '')
+			return;
 		if (self::$lastSortLanguage == $baseLanguageId)
 			return;
 
-		Collection::sortByColumn(self::$currencyClassifier, strtoupper($baseLanguageId));
+		Collection::sortByColumn(
+			self::$currencyClassifier,
+			$baseLanguageId,
+			array(
+				$baseLanguageId => function($row)
+				{
+					return $row['FULL_NAME'];
+				}
+			),
+			null,
+			true
+		);
 
 		self::$lastSortLanguage = $baseLanguageId;
 	}
@@ -674,7 +704,7 @@ final class CurrencyClassifier
 				'SYM_CODE' => 'HKD',
 				'DEFAULT' => array(
 					'FULL_NAME' => 'Hong Kong Dollar',
-					'FORMAT_STRING' => '$#VALUE#',
+					'FORMAT_STRING' => 'HK$#VALUE#',
 					'DEC_POINT' => '.',
 					'THOUSANDS_VARIANT' => self::SEPARATOR_COMMA,
 					'DECIMALS' => 2,
@@ -1634,7 +1664,7 @@ final class CurrencyClassifier
 				'SYM_CODE' => 'TWD',
 				'DEFAULT' => array(
 					'FULL_NAME' => 'New Taiwan Dollar',
-					'FORMAT_STRING' => '$#VALUE#',
+					'FORMAT_STRING' => 'NT$#VALUE#',
 					'DEC_POINT' => '.',
 					'THOUSANDS_VARIANT' => self::SEPARATOR_COMMA,
 					'DECIMALS' => 2,
@@ -1826,7 +1856,7 @@ final class CurrencyClassifier
 				'SYM_CODE' => 'XAF',
 				'DEFAULT' => array(
 					'FULL_NAME' => 'CFA Franc BEAC',
-					'FORMAT_STRING' => '&#8378;#VALUE#',
+					'FORMAT_STRING' => '&#8355;#VALUE#',
 					'DEC_POINT' => '.',
 					'THOUSANDS_VARIANT' => self::SEPARATOR_COMMA,
 					'DECIMALS' => 0,
@@ -1850,7 +1880,7 @@ final class CurrencyClassifier
 				'SYM_CODE' => 'XOF',
 				'DEFAULT' => array(
 					'FULL_NAME' => 'CFA Franc BCEAO',
-					'FORMAT_STRING' => '&#8378;#VALUE#',
+					'FORMAT_STRING' => '&#8355;#VALUE#',
 					'DEC_POINT' => '.',
 					'THOUSANDS_VARIANT' => self::SEPARATOR_COMMA,
 					'DECIMALS' => 0,
@@ -1862,7 +1892,7 @@ final class CurrencyClassifier
 				'SYM_CODE' => 'XPF',
 				'DEFAULT' => array(
 					'FULL_NAME' => 'CFP Franc',
-					'FORMAT_STRING' => '&#8378;#VALUE#',
+					'FORMAT_STRING' => '&#8355;#VALUE#',
 					'DEC_POINT' => '.',
 					'THOUSANDS_VARIANT' => self::SEPARATOR_COMMA,
 					'DECIMALS' => 0,
@@ -2150,7 +2180,7 @@ final class CurrencyClassifier
 				'SYM_CODE' => 'GEL',
 				'DEFAULT' => array(
 					'FULL_NAME' => 'Lari',
-					'FORMAT_STRING' => '&#8372;#VALUE#',
+					'FORMAT_STRING' => '&#8382;#VALUE#',
 					'DEC_POINT' => '.',
 					'THOUSANDS_VARIANT' => self::SEPARATOR_COMMA,
 					'DECIMALS' => 2,
@@ -2174,7 +2204,7 @@ final class CurrencyClassifier
 				'SYM_CODE' => 'PLN',
 				'DEFAULT' => array(
 					'FULL_NAME' => 'Zloty',
-					'FORMAT_STRING' => 'PLN#VALUE#',
+					'FORMAT_STRING' => '#VALUE# z&#322;',
 					'DEC_POINT' => '.',
 					'THOUSANDS_VARIANT' => self::SEPARATOR_COMMA,
 					'DECIMALS' => 2,
@@ -2186,7 +2216,7 @@ final class CurrencyClassifier
 				'SYM_CODE' => 'BRL',
 				'DEFAULT' => array(
 					'FULL_NAME' => 'Brazilian Real',
-					'FORMAT_STRING' => '$#VALUE#',
+					'FORMAT_STRING' => 'R$#VALUE#',
 					'DEC_POINT' => '.',
 					'THOUSANDS_VARIANT' => self::SEPARATOR_COMMA,
 					'DECIMALS' => 2,

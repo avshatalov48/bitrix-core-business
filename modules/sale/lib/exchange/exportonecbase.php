@@ -8,16 +8,6 @@ abstract class ExportOneCBase extends ExportPattern
 	const SHEM_VERSION_2_10 = '2.10';
 	const SHEM_VERSION_3_1 = '3.1';
 
-	public static function configuration()
-	{
-		ManagerExport::registerInstance(EntityType::ORDER, OneC\ExportSettings::getCurrent());
-		ManagerExport::registerInstance(EntityType::SHIPMENT, OneC\ExportSettings::getCurrent());
-		ManagerExport::registerInstance(EntityType::PAYMENT_CASH, OneC\ExportSettings::getCurrent());
-		ManagerExport::registerInstance(EntityType::PAYMENT_CASH_LESS, OneC\ExportSettings::getCurrent());
-		ManagerExport::registerInstance(EntityType::PAYMENT_CARD_TRANSACTION, OneC\ExportSettings::getCurrent());
-		ManagerExport::registerInstance(EntityType::USER_PROFILE, OneC\ExportSettings::getCurrent());
-	}
-
 	/**
 	 * @return string
 	 */

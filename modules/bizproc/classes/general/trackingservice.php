@@ -87,13 +87,34 @@ class CBPAllTrackingService
 		global $DB;
 
 		$workflowId = trim($workflowId);
-		if (strlen($workflowId) <= 0)
+		if (!$workflowId)
+		{
 			throw new Exception("workflowId");
+		}
 
 		$DB->Query(
 			"DELETE FROM b_bp_tracking ".
 			"WHERE WORKFLOW_ID = '".$DB->ForSql($workflowId)."' ",
 			true
+		);
+	}
+
+	public function setCompletedByWorkflow($workflowId, $flag = true)
+	{
+		global $DB;
+
+		$workflowId = trim($workflowId);
+
+		if (!$workflowId)
+		{
+			throw new Exception("workflowId");
+		}
+
+		$value1 = $flag ? 'Y' : 'N';
+		$value2 = $DB->ForSql($workflowId, 32);
+
+		$DB->Query(
+			"UPDATE b_bp_tracking SET COMPLETED = '{$value1}' WHERE WORKFLOW_ID = '{$value2}'"
 		);
 	}
 
@@ -176,9 +197,14 @@ class CBPAllTrackingService
 		return $this;
 	}
 
+	public function isForcedMode($workflowId)
+	{
+		return in_array($workflowId, $this->forcedModeWorkflows);
+	}
+
 	public function canWrite($type, $workflowId)
 	{
-		return (in_array($workflowId, $this->forcedModeWorkflows) || !in_array($type, $this->skipTypes));
+		return (!in_array($type, $this->skipTypes) || $this->isForcedMode($workflowId));
 	}
 
 	public function Write($workflowId, $type, $actionName, $executionStatus, $executionResult, $actionTitle = "", $actionNote = "", $modifiedBy = 0)
@@ -300,20 +326,20 @@ class CBPAllTrackingService
 		return $dbRes;
 	}
 
-	function ClearOld($days = 0)
+	public static function ClearOld($days = 0)
 	{
 		global $DB;
 
 		$days = intval($days);
 		if ($days <= 0)
+		{
 			$days = 90;
+		}
 
-		$strSql = "DELETE t ".
-			"FROM b_bp_tracking t ".
-			"   LEFT JOIN b_bp_workflow_instance i ON (t.WORKFLOW_ID = i.ID) ".
-			"WHERE i.ID IS NULL ".
-			"  AND t.MODIFIED < DATE_SUB(NOW(), INTERVAL ".$days." DAY) ".
-			"   AND t.TYPE <> 6";
+		$strSql = "DELETE t FROM b_bp_tracking t".
+			" WHERE t.COMPLETED = 'Y' ".
+			" AND t.MODIFIED < DATE_SUB(NOW(), INTERVAL ".$days." DAY)".
+			" AND t.TYPE <> 6";
 		$bSuccess = $DB->Query($strSql, true);
 
 		return $bSuccess;

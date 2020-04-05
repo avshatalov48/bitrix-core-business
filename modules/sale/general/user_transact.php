@@ -3,7 +3,7 @@ IncludeModuleLangFile(__FILE__);
 
 class CAllSaleUserTransact
 {
-	function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && IntVal($arFields["USER_ID"]) <= 0)
 		{
@@ -43,7 +43,7 @@ class CAllSaleUserTransact
 		return True;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -54,15 +54,15 @@ class CAllSaleUserTransact
 		return $DB->Query("DELETE FROM b_sale_user_transact WHERE ID = ".$ID." ", true);
 	}
 
-	function OnUserDelete($UserID)
+	public static function OnUserDelete($UserID)
 	{
 		global $DB;
 		$UserID = IntVal($UserID);
 
 		return $DB->Query("DELETE FROM b_sale_user_transact WHERE USER_ID = ".$UserID." ", true);
 	}
-	
-	function DeleteByOrder($OrderID)
+
+	public static function DeleteByOrder($OrderID)
 	{
 		global $DB;
 		$OrderID = IntVal($OrderID);
@@ -70,4 +70,3 @@ class CAllSaleUserTransact
 		return $DB->Query("Update b_sale_user_transact SET ORDER_ID = NULL WHERE ORDER_ID = ".$OrderID." ", true);
 	}
 }
-?>

@@ -2224,7 +2224,7 @@ div.bxec-dav-list div.bxec-dav-item-edited div.bxec-dav-item-name,
 .bxec-sync-popup-wrap .bxec-sync-popup-item{white-space: nowrap!important; padding: 6px 10px 6px 10px; margin-bottom: 6px; cursor: pointer!important;}
 .bxec-sync-popup-wrap .bxec-sync-popup-item:hover{background-color: #F2F8D6!important; color: #000!important;}
 
-.bxec-b24-limit-wrap{margin-top: 10px;}
+.bxec-b24-limit-wrap{margin: 20px;}
 
 .event-grid-planner-cont {
 	display: none;

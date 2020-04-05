@@ -62,7 +62,10 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0 && !$arParams['COUNTERS_ONLY'])
 	$arResult['USE_SUBORDINATION'] = (bool)CModule::IncludeModule('intranet');
 	$arResult["GRID_ID"] = "bizproc_task_list";
 
-	$arSelectFields = array("ID", "WORKFLOW_ID", "PARAMETERS", "MODIFIED", "OVERDUE_DATE", 'IS_INLINE', 'STATUS', 'USER_ID', 'USER_STATUS', 'WORKFLOW_STATE', 'ACTIVITY');
+	$arSelectFields = [
+		"ID", "WORKFLOW_ID", "PARAMETERS", "MODIFIED", "OVERDUE_DATE", 'IS_INLINE', 'STATUS',
+		'USER_ID', 'USER_STATUS', 'WORKFLOW_STATE', 'ACTIVITY', 'DOCUMENT_NAME'
+	];
 
 	$gridOptions = new CGridOptions($arResult["GRID_ID"]);
 	$gridColumns = $gridOptions->GetVisibleColumns();
@@ -138,6 +141,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0 && !$arParams['COUNTERS_ONLY'])
 			array('NAME' => 'ASC'),
 			array(
 				"ACTIVE" => "Y",
+				"USER_ID" => $currentUserId,
 				'!AUTO_EXECUTE' => CBPDocumentEventType::Automation
 			),
 			false, false,
@@ -300,7 +304,9 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0 && !$arParams['COUNTERS_ONLY'])
 		$arRecord["DOCUMENT_ID"] = $documentId ? $documentId[2] : '';
 
 		if (empty($arRecord['DOCUMENT_NAME']))
+		{
 			$arRecord['DOCUMENT_NAME'] = GetMessage("BPATL_DOCUMENT_NAME");
+		}
 
 		$arRecord["URL"] = array(
 			"~TASK" => CComponentEngine::MakePathFromTemplate($arParams["~TASK_EDIT_URL"], $arRecord), 

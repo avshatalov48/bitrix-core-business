@@ -11,5 +11,6 @@ $sender_default_option = array(
 	"unsub_link"=>"",
 	"sub_link"=>"",
 	"auto_agent_interval"=>"0",
+	"track_mails"=>"Y",
 );
 ?>

@@ -24,3 +24,8 @@ p {
 .btn {
   font-family: "Montserrat", Arial, sans-serif;
 }
+
+small,
+.small {
+  font-size: 0.71429rem;
+}

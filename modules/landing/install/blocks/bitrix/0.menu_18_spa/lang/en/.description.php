@@ -1,5 +1,4 @@
 <?
-$MESS["LANDING_BLOCK_0.MENU_1_NAME"] = "The \"SPA\" template's translucent menu with a logo on the left and menu items on the right";
 $MESS["LANDING_BLOCK_0.MENU_1_NODES_LANDINGBLOCKNODEMENULIST"] = "Menu";
 $MESS["LANDING_BLOCK_0.MENU_1_NODES_LANDINGBLOCKNODEMENULISTITEMLINK"] = "Menu item";
 $MESS["LANDING_BLOCK_0.MENU_1_NODES_LANDINGBLOCKNODEMENULOGOLINK"] = "Logo link URL";
@@ -8,4 +7,5 @@ $MESS["LANDING_BLOCK_0.MENU_1_NODES_LANDINGBLOCKNODEMENULOGO2"] = "Logo (collaps
 $MESS["LANDING_BLOCK_0.MENU_1_STYLE_LANDINGBLOCKNODEMENULISTITEMLINK"] = "Menu item";
 $MESS["LANDING_BLOCK_0.MENU_1_STYLE_LANDINGBLOCKNODEMENULIST"] = "Menu";
 $MESS["LANDING_BLOCK_0.MENU_1_NAME_NEW"] = "\"SPA\" template menu with a logo on the left, menu items on the right and a static translucent background";
+
 ?>

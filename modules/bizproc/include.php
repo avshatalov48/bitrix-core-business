@@ -1,5 +1,4 @@
 <?
-
 $arClasses = array(
 	"CBPActivity" => "classes/general/activity.php",
 	"CBPActivityCondition" => "classes/general/activitycondition.php",
@@ -91,6 +90,13 @@ CJSCore::RegisterExt('bp_starter', array(
 CJSCore::RegisterExt('bp_user_selector', array(
 	'js' => '/bitrix/js/bizproc/user_selector.js',
 	//'css' => '/bitrix/js/bizproc/css/starter.css',
-	//'lang' => '/bitrix/modules/bizproc/lang/'.LANGUAGE_ID.'/install/js/starter.php',
+	'lang' => '/bitrix/modules/bizproc/lang/'.LANGUAGE_ID.'/install/js/user_selector.php',
 	'rel' => array('core', 'popup', 'socnetlogdest'),
+));
+
+CJSCore::RegisterExt('bp_field_type', array(
+	'js' => '/bitrix/js/bizproc/fieldtype.js',
+	'css' => '/bitrix/js/bizproc/css/fieldtype.css',
+	'lang' => '/bitrix/modules/bizproc/lang/'.LANGUAGE_ID.'/install/js/fieldtype.php',
+	//'rel' => array('core', 'popup', 'socnetlogdest'),
 ));

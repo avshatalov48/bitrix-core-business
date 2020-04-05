@@ -28,10 +28,16 @@ class PrettyDate
 	public static function getDateTimeFormat()
 	{
 		$isAmPm = IsAmPmMode(true);
-		$lang = Application::getInstance()->getContext()->getLanguage();
-		$format = $lang === 'de' ? 'j. F' : 'j F';
-		$format .= ', ' . ($isAmPm === AM_PM_LOWER? "g:i a" : ($isAmPm === AM_PM_UPPER? "g:i A" : "H:i"));
-		return $format;
+		switch ($isAmPm)
+		{
+			case AM_PM_LOWER:
+				return Loc::getMessage('SENDER_PRETTY_DATE_FORMAT_DATETIME_PM_LOWER');
+
+			case AM_PM_UPPER:
+				return Loc::getMessage('SENDER_PRETTY_DATE_FORMAT_DATETIME_PM_UPPER');
+		}
+
+		return Loc::getMessage('SENDER_PRETTY_DATE_FORMAT_DATETIME');
 	}
 
 	/**
@@ -41,8 +47,7 @@ class PrettyDate
 	 */
 	public static function getDateFormat()
 	{
-		$lang = Application::getInstance()->getContext()->getLanguage();
-		return $lang === 'de' ? 'j. F' : 'j F';
+		return Loc::getMessage('SENDER_PRETTY_DATE_FORMAT_DATE');
 	}
 
 	/**
@@ -60,12 +65,12 @@ class PrettyDate
 	/**
 	 * Format date.
 	 *
-	 * @param DateTime|null $date Date.
+	 * @param Date|null $date Date.
 	 * @return string
 	 */
-	public static function formatDate(DateTime $date = null)
+	public static function formatDate(Date $date = null)
 	{
-		$date = $date ?: new DateTime();
-		return \FormatDate(self::getDateFormat(), $date);
+		$date = $date ?: new Date();
+		return \FormatDate(self::getDateFormat(), DateTime::createFromTimestamp($date->getTimestamp()));
 	}
 }

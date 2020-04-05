@@ -46,15 +46,13 @@
 		this.body.appendChild(this.search);
 
 		// Make loader
-		this.loader = new BX.Landing.UI.Card.Loader({hidden: true});
-		this.body.appendChild(this.loader.layout);
+		this.loader = new BX.Loader({target: this.body});
 
 		// Make search list
 		this.imageList = BX.create("div", {props: {className: "landing-ui-card-library-list"}});
 		this.body.appendChild(this.imageList);
 
-		this.bottomLoader = new BX.Landing.UI.Card.Loader({hidden: true});
-		this.body.appendChild(this.bottomLoader.layout);
+		this.bottomLoader = new BX.Loader({target: this.body, mode: "inline", offset: {left: "calc(50% - 55px)"}});
 
 		// Make load more button
 		this.loadMore = BX.create("div", {props: {className: "landing-ui-card-library-load-more"}});

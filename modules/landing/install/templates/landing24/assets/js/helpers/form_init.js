@@ -25,7 +25,16 @@
 
 		if (event.block.querySelectorAll(selector).length > 0)
 		{
-			// dbg: do this
+			var currentForm = window["landingForms"][event.block.id];
+			if (typeof(event.node) != 'undefined' && typeof(event.data) != 'undefined' && typeof(currentForm) != 'undefined')
+			{
+				// recreate styles if needed, Use just first node
+				if(currentForm.readFormStylesFromNode(event.node[0]))
+				{
+					currentForm.createFormOptions();
+					currentForm.onFormReloadWithDebounce();
+				}
+			}
 		}
 	});
 
@@ -101,25 +110,28 @@
 		this.dataAttributePrefix = "data-form-style-";
 		this.dataAttributeUseStyle = "b24form-use-style";
 		this.dataAttributeShowHeader = "b24form-show-header";
+		this.dataAttributeIsConnector = "b24form-connector";
 
 		this.hideHeaderString = ".crm-webform-header-container{display:none;}";
 		this.hideBitrixLogoString = ".crm-webform-bottom-link{display:none}.crm-webform-bottom-logo-container{height:0;margin:0;}";
-		this.paddingFixesString =
+		this.additionalCssString =
 			".content{min-height:170px;}" +
 			".crm-webform-fieldset-footer{padding-bottom:0;}" +
 			".crm-webform-body{padding-bottom:0;padding-top:0;}" +
 			".content-wrap{padding-bottom:0;}" +
-			".crm-webform-block.crm-webform-default{margin-bottom:0;}";
+			".crm-webform-block.crm-webform-default{margin-bottom:0;}" +
+			".calendar-resbook-webform-block-date-item-inner{transition: border-color ease-in-out 0.5s;}";
 
 		this.block = block;
 		this.selector = selector;
+		this.iframe = null;	//will be determinate when frame initialized
 
 		// initialize form loader only in first run
 		var domainNode = BX.findChild(this.block, {'attribute': 'data-' + this.dataAttributeDomain}, true, false);
 		if (domainNode && this.isFormChosen())
 		{
 			this.domain = BX.data(domainNode, this.dataAttributeDomain);
-			this.initFormLoader(window, document, window.location.protocol + '//' + this.domain + '/bitrix/js/crm/form_loader.js', 'b24form');
+			this.initFormLoader(window, document, this.createFullDomain() + '/bitrix/js/crm/form_loader.js', 'b24form');
 		}
 
 		// what style may find in block
@@ -129,7 +141,9 @@
 			'bg': {'params': ['background-color', 'background-image']},
 			'bg-content': {'params': ['background-color']},
 			'bg-block': {'params': ['background-color']},
+			'bg-as-text': {'params': ['background-color']},
 			'main-bg': {'params': ['background-color']},
+			'main-bg-light': {'params': ['background-color']},
 			'main-border-color': {'params': ['border-top-color', 'border-bottom-color', 'border-left-color', 'border-right-color']},
 			'main-font-family': {'params': ['font-family']},
 			'main-font-color': {'params': ['color']},
@@ -152,6 +166,10 @@
 			'input-bg': {'params': ['background-color']},
 			'input-box-shadow': {'params': ['box-shadow']},
 			'input-select-bg': {'params': ['background-color']},
+			'input-bg-light': {'params': ['background-color']},
+			'input-bg-light2': {'params': ['background-color']},
+			'input-bg-light3': {'params': ['background-color']},
+			'gradient-box-shadow': {'params': ['box-shadow']},
 			'input-border': {
 				'params': [
 					'border-top-color', 'border-bottom-color', 'border-left-color', 'border-right-color',
@@ -184,10 +202,12 @@
 		this.selectors = {
 			'.crm-webform-wrapper, .content-wrap': ['wrapper-padding'],
 			'body.crm-webform-iframe': ['bg'],
-			'.content': ['bg-content'],
-			'.crm-webform-block': ['bg-block', 'border-block'],
+			'.content, .page-theme-transparent .content': ['bg-content'],
+			'.crm-webform-block, .page-theme-transparent .crm-webform-block': ['bg-block', 'border-block'],
 			'.crm-webform-header-container': ['bg-block', 'border-block', 'main-font-family', 'main-font-color', 'main-font-weight', 'header-text-font-size'],
 			'.crm-webform-header-container h2': ['main-font-color', 'bg-block'],
+			'.crm-webform-resourcebooking-wrap-live': ['bg-block'],
+			'.crm-webform-field-resourcebooking .crm-webform-label-content': ['bg-block'],
 			'.crm-webform-inner-header': ['main-font-color', 'main-font-family'],
 			'.crm-webform-mini-cart-title, .crm-webform-mini-cart-services-container': ['main-font-color', 'main-font-family'],
 			'.crm-webform-header': ['main-font-family', 'header-font-weight', 'header-font-size'],
@@ -202,9 +222,34 @@
 			'.crm-webform-input option': ['main-font-family', 'input-select-bg', 'main-font-color'],
 			'.crm-webform-active .crm-webform-input, .crm-webform-active mark, .crm-webform-input:hover': ['input-border-hover'],
 			'.crm-webform-checkbox-container:hover i': ['main-border-color'],
-			'.crm-webform-checkbox-name': ['main-font-family'],
+			'.crm-webform-checkbox-name': ['main-font-family', 'second-font-color'],
 			'.crm-webform-input+i:after': ['main-font-color-hover'],
-			'.crm-webform-agreement-modifier .crm-webform-checkbox-name': ['agreement-label-font-size']
+			'.crm-webform-agreement-modifier .crm-webform-checkbox-name': ['agreement-label-font-size'],
+			// resource booking
+			'.calendar-resbook-webform-block-input-dropdown': [
+				'input-bg', 'input-border', 'main-font-color'
+			],
+			'.calendar-resbook-webform-block-input-dropdown:hover': ['input-border-hover'],
+			'.calendar-resbook-webform-block-input-dropdown::before': ['bg-as-text'],
+			'.popup-window, .popup-window .popup-window-content': ['input-bg-light'],
+			'.popup-window .menu-popup-item-text': ['main-font-color'],
+			'.popup-window .menu-popup-item:hover, .popup-window .menu-item-selected': ['input-bg-light2'],
+			'.popup-window .popup-window-content .menu-popup-item:hover .menu-popup-item-text': ['main-font-color'],
+			'.calendar-resbook-webform-block-inner .calendar-resbook-webform-block-title': ['second-font-color'],
+			'.calendar-resbook-webform-block-date-item-select .calendar-resbook-webform-block-date-item-inner': ['main-bg'],
+			'.calendar-resbook-webform-block-date-item-inner': ['input-bg', 'input-border'],
+			'.calendar-resbook-webform-block-date-item-inner:hover': ['input-border-hover'],
+			'.calendar-resbook-webform-block-date-number': ['main-font-color'],
+			'.calendar-resbook-webform-block-date-item-select .calendar-resbook-webform-block-date-number': ['button-font-color'],
+			'.calendar-resbook-webform-block-date-item-select .calendar-resbook-webform-block-date-day': ['button-font-color'],
+			'.calendar-resbook-webform-block-arrow': ['input-bg-light3', 'gradient-box-shadow'],
+			'.calendar-resbook-webform-block-col-item-inner': ['main-bg-light'],
+			'.calendar-resbook-webform-block-col-item-select .calendar-resbook-webform-block-col-item-inner': ['main-bg', 'button-font-color'],
+			'.calendar-resbook-webform-block-col-time:first-child': ['main-font-color'],
+			'.calendar-resbook-webform-block-col-item-select .calendar-resbook-webform-block-col-time:first-child': ['button-font-color'],
+			'.calendar-resbook-webform-block-result-inner, .page-theme-image .calendar-resbook-webform-block-result-inner': [
+				'input-bg', 'main-border-color', 'main-font-color'
+			],
 		};
 
 		this.formParams = {};
@@ -256,8 +301,9 @@
 		initForm: function ()
 		{
 			// do nothing if form not chosen
-			if(!this.isFormChosen())
+			if (!this.isFormChosen())
 			{
+				this.createNoFormMessage();
 				return;
 			}
 
@@ -281,6 +327,43 @@
 			}
 		},
 
+		createNoFormMessage: function ()
+		{
+			// show alert only in edit mode
+			if (BX.Landing.getMode() == "view")
+			{
+				return;
+			}
+
+			var formContainer = document.querySelector(this.selector);
+			if (formContainer)
+			{
+				var alertHtml = '<h2 class="u-form-alert-title">' + '<i class="fa fa-exclamation-triangle g-mr-15"></i>'
+					+ BX.message('LANDING_BLOCK_WEBFORM_NO_FORM') + '</h2><hr class="u-form-alert-divider">';
+
+				// todo: need correctly check bus or cp, without flag
+				if (
+					typeof(BX.data(formContainer, this.dataAttributeIsConnector)) != 'undefined'
+					&& BX.data(formContainer, this.dataAttributeIsConnector) == 'Y'
+				)
+				{
+					alertHtml += '<p class="u-form-alert-text">' + BX.message('LANDING_BLOCK_WEBFORM_NO_FORM_BUS') + '</p>'
+				}
+				else
+				{
+					alertHtml += '<p class="u-form-alert-text">' + BX.message('LANDING_BLOCK_WEBFORM_NO_FORM_CP') + '</p>'
+				}
+
+				var messageNode = BX.create({
+					tag: 'div',
+					props: {className: 'u-form-alert'},
+					html: alertHtml
+				});
+				BX.adjust(formContainer, {children: [messageNode]});
+			}
+
+		},
+
 		createFormParams: function ()
 		{
 			var b24Forms = document.querySelectorAll(this.selector);
@@ -290,11 +373,13 @@
 				{
 					var formCode = BX.data(b24Forms[i], this.dataFormId);
 					var formParts = formCode.split('|');
+					// find lang param from url if exist
+					var formLang = window.location.search.match(new RegExp('user_lang' + '=([^&=]+)'));
 					if (formParts.length === 2)
 					{
 						this.formParams = {
 							id: formParts[0],
-							lang: BX.message('LANGUAGE_ID'),
+							lang: formLang ? formLang[1] : BX.message('LANGUAGE_ID'),
 							sec: formParts[1],
 							type: 'inline' + '_' + this.block.id,
 							node: b24Forms[i]
@@ -337,25 +422,47 @@
 		},
 
 
+		sendFrameMessage: function (params, uniqueLoadId)
+		{
+			// frame not init yet
+			if (!this.iframe)
+			{
+				return;
+			}
+
+			var ie = 0 /*@cc_on + @_jscript_version @*/;
+			if (typeof window.postMessage === 'function' && !ie)
+			{
+				// prepare PARAMS
+				if (typeof(params) != 'object')
+				{
+					params = {};
+				}
+				var messageDomain = (this.createFullDomain() + '/').match(/((http|https):\/\/[^\/]+?)\//)[1];
+				params.domain = messageDomain;
+
+				// get id default or from params
+				if (uniqueLoadId === undefined)
+				{
+					uniqueLoadId = this.type + '_' + this.id;
+				}
+				params.uniqueLoadId = uniqueLoadId;
+
+				//init postMessage
+				this.iframe.contentWindow.postMessage(
+					JSON.stringify(params), messageDomain
+				);
+			}
+		},
+
+
 		onFormFrameLoad: function (form, uniqueLoadId)
 		{
 			if (form.id == this.formParams.id && form.sec == this.formParams.sec && form.type == this.formParams.type)
 			{
-				var ie = 0 /*@cc_on + @_jscript_version @*/;
-				if (typeof window.postMessage === 'function' && !ie)
-				{
-					var messageDomain = (window.location.protocol + '//' + this.domain + '/').match(/((http|https):\/\/[^\/]+?)\//)[1];
-					var frameParameters = {
-						'domain': messageDomain,
-						'uniqueLoadId': uniqueLoadId,
-						'options': this.formOptions
-					};
-
-					//init postMessage
-					form.iframe.contentWindow.postMessage(
-						JSON.stringify(frameParameters), messageDomain
-					);
-				}
+				// save iframe
+				this.iframe = form.iframe;
+				this.sendFrameMessage({'options': this.formOptions}, uniqueLoadId);
 			}
 		},
 
@@ -377,6 +484,29 @@
 				Bitrix24FormLoader.unload(this.formParams);
 				Bitrix24FormLoader.preLoad(this.formParams);
 			}
+		},
+
+
+		/**
+		 * To preserve overreloading when style changes
+		 * @returns {*}
+		 */
+		onFormReloadWithDebounce: function()
+		{
+			return BX.debounce(this.onFormReload(), 1000, this);
+		},
+
+
+		// if not exist protocol - add default
+		createFullDomain: function ()
+		{
+			var fullDomain = this.domain;
+			if (!(this.domain).match(/(http|https):/))
+			{
+				fullDomain = 'https://' + this.domain;
+			}
+
+			return fullDomain;
 		},
 
 		// may create other options for form, but now - only css
@@ -408,7 +538,7 @@
 			// hide bitrix LABEL
 			this.formOptions.css.content = this.createHideBitrixLabelCss(this.formOptions.css.content);
 			// fixes to form HEIGHT
-			this.formOptions.css.content = this.createPaddingFixesCss(this.formOptions.css.content);
+			this.formOptions.css.content = this.createAdditionalCss(this.formOptions.css.content);
 		},
 
 
@@ -435,10 +565,14 @@
 				this.selectors[selector].forEach(function (style)
 				{
 					if (typeof(this.styles[style]) != 'undefined')
-						this.styles[style].forEach(BX.delegate(function (param)
+					{
+						for (var styleValue in this.styles[style])
 						{
-							cssStringCurrent += param.param + ":" + param.value + ";";
-						}), this);
+							cssStringCurrent +=
+								this.styles[style][styleValue].param + ":" +
+								this.styles[style][styleValue].value + ";";
+						}
+					}
 				}, this);
 
 				if (cssStringCurrent.length > 0)
@@ -459,11 +593,11 @@
 			return string + this.hideBitrixLogoString;
 		},
 
-		createPaddingFixesCss: function (string)
+		createAdditionalCss: function (string)
 		{
 			string = (typeof(string) == 'undefined') ? '' : string;
 
-			return string + this.paddingFixesString;
+			return string + this.additionalCssString;
 		},
 
 		isUsingCustomStyle: function ()
@@ -504,6 +638,28 @@
 			return string;
 		},
 
+		/**
+		 * Get computed style from one node by params. Save in styles array
+		 * @param node
+		 * @param style
+		 */
+		readNodeStyles: function(node, style)
+		{
+			this.styleParams[style].params.forEach(BX.delegate(function (param)
+			{
+				var value = BX.style(node, param);
+				if (value)
+				{
+					if (typeof(this.styles[style]) == 'undefined')
+					{
+						this.styles[style] = {};
+					}
+					this.styles[style][param] = {param: param, value: value};
+				}
+			}), this);
+		},
+
+
 		readFormStyles: function ()
 		{
 			// dbg: need bx dom write
@@ -514,21 +670,32 @@
 				var node = BX.findChild(this.block, {'attribute': this.dataAttributePrefix + style}, true, false);
 				if (node)
 				{
-					this.styleParams[style].params.forEach(BX.delegate(function (param)
-					{
-						var value = BX.style(node, param);
-						if (value)
-						{
-							if (typeof(this.styles[style]) == 'undefined')
-							{
-								this.styles[style] = new Array();
-							}
-							this.styles[style].push({param: param, value: value});
-						}
-					}), this);
+					this.readNodeStyles(node, style);
 				}
 			}
 			// }), this);
+		},
+
+		/**
+		 * return false if styles was changed, or false if not
+		 * @param node
+		 * @returns {boolean}
+		 */
+		readFormStylesFromNode: function(node)
+		{
+			// check if node have style attrs
+			var change = false;
+			var attrs = node.attributes;
+			for (var i = 0; i < attrs.length; i++) {
+				var attr = attrs[i].name.replace(this.dataAttributePrefix, '');
+				if(typeof(this.styleParams[attr]) !== 'undefined')
+				{
+					change = true;
+					this.readNodeStyles(node, attr);
+				}
+			}
+
+			return change;
 		}
 	}
 })();

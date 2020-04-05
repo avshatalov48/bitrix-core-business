@@ -75,22 +75,17 @@ class AssistHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 			}
 			else
 			{
-				PaySystem\ErrorLog::add(array(
-					'ACTION' => 'return',
-					'MESSAGE' => 'assist error refund: firstcode='.$data['result']['@']['firstcode'].' secondcode='.$data['result']['@']['secondcode']
-				));
+				$error = 'assist error refund: firstcode='.$data['result']['@']['firstcode'].' secondcode='.$data['result']['@']['secondcode'];
+				PaySystem\Logger::addError('Assist: return: '.$error);
 				$result->addError(new EntityError(Loc::getMessage('SALE_PS_MESSAGE_ERROR_CONNECT_PAY_SYS')));
 			}
 		}
 		else
 		{
 			$message = 'Incorrect server response';
-
 			$result->addError(new Error($message));
-			PaySystem\ErrorLog::add(array(
-				'ACTION' => 'return',
-				'MESSAGE' => $message
-			));
+
+			PaySystem\Logger::addError('Assist: return: '.$message);
 		}
 
 		return $result;
@@ -216,10 +211,7 @@ class AssistHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 
 		if (!$result->isSuccess())
 		{
-			PaySystem\ErrorLog::add(array(
-				'ACTION' => $request->get('orderstate'),
-				'MESSAGE' => join('\n', $result->getErrorMessages())
-			));
+			PaySystem\Logger::addError('Assist: '.$request->get('orderstate').': '.join('\n', $result->getErrorMessages()));
 		}
 
 		return $result;

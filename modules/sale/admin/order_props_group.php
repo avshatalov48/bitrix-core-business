@@ -105,12 +105,21 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 	}
 }
 
-$dbResultList = CSaleOrderPropsGroup::GetList(
-	array($by => $order),
-	$arFilter
-);
+$arFilter['=PERSON_TYPE.ENTITY_REGISTRY_TYPE'] = 'ORDER';
 
-$dbResultList = new CAdminResult($dbResultList, $sTableID);
+$dbRes = \Bitrix\Sale\Internals\OrderPropsGroupTable::getList([
+	'filter' => $arFilter,
+	'order' => array($by => $order),
+	'runtime' => [
+		new \Bitrix\Main\Entity\ReferenceField(
+			'PERSON_TYPE',
+			'Bitrix\Sale\Internals\PersonType',
+			array('=this.PERSON_TYPE_ID' => 'ref.ID')
+		),
+	]
+]);
+
+$dbResultList = new CAdminResult($dbRes, $sTableID);
 $dbResultList->NavStart();
 
 $lAdmin->NavText($dbResultList->GetNavPrint(GetMessage("PERS_TYPE_NAV")));

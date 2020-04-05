@@ -1,0 +1,97 @@
+.bx-lm-element-users .bx-finder-box-item-t7-name {
+	color: #0b66c3;
+}
+
+.bx-lm-element-sonetgroups .bx-finder-box-item-t7-name,
+.bx-lm-element-projects .bx-finder-box-item-t7-name {
+	color: #2A747E;
+	font-weight: bold
+}
+
+.bx-lm-element-groups .bx-finder-box-item-t7-name {
+	color: #688617;
+	font-weight: bold;
+}
+
+.bx-lm-element-sonetgroups.bx-lm-element-extranet .bx-finder-box-item-t7-name,
+.bx-lm-element-projects.bx-lm-element-extranet .bx-finder-box-item-t7-name,
+.bx-lm-element-users.bx-lm-element-extranet .bx-finder-box-item-t7-name,
+.bx-lm-element-sonetgroups.bx-lm-element-email .bx-finder-box-item-t7-name,
+.bx-lm-element-projects.bx-lm-element-email .bx-finder-box-item-t7-name,
+.bx-lm-element-emailusers .bx-finder-box-item-t7-name,
+.bx-lm-element-crmemailusers .bx-finder-box-item-t7-name{
+	padding-left: 15px;
+	color: #D9930A;
+	position: relative;
+}
+
+.bx-lm-element-emailusers .bx-finder-box-item-t7-name,
+.bx-lm-element-crmemailusers .bx-finder-box-item-t7-name{
+	padding-left: 17px;
+}
+
+/* add svg */
+.bx-lm-element-sonetgroups.bx-lm-element-extranet .bx-finder-box-item-t7-name:before,
+.bx-lm-element-projects.bx-lm-element-extranet .bx-finder-box-item-t7-name:before,
+.bx-lm-element-users.bx-lm-element-extranet .bx-finder-box-item-t7-name:before,
+.bx-lm-element-sonetgroups.bx-lm-element-email .bx-finder-box-item-t7-name:before,
+.bx-lm-element-projects.bx-lm-element-email .bx-finder-box-item-t7-name:before,
+.bx-lm-element-emailusers .bx-finder-box-item-t7-name:before,
+.bx-lm-element-crmemailusers .bx-finder-box-item-t7-name:before{
+	background: url("images/template_sprite.png") no-repeat -35px -1607px;
+	content: "";
+	height: 13px;
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 13px;
+}
+
+.bx-lm-element-emailusers .bx-finder-box-item-t7-name:before,
+.bx-lm-element-crmemailusers .bx-finder-box-item-t7-name:before {
+	background-position: -115px -1606px;
+}
+
+.bx-lm-box .bx-lm-element-groups .bx-finder-box-item-t7-avatar,
+.bx-lm-box .bx-lm-element-sonetgroups .bx-finder-box-item-t7-avatar {
+	background-position: center -28px
+}
+
+/* add svg */
+.bx-lm-element-emailusers.bx-lm-element-crmemail .bx-finder-box-item-t7-name:before,
+.bx-lm-element-crmemailusers.bx-lm-element-crmemail .bx-finder-box-item-t7-name:before {
+	background: url("images/icon-crmuser-block.png") no-repeat 0 2px!important;
+	height: 15px!important;
+}
+
+/* add email popup */
+.bx-ui-selector.bx-feed-email-popup {
+	font-size: 0;
+	padding: 0 6px 13px 6px;
+}
+
+.bx-ui-selector.bx-feed-email-popup .bx-feed-email-title {
+	color: #525c68;
+	font-size: 14px;
+	font-weight: bold;
+	margin: 7px 0 12px;
+}
+
+.bx-ui-selector.bx-feed-email-popup .bx-feed-email-input {
+	background-color: #fff;
+	border: 1px solid #e4e4e4;
+	height: 37px;
+	margin-right: 11px;
+	vertical-align: top;
+	padding: 0 10px;
+}
+
+.bx-ui-selector.bx-feed-email-popup .bx-feed-email-crm-contact {
+	padding-top: 10px;
+	font: 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	vertical-align: middle;
+}
+
+.bx-ui-selector.bx-feed-email-popup .bx-feed-email-checkbox {
+	vertical-align: middle;
+}

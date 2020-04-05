@@ -9,8 +9,8 @@ DelayActivity = function()
 	/** @return boolean */
 	ob.CheckFields = function ()
 	{
-		return !!ob.Properties['TimeoutDuration'];
+		return !!ob.Properties['TimeoutDuration'] || !!ob.Properties['TimeoutTime'];
 	};
 
 	return ob;
-}
+};

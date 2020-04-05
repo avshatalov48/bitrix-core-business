@@ -43,7 +43,7 @@ $actions[] = Controller\Action::create('removeList')->setHandler(
 				return;
 			}
 
-			$result = Model\AbuseTable::delete($request->get('id'));
+			$result = Model\AbuseTable::delete($id);
 			if (!$result->getErrorCollection()->isEmpty())
 			{
 				$content->getErrorCollection()->add($result->getErrors());

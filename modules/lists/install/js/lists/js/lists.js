@@ -260,8 +260,7 @@ BX.Lists = (function ()
 
 			for(i=0;i<col_count;i++)
 			{
-				var oCell = oRow.insertCell(i);
-				var html = tbl.rows[cnt-1].cells[i].innerHTML;
+				var html = tbl.rows[cnt-1].innerHTML;
 				html = html.replace(regexp,
 					function(html)
 					{
@@ -271,7 +270,7 @@ BX.Lists = (function ()
 				var tmpObject = {'html': html};
 				BX.onCustomEvent(window, 'onAddNewRowBeforeInner', [tmpObject]);
 				html = tmpObject.html;
-				oCell.innerHTML = html;
+				oRow.innerHTML = html;
 				var ob = BX.processHTML(html);
 				BX.ajax.processScripts(ob.SCRIPT);
 			}

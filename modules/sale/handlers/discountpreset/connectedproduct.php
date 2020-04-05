@@ -122,7 +122,7 @@ class ConnectedProduct extends SelectProductPreset
 			BX.ready(function(){
 				new BX.Sale.Admin.DiscountPreset.SelectProduct({
 					presetId: "' . \CUtil::JSEscape($this->className()) . '",
-					siteId: "' . $lid . '",
+					siteId: "' . \CUtil::JSEscape($lid) . '",
 					sectionCount: ' . $sectionCount . ',
 					products: ' . \CUtil::PhpToJSObject($this->generateProductsData($state->get('discount_product'), $lid)) . '
 				});
@@ -203,7 +203,7 @@ class ConnectedProduct extends SelectProductPreset
 			BX.ready(function(){
 				new BX.Sale.Admin.DiscountPreset.SelectProduct({
 					presetId: "' . \CUtil::JSEscape($this->className()) . '",
-					siteId: "' . $lid . '",
+					siteId: "' . \CUtil::JSEscape($lid) . '",
 					sectionCount: ' . $sectionCount . ',
 					inputNameProduct: "discount_cond_product[]",
 					inputNameSection: "discount_cond_section[]",

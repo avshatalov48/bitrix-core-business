@@ -203,6 +203,20 @@ class CUserTypeUrl extends \CUserTypeString
 		return static::getHelper()->wrapDisplayResult($html);
 	}
 
+	public static function getPublicText($arUserField)
+	{
+		$result = array();
+		$value = static::normalizeFieldValue($arUserField['VALUE']);
+		foreach($value as $res)
+		{
+			if(is_string($res) && $res !== '')
+			{
+				$result[] = $res;
+			}
+		}
+		return implode(', ', $result);
+	}
+
 	protected static function encodeUrl($url)
 	{
 		if(!preg_match('/^(callto:|mailto:|[a-z0-9]+:\/\/)/i', $url))

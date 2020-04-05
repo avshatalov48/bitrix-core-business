@@ -72,10 +72,10 @@
 				if (newNode)
 				{
 					addInvisibleNodes = !parseBx && this.CheckBlockNode(newNode);
-
-					if (addInvisibleNodes)
+					// mantis: 101249
+					if (BX.browser.IsFirefox() && newNode.nodeName == 'DIV')
 					{
-						//frag.appendChild(this.editor.util.GetInvisibleTextNode());
+						addInvisibleNodes = false;
 					}
 
 					frag.appendChild(newNode);
@@ -93,8 +93,7 @@
 			// Insert new DOM tree
 			el.appendChild(frag);
 
-			content = this.editor.GetInnerHtml(el);
-			content = this.RegexpContentParse(content, parseBx);
+			content = this.RegexpContentParse(this.editor.GetInnerHtml(el), parseBx);
 
 			return content;
 		},
@@ -509,9 +508,9 @@
 				return null;
 			}
 
-			if (nodeName == 'A')
+			if (nodeName === 'A')
 			{
-				// Todo: clean block nodes from link
+				BX.onCustomEvent(this.editor, 'OnAfterLinkInserted', [oldNode.getAttribute('href')]);
 			}
 
 			// Clean class
@@ -1475,6 +1474,12 @@
 				{
 					return  _this.GetSurrogateHTML("php_protected", BX.message('BXEdPhpCode') + " *", BX.message('BXEdPhpCodeProtected'), {value : str});
 				});
+
+				content = content.replace(/#BXAPP(\d+)#/g, function(str, appInd)
+				{
+					appInd = parseInt(appInd);
+					return _this.editor.phpParser.AdvancedPhpGetFragmentByIndex(appInd, false);
+				});
 			}
 
 			return content;
@@ -2297,7 +2302,8 @@
 
 			for (j = 0; j < l; j++)
 			{
-				if (prevAr[j].substr(0, 6).toLowerCase()=='array(')
+				if (prevAr[j].substr(0, 6).toLowerCase()=='array('
+				|| prevAr[j].substr(0, 1).toLowerCase()=='[')
 				{
 					prevAr[j] = this.GetArray(prevAr[j]);
 				}
@@ -2315,19 +2321,25 @@
 
 		GetArray: function(str)
 		{
-			var resAr = {};
-			if (str.substr(0, 6).toLowerCase() != 'array(')
-				return str;
+			var
+				php7ArrayStyle = str.substr(0, 1).toLowerCase() == '[',
+				resAr = {};
 
-			str = str.substring(6, str.length-1);
+			if (str.substr(0, 6).toLowerCase() != 'array(' && !php7ArrayStyle)
+			{
+				return str;
+			}
+
+			str = str.substring(php7ArrayStyle ? 1 : 6, str.length - 1);
 			var
 				tempAr = this.GetParams(str),
-				prop_name, prop_val, p,
+				propKey, propValue, p, trimedPropValue,
 				y;
 
 			for (y = 0; y < tempAr.length; y++)
 			{
-				if (tempAr[y].substr(0, 6).toLowerCase()=='array(')
+				if (tempAr[y].substr(0, 6).toLowerCase() == 'array('
+				|| tempAr[y].substr(0, 1).toLowerCase() == '[')
 				{
 					resAr[y] = this.GetArray(tempAr[y]);
 					continue;
@@ -2343,17 +2355,25 @@
 				}
 				else
 				{
-					prop_name = this.TrimQuotes(tempAr[y].substr(0, p));
-					prop_val = tempAr[y].substr(p + 2);
-					if (prop_val == this.TrimQuotes(prop_val))
-						prop_val = this.WrapPhpBrackets(prop_val);
+					propKey = this.TrimQuotes(tempAr[y].substr(0, p));
+					propValue = tempAr[y].substr(p + 2);
+					trimedPropValue = this.TrimQuotes(propValue);
+
+					if (propValue == trimedPropValue)
+					{
+						propValue = this.WrapPhpBrackets(propValue);
+						if (propValue.substr(0, 6).toLowerCase()=='array('
+							|| propValue.substr(0, 1).toLowerCase()=='[')
+						{
+							propValue = this.GetArray(propValue);
+						}
+					}
 					else
-						prop_val = this.TrimQuotes(prop_val);
+					{
+						propValue = this.TrimQuotes(propValue);
+					}
 
-					if (prop_val.substr(0, 6).toLowerCase()=='array(')
-						prop_val = this.GetArray(prop_val);
-
-					resAr[prop_name] = prop_val;
+					resAr[propKey] = propValue;
 				}
 			}
 			return resAr;
@@ -2375,8 +2395,9 @@
 		GetParams: function(params)
 		{
 			var
-				arParams = [],
-				sk = 0, ch, sl, q1 = 1,q2 = 1, i,
+				paramsList = [],
+				bracket = 0,
+				sk = 0, ch, sl, q1 = 1, q2 = 1, i,
 				param_tmp = "";
 
 			for(i = 0; i < params.length; i++)
@@ -2406,7 +2427,15 @@
 					continue;
 				}
 
-				if(ch == "(")
+				if(ch == "[")
+				{
+					bracket++;
+				}
+				else if(ch == "]")
+				{
+					bracket--;
+				}
+				else if(ch == "(")
 				{
 					sk++;
 				}
@@ -2414,22 +2443,27 @@
 				{
 					sk--;
 				}
-				else if(ch == "," && sk == 0)
+				else if(ch == "," && bracket == 0 && sk == 0)
 				{
-					arParams.push(param_tmp);
+					paramsList.push(param_tmp);
 					param_tmp = "";
 					continue;
 				}
 
-				if(sk < 0)
+				if(sk < 0 || bracket < 0)
+				{
 					break;
+				}
 
 				param_tmp += ch;
 			}
-			if(param_tmp != "")
-				arParams.push(param_tmp);
 
-			return arParams;
+			if(param_tmp != "")
+			{
+				paramsList.push(param_tmp);
+			}
+
+			return paramsList;
 		},
 
 		IsNum: function(val)
@@ -3090,14 +3124,24 @@
 
 			function replacePhpInAttributes(str, b1, b2, b3, b4, b5, b6)
 			{
+				var appInd, atrValue;
+
+				if (b4.match(/#PHP\d+#/g))
+				{
+					_this.arAPPFragments.push(b4);
+					appInd = _this.arAPPFragments.length - 1;
+					atrValue = '#BXAPP' + appInd + '#';
+					return b1 + b2 + '="' + atrValue + '"' + b5;
+				}
+
 				if (b4.indexOf('#BXPHP_') === -1)
 				{
 					return str;
 				}
 
 				_this.arAPPFragments.push(b4);
-				var appInd = _this.arAPPFragments.length - 1;
-				var atrValue = _this.AdvancedPhpGetFragmentByIndex(appInd, true);
+				appInd = _this.arAPPFragments.length - 1;
+				atrValue = _this.AdvancedPhpGetFragmentByIndex(appInd, true);
 
 				return b1 + b2 + '="' + atrValue + '"' + ' data-bx-app-ex-' + b2 + '=\"#BXAPP' + appInd + '#\"' + b5;
 			}
@@ -3575,8 +3619,14 @@
 					res += "[/" + oNode.bbTag + "]";
 				}
 
-				// mantis: #54244
-				if (oNode.breakLineAfterEnd || node.nodeType == 1 && this.editor.util.IsBlockNode(node) && this.editor.util.IsBlockNode(node.nextSibling))
+				if (BX.browser.IsFirefox() && this.editor.util.IsBlockNode(node)
+					&& BX.util.trim(node.innerHTML.replace(/\uFEFF/ig, '')).toLowerCase() == '<br>')
+				{
+					return '\n';
+				}
+
+				// mantis: #54244 & #100442
+				if (oNode.breakLineAfterEnd || node.nodeType == 1 && this.editor.util.IsBlockNode(node) && this.editor.util.IsBlockNode(this.editor.util.GetNextSibling(node)))
 				{
 					res += "\n";
 				}

@@ -565,6 +565,10 @@ foreach($arGadgets as $gadget)
 	if ($arParams["MODE"] == "AI" && $gadget["AI_ONLY"] != true && $gadget["AI"] != true)
 		continue;
 
+	if ($gadget["DISABLED"] === true)
+	{
+		continue;
+	}
 	if ($gadget["EXTRANET_ONLY"] == true && (!CModule::IncludeModule('extranet') || !CExtranet::IsExtranetSite()))
 		continue;
 	if ($gadget["SEARCH_ONLY"] == true && !IsModuleInstalled("search"))
@@ -602,20 +606,6 @@ foreach($arGadgets as $gadget)
 			$arIBlock = false;
 
 		if (!$arIBlock)
-			continue;
-	}
-	if ($gadget["SECURITY_ONLY"] == true)
-	{
-		$aGlobalOpt = CUserOptions::GetOption("global", "settings", array());
-		$bShowSecurity = (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/index.php") && $aGlobalOpt['messages']['security'] <> 'N');
-		if (!$bShowSecurity)
-			continue;
-	}
-	if ($gadget["PERFMON_ONLY"] == true)
-	{
-		$aGlobalOpt = CUserOptions::GetOption("global", "settings", array());
-		$bShowPerfmon = (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/index.php") && $aGlobalOpt['messages']['perfmon'] <> 'N');
-		if (!$bShowPerfmon)
 			continue;
 	}
 	if (

@@ -397,8 +397,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 						{
 							$rights = \CIBlock::GetGroupPermissions($id);
 							$rights[$groupId] = 'S';
-							//TODO: change to static after iblock 17.5.1 will be stable
-							$iblockObject->SetPermission($id, $rights);
+							\CIBlock::SetPermission($id, $rights);
 						}
 						elseif ($rightsMode == Iblock\IblockTable::RIGHTS_EXTENDED && $rightsId !== null)
 						{
@@ -406,8 +405,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 							$rights = $rightsObject->GetRights();
 							$rights['n0'] = array(
 								'GROUP_CODE'  => $groupCode,
-        						'DO_INHERIT' => 'Y',
-        						'IS_INHERITED' => 'N',
+								'DO_INHERIT' => 'Y',
+								'IS_INHERITED' => 'N',
 								'OVERWRITED' => 0,
 								'TASK_ID' => $rightsId,
 								'XML_ID' => null,

@@ -52,12 +52,28 @@ class File extends Input\Base
 
 		$otherAttributes = static::extractAttributes($input, array('DISABLED'=>''), array('FORM'=>1), false);
 
+		$fileName = static::getFileName($name);
+
 		return static::getViewHtmlSingle($input, $value)
 			.'<input type="hidden" name="'.$name.'" value="'.htmlspecialcharsbx($value).'"'.$otherAttributes.'>'
-			.'<input type="file" name="'.$name.'" style="position:absolute; visibility:hidden"'.$fileAttributes.'>'
+			.'<input type="file" name="'.$fileName.'" style="position:absolute; visibility:hidden"'.$fileAttributes.'>'
 			.'<input type="button" value="'.Localization\Loc::getMessage('SALE_CASHBOX_INPUT_SECURITY_FILE_CONTROL_BROWSE').'" onclick="this.previousSibling.click()">';
 	}
 
+	/**
+	 * @param $name
+	 * @return string
+	 */
+	private static function getFileName($name)
+	{
+		$length = strlen($name);
+		if ($name[$length - 1] === ']')
+		{
+			return substr($name, 0, $length-1).'_FILE]';
+		}
+
+		return $name.'_FILE';
+	}
 }
 
 Input\Manager::register('SECURITY_FILE_CONTROL', array(

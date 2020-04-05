@@ -1,0 +1,7 @@
+.b24-tariff-lock .menu-popup-item-icon {
+	min-height: 12px;
+	width: 9px;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%208%2010%22%3E%3Cpath%20fill%3D%22%23828B95%22%20fill-rule%3D%22evenodd%22%20d%3D%22M4.344%207.346v1.472c0%20.184-.152.335-.337.335h-.074c-.185%200-.337-.15-.337-.335V7.346c-.334-.145-.57-.473-.57-.858%200-.52.423-.937.944-.937.52%200%20.944.42.944.938%200%20.385-.236.713-.57.858zM2.02%202.984C2.025%202.78%202.093.982%203.97.982s1.946%201.797%201.948%202v.982H2.02v-.98zm4.888.98v-.982C6.908%201.95%206.294%200%203.97%200%201.646%200%201.032%201.95%201.032%202.982v.982H0v6.01h8v-6.01H6.908z%22%20opacity%3D%22.636%22/%3E%3C/svg%3E');
+	background-repeat: no-repeat;
+	background-position: center;
+}

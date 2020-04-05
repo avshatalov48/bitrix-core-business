@@ -32,4 +32,5 @@ $MESS["SONET_GALLERIES_IS_NOT_ACTIVE"] = "Your photo galleries are currently ina
 $MESS["SONET_GALLERY_IS_NOT_ACTIVE"] = "Your photo gallery is currently inactive. Please contact the administrator.";
 $MESS["SONET_NAME_TEMPLATE_DEFAULT"] = "#NOBR##NAME# #LAST_NAME##/NOBR#";
 $MESS["SONET_CONTENT_SEARCH_CHAIN"] = "Search";
+$MESS["SONET_APP_IS_NOT_ACTIVE"] = "Application was not found.";
 ?>

@@ -1,5 +1,6 @@
 <?
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
+CUtil::InitJSCore(array('ajax'));
 CModule::IncludeModule("iblock");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/prolog.php");
 IncludeModuleLangFile(__FILE__);
@@ -8,6 +9,7 @@ $IBLOCK_ID=IntVal($IBLOCK_ID);
 $WAY=IntVal($WAY);
 $STEP=IntVal($STEP);
 $INTERVAL=20;//sec TODO make setting?
+$isSidePanel = (isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y");
 
 if($STEP == 0)
 {
@@ -146,7 +148,11 @@ if(count($arErrors)==0):?>
 		<script>setTimeout('DoNext(<?=$WAY?>,<?=$STEP?>)', 500);</script>
 	<?else:?>
 		<p><?=GetMessage("IBCONV_FINISHED")?></p>
-		<p><a href="iblock_edit.php?ID=<?=$arIBlock["ID"]?>&amp;type=<?=$arIBlock["IBLOCK_TYPE_ID"]?>&amp;lang=<?=LANG?>&amp;admin=Y"><?=GetMessage("IBCONV_FINISHED_HREF")?></a></p>
+		<? if ($isSidePanel): ?>
+			<p onclick="top.BX.onCustomEvent('SidePanel:close');"><a href="javascript:void(0)"><?=GetMessage("IBCONV_FINISHED_HREF")?></a></p>
+		<? else: ?>
+			<p><a href="iblock_edit.php?ID=<?=$arIBlock["ID"]?>&amp;type=<?=$arIBlock["IBLOCK_TYPE_ID"]?>&amp;lang=<?=LANG?>&amp;admin=Y"><?=GetMessage("IBCONV_FINISHED_HREF")?></a></p>
+		<? endif; ?>
 	<?endif;?>
 <?endif;?>
 <?
@@ -156,23 +162,21 @@ if($STEP==0)
 else
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 ?>
-<script language="JavaScript" type="text/javascript">
-<!--
+<script>
 function DoNext(way, step){
 	var queryString='lang=<?=LANG?>';
 	queryString+='&IBLOCK_ID=<?=$IBLOCK_ID?>';
 	queryString+='&WAY='+way;
 	queryString+='&STEP='+step;
 	queryString+='&<?echo bitrix_sessid_get()?>';
-	CHttpRequest.Action = function(result)
+	queryString+=<?= ($isSidePanel) ? '"&IFRAME=Y"' : '""'; ?>;
+	BX.showWait();
+	BX.ajax.post('iblock_convert.php?'+queryString, null, function(result)
 	{
-		CloseWaitWindow();
-		document.getElementById('tbl_iblock_convert_result_div').innerHTML = result;
-	}
-	ShowWaitWindow();
-	CHttpRequest.Send('iblock_convert.php?'+queryString);
+		BX('tbl_iblock_convert_result_div').innerHTML = result;
+		BX.closeWait();
+	});
 }
-//-->
 </script>
 <?
 function FirstStep12($arIBlock)

@@ -9,6 +9,7 @@ namespace Bitrix\Sale\Internals;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Entity\DeleteResult;
+use Bitrix\Main\Entity\StringField;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\PaySystem;
 
@@ -117,6 +118,12 @@ class PaySystemActionTable extends \Bitrix\Main\Entity\DataManager
 			'CAN_PRINT_CHECK' => array(
 				'data_type' => 'boolean',
 				'values' => array('N', 'Y')
+			),
+			'ENTITY_REGISTRY_TYPE' => array(
+				'data_type' => 'string',
+			),
+			'XML_ID' => array(
+				'data_type' => 'string',
 			),
 		);
 	}

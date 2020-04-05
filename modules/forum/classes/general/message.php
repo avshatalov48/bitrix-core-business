@@ -119,7 +119,17 @@ class CAllForumMessage
 			}
 			else
 			{
-				$bDeduplication = ($arForum['DEDUPLICATION'] === 'Y');
+				if (
+					isset($arFields['AUX'])
+					&& $arFields['AUX'] == 'Y'
+				)
+				{
+					$bDeduplication = false;
+				}
+				else
+				{
+					$bDeduplication = ($arForum['DEDUPLICATION'] === 'Y');
+				}
 			}
 		}
 
@@ -158,6 +168,11 @@ class CAllForumMessage
 						"text" => GetMessage("F_ERR_MESSAGE_ALREADY_EXISTS"));
 				}
 			}
+		}
+
+		if (!empty($arFields['POST_MESSAGE']))
+		{
+			$arFields["POST_MESSAGE"] = \Bitrix\Main\Text\Emoji::encode($arFields["POST_MESSAGE"]);
 		}
 
 		if (!is_set($arFields, "FILES"))
@@ -1151,7 +1166,7 @@ class CAllForumMessage
 	public static function GetMentionedUserID($strMessage)
 	{
 		$arMentionedUserID = array();
-								
+
 		if (strlen($strMessage) > 0)
 		{
 			preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER, $strMessage, $arMention);

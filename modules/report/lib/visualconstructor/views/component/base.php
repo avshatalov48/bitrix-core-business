@@ -15,6 +15,7 @@ use Bitrix\Report\VisualConstructor\View;
 abstract class Base extends View
 {
 	private $componentName;
+	private $componentTemplateName = '';
 	private $componentParameters;
 
 
@@ -66,6 +67,16 @@ abstract class Base extends View
 	}
 
 	/**
+	 * @param $key
+	 * @param $value
+	 */
+	public function addComponentParameters($key, $value)
+	{
+		$this->componentParameters[$key] = $value;
+	}
+
+
+	/**
 	 * Handle all data prepared for this view.
 	 *
 	 * @param array $calculatedPerformedData Performed data from report handler.
@@ -87,7 +98,13 @@ abstract class Base extends View
 	 */
 	public function prepareWidgetContent(Widget $widget, $withCalculatedData = false)
 	{
+
 		$resultWidget = parent::prepareWidgetContent($widget, $withCalculatedData);
+
+		if (!$withCalculatedData)
+		{
+			return $resultWidget;
+		}
 
 		if ($withCalculatedData)
 		{
@@ -100,8 +117,19 @@ abstract class Base extends View
 		{
 			foreach ($result['data'] as $num => &$reportResult)
 			{
-				$reportResult['config']['color'] = $widget->getWidgetHandler()->getReportHandlers()[$num]->getFormElement('color')->getValue();
-				$reportResult['title'] = $widget->getWidgetHandler()->getReportHandlers()[$num]->getFormElement('label')->getValue();
+				if (!isset($reportResult['config']['color']))
+				{
+					$reportResult['config']['color'] = $widget->getWidgetHandler()->getReportHandlers()[$num]->getFormElement('color')->getValue();
+				}
+
+				if (!isset($reportResult['config']['title']))
+				{
+					$reportResult['title'] = $widget->getWidgetHandler()->getReportHandlers()[$num]->getFormElement('label')->getValue();
+				}
+				else
+				{
+					$reportResult['title'] = $reportResult['config']['title'];
+				}
 			}
 		}
 		elseif (!empty($result['data']))
@@ -110,10 +138,11 @@ abstract class Base extends View
 			$reportResult['title'] = $widget->getWidgetHandler()->getReportHandlers()[0]->getFormElement('label')->getValue();
 		}
 
-		$componentResult = $this->includeComponent($this->getComponentName(), array(
-			'WIDGET' => $widget,
-			'RESULT' => $result,
-		));
+
+		$this->addComponentParameters('WIDGET', $widget);
+		$this->addComponentParameters('RESULT', $result);
+
+		$componentResult = $this->includeComponent();
 
 		$resultWidget['content']['params']['html'] = $componentResult['html'];
 		$resultWidget['content']['params']['css'] = $componentResult['css'];
@@ -144,14 +173,14 @@ abstract class Base extends View
 	 * @param array $params
 	 * @return mixed
 	 */
-	private function includeComponent($componentName, $params = array())
+	private function includeComponent()
 	{
 		global $APPLICATION;
 		ob_start();
 		$APPLICATION->IncludeComponent(
-			$componentName,
-			'',
-			$params
+			$this->getComponentName(),
+			$this->getComponentTemplateName(),
+			$this->getComponentParameters()
 		);
 		$componentContent = ob_get_clean();
 		$result['html'] = $componentContent;
@@ -159,6 +188,22 @@ abstract class Base extends View
 		$result['css'] = $APPLICATION->sPath2css;
 		return $result;
 
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getComponentTemplateName()
+	{
+		return $this->componentTemplateName;
+	}
+
+	/**
+	 * @param string $componentTemplateName
+	 */
+	public function setComponentTemplateName($componentTemplateName)
+	{
+		$this->componentTemplateName = $componentTemplateName;
 	}
 
 }

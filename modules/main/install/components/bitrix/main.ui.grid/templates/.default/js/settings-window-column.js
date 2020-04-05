@@ -24,6 +24,7 @@
 		this.init(parent, node);
 	};
 
+	BX.Grid.SettingsWindowColumn.inited = {};
 
 	BX.Grid.SettingsWindowColumn.prototype = {
 		init: function(parent, node)
@@ -37,9 +38,45 @@
 
 			this.updateState();
 
-			BX.bind(this.getEditButton(), 'click', BX.proxy(this.onEditButtonClick, this));
+			if (!BX.Grid.SettingsWindowColumn.inited[this.getId()])
+			{
+				BX.Grid.SettingsWindowColumn.inited[this.getId()] = true;
+				BX.bind(this.getEditButton(), 'click', BX.proxy(this.onEditButtonClick, this));
+				BX.bind(this.getStickyButton(), 'click', BX.proxy(this.onStickyButtonClick, this));
+			}
 		},
 
+		getStickyButton: function()
+		{
+			return this.node.querySelector(".main-grid-settings-window-list-item-sticky-button");
+		},
+
+		isSticked: function()
+		{
+			return this.node.classList.contains("main-grid-settings-window-list-item-sticked");
+		},
+
+		onStickyButtonClick: function()
+		{
+			if (this.isSticked())
+			{
+				this.unstick();
+			}
+			else
+			{
+				this.stick();
+			}
+		},
+
+		stick: function()
+		{
+			this.node.classList.add("main-grid-settings-window-list-item-sticked");
+		},
+
+		unstick: function()
+		{
+			this.node.classList.remove("main-grid-settings-window-list-item-sticked");
+		},
 
 		onEditButtonClick: function(event)
 		{
@@ -77,6 +114,7 @@
 		{
 			this.setState({
 				selected: this.isSelected(),
+				sticked: this.isSticked(),
 				title: this.getTitle()
 			});
 		},
@@ -90,6 +128,7 @@
 			var state = this.getState();
 
 			state.selected ? this.select() : this.unselect();
+			state.sticked ? this.stick() : this.unstick();
 			this.setTitle(state.title);
 		},
 
@@ -172,6 +211,7 @@
 		{
 			this.isDefault() ? this.select() : this.unselect();
 			this.setTitle(this.getDefaultTitle());
+			this.node.dataset.stickedDefault === "true" ? this.stick() : this.unstick();
 			this.disableEdit();
 			this.updateState();
 		},

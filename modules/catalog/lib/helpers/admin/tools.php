@@ -22,7 +22,9 @@ class Tools
 	 */
 	public static function getPriceTypeLinkList()
 	{
-		global $USER;
+		global $USER, $adminPage, $adminSidePanelHelper;
+
+		$selfFolderUrl = $adminPage->getSelfFolderUrl();
 
 		$result = array();
 		/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
@@ -45,8 +47,9 @@ class Tools
 			$id = (int)$priceType['ID'];
 			$title = (string)$priceType['NAME_LANG'];
 			$fullTitle = '['.$id.'] ['.$priceType['NAME'].']'.($title != '' ? ' '.$title : '');
-			$result[$id] = '<a href="/bitrix/admin/cat_group_edit.php?ID='.$id.'&lang='.LANGUAGE_ID.
-				'" title="'.$priceTypeLinkTitle.'">'.Main\Text\HtmlFilter::encode($fullTitle).'</a>';
+			$editUrl = $selfFolderUrl.'cat_group_edit.php?ID='.$id.'&lang='.LANGUAGE_ID;
+			$editUrl = $adminSidePanelHelper->editUrlToPublicPage($editUrl);
+			$result[$id] = '<a href="'.$editUrl.'" title="'.$priceTypeLinkTitle.'">'.Main\Text\HtmlFilter::encode($fullTitle).'</a>';
 
 			unset($fullTitle, $title, $id);
 		}

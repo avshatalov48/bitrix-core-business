@@ -1,4 +1,6 @@
 <?
+$MESS["CP_SBB_EMPTY_BASKET_HINT_PATH"] = "Continue Shopping page";
+$MESS["EMPTY_BASKET_HINT_PATH_TIP"] = "The \"Continue Shopping\" link is shown if the shopping cart is empty.<br>The text will be hidden if the link is empty.";
 $MESS["CP_SBB_TPL_PROPERTIES_RECALCULATE_BASKET"] = "Shopping cart recalculation properties";
 $MESS["CP_SBB_TPL_THEME_SITE"] = "Use theme as defined by the site (for bitrix.eshop)";
 $MESS["CP_SBB_TPL_THEME_BLUE"] = "Blue (default theme)";

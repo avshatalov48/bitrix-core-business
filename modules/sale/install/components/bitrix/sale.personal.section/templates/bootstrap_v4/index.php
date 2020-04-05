@@ -107,29 +107,25 @@ else
 {
 	?>
 	<div class="row">
-		<div class="col sale-personal-section-index">
-			<div class="row sale-personal-section-row-flex">
-				<?
-				foreach ($availablePages as $blockElement)
-				{
-					?>
-					<div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-						<div class="sale-personal-section-index-block bx-theme-<?=$theme?>">
-							<a class="sale-personal-section-index-block-link" href="<?=htmlspecialcharsbx($blockElement['path'])?>">
-								<span class="sale-personal-section-index-block-ico">
-									<?=$blockElement['icon']?>
-								</span>
-								<h2 class="sale-personal-section-index-block-name">
-									<?=htmlspecialcharsbx($blockElement['name'])?>
-								</h2>
-							</a>
-						</div>
-					</div>
-					<?
-				}
-				?>
+		<?
+		foreach ($availablePages as $blockElement)
+		{
+			?>
+			<div class="col-lg-3 col-md-6 col-sm-6 col">
+				<div class="sale-personal-section-index-block bx-theme-<?=$theme?>">
+					<a class="sale-personal-section-index-block-link" href="<?=htmlspecialcharsbx($blockElement['path'])?>">
+						<span class="sale-personal-section-index-block-ico">
+							<?=$blockElement['icon']?>
+						</span>
+						<h2 class="sale-personal-section-index-block-name">
+							<?=htmlspecialcharsbx($blockElement['name'])?>
+						</h2>
+					</a>
+				</div>
 			</div>
-		</div>
+			<?
+		}
+		?>
 	</div>
 	<?
 }

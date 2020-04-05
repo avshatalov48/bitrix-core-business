@@ -48,6 +48,4 @@ $MESS["top_panel_pin"] = "Bar Pin";
 $MESS["top_panel_pin_on"] = "Pin bar";
 $MESS["top_panel_pin_off"] = "Unpin bar";
 $MESS["admin_panel_notif_block_title"] = "View notifications";
-$MESS["top_panel_help_loader"] = "Loading...";
-$MESS["top_panel_help_title"] = "Support";
 ?>

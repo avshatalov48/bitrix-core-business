@@ -9,6 +9,10 @@ Loc::loadMessages(__FILE__);
 
 \Bitrix\Main\Loader::includeModule('sale');
 
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+$listUrl = $selfFolderUrl."sale_pay_system.php?lang=".LANGUAGE_ID;
+$listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
+
 $application = \Bitrix\Main\Application::getInstance();
 $context = $application->getContext();
 $request = $context->getRequest();
@@ -23,7 +27,8 @@ $errorMsg = '';
 $paySystemData = PaySystem\Manager::getById($id);
 if (!$paySystemData || $paySystemData['ACTION_FILE'] !== 'yandexinvoice')
 {
-	LocalRedirect("sale_pay_system.php?lang=".LANG);
+	$adminSidePanelHelper->localRedirect($listUrl);
+	LocalRedirect($listUrl);
 }
 
 \CUtil::InitJSCore();
@@ -65,7 +70,11 @@ if ($request->getPost("Save") && check_bitrix_sessid())
 	}
 
 	if ($errorMsg === '')
-		LocalRedirect($APPLICATION->GetCurPage()."?pay_system_id=".$id."&lang=".LANG);
+	{
+		$redirectUrl = $APPLICATION->GetCurPage()."?pay_system_id=".$id."&lang=".LANGUAGE_ID;
+		$adminSidePanelHelper->localRedirect($redirectUrl);
+		LocalRedirect($redirectUrl);
+	}
 }
 
 if ($request->get('generate') === 'Y')
@@ -97,8 +106,11 @@ if ($request->get('generate') === 'Y')
 		}
 
 		if ($errorMsg === '')
-			LocalRedirect($APPLICATION->GetCurPage()."?pay_system_id=".$id."&lang=".LANG);
-
+		{
+			$redirectUrl = $APPLICATION->GetCurPage()."?pay_system_id=".$id."&lang=".LANGUAGE_ID;
+			$adminSidePanelHelper->localRedirect($redirectUrl);
+			LocalRedirect($redirectUrl);
+		}
 	}
 }
 else if ($request->get('download') === 'Y')
@@ -162,7 +174,7 @@ $showButton = false;
 $aMenu = array(
 	array(
 		"TEXT" => Loc::getMessage("SPSN_2FLIST"),
-		"LINK" => "/bitrix/admin/sale_pay_system_edit.php?ID=".$id."&lang=".$context->getLanguage(),
+		"LINK" => $adminSidePanelHelper->editUrlToPublicPage($selfFolderUrl."sale_pay_system_edit.php?ID=".$id."&lang=".$context->getLanguage()),
 		"ICON" => "btn_list"
 	)
 );
@@ -171,8 +183,11 @@ $contextMenu = new CAdminContextMenu($aMenu);
 $contextMenu->Show();
 ?>
 <?$tabRControl->Begin();?>
-
-<form method="POST" enctype="multipart/form-data" action="<?=$APPLICATION->GetCurPage()?>?pay_system_id=<?=$id;?>&lang=<?echo LANG?>" id="<?=$personTypeId?>_form-upload">
+<?
+$actionUrl = $APPLICATION->GetCurPage()."?pay_system_id=".$id."&lang=".LANGUAGE_ID;
+$actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
+?>
+<form method="POST" enctype="multipart/form-data" action="<?=$actionUrl?>" id="<?=$personTypeId?>_form-upload">
 	<?=bitrix_sessid_post();?>
 	<?foreach($personTypeTabs as $tab) :?>
 	<?

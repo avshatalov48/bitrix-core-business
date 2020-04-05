@@ -106,18 +106,41 @@ class BoolType extends Base
 	protected static function renderControl(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
 	{
 		$className = static::generateControlClassName($fieldType, $field);
+
 		$renderResult = '<select id="'.htmlspecialcharsbx(static::generateControlId($field))
 				.'" name="'.htmlspecialcharsbx(static::generateControlName($field))
 				.'" class="'.htmlspecialcharsbx($className).'">';
 
 		if (!$fieldType->isRequired())
+		{
 			$renderResult .= '<option value="">['.Loc::getMessage("BPDT_BOOL_NOT_SET").']</option>';
+		}
 
 		$renderResult .= '<option value="Y"'.($value == "Y" ? ' selected' : '').'>'.Loc::getMessage("BPDT_BOOL_YES").'</option>
 				<option value="N"'.($value == "N" ? ' selected' : '').'>'.Loc::getMessage("BPDT_BOOL_NO").'</option>
 			</select>';
 
 		return $renderResult;
+	}
+
+	public static function renderControlSingle(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
+	{
+		if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
+		{
+			$allowSelection = false;
+		}
+
+		return parent::renderControlSingle($fieldType, $field, $value, $allowSelection, $renderMode);
+	}
+
+	public static function renderControlMultiple(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
+	{
+		if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
+		{
+			$allowSelection = false;
+		}
+
+		return parent::renderControlMultiple($fieldType, $field, $value, $allowSelection, $renderMode);
 	}
 
 	/**

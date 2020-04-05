@@ -216,16 +216,23 @@ final class DiscountCache
 			while($discount = $discountIterator->fetch())
 			{
 				$discount['ID'] = (int)$discount['ID'];
-				if($discount['USE_COUPONS'] == 'Y')
-				{
+				if ($discount['USE_COUPONS'] == 'Y')
 					$discount['COUPON'] = $couponList[$couponsDiscount[$discount['ID']]];
-				}
 				$discount['CONDITIONS'] = $discount['CONDITIONS_LIST'];
 				$discount['ACTIONS'] = $discount['ACTIONS_LIST'];
 				$discount['PREDICTIONS'] = $discount['PREDICTIONS_LIST'];
 				$discount['MODULE_ID'] = 'sale';
+				$discount['MODULES'] = array();
 				unset($discount['ACTIONS_LIST'], $discount['CONDITIONS_LIST'], $discount['PREDICTIONS_LIST']);
 				$currentList[$discount['ID']] = $discount;
+			}
+
+			if (!empty($currentList))
+			{
+				$discountModules = static::getDiscountModules(array_keys($currentList));
+				foreach ($discountModules as $id => $modules)
+					$currentList[$id]['MODULES'] = $modules;
+				unset($id, $modules, $discountModules);
 			}
 
 			$this->discounts[$cacheKey] = $currentList;

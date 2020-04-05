@@ -81,11 +81,11 @@ if (!($stoplist && $stoplist->ExtractFields()))
 	$str_MASK_2="255";
 	$str_MASK_3="255";
 	$str_MASK_4="255";
-	$str_IP_1 = $net1;
-	$str_IP_2 = $net2;
-	$str_IP_3 = $net3;
-	$str_IP_4 = $net4;
-	$str_USER_AGENT = $user_agent;
+	$str_IP_1 = htmlspecialcharsBx($net1);
+	$str_IP_2 = htmlspecialcharsBx($net2);
+	$str_IP_3 = htmlspecialcharsBx($net3);
+	$str_IP_4 = htmlspecialcharsBx($net4);
+	$str_USER_AGENT = htmlspecialcharsBx($user_agent);
 	$str_DATE_START=GetTime(time()+CTimeZone::GetOffset(),"FULL");
 	$str_MESSAGE = GetMessage("STAT_DEFAULT_MESSAGE");
 	$str_MESSAGE_LID = LANG;

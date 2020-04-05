@@ -172,7 +172,7 @@
 
 			if (parentNode && BX.type.isDomNode(parentNode))
 			{
-				header = parentNode.querySelector('[data-entity="header"');
+				header = parentNode.querySelector('[data-entity="header"]');
 
 				if (header && header.getAttribute('data-showed') === 'false')
 				{
@@ -210,7 +210,7 @@
 
 			if (parentNode && BX.type.isDomNode(parentNode))
 			{
-				header = parentNode.querySelector('[data-entity="header"');
+				header = parentNode.querySelector('[data-entity="header"]');
 
 				if (header)
 				{

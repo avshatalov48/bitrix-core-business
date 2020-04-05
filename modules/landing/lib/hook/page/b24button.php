@@ -3,6 +3,7 @@ namespace Bitrix\Landing\Hook\Page;
 
 use \Bitrix\Landing\Field;
 use \Bitrix\Main\Localization\Loc;
+use Bitrix\Crm\SiteButton\Preset;
 
 Loc::loadMessages(__FILE__);
 
@@ -14,8 +15,7 @@ class B24button extends \Bitrix\Landing\Hook\Page
 	 */
 	public function enabledInEditMode()
 	{
-		$request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
-		return $request->get('landing_mode') == 'preview';
+		return false;
 	}
 	
 	/**
@@ -51,6 +51,13 @@ class B24button extends \Bitrix\Landing\Hook\Page
 		// b24 crm
 		if (\Bitrix\Main\Loader::includeModule('crm'))
 		{
+//			if buttons not exist (new portal) - create before
+			if (Preset::checkVersion())
+			{
+				$preset = new Preset();
+				$preset->install();
+			}
+			
 			$buttonList = \Bitrix\Crm\SiteButton\Manager::getList(array(
 				'select' => array(
 					'ID', 'SECURITY_CODE', 'NAME'
@@ -80,7 +87,10 @@ class B24button extends \Bitrix\Landing\Hook\Page
 					foreach ($res['result'] as $button)
 					{
 						$key = self::getScriptUrl($button['SCRIPT']);
-						$items[$key] = \htmlspecialcharsbx($button['NAME']);
+						if ($key)
+						{
+							$items[$key] = \htmlspecialcharsbx($button['NAME']);
+						}
 					}
 				}
 			}
@@ -151,9 +161,9 @@ class B24button extends \Bitrix\Landing\Hook\Page
 			);
 			if ($this->fields['COLOR'] != 'button')
 			{
-				\Bitrix\Landing\Manager::setPageClass(
-					"BodyClass",
-					"landing-b24button-use-style"
+				\Bitrix\Landing\Manager::setPageView(
+					'BodyClass',
+					'landing-b24button-use-style'
 				);
 			}
 		}

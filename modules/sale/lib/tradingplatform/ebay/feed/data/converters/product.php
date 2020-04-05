@@ -124,7 +124,14 @@ class Product extends DataConverter
 			$result .= "\t\t\t<Attributes>\n";
 
 			foreach($this->attributesItem as $attrName => $attrValue)
+			{
+				if(is_array($attrValue))
+				{
+					$attrValue = current($attrValue);
+				}
+
 				$result .= "\t\t\t\t<Attribute Name=\"".\CDataXML::xmlspecialchars($attrName)."\">".\CDataXML::xmlspecialchars($attrValue)."</Attribute>\n";
+			}
 
 			$result .= "\t\t\t</Attributes>\n";
 		}
@@ -198,7 +205,14 @@ class Product extends DataConverter
 			$result .= "\t\t\t\t<Attributes>\n";
 
 			foreach($this->attributesItem as $attrName => $attrValue)
+			{
+				if(is_array($attrValue))
+				{
+					$attrValue = current($attrValue);
+				}
+
 				$result .= "\t\t\t\t\t<Attribute Name=\"".\CDataXML::xmlspecialchars($attrName)."\">".\CDataXML::xmlspecialchars($attrValue)."</Attribute>\n";
+			}
 
 			$result .= "\t\t\t\t</Attributes>\n";
 		}

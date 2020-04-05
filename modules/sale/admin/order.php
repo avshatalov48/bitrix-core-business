@@ -104,10 +104,18 @@ $arFilterFields = array(
 
 $arOrderProps = array();
 $arOrderPropsCode = array();
-$dbProps = \Bitrix\Sale\Internals\OrderPropsTable::getList(array(
-	'order' => array("PERSON_TYPE_ID" => "ASC", "SORT" => "ASC"),
-	'select' => array("ID", "NAME", "PERSON_TYPE_NAME" => "PERSON_TYPE.NAME", "LID" => "PERSON_TYPE.LID", "PERSON_TYPE_ID", "SORT", "IS_FILTERED", "TYPE", "CODE", "SETTINGS"),
-));
+$dbProps = \Bitrix\Sale\Internals\OrderPropsTable::getList(
+	array(
+		'filter' => array(
+			'=ACTIVE' => 'Y'
+		),
+		'order' => array(
+			"PERSON_TYPE_ID" => "ASC", "SORT" => "ASC"
+		),
+		'select' => array(
+			"ID", "NAME", "PERSON_TYPE_NAME" => "PERSON_TYPE.NAME", "LID" => "PERSON_TYPE.LID", "PERSON_TYPE_ID", "SORT", "IS_FILTERED", "TYPE", "CODE", "SETTINGS"
+		),
+	));
 
 while ($arProps = $dbProps->fetch())
 {
@@ -860,9 +868,19 @@ if(($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "P")
 						break;
 					}
 
-					$res = \Bitrix\Sale\Order::delete($ID);
-					if(!$res->isSuccess())
+					try
+					{
+						$res = \Bitrix\Sale\Order::delete($ID);
+					}
+					catch (Exception $e)
+					{
+						$res = \Bitrix\Sale\Order::deleteNoDemand($ID);
+					}
+
+					if (!$res->isSuccess())
+					{
 						$lAdmin->AddGroupError(implode("<br>\n", $res->getErrorMessages()));
+					}
 					break;
 
 				case "unlock":
@@ -931,10 +949,7 @@ if(($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "P")
 						break;
 					}
 
-					$result = Sale\Archive\Manager::archiveOrders(
-						array(
-							"ID" => array($ID)
-						));
+					$result = Sale\Archive\Manager::archiveOrders(["ID" => $ID], 1);
 					if ($result->isSuccess())
 					{
 						$warnings = $result->getWarningMessages();
@@ -2080,7 +2095,7 @@ if (!empty($orderList) && is_array($orderList))
 					$fieldValueTmp .= "] ".$LOCAL_STATUS_CACHE[$arOrder["STATUS_ID"]]['NAME'];
 					$colorRGB = array();
 					$colorRGB = sscanf($LOCAL_STATUS_CACHE[$arOrder["STATUS_ID"]]['COLOR'], "#%02x%02x%02x");
-					if (count($colorRGB))
+					if (is_array($colorRGB) && count($colorRGB))
 					{
 						$color = "background:rgba(".$colorRGB[0].",".$colorRGB[1].",".$colorRGB[2].",0.6);";
 						$fieldValue = '<div style=	"'.$color.'
@@ -3172,8 +3187,7 @@ function exportData(val)
 {
 	var oForm = document.form_<?= $sTableID ?>;
 	var expType = oForm.action_target.checked;
-
-	var par = "mode=excel";
+	var oid = [];
 	if(!expType)
 	{
 		var num = oForm.elements.length;
@@ -3184,26 +3198,54 @@ function exportData(val)
 				&& oForm.elements[i].name.toUpperCase() == "ID[]"
 				&& oForm.elements[i].checked == true)
 			{
-				par += "&OID[]=" + oForm.elements[i].value;
+				oid.push(oForm.elements[i].value);
 			}
 		}
 	}
 
-	if(expType)
+	var url = (val == "excel") ? 'sale_order.php' : 'sale_order_export.php';
+	url += "?EXPORT_FORMAT=" + val;
+	if (val !== "excel")
 	{
-		par += "<?= CUtil::JSEscape(GetFilterParams("filter_", false)); ?>";
+		url += "&" + "<?= CUtil::JSEscape(GetFilterParams("filter_", false)); ?>";
 	}
-
-	if(par.length > 0)
-	{
-		var url = 'sale_order_export.php';
-		if (val == "excel")
-		{
-			url = 'sale_order.php';
+	var exportForm = BX.create('form', {
+		attrs: {
+			method: 'post',
+			target: '_blank'
 		}
-		
-		window.open(url + "?EXPORT_FORMAT="+val+"&"+par, "vvvvv");
+	});
+	exportForm.action = url;
+	exportForm.appendChild(BX.create('input', {
+		attrs: {
+			type: 'hidden',
+			name: 'csrf_token',
+			value: BX.message('bitrix_sessid')
+		}
+	}));
+	if (val == "excel")
+	{
+		exportForm.appendChild(BX.create('input', {
+			attrs: {
+				type: 'hidden',
+				name: 'mode',
+				value: 'excel'
+			}
+		}));
 	}
+	for (var i = 0; i < oid.length; i++)
+	{
+		exportForm.appendChild(BX.create('input', {
+			attrs: {
+				type: 'hidden',
+				name: 'OID[]',
+				value: oid[i]
+			}
+		}));
+	}
+	document.body.appendChild(exportForm);
+	exportForm.submit();
+	exportForm.remove();
 }
 </script>
 <?
@@ -3321,13 +3363,24 @@ if($saleModulePermissions == "W" || ($saleModulePermissions >= 'P' && !empty($al
 	$arSitesShop = array();
 	$arSitesTmp = array();
 	$rsSites = CSite::GetList($b = "id", $o = "asc", Array("ACTIVE" => "Y"));
+
 	while ($arSite = $rsSites->GetNext())
 	{
+		if($saleModulePermissions < "W" && count($arAccessibleSites) > 0)
+		{
+			if(!in_array($arSite['ID'], $arAccessibleSites))
+			{
+				continue;
+			}
+		}
+
 		$site = Option::get("sale", "SHOP_SITE_".$arSite["ID"], "");
+
 		if($arSite["ID"] == $site)
 		{
 			$arSitesShop[] = array("ID" => $arSite["ID"], "NAME" => $arSite["NAME"]);
 		}
+
 		$arSitesTmp[] = array("ID" => $arSite["ID"], "NAME" => $arSite["NAME"]);
 	}
 
@@ -3718,7 +3771,7 @@ $oFilter->Begin();
 					$dbRestRes = Sale\Services\PaySystem\Restrictions\Manager::getList(array(
 						'select' => array('SERVICE_ID', 'PARAMS'),
 						'filter' => array(
-							'=CLASS_NAME' => '\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType',
+							'=CLASS_NAME' => '\\'.\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType::class,
 							'SERVICE_ID' => array_keys($paySystemList)
 						)
 					));
@@ -4126,6 +4179,7 @@ $lAdmin->DisplayList();
 echo BeginNote();
 ?>
 <span id="order_sum"><? echo $order_sum;?></span>
+<?echo EndNote();?>
 
 <script type="text/javascript">
 	function sendDeliveryRequestsForCurrentOrders(selectedOnly)
@@ -4161,43 +4215,4 @@ echo BeginNote();
 	}
 </script>
 
-<?$spotlight = new \Bitrix\Main\UI\Spotlight("DELIVERY_REQUESTS_ADDED");?>
-<?if(!$spotlight->isViewed($USER->GetID())):?>
-	<?\CJSCore::init("spotlight");?>
-	<script type="text/javascript">
-		BX.ready(
-			function() {
-				var elem = document.getElementsByClassName('adm-list-table-top');
-
-				if(!elem[0] || !elem[0].nodeName || elem[0].nodeName !== 'DIV')
-					return;
-
-				var target = null;
-
-				for (var i = 0; i < elem[0].childNodes.length; i++)
-				{
-					if(elem[0].childNodes[i].innerHTML === "<?=Loc::getMessage("SALE_O_CONTEXT_B_DELIVERY_REQUESTS")?>")
-					{
-						target = elem[0].childNodes[i];
-						break;
-					}
-				}
-
-				if(target)
-				{
-					var deliveryRequestSpotlight = new BX.SpotLight({
-						targetElement: target,
-						targetVertex: "middle-center",
-						content: "<?=Loc::getMessage('SALE_O_CONTEXT_B_DELIVERY_REQUESTS_SL')?>",
-						id: "DELIVERY_REQUESTS_ADDED",
-						autoSave: true
-					});
-
-					deliveryRequestSpotlight.show();
-				}
-		});
-	</script>
-<?endif;?>
-
-<?echo EndNote();
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

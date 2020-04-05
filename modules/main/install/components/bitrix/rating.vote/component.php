@@ -1,5 +1,4 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-
 $arResult['VOTE_AVAILABLE'] = isset($arParams['VOTE_AVAILABLE'])? $arParams['VOTE_AVAILABLE'] == 'Y'? 'Y': 'N' : 'Y';
 if ($arResult['VOTE_AVAILABLE'] == 'Y')
 	$arAllowVote = CRatings::CheckAllowVote($arParams);
@@ -37,7 +36,7 @@ if (!array_key_exists('TOTAL_VALUE', $arParams) ||
 	!array_key_exists('USER_HAS_VOTED', $arParams) ||
 	!array_key_exists('USER_VOTE', $arParams))
 {
-	$arComponentVoteResult  = CRatings::GetRatingVoteResult($arResult['ENTITY_TYPE_ID'], $arResult['ENTITY_ID']);
+	$arComponentVoteResult = CRatings::GetRatingVoteResult($arResult['ENTITY_TYPE_ID'], $arResult['ENTITY_ID']);
 	if (!empty($arComponentVoteResult))
 	{
 		$arResult['TOTAL_VALUE'] = $arComponentVoteResult['TOTAL_VALUE'];
@@ -46,9 +45,13 @@ if (!array_key_exists('TOTAL_VALUE', $arParams) ||
 		$arResult['TOTAL_NEGATIVE_VOTES'] = $arComponentVoteResult['TOTAL_NEGATIVE_VOTES'];
 		$arResult['USER_VOTE'] = $arComponentVoteResult['USER_VOTE'];
 		$arResult['USER_HAS_VOTED'] = $arComponentVoteResult['USER_HAS_VOTED'];
+		$arResult['USER_REACTION'] = $arComponentVoteResult['USER_REACTION'];
+		$arResult['REACTIONS_LIST'] = $arComponentVoteResult['REACTIONS_LIST'];
 
 		if (in_array($sRatingTemplate, array("like", "like_graphic", "mobile_like")))
+		{
 			$arResult['TOTAL_VOTES'] = $arComponentVoteResult['TOTAL_POSITIVE_VOTES'];
+		}
 	}
 }
 

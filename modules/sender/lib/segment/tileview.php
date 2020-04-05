@@ -87,6 +87,11 @@ class TileView
 				'name' => Loc::getMessage('SENDER_SEGMENT_TILEVIEW_SECTION_SYSTEM'),
 				'items' => array()
 			),
+			'case' => array(
+				'id' => 'case',
+				'name' => Loc::getMessage('SENDER_SEGMENT_TILEVIEW_SECTION_CASE'),
+				'items' => array()
+			),
 			'my' => array(
 				'id' => 'my',
 				'name' => Loc::getMessage('SENDER_SEGMENT_TILEVIEW_SECTION_MY'),
@@ -111,6 +116,12 @@ class TileView
 			if ($tile['data']['freq'])
 			{
 				$list['freq']['items'][] = $tile;
+			}
+
+			// set cases
+			if ($tile['data']['case'])
+			{
+				$list['case']['items'][] = $tile;
 			}
 
 			// set system or my
@@ -199,8 +210,9 @@ class TileView
 				'data' => array(
 					'last' => $segment[$fieldDateUse],
 					'freq' => (int) $segment[$fieldUseCount],
+					'case' => substr($segment['CODE'], 0, 5) == 'case_',
 					'hidden' => $segment['HIDDEN'] == 'Y',
-					'system' => $segment['SYSTEM'] == 'Y',
+					'system' => $segment['IS_SYSTEM'] == 'Y',
 					'count' => array()
 				),
 			);

@@ -654,11 +654,13 @@ while ($arResultTmp = $dbResultTmp->GetNext())
 {
 	$arFeaturesTmp[$arResultTmp["FEATURE"]] = $arResultTmp;
 }
-						
+
 $arCustomFeatures = array();
 $events = GetModuleEvents("socialnetwork", "OnFillSocNetMenu");
 while ($arEvent = $events->Fetch())
+{
 	ExecuteModuleEventEx($arEvent, array(&$arCustomFeatures, $arParams));
+}
 
 if ($arParams["ENTITY_TYPE"] == SONET_ENTITY_USER && $USER->IsAuthorized() && $USER->GetID() ==  $arParams["ENTITY_ID"])
 	$arResult["ALL_FEATURES"]["log"] = array(

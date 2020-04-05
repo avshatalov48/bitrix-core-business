@@ -1,4 +1,6 @@
 <?
+
+use Bitrix\Main\Composite;
 use Bitrix\Main\Composite\Internals\Model\PageTable;
 use Bitrix\Main\Composite\Page;
 use Bitrix\Main\Context;
@@ -14,7 +16,7 @@ require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
 define("HELP_FILE", "settings/composite_pages.php");
 
-if (!$USER->canDoOperation("view_other_settings"))
+if (!$USER->canDoOperation("view_other_settings") || Composite\Engine::isSelfHostedPortal())
 {
 	$APPLICATION->authForm(Loc::getMessage("ACCESS_DENIED"));
 }

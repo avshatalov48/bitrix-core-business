@@ -7,6 +7,7 @@
  */
 namespace Bitrix\Sale\Internals;
 
+use Bitrix\Main;
 use	Bitrix\Main\Entity\DataManager,
 	Bitrix\Main\Entity\Validator,
 	Bitrix\Main\Localization\Loc;
@@ -156,6 +157,12 @@ class OrderPropsTable extends DataManager
 				'reference' => array('=this.PERSON_TYPE_ID' => 'ref.ID'),
 				'join_type' => 'LEFT',
 			),
+			'ENTITY_REGISTRY_TYPE' => array(
+				'data_type' => 'string',
+			),
+			'XML_ID' => array(
+				'data_type' => 'string',
+			),
 		);
 	}
 
@@ -197,7 +204,7 @@ class OrderPropsTable extends DataManager
 			{
 				$value = $v;
 			}
-			elseif ($property['MULTIPLE'] == 'Y') // compatibility
+			elseif (isset($property['MULTIPLE']) && $property['MULTIPLE'] == 'Y') // compatibility
 			{
 				switch ($property['TYPE'])
 				{
@@ -291,5 +298,10 @@ class OrderPropsTable extends DataManager
 	public static function getCodeValidators()
 	{
 		return array(new Validator\Length(null, 50));
+	}
+
+	public static function generateXmlId()
+	{
+		return uniqid('bx_');
 	}
 }

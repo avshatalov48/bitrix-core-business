@@ -13,6 +13,11 @@
 	color: #5a6c77;
 	padding-bottom: 2px;
 }
+.bx-authform-note-container{
+	font-size:13px;
+	color: #5a6c77;
+	padding-top: 4px;
+}
 .bx-authform-input-container{
 	position: relative;
 }

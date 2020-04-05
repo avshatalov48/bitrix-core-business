@@ -15,6 +15,9 @@ class CIMTableSchema
 						"b_im_relation" => "LAST_ID",
 						"b_im_relation^" => "LAST_SEND_ID",
 						"b_im_relation^^" => "START_ID",
+						"b_im_relation^^^" => "UNREAD_ID",
+						"b_disk_object" => "LAST_FILE_ID",
+						"b_im_chat" => "LAST_MESSAGE_ID",
 					),
 					"CHAT_ID" => array(
 						"b_im_chat" => "ID",

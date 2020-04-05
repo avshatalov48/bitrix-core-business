@@ -113,11 +113,23 @@ class Double extends Base
 		$name = static::generateControlName($field);
 		$controlId = static::generateControlId($field);
 		$className = static::generateControlClassName($fieldType, $field);
-		$renderResult = '<input type="text" class="'.htmlspecialcharsbx($className)
-			.'" size="10" id="'.htmlspecialcharsbx($controlId).'" name="'
-			.htmlspecialcharsbx($name).'" value="'.htmlspecialcharsbx((string) $value).'"/>';
 
-		if ($allowSelection)
+		if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
+		{
+			$renderResult = '<input type="text" class="'.htmlspecialcharsbx($className)
+				.'" name="'.htmlspecialcharsbx($name).'" value="'.htmlspecialcharsbx((string) $value)
+				.'" placeholder="'.htmlspecialcharsbx($fieldType->getDescription()).'" value="'.htmlspecialcharsbx((string) $value).'"'
+				.($allowSelection ? ' data-role="inline-selector-target"' : '')
+				.'/>';
+		}
+		else
+		{
+			$renderResult = '<input type="text" class="'.htmlspecialcharsbx($className)
+				.'" size="10" id="'.htmlspecialcharsbx($controlId).'" name="'
+				.htmlspecialcharsbx($name).'" value="'.htmlspecialcharsbx((string) $value).'"/>';
+		}
+
+		if ($allowSelection && !($renderMode & FieldType::RENDER_MODE_PUBLIC))
 		{
 			$renderResult .= static::renderControlSelector($field, null, false, '', $fieldType);
 		}
@@ -177,7 +189,15 @@ class Double extends Base
 				$renderMode
 			);
 		}
-		$renderResult = static::wrapCloneableControls($controls, static::generateControlName($field));
+
+		if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
+		{
+			$renderResult = static::renderPublicMultipleWrapper($fieldType, $field, $controls);
+		}
+		else
+		{
+			$renderResult = static::wrapCloneableControls($controls, static::generateControlName($field));
+		}
 
 		return $renderResult;
 	}

@@ -364,6 +364,8 @@ a.process-step-more {
 }
 
 .bp-short-process-step-wrapper .process-step-more {
+	clear: both;
+	display: block;
 	border: 0;
 	border-radius: 10px;
 }

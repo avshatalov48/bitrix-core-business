@@ -132,10 +132,8 @@ class PayMasterHandler extends WebMoneyHandler
 
 		if (!$serviceResult->isSuccess())
 		{
-			PaySystem\ErrorLog::add(array(
-				'ACTION' => 'processRequest',
-				'MESSAGE' => join(' ', $serviceResult->getErrorMessages())
-			));
+			$error = 'Paymaster: processRequest: '.join('\n', $serviceResult->getErrorMessages());
+			PaySystem\Logger::addError($error);
 		}
 
 		return $serviceResult;

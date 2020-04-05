@@ -61,7 +61,7 @@ return array(
 			'.landing-block-node-img' =>
 				array(
 					'name' => Loc::getMessage('LANDING_BLOCK_19.5.COVER_WITH_IMG_TEXT_AND_BUTTONS_NODES_LANDINGBLOCKNODEIMG'),
-					'type' => 'animation',
+					'type' => array('animation')
 				),
 		),
 );

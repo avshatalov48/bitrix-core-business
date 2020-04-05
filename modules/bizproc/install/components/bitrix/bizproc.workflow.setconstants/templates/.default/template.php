@@ -80,9 +80,9 @@ else
 			<?
 		}
 		?>
-		<?if (!$arParams['POPUP']):?>
+		<?if (!$arParams['POPUP'] && $arResult["CONSTANTS"]):?>
 		<div class="bp-question-item">
-			<input type="submit" value="<?= GetMessage("BPWFSCT_SAVE") ?>">
+			<input type="submit" value="<?= GetMessage("BPWFSCT_SAVE") ?>" class="ui-btn ui-btn-success">
 		</div>
 		<?endif?>
 	</form>

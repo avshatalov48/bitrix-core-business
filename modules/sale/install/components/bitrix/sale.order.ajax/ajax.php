@@ -26,7 +26,8 @@ Bitrix\Main\Localization\Loc::loadMessages(dirname(__FILE__).'/class.php');
 $signer = new \Bitrix\Main\Security\Sign\Signer;
 try
 {
-	$params = $signer->unsign($request->get('signedParamsString'), 'sale.order.ajax');
+	$signedParamsString = $request->get('signedParamsString') ?: '';
+	$params = $signer->unsign($signedParamsString, 'sale.order.ajax');
 	$params = unserialize(base64_decode($params));
 }
 catch (\Bitrix\Main\Security\Sign\BadSignatureException $e)

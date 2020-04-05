@@ -15,44 +15,102 @@ BX.UI.ActionPanel = function(options)
 		totalSelected: null,
 		totalSelectedItem: null
 	};
+	this.zIndex = options.zIndex;
 	this.itemContainer = null;
-	this.renderContainer = options.renderTo;
+	this.renderTo = options.renderTo;
+	this.darkMode = options.darkMode;
+	this.floatMode = typeof options.floatMode === 'undefined' ? true : options.floatMode;
+	this.alignItems = options.alignItems;
 	this.items = [];
 	this.hiddenItems = [];
 	this.grid = null;
 	this.tileGrid = null;
+	this.maxHeight = options.maxHeight;
 	this.params = options.params || {};
+	this.parentPosition = options.parentPosition;
+	this.mutationObserver = null;
+	this.panelIsFixed = null;
+	this.removeLeftPosition = options.removeLeftPosition;
+
+	this.pinnedMode = typeof options.pinnedMode === 'undefined' ? false : options.pinnedMode;
+	this.autoHide = typeof options.autoHide === 'undefined' ? true : options.autoHide;
+	this.showTotalSelectedBlock = typeof options.showTotalSelectedBlock === 'undefined' ? true : options.showTotalSelectedBlock;
+	this.showResetAllBlock = typeof options.showResetAllBlock === 'undefined' ? (this.pinnedMode ? false : true) : options.showResetAllBlock;
 
 	this.buildPanelContainer();
 	this.bindEvents();
+	if (this.pinnedMode)
+	{
+		this.buildPanelByGroup();
+	}
 };
 
 BX.UI.ActionPanel.prototype =
 {
 	bindEvents: function()
 	{
-		BX.addCustomEvent('Grid::ready', this.handleGridReady.bind(this));
-		BX.addCustomEvent('BX.TileGrid.Grid::ready', this.handleTileGridReady.bind(this));
+		if (this.params.tileGridId)
+		{
+			BX.addCustomEvent('BX.TileGrid.Grid::ready', this.handleTileGridReady.bind(this));
 
-		BX.addCustomEvent(window, 'BX.TileGrid.Grid:selectItem', this.handleTileSelectItem.bind(this));
-		BX.addCustomEvent(window, 'BX.TileGrid.Grid:checkItem', this.handleTileSelectItem.bind(this));
-		BX.addCustomEvent(window, 'BX.TileGrid.Grid:unSelectItem', this.handleTileUnSelectItem.bind(this));
+			BX.addCustomEvent(window, 'BX.TileGrid.Grid:selectItem', this.handleTileSelectItem.bind(this));
+			BX.addCustomEvent(window, 'BX.TileGrid.Grid:checkItem', this.handleTileSelectItem.bind(this));
+			BX.addCustomEvent(window, 'BX.TileGrid.Grid:unSelectItem', this.handleTileUnSelectItem.bind(this));
+			BX.addCustomEvent(window, 'BX.TileGrid.Grid:redraw', this.hidePanel.bind(this));
+			BX.addCustomEvent(window, 'BX.TileGrid.Grid:defineEscapeKey', this.hidePanel.bind(this));
+			BX.addCustomEvent(window, 'BX.TileGrid.Grid:lastSelectedItem', this.hidePanel.bind(this));
+			BX.addCustomEvent(window, 'BX.TileGrid.Grid:multiSelectModeOff', this.hidePanel.bind(this));
+		}
 
-		BX.addCustomEvent('Grid::thereSelectedRows', this.handleGridSelectItem.bind(this));
-		BX.addCustomEvent('Grid::allRowsSelected', this.handleGridSelectItem.bind(this));
+		if (this.params.gridId)
+		{
+			BX.addCustomEvent('Grid::ready', this.handleGridReady.bind(this));
 
-		BX.addCustomEvent(window, 'BX.TileGrid.Grid:redraw', this.hidePanel.bind(this));
-		BX.addCustomEvent(window, 'BX.TileGrid.Grid:defineEscapeKey', this.hidePanel.bind(this));
-		BX.addCustomEvent(window, 'BX.TileGrid.Grid:lastSelectedItem', this.hidePanel.bind(this));
-		BX.addCustomEvent(window, 'BX.UI.ActionPanel:clickResetAllBlock', this.hidePanel.bind(this));
-		BX.addCustomEvent(window, 'BX.TileGrid.Grid:multiSelectModeOff', this.hidePanel.bind(this));
-		BX.addCustomEvent('Grid::updated', this.hidePanel.bind(this));
-		BX.addCustomEvent('Grid::noSelectedRows', this.hidePanel.bind(this));
-		BX.addCustomEvent('Grid::allRowsUnselected', this.hidePanel.bind(this));
+			BX.addCustomEvent('Grid::thereSelectedRows', this.handleGridSelectItem.bind(this));
+			BX.addCustomEvent('Grid::allRowsSelected', this.handleGridSelectItem.bind(this));
+			BX.addCustomEvent('Grid::updated', this.hidePanel.bind(this));
+			BX.addCustomEvent('Grid::noSelectedRows', this.hidePanel.bind(this));
+			BX.addCustomEvent('Grid::allRowsUnselected', this.hidePanel.bind(this));
+		}
 
-		BX.bind(window, 'click', this.handleOuterClick.bind(this));
-		BX.bind(window, 'scroll', this.handleScroll.bind(this));
-		BX.bind(window, 'resize', BX.throttle(this.adjustPanelStyle, 20, this));
+		if (this.autoHide)
+		{
+			BX.bind(window, 'click', this.handleOuterClick.bind(this));
+		}
+
+		if (this.floatMode)
+		{
+			BX.bind(window, 'scroll', BX.throttle(this.handleScroll, 50, this));
+		}
+
+		BX.addCustomEvent(this, 'BX.UI.ActionPanel:clickResetAllBlock', this.hidePanel.bind(this));
+
+		BX.bind(window, 'resize', BX.throttle(this.handleResize, 20, this));
+		this.getMutationObserver().observe(document.body, this.getMutationObserverParam());
+	},
+
+	getMutationObserver: function()
+	{
+		if(this.mutationObserver)
+			return this.mutationObserver;
+
+		this.mutationObserver = new MutationObserver(function() {
+			BX.throttle(this.adjustPanelStyle, 20, this);
+		}.bind(this));
+
+		return this.mutationObserver;
+	},
+
+	getMutationObserverParam: function()
+	{
+		return {
+			attributes: true,
+			characterData: true,
+			childList: true,
+			subtree: true,
+			attributeOldValue: true,
+			characterDataOldValue: true
+		}
 	},
 
 	addItems: function(items)
@@ -61,19 +119,12 @@ BX.UI.ActionPanel.prototype =
 			this.appendItem(item);
 		}.bind(this));
 
-		this.items.forEach(function (item) {
-			if (!item.isVisible() && !this.layout.more)
-			{
-				this.appendMoreBlock();
-			}
-		}, this);
+		this.fillHiddenItems();
 
-		this.items.forEach(function (item) {
-			if (!item.isVisible())
-			{
-				this.addHiddenItem(item);
-			}
-		}, this);
+		if (this.hiddenItems.length > 0 && !this.layout.more)
+		{
+			this.appendMoreBlock();
+		}
 	},
 
 	buildItem: function(options)
@@ -111,6 +162,21 @@ BX.UI.ActionPanel.prototype =
 		}
 	},
 
+	fillHiddenItems: function()
+	{
+		this.hiddenItems = [];
+		this.items.forEach(
+			function (item)
+			{
+				if (item.isNotFit())
+				{
+					this.addHiddenItem(item);
+				}
+			},
+			this
+		);
+	},
+
 	removeItems: function ()
 	{
 		this.items.forEach(function (item) {
@@ -134,6 +200,8 @@ BX.UI.ActionPanel.prototype =
 		});
 
 		this.layout.container.appendChild(this.layout.more);
+
+		this.fillHiddenItems();
 	},
 
 	getResetAllBlock: function()
@@ -144,9 +212,11 @@ BX.UI.ActionPanel.prototype =
 			}
 		});
 
+		this.removeLeftPosition ? BX.addClass(this.layout.reset, "ui-action-panel-reset-ordert-first") : null;
+
 		BX.bind(this.layout.reset, "click", function()
 		{
-			BX.onCustomEvent('BX.UI.ActionPanel:clickResetAllBlock');
+			BX.onCustomEvent(this, 'BX.UI.ActionPanel:clickResetAllBlock');
 			this.resetAllSection();
 		}.bind(this));
 
@@ -171,11 +241,13 @@ BX.UI.ActionPanel.prototype =
 	{
 		if (this.getDistanceFromTop() > 0)
 		{
-			this.unfixPanel();
+			if(this.panelIsFixed)
+				this.unfixPanel();
 		}
 		else
 		{
-			this.fixPanel();
+			if(!this.panelIsFixed)
+				this.fixPanel();
 		}
 
  		var moreMenu = BX.PopupMenu.getMenuById('ui-action-panel-item-popup-menu');
@@ -209,11 +281,29 @@ BX.UI.ActionPanel.prototype =
 			return;
 		}
 
+		if (BX.findParent(target, {className: "main-kanban-item"}))
+		{
+			return;
+		}
+
 		this.hidePanel();
 		if (this.grid)
 		{
 			this.resetAllSection();
 		}
+	},
+
+	getMaxZindex: function()
+	{
+		var highestIndex = 0;
+		var elements = document.getElementsByTagName('*');
+		for (var i = 0; i < elements.length - 1; i++) {
+			if (parseInt(elements[i].style.zIndex) > highestIndex) {
+				highestIndex = parseInt(elements[i].style.zIndex);
+			}
+		}
+
+		return highestIndex;
 	},
 
 	handleClickMoreBlock: function (event)
@@ -224,6 +314,7 @@ BX.UI.ActionPanel.prototype =
 			angle: true,
 			offsetLeft: bindElement.offsetWidth / 2,
 			closeByEsc: true,
+			zIndex: this.getMaxZindex() + 1,
 			events: {
 				onPopupShow: function() {
 					BX.bind(popupMenu.popupWindow.popupContainer, 'click', function(event) {
@@ -260,34 +351,38 @@ BX.UI.ActionPanel.prototype =
 
 	getDistanceFromTop: function()
 	{
-		return this.renderContainer.getBoundingClientRect().top;
+		return this.resolveRenderContainer().getBoundingClientRect().top;
 	},
 
 	fixPanel: function()
 	{
 		BX.addClass(this.layout.container, "ui-action-panel-fixed");
+		this.panelIsFixed = true;
 	},
 
 	unfixPanel: function()
 	{
 		BX.removeClass(this.layout.container, "ui-action-panel-fixed");
+		this.panelIsFixed = null;
 	},
 
 	buildPanelContainer: function()
 	{
 		this.layout.container = BX.create("div", {
 			attrs: {
-				className: "ui-action-panel"
+				className: this.darkMode ? "ui-action-panel ui-action-panel-darkmode" : "ui-action-panel"
 			},
 			dataset: {
 				tileGrid: "tile-grid-stop-close"
 			},
 			children: [
-				this.getTotalSelectedBlock(),
+				this.showTotalSelectedBlock? this.getTotalSelectedBlock() : null,
 				this.getItemContainer(),
-				this.getResetAllBlock()
+				this.showResetAllBlock? this.getResetAllBlock() : null
 			]
 		});
+
+		this.maxHeight ? this.layout.container.style.maxHeight = this.maxHeight + "px" : null;
 	},
 
 	getItemContainer: function()
@@ -295,6 +390,9 @@ BX.UI.ActionPanel.prototype =
 		return this.layout.itemContainer = BX.create('div', {
 			props: {
 				className: 'ui-action-panel-wrapper'
+			},
+			style: {
+				textAlign: this.alignItems ? this.alignItems : null
 			}
 		})
 	},
@@ -303,7 +401,10 @@ BX.UI.ActionPanel.prototype =
 	{
 		return this.layout.totalSelected = BX.create('div', {
 			props: {
-				className: 'ui-action-panel-total'
+				className: this.removeLeftPosition ? 'ui-action-panel-total ui-action-panel-total-without-border' : 'ui-action-panel-total'
+			},
+			dataset: {
+				role: 'action-panel-total'
 			},
 			children: [
 				BX.create('span', {
@@ -315,6 +416,9 @@ BX.UI.ActionPanel.prototype =
 				this.layout.totalSelectedItem = BX.create('span', {
 					props: {
 						className: 'ui-action-panel-total-param'
+					},
+					dataset: {
+						role: 'action-panel-total-param'
 					}
 				})
 			]
@@ -328,11 +432,37 @@ BX.UI.ActionPanel.prototype =
 
 	adjustPanelStyle: function()
 	{
-		var parentContainerParam = BX.pos(this.renderContainer);
+		var parentContainerParam = BX.pos(this.resolveRenderContainer());
+
+		var offsetTop = 0;
+		
+		if(this.maxHeight)
+		{
+			offsetTop = parentContainerParam.height - this.maxHeight;
+		}
 
 		this.layout.container.style.width = parentContainerParam.width + "px";
-		this.layout.container.style.top = parentContainerParam.top + "px";
-		this.layout.container.style.left = parentContainerParam.left + "px";
+		this.layout.container.style.top = (parentContainerParam.top + offsetTop) + "px";
+
+		this.panelIsFixed ?
+			this.layout.container.style.left = this.resolveRenderContainer().getBoundingClientRect().left + 'px' :
+			this.layout.container.style.left = parentContainerParam.left + "px";
+	},
+
+	handleResize: function()
+	{
+		this.adjustPanelStyle();
+
+		this.fillHiddenItems();
+
+		if (this.hiddenItems.length > 0)
+		{
+			this.layout.more || this.appendMoreBlock();
+		}
+		else
+		{
+			!this.layout.more || this.removeMoreBlock();
+		}
 	},
 
 	/**
@@ -375,16 +505,22 @@ BX.UI.ActionPanel.prototype =
 	 */
 	handleTileUnSelectItem: function(item, tileGrid)
 	{
+		if (this.showTotalSelectedBlock)
+		{
+			this.setTotalSelectedItems(tileGrid.getSelectedItems().length);
+		}
 		if (tileGrid.getSelectedItems().length === 1)
 		{
 			this.buildPanelByItem(tileGrid.getSelectedItems().pop());
 		}
-		this.setTotalSelectedItems(tileGrid.getSelectedItems().length);
 	},
 	
 	handleGridSelectItem: function()
 	{
-		this.setTotalSelectedItems(this.grid.getRows().getSelectedIds().length);
+		if (this.showTotalSelectedBlock)
+		{
+			this.setTotalSelectedItems(this.grid.getRows().getSelectedIds().length);
+		}
 		if (this.grid.getRows().getSelectedIds().length > 1)
 		{
 			this.buildPanelByGroup();
@@ -401,7 +537,10 @@ BX.UI.ActionPanel.prototype =
 	 */
 	handleTileSelectItem: function(item, tileGrid)
 	{
-		this.setTotalSelectedItems(tileGrid.getSelectedItems().length);
+		if (this.showTotalSelectedBlock)
+		{
+			this.setTotalSelectedItems(tileGrid.getSelectedItems().length);
+		}
 		if (tileGrid.isMultiSelectMode() && tileGrid.getSelectedItems().length > 1)
 		{
 			this.buildPanelByGroup();
@@ -420,7 +559,10 @@ BX.UI.ActionPanel.prototype =
 		var actions = item.getActions();
 		var buttons = [];
 		actions.forEach(function (action) {
-			buttons.push(action);
+			if (!action.hideInActionPanel)
+			{
+				buttons.push(action);
+			}
 		}.bind(this));
 
 		this.removeItems();
@@ -448,7 +590,10 @@ BX.UI.ActionPanel.prototype =
 
 	setTotalSelectedItems: function(totalSelectedItems)
 	{
-		this.layout.totalSelectedItem.innerHTML = totalSelectedItems;
+		if (this.layout.totalSelectedItem)
+		{
+			this.layout.totalSelectedItem.innerHTML = totalSelectedItems;
+		}
 	},
 
 	extractButtonsFromGroupActions: function (groupActions)
@@ -472,9 +617,21 @@ BX.UI.ActionPanel.prototype =
 						id: item.ID || item.VALUE,
 						text: item.TEXT || item.NAME,
 						icon: item.ICON,
+						disabled: item.DISABLED,
 						onclick: firstHandler.JS
 					});
 				}
+			}
+			else if (item.TYPE === 'DROPDOWN')
+			{
+				buttons.push({
+					id: item.ID || item.VALUE,
+					text: item.TEXT || item.NAME,
+					icon: item.ICON,
+					submenuOptions: item.SUBMENU_OPTIONS || {},
+					disabled: item.DISABLED,
+					items: item.ITEMS
+				});
 			}
 		});
 
@@ -483,13 +640,19 @@ BX.UI.ActionPanel.prototype =
 
 	showPanel: function()
 	{
+		if (this.pinnedMode)
+		{
+			this.activatePanelItems();
+		}
+
 		if (BX.hasClass(this.layout.container, "ui-action-panel-show"))
 			return;
 
 		BX.addClass(this.layout.container, "ui-action-panel-show");
 		BX.addClass(this.layout.container, "ui-action-panel-show-animate");
 
-		var parentContainerParam = BX.pos(this.renderContainer);
+		var parentContainerParam = BX.pos(this.resolveRenderContainer());
+
 		this.layout.container.style.height = parentContainerParam.height + "px";
 
 		setTimeout(function() {
@@ -497,8 +660,23 @@ BX.UI.ActionPanel.prototype =
 		}.bind(this), 300)
 	},
 
+	disableActionItems: function ()
+	{
+		this.items.forEach(function (item) {
+			this.disableItem(item);
+		}, this);
+	},
+
 	hidePanel: function()
 	{
+		BX.onCustomEvent(this, "BX.UI.ActionPanel:hidePanel");
+
+		if (this.pinnedMode)
+		{
+			this.disablePanelItems();
+			return;
+		}
+
 		BX.removeClass(this.layout.container, "ui-action-panel-show");
 		BX.removeClass(this.layout.container, "ui-action-panel-show-animate");
 		BX.addClass(this.layout.container, "ui-action-panel-hide-animate");
@@ -508,10 +686,67 @@ BX.UI.ActionPanel.prototype =
 		}.bind(this), 300)
 	},
 
+	activatePanelItems: function ()
+	{
+		if (this.layout.totalSelected)
+		{
+			this.layout.totalSelected.classList.remove('ui-action-panel-item-is-disabled');
+		}
+	},
+
+	disablePanelItems: function ()
+	{
+		this.disableActionItems();
+		if (this.layout.totalSelected)
+		{
+			this.layout.totalSelected.classList.add('ui-action-panel-item-is-disabled');
+		}
+		var totalSelectedCounter = document.querySelector('[data-role="action-panel-total-param"]');
+		if (totalSelectedCounter)
+		{
+			totalSelectedCounter.textContent = '0';
+		}
+	},
+
+	resolveRenderContainer: function ()
+	{
+		if (BX.type.isDomNode(this.renderTo))
+		{
+			return this.renderTo;
+		}
+		if (BX.type.isFunction(this.renderTo))
+		{
+			var node = this.renderTo.call();
+			if (BX.type.isDomNode(node))
+			{
+				return node;
+			}
+		}
+
+		throw new Error("BX.UI.ActionPanel: 'this.renderTo' has to be DomNode or function which returns DomNode");
+	},
+
 	draw: function()
 	{
 		document.body.appendChild(this.getPanelContainer());
 		this.adjustPanelStyle();
+		if (this.pinnedMode)
+		{
+			this.disablePanelItems();
+		}
+
+		setTimeout(function()
+		{
+			this.handleResize();
+		}.bind(this))
+	},
+
+	disableItem: function (item)
+	{
+		if (item)
+		{
+			item.disable();
+		}
 	}
 }
 })();

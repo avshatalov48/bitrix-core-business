@@ -8,7 +8,9 @@ use Bitrix\Main\Entity,
 	Bitrix\Main\EventManager,
 	Bitrix\Main\Localization\Loc,
 	Bitrix\Sale,
-	Bitrix\Main\Config\Option;
+	Bitrix\Main\Config\Option,
+	Bitrix\Main\Loader,
+	Bitrix\Landing\Connector\Iblock as IblockConnector;
 
 Loc::loadMessages(__FILE__);
 
@@ -114,6 +116,9 @@ class SubscribeTable extends Entity\DataManager
 				'data_type' => 'string',
 				'required' => true,
 				'validation' => array(__CLASS__, 'validateSiteId'),
+			),
+			'LANDING_SITE_ID' => array(
+				'data_type' => 'integer',
 			),
 		);
 	}
@@ -440,8 +445,6 @@ class SubscribeTable extends Entity\DataManager
 	 * Agent function. Get the necessary data and send notifications to users.
 	 *
 	 * @return string
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
 	 */
 	public static function sendNotice()
 	{
@@ -481,8 +484,6 @@ class SubscribeTable extends Entity\DataManager
 	 * Agent function. Get the necessary data and send notifications to users.
 	 *
 	 * @return string
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
 	 */
 	public static function sendRepeatedNotice()
 	{
@@ -613,6 +614,7 @@ class SubscribeTable extends Entity\DataManager
 				'TYPE' => 'PRODUCT.TYPE',
 				'ITEM_ID',
 				'SITE_ID',
+				'LANDING_SITE_ID',
 				'USER_NAME' => 'USER.NAME',
 				'USER_LAST_NAME' => 'USER.LAST_NAME',
 			),
@@ -632,19 +634,11 @@ class SubscribeTable extends Entity\DataManager
 	protected static function prepareDataForNotice(array $listSubscribe, $eventName)
 	{
 		/* Preparation of data for the mail template */
-		$currentApplication = Application::getInstance();
-		$context = $currentApplication->getContext();
-		$protocol = ($context->getRequest()->isHttps() ? 'https://' : 'http://');
-		$serverName = (defined('SITE_SERVER_NAME') && SITE_SERVER_NAME != '' ? SITE_SERVER_NAME : (string)Option::get('main', 'server_name', ''));
-		if ($serverName == '')
-			$serverName = $context->getServer()->getServerName();
-		unset($context, $currentApplication);
-
 		$itemIdGroupByIblock = array();
 		foreach($listSubscribe as $key => $subscribeData)
 			$itemIdGroupByIblock[$subscribeData['IBLOCK_ID']][$subscribeData['ITEM_ID']] = $subscribeData['ITEM_ID'];
 
-		$detailPageUrlGtoupByItemId = array();
+		$detailPageUrlGroupByItemId = array();
 		if(!empty($itemIdGroupByIblock))
 		{
 			foreach($itemIdGroupByIblock as $iblockId => $listItemId)
@@ -652,7 +646,7 @@ class SubscribeTable extends Entity\DataManager
 				$queryObject = \CIBlockElement::getList(array('ID'=>'ASC'),
 					array('IBLOCK_ID' => $iblockId, 'ID' => $listItemId), false, false, array('DETAIL_PAGE_URL'));
 				while($result = $queryObject->getNext())
-					$detailPageUrlGtoupByItemId[$result['ID']] = $result['DETAIL_PAGE_URL'];
+					$detailPageUrlGroupByItemId[$result['ID']] = $result['DETAIL_PAGE_URL'];
 			}
 		}
 
@@ -660,25 +654,27 @@ class SubscribeTable extends Entity\DataManager
 		$listNotifiedSubscribeId = array();
 		foreach($listSubscribe as $key => $subscribeData)
 		{
+			$pageUrl = self::getPageUrl($subscribeData, $detailPageUrlGroupByItemId);
+			if (!strlen($pageUrl))
+			{
+				continue;
+			}
+
 			$listNotifiedSubscribeId[] = $subscribeData['ID'];
 
-			$subscribeData['DETAIL_PAGE_URL'] = '';
-			if(!empty($detailPageUrlGtoupByItemId[$subscribeData['ITEM_ID']]))
-				$subscribeData['DETAIL_PAGE_URL'] = $detailPageUrlGtoupByItemId[$subscribeData['ITEM_ID']];
-
-			$cardProduct = $protocol.$serverName.$subscribeData['DETAIL_PAGE_URL'];
 			$subscribeData['EVENT_NAME'] = $eventName;
 			$subscribeData['USER_NAME'] = $subscribeData['USER_NAME'] ?
 				$subscribeData['USER_NAME'] : Loc::getMessage('EMAIL_TEMPLATE_USER_NAME');
 			$subscribeData['EMAIL_TO'] = $subscribeData['USER_CONTACT'];
 			$subscribeData['NAME'] = $subscribeData['PRODUCT_NAME'];
-			$subscribeData['PAGE_URL'] = $cardProduct;
+			$subscribeData['PAGE_URL'] = $pageUrl;
 			$subscribeData['PRODUCT_ID'] = $subscribeData['ITEM_ID'];
-			$subscribeData['CHECKOUT_URL'] = \CHTTP::urlAddParams($cardProduct, array(
+			$subscribeData['CHECKOUT_URL'] = \CHTTP::urlAddParams($pageUrl, array(
 				'action' => 'BUY', 'id' => $subscribeData['PRODUCT_ID']));
 			$subscribeData['CHECKOUT_URL_PARAMETERS'] = \CHTTP::urlAddParams('', array(
 				'action' => 'BUY', 'id' => $subscribeData['PRODUCT_ID']));
-			$subscribeData['UNSUBSCRIBE_URL'] = \CHTTP::urlAddParams($protocol.$serverName.'/personal/subscribe/',
+			$subscribeData['UNSUBSCRIBE_URL'] = \CHTTP::urlAddParams(
+				self::getUnsubscribeUrl($subscribeData),
 				array('unSubscribe' => 'Y', 'subscribeId' => $subscribeData['ID'],
 					'userContact' => $subscribeData['USER_CONTACT'], 'productId' => $subscribeData['PRODUCT_ID']));
 			$subscribeData['UNSUBSCRIBE_URL_PARAMETERS'] = \CHTTP::urlAddParams('',
@@ -691,11 +687,119 @@ class SubscribeTable extends Entity\DataManager
 		return array($dataSendToNotice, $listNotifiedSubscribeId);
 	}
 
+	private static function getPageUrl(array $subscribeData, array $detailPageUrlGroupByItemId)
+	{
+		$pageUrl = "";
+
+		if (!empty($subscribeData['LANDING_SITE_ID']))
+		{
+			$pageUrl = Loader::includeModule('landing') ?
+				IblockConnector::getElementUrl($subscribeData['LANDING_SITE_ID'], $subscribeData['ITEM_ID']) : "";
+		}
+		elseif (!empty($detailPageUrlGroupByItemId[$subscribeData['ITEM_ID']]))
+		{
+			$pageUrl = self::getProtocol().self::getServerName($subscribeData['SITE_ID']).
+				$detailPageUrlGroupByItemId[$subscribeData['ITEM_ID']];
+		}
+
+		return $pageUrl;
+	}
+
+	private static function getUnsubscribeUrl(array $subscribeData)
+	{
+		if (!empty($subscribeData['LANDING_SITE_ID']))
+		{
+			$unsubscribeUrl = '';
+			if (Loader::includeModule('landing'))
+			{
+				$sysPages = \Bitrix\Landing\Syspage::get($subscribeData['LANDING_SITE_ID']);
+				$landing = \Bitrix\Landing\Landing::createInstance(
+					$sysPages['personal']['LANDING_ID'], ['blocks_limit' => 1]
+				);
+				if ($landing->exist())
+				{
+					$siteUrl = \Bitrix\Landing\Site::getPublicUrl($landing->getSiteId());
+					$unsubscribeUrl = \CHTTP::urlAddParams(
+						$siteUrl.$landing->getPublicUrl($sysPages['personal']['LANDING_ID']),
+						['SECTION' => 'subscribe']
+					);
+				}
+			}
+		}
+		else
+		{
+			$unsubscribeUrl = self::getProtocol().self::getServerName(
+				$subscribeData['SITE_ID']).'/personal/subscribe/';
+		}
+
+		return $unsubscribeUrl;
+	}
+
+	private static function getProtocol()
+	{
+		$currentApplication = Application::getInstance();
+		$context = $currentApplication->getContext();
+
+		if ($protocol = Option::get('main', 'mail_link_protocol'))
+		{
+			if (strrpos($protocol, '://') === false)
+				$protocol .= '://';
+		}
+		else
+		{
+			if ($context->getServer()->getServerName())
+			{
+				$protocol = ($context->getRequest()->isHttps() ? 'https://' : 'http://');
+			}
+			else
+			{
+				$protocol = 'https://';
+			}
+		}
+
+		unset($currentApplication);
+		unset($context);
+
+		return $protocol;
+	}
+
+	private static function getServerName($siteId)
+	{
+		$serverName = '';
+		$iterator = \CSite::GetByID($siteId);
+		$site = $iterator->fetch();
+		unset($iterator);
+		if (!empty($site))
+			$serverName = (string)$site['SERVER_NAME'];
+		unset($site);
+		if ($serverName == '')
+		{
+			$serverName = (defined('SITE_SERVER_NAME') && SITE_SERVER_NAME != '' ?
+				SITE_SERVER_NAME : (string)Option::get('main', 'server_name', '', $siteId)
+			);
+			if ($serverName == '')
+			{
+				$currentApplication = Application::getInstance();
+				$context = $currentApplication->getContext();
+				$serverName = $context->getServer()->getServerName();
+				unset($currentApplication);
+				unset($context);
+			}
+		}
+
+		return $serverName;
+	}
+
 	protected static function startEventNotification(array $dataSendToNotice)
 	{
 		$contactTypes = static::getContactTypes();
 		foreach($contactTypes as $typeId => $typeData)
 		{
+			if (empty($dataSendToNotice[$typeId]))
+			{
+				continue;
+			}
+
 			$eventKey = EventManager::getInstance()
 				->addEventHandler('catalog', 'OnSubscribeSubmit', $typeData['HANDLER']);
 

@@ -14,12 +14,6 @@ foreach ($requiredModules as $requiredModule)
 	}
 }
 
-if (!isset($arParams['REPORT_HELPER_CLASS']) || strlen($arParams['REPORT_HELPER_CLASS']) < 1)
-{
-	ShowError(GetMessage("REPORT_HELPER_NOT_DEFINED"));
-	return 0;
-}
-
 $isPost = $_SERVER['REQUEST_METHOD'] === 'POST';
 if ($isPost && !check_bitrix_sessid())
 {
@@ -31,6 +25,16 @@ if($isPost && isset($_POST['HELPER_CLASS']))
 {
 	$helperClassName = $arResult['HELPER_CLASS'] = $_POST['HELPER_CLASS'];
 }
+
+if (!is_string($helperClassName)
+	|| strlen($helperClassName) < 1
+	|| !class_exists($helperClassName)
+	|| !is_subclass_of($helperClassName, 'CReportHelper'))
+{
+	ShowError(GetMessage("REPORT_HELPER_NOT_DEFINED"));
+	return 0;
+}
+
 $ownerId = $arResult['OWNER_ID'] = call_user_func(array($helperClassName, 'getOwnerId'));
 
 if($isPost && isset($_POST['EXPORT_REPORT']))

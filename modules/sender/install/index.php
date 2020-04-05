@@ -77,6 +77,10 @@ class sender extends CModule
 			RegisterModuleDependences("main", "OnMailEventSubscriptionDisable", "sender", "Bitrix\\Sender\\Subscription", "onMailEventSubscriptionDisable");
 			RegisterModuleDependences("main", "OnMailEventSubscriptionEnable", "sender", "Bitrix\\Sender\\Subscription", "onMailEventSubscriptionEnable");
 			RegisterModuleDependences("main", "OnMailEventSubscriptionList", "sender", "Bitrix\\Sender\\Subscription", "onMailEventSubscriptionList");
+			RegisterModuleDependences(
+				"main", \Bitrix\Main\Mail\Tracking::onChangeStatus,
+				"sender", \Bitrix\Sender\Integration\EventHandler::class, "onMailEventMailChangeStatus"
+			);
 
 			// connectors of module sender
 			RegisterModuleDependences("sender", "OnConnectorList", "sender", "bitrix\\sender\\connectormanager", "onConnectorListContact");
@@ -135,6 +139,10 @@ class sender extends CModule
 		UnRegisterModuleDependences("main", "OnMailEventSubscriptionDisable", "sender", "Bitrix\\Sender\\Subscription", "onMailEventSubscriptionDisable");
 		UnRegisterModuleDependences("main", "OnMailEventSubscriptionEnable", "sender", "Bitrix\\Sender\\Subscription", "onMailEventSubscriptionEnable");
 		UnRegisterModuleDependences("main", "OnMailEventSubscriptionList", "sender", "Bitrix\\Sender\\Subscription", "onMailEventSubscriptionList");
+		UnRegisterModuleDependences(
+			"main", \Bitrix\Main\Mail\Tracking::onChangeStatus,
+			"sender", \Bitrix\Sender\Integration\EventHandler::class, "onMailEventMailChangeStatus"
+		);
 
 		UnRegisterModuleDependences("sender", "OnConnectorList", "sender", "bitrix\\sender\\connectormanager", "onConnectorListContact");
 		UnRegisterModuleDependences("sender", "OnConnectorList", "sender", "bitrix\\sender\\connectormanager", "onConnectorListRecipient");

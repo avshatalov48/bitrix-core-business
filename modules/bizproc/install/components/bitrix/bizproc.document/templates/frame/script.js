@@ -91,7 +91,7 @@
 						props: {
 							href: '#'
 						},
-						text: task['NAME']
+						text: BX.util.htmlspecialcharsback(task['NAME'])
 					});
 
 					BX.bind(taskLink, 'click', this.onTaskLinkClick.bind(this, task));

@@ -1,8 +1,7 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
-CModule::IncludeModule("search");
-$isSearchInstalled = true;//CModule::IncludeModule("search");
+$isSearchInstalled = CModule::IncludeModule("search");
 
 if(!isset($arParams["PAGE"]) || strlen($arParams["PAGE"])<=0)
 	$arParams["PAGE"] = "#SITE_DIR#search/index.php";
@@ -256,6 +255,16 @@ if(
 		}
 		*/
 	}
+
+	$arResult['CATEGORIES_ITEMS_EXISTS'] = false;
+	foreach ($arResult["CATEGORIES"] as $category)
+	{
+		if (!empty($category['ITEMS']) && is_array($category['ITEMS']))
+		{
+			$arResult['CATEGORIES_ITEMS_EXISTS'] = true;
+			break;
+		}
+	}
 }
 
 $arResult["FORM_ACTION"] = htmlspecialcharsbx(str_replace("#SITE_DIR#", SITE_DIR, $arParams["PAGE"]));
@@ -281,4 +290,3 @@ else
 	CUtil::InitJSCore(array('ajax'));
 	$this->IncludeComponentTemplate();
 }
-?>

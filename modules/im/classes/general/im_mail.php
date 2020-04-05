@@ -13,7 +13,7 @@ class CIMMail
 		$arGroupNotify = array();
 		$arGroupNotifyUser = array();
 		$arUnsendNotify = CIMNotify::GetUnsendNotify();
-		
+
 		foreach($arUnsendNotify as $id => $arNotify)
 		{
 			if (!isset($arMark[$arNotify["CHAT_ID"]]) || $arMark[$arNotify["CHAT_ID"]] < $arNotify["ID"])
@@ -59,11 +59,13 @@ class CIMMail
 			if (!(isset($arNotify["EMAIL_TEMPLATE"]) && strlen($arNotify["EMAIL_TEMPLATE"]) > 0))
 				$arNotify["EMAIL_TEMPLATE"] = "IM_NEW_NOTIFY";
 
-			$arNotify["USER"] = htmlspecialcharsback(CUser::FormatName(CSite::GetNameFormat(false),
-				array("NAME" 		=> $arNotify["TO_USER_NAME"],
-					"LAST_NAME" 	=> $arNotify["TO_USER_LAST_NAME"],
-					"SECOND_NAME"	=> $arNotify["TO_USER_SECOND_NAME"],
-					"LOGIN"		=> $arNotify["TO_USER_LOGIN"]), true));
+			$arNotify["USER"] = \Bitrix\Im\User::formatFullNameFromDatabase(array(
+				"NAME" => $arNotify["TO_USER_NAME"],
+				"LAST_NAME" => $arNotify["TO_USER_LAST_NAME"],
+				"SECOND_NAME" => $arNotify["TO_USER_SECOND_NAME"],
+				"LOGIN"	=> $arNotify["TO_USER_LOGIN"],
+				"EXTERNAL_AUTH_ID"	=> $arNotify["TO_EXTERNAL_AUTH_ID"]
+			));
 
 			if ($arNotify["FROM_USER_ID"] == 0)
 			{
@@ -71,13 +73,13 @@ class CIMMail
 			}
 			else
 			{
-				$arNotify["FROM_USER"] = htmlspecialcharsback(CUser::FormatName(CSite::GetNameFormat(false),
-					array("NAME" 		=> $arNotify["FROM_USER_NAME"],
-						"LAST_NAME" 	=> $arNotify["FROM_USER_LAST_NAME"],
-						"SECOND_NAME"	=> $arNotify["FROM_USER_SECOND_NAME"],
-						"LOGIN"		=> $arNotify["FROM_USER_LOGIN"]
-					), true)
-				);
+				$arNotify["FROM_USER"] = \Bitrix\Im\User::formatFullNameFromDatabase(array(
+					"NAME" => $arNotify["FROM_USER_NAME"],
+					"LAST_NAME" => $arNotify["FROM_USER_LAST_NAME"],
+					"SECOND_NAME" => $arNotify["FROM_USER_SECOND_NAME"],
+					"LOGIN" => $arNotify["FROM_USER_LOGIN"],
+					"EXTERNAL_AUTH_ID" => $arNotify["FROM_EXTERNAL_AUTH_ID"]
+				));
 			}
 
 			$arNotify['NOTIFY_TAG_MD5'] = md5($arNotify["TO_USER_ID"].'|'.$arNotify['NOTIFY_TAG']);
@@ -198,11 +200,13 @@ class CIMMail
 						continue;
 				}
 
-				$arMessage["USER"] = htmlspecialcharsback(CUser::FormatName(CSite::GetNameFormat(false),
-				array("NAME" 		=> $arMessage["TO_USER_NAME"],
-					"LAST_NAME" 	=> $arMessage["TO_USER_LAST_NAME"],
-					"SECOND_NAME"	=> $arMessage["TO_USER_SECOND_NAME"],
-					"LOGIN"		=> $arMessage["TO_USER_LOGIN"]), true));
+				$arNotify["USER"] = \Bitrix\Im\User::formatFullNameFromDatabase(array(
+					"NAME" => $arMessage["TO_USER_NAME"],
+					"LAST_NAME" => $arMessage["TO_USER_LAST_NAME"],
+					"SECOND_NAME" => $arMessage["TO_USER_SECOND_NAME"],
+					"LOGIN" => $arMessage["TO_USER_LOGIN"],
+					"EXTERNAL_AUTH_ID" => $arMessage["TO_EXTERNAL_AUTH_ID"],
+				));
 
 				$arToUser[$arMessage["TO_USER_ID"]] = Array(
 					"USER" => $arMessage["USER"],
@@ -223,13 +227,13 @@ class CIMMail
 				}
 				else
 				{
-					$arMessage["FROM_USER"] = htmlspecialcharsback(CUser::FormatName(CSite::GetNameFormat(false),
-						array("NAME" 		=> $arMessage["FROM_USER_NAME"],
-							"LAST_NAME" 	=> $arMessage["FROM_USER_LAST_NAME"],
-							"SECOND_NAME"	=> $arMessage["FROM_USER_SECOND_NAME"],
-							"LOGIN"			=> $arMessage["FROM_USER_LOGIN"]
-						), true)
-					);
+					$arMessage["FROM_USER"] = \Bitrix\Im\User::formatFullNameFromDatabase(array(
+						"NAME" => $arMessage["FROM_USER_NAME"],
+						"LAST_NAME" => $arMessage["FROM_USER_LAST_NAME"],
+						"SECOND_NAME" => $arMessage["FROM_USER_SECOND_NAME"],
+						"LOGIN" => $arMessage["FROM_USER_LOGIN"],
+						"EXTERNAL_AUTH_ID" => $arMessage["FROM_EXTERNAL_AUTH_ID"],
+					));
 				}
 
 				$arFromUser[$arMessage["FROM_USER_ID"]] = Array(
@@ -241,6 +245,7 @@ class CIMMail
 					"FROM_USER_SECOND_NAME" => $arMessage["FROM_USER_SECOND_NAME"],
 				);
 			}
+
 			$arDialog[$arMessage["TO_USER_ID"]][$arMessage["FROM_USER_ID"]][] = Array(
 				'DATE_CREATE' => FormatDate("FULL", $arMessage["DATE_CREATE"]),
 				'MESSAGE' => CTextParser::convert4mail(str_replace("#BR#", "\n", strip_tags($arMessage["MESSAGE_OUT"])))
@@ -256,6 +261,7 @@ class CIMMail
 			$message = "";
 			$bHeader = false;
 			$arNames = Array();
+			$arFromId = Array();
 			$bFirstMessage = true;
 			foreach ($arDialog[$toID] as $fromID => $arMessages)
 			{
@@ -270,15 +276,16 @@ class CIMMail
 					$bHeader = true;
 				}
 				$arNames[] = $arFromUser[$fromID]['FROM_USER'];
+				$arFromId[] = $arFromUser[$fromID]['FROM_USER_ID'];
 				foreach ($arMessages as $arMessage)
-					$message .= "\n".GetMessage('IM_MAIL_TEMPLATE_NEW_MESSAGE_TEXT', Array('#DATE_CREATE#' => $arMessage['DATE_CREATE'], '#MESSAGE#' => $arMessage['MESSAGE']))."\n";
+					$message .= GetMessage('IM_MAIL_TEMPLATE_NEW_MESSAGE_TEXT', Array('#DATE_CREATE#' => $arMessage['DATE_CREATE'], '#MESSAGE#' => $arMessage['MESSAGE']))."\n";
 			}
 			if ($bHeader)
 				$message .= "\n".GetMessage('IM_MAIL_TEMPLATE_NEW_MESSAGE_FOOTER');
 
 			$arFields = array(
 				"USER" => $arToInfo["USER_ID"],
-				"USER_ID" => $arToInfo["USER_ID"],
+				"USER_ID" => count($arNames) > 1? $arToInfo["USER_ID"]: $arToInfo["FROM_USER_ID"],
 				"USER_LOGIN" => $arToInfo["USER_LOGIN"],
 				"USER_NAME" => $arToInfo["USER_NAME"],
 				"USER_LAST_NAME" => $arToInfo["USER_LAST_NAME"],
@@ -287,6 +294,7 @@ class CIMMail
 				"TITLE" => $arToInfo["TITLE"],
 				"MESSAGES" => $message,
 			);
+			$arFields['FROM_USER_ID'] = implode(', ', $arFromId);
 			if (count($arNames) > 1)
 			{
 				$mailTemplate = "IM_NEW_MESSAGE_GROUP";
@@ -297,6 +305,7 @@ class CIMMail
 				$mailTemplate = "IM_NEW_MESSAGE";
 				$arFields['FROM_USER'] = implode(', ', $arNames);
 			}
+
 			$event = new CEvent;
 			$event->Send($mailTemplate, $arToInfo['TO_USER_LID'], $arFields, "N");
 		}

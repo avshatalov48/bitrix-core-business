@@ -16,6 +16,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 class PersonalProfileList extends CBitrixComponent
 {
 	const E_SALE_MODULE_NOT_INSTALLED 		= 10000;
+	const E_NOT_AUTHORIZED					= 10001;
 
 	/** @var  Main\ErrorCollection $errorCollection*/
 	protected $errorCollection;
@@ -51,9 +52,17 @@ class PersonalProfileList extends CBitrixComponent
 
 		$this->checkRequiredModules();
 
+		$this->arResult['ERRORS'] = array();
 		if (!$USER->IsAuthorized())
 		{
-			$APPLICATION->AuthForm(GetMessage("SALE_ACCESS_DENIED"), false, false, 'N', false);
+			if(!$this->arParams['AUTH_FORM_IN_TEMPLATE'])
+			{
+				$APPLICATION->AuthForm(GetMessage("SALE_ACCESS_DENIED"), false, false, 'N', false);
+			}
+			else
+			{
+				$this->arResult['ERRORS'][self::E_NOT_AUTHORIZED] = GetMessage("SALE_ACCESS_DENIED");
+			}
 		}
 
 		if($this->arParams["SET_TITLE"] == 'Y')
@@ -94,8 +103,11 @@ class PersonalProfileList extends CBitrixComponent
 		elseif((int)($_REQUEST["success_del_id"]) > 0)
 			$errorMessage = GetMessage("SALE_DEL_PROFILE_SUC", array("#ID#" => (int)($_REQUEST["success_del_id"])));
 
-		if(strlen($errorMessage)>=0)
+		if(strlen($errorMessage) > 0)
+		{
 			$this->arResult["ERROR_MESSAGE"] = $errorMessage;
+			$this->arResult['ERRORS'][] = $errorMessage;
+		}
 
 		$by = (strlen($_REQUEST["by"])>0 ? $_REQUEST["by"]: "DATE_UPDATE");
 		$order = (strlen($_REQUEST["order"])>0 ? $_REQUEST["order"]: "DESC");
@@ -128,11 +140,11 @@ class PersonalProfileList extends CBitrixComponent
 
 		if ($request->get('SECTION'))
 		{
-			$this->arResult["URL"] = $request->getRequestedPage()."?SECTION=".$request->get('SECTION')."&";
+			$this->arResult["URL"] = htmlspecialcharsbx($request->getRequestedPage()."?SECTION=".$request->get('SECTION')."&");
 		}
 		else
 		{
-			$this->arResult["URL"] = $request->getRequestedPage()."?";
+			$this->arResult["URL"] = htmlspecialcharsbx($request->getRequestedPage()."?");
 		}
 
 		$this->includeComponentTemplate();

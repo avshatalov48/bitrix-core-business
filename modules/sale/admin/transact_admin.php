@@ -8,6 +8,9 @@
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
+$publicMode = $adminPage->publicMode;
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions == "D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
@@ -32,61 +35,79 @@ $arTransactTypes = array(
 $sTableID = "tbl_sale_transact";
 
 $oSort = new CAdminSorting($sTableID, "ID", "desc");
-$lAdmin = new CAdminList($sTableID, $oSort);
+$lAdmin = new CAdminUiList($sTableID, $oSort);
 
-$arFilterFields = array(
-	"filter_user_id",
-	"filter_login",
-	"filter_user",
-	"filter_transact_date_from",
-	"filter_transact_date_to",
-	"filter_order_id",
-	"filter_currency"
+$listCurrency = array();
+$currencyList = Bitrix\Currency\CurrencyManager::getCurrencyList();
+foreach ($currencyList as $currencyId => $currencyName)
+{
+	$listCurrency[$currencyId] = $currencyName;
+}
+
+$filterFields = array(
+	array(
+		"id" => "USER_USER",
+		"name" => GetMessage('STA_USER'),
+		"filterable" => "%",
+		"quickSearch" => "%",
+		"default" => true
+	),
+	array(
+		"id" => "USER_ID",
+		"name" => GetMessage('STA_USER_ID'),
+		"type" => "custom_entity",
+		"selector" => array("type" => "user"),
+		"filterable" => ""
+	),
+	array(
+		"id" => "USER_LOGIN",
+		"name" => GetMessage("STA_USER_LOGIN"),
+		"filterable" => ""
+	),
+	array(
+		"id" => "CURRENCY",
+		"name" => GetMessage("STA_CURRENCY"),
+		"type" => "list",
+		"items" => $listCurrency,
+		"filterable" => ""
+	),
+	array(
+		"id" => "TRANSACT_DATE",
+		"name" => GetMessage("STA_TRANS_DATE"),
+		"type" => "date",
+		"filterable" => ""
+	),
+	array(
+		"id" => "ORDER_ID",
+		"name" => GetMessage("STA_ORDER_ID"),
+		"filterable" => ""
+	),
 );
-
-$lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
 
-if (IntVal($filter_user_id) > 0) $arFilter["USER_ID"] = IntVal($filter_user_id);
-if (strlen($filter_login) > 0) $arFilter["USER_LOGIN"] = $filter_login;
-if (strlen($filter_user) > 0) $arFilter["%USER_USER"] = $filter_user;
-if (strlen($filter_currency) > 0) $arFilter["CURRENCY"] = $filter_currency;
-if (strlen($filter_transact_date_from)>0) $arFilter[">=TRANSACT_DATE"] = Trim($filter_transact_date_from);
-if (IntVal($filter_order_id) > 0) $arFilter["ORDER_ID"] = IntVal($filter_order_id);
-if (strlen($filter_transact_date_to)>0)
+if ($_GET["filter_user_id"])
 {
-	if ($arDate = ParseDateTime($filter_transact_date_to, CSite::GetDateFormat("FULL", SITE_ID)))
-	{
-		if (StrLen($filter_transact_date_to) < 11)
-		{
-			$arDate["HH"] = 23;
-			$arDate["MI"] = 59;
-			$arDate["SS"] = 59;
-		}
-
-		$filter_transact_date_to = date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL", SITE_ID)), mktime($arDate["HH"], $arDate["MI"], $arDate["SS"], $arDate["MM"], $arDate["DD"], $arDate["YYYY"]));
-		$arFilter["<=TRANSACT_DATE"] = $filter_transact_date_to;
-	}
-	else
-	{
-		$filter_transact_date_to = "";
-	}
+	$arFilter["USER_ID"] = intval($_GET["filter_user_id"]);
+}
+if ($_GET["USER_ID"])
+{
+	$arFilter["USER_ID"] = intval($_GET["USER_ID"]);
+}
+if ($_GET["filter_currency"])
+{
+	$arFilter["CURRENCY"] = $_GET["filter_currency"];
 }
 
-$nPageSize = CAdminResult::GetNavSize($sTableID);
-$dbTransactList = CSaleUserTransact::GetList(
-		array($by => $order),
-		$arFilter,
-		false,
-		array("nPageSize"=>$nPageSize),
-		array("*")
-	);
+$lAdmin->AddFilter($filterFields, $arFilter);
 
-$dbTransactList = new CAdminResult($dbTransactList, $sTableID);
+global $by, $order;
+
+$dbTransactList = CSaleUserTransact::GetList(array($by => $order), $arFilter, false, false, array("*"));
+
+$dbTransactList = new CAdminUiResult($dbTransactList, $sTableID);
 $dbTransactList->NavStart();
-$lAdmin->NavText($dbTransactList->GetNavPrint(GetMessage("STA_NAV")));
-
+$lAdmin->SetNavigationParams($dbTransactList, array("BASE_LINK" => $selfFolderUrl."sale_transact_admin.php"));
 
 $lAdmin->AddHeaders(array(
 	array("id"=>"ID", "content"=>"ID", "sort"=>"id", "default"=>true),
@@ -98,7 +119,6 @@ $lAdmin->AddHeaders(array(
 	array("id"=>"DESCR", "content"=>GetMessage("STA_DESCR"), "sort"=>"", "default"=>true),
 ));
 
-
 $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 $LOCAL_TRANS_USER_CACHE = array();
 
@@ -108,7 +128,7 @@ if (in_array("DESCR", $arVisibleColumns))
 			array($by => $order),
 			$arFilter,
 			false,
-			array("nPageSize"=>$nPageSize),
+			array("nPageSize" => CAdminUiResult::GetNavSize($sTableID)),
 			array("ID", "EMPLOYEE_ID")
 		);
 
@@ -130,25 +150,43 @@ if (in_array("DESCR", $arVisibleColumns))
 	}
 }
 
-while ($arTransact = $dbTransactList->NavNext(true, "f_"))
+while ($arTransact = $dbTransactList->NavNext(false))
 {
-	$row =& $lAdmin->AddRow($f_ID, $arTransact);
+	$row =& $lAdmin->AddRow($arTransact["ID"], $arTransact);
 
-	$row->AddField("ID", $f_ID);
-	$row->AddField("TRANSACT_DATE", $f_TRANSACT_DATE);
+	$row->AddField("ID", $arTransact["ID"]);
+	$row->AddField("TRANSACT_DATE", $arTransact["TRANSACT_DATE"]);
 
-	$fieldValue  = "[<a href=\"/bitrix/admin/user_edit.php?ID=".$f_USER_ID."&lang=".LANG."\" title=\"".GetMessage("STA_USER_INFO")."\">".$f_USER_ID."</a>] ";
-	$fieldValue .= htmlspecialcharsEx($arTransact["USER_NAME"].((strlen($arTransact["USER_NAME"])<=0 || strlen($arTransact["USER_LAST_NAME"])<=0) ? "" : " ").$arTransact["USER_LAST_NAME"])."<br>";
+	$urlToUser = $selfFolderUrl."user_edit.php?ID=".$arTransact["USER_ID"]."&lang=".LANGUAGE_ID;
+	if ($publicMode)
+	{
+		$urlToUser = $selfFolderUrl."sale_buyers_profile.php?USER_ID=".$arTransact["USER_ID"]."&lang=".LANGUAGE_ID;
+		$urlToUser = $adminSidePanelHelper->editUrlToPublicPage($urlToUser);
+	}
+	$fieldValue  = "[<a href=\"".$urlToUser."\" title=\"".GetMessage("STA_USER_INFO")."\">".$arTransact["USER_ID"]."</a>] ";
+	$fieldValue .= htmlspecialcharsEx($arTransact["USER_NAME"].((strlen($arTransact["USER_NAME"])<=0 ||
+			strlen($arTransact["USER_LAST_NAME"])<=0) ? "" : " ").$arTransact["USER_LAST_NAME"])."<br>";
 	$fieldValue .= htmlspecialcharsEx($arTransact["USER_LOGIN"])."&nbsp;&nbsp;&nbsp; ";
-	$fieldValue .= "<a href=\"mailto:".htmlspecialcharsbx($arTransact["USER_EMAIL"])."\" title=\"".GetMessage("STA_MAILTO")."\">".htmlspecialcharsEx($arTransact["USER_EMAIL"])."</a>";
+	$fieldValue .= "<a href=\"mailto:".htmlspecialcharsbx($arTransact["USER_EMAIL"])."\" title=\"".
+		GetMessage("STA_MAILTO")."\">".htmlspecialcharsEx($arTransact["USER_EMAIL"])."</a>";
 	$row->AddField("USER_ID", $fieldValue);
 
-	$row->AddField("AMOUNT", (($arTransact["DEBIT"] == "Y") ? "+" : "-").SaleFormatCurrency($arTransact["AMOUNT"], $arTransact["CURRENCY"])."<br><small>".(($arTransact["DEBIT"] == "Y") ? GetMessage("STA_TO_ACCOUNT") : GetMessage("STA_FROM_ACCOUNT"))."</small>");
+	$row->AddField("AMOUNT", (($arTransact["DEBIT"] == "Y") ? "+" : "-").SaleFormatCurrency($arTransact["AMOUNT"],
+			$arTransact["CURRENCY"])."<br><small>".(($arTransact["DEBIT"] == "Y") ? GetMessage("STA_TO_ACCOUNT") : GetMessage("STA_FROM_ACCOUNT"))."</small>");
 
-	if (IntVal($arTransact["ORDER_ID"]) > 0)
-		$fieldValue = "<a href=\"/bitrix/admin/sale_order_view.php?ID=".$arTransact["ORDER_ID"]."&lang=".LANG."\" title=\"".GetMessage("STA_ORDER_VIEW")."\">".$arTransact["ORDER_ID"]."</a>";
+	if (intval($arTransact["ORDER_ID"]) > 0)
+	{
+		$orderViewUrl = $selfFolderUrl."sale_order_view.php?ID=".$arTransact["ORDER_ID"]."&lang=".LANGUAGE_ID;
+		if ($publicMode)
+		{
+			$orderViewUrl = "/shop/orders/details/".$arTransact["ORDER_ID"]."/";
+		}
+		$fieldValue = "<a href=\"".$orderViewUrl."\" title=\"".GetMessage("STA_ORDER_VIEW")."\">".$arTransact["ORDER_ID"]."</a>";
+	}
 	else
+	{
 		$fieldValue = "&nbsp;";
+	}
 	$row->AddField("ORDER_ID", $fieldValue);
 
 	if (array_key_exists($arTransact["DESCRIPTION"], $arTransactTypes))
@@ -166,7 +204,13 @@ while ($arTransact = $dbTransactList->NavNext(true, "f_"))
 			if (isset($LOCAL_TRANS_USER_CACHE[$arTransact["EMPLOYEE_ID"]])
 				&& !empty($LOCAL_TRANS_USER_CACHE[$arTransact["EMPLOYEE_ID"]]))
 			{
-				$fieldValue .= "[<a href=\"/bitrix/admin/user_edit.php?ID=".$arTransact["EMPLOYEE_ID"]."&lang=".LANG."\" title=\"".GetMessage("STA_USER_INFO")."\">".$arTransact["EMPLOYEE_ID"]."</a>] ";
+				$urlToUser = $selfFolderUrl."user_edit.php?ID=".$arTransact["EMPLOYEE_ID"]."&lang=".LANGUAGE_ID;
+				if ($publicMode)
+				{
+					$urlToUser = $selfFolderUrl."sale_buyers_profile.php?USER_ID=".$arTransact["EMPLOYEE_ID"]."&lang=".LANGUAGE_ID;
+					$urlToUser = $adminSidePanelHelper->editUrlToPublicPage($urlToUser);
+				}
+				$fieldValue .= "[<a href=\"".$urlToUser."\" title=\"".GetMessage("STA_USER_INFO")."\">".$arTransact["EMPLOYEE_ID"]."</a>] ";
 				$fieldValue .= $LOCAL_TRANS_USER_CACHE[$arTransact["EMPLOYEE_ID"]];
 				$fieldValue .= "<br />";
 			}
@@ -175,116 +219,33 @@ while ($arTransact = $dbTransactList->NavNext(true, "f_"))
 		$fieldValue .= "</small>";
 	}
 	$row->AddField("DESCR", $fieldValue);
-
-	/*
-	$arActions = Array();
-	$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("SAA_UPDATE_ALT"), "ACTION"=>$lAdmin->ActionRedirect("sale_account_edit.php?ID=".$f_ID."&lang=".LANG.GetFilterParams("filter_").""));
-	if ($saleModulePermissions >= "W")
-	{
-		$arActions[] = array("SEPARATOR" => true);
-		$arActions[] = array("ICON"=>"delete", "TEXT"=>GetMessage("SAA_DELETE_ALT"), "ACTION"=>"if(confirm('".GetMessage('SAA_DELETE_CONFIRM')."')) ".$lAdmin->ActionDoGroup($f_ID, "delete"));
-	}
-
-	$row->AddActions($arActions);
-	*/
 }
-
-$lAdmin->AddFooter(
-	array(
-		array(
-			"title" => GetMessage("MAIN_ADMIN_LIST_SELECTED"),
-			"value" => $dbTransactList->SelectedRowsCount()
-		)
-	)
-);
-
 
 if ($saleModulePermissions >= "U")
 {
+	$addUrl = $selfFolderUrl."sale_transact_edit.php?lang=".LANGUAGE_ID;
+	$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
 	$aContext = array(
 		array(
 			"TEXT" => GetMessage("STAN_ADD_NEW"),
-			"LINK" => "sale_transact_edit.php?lang=".LANG.GetFilterParams("filter_"),
+			"LINK" => $addUrl,
 			"TITLE" => GetMessage("STAN_ADD_NEW_ALT"),
 			"ICON" => "btn_new"
 		),
 	);
+	$lAdmin->setContextSettings(array("pagePath" => $selfFolderUrl."sale_transact_admin.php"));
 	$lAdmin->AddAdminContextMenu($aContext);
 }
 
 $lAdmin->CheckListMode();
-
-
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
 $APPLICATION->SetTitle(GetMessage("STA_TITLE"));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-?>
-<form name="find_form" method="GET" action="<?echo $APPLICATION->GetCurPage()?>?">
-<?
-$oFilter = new CAdminFilter(
-	$sTableID."_filter",
-	array(
-		GetMessage("STA_USER_ID"),
-		GetMessage("STA_USER_LOGIN"),
-		GetMessage("STA_CURRENCY"),
-		GetMessage("STA_TRANS_DATE"),
-		GetMessage("STA_ORDER_ID"),
-	)
-);
 
-$oFilter->Begin();
-?>
-	<tr>
-		<td><?echo GetMessage("STA_USER")?>:</td>
-		<td>
-			<input type="text" name="filter_user" size="50" value="<?= htmlspecialcharsbx($filter_user) ?>">&nbsp;<?=ShowFilterLogicHelp()?>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("STA_USER_ID")?>:</td>
-		<td>
-			<?echo FindUserID("filter_user_id", $filter_user_id, "", "find_form");?>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("STA_USER_LOGIN")?>:</td>
-		<td>
-			<input type="text" name="filter_login" size="50" value="<?= htmlspecialcharsbx($filter_login) ?>">
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("STA_CURRENCY")?>:</td>
-		<td>
-			<?= CCurrency::SelectBox("filter_currency", $filter_currency, GetMessage("STA_ALL"), True, "", ""); ?>
-		</td>
-	</tr>
-	<tr>
-		<td nowrap><?echo GetMessage("STA_TRANS_DATE")?>:</td>
-		<td>
-			<?echo CalendarPeriod("filter_transact_date_from", $filter_transact_date_from, "filter_transact_date_to", $filter_transact_date_to, "bfilter", "Y")?>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("STA_ORDER_ID")?>:</td>
-		<td>
-			<input type="text" name="filter_order_id" size="5" value="<?= htmlspecialcharsbx($filter_order_id) ?>">
-		</td>
-	</tr>
-<?
-$oFilter->Buttons(
-	array(
-		"table_id" => $sTableID,
-		"url" => $APPLICATION->GetCurPage(),
-		"form" => "find_form"
-	)
-);
-$oFilter->End();
-?>
-</form>
-<?
+$lAdmin->DisplayFilter($filterFields);
 $lAdmin->DisplayList();
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

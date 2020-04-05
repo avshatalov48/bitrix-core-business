@@ -24,7 +24,8 @@ if ($arParams['SHOW_ACCOUNT_COMPONENT'] !== 'N')
 		"bitrix:sale.personal.account",
 		"bootstrap_v4",
 		Array(
-			"SET_TITLE" => "N"
+			"SET_TITLE" => "N",
+			"AUTH_FORM_IN_TEMPLATE" => 'Y'
 		),
 		$component
 	);
@@ -61,6 +62,7 @@ if ($arParams['SHOW_ACCOUNT_PAY_COMPONENT'] !== 'N' && $USER->IsAuthorized())
 						"SELL_VALUES_FROM_VAR" => "N",
 						"SELL_VAR_PRICE_VALUE" => "",
 						"SET_TITLE" => "N",
+						"AUTH_FORM_IN_TEMPLATE" => 'Y',
 					),
 					$component
 				);

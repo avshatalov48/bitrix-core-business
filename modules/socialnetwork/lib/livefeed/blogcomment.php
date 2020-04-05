@@ -10,7 +10,6 @@ Loc::loadMessages(__FILE__);
 final class BlogComment extends Provider
 {
 	const PROVIDER_ID = 'BLOG_COMMENT';
-	const TYPE = 'comment';
 	const CONTENT_TYPE_ID = 'BLOG_COMMENT';
 
 	public static function getId()
@@ -25,7 +24,7 @@ final class BlogComment extends Provider
 
 	public function getType()
 	{
-		return static::TYPE;
+		return Provider::TYPE_COMMENT;
 	}
 
 	public function initSourceFields()
@@ -41,7 +40,10 @@ final class BlogComment extends Provider
 				array(),
 				array(
 					"ID" => $commentId
-				)
+				),
+				false,
+				false,
+				array("ID", "BLOG_ID", "POST_ID", "PARENT_ID", "AUTHOR_ID", "AUTHOR_NAME", "AUTHOR_EMAIL", "AUTHOR_IP", "AUTHOR_IP1", "TITLE", "POST_TEXT", "SHARE_DEST")
 			);
 
 			if ($comment = $res->fetch($commentId))
@@ -76,6 +78,8 @@ final class BlogComment extends Provider
 					$this->setSourceTitle(truncateText($title, 100));
 					$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects());
 					$this->setSourceDiskObjects(self::getDiskObjects($commentId, $this->cloneDiskObjects));
+					$this->setSourceOriginalText($comment['POST_TEXT']);
+					$this->setSourceAuxData($comment);
 				}
 			}
 		}

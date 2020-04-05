@@ -1,4 +1,6 @@
 <?
+$MESS["FILEMAN_OPTION_YANDEX_MAP_API_KEY"] = "Yandex.Maps API key";
+$MESS["FILEMAN_OPTION_YANDEX_MAP_API_KEY_NOTE"] = "How to get the key: #A#";
 $MESS["FILEMAN_OPTION_DEF_EDITOR"] = "Default page editor:";
 $MESS["FILEMAN_OPTION_EDITOR_TEXT"] = "Text editor";
 $MESS["FILEMAN_OPTION_EDITOR_HTML"] = "Visual HTML editor";

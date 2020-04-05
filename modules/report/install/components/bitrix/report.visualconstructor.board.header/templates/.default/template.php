@@ -16,7 +16,63 @@ if ($isBitrix24Template)
 <? endif ?>
 
 	<div class="pagetitle-container<? if (!$isBitrix24Template): ?> pagetitle-container-light<? endif ?> pagetitle-flexible-space">
-		<?php
+		<?if (!$arResult['IS_FRAME_MODE']):?>
+				<?
+				$APPLICATION->IncludeComponent(
+					'bitrix:report.visualconstructor.board.filter',
+					'',
+					array(
+						'BOARD_ID' => $arResult['BOARD_ID'],
+						'REPORTS_CATEGORIES' => $arResult['REPORTS_CATEGORIES'],
+						'FILTER' => $arResult['FILTER'],
+					),
+					$component,
+					array()
+				);
+				?>
+
+				<?if ($arResult['WITH_ADD_BUTTON']):?>
+				<div class="pagetitle-container pagetitle-align-right-container">
+					<?
+					$APPLICATION->IncludeComponent(
+						'bitrix:report.visualconstructor.board.controls',
+						'',
+						array(
+							'BOARD_ID' => $arResult['BOARD_ID'],
+							'REPORTS_CATEGORIES' => $arResult['REPORTS_CATEGORIES']
+						),
+						$component,
+						array()
+					);
+					?>
+				</div>
+				<?endif;?>
+		<?else:?>
+			<div class="pagetitle-container pagetitle-align-right-container">
+			<?php
+				/** @var \Bitrix\Report\VisualConstructor\BoardButton $button */
+				foreach ($arResult['BOARD_BUTTONS'] as $button)
+				{
+					$button->flush();
+				}
+			?>
+			</div>
+		<?endif;?>
+	</div>
+<? if (!$isBitrix24Template): ?>
+	</div>
+<? endif ?>
+<?php
+if ($isBitrix24Template)
+{
+	$this->EndViewTarget();
+}
+
+
+if ($arResult['IS_FRAME_MODE']):?>
+
+	<div class="filter">
+		<?
 		$APPLICATION->IncludeComponent(
 			'bitrix:report.visualconstructor.board.filter',
 			'',
@@ -28,24 +84,8 @@ if ($isBitrix24Template)
 			$component,
 			array()
 		);
-
-		$APPLICATION->IncludeComponent(
-			'bitrix:report.visualconstructor.board.controls',
-			'',
-			array(
-				'BOARD_ID' => $arResult['BOARD_ID'],
-				'REPORTS_CATEGORIES' => $arResult['REPORTS_CATEGORIES']
-			),
-			$component,
-			array()
-		);
 		?>
 	</div>
-<? if (!$isBitrix24Template): ?>
-	</div>
-<? endif ?>
-<?php
-if ($isBitrix24Template)
-{
-	$this->EndViewTarget();
-}
+
+<?endif; ?>
+

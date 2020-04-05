@@ -161,7 +161,7 @@ BX.UI.Notification.Balloon.prototype =
 
 	/**
 	 *
-	 * @param {BX.UI.Notification.BalloonOptions} options
+	 * @param {BX.UI.Notification.BalloonOptions|null} options
 	 */
 	update: function(options)
 	{
@@ -214,6 +214,7 @@ BX.UI.Notification.Balloon.prototype =
 		var self = this;
 		this.animateOut(function() {
 			setTimeout(function() {
+				self.update(null);
 				self.animateIn(function() {});
 			}, 200);
 		});
@@ -876,6 +877,7 @@ BX.UI.Notification.Action = function(balloon, options)
 	this.container = null;
 	this.href = BX.type.isNotEmptyString(options.href) ? options.href : null;
 	this.title = BX.type.isNotEmptyString(options.title) ? options.title : null;
+	this.window = window;
 
 	this.events = {};
 	if (BX.type.isPlainObject(options.events))
@@ -945,6 +947,7 @@ BX.UI.Notification.Action.prototype =
 		{
 			this.container = BX.create(this.getHref() ?  "a" : "span", {
 				props: {
+					href: this.getHref(),
 					className: "ui-notification-balloon-action"
 				},
 				events: this.events,
@@ -953,6 +956,11 @@ BX.UI.Notification.Action.prototype =
 		}
 
 		return this.container;
+	},
+
+	getWindow: function()
+	{
+		return this.window;
 	}
 };
 

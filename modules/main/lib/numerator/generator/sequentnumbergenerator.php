@@ -21,6 +21,8 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 	const YEAR                 = 'year';
 	const TEMPLATE_WORD_NUMBER = 'NUMBER';
 
+	const ERROR_SEQUENCE_NOT_SET = 'ERROR_SEQUENCE_NOT_SET';
+
 	protected $start;
 	protected $step;
 	protected $periodicBy;
@@ -163,7 +165,7 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 	{
 		if ($this->numberHash === null)
 		{
-			$this->numberHash = $this->numeratorId;
+			$this->setNumberHash($this->numeratorId);
 		}
 		return $this->numberHash;
 	}
@@ -231,12 +233,15 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 			return null;
 		}
 		$this->numeratorId = $numeratorId;
-		$nextNumberSettings = $this->getSettings();
+		$nextNumberSettings = NumeratorSequenceTable::getSettings($this->numeratorId, $this->getNumberHash());
 		if ($nextNumberSettings)
 		{
 			return $nextNumberSettings['NEXT_NUMBER'];
 		}
-		return null;
+		else
+		{
+			return $this->start;
+		}
 	}
 
 	/**
@@ -248,13 +253,19 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 	}
 
 	/*** @inheritdoc */
-	public function setNextNumber($numeratorId, $number)
+	public function setNextNumber($numeratorId, $newNumber, $whereNumber)
 	{
-		$this->nextNumber = $number;
+		$this->nextNumber = $newNumber;
+		$sequence = NumeratorSequenceTable::getSettings($numeratorId, $this->getNumberHash());
+		if (!$sequence)
+		{
+			return (new Result())->addError(new Error(Loc::getMessage('NUMERATOR_UPDATE_SEQUENT_IS_NOT_SET_YET')));
+		}
 		$affectedRows = NumeratorSequenceTable::updateSettings($numeratorId, $this->getNumberHash(),
 			[
 				'NEXT_NUMBER' => $this->nextNumber,
-			]);
+			],
+			$whereNumber);
 		if ($affectedRows == 1)
 		{
 			return new Result();
@@ -362,9 +373,13 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 	/** @inheritdoc */
 	public function setNumberHash($numberHash)
 	{
+		if (!is_string($numberHash) && !is_int($numberHash))
+		{
+			return;
+		}
 		if ($this->numberHash === null)
 		{
-			$this->numberHash = $numberHash;
+			$this->numberHash = (string)$numberHash;
 		}
 	}
 }

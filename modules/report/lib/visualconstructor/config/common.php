@@ -16,6 +16,8 @@ final class Common
 	const MODULE_NAME = 'report';
 	const EVENT_CATEGORY_COLLECT = 'onReportCategoryCollect';
 	const EVENT_VIEW_TYPE_COLLECT = 'onReportViewCollect';
+	const EVENT_ANALYTIC_PAGE_COLLECT = 'onAnalyticPageCollect';
+	const EVENT_ANALYTIC_PAGE_BATCh_COLLECT = 'onAnalyticPageBatchCollect';
 
 
 	const UNIT_MEASUREMENT_COUNT = 'count';

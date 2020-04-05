@@ -19,4 +19,5 @@ $MESS ['BPSFA_PD_SAVE'] = "Сохранить";
 $MESS ['BPSFA_PD_SAVE_HINT'] = "Создать поле";
 $MESS ['BPSFA_PD_CANCEL'] = "Отмена";
 $MESS ['BPSFA_PD_CANCEL_HINT'] = "Отмена";
+$MESS ['BPSFA_PD_MODIFIED_BY'] = "Изменять от имени";
 ?>

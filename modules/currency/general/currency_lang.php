@@ -1,6 +1,6 @@
 <?
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Currency;
+use Bitrix\Main\Localization\Loc,
+	Bitrix\Currency;
 
 Loc::loadMessages(__FILE__);
 
@@ -127,6 +127,7 @@ class CAllCurrencyLang
 				$fields['LID'] = $language;
 			}
 		}
+
 		if (empty($errorMessages))
 		{
 			if (isset($fields['FORMAT_STRING']) && empty($fields['FORMAT_STRING']))
@@ -215,6 +216,70 @@ class CAllCurrencyLang
 				$fields['CREATED_BY'] = (int)$fields['CREATED_BY'];
 				if ($fields['CREATED_BY'] <= 0)
 					$fields['CREATED_BY'] = $intUserID;
+			}
+		}
+
+		if (empty($errorMessages))
+		{
+			if ($action == 'ADD')
+			{
+				if (!empty($fields['THOUSANDS_VARIANT']) && isset(self::$arSeparators[$fields['THOUSANDS_VARIANT']]))
+				{
+					if ($fields['DEC_POINT'] == self::$arSeparators[$fields['THOUSANDS_VARIANT']])
+					{
+						$errorMessages[] = array(
+							'id' => 'DEC_POINT',
+							'text' => Loc::getMessage(
+								'BT_CUR_LANG_ERR_DEC_POINT_EQUAL_THOUSANDS_SEP',
+								array('#LANG#' => $language)
+							)
+						);
+					}
+				}
+			}
+			else
+			{
+				if (
+					isset($fields['DEC_POINT'])
+					|| (isset($fields['THOUSANDS_VARIANT']) && isset(self::$arSeparators[$fields['THOUSANDS_VARIANT']]))
+				)
+				{
+					$copyFields = $fields;
+					$needFields = [];
+					if (!isset($copyFields['DEC_POINT']))
+						$needFields[] = 'DEC_POINT';
+					if (!isset($copyFields['THOUSANDS_VARIANT']))
+						$needFields[] = 'THOUSANDS_VARIANT';
+
+					if (!empty($needFields))
+					{
+						$row = Currency\CurrencyLangTable::getList([
+							'select' => $needFields,
+							'filter' => ['=CURRENCY' => $currency, '=LID' => $language]
+						])->fetch();
+						if (!empty($row))
+						{
+							$copyFields = array_merge($copyFields, $row);
+							$needFields = [];
+						}
+						unset($row);
+					}
+					if (
+						empty($needFields)
+						&& (!empty($copyFields['THOUSANDS_VARIANT']) && isset(self::$arSeparators[$copyFields['THOUSANDS_VARIANT']]))
+						&& ($copyFields['DEC_POINT'] == self::$arSeparators[$copyFields['THOUSANDS_VARIANT']])
+					)
+					{
+						$errorMessages[] = array(
+							'id' => 'DEC_POINT',
+							'text' => Loc::getMessage(
+								'BT_CUR_LANG_ERR_DEC_POINT_EQUAL_THOUSANDS_SEP',
+								array('#LANG#' => $language)
+							)
+						);
+					}
+					unset($needFields, $copyFields);
+				}
 			}
 		}
 

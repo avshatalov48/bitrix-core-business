@@ -132,10 +132,7 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler
 		}
 		else
 		{
-			PaySystem\ErrorLog::add(array(
-				'ACTION' => 'processRequest',
-				'MESSAGE' => 'Incorrect hash'
-			));
+			PaySystem\Logger::addError('Roboxchange: processRequest: Incorrect hash');
 			$result->addError(new Error('Incorrect hash'));
 		}
 
@@ -175,10 +172,7 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler
 		}
 		else
 		{
-			PaySystem\ErrorLog::add(array(
-				'ACTION' => 'processNoticeAction',
-				'MESSAGE' => 'Incorrect sum'
-			));
+			PaySystem\Logger::addError('Roboxchange: processNoticeAction: Incorrect sum');
 			$result->addError(new Error('Incorrect sum'));
 		}
 

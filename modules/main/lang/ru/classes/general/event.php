@@ -9,5 +9,6 @@ $MESS ['EVENT_NAME_EMPTY'] = "Не указано имя типа события
 $MESS ['LID_EMPTY'] = "Не указан язык типа события";
 $MESS ['EVENT_NAME_EXIST'] = "В языке #SITE_ID# уже существует почтовое событие \"#EVENT_NAME#\"";
 $MESS ['EVENT_ID_EMPTY'] = "Не указано событие для изменения";
+$MESS ['EVENT_TYPE_EMPTY'] = "Не указан вид события";
 $MESS ['ACTION_EMPTY'] = "Не указано действие";
 ?>

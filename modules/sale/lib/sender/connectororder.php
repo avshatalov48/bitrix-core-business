@@ -2,6 +2,12 @@
 
 namespace Bitrix\Sale\Sender;
 
+use Bitrix\Main\Loader;
+
+if (!Loader::includeModule('sender'))
+{
+	return;
+}
 
 class ConnectorOrder extends \Bitrix\Sender\Connector
 {

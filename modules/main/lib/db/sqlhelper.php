@@ -3,12 +3,14 @@ namespace Bitrix\Main\DB;
 
 use Bitrix\Main;
 use Bitrix\Main\Type;
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM;
 
 abstract class SqlHelper
 {
 	/** @var Connection $connection */
 	protected $connection;
+
+	protected $idCache;
 
 	/**
 	 * @param Connection $connection Database connection.
@@ -61,17 +63,22 @@ abstract class SqlHelper
 	 */
 	public function quote($identifier)
 	{
-		// security unshielding
-		$identifier = str_replace(array($this->getLeftQuote(), $this->getRightQuote()), '', $identifier);
-
-		// shield [[database.]tablename.]columnname
-		if (strpos($identifier, '.') !== false)
+		if (empty($this->idCache[$identifier]))
 		{
-			$identifier = str_replace('.', $this->getRightQuote() . '.' . $this->getLeftQuote(), $identifier);
+			// security unshielding
+			$quotedIdentifier = str_replace([$this->getLeftQuote(), $this->getRightQuote()], '', $identifier);
+
+			// shield [[database.]tablename.]columnname
+			if (strpos($quotedIdentifier, '.') !== false)
+			{
+				$quotedIdentifier = str_replace('.', $this->getRightQuote() . '.' . $this->getLeftQuote(), $quotedIdentifier);
+			}
+
+			// shield general borders
+			$this->idCache[$identifier] = $this->getLeftQuote() . $quotedIdentifier . $this->getRightQuote();
 		}
 
-		// shield general borders
-		return $this->getLeftQuote() . $identifier . $this->getRightQuote();
+		return $this->idCache[$identifier];
 	}
 
 	/**
@@ -254,8 +261,8 @@ abstract class SqlHelper
 
 	/**
 	 * Returns expression for text field being used in group or order
-	 * @see \Bitrix\Main\Entity\Query::buildGroup
-	 * @see \Bitrix\Main\Entity\Query::buildOrder
+	 * @see \Bitrix\Main\ORM\Query\Query::buildGroup
+	 * @see \Bitrix\Main\ORM\Query\Query::buildOrder
 	 *
 	 * @param string $fieldName
 	 *
@@ -281,16 +288,24 @@ abstract class SqlHelper
 	 * Builds the strings for the SQL INSERT command for the given table.
 	 *
 	 * @param string $tableName A table name.
-	 * @param array $fields Array("column" => $value)[].
+	 * @param array  $fields    Array("column" => $value)[].
+	 *
+	 * @param bool   $returnAsArray
 	 *
 	 * @return array (columnList, valueList, binds)
+	 * @throws Main\ArgumentTypeException
+	 * @throws SqlQueryException
 	 */
-	public function prepareInsert($tableName, array $fields)
+	public function prepareInsert($tableName, array $fields, $returnAsArray = false)
 	{
 		$columns = array();
 		$values = array();
 
 		$tableFields = $this->connection->getTableFields($tableName);
+
+		// one registry
+		$tableFields = array_change_key_case($tableFields, CASE_UPPER);
+		$fields = array_change_key_case($fields, CASE_UPPER);
 
 		foreach ($fields as $columnName => $value)
 		{
@@ -308,8 +323,8 @@ abstract class SqlHelper
 		$binds = $this->prepareBinds($tableFields, $fields);
 
 		return array(
-			implode(", ", $columns),
-			implode(", ", $values),
+			$returnAsArray ? $columns : implode(", ", $columns),
+			$returnAsArray ? $values : implode(", ", $values),
 			$binds
 		);
 	}
@@ -327,6 +342,10 @@ abstract class SqlHelper
 		$update = array();
 
 		$tableFields = $this->connection->getTableFields($tableName);
+
+		// one registry
+		$tableFields = array_change_key_case($tableFields, CASE_UPPER);
+		$fields = array_change_key_case($fields, CASE_UPPER);
 
 		foreach ($fields as $columnName => $value)
 		{
@@ -363,8 +382,8 @@ abstract class SqlHelper
 	/**
 	 * Performs additional processing of CLOB fields.
 	 *
-	 * @param Entity\ScalarField[] $tableFields Table fields.
-	 * @param array $fields Data fields.
+	 * @param ORM\Fields\ScalarField[] $tableFields Table fields.
+	 * @param array                    $fields      Data fields.
 	 *
 	 * @return array
 	 */
@@ -392,13 +411,13 @@ abstract class SqlHelper
 	/**
 	 * Converts values to the string according to the column type to use it in a SQL query.
 	 *
-	 * @param mixed $value Value to be converted.
-	 * @param Entity\Field\IReadable $field Type "source".
+	 * @param mixed                $value Value to be converted.
+	 * @param ORM\Fields\IReadable $field Type "source".
 	 *
 	 * @return string Value to write to column.
 	 * @throws \Bitrix\Main\ArgumentTypeException
 	 */
-	public function convertToDb($value, Entity\Field\IReadable $field = null)
+	public function convertToDb($value, ORM\Fields\IReadable $field = null)
 	{
 		if ($value === null)
 		{
@@ -410,7 +429,7 @@ abstract class SqlHelper
 			return $value->compile();
 		}
 
-		if($field instanceof Entity\Field\IReadable)
+		if($field instanceof ORM\Fields\IReadable)
 		{
 			$result = $field->convertValueToDb($value);
 		}
@@ -423,6 +442,21 @@ abstract class SqlHelper
 	}
 
 	/**
+	 * Returns $value converted to an type according to $field type.
+	 * <p>
+	 * For example if $field is Entity\DatetimeField then returned value will be instance of Type\DateTime.
+	 *
+	 * @param mixed                $value Value to be converted.
+	 * @param ORM\Fields\IReadable $field Type "source".
+	 *
+	 * @return mixed
+	 */
+	public function convertFromDb($value, ORM\Fields\IReadable $field)
+	{
+		return $field->convertValueFromDb($value);
+	}
+
+	/**
 	 * Converts value to the string according to the data type to use it in a SQL query.
 	 *
 	 * @param mixed $value Value to be converted.
@@ -430,6 +464,16 @@ abstract class SqlHelper
 	 * @return string Value to write to column.
 	 */
 	public function convertToDbInteger($value)
+	{
+		return intval($value);
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return int
+	 */
+	public function convertFromDbInteger($value)
 	{
 		return intval($value);
 	}
@@ -454,6 +498,19 @@ abstract class SqlHelper
 	}
 
 	/**
+	 * @param      $value
+	 * @param int $scale
+	 *
+	 * @return float
+	 */
+	public function convertFromDbFloat($value, $scale = null)
+	{
+		$value = doubleval($value);
+
+		return $scale !== null ? round($value, $scale) : $value;
+	}
+
+	/**
 	 * Converts value to the string according to the data type to use it in a SQL query.
 	 *
 	 * @param mixed $value Value to be converted.
@@ -467,6 +524,22 @@ abstract class SqlHelper
 	}
 
 	/**
+	 * @param string $value
+	 * @param int $length
+	 *
+	 * @return string
+	 */
+	public function convertFromDbString($value, $length = null)
+	{
+		if ($length > 0)
+		{
+			$value = substr($value, 0, $length);
+		}
+
+		return strval($value);
+	}
+
+	/**
 	 * Converts value to the string according to the data type to use it in a SQL query.
 	 *
 	 * @param mixed $value Value to be converted.
@@ -476,6 +549,16 @@ abstract class SqlHelper
 	public function convertToDbText($value)
 	{
 		return $this->convertToDbString($value);
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return string
+	 */
+	public function convertFromDbText($value)
+	{
+		return $this->convertFromDbString($value);
 	}
 
 	/**
@@ -500,6 +583,17 @@ abstract class SqlHelper
 		{
 			throw new Main\ArgumentTypeException('value', '\Bitrix\Main\Type\Date');
 		}
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return Type\Date
+	 * @throws Main\ObjectException
+	 */
+	public function convertFromDbDate($value)
+	{
+		return new Type\Date($value);
 	}
 
 	/**
@@ -532,37 +626,25 @@ abstract class SqlHelper
 	}
 
 	/**
-	 * Returns $value converted to an type according to $field type.
-	 * <p>
-	 * For example if $field is Entity\DatetimeField then returned value will be instance of Type\DateTime.
+	 * @param $value
 	 *
-	 * @param mixed $value Value to be converted.
-	 * @param Entity\ScalarField $field Type "source".
-	 *
-	 * @return mixed
+	 * @return Type\DateTime
+	 * @throws Main\ObjectException
 	 */
-	public function convertFromDb($value, Entity\ScalarField $field)
+	public function convertFromDbDateTime($value)
 	{
-		if($value !== null)
-		{
-			$converter = $this->getConverter($field);
-			if (is_callable($converter))
-			{
-				return call_user_func_array($converter, array($value));
-			}
-		}
-
-		return $value;
+		return new Type\DateTime($value);
 	}
 
 	/**
 	 * Returns callback to be called for a field value on fetch.
+	 * Used for soft conversion. For strict results @see ORM\Query\Result::setStrictValueConverters()
 	 *
-	 * @param Entity\ScalarField $field Type "source".
+	 * @param ORM\Fields\ScalarField $field Type "source".
 	 *
 	 * @return false|callback
 	 */
-	public function getConverter(Entity\ScalarField $field)
+	public function getConverter(ORM\Fields\ScalarField $field)
 	{
 		return false;
 	}
@@ -570,11 +652,11 @@ abstract class SqlHelper
 	/**
 	 * Returns a column type according to ScalarField object.
 	 *
-	 * @param Entity\ScalarField $field Type "source".
+	 * @param \Bitrix\Main\ORM\Fields\ScalarField $field Type "source".
 	 *
 	 * @return string
 	 */
-	abstract public function getColumnTypeByField(Entity\ScalarField $field);
+	abstract public function getColumnTypeByField(ORM\Fields\ScalarField $field);
 
 	/**
 	 * Returns instance of a descendant from Entity\ScalarField
@@ -584,7 +666,7 @@ abstract class SqlHelper
 	 * @param mixed $type Database specific type.
 	 * @param array $parameters Additional information.
 	 *
-	 * @return Entity\ScalarField
+	 * @return \Bitrix\Main\ORM\Fields\ScalarField
 	 */
 	abstract public function getFieldByColumnType($name, $type, array $parameters = null);
 

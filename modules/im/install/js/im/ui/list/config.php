@@ -13,4 +13,5 @@ return array(
 	),
 	'css' => '/bitrix/js/im/ui/list/css/styles.css',
 	'bundle_js' => 'im_ui_list',
+	'bundle_css' => 'im_ui_list',
 );

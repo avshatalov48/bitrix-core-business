@@ -208,7 +208,8 @@ class ListExportExcelComponent extends CBitrixComponent
 
 	protected function createDataExcel()
 	{
-		$obList = new CList($this->arIBlock["ID"]);
+		$iblockId = $this->arIBlock["ID"];
+		$obList = new CList($iblockId);
 		$gridOptions = new CGridOptions($this->arResult["GRID_ID"]);
 		$gridColumns = $gridOptions->GetVisibleColumns();
 		$gridSort = $gridOptions->GetSorting(array("sort" => array("name" => "asc")));
@@ -218,7 +219,7 @@ class ListExportExcelComponent extends CBitrixComponent
 		$arProperties = array();
 
 		$this->arResult["FIELDS"] = $arListFields = $obList->GetFields();
-		$filterable = array();
+		$filterable = array("ID" => "");
 		$dateFilter = array();
 		$customFilter = array();
 		foreach ($arListFields as $fieldId => $arField)
@@ -344,8 +345,16 @@ class ListExportExcelComponent extends CBitrixComponent
 		}
 
 		$arFilter["IBLOCK_ID"] = $this->arIBlock["ID"];
-		if($this->arParams["CAN_EDIT"])
+		if(
+			!$this->arResult["IS_SOCNET_GROUP_CLOSED"]
+			&& (
+				$this->listsPerm >= CListPermissions::IS_ADMIN
+				|| CIBlockRights::UserHasRightTo($iblockId, $iblockId, "iblock_edit")
+			)
+		)
+		{
 			$arFilter["SHOW_NEW"] = "Y";
+		}
 		$arFilter["CHECK_PERMISSIONS"] = $this->listsPerm >= CListPermissions::CAN_READ ? "N" : "Y";
 		if(!$this->arResult["ANY_SECTION"])
 		{
@@ -417,7 +426,7 @@ class ListExportExcelComponent extends CBitrixComponent
 				$parentId = $this->arResult["SECTIONS"][$iblockSectionId]["PARENT_ID"];
 				if($parentId)
 				{
-					for($count = 1; $count < $this->arResult["SECTIONS"][$iblockSectionId]["DEPTH_LEVEL"]; $count++)
+					for($cnt = 1; $cnt < $this->arResult["SECTIONS"][$iblockSectionId]["DEPTH_LEVEL"]; $cnt++)
 					{
 						foreach($this->arResult["SECTIONS"] as $sectionId => $sectionData)
 						{

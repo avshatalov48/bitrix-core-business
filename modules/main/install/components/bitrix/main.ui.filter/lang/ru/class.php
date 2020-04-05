@@ -38,4 +38,6 @@ $MESS["MAIN_UI_FILTER__CONFIRM_MESSAGE_FOR_ALL"] = "Это действие со
 $MESS["MAIN_UI_FILTER__CONFIRM_APPLY_FOR_ALL"] = "Сохранить для всех";
 $MESS["MAIN_UI_FILTER__DATE_NEXT_DAYS_LABEL"] = "Следующие #N# (дня/дней)";
 $MESS["MAIN_UI_FILTER__DATE_PREV_DAYS_LABEL"] = "Последние #N# (дня/дней)";
+$MESS["MAIN_UI_FILTER__DATE_ERROR_LABEL"] = "Укажите дату в формате";
+$MESS["MAIN_UI_FILTER__DATE_ERROR_TITLE"] = "Фильтр по этому полю работать не будет.";
 ?>

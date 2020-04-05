@@ -12,6 +12,7 @@ use Bitrix\Sender\ContactTable;
 use Bitrix\Sender\Recipient;
 use Bitrix\Sender\Security;
 use Bitrix\Sender\ListTable;
+use Bitrix\Sender\Internals\DataExport;
 
 use Bitrix\Sender\UI\PageNavigation;
 
@@ -68,6 +69,7 @@ class SenderContactListComponent extends CBitrixComponent
 	{
 		$ids = $this->request->get('ID');
 		$action = $this->request->get('action_button_' . $this->arParams['GRID_ID']);
+
 		switch ($action)
 		{
 			case 'delete':
@@ -84,13 +86,32 @@ class SenderContactListComponent extends CBitrixComponent
 		}
 	}
 
+	protected function prepareExport()
+	{
+		$list = ContactTable::getList(array(
+			'select' => $this->getDataSelectedFields(),
+			'filter' => $this->getDataFilter(),
+			'order' => $this->getGridOrder()
+		));
+
+		DataExport::toCsv(
+			$this->getUiGridColumns(),
+			$list,
+			function ($item)
+			{
+				$item['TYPE_ID'] = Recipient\Type::getName($item['TYPE_ID']);
+				return $item;
+			}
+		);
+	}
+
 	protected function prepareResult()
 	{
 		/* Set title */
 		if ($this->arParams['SET_TITLE'])
 		{
 			/**@var CAllMain*/
-			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_CONTACT_LIST_TITLE'));
+			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_CONTACT_LIST_TITLE1'));
 		}
 
 		if (!Security\Access::current()->canViewSegments())
@@ -116,16 +137,19 @@ class SenderContactListComponent extends CBitrixComponent
 		// set ui grid columns
 		$this->setUiGridColumns();
 
+		// export
+		if ($this->request->get('export'))
+		{
+			$this->prepareExport();
+		}
+
 		// create nav
 		$nav = new PageNavigation("page-sender-contact-list");
 		$nav->allowAllRecords(false)->setPageSize(10)->initFromUri();
 
 		// get rows
 		$list = ContactTable::getList(array(
-			'select' => array(
-				'ID', 'NAME', 'TYPE_ID', 'CODE', 'BLACKLISTED', 'DATE_INSERT',
-				'IS_READ', 'IS_CLICK', 'IS_UNSUB', 'IP', 'AGENT'
-			),
+			'select' => $this->getDataSelectedFields(),
 			'filter' => $this->getDataFilter(),
 			'offset' => $nav->getOffset(),
 			'limit' => $nav->getLimit(),
@@ -152,6 +176,14 @@ class SenderContactListComponent extends CBitrixComponent
 		$this->arResult['NAV_OBJECT'] = $nav;
 
 		return true;
+	}
+
+	protected function getDataSelectedFields()
+	{
+		return [
+			'ID', 'NAME', 'TYPE_ID', 'CODE', 'BLACKLISTED', 'DATE_INSERT',
+			'IS_READ', 'IS_CLICK', 'IS_UNSUB', 'IP', 'AGENT'
+		];
 	}
 
 	protected function getDataFilter()

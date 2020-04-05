@@ -42,11 +42,6 @@ class PaySystemErrLogTable extends Main\Entity\DataManager
 				'validation' => array(__CLASS__, 'validateMessage'),
 				'title' => Loc::getMessage('PAY_SYSTEM_ENTITY_LID_FIELD'),
 				'required' => true
-			),
-			'ACTION' => array(
-				'data_type' => 'string',
-				'title' => Loc::getMessage('PAY_SYSTEM_ENTITY_CURRENCY_FIELD'),
-				'required' => true
 			)
 		);
 	}

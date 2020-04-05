@@ -7,6 +7,7 @@
  */
 
 use Bitrix\Main\Mail;
+use Bitrix\Main\Mail\Internal\EventTypeTable;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -764,6 +765,11 @@ class CEventType
 					$aMsg[] = array("id"=>"EVENT_NAME_LID_EMPTY", "text"=>GetMessage("EVENT_ID_EMPTY"));
 			}
 
+			if(isset($arFields["EVENT_TYPE"]) && $arFields["EVENT_TYPE"] == '')
+			{
+				$aMsg[] = array("id"=>"EVENT_TYPE_EMPTY", "text"=>GetMessage('EVENT_TYPE_EMPTY'));
+			}
+
 			if (empty($aMsg) && is_set($arFields, "EVENT_NAME") && (is_set($arFields, "LID")))
 			{
 				if (is_set($arFields, "EVENT_NAME"))
@@ -814,6 +820,12 @@ class CEventType
 	{
 		if(!is_set($arFields, "LID") && is_set($arFields, "SITE_ID"))
 			$arFields["LID"] = $arFields["SITE_ID"];
+
+		if(!isset($arFields["EVENT_TYPE"]))
+		{
+			//compatibility
+			$arFields["EVENT_TYPE"] = EventTypeTable::TYPE_EMAIL;
+		}
 
 		unset($arFields["ID"]);
 
@@ -928,11 +940,14 @@ class CEventType
 				case "TYPE_ID":
 					$arSqlSearch["EVENT_NAME"] = (string) $val;
 					break;
+				case "EVENT_TYPE":
+					$arSqlSearch["=EVENT_TYPE"] = (string) $val;
+					break;
 				case "LID":
-					$arSqlSearch["LID"] = (string) $val;
+					$arSqlSearch["=LID"] = (string) $val;
 					break;
 				case "ID":
-					$arSqlSearch["ID"] = intval($val);
+					$arSqlSearch["=ID"] = intval($val);
 					break;
 			}
 		}
@@ -952,7 +967,7 @@ class CEventType
 			$arSqlOrder['ID'] = 'ASC';
 
 		$result = Mail\Internal\EventTypeTable::getList(array(
-			'select' => array('ID', 'LID', 'EVENT_NAME', 'NAME', 'DESCRIPTION', 'SORT'),
+			'select' => array('ID', 'LID', 'EVENT_NAME', 'EVENT_TYPE', 'NAME', 'DESCRIPTION', 'SORT'),
 			'filter' => $arSqlSearch,
 			'order' => $arSqlOrder
 		));
@@ -1077,7 +1092,6 @@ class CEventType
 		$db_res = $connection->query($strSql);
 		$db_res->addFetchDataModifier(array('CEventType', 'GetListExFetchDataModifier'));
 
-
 		$db_res = new _CEventTypeResult($db_res, $arParams);
 		return $db_res;
 	}
@@ -1186,6 +1200,7 @@ class _CEventTypeResult extends CDBResult
 		{
 			if ($this->type != "none")
 			{
+				$eventType = EventTypeTable::TYPE_EMAIL;
 				$db_res_ = CEventType::GetList(array("EVENT_NAME" => $res["EVENT_NAME"]));
 				if ($db_res_ && $res_ = $db_res_->Fetch())
 				{
@@ -1194,10 +1209,13 @@ class _CEventTypeResult extends CDBResult
 						$arr[$res_["ID"]] = $res_;
 						$arr_lid[] = $res_["LID"];
 						$arr_lids[$res_["LID"]] = $res_;
-					}while($res_ = $db_res_->Fetch());
+						$eventType = $res_["EVENT_TYPE"];
+					}
+					while($res_ = $db_res_->Fetch());
 				}
 				$res["ID"] = array_keys($arr);
 				$res["LID"] = $arr_lid;
+				$res["EVENT_TYPE"] = $eventType;
 
 				$res["NAME"] = empty($arr_lids[$this->LID]["NAME"]) ? $arr_lids["en"]["NAME"] : $arr_lids[$this->LID]["NAME"];
 				$res["SORT"] = empty($arr_lids[$this->LID]["SORT"]) ? $arr_lids["en"]["SORT"] : $arr_lids[$this->LID]["SORT"];

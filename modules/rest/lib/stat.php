@@ -42,7 +42,13 @@ use Bitrix\Main;
 
 class StatTable extends Main\Entity\DataManager
 {
-	protected static $data = array();
+	const STORE_PERIOD = 5184000; // 60*24*3600
+
+	protected static $data = array(
+		StatMethodTable::METHOD_TYPE_METHOD => array(),
+		StatMethodTable::METHOD_TYPE_EVENT => array(),
+		StatMethodTable::METHOD_TYPE_PLACEMENT => array(),
+	);
 
 	/**
 	 * Returns DB table name for entity.
@@ -182,18 +188,38 @@ class StatTable extends Main\Entity\DataManager
 
 		if($server->getClientId())
 		{
-			if(!array_key_exists($server->getClientId(), static::$data))
-			{
-				static::$data[$server->getClientId()] = array($server->getMethod() => 1);
-			}
-			elseif(!array_key_exists($server->getMethod(), static::$data[$server->getClientId()]))
-			{
-				static::$data[$server->getClientId()][$server->getMethod()] = 1;
-			}
-			else
-			{
-				static::$data[$server->getClientId()][$server->getMethod()]++;
-			}
+			static::logMethod($server->getClientId(), $server->getMethod());
+		}
+	}
+
+	public static function logMethod($clientId, $methodName)
+	{
+		static::addToLog($clientId, $methodName, StatMethodTable::METHOD_TYPE_METHOD);
+	}
+
+	public static function logEvent($clientId, $eventName)
+	{
+		static::addToLog($clientId, $eventName, StatMethodTable::METHOD_TYPE_EVENT);
+	}
+
+	public static function logPlacement($clientId, $placementName)
+	{
+		static::addToLog($clientId, $placementName, StatMethodTable::METHOD_TYPE_PLACEMENT);
+	}
+
+	protected static function addToLog($clientId, $methodName, $methodType)
+	{
+		if(!isset(static::$data[$methodType][$clientId]))
+		{
+			static::$data[$methodType][$clientId] = array($methodName => 1);
+		}
+		elseif(!isset(static::$data[$methodType][$clientId][$methodName]))
+		{
+			static::$data[$methodType][$clientId][$methodName] = 1;
+		}
+		else
+		{
+			static::$data[$methodType][$clientId][$methodName]++;
 		}
 	}
 
@@ -210,41 +236,92 @@ class StatTable extends Main\Entity\DataManager
 		$hour = intval(date('G'));
 		$curDateSql = new Main\DB\SqlExpression($helper->getCurrentDateFunction());
 
-		foreach(static::$data as $clientId => $stat)
+		$combinedStat = array();
+		foreach(static::$data as $methodType => $methodData)
 		{
-			StatMethodTable::checkList(array_keys($stat));
-
-			$appInfo = AppTable::getByClientId($clientId);
-
-			foreach($stat as $method => $count)
+			foreach($methodData as $clientId => $stat)
 			{
-				$methodId = StatMethodTable::getId($method);
-				if($methodId > 0)
+				StatMethodTable::checkList(array_keys($stat), $methodType);
+			}
+
+			$combinedStat = array_merge_recursive($combinedStat, $methodData);
+		}
+
+		foreach($combinedStat as $clientId => $stat)
+		{
+			$appInfo = AppTable::getByClientId($clientId);
+			if($appInfo)
+			{
+				foreach($stat as $method => $count)
 				{
-					$insertFields = array(
-						'STAT_DATE' => $curDateSql,
-						'APP_ID' => $appInfo['ID'],
-						'METHOD_ID' => $methodId,
-						'HOUR_'.$hour => $count,
-					);
-
-					$updateFields = array(
-						'HOUR_'.$hour => new Main\DB\SqlExpression('?#+?i', 'HOUR_'.$hour, $count)
-					);
-
-					$queries = $helper->prepareMerge(
-						static::getTableName(),
-						array('DATE', 'APP_ID', 'METHOD_ID'),
-						$insertFields,
-						$updateFields
-					);
-
-					foreach($queries as $query)
+					$methodId = StatMethodTable::getId($method);
+					if($methodId > 0)
 					{
-						$connection->queryExecute($query);
+						$insertFields = array(
+							'STAT_DATE' => $curDateSql,
+							'APP_ID' => $appInfo['ID'],
+							'METHOD_ID' => $methodId,
+							'HOUR_'.$hour => $count,
+						);
+
+						$updateFields = array(
+							'HOUR_'.$hour => new Main\DB\SqlExpression('?#+?i', 'HOUR_'.$hour, $count)
+						);
+
+						$queries = $helper->prepareMerge(
+							static::getTableName(),
+							array('DATE', 'APP_ID', 'METHOD_ID'),
+							$insertFields,
+							$updateFields
+						);
+
+						foreach($queries as $query)
+						{
+							$connection->queryExecute($query);
+						}
 					}
 				}
 			}
 		}
+
+		static::reset();
+	}
+
+	public static function reset()
+	{
+		static::$data = array(
+			StatMethodTable::METHOD_TYPE_METHOD => array(),
+			StatMethodTable::METHOD_TYPE_EVENT => array(),
+			StatMethodTable::METHOD_TYPE_PLACEMENT => array(),
+		);
+	}
+
+	/**
+	 * @param array $filter
+	 */
+	public static function deleteByFilter(array $filter)
+	{
+		$entity = static::getEntity();
+
+		$where = Main\Entity\Query::buildFilterSql($entity, $filter);
+
+		if($where <> '')
+		{
+			$sqlTableName = static::getTableName();
+
+			$sql = "DELETE FROM {$sqlTableName} WHERE ".$where;
+
+			$entity->getConnection()->queryExecute($sql);
+		}
+	}
+
+	public static function cleanUpAgent()
+	{
+		$date = new Main\Type\DateTime();
+		$date->add("-60D");
+
+		static::deleteByFilter(array("<STAT_DATE" => $date));
+
+		return "\\Bitrix\\Rest\\StatTable::cleanUpAgent();";
 	}
 }

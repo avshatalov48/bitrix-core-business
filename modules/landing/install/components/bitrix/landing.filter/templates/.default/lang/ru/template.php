@@ -1,0 +1,7 @@
+<?php
+$MESS['LANDING_TPL_CREATE_FOLDER'] = 'Создать папку';
+$MESS['LANDING_TPL_CREATE_FOLDER_ACTION'] = 'Создать';
+$MESS['LANDING_TPL_FLT_DELETED'] = 'В корзине';
+$MESS['LANDING_TPL_FLT_Y'] = 'Да';
+$MESS['LANDING_TPL_FLT_N'] = 'Нет';
+$MESS['LANDING_TPL_RECYCLE_BIN'] = 'Корзина';

@@ -78,6 +78,8 @@ class Template
 			$robot['Properties'] = $this->convertRobotProperties($robot['Properties'], $this->getDocumentType());
 		}
 
+		unset($robot['Delay'], $robot['Condition']);
+
 		$this->setRobots(array($robot));
 
 		return \CBPActivity::callStaticMethod(
@@ -107,10 +109,7 @@ class Template
 			$robot['Properties'] = $this->unConvertRobotProperties($robot['Properties'], $documentType);
 		}
 
-		if (is_array($request))
-		{
-			$request = $this->unConvertRobotProperties($request, $documentType);
-		}
+		$request = $this->unConvertRobotProperties($request, $documentType);
 
 		$this->setRobots(array($robot));
 		$raw = $this->template['TEMPLATE'];
@@ -133,11 +132,6 @@ class Template
 		if ($result)
 		{
 			$templateActivity = \CBPWorkflowTemplateLoader::findActivityByName($raw, $robot['Name']);
-
-			if ($robot['Type'] === 'CrmSendEmailActivity') //Fix for WAF
-			{
-				$templateActivity['Properties'] = $this->unConvertRobotProperties($templateActivity['Properties'], $documentType);
-			}
 
 			$robotTitle = $robot['Properties']['Title'];
 			$robot['Properties'] = $templateActivity['Properties'];
@@ -231,8 +225,8 @@ class Template
 		$key = implode('@', $documentType);
 		if (!isset(static::$availableActivities[$key]))
 		{
-			$runtime = \CBPRuntime::getRuntime();
-			static::$availableActivities[$key] = $runtime->searchActivitiesByType('robot_activity', $documentType);
+			static::$availableActivities[$key] = \CBPRuntime::getRuntime()
+				->searchActivitiesByType('robot_activity', $documentType);
 		}
 		return static::$availableActivities[$key];
 	}
@@ -354,7 +348,7 @@ class Template
 
 				if ($activity['Type'] === static::$conditionActivityType)
 				{
-					$condition = ConditionGroup::convertBizprocActivity($activity);
+					$condition = ConditionGroup::convertBizprocActivity($activity, $this->getDocumentType());
 					if ($condition === false)
 					{
 						$this->isExternalModified = true;
@@ -451,7 +445,7 @@ class Template
 
 				if ($condition && count($condition->getItems()) > 0)
 				{
-					$activity = $condition->createBizprocActivity($activity);
+					$activity = $condition->createBizprocActivity($activity, $documentType);
 				}
 
 				$sequence['Children'][] = $activity;
@@ -542,22 +536,14 @@ class Template
 	{
 		foreach ($properties as $code => $property)
 		{
-			if (is_scalar($property))
+			if (is_array($property))
 			{
-				$property = Automation\Helper::convertExpressions($property, $documentType);
+				$properties[$code] = self::convertRobotProperties($property, $documentType);
 			}
-			elseif (is_array($property))
+			else
 			{
-				foreach ($property as $key => $value)
-				{
-					if (is_scalar($value))
-					{
-						$value = Automation\Helper::convertExpressions($value, $documentType);
-					}
-					$property[$key] = $value;
-				}
+				$properties[$code] = Automation\Helper::convertExpressions($property, $documentType);
 			}
-			$properties[$code] = $property;
 		}
 		return $properties;
 	}

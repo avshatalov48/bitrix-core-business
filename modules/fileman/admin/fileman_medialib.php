@@ -6,7 +6,7 @@ CModule::IncludeModule("fileman");
 if (!CMedialib::CanDoOperation('medialib_view_collection', 0))
 	die();
 
-echo '<!--BX_ML_LOAD_OK-->';
+echo '<div style="display:none">BX_ML_LOAD_OK</div>';
 if (!check_bitrix_sessid())
 	die('<!--BX_ML_DUBLICATE_ACTION_REQUEST'.bitrix_sessid().'-->');
 

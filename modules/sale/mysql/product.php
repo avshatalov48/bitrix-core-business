@@ -347,7 +347,7 @@ class CSaleViewedProduct extends CAllSaleViewedProduct
 				$arFilter,
 				false,
 				false,
-				array('ID')
+				array('ID', 'DATE_VISIT')
 		);
 		if (!$arItems = $db_res->Fetch())//insert
 		{
@@ -421,9 +421,14 @@ class CSaleViewedProduct extends CAllSaleViewedProduct
 		}
 		else//update
 		{
-			$ID = IntVal($arItems["ID"]);
-			$arFields["~DATE_VISIT"] = $DB->GetNowFunction();
-			CSaleViewedProduct::Update($ID, $arFields);
+			$dateVisit = new \Bitrix\Main\Type\DateTime($arItems["DATE_VISIT"]);
+			$offset = $dateVisit->add('1 day')->getTimestamp();
+			if ($offset <= time())
+			{
+				$arFields = ["DATE_VISIT" => $DB->GetNowFunction()];
+				$id = (int)$arItems["ID"];
+				CSaleViewedProduct::Update($id, $arFields);
+			}
 		}
 
 		foreach(GetModuleEvents("sale", "OnViewedAdd", true) as $arEvent)
@@ -442,7 +447,7 @@ class CSaleViewedProduct extends CAllSaleViewedProduct
 	 * @param array $arSelectFields			Select fields.
 	 * @return bool|CDBResult
 	 */
-	public function GetList($arOrder = array("ID"=>"DESC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = array("ID"=>"DESC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 

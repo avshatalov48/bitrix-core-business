@@ -11,7 +11,7 @@ use Bitrix\Main\DB\Exception;
 use Bitrix\Main\Type;
 
 use Bitrix\Sender\Entity;
-use Bitrix\Sender\Internals\Model\LetterTable;
+use Bitrix\Sender\Internals\Model;
 use Bitrix\Sender\Dispatch\MethodSchedule;
 
 class MailingManager
@@ -72,16 +72,16 @@ class MailingManager
 	{
 		static::$error = null;
 
-		$letter = LetterTable::getRowById($letterId);
-		if($letter && $letter['STATUS'] === LetterTable::STATUS_PLAN)
+		$letter = Model\LetterTable::getRowById($letterId);
+		if($letter && $letter['STATUS'] === Model\LetterTable::STATUS_PLAN)
 		{
-			$updateResult = LetterTable::update($letterId, array('STATUS' => LetterTable::STATUS_SEND));
+			$updateResult = Model\LetterTable::update($letterId, array('STATUS' => Model\LetterTable::STATUS_SEND));
 			if ($updateResult->isSuccess())
 			{
-				$letter = LetterTable::getRowById($letterId);
+				$letter = Model\LetterTable::getRowById($letterId);
 			}
 		}
-		if(!$letter || $letter['STATUS'] !== LetterTable::STATUS_SEND)
+		if(!$letter || $letter['STATUS'] !== Model\LetterTable::STATUS_SEND)
 		{
 			return "";
 		}
@@ -112,7 +112,7 @@ class MailingManager
 
 		if ($letter['REITERATE'] !== 'Y')
 		{
-			LetterTable::update($letterId, array('STATUS' => LetterTable::STATUS_END));
+			Model\LetterTable::update($letterId, array('STATUS' => Model\LetterTable::STATUS_END));
 			return "";
 		}
 
@@ -133,11 +133,11 @@ class MailingManager
 				$dateCreate = $posting['DATE_CREATE'];
 				/** @var Type\DateTime $dateCreate|null */
 				$updateFields = [
-					'STATUS' => LetterTable::STATUS_SEND,
+					'STATUS' => Model\LetterTable::STATUS_SEND,
 					'AUTO_SEND_TIME' => $dateCreate ? $dateCreate->add($letter['TIME_SHIFT'].' minutes') : null,
 					'POSTING_ID' => $posting['ID']
 				];
-				LetterTable::update($letterId, $updateFields);
+				Model\LetterTable::update($letterId, $updateFields);
 				$isNeedUpdate = false;
 			}
 		}
@@ -263,7 +263,7 @@ class MailingManager
 				}
 
 
-				MailingChainTable::update(array('ID' => $arMailingChain['ID']), $arUpdateMailChain);
+				Model\LetterTable::update($arMailingChain['ID'], $arUpdateMailChain);
 			}
 		}
 

@@ -29,6 +29,8 @@ $APPLICATION->ShowAjaxHead();
 $componentData = isset($_REQUEST['PARAMS']) && is_array($_REQUEST['PARAMS']) ? $_REQUEST['PARAMS'] : array();
 $componentParams = isset($componentData['params']) && is_array($componentData['params']) ? $componentData['params'] : array();
 
+$componentParams['LAZYLOAD'] = true;
+
 $APPLICATION->IncludeComponent(
 	'bitrix:app.layout',
 	'',

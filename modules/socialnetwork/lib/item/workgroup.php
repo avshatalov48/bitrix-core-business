@@ -155,13 +155,13 @@ class Workgroup
 
 	public function syncDeptConnection()
 	{
+		global $USER;
+
 		if (!ModuleManager::isModuleInstalled('intranet'))
 		{
 			return;
 		}
 
-		$newUserList = $oldUserList = array();
-		$oldRelationList = array();
 		$groupFields = $this->getFields();
 
 		if (
@@ -175,117 +175,21 @@ class Workgroup
 		if (
 			isset($groupFields['UF_SG_DEPT'])
 			&& isset($groupFields['UF_SG_DEPT']['VALUE'])
-			&& !empty($groupFields['UF_SG_DEPT']['VALUE'])
 			&& Loader::includeModule('intranet')
 		)
 		{
-			$newDeptList = array_map('intval', $groupFields['UF_SG_DEPT']['VALUE']);
-			$res = \CIntranetUtils::getDepartmentEmployees($newDeptList, true);
-			while ($departmentMember = $res->fetch())
+			$workgroupsToSync = Option::get('socialnetwork', 'workgroupsToSync', "");
+			$workgroupsToSync = ($workgroupsToSync !== "" ? @unserialize($workgroupsToSync) : []);
+			if (!is_array($workgroupsToSync))
 			{
-				if ($departmentMember["ID"] != $groupFields["OWNER_ID"])
-				{
-					$newUserList[] = $departmentMember["ID"];
-				}
+				$workgroupsToSync = [];
 			}
-
-			foreach($newDeptList as $deptId)
-			{
-				$newUserList[] = \CIntranetUtils::getDepartmentManagerId($deptId);
-			}
-			$newUserList = array_map('intval', array_unique($newUserList));
-		}
-
-		$res = UserToGroupTable::getList(array(
-			'filter' => array(
-				'=GROUP_ID' => intval($groupFields["ID"]),
-				'@ROLE' => array(UserToGroupTable::ROLE_OWNER, UserToGroupTable::ROLE_MODERATOR, UserToGroupTable::ROLE_USER),
-				'AUTO_MEMBER' => 'Y'
-			),
-			'select' => array('ID', 'USER_ID')
-		));
-		while($relation = $res->fetch())
-		{
-			$oldUserList[] = $relation['USER_ID'];
-			$oldRelationList[$relation['USER_ID']] = $relation['ID'];
-		}
-		$oldUserList = array_map('intval', array_unique($oldUserList));
-
-		$userListPlus = array_diff($newUserList, $oldUserList);
-		$userListMinus = array_diff($oldUserList, $newUserList);
-
-		foreach($userListMinus as $userId)
-		{
-			if (isset($oldRelationList[$userId]))
-			{
-				UserToGroup::changeRelationAutoMembership(array(
-					'RELATION_ID' => $oldRelationList[$userId],
-					'VALUE' => 'N'
-				));
-			}
-		}
-
-		$changeList = $addList = array();
-
-		if (!empty($userListPlus))
-		{
-			$memberList = array();
-			$res = UserToGroupTable::getList(array(
-				'filter' => array(
-					'=GROUP_ID' => intval($groupFields["ID"]),
-					'@USER_ID' => $userListPlus,
-					'@ROLE' => array(UserToGroupTable::ROLE_OWNER, UserToGroupTable::ROLE_MODERATOR, UserToGroupTable::ROLE_USER),
-				),
-				'select' => array('ID', 'USER_ID')
-			));
-			while($relation = $res->fetch())
-			{
-				$memberList[] = $relation['USER_ID'];
-			}
-			$userListPlus = array_diff($userListPlus, $memberList);
-			if (!empty($userListPlus))
-			{
-				$res = UserToGroupTable::getList(array(
-					'filter' => array(
-						'=GROUP_ID' => intval($groupFields["ID"]),
-						'@USER_ID' => $userListPlus,
-						'@ROLE' => array(UserToGroupTable::ROLE_REQUEST, UserToGroupTable::ROLE_BAN),
-						'AUTO_MEMBER' => 'N'
-					),
-					'select' => array('ID', 'USER_ID', 'GROUP_ID')
-				));
-				while($relation = $res->fetch())
-				{
-					$changeList[] = intval($relation['USER_ID']);
-					UserToGroup::changeRelationAutoMembership(array(
-						'RELATION_ID' => intval($relation['ID']),
-						'USER_ID' => intval($relation['USER_ID']),
-						'GROUP_ID' => intval($relation['GROUP_ID']),
-						'ROLE' => UserToGroupTable::ROLE_USER,
-						'VALUE' => 'Y'
-					));
-				}
-
-				$addList = array_diff($userListPlus, $changeList);
-
-				foreach($addList as $addUserId)
-				{
-					UserToGroup::addRelationAutoMembership(array(
-						'USER_ID' => $addUserId,
-						'GROUP_ID' => intval($groupFields["ID"]),
-						'ROLE' => UserToGroupTable::ROLE_USER,
-						'VALUE' => 'Y'
-					));
-				}
-			}
-		}
-
-		if (
-			!empty($changeList)
-			|| !empty($addList)
-		)
-		{
-			\CSocNetGroup::setStat($groupFields["ID"]);
+			$workgroupsToSync[] = array(
+				'groupId' => $groupFields["ID"],
+				'initiatorId' => (is_object($USER) ? $USER->getId() : $groupFields['OWNER_ID'])
+			);
+			Option::set('socialnetwork', 'workgroupsToSync', serialize($workgroupsToSync));
+			\Bitrix\Socialnetwork\Update\WorkgroupDeptSync::bind(1);
 		}
 	}
 
@@ -577,6 +481,12 @@ class Workgroup
 				: array()
 		);
 
+		$fullMode = (
+			!empty($params)
+			&& isset($params["fullMode"])
+			&& $params["fullMode"]
+		);
+
 		$result = array();
 
 		if (
@@ -611,6 +521,20 @@ class Workgroup
 					'EXTERNAL' => 'N',
 					'TILE_CLASS' => 'social-group-tile-item-cover-close social-group-tile-item-icon-project-close'
 				);
+				if ($fullMode)
+				{
+					$result['project-closed-visible'] = array(
+						'SORT' => '20',
+						'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_CLOSED_VISIBLE'),
+						'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_CLOSED_VISIBLE_DESC'),
+						'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_CLOSED_VISIBLE_DESC'),
+						'VISIBLE' => 'Y',
+						'OPENED' => 'N',
+						'PROJECT' => 'Y',
+						'EXTERNAL' => 'N',
+						'TILE_CLASS' => ''
+					);
+				}
 			}
 
 			if ($extranetInstalled)
@@ -659,6 +583,20 @@ class Workgroup
 				'EXTERNAL' => 'N',
 				'TILE_CLASS' => 'social-group-tile-item-cover-close social-group-tile-item-icon-group-close'
 			);
+			if ($fullMode)
+			{
+				$result['group-closed-visible'] = array(
+					'SORT' => '40',
+					'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_VISIBLE'),
+					'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_VISIBLE_DESC'),
+					'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_VISIBLE_DESC'),
+					'VISIBLE' => 'Y',
+					'OPENED' => 'N',
+					'PROJECT' => 'N',
+					'EXTERNAL' => 'N',
+					'TILE_CLASS' => ''
+				);
+			}
 		}
 
 		if (
@@ -703,7 +641,11 @@ class Workgroup
 		foreach($typesList as $code => $type)
 		{
 			if (
-				$params['fields']['VISIBLE'] == $type['VISIBLE']
+				$params['fields']['OPENED'] == $type['OPENED']
+				&& (
+					isset($params['fields']['VISIBLE'])
+					&& $params['fields']['VISIBLE'] == $type['VISIBLE']
+				)
 				&& $params['fields']['PROJECT'] == $type['PROJECT']
 				&& $params['fields']['EXTERNAL'] == $type['EXTERNAL']
 			)

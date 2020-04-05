@@ -50,7 +50,6 @@ abstract class Base
 	}
 
 	/**
-	 * @param string $trackingNumber
 	 * @param array $shipmentData
 	 * @return StatusResult
 	 */

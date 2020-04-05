@@ -1,7 +1,6 @@
 <?php
 namespace Bitrix\Main\UI;
 use \Bitrix\Main\Security\Sign\Signer;
-use \Bitrix\Main\Security\Sign\BadSignatureException;
 
 class FileInputUnclouder
 {
@@ -99,14 +98,14 @@ class FileInputUnclouder
 		if ($this->check($params))
 		{
 			$this->file = \CFile::getByID($this->id)->fetch();
-			if ($mode == "resize" && ($file = \CFile::ResizeImageGet($this->id, $params, BX_RESIZE_IMAGE_PROPORTIONAL, true)) && $file)
+			if ($mode == "resize" && ($file = \CFile::ResizeImageGet($this->id, $params, BX_RESIZE_IMAGE_PROPORTIONAL, true, false, true)) && $file)
 			{
 				$this->file["SRC"] = $file["src"];
 				$this->file["WIDTH"] = $file["width"];
 				$this->file["HEIGHT"] = $file["height"];
 				$this->file["FILE_SIZE"] = $file["size"];
 			}
-			\CFile::ViewByUser($this->file, array("force_download" => false, 'cache_time' => 0));
+			\CFile::ViewByUser($this->file, array("force_download" => false, "cache_time" => 0));
 		}
 	}
 }

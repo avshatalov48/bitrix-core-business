@@ -1,19 +1,18 @@
-<header class="landing-block landing-block landing-ui-pattern-transparent u-header u-header--sticky-top u-header--change-appearance g-z-index-9999"
-		data-header-fix-moment="100">
-	<div class="light-theme u-header__section g-bg-darkblue-opacity-0_7 g-transition-0_3 g-py-10"
-		 data-header-fix-moment-exclude="light-theme g-bg-darkblue-opacity-0_7"
-		 data-header-fix-moment-classes="dark-theme g-bg-white-opacity-0_9">
-		<nav class="navbar navbar-expand-lg g-mt-5 g-py-0">
+<header class="landing-block landing-block landing-ui-pattern-transparent u-header u-header--floating g-z-index-9999">
+	<div class="u-header__section g-bg-darkblue-opacity-0_7 g-transition-0_3 g-py-10"
+		 data-header-fix-moment-exclude="g-bg-darkblue-opacity-0_7"
+		 data-header-fix-moment-classes="u-header__section--light g-bg-white-opacity-0_9">
+		<nav class="navbar navbar-expand-lg g-mt-5 g-py-0 g-px-10">
 			<div class="container">
 				<!-- Logo -->
-				<a href="#" class="landing-block-node-menu-logo-link navbar-brand u-header__logo p-0">
+				<a href="#system_mainpage" class="landing-block-node-menu-logo-link navbar-brand u-header__logo p-0">
 					<img class="landing-block-node-menu-logo u-header__logo-img u-header__logo-img--main d-block g-max-width-180"
-						 src="/bitrix/templates/landing24/assets/img/event-logo-light.png" alt=""
+						 src="https://cdn.bitrix24.site/bitrix/images/landing/logos/event-logo-light.png" alt=""
 						 data-header-fix-moment-exclude="d-block"
 						 data-header-fix-moment-classes="d-none">
 
 					<img class="landing-block-node-menu-logo2 u-header__logo-img u-header__logo-img--main d-none g-max-width-180"
-						 src="/bitrix/templates/landing24/assets/img/event-logo-dark.png" alt=""
+						 src="https://cdn.bitrix24.site/bitrix/images/landing/logos/event-logo-dark.png" alt=""
 						 data-header-fix-moment-exclude="d-none"
 						 data-header-fix-moment-classes="d-block">
 				</a>
@@ -22,36 +21,35 @@
 				<!-- Navigation -->
 				<div class="collapse navbar-collapse align-items-center flex-sm-row" id="navBar">
 					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav text-uppercase g-font-weight-700 g-font-size-11 g-pt-20 g-pt-0--lg ml-auto">
-						<li class="landing-block-node-menu-list-item nav-item g-mr-15--lg g-mb-7 g-mb-0--lg active">
-							<a href="#home" class="landing-block-node-menu-list-item-link nav-link p-0 g-color-white">Home</a><span
-									class="sr-only">(current)</span>
+						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
+							<a href="#home" class="landing-block-node-menu-list-item-link nav-link p-0">Home</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#schedule"
-							   class="landing-block-node-menu-list-item-link nav-link p-0 g-color-white">Schedule</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Schedule</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
-							<a href="#about" class="landing-block-node-menu-list-item-link nav-link p-0 g-color-white">About</a>
+							<a href="#about" class="landing-block-node-menu-list-item-link nav-link p-0">About</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
-							<a href="#guests" class="landing-block-node-menu-list-item-link nav-link p-0 g-color-white">Guests</a>
+							<a href="#guests" class="landing-block-node-menu-list-item-link nav-link p-0">Guests</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#gallery"
-							   class="landing-block-node-menu-list-item-link nav-link p-0 g-color-white">Gallery</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Gallery</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#latestPosts"
-							   class="landing-block-node-menu-list-item-link nav-link p-0 g-color-white">Latest
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Latest
 								posts</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#pricing"
-							   class="landing-block-node-menu-list-item-link nav-link p-0 g-color-white">Pricing</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Pricing</a>
 						</li>
-						<li class="landing-block-node-menu-list-item nav-item g-ml-15--lg g-mb-7 g-mb-0--lg">
+						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#contact"
-							   class="landing-block-node-menu-list-item-link nav-link p-0 g-color-white">Contact</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Contact</a>
 						</li>
 					</ul>
 				</div>

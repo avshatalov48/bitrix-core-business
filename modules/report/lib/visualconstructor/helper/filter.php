@@ -69,4 +69,20 @@ class Filter
 			),
 		);
 	}
+
+
+	public function getJsList()
+	{
+		return [];
+	}
+
+	public function getCssList()
+	{
+		return [];
+	}
+
+	public function getStringList()
+	{
+		return [];
+	}
 }

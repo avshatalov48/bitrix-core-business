@@ -317,7 +317,11 @@ BX.Sale.Admin.OrderBuyer =
 			table.cellpadding = 0;
 			table.width = "100%";
 
-			while (property = propsIterator())
+			property = propsIterator();
+			if (!property)
+				continue;
+
+			while (property)
 			{
 				var tr = BX.create('tr'),
 					tdName = BX.create('td', {props:{className:"adm-detail-content-cell-l"}, html: BX.util.htmlspecialchars(property.getName())+":"}),
@@ -334,6 +338,8 @@ BX.Sale.Admin.OrderBuyer =
 				tr.appendChild(tdName);
 				tr.appendChild(tdControl);
 				table.appendChild(tr);
+				
+				property = propsIterator();
 			}
 
 			div1.appendChild(divName);

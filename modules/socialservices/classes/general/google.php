@@ -39,6 +39,12 @@ class CSocServGoogleOAuth extends CSocServAuth
 		);
 	}
 
+	public function CheckSettings()
+	{
+		return self::GetOption('google_appid') !== '' && self::GetOption('google_appsecret') !== '';
+	}
+
+
 	public function GetFormHtml($arParams)
 	{
 		$url = static::getUrl('opener', null, $arParams);

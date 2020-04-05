@@ -58,7 +58,7 @@
 							<!-- Icon Blocks -->
 							<div class="media g-mb-25">
 								<div class="d-flex align-self-center g-mr-5">
-                        <span class="d-block g-color-primary g-font-size-38">
+                        <span class="landing-block-node-card-icon-container d-block g-color-primary g-font-size-38">
                           <i class="landing-block-node-card-icon icon-education-024"></i>
                         </span>
 								</div>
@@ -69,7 +69,7 @@
 								</div>
 							</div>
 
-							<div class="landing-block-node-card-text">
+							<div class="landing-block-node-card-text g-color-gray-dark-v5">
 								<p class="mb-0">Quisque rhoncus euismod pulvinar. Nulla non arcu at lectus. Vestibulum
 									fringilla velit rhoncus euismod rhoncus turpis. Mauris molestie ullamcorper nisl
 									eget
@@ -82,7 +82,7 @@
 							<!-- Icon Blocks -->
 							<div class="media g-mb-25">
 								<div class="d-flex align-self-center g-mr-5">
-                        <span class="d-block g-color-primary g-font-size-38">
+                        <span class="landing-block-node-card-icon-container d-block g-color-primary g-font-size-38">
                           <i class="landing-block-node-card-icon icon-medical-004"></i>
                         </span>
 								</div>
@@ -93,7 +93,7 @@
 								</div>
 							</div>
 
-							<div class="landing-block-node-card-text">
+							<div class="landing-block-node-card-text g-color-gray-dark-v5">
 								<p class="mb-0">Integer accumsan maximus leo, et consectetur metus vestibulum in.
 									Vestibulum
 									viverra justo odio purus a libero luctus. Proin tempor dolor ac dolor feugiat,

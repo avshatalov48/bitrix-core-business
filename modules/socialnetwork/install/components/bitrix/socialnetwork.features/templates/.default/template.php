@@ -48,7 +48,16 @@ else
 
 		<div id="sonet_features_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=(strlen($arResult["ErrorMessage"]) > 0 ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?
 
-		?><form method="post" name="sonet-features-form" id="sonet-features-form" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data">
+		$uri = new Bitrix\Main\Web\Uri(POST_FORM_ACTION_URI);
+		if (!empty($arResult["groupTypeCode"]))
+		{
+			$uri->deleteParams(array("b24statAction", "b24statType"));
+			$uri->addParams(array(
+				"b24statType" => $arResult["groupTypeCode"]
+			));
+		}
+		$actionUrl = $uri->getUri();
+		?><form method="post" name="sonet-features-form" id="sonet-features-form" action="<?=$actionUrl?>" enctype="multipart/form-data">
 			<div class="sn-features-wrap"><?
 
 				$hasActiveFeatures = false;

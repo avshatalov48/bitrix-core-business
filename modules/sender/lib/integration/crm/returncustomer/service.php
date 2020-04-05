@@ -13,6 +13,8 @@ use Bitrix\Main\Loader;
 use Bitrix\Sender\Recipient;
 use Bitrix\Sender\Integration;
 
+use Bitrix\Crm;
+
 /**
  * Class Service
  * @package Bitrix\Sender\Integration\Crm\ReturnCustomer
@@ -48,6 +50,18 @@ class Service
 	{
 		//TODO: add Security\Access::current()->canModifyRc()
 		return self::canUse();
+	}
+
+
+
+	/**
+	 * Return true if lead enabled.
+	 *
+	 * @return bool
+	 */
+	public static function isLeadEnabled()
+	{
+		return Crm\Settings\LeadSettings::isEnabled();
 	}
 
 	/**

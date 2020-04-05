@@ -2,7 +2,6 @@
 namespace Bitrix\Currency\UserField;
 
 use Bitrix\Currency\CurrencyManager;
-use Bitrix\Currency\CurrencyTable;
 use Bitrix\Currency\Helpers\Editor;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Security\Random;
@@ -15,7 +14,7 @@ class Money extends TypeBase
 	const USER_TYPE_ID = 'money';
 	const DB_SEPARATOR = '|';
 
-	function getUserTypeDescription()
+	public static function getUserTypeDescription()
 	{
 		return array(
 			"USER_TYPE_ID" => static::USER_TYPE_ID,
@@ -27,7 +26,7 @@ class Money extends TypeBase
 		);
 	}
 
-	function GetDBColumnType($arUserField)
+	public static function GetDBColumnType($userField)
 	{
 		global $DB;
 		switch(strtolower($DB->type))
@@ -39,9 +38,10 @@ class Money extends TypeBase
 			case "mssql":
 				return "varchar(200)";
 		}
+		return '';
 	}
 
-	function OnBeforeSave($arUserField, $value)
+	public static function OnBeforeSave($userField, $value)
 	{
 		list($value, $currency) = static::unFormatFromDB($value);
 		if($value !== '')
@@ -50,9 +50,9 @@ class Money extends TypeBase
 			return '';
 	}
 
-	function PrepareSettings($arUserField)
+	public static function PrepareSettings($userField)
 	{
-		list($value, $currency) = static::unFormatFromDB($arUserField["SETTINGS"]["DEFAULT_VALUE"]);
+		list($value, $currency) = static::unFormatFromDB($userField["SETTINGS"]["DEFAULT_VALUE"]);
 		if ($value !== '')
 		{
 			if ($currency === '')
@@ -65,18 +65,18 @@ class Money extends TypeBase
 		);
 	}
 
-	function GetSettingsHTML($arUserField = false, $arHtmlControl, $bVarsFromForm)
+	public static function GetSettingsHTML($userField = false, $control, $fromForm)
 	{
 		$currencyList = Editor::getListCurrency();
 
 		$result = '';
-		if($bVarsFromForm)
+		if ($fromForm)
 		{
-			$value = $GLOBALS[$arHtmlControl["NAME"]]["DEFAULT_VALUE"];
+			$value = $GLOBALS[$control["NAME"]]["DEFAULT_VALUE"];
 		}
-		elseif(is_array($arUserField))
+		elseif (is_array($userField))
 		{
-			$value = htmlspecialcharsbx($arUserField["SETTINGS"]["DEFAULT_VALUE"]);
+			$value = htmlspecialcharsbx($userField["SETTINGS"]["DEFAULT_VALUE"]);
 		}
 		else
 		{
@@ -96,7 +96,7 @@ class Money extends TypeBase
 		$result .= '
 		<tr>
 			<td>'.GetMessage("USER_TYPE_MONEY_DEFAULT_VALUE").':</td>
-			<td>'.static::getInput($arUserField, $arHtmlControl["NAME"].'[DEFAULT_VALUE]', $value).'</td>
+			<td>'.static::getInput($userField, $control["NAME"].'[DEFAULT_VALUE]', $value).'</td>
 		</tr>
 		';
 
@@ -105,19 +105,19 @@ class Money extends TypeBase
 		return $result;
 	}
 
-	function getEditFormHTML($arUserField, $arHtmlControl)
+	public static function getEditFormHTML($userField, $control)
 	{
-		return static::GetPublicEdit($arUserField, array());
+		return static::GetPublicEdit($userField, array());
 	}
 
-	function getEditFormHTMLMulty($arUserField, $arHtmlControl)
+	public static function getEditFormHTMLMulty($userField, $control)
 	{
-		return static::GetPublicEdit($arUserField, array());
+		return static::GetPublicEdit($userField, array());
 	}
 
-	function GetAdminListViewHTML($arUserField, $arHtmlControl)
+	public static function GetAdminListViewHTML($userField, $control)
 	{
-		$explode = static::unFormatFromDB($arHtmlControl['VALUE']);
+		$explode = static::unFormatFromDB($control['VALUE']);
 		$currentValue = $explode[0] ? $explode[0] : '';
 		$currentCurrency = $explode[1] ? $explode[1] : '';
 
@@ -131,7 +131,7 @@ class Money extends TypeBase
 			switch($controlSettings['MODE'])
 			{
 				case 'CSV_EXPORT':
-					return $arHtmlControl['VALUE'];
+					return $control['VALUE'];
 				case 'SIMPLE_TEXT':
 					return $currentValue;
 				case 'ELEMENT_TEMPLATE':
@@ -142,10 +142,10 @@ class Money extends TypeBase
 		return \CCurrencyLang::CurrencyFormat($currentValue, $currentCurrency, true);
 	}
 
-	public static function getPublicEdit($arUserField, $arAdditionalParameters = array())
+	public static function getPublicEdit($userField, $additionalParameters = array())
 	{
-		$fieldName = static::getFieldName($arUserField, $arAdditionalParameters);
-		$value = static::getFieldValue($arUserField, $arAdditionalParameters);
+		$fieldName = static::getFieldName($userField, $additionalParameters);
+		$value = static::getFieldValue($userField, $additionalParameters);
 
 		$html = '';
 
@@ -158,11 +158,11 @@ class Money extends TypeBase
 			}
 			$first = false;
 
-			$res = static::getInput($arUserField, $fieldName, $res);
+			$res = static::getInput($userField, $fieldName, $res);
 			$html .= static::getHelper()->wrapSingleField($res);
 		}
 
-		if($arUserField["MULTIPLE"] == "Y" && $arAdditionalParameters["SHOW_BUTTON"] != "N")
+		if($userField["MULTIPLE"] == "Y" && $additionalParameters["SHOW_BUTTON"] != "N")
 		{
 			$html .= static::getHelper()->getCloneButton($fieldName);
 		}
@@ -172,9 +172,9 @@ class Money extends TypeBase
 		return static::getHelper()->wrapDisplayResult($html);
 	}
 
-	public static function getPublicView($arUserField, $arAdditionalParameters = array())
+	public static function getPublicView($userField, $additionalParameters = array())
 	{
-		$value = static::normalizeFieldValue($arUserField["VALUE"]);
+		$value = static::normalizeFieldValue($userField["VALUE"]);
 
 		$html = '';
 		$first = true;
@@ -195,9 +195,9 @@ class Money extends TypeBase
 			$currentValue = number_format((float)$currentValue, $format['DECIMALS'], $format['DEC_POINT'], $format['THOUSANDS_SEP']);
 			$currentValue = \CCurrencyLang::applyTemplate($currentValue, $format['FORMAT_STRING']);
 
-			if(strlen($arUserField['PROPERTY_VALUE_LINK']) > 0)
+			if(strlen($userField['PROPERTY_VALUE_LINK']) > 0)
 			{
-				$res = '<a href="'.htmlspecialcharsbx(str_replace('#VALUE#', urlencode($res), $arUserField['PROPERTY_VALUE_LINK'])).'">'.$currentValue.'</a>';
+				$res = '<a href="'.htmlspecialcharsbx(str_replace('#VALUE#', urlencode($res), $userField['PROPERTY_VALUE_LINK'])).'">'.$currentValue.'</a>';
 			}
 			else
 			{
@@ -266,7 +266,7 @@ class Money extends TypeBase
 		return Editor::getListCurrency();
 	}
 
-	protected static function getInput($arUserField, $fieldName, $dbValue)
+	protected static function getInput($userField, $fieldName, $dbValue)
 	{
 		global $APPLICATION;
 
@@ -276,7 +276,7 @@ class Money extends TypeBase
 			'bitrix:currency.money.input',
 			'',
 			array(
-				'CONTROL_ID' => $arUserField['FIELD_NAME'].'_'.Random::getString(5),
+				'CONTROL_ID' => $userField['FIELD_NAME'].'_'.Random::getString(5),
 				'FIELD_NAME' => $fieldName,
 				'VALUE' => $dbValue,
 				'EXTENDED_CURRENCY_SELECTOR' => 'Y'

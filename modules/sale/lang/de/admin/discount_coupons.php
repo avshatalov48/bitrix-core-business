@@ -25,7 +25,6 @@ $MESS["SALE_ADM_DSC_CPN_HEADER_TITLE_MODIFIED_BY"] = "Person, die einen Gutschei
 $MESS["SALE_ADM_DSC_CPN_HEADER_TITLE_TIMESTAMP_X"] = "Datum, wann ein Gutschein zuletzt geändert wurde";
 $MESS["SALE_ADM_DSC_CPN_HEADER_TITLE_CREATED_BY"] = "Person, die einen Gutschein erstellt hat";
 $MESS["SALE_ADM_DSC_CPN_HEADER_TITLE_DATE_CREATE"] = "Datum, wann ein Gutschein erstellt wurde";
-$MESS["BT_SALE_DISCOUNT_COUPON_LIST_MESS_NAV"] = "Gutscheine";
 $MESS["BT_SALE_DISCOUNT_COUPON_LIST_MESS_EDIT_COUPON"] = "Gutschein bearbeiten";
 $MESS["BT_SALE_DISCOUNT_COUPON_LIST_CONTEXT_EDIT"] = "Bearbeiten";
 $MESS["BT_SALE_DISCOUNT_COUPON_LIST_CONTEXT_COPY"] = "Kopieren";

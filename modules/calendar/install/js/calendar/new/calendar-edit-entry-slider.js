@@ -24,14 +24,17 @@
 
 			this.formType = params.formType || 'slider_main';
 			this.formSettings = this.getSettings();
+			this.planner = null;
 
 			BX.SidePanel.Instance.open(this.sliderId, {
-				contentCallback: BX.delegate(this.createContent, this)
+				contentCallback: BX.delegate(this.createContent, this),
+				events: {
+					onClose: BX.proxy(this.hide, this),
+					onCloseComplete: BX.proxy(this.destroy, this)
+				}
 			});
 
 			BX.bind(document, 'keydown', BX.proxy(this.keyHandler, this));
-			BX.addCustomEvent("SidePanel.Slider:onClose", BX.proxy(this.hide, this));
-			BX.addCustomEvent("SidePanel.Slider:onCloseComplete", BX.proxy(this.destroy, this));
 			BX.bind(document, "click", BX.proxy(this.calendar.util.applyHacksForPopupzIndex, this.calendar.util));
 			this.calendar.disableKeyHandler();
 			setTimeout(BX.delegate(function(){this.calendar.disableKeyHandler();}, this), 300);
@@ -117,6 +120,7 @@
 
 				this.calendar.enableKeyHandler();
 				BX.unbind(document, "click", BX.proxy(this.calendar.util.applyHacksForPopupzIndex, this.calendar.util));
+				this.planner = null;
 				this.opened = false;
 			}
 		},
@@ -410,7 +414,7 @@
 			if (this.entry.id)
 			{
 				from = BX.parseDate(this.entry.data.DATE_FROM);
-				to = new Date(from.getTime() + (this.entry.data.DT_LENGTH - (this.entry.fullDay ? 1 : 0)) * 1000);
+				to = BX.parseDate(this.entry.data.DATE_TO);
 			}
 			else
 			{
@@ -637,6 +641,7 @@
 					//_this.popup.setAutoHide(true);
 					BX.removeClass(_this.DOM.sectionSelect, 'active');
 					BX.PopupMenu.destroy("sectionMenuSlider" + _this.calendar.id);
+					_this.sectionMenu = null;
 				});
 			}
 		},
@@ -688,7 +693,7 @@
 			this.locationSelector = new window.BXEventCalendar.LocationSelector(
 				this.calendar.id + '-slider-location',
 				{
-					inputName: 'location_text',
+					inputName: 'lo_cation', // don't use 'location' word here mantis:107863
 					wrapNode: BX(this.id + '_location_wrap'),
 					onChangeCallback: BX.proxy(this.checkPlannerState, this),
 					value: this.tryLocation ? this.tryLocation : this.entry.location
@@ -763,7 +768,21 @@
 			this.attendees = this.entry.attendees || [this.calendar.currentUser];
 			this.attendeesIndex = {};
 			this.attendees.forEach(function(userId){this.attendeesIndex[userId] = true;}, this);
-			this.attendeesCodes = this.entry.getAttendeesCodes ? this.entry.getAttendeesCodes() : (this.entry.attendeesCodes || false);
+
+			this.attendeesCodes = null;
+			if (this.entry.id)
+			{
+				this.DOM.attendeesCodesInput = BX(this.id + '_attendees_codes');
+				if (this.DOM.attendeesCodesInput && this.DOM.attendeesCodesInput.value)
+				{
+					this.attendeesCodes = this.DOM.attendeesCodesInput.value.split(',');
+				}
+			}
+
+			if (!this.attendeesCodes)
+			{
+				this.attendeesCodes = this.entry.getAttendeesCodes ? this.entry.getAttendeesCodes() : (this.entry.attendeesCodes || false);
+			}
 
 			this.attendeesSelector = new window.BXEventCalendar.DestinationSelector(this.calendar.id + '-slider-destination',
 			{
@@ -935,7 +954,9 @@
 
 			if (!fromDate || !toDate)
 			{
-				var fromTime = this.calendar.util.parseTime(this.DOM.fromTime.value), toTime = this.calendar.util.parseTime(this.DOM.toTime.value);
+				var
+					fromTime = this.calendar.util.parseTime(this.DOM.fromTime.value),
+					toTime = this.calendar.util.parseTime(this.DOM.toTime.value);
 
 				fromDate = BX.parseDate(this.DOM.fromDate.value);
 				toDate = BX.parseDate(this.DOM.toDate.value);
@@ -999,6 +1020,15 @@
 				url = this.calendar.util.getActionUrl(),
 				reqId = Math.round(Math.random() * 1000000);
 
+			if (window["BXHtmlEditor"])
+			{
+				var editor = window["BXHtmlEditor"].Get(this.editorId);
+				if (editor)
+				{
+					editor.SaveContent();
+				}
+			}
+
 			url += (url.indexOf('?') == -1) ? '?' : '&';
 			url += 'action=edit_event&bx_event_calendar_request=Y&sessid=' + BX.bitrix_sessid() + '&reqId=' + reqId;
 			url += '&markAction=' + (this.entry.id ? 'editEvent' : 'newEvent');
@@ -1006,6 +1036,7 @@
 			url += '&markRrule=' + this.DOM.rruleType.value;
 			url += '&markMeeting=' + (this.isMeeting() ? 'Y' : 'N');
 			url += '&markCrm=' + (this.isCrm() ? 'Y' : 'N');
+			url += '&markView=' + this.calendar.getCurrentViewName();
 
 			this.DOM.form.action = url;
 
@@ -1182,7 +1213,7 @@
 				res = true;
 
 			// Location
-			if (!res && this.entry.data.LOCATION !== this.DOM.form.location_text.value)
+			if (!res && this.entry.data.LOCATION !== this.DOM.form.lo_cation.value)
 				res = true;
 
 			// Date & time
@@ -1200,8 +1231,8 @@
 							res = true;
 
 				if (!res && !this.entry.isFullDay()
-					&& (this.entry.data.TZ_FROM != this.DOM.form.tz_from.value
-						|| this.entry.data.TZ_TO != this.DOM.form.tz_to.value))
+					&& (this.entry.data.TZ_FROM !== this.DOM.form.tz_from.value
+						|| this.entry.data.TZ_TO !== this.DOM.form.tz_to.value))
 				{
 					res = true;
 				}
@@ -1211,13 +1242,16 @@
 			if (!res && this.plannerData && false)
 			{
 				var i, attendeesInd = {}, count = 0;
-				if (this.oEvent.IS_MEETING && this.oEvent['~ATTENDEES'])
+				if (this.entry.isMeeting())
 				{
-					for (i in this.oEvent['~ATTENDEES'])
+					var attendeeList = this.entry.getAttendees();
+
+
+					for (i in attendeeList)
 					{
-						if (this.oEvent['~ATTENDEES'].hasOwnProperty(i) && this.oEvent['~ATTENDEES'][i]['USER_ID'])
+						if (attendeeList.hasOwnProperty(i) && attendeeList[i]['ID'])
 						{
-							attendeesInd[this.oEvent['~ATTENDEES'][i]['USER_ID']] = true;
+							attendeesInd[attendeeList[i]['ID']] = true;
 							count++
 						}
 					}
@@ -1454,103 +1488,91 @@
 				fromDate.getTime && toDate.getTime &&
 				fromDate.getTime() <= toDate.getTime())
 			{
-				//if (!this.plannerIsShown() && !params.data)
-				//{
-				//	this.checkPlannerState();
-				//}
-				//else
-				//{
-					//// Show planner cont
-					//if (params.show)
-					//{
-						BX.addClass(this.DOM.plannerWrap, 'calendar-edit-planner-wrap-shown');
-						//this.pMeetingParams.style.display = 'block';
-						if (!this.plannerIsShown() && params.show)
+				BX.addClass(this.DOM.plannerWrap, 'calendar-edit-planner-wrap-shown');
+				if (!this.plannerIsShown() && params.show)
+				{
+					params.focusSelector = true;
+				}
+
+				if (fullDay)
+				{
+					scaleFrom = new Date(fromDate.getTime());
+					scaleFrom = params.scaleFrom || new Date(scaleFrom.getTime() - this.calendar.util.dayLength * 3);
+					scaleTo = params.scaleTo || new Date(scaleFrom.getTime() + this.calendar.util.dayLength * 10);
+
+					config.scaleType = '1day';
+					config.scaleDateFrom = scaleFrom;
+					config.scaleDateTo = scaleTo;
+					config.adjustCellWidth = false;
+				}
+				else
+				{
+					config.changeFromFullDay = {
+						scaleType: '1hour',
+						timelineCellWidth: 40
+					};
+					config.shownScaleTimeFrom = parseInt(this.calendar.util.getWorkTime().start);
+					config.shownScaleTimeTo = parseInt(this.calendar.util.getWorkTime().end);
+				}
+				config.entriesListWidth = this.DOM.attendeesTitle.offsetWidth + 16;
+				config.width = this.DOM.plannerWrap.offsetWidth;
+
+				if (this.DOM.moreOuterWrap)
+				{
+					this.DOM.moreOuterWrap.style.paddingLeft = config.entriesListWidth + 'px';
+				}
+
+				// RRULE
+				var RRULE = false;
+				if (this.DOM.rruleType.value !== 'NONE' && false)
+				{
+					RRULE = {
+						FREQ: this.RepeatSelect.value,
+						INTERVAL: this.RepeatCount.value,
+						UNTIL: this.RepeatDiapTo.value
+					};
+
+					if (RRULE.UNTIL == EC_MESS.NoLimits)
+						RRULE.UNTIL = '';
+
+					if (RRULE.FREQ == 'WEEKLY')
+					{
+						RRULE.WEEK_DAYS = [];
+						for (i = 0; i < 7; i++)
 						{
-							params.focusSelector = true;
-						}
-					//}
-
-					if (fullDay)
-					{
-						scaleFrom = new Date(fromDate.getTime());
-						scaleFrom = params.scaleFrom || new Date(scaleFrom.getTime() - this.calendar.util.dayLength * 3);
-						scaleTo = params.scaleTo || new Date(scaleFrom.getTime() + this.calendar.util.dayLength * 10);
-
-						config.scaleType = '1day';
-						config.scaleDateFrom = scaleFrom;
-						config.scaleDateTo = scaleTo;
-						config.adjustCellWidth = false;
-					}
-					else
-					{
-						config.changeFromFullDay = {
-							scaleType: '1hour',
-							timelineCellWidth: 40
-						};
-						config.shownScaleTimeFrom = parseInt(this.calendar.util.getWorkTime().start);
-						config.shownScaleTimeTo = parseInt(this.calendar.util.getWorkTime().end);
-					}
-					config.entriesListWidth = this.DOM.attendeesTitle.offsetWidth + 16;
-					config.width = this.DOM.plannerWrap.offsetWidth;
-
-					if (this.DOM.moreOuterWrap)
-					{
-						this.DOM.moreOuterWrap.style.paddingLeft = config.entriesListWidth + 'px';
-					}
-
-					// RRULE
-					var RRULE = false;
-					if (this.DOM.rruleType.value !== 'NONE' && false)
-					{
-						RRULE = {
-							FREQ: this.RepeatSelect.value,
-							INTERVAL: this.RepeatCount.value,
-							UNTIL: this.RepeatDiapTo.value
-						};
-
-						if (RRULE.UNTIL == EC_MESS.NoLimits)
-							RRULE.UNTIL = '';
-
-						if (RRULE.FREQ == 'WEEKLY')
-						{
-							RRULE.WEEK_DAYS = [];
-							for (i = 0; i < 7; i++)
+							if (this.RepeatWeekDaysCh[i].checked)
 							{
-								if (this.RepeatWeekDaysCh[i].checked)
-								{
-									RRULE.WEEK_DAYS.push(this.RepeatWeekDaysCh[i].value);
-								}
-							}
-
-							if (!RRULE.WEEK_DAYS.length)
-							{
-								RRULE = false;
+								RRULE.WEEK_DAYS.push(this.RepeatWeekDaysCh[i].value);
 							}
 						}
-					}
 
-					BX.onCustomEvent('OnCalendarPlannerDoUpdate', [
+						if (!RRULE.WEEK_DAYS.length)
 						{
-							plannerId: this.plannerId,
-							config: config,
-							focusSelector: params.focusSelector,
-							selector: {
-								from: fromDate,
-								to: toDate,
-								fullDay: fullDay,
-								RRULE: RRULE,
-								animation: true,
-								updateScaleLimits: true
-							},
-							data: params.data || false,
-							loadedDataFrom: params.loadedDataFrom,
-							loadedDataTo: params.loadedDataTo,
-							show: true
-							//show: !!params.show
+							RRULE = false;
 						}
-					]);
-				//}
+					}
+				}
+
+				this.checkLocationAccessibility();
+				BX.onCustomEvent('OnCalendarPlannerDoUpdate', [
+					{
+						plannerId: this.plannerId,
+						config: config,
+						focusSelector: params.focusSelector,
+						selector: {
+							from: fromDate,
+							to: toDate,
+							fullDay: fullDay,
+							RRULE: RRULE,
+							animation: true,
+							updateScaleLimits: true
+						},
+						data: params.data || false,
+						loadedDataFrom: params.loadedDataFrom,
+						loadedDataTo: params.loadedDataTo,
+						show: true
+					}
+				]);
 			}
 		},
 

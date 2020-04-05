@@ -141,7 +141,8 @@ class CCalendarLocation
 				'TZ_TO' => $params['parentParams']['arFields']['TZ_TO'],
 				'SKIP_TIME' => $params['parentParams']['arFields']['SKIP_TIME'],
 				'NAME' => Loc::getMessage('EC_EDEV_EVENT').': '.$params['parentParams']['arFields']['NAME'],
-				'RRULE' => $params['parentParams']['arFields']['RRULE']
+				'RRULE' => $params['parentParams']['arFields']['RRULE'],
+				'EXDATE' => $params['parentParams']['arFields']['EXDATE']
 			)
 		));
 		return $roomEventId;
@@ -161,21 +162,30 @@ class CCalendarLocation
 			$curUserId = CCalendar::GetCurUserId();
 			$deltaOffset = isset($params['timezone']) ? (CCalendar::GetTimezoneOffset($params['timezone']) - CCalendar::GetCurrentOffsetUTC($curUserId)) : 0;
 
-//			$fromTs = $fromTs - CCalendar::GetTimezoneOffset($params['fields']['TZ_FROM'], $fromTs);
-//			$toTs = $toTs - CCalendar::GetTimezoneOffset($params['fields']['TZ_TO'], $toTs);
-//			$dateFromUtc = CCalendar::Date($fromTs);
-//			$dateToUtc = CCalendar::Date($toTs);
-
 			if($location['mrid'])
 			{
-				//$mrid = 'MR_'.$location['mrid'];
-//				$meetingRoomRes = CCalendar::GetAccessibilityForMeetingRoom(array(
-//					'allowReserveMeeting' => true,
-//					'id' => $location['mrid'],
-//					'from' => $dateFromUtc,
-//					'to' => $dateToUtc,
-//					'curEventId' => $location['mrevid']
-//				));
+				$meetingRoomRes = CCalendar::GetAccessibilityForMeetingRoom(array(
+					'allowReserveMeeting' => true,
+					'id' => $location['mrid'],
+					'from' => CCalendar::Date($fromTs - CCalendar::DAY_LENGTH, false),
+					'to' => CCalendar::Date($toTs + CCalendar::DAY_LENGTH, false),
+					'curEventId' => $location['mrevid']
+				));
+
+				foreach($meetingRoomRes as $entry)
+				{
+					if ($entry['ID'] != $location['mrevid'])
+					{
+						$entryfromTs = CCalendar::Timestamp($entry['DT_FROM']);
+						$entrytoTs = CCalendar::Timestamp($entry['DT_TO']);
+
+						if ($entryfromTs < $toTs && $entrytoTs > $fromTs)
+						{
+							$res = false;
+							break;
+						}
+					}
+				}
 			}
 			elseif ($location['room_id'])
 			{

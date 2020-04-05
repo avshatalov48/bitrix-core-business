@@ -1,10 +1,13 @@
 <section class="landing-block">
-	<div class="js-carousel" data-autoplay="true" data-infinite="true" data-speed="5000">
+	<div class="js-carousel" data-autoplay="true" data-infinite="true" data-speed="5000"
+		 data-pagi-classes="u-carousel-indicators-v1--white g-absolute-centered--x g-bottom-20">
 		<div class="landing-block-node-card js-slide">
-			<div class="landing-block-node-card-bgimg g-flex-centered g-height-100vh g-min-height-500--md g-bg-pos-center g-bg-img-hero g-bg-cover g-bg-black-opacity-0_5--after"
+			<div class="landing-block-node-card-bgimg h-100 g-flex-centered g-min-height-100vh g-bg-pos-center g-bg-img-hero g-bg-cover g-bg-black-opacity-0_5--after g-pb-30"
 				 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1200x800/img21.jpg);">
 				<div class="landing-block-node-card-container js-animation fadeInLeft text-center g-pos-rel container g-max-width-800 g-z-index-1">
-					<i class="landing-block-node-card-icon icon-food-026 g-font-size-60 g-color-white-opacity-0_7 g-mb-10"></i>
+					<span class="landing-block-node-card-icon-container g-color-white-opacity-0_7 g-font-size-60 g-mb-10">
+						<i class="landing-block-node-card-icon icon-food-026"></i>
+					</span>
 					<h2 class="landing-block-node-card-title text-uppercase g-line-height-1_2 g-font-weight-700 g-font-size-55 g-color-white g-mb-10 g-mb-15--md">
 						Meat dishes</h2>
 					<div class="landing-block-node-card-subtitle text-uppercase g-line-height-1 g-font-weight-700 g-font-size-20 g-color-white g-mb-40 g-mb-50--md">
@@ -26,10 +29,12 @@
 		</div>
 
 		<div class="landing-block-node-card js-slide">
-			<div class="landing-block-node-card-bgimg g-flex-centered g-height-100vh g-min-height-500--md g-bg-pos-center g-bg-img-hero g-bg-cover g-bg-black-opacity-0_5--after"
+			<div class="landing-block-node-card-bgimg h-100 g-flex-centered g-min-height-100vh g-bg-pos-center g-bg-img-hero g-bg-cover g-bg-black-opacity-0_5--after g-pb-30"
 				 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1200x800/img22.jpg);">
 				<div class="landing-block-node-card-container js-animation fadeInLeft text-center g-pos-rel container g-max-width-800 g-z-index-1">
-					<i class="landing-block-node-card-icon icon-food-119 g-font-size-60 g-color-white-opacity-0_7 g-mb-10"></i>
+					<span class="landing-block-node-card-icon-container g-color-white-opacity-0_7 g-font-size-60 g-mb-10">
+						<i class="landing-block-node-card-icon icon-food-119"></i>
+					</span>
 					<h2 class="landing-block-node-card-title text-uppercase g-line-height-1_2 g-font-weight-700 g-font-size-55 g-color-white g-mb-10 g-mb-15--md">
 						Fish dishes</h2>
 					<div class="landing-block-node-card-subtitle text-uppercase g-line-height-1 g-font-weight-700 g-font-size-20 g-color-white g-mb-40 g-mb-50--md">
@@ -51,10 +56,12 @@
 		</div>
 
 		<div class="landing-block-node-card js-slide">
-			<div class="landing-block-node-card-bgimg g-flex-centered g-height-100vh g-min-height-500--md g-bg-pos-center g-bg-img-hero g-bg-cover g-bg-black-opacity-0_5--after"
+			<div class="landing-block-node-card-bgimg h-100 g-flex-centered g-min-height-100vh g-bg-pos-center g-bg-img-hero g-bg-cover g-bg-black-opacity-0_5--after g-pb-30"
 				 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1200x800/img23.jpg);">
 				<div class="landing-block-node-card-container js-animation fadeInLeft text-center g-pos-rel container g-max-width-800 g-z-index-1">
-					<i class="landing-block-node-card-icon icon-food-187 g-font-size-60 g-color-white-opacity-0_7 g-mb-10"></i>
+					<span class="landing-block-node-card-icon-container g-color-white-opacity-0_7 g-font-size-60 g-mb-10">
+						<i class="landing-block-node-card-icon icon-food-187"></i>
+					</span>
 					<h2 class="landing-block-node-card-title text-uppercase g-line-height-1_2 g-font-weight-700 g-font-size-55 g-color-white g-mb-10 g-mb-15--md">
 						Dishes for vegans</h2>
 					<div class="landing-block-node-card-subtitle text-uppercase g-line-height-1 g-font-weight-700 g-font-size-20 g-color-white g-mb-40 g-mb-50--md">
@@ -76,10 +83,12 @@
 		</div>
 
 		<div class="landing-block-node-card js-slide">
-			<div class="landing-block-node-card-bgimg g-flex-centered g-height-100vh g-min-height-500--md g-bg-pos-center g-bg-img-hero g-bg-cover g-bg-black-opacity-0_5--after"
+			<div class="landing-block-node-card-bgimg h-100 g-flex-centered g-min-height-100vh g-bg-pos-center g-bg-img-hero g-bg-cover g-bg-black-opacity-0_5--after g-pb-30"
 				 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1200x800/img24.jpg);">
 				<div class="landing-block-node-card-container js-animation fadeInLeft text-center g-pos-rel container g-max-width-800 g-z-index-1">
-					<i class="landing-block-node-card-icon icon-food-228 g-font-size-60 g-color-white-opacity-0_7 g-mb-10"></i>
+					<span class="landing-block-node-card-icon-container g-color-white-opacity-0_7 g-font-size-60 g-mb-10">
+						<i class="landing-block-node-card-icon icon-food-228"></i>
+					</span>
 					<h2 class="landing-block-node-card-title text-uppercase g-line-height-1_2 g-font-weight-700 g-font-size-55 g-color-white g-mb-10 g-mb-15--md">
 						Desserts</h2>
 					<div class="landing-block-node-card-subtitle text-uppercase g-line-height-1 g-font-weight-700 g-font-size-20 g-color-white g-mb-40 g-mb-50--md">

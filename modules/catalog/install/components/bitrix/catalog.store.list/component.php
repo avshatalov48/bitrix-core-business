@@ -9,6 +9,9 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 /** @global CCacheManager $CACHE_MANAGER */
+
+use Bitrix\Iblock;
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 $arParams['PHONE'] = (isset($arParams['PHONE']) && $arParams['PHONE'] == 'Y' ? 'Y' : 'N');
@@ -65,6 +68,8 @@ if ($this->startResultCache())
 		$arProp['IMAGE_ID'] = (int)$arProp['IMAGE_ID'];
 		if ($arProp['IMAGE_ID'] > 0)
 			$storeImg = CFile::GetFileArray($arProp['IMAGE_ID']);
+		if (!empty($storeImg))
+			$storeImg['SRC'] = Iblock\Component\Tools::getImageSrc($storeImg, true);
 		$arProp['IMAGE_ID'] = (empty($storeImg) ? false : $storeImg);
 
 		if ($arProp["TITLE"]=='' && $arProp["ADDRESS"]!='')

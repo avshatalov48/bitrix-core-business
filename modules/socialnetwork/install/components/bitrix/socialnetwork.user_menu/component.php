@@ -274,7 +274,7 @@ else
 		$events = GetModuleEvents("socialnetwork", "OnFillSocNetMenu");
 		while ($arEvent = $events->Fetch())
 		{
-			ExecuteModuleEventEx($arEvent, array(&$arResult));
+			ExecuteModuleEventEx($arEvent, array(&$arResult, $arParams));
 		}
 
 		$externalAuthIdPerms = \Bitrix\Socialnetwork\Util::getPermissionsByExternalAuthId($arResult["User"]["EXTERNAL_AUTH_ID"]);

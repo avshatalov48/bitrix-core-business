@@ -66,7 +66,7 @@ div.lhe-line-end, div.lhe-line-begin {display: none;}
 /*list*/
 div.lhe-list-val-cont{position: absolute; border: 1px solid #808080; background-color: #FFFFFF; display: none;  width: 200px; top: -1000px; left: -1000px;}
 table.lhe-smiles-cont {border-collapse: collapse; margin: 1px!important;}
-table.lhe-smiles-cont td{padding: 0!important;}
+table.lhe-smiles-cont td{padding: 0!important;font-size: 1px!important;}
 
 table.lhe-smiles-tlbr-table{border-collapse: collapse; background-color: transparent !important; margin: 0 0 0 16px!important;}
 table.lhe-smiles-tlbr-table td{padding: 0!important; background-color: transparent !important;}

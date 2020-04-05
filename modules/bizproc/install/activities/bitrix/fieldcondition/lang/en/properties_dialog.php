@@ -1,4 +1,6 @@
 <?
+$MESS["BPFC_PD_EMPTY"] = "field is empty";
+$MESS["BPFC_PD_NOT_EMPTY"] = "field is not empty";
 $MESS["BPFC_PD_ADD"] = "Add Condition";
 $MESS["BPFC_PD_AND"] = "AND";
 $MESS["BPFC_PD_OR"] = "OR";

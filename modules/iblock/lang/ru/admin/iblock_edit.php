@@ -233,7 +233,6 @@ $MESS["IB_E_SHOW_ADD_PROP_ROW"] = "Еще";
 $MESS["IB_E_SHOW_ADD_PROP_ROW_DESCR"] = "Добавить еще одно свойство";
 $MESS["IB_E_OF_PROPERTY_DETAIL"] = "Настройка свойства торгового предложения";
 $MESS["IB_E_IB_PROPERTY_DETAIL"] = "Настройка свойства инфоблока";
-$MESS["IB_E_CAT_CONFIRM"] = "Будут УДАЛЕНЫ все параметры товаров (количество на складе, вес) и ценовые предложения. Вы точно уверены, что хотите это сделать?";
 $MESS["IB_E_URL_PRODUCT_ID"] = "Путь к элементу торгового каталога";
 $MESS["IB_E_RIGHTS_MODE_SECTION_TITLE"] = "Режим прав доступа";
 $MESS["IB_E_RIGHTS_MODE"] = "Расширенное управление правами:";

@@ -60,6 +60,8 @@ $arBXGroupPolicy = array(
 		"PASSWORD_DIGITS" => "N",
 		"PASSWORD_PUNCTUATION" => "N",
 		"LOGIN_ATTEMPTS" => "",
+		"BLOCK_LOGIN_ATTEMPTS" => "",
+		"BLOCK_TIME" => "",
 	),
 	"low" => array(
 		"SESSION_TIMEOUT" => 30, //minutes
@@ -74,6 +76,8 @@ $arBXGroupPolicy = array(
 		"PASSWORD_DIGITS" => "N",
 		"PASSWORD_PUNCTUATION" => "N",
 		"LOGIN_ATTEMPTS" => 0,
+		"BLOCK_LOGIN_ATTEMPTS" => 0,
+		"BLOCK_TIME" => "",
 	),
 	"middle" => array(
 		"SESSION_TIMEOUT" => 20, //minutes
@@ -88,6 +92,8 @@ $arBXGroupPolicy = array(
 		"PASSWORD_DIGITS" => "Y",
 		"PASSWORD_PUNCTUATION" => "N",
 		"LOGIN_ATTEMPTS" => 0,
+		"BLOCK_LOGIN_ATTEMPTS" => 0,
+		"BLOCK_TIME" => "",
 	),
 	"high" => array(
 		"SESSION_TIMEOUT" => 15, //minutes
@@ -102,6 +108,8 @@ $arBXGroupPolicy = array(
 		"PASSWORD_DIGITS" => "Y",
 		"PASSWORD_PUNCTUATION" => "Y",
 		"LOGIN_ATTEMPTS" => 3,
+		"BLOCK_LOGIN_ATTEMPTS" => 0,
+		"BLOCK_TIME" => "",
 	),
 );
 
@@ -118,6 +126,8 @@ $BX_GROUP_POLICY_CONTROLS = array(
 	"PASSWORD_DIGITS"	=>	array("checkbox", "Y"),
 	"PASSWORD_PUNCTUATION"	=>	array("checkbox", "Y"),
 	"LOGIN_ATTEMPTS"	=>	array("text", 5),
+	"BLOCK_LOGIN_ATTEMPTS"	=>	array("text", 5),
+	"BLOCK_TIME"	=>	array("text", 5),
 );
 
 $aTabs = array(

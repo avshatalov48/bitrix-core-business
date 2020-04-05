@@ -28,7 +28,9 @@
 		this.buttonAdd = BX('SENDER_LETTER_BUTTON_ADD');
 		if (this.buttonAdd)
 		{
-			var menuItems = (params.messages || []).map(function (message) {
+			var menuItems = (params.messages || []).filter(function (message) {
+				return !message.IS_HIDDEN;
+			}).map(function (message) {
 				return {
 					'id': message.CODE,
 					'text': message.NAME,
@@ -121,7 +123,7 @@
 	{
 		if (!message.IS_AVAILABLE && BX.Sender.B24License)
 		{
-			BX.Sender.B24License.showPopup('Ad');
+			BX.Sender.B24License.showPopup('Rc');
 			this.popupMenu.close();
 			return;
 		}

@@ -36,10 +36,18 @@ final class SearchHelper
 
 	protected static function showSearchNotification()
 	{
-		\CAdminMessage::ShowMessage(array('MESSAGE' => Loc::getMessage(
+		$reindexUrl = Helper::getReindexUrl();
+		global $adminSidePanelHelper;
+		$reindexUrl = $adminSidePanelHelper->editUrlToPublicPage($reindexUrl);
+		$params = array('MESSAGE' => Loc::getMessage(
 			'SALE_LOCATION_ADMIN_SEARCH_HELPER_ENTITY_INVALID_SINDEX',
-			array('#ANCHOR_INDEX_RESTORE#' => '<a href="'.Helper::getReindexUrl().'" target="_blank">', "#ANCHOR_END#" => '</a>')
-		), 'type' => 'ERROR', 'HTML' => true));
+			array('#ANCHOR_INDEX_RESTORE#' => '<a href="'.$reindexUrl.'" target="_blank">', "#ANCHOR_END#" => '</a>')
+		), 'type' => 'ERROR', 'HTML' => true);
+		if (defined('PUBLIC_MODE') && PUBLIC_MODE == 1)
+		{
+			$params["SKIP_PUBLIC_MODE"] = true;
+		}
+		\CAdminMessage::ShowMessage($params);
 	}
 
 	public static function checkIndexValid()
@@ -59,10 +67,18 @@ final class SearchHelper
 
 	protected static function showDBIndexNotification()
 	{
-		\CAdminMessage::ShowMessage(array('MESSAGE' => Loc::getMessage(
+		$importUrl = Helper::getImportUrl();
+		global $adminSidePanelHelper;
+		$importUrl = $adminSidePanelHelper->editUrlToPublicPage($importUrl);
+		$params = array('MESSAGE' => Loc::getMessage(
 			'SALE_LOCATION_ADMIN_SEARCH_HELPER_ENTITY_INVALID_DBINDEX',
-			array('#ANCHOR_INDEX_RESTORE#' => '<a href="'.Helper::getImportUrl().'" target="_blank">', "#ANCHOR_END#" => '</a>')
-		), 'type' => 'ERROR', 'HTML' => true));
+			array('#ANCHOR_INDEX_RESTORE#' => '<a href="'.$importUrl.'" target="_blank">', "#ANCHOR_END#" => '</a>')
+		), 'type' => 'ERROR', 'HTML' => true);
+		if (defined('PUBLIC_MODE') && PUBLIC_MODE == 1)
+		{
+			$params["SKIP_PUBLIC_MODE"] = true;
+		}
+		\CAdminMessage::ShowMessage($params);
 	}
 
 	public static function checkIndexesValid()

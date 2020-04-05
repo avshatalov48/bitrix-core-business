@@ -19,7 +19,7 @@ class CPullDemoWebrtcComponent extends CBitrixComponent
 
 		CJSCore::RegisterExt('pullDemoWebrtc', array(
 			'js' => $this->getPath().'/demo_webrtc.js',
-			'lang' => $this->getPath().'/lang/'.LANGUAGE_ID.'/js_demo_webrtc.php',
+			'lang' => $this->getPath().'/js_demo_webrtc.php',
 			'rel' => array('webrtc')
 		));
 		CJSCore::Init('pullDemoWebrtc');

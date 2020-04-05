@@ -186,7 +186,18 @@ class ElementProperty extends Base
 					{
 						if(strlen($property["USER_TYPE"]))
 						{
-							$value = new ElementPropertyUserField($propertyValues, $property);
+							if (is_array($propertyValues))
+							{
+								$value = array();
+								foreach ($propertyValues as $propertyValue)
+								{
+									$value[] = new ElementPropertyUserField($propertyValue, $property);
+								}
+							}
+							else
+							{
+								$value = new ElementPropertyUserField($propertyValues, $property);
+							}
 						}
 						else
 						{
@@ -318,10 +329,10 @@ class ElementPropertyUserField extends LazyValueLoader
 	 */
 	protected function getFormatFunction()
 	{
-		static $propertyFormatFunction = null;
-		if (!isset($propertyFormatFunction))
+		static $propertyFormatFunction = array();
+		if (!isset($propertyFormatFunction[$this->property["ID"]]))
 		{
-			$propertyFormatFunction = false;
+			$propertyFormatFunction[$this->property["ID"]] = false;
 			if ($this->property && strlen($this->property["USER_TYPE"]))
 			{
 				$propertyUserType = \CIBlockProperty::getUserType($this->property["USER_TYPE"]);
@@ -330,11 +341,11 @@ class ElementPropertyUserField extends LazyValueLoader
 					&& is_callable($propertyUserType["GetPublicViewHTML"])
 				)
 				{
-					$propertyFormatFunction = $propertyUserType["GetPublicViewHTML"];
+					$propertyFormatFunction[$this->property["ID"]] = $propertyUserType["GetPublicViewHTML"];
 				}
 			}
 		}
-		return $propertyFormatFunction;
+		return $propertyFormatFunction[$this->property["ID"]];
 	}
 }
 

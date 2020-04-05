@@ -7,6 +7,7 @@ class CBPDocumentService
 	extends CBPRuntimeService
 {
 	const FEATURE_MARK_MODIFIED_FIELDS = 'FEATURE_MARK_MODIFIED_FIELDS';
+	const FEATURE_SET_MODIFIED_BY = 'FEATURE_SET_MODIFIED_BY';
 
 	private $arDocumentsCache = array();
 	private $documentTypesCache = array();
@@ -24,39 +25,46 @@ class CBPDocumentService
 		return null;
 	}
 
-	public function GetDocument($parameterDocumentId)
+	public function GetDocument($parameterDocumentId, $parameterDocumentType = null)
 	{
 		list($moduleId, $entity, $documentId) = CBPHelper::ParseDocumentId($parameterDocumentId);
 
-		$k = $moduleId."@".$entity."@".$documentId;
+		$documentType = ($parameterDocumentType && is_array($parameterDocumentType)) ? $parameterDocumentType[2] : null;
+
+		$k = $moduleId."@".$entity."@".$documentId.($documentType ? '@'.$documentType : '');
 		if (array_key_exists($k, $this->arDocumentsCache))
+		{
 			return $this->arDocumentsCache[$k];
+		}
 
 		if (strlen($moduleId) > 0)
 			CModule::IncludeModule($moduleId);
 
 		if (class_exists($entity))
 		{
-			$this->arDocumentsCache[$k] = call_user_func_array(array($entity, "GetDocument"), array($documentId));
+			$this->arDocumentsCache[$k] = call_user_func_array(array($entity, "GetDocument"), array($documentId, $documentType));
 			return $this->arDocumentsCache[$k];
 		}
 
 		return null;
 	}
 
-	public function UpdateDocument($parameterDocumentId, $arFields)
+	public function UpdateDocument($parameterDocumentId, $arFields, $modifiedBy = null)
 	{
 		list($moduleId, $entity, $documentId) = CBPHelper::ParseDocumentId($parameterDocumentId);
 
-		$k = $moduleId."@".$entity."@".$documentId;
-		if (array_key_exists($k, $this->arDocumentsCache))
-			unset($this->arDocumentsCache[$k]);
+		$this->clearCache();
 
 		if (strlen($moduleId) > 0)
+		{
 			CModule::IncludeModule($moduleId);
+		}
 
 		if (class_exists($entity))
-			return call_user_func_array(array($entity, "UpdateDocument"), array($documentId, $arFields));
+		{
+			$modifiedById = $modifiedBy ? CBPHelper::ExtractUsers($modifiedBy, $parameterDocumentId, true) : null;
+			return call_user_func_array([$entity, 'UpdateDocument'], [$documentId, $arFields, $modifiedById]);
+		}
 
 		return false;
 	}
@@ -78,9 +86,7 @@ class CBPDocumentService
 	{
 		list($moduleId, $entity, $documentId) = CBPHelper::ParseDocumentId($parameterDocumentId);
 
-		$k = $moduleId."@".$entity."@".$documentId;
-		if (array_key_exists($k, $this->arDocumentsCache))
-			unset($this->arDocumentsCache[$k]);
+		$this->clearCache();
 
 		if (strlen($moduleId) > 0)
 			CModule::IncludeModule($moduleId);
@@ -101,9 +107,7 @@ class CBPDocumentService
 	{
 		list($moduleId, $entity, $documentId) = CBPHelper::ParseDocumentId($parameterDocumentId);
 
-		$k = $moduleId."@".$entity."@".$documentId;
-		if (array_key_exists($k, $this->arDocumentsCache))
-			unset($this->arDocumentsCache[$k]);
+		$this->clearCache();
 
 		if (strlen($moduleId) > 0)
 			CModule::IncludeModule($moduleId);
@@ -118,9 +122,7 @@ class CBPDocumentService
 	{
 		list($moduleId, $entity, $documentId) = CBPHelper::ParseDocumentId($parameterDocumentId);
 
-		$k = $moduleId."@".$entity."@".$documentId;
-		if (array_key_exists($k, $this->arDocumentsCache))
-			unset($this->arDocumentsCache[$k]);
+		$this->clearCache();
 
 		if (strlen($moduleId) > 0)
 			CModule::IncludeModule($moduleId);
@@ -135,9 +137,7 @@ class CBPDocumentService
 	{
 		list($moduleId, $entity, $documentId) = CBPHelper::ParseDocumentId($parameterDocumentId);
 
-		$k = $moduleId."@".$entity."@".$documentId;
-		if (array_key_exists($k, $this->arDocumentsCache))
-			unset($this->arDocumentsCache[$k]);
+		$this->clearCache();
 
 		if (strlen($moduleId) > 0)
 			CModule::IncludeModule($moduleId);
@@ -152,9 +152,7 @@ class CBPDocumentService
 	{
 		list($moduleId, $entity, $documentId) = CBPHelper::ParseDocumentId($parameterDocumentId);
 
-		$k = $moduleId."@".$entity."@".$documentId;
-		if (array_key_exists($k, $this->arDocumentsCache))
-			unset($this->arDocumentsCache[$k]);
+		$this->clearCache();
 
 		if (strlen($moduleId) > 0)
 			CModule::IncludeModule($moduleId);
@@ -740,7 +738,6 @@ EOS;
 			$arFieldName = array(
 				'Form' => null,
 				'Field' => null,
-				'ClassNamePrefix' => null,
 			);
 			foreach ($fieldName as $key => $val)
 			{
@@ -754,9 +751,6 @@ EOS;
 					case "1":
 						$arFieldName["Field"] = $val;
 						break;
-					case 'CLASSNAMEPREFIX':
-						$arFieldName["ClassNamePrefix"] = $val;
-						break;
 				}
 			}
 		}
@@ -764,7 +758,7 @@ EOS;
 		{
 			$arFieldName = array("Form" => null, "Field" => $fieldName);
 		}
-		if ((string) $arFieldName["Field"] == "" || preg_match("#[^a-z0-9_]#i", $arFieldName["Field"]))
+		if ((string) $arFieldName["Field"] == "" || preg_match("#[^a-z0-9_\[\]]#i", $arFieldName["Field"]))
 			return "";
 		if ((string) $arFieldName["Form"] != "" && preg_match("#[^a-z0-9_]#i", $arFieldName["Form"]))
 			return "";
@@ -778,12 +772,22 @@ EOS;
 		$fieldTypeObject = $this->getFieldTypeObject($parameterDocumentType, $arFieldType);
 		if ($fieldTypeObject)
 		{
-			$renderMode = $publicMode? 0 : FieldType::RENDER_MODE_DESIGNER;
+			$renderMode = $publicMode ? FieldType::RENDER_MODE_PUBLIC : FieldType::RENDER_MODE_DESIGNER;
 			if (defined('ADMIN_SECTION') && ADMIN_SECTION)
-				$renderMode = $renderMode | FieldType::RENDER_MODE_ADMIN;
+			{
+				$renderMode |= FieldType::RENDER_MODE_ADMIN;
+				$renderMode &= ~FieldType::RENDER_MODE_PUBLIC;
+			}
 
 			if (defined('BX_MOBILE') && BX_MOBILE)
-				$renderMode = $renderMode | FieldType::RENDER_MODE_MOBILE;
+			{
+				$renderMode |= FieldType::RENDER_MODE_MOBILE;
+			}
+
+			if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
+			{
+				CUtil::InitJSCore(['bp_field_type']);
+			}
 
 			return $fieldTypeObject->renderControl($arFieldName, $fieldValue, $bAllowSelection, $renderMode);
 		}
@@ -833,7 +837,7 @@ EOS;
 		{
 			$arFieldName = array("Form" => null, "Field" => $fieldName);
 		}
-		if ((string) $arFieldName["Field"] == "" || preg_match("#[^a-z0-9_]#i", $arFieldName["Field"]))
+		if ((string) $arFieldName["Field"] == "" || preg_match("#[^a-z0-9_\[\]]#i", $arFieldName["Field"]))
 			return "";
 		if ((string) $arFieldName["Form"] != "" && preg_match("#[^a-z0-9_]#i", $arFieldName["Form"]))
 			return "";
@@ -1285,5 +1289,10 @@ EOS;
 		}
 
 		return null;
+	}
+
+	private function clearCache()
+	{
+		$this->arDocumentsCache = [];
 	}
 }

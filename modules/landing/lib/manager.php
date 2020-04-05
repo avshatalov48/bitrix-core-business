@@ -14,8 +14,15 @@ class Manager
 {
 	/**
 	 * Publication default path.
+	 * @see Manager::getPublicationPathConst()
 	 */
 	const PUBLICATION_PATH = '/pub/site/';
+	const PUBLICATION_PATH_SITEMAN = '/lp/';
+
+	/**
+	 * Path of master for create / edit a landings.
+	 */
+	const PATH_ADMIN_PANEL = '/bitrix/tools/landing/admin_panel.php';
 
 	/**
 	 * Feature name for create new site.
@@ -36,6 +43,16 @@ class Manager
 	 * Feature name for enable all hooks.
 	 */
 	const FEATURE_ENABLE_ALL_HOOKS = 'enable_all_hooks';
+
+	/**
+	 * Feature name for publication site.
+	 */
+	const FEATURE_PUBLICATION_SITE = 'publication_site';
+
+	/**
+	 * Feature name for publication page.
+	 */
+	const FEATURE_PUBLICATION_PAGE = 'publication_page';
 
 	/**
 	 * Selected template theme id.
@@ -117,7 +134,7 @@ class Manager
 	 * Get option from module settings.
 	 * @param string $code Option code.
 	 * @param mixed $default Default value.
-	 * @return type
+	 * @return mixed
 	 */
 	public static function getOption($code, $default = null)
 	{
@@ -140,6 +157,24 @@ class Manager
 		}
 
 		return $docRoot;
+	}
+
+	/**
+	 * Set page title.
+	 * @param string $title Page title.
+	 * @return void
+	 */
+	public static function setPageTitle($title)
+	{
+		static $application = null;
+
+		if ($application === null)
+		{
+			$application = self::getApplication();
+		}
+
+		$application->setTitle($title);
+		$application->setPageProperty('title', $title);
 	}
 
 	/**
@@ -211,8 +246,8 @@ class Manager
 				$fields = array(
 					'SORT' => 0,
 					'SITE_ID' => $siteId,
-					'CONDITION' => 'CSite::InDir(\'' . $subDirSite . $basePathOriginal . '\')',
-					'TEMPLATE' => Manager::getOption('site_template_id')
+					'CONDITION' => 'CSite::inDir(\'' . $subDirSite . $basePathOriginal . '\')',
+					'TEMPLATE' => self::getTemplateId($siteId)
 				);
 				$check = \Bitrix\Main\SiteTemplateTable::getList(array(
 					 'filter' => array(
@@ -234,8 +269,7 @@ class Manager
 							'CONDITION' => '#^' . $subDirSite. $basePathOriginal . '#'
 						)
 					);
-					self::getCacheManager()->cleanAll();
-					self::getCacheManager()->cleanDir('b_site_template');
+					self::getCacheManager()->clean('b_site_template');
 				}
 			}
 		}
@@ -268,6 +302,17 @@ class Manager
 	}
 
 	/**
+	 * Get constantly publication path.
+	 * @return string
+	 */
+	public static function getPublicationPathConst()
+	{
+		return self::isB24()
+				? self::PUBLICATION_PATH
+				: self::PUBLICATION_PATH_SITEMAN;
+	}
+
+	/**
 	 * Get path for publication sites.
 	 * @param string|int $siteCode Site id or site code.
 	 * @param string $siteId Main site id.
@@ -277,8 +322,8 @@ class Manager
 	public static function getPublicationPath($siteCode = null, $siteId = null, $createPubPath = false)
 	{
 		$basePath = self::getOption(
-			'pub_path_' . (!isset($siteId) ? SITE_ID : $siteId),
-			self::PUBLICATION_PATH
+			'pub_path_' . (!isset($siteId) ? (self::getMainSiteId()) : $siteId),
+			self::getPublicationPathConst()
 		);
 		$subDir = self::getSmnSiteDir($siteId);
 		if ($siteCode === null)
@@ -333,10 +378,10 @@ class Manager
 		if ($content)
 		{
 			$application = self::getApplication();
-			$existClass = $application->getPageProperty($marker);
+			$existContent = $application->getPageProperty($marker);
 			$application->setPageProperty(
 				$marker,
-				$existClass . ($existClass != '' ? ' ' : '') . $content
+				$existContent . ($existContent != '' ? ' ' : '') . $content
 			);
 		}
 	}
@@ -362,7 +407,10 @@ class Manager
 		$themes = array();
 		
 		$path = self::getDocRoot() . getLocalPath('templates/' . $tplId) . '/'.$entityType.'/';
-		if (($handle = opendir($path)))
+		if (
+			file_exists($path) &&
+			($handle = opendir($path))
+		)
 		{
 			while ((($entry = readdir($handle)) !== false))
 			{
@@ -397,19 +445,46 @@ class Manager
 	}
 
 	/**
-	 * Get site template id for landing view.
+	 * Gets site template id.
+	 * @param string $siteId Site id (siteman).
 	 * @return string
 	 */
-	public static function getTemplateId()
+	public static function getTemplateId($siteId = null)
 	{
-		static $tplId = null;
+		static $tplId = [];
 
-		if ($tplId === null)
+		if (!isset($tplId[$siteId]))
 		{
-			$tplId = self::getOption('site_template_id', 'landing24');
+			if ($siteId)
+			{
+				$tplId[$siteId] = self::getOption('site_template_id_' . $siteId);
+			}
+			if (!$tplId[$siteId])
+			{
+				$tplId[$siteId] = self::getOption('site_template_id', 'landing24');
+			}
 		}
 
-		return $tplId;
+		return $tplId[$siteId];
+	}
+
+	/**
+	 * Gets true, if this template id is system.
+	 * @param string $templateId Site template id.
+	 * @return bool
+	 */
+	public static function isTemplateIdSystem($templateId)
+	{
+		return $templateId === 'landing24';
+	}
+
+	/**
+	 * Gets site id from main module.
+	 * @return string
+	 */
+	public static function getMainSiteId()
+	{
+		return defined('SMN_SITE_ID') ? SMN_SITE_ID : SITE_ID;
 	}
 
 	/**
@@ -424,7 +499,7 @@ class Manager
 	
 	/**
 	 * Set new colored theme id.
-	 * @param string $themeId Theme id.
+	 * @param string $themeTypoId Theme id.
 	 * @return void
 	 */
 	public static function setThemeTypoId($themeTypoId)
@@ -433,12 +508,21 @@ class Manager
 	}
 
 	/**
+	 * Get current theme id.
+	 * @return string
+	 */
+	public static function getThemeId()
+	{
+		return self::$themeId;
+	}
+
+	/**
 	 * Set current selected or default color theme.
 	 * @return void
 	 */
 	public static function setTheme()
 	{
-		$tplId = self::getTemplateId();
+		$tplId = self::getTemplateId(SITE_ID);
 		$themes = Manager::getThemes($tplId);
 		$themesTypo = Manager::getThemesTypo($tplId);
 		$request = Application::getInstance()->getContext()->getRequest();
@@ -557,7 +641,15 @@ class Manager
 			isset($file[1])
 		)
 		{
-			$tempPath = \CFile::getTempName('', $file[0]);
+			$fileParts = explode('.', $file[0]);
+			$ext = array_pop($fileParts);
+			$tempPath = \CFile::getTempName(
+				'',
+				\CUtil::translit(
+					implode('', $fileParts),
+					'ru'
+				) . '.' . $ext
+			);
 			$fileIO = new \Bitrix\Main\IO\File(
 				$tempPath
 			);
@@ -576,17 +668,20 @@ class Manager
 				isset($params['height'])
 			)
 			{
-				$params['width'] = intval($params['width']);
-				$params['height'] = intval($params['height']);
 				\CFile::resizeImage(
 					$file,
 					$params,
 					isset($params['resize_type'])
-					? $params['resize_type']
+					? intval($params['resize_type'])
 					: BX_RESIZE_IMAGE_PROPORTIONAL);
 			}
 			// save
 			$module = 'landing';
+			$file['name'] = preg_replace(
+				'/[\(\)\s]+/s',
+				'_',
+				$file['name']
+			);
 			$file['MODULE_ID'] = $module;
 			$file = \CFile::saveFile($file, $module);
 			if ($file)
@@ -595,6 +690,11 @@ class Manager
 			}
 			if ($file)
 			{
+				$file['SRC'] = str_replace(
+					'%',
+					'%25',
+					$file['SRC']
+				);
 				return $file;
 			}
 		}
@@ -604,23 +704,59 @@ class Manager
 
 	/**
 	 * Check is feature is enabled.
-	 * @param string $feature Featire name.
+	 * @param string $feature Feature name.
+	 * @param array $params Params array.
 	 * @return boolean
 	 */
-	public static function checkFeature($feature)
+	public static function checkFeature($feature, array $params = array())
 	{
-		if ($feature == self::FEATURE_CREATE_SITE)
+		if (
+			$feature == self::FEATURE_CREATE_SITE ||
+			$feature == self::FEATURE_PUBLICATION_SITE
+		)
 		{
-			$limit = self::getOption('site_limit_count');
+			$optSuff = ($feature == self::FEATURE_PUBLICATION_SITE)
+						? '_publication'
+						: '';
+			if (
+				isset($params['type']) &&
+				$params['type'] == 'STORE'
+			)
+			{
+				$limit = self::getOption('shops_limit_count' . $optSuff);
+			}
+			else
+			{
+				$limit = self::getOption('site_limit_count' . $optSuff);
+			}
 			if ($limit)
 			{
+				$filter = array(
+					'CHECK_PERMISSIONS' => 'N',
+				);
+				if ($feature == self::FEATURE_PUBLICATION_SITE)
+				{
+					$filter['=ACTIVE'] = 'Y';
+				}
+				if (isset($params['type']))
+				{
+					$filter['=TYPE'] = $params['type'];
+				}
+				if (
+					isset($params['filter']) &&
+					is_array($params['filter'])
+				)
+				{
+					$filter = array_merge(
+						$filter,
+						$params['filter']
+					);
+				}
 				$check = Site::getList(array(
 					'select' => array(
 						'CNT' => new Entity\ExpressionField('CNT', 'COUNT(ID)')
 					),
-					'filter' => array(
-						'CHECK_PERMISSIONS' => 'N'
-					),
+					'filter' => $filter,
 					'group' => array()
 				))->fetch();
 				if ($check && $check['CNT'] >= $limit)
@@ -630,18 +766,43 @@ class Manager
 			}
 			return true;
 		}
-		elseif ($feature == self::FEATURE_CREATE_PAGE)
+		elseif (
+			$feature == self::FEATURE_CREATE_PAGE ||
+			$feature == self::FEATURE_PUBLICATION_PAGE
+		)
 		{
-			$limit = self::getOption('pages_limit_count');
+			if ($feature == self::FEATURE_PUBLICATION_PAGE)
+			{
+				$limit = self::getOption('pages_limit_count_publication');
+			}
+			else
+			{
+				$limit = self::getOption('pages_limit_count');
+			}
 			if ($limit)
 			{
+				$filter = array(
+					'CHECK_PERMISSIONS' => 'N'
+				);
+				if ($feature == self::FEATURE_PUBLICATION_PAGE)
+				{
+					$filter['=ACTIVE'] = 'Y';
+				}
+				if (
+					isset($params['filter']) &&
+					is_array($params['filter'])
+				)
+				{
+					$filter = array_merge(
+						$filter,
+						$params['filter']
+					);
+				}
 				$check = Landing::getList(array(
 					'select' => array(
-						'CNT' => new Entity\ExpressionField('CNT', 'COUNT(ID)')
+						'CNT' => new Entity\ExpressionField('CNT', 'COUNT(*)')
 					),
-					'filter' => array(
-						'CHECK_PERMISSIONS' => 'N'
-					),
+					'filter' => $filter,
 					'group' => array()
 				))->fetch();
 				if ($check && $check['CNT'] >= $limit)
@@ -649,10 +810,6 @@ class Manager
 					return false;
 				}
 			}
-			return true;
-		}
-		elseif ($feature == self::FEATURE_CUSTOM_DOMAIN)
-		{
 			return true;
 		}
 		elseif ($feature == self::FEATURE_ENABLE_ALL_HOOKS)
@@ -661,7 +818,16 @@ class Manager
 			{
 				return true;
 			}
-			return \CBitrix24::isLicensePaid();
+			return in_array(
+				\CBitrix24::getLicenseType(),
+				['team', 'company', 'tf', 'retail', 'crm', 'self'],
+				true
+			);
+		}
+		// old feature for compatibility
+		elseif ($feature == self::FEATURE_CUSTOM_DOMAIN)
+		{
+			return true;
 		}
 
 		return false;
@@ -688,6 +854,33 @@ class Manager
 		}
 
 		return $zone;
+	}
+
+	/**
+	 * Check if something is available in current country.
+	 * @param string $zone Zone code.
+	 * @return bool
+	 */
+	public static function availableOnlyForZone($zone)
+	{
+		static $available = null;
+
+		if ($available !== null)
+		{
+			return $available;
+		}
+
+		$available = true;
+
+		if ($zone == 'ru')
+		{
+			if (!in_array(Manager::getZone(), array('ru', 'by', 'kz')))
+			{
+				$available = false;
+			}
+		}
+
+		return $available;
 	}
 
 	/**
@@ -719,6 +912,12 @@ class Manager
 		{
 			$context = Application::getInstance()->getContext();
 			$host = $context->getServer()->getHttpHost();
+			
+//			strip port
+			if (strpos($host, ':') !== false)
+			{
+				list($host) = explode(':', $host);
+			}
 		}
 
 		return $host;
@@ -731,9 +930,16 @@ class Manager
 	 */
 	public static function getUrlFromFile($file)
 	{
-		return (self::isHttps() ? 'https://' : 'http://') .
-				self::getHttpHost() .
-				$file;
+		if (substr($file, 0, 1) == '/')
+		{
+			return (self::isHttps() ? 'https://' : 'http://') .
+				   self::getHttpHost() .
+				   $file;
+		}
+		else
+		{
+			return $file;
+		}
 	}
 
 	/**
@@ -742,17 +948,221 @@ class Manager
 	 */
 	public static function isB24()
 	{
-		if (
-			defined('LANDING_DISABLE_B24_MODE') &&
-			LANDING_DISABLE_B24_MODE === true
+		static $return = null;
+
+		if ($return === null)
+		{
+			if (
+				defined('LANDING_DISABLE_B24_MODE') &&
+				LANDING_DISABLE_B24_MODE === true
+			)
+			{
+				$return = false;
+			}
+			else
+			{
+				$return = ModuleManager::isModuleInstalled('bitrix24') ||
+							ModuleManager::isModuleInstalled('crm') ||
+							ModuleManager::isModuleInstalled('intranet');
+			}
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Enable or not shops in this edition.
+	 * @return bool
+	 */
+	public static function isStoreEnabled()
+	{
+		return ModuleManager::isModuleInstalled('sale') &&
+			   ModuleManager::isModuleInstalled('catalog') &&
+			   ModuleManager::isModuleInstalled('iblock');
+	}
+
+	/**
+	 * Get current REST url for work with cloud.
+	 * @return string
+	 */
+	public static function getRestPath()
+	{
+		static $staticPath = null;
+
+		if ($staticPath !== null)
+		{
+			return $staticPath;
+		}
+		
+		if(
+			ModuleManager::isModuleInstalled('bitrix24') &&
+			method_exists('\CBitrix24', 'isEtalon') &&
+			method_exists('\CBitrix24', 'isStage') &&
+			(\CBitrix24::isStage() || \CBitrix24::isEtalon())
 		)
 		{
-			return false;
+			$path = 'https://repo-dev.bitrix24.site/rest/1/w1uqy3swvyp50bso/';
 		}
 		else
 		{
-			return ModuleManager::isModuleInstalled('bitrix24') ||
-				   ModuleManager::isModuleInstalled('intranet');
+			$path = 'https://repo.bitrix24.site/rest/1/w1uqy3swvyp50bso/';
 		}
+
+//		$path = 'https://repo.bitrix24.site/rest/1/w1uqy3swvyp50bso/';
+//		$path = 'https://repo-dev.bitrix24.site/rest/1/w1uqy3swvyp50bso/';
+
+		if (
+			!defined('LANDING_DISABLE_CLOUD') ||
+			LANDING_DISABLE_CLOUD !== true
+		)
+		{
+			Option::set(
+				'landing',
+				'block_vendor_bitrix',
+				$path
+			);
+		}
+		else
+		{
+			if (self::getOption('block_vendor_bitrix'))
+			{
+				Option::delete(
+					'landing',
+					array(
+						'name' => 'block_vendor_bitrix'
+					)
+				);
+			}
+		}
+
+		$staticPath = $path;
+
+		return $staticPath;
+	}
+
+	/**
+	 * Get module version.
+	 * @return string
+	 */
+	public static function getVersion()
+	{
+		static $arModuleVersion = null;
+
+		if ($arModuleVersion === null)
+		{
+			$arModuleVersion = [];
+			include self::getDocRoot() . '/bitrix/modules/landing/install/version.php';
+		}
+
+		return isset($arModuleVersion['VERSION']) ? $arModuleVersion['VERSION'] : null;
+	}
+
+	/**
+	 * Check if license is expired.
+	 * @return bool
+	 */
+	public static function licenseIsValid()
+	{
+		$finishDate = Option::get('main', '~support_finish_date');
+		$finishDate = \makeTimestamp($finishDate, 'YYYY-MM-DD');
+		if ($finishDate < time())
+		{
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Sanitize bad value.
+	 * @param string $value Bad value.
+	 * @param bool &$bad Return true, if value is bad.
+	 * @param string $splitter Splitter for bad content.
+	 * @return string Good value.
+	 */
+	public static function sanitize($value, &$bad = false, $splitter = ' ')
+	{
+		static $sanitizer = null;
+
+		if (!is_bool($bad))
+		{
+			$bad = false;
+		}
+
+		if ($sanitizer === null)
+		{
+			$sanitizer = false;
+			if (Loader::includeModule('security'))
+			{
+				$sanitizer = new \Bitrix\Security\Filter\Auditor\Xss(
+					$splitter
+				);
+			}
+		}
+
+		if ($sanitizer)
+		{
+			// bad value exists
+			if (is_array($value))
+			{
+				foreach ($value as &$val)
+				{
+					$val = self::sanitize($val, $bad, $splitter);
+				}
+				unset($val);
+			}
+			else if ($sanitizer->process($value))
+			{
+				$bad = true;
+				$value = $sanitizer->getFilteredValue();
+				$value = str_replace(
+					' bxstyle="',
+					' style="',
+					$value
+				);
+			}
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Get deleted life time days.
+	 * @return int
+	 */
+	public static function getDeletedLT()
+	{
+		$deletedDays = (int) Manager::getOption('deleted_lifetime_days', 30);
+		$deletedDays = max(1, $deletedDays);
+		return $deletedDays;
+	}
+
+	/**
+	 * Return site controller class, or pseudo.
+	 * @return string
+	 */
+	public static function getExternalSiteController()
+	{
+		static $class = '';
+
+		if (!$class)
+		{
+			if (class_exists('\LandingSiteController'))
+			{
+				$class = '\LandingSiteController';
+			}
+			else if (
+				Loader::includeModule('bitrix24') &&
+				class_exists('\Bitrix\Bitrix24\SiteController')
+			)
+			{
+				$class = '\Bitrix\Bitrix24\SiteController';
+			}
+			else if (class_exists('\Bitrix\Landing\External\Site24'))
+			{
+				$class = '\Bitrix\Landing\External\Site24';
+			}
+		}
+
+		return $class;
 	}
 }

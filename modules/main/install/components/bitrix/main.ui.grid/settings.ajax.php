@@ -132,6 +132,10 @@ foreach ($data as $key => $item)
 			$options->setPageSize($item['pageSize']);
 			break;
 
+		case Actions::GRID_SET_STICKED_COLUMNS:
+			$options->setStickedColumns($item['stickedColumns']);
+			break;
+
 		default:
 			$error = true;
 	}

@@ -83,7 +83,8 @@ class Auth
 					{
 						\CRestUtil::updateAppStatus($tokenInfo);
 					}
-					else
+
+					if(!is_array($clientInfo) || $clientInfo['ACTIVE'] !== 'Y')
 					{
 						$tokenInfo = array('error' => 'APPLICATION_NOT_FOUND', 'error_description' => 'Application not found');
 						$error = true;
@@ -147,12 +148,25 @@ class Auth
 	public static function getAuthKey(array $query)
 	{
 		$authKey = null;
-		foreach(static::$authQueryParams as $key)
+
+		$authHeader = \Bitrix\Main\Application::getInstance()->getContext()->getRequest()->getHeader('Authorization');
+		if($authHeader !== null)
 		{
-			if(array_key_exists($key, $query) && !is_array($query[$key]))
+			if(preg_match('/^Bearer\s+/i', $authHeader))
 			{
-				$authKey = $query[$key];
-				break;
+				$authKey = preg_replace('/^Bearer\s+/i', '', $authHeader);
+			}
+		}
+
+		if($authKey === null)
+		{
+			foreach(static::$authQueryParams as $key)
+			{
+				if(array_key_exists($key, $query) && !is_array($query[$key]))
+				{
+					$authKey = $query[$key];
+					break;
+				}
 			}
 		}
 
@@ -179,31 +193,37 @@ class Auth
 	protected static function check($accessToken)
 	{
 		$authResult = static::getStorage()->restore($accessToken);
-
 		if($authResult === false)
 		{
 			$client = OAuthService::getEngine()->getClient();
 			$tokenInfo = $client->checkAuth($accessToken);
 
-			if($tokenInfo['result'])
+			if(is_array($tokenInfo))
 			{
-				$authResult = $tokenInfo['result'];
-				$authResult['user_id'] = $authResult['parameters'][static::PARAM_LOCAL_USER];
-				unset($authResult['parameters'][static::PARAM_LOCAL_USER]);
-
-				// compatibility with old oauth response
-				if(!isset($authResult['expires']) && isset($authResult['expires_in']))
+				if($tokenInfo['result'])
 				{
-					$authResult['expires'] = time() + $authResult['expires_in'];
+					$authResult = $tokenInfo['result'];
+					$authResult['user_id'] = $authResult['parameters'][static::PARAM_LOCAL_USER];
+					unset($authResult['parameters'][static::PARAM_LOCAL_USER]);
+
+					// compatibility with old oauth response
+					if(!isset($authResult['expires']) && isset($authResult['expires_in']))
+					{
+						$authResult['expires'] = time() + $authResult['expires_in'];
+					}
 				}
+				else
+				{
+					$authResult = $tokenInfo;
+					$authResult['access_token'] = $accessToken;
+				}
+
+				static::getStorage()->store($authResult);
 			}
 			else
 			{
-				$authResult = $tokenInfo;
-				$authResult['access_token'] = $accessToken;
+				$authResult = ['access_token' => $accessToken];
 			}
-
-			static::getStorage()->store($authResult);
 		}
 
 		return $authResult;

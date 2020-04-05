@@ -2,7 +2,6 @@
 namespace Bitrix\Main\Data;
 
 use Bitrix\Main;
-use Bitrix\Main\IO;
 
 class CacheEngineFiles
 	implements ICacheEngine, ICacheEngineStat
@@ -23,7 +22,7 @@ class CacheEngineFiles
 	 */
 	public function __construct()
 	{
-		$cacheConfig = \Bitrix\Main\Config\Configuration::getValue("cache");
+		$cacheConfig = Main\Config\Configuration::getValue("cache");
 		if ($cacheConfig && is_array($cacheConfig) && isset($cacheConfig["use_lock"]))
 		{
 			$this->useLock = (bool)$cacheConfig["use_lock"];
@@ -274,7 +273,7 @@ class CacheEngineFiles
 	/**
 	 * Reads cache from the file. Returns true if file exists, not expired, and successfully read.
 	 *
-	 * @param mixed &$arAllVars Cached result.
+	 * @param mixed &$allVars Cached result.
 	 * @param string $baseDir Base cache directory (usually /bitrix/cache).
 	 * @param string $initDir Directory within base.
 	 * @param string $filename File name.
@@ -282,7 +281,7 @@ class CacheEngineFiles
 	 *
 	 * @return boolean
 	 */
-	public function read(&$arAllVars, $baseDir, $initDir, $filename, $TTL)
+	public function read(&$allVars, $baseDir, $initDir, $filename, $TTL)
 	{
 		$documentRoot = Main\Loader::getDocumentRoot();
 		$fn = $documentRoot."/".ltrim($baseDir.$initDir, "/").$filename;
@@ -296,7 +295,7 @@ class CacheEngineFiles
 		$zeroDanger = false;
 
 		$handle = null;
-		if (is_array($arAllVars))
+		if (is_array($allVars))
 		{
 			$INCLUDE_FROM_CACHE = 'Y';
 
@@ -343,13 +342,13 @@ class CacheEngineFiles
 
 		if($res == true)
 		{
-			if (is_array($arAllVars))
+			if (is_array($allVars))
 			{
-				$arAllVars = unserialize($ser_content);
+				$allVars = unserialize($ser_content);
 			}
 			else
 			{
-				$arAllVars = fread($handle, $this->read);
+				$allVars = fread($handle, $this->read);
 			}
 		}
 
@@ -364,7 +363,7 @@ class CacheEngineFiles
 	/**
 	 * Writes cache into the file.
 	 *
-	 * @param mixed $arAllVars Cached result.
+	 * @param mixed $allVars Cached result.
 	 * @param string $baseDir Base cache directory (usually /bitrix/cache).
 	 * @param string $initDir Directory within base.
 	 * @param string $filename File name.
@@ -372,7 +371,7 @@ class CacheEngineFiles
 	 *
 	 * @return void
 	 */
-	public function write($arAllVars, $baseDir, $initDir, $filename, $TTL)
+	public function write($allVars, $baseDir, $initDir, $filename, $TTL)
 	{
 		static $search = array("\\", "'", "\0");
 		static $replace = array("\\\\", "\\'", "'.chr(0).'");
@@ -386,20 +385,20 @@ class CacheEngineFiles
 
 		if ($handle = fopen($fnTmp, "wb+"))
 		{
-			if (is_array($arAllVars))
+			if (is_array($allVars))
 			{
 				$contents = "<?";
 				$contents .= "\nif(\$INCLUDE_FROM_CACHE!='Y')return false;";
 				$contents .= "\n\$datecreate = '".str_pad(time(), 12, "0", STR_PAD_LEFT)."';";
 				$contents .= "\n\$dateexpire = '".str_pad(time() + intval($TTL), 12, "0", STR_PAD_LEFT)."';";
-				$contents .= "\n\$ser_content = '".str_replace($search, $replace, serialize($arAllVars))."';";
+				$contents .= "\n\$ser_content = '".str_replace($search, $replace, serialize($allVars))."';";
 				$contents .= "\nreturn true;";
 				$contents .= "\n?>";
 			}
 			else
 			{
 				$contents = "BX".str_pad(time(), 12, "0", STR_PAD_LEFT).str_pad(time() + intval($this->TTL), 12, "0", STR_PAD_LEFT);
-				$contents .= $arAllVars;
+				$contents .= $allVars;
 			}
 
 			$this->written = fwrite($handle, $contents);
@@ -468,7 +467,7 @@ class CacheEngineFiles
 	 *
 	 * @return void
 	 */
-	protected function deleteOneDir($etime = 0, $ar = false)
+	protected static function deleteOneDir($etime = 0, $ar = false)
 	{
 		$deleteFromQueue = false;
 		$dirName = Main\Loader::getDocumentRoot().$ar["RELATIVE_PATH"];

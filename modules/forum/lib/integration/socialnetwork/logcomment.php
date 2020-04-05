@@ -18,6 +18,9 @@ class LogComment
 	const EVENT_ID_TASKS_COMMENT = 'tasks_comment';
 	const EVENT_ID_CALENDAR_COMMENT = 'calendar_comment';
 	const EVENT_ID_WIKI_COMMENT = 'wiki_comment';
+	const EVENT_ID_TIMEMAN_ENTRY_COMMENT = 'timeman_entry_comment';
+	const EVENT_ID_TIMEMAN_REPORT_COMMENT = 'report_comment';
+	const EVENT_ID_LISTS_NEW_ELEMENT_COMMENT = 'lists_new_element_comment';
 
 	public static function getEventIdList()
 	{
@@ -25,7 +28,10 @@ class LogComment
 			self::EVENT_ID_FORUM_COMMENT,
 			self::EVENT_ID_TASKS_COMMENT,
 			self::EVENT_ID_CALENDAR_COMMENT,
-			self::EVENT_ID_WIKI_COMMENT
+			self::EVENT_ID_WIKI_COMMENT,
+			self::EVENT_ID_TIMEMAN_ENTRY_COMMENT,
+			self::EVENT_ID_TIMEMAN_REPORT_COMMENT,
+			self::EVENT_ID_LISTS_NEW_ELEMENT_COMMENT
 		);
 	}
 

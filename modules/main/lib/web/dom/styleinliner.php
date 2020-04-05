@@ -37,15 +37,16 @@ class StyleInliner
 
 	/*
 	 * @param Element $node
+	 * @param bool $singleStyle
 	 * @return array
 	*/
-	public static function getStyle(Element $node)
+	public static function getStyle(Element $node, $singleStyle = true)
 	{
 		$styleList = array();
 		$style = $node->getAttribute("style");
 		if($style)
 		{
-			$styleList = CssParser::getDeclarationArray($style);
+			$styleList = CssParser::getDeclarationArray($style, $singleStyle);
 		}
 
 		return $styleList;

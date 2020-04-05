@@ -22,6 +22,8 @@ class CheckRelatedEntitiesTable extends DataManager
 		return array(
 			'ID' => array(
 				'primary' => true,
+				'autocomplete' => true,
+				'autoincrement' => true,
 				'data_type' => 'integer',
 			),
 			'CHECK_ID' => array(

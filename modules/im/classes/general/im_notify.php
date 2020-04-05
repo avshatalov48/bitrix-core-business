@@ -334,7 +334,8 @@ class CIMNotify
 					U2.LOGIN FROM_USER_LOGIN,
 					U2.NAME FROM_USER_NAME,
 					U2.LAST_NAME FROM_USER_LAST_NAME,
-					U2.SECOND_NAME FROM_USER_SECOND_NAME
+					U2.SECOND_NAME FROM_USER_SECOND_NAME,
+					U2.EXTERNAL_AUTH_ID FROM_EXTERNAL_AUTH_ID
 				FROM b_im_message M
 				LEFT JOIN b_user U2 ON U2.ID = M.AUTHOR_ID
 				WHERE M.ID > ".intval($arResRelation['LAST_SEND_ID'])." AND M.CHAT_ID = ".intval($arResRelation['CHAT_ID'])."
@@ -413,6 +414,7 @@ class CIMNotify
 
 		$CCTP->link_target = "_self";
 		$arNotify = Array(
+			'tempId' => $arFields['TEMP_ID']? $arFields['TEMP_ID']: '',
 			'id' => $arFields['ID'],
 			'type' => $arFields['NOTIFY_TYPE'],
 			'date' => \Bitrix\Main\Type\DateTime::createFromTimestamp($arFields['DATE_CREATE']),
@@ -556,12 +558,19 @@ class CIMNotify
 
 		if (empty($subTagList))
 		{
-			return;
+			return false;
 		}
 
 		if (!is_array($subTagList))
 		{
 			$subTagList = array($subTagList);
+		}
+
+		$sqlTags = Array();
+		foreach ($subTagList as $value)
+		{
+			$value = (string)$value;
+			$sqlTags[] = "'".$DB->ForSQL($value)."'";
 		}
 
 		$users = array();
@@ -574,7 +583,7 @@ class CIMNotify
 			FROM b_im_message M
 			LEFT JOIN b_im_relation R ON R.CHAT_ID = M.CHAT_ID
 			WHERE 
-				M.NOTIFY_SUB_TAG IN (".implode(",", array_map(function($subTag) { global $DB; return "'".$DB->ForSQL($subTag)."'";}, $subTagList)).") 
+				M.NOTIFY_SUB_TAG IN (".implode(",", $sqlTags).") 
 				AND M.NOTIFY_READ='N' 
 				AND M.NOTIFY_TYPE != '".IM_NOTIFY_CONFIRM."'";
 		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
@@ -980,15 +989,17 @@ class CIMNotify
 	public static function DeleteByTag($notifyTag, $authorId = false)
 	{
 		global $DB;
+
+		$notifyTag = (string)$notifyTag;
 		if (strlen($notifyTag) <= 0)
+		{
 			return false;
+		}
 
 		$sqlUser = "";
-		$sqlUser2 = "";
 		if ($authorId !== false)
 		{
 			$sqlUser = " AND M.AUTHOR_ID = ".intval($authorId);
-			$sqlUser2 = " AND AUTHOR_ID = ".intval($authorId);
 		}
 
 		$dbRes = $DB->Query("SELECT M.ID, M.NOTIFY_TYPE, R.USER_ID, R.STATUS FROM b_im_relation R, b_im_message M WHERE M.CHAT_ID = R.CHAT_ID AND M.NOTIFY_TAG = '".$DB->ForSQL($notifyTag)."'".$sqlUser, false, "File: ".__FILE__."<br>Line: ".__LINE__);
@@ -1047,6 +1058,8 @@ class CIMNotify
 	public static function ConfirmBySubTag($notifySubTag, $resultMessages)
 	{
 		global $DB;
+
+		$notifySubTag = (string)$notifySubTag;
 		if (strlen($notifySubTag) <= 0)
 			return false;
 
@@ -1109,15 +1122,15 @@ class CIMNotify
 	public static function DeleteBySubTag($notifySubTag, $authorId = false)
 	{
 		global $DB;
+
+		$notifySubTag = (string)$notifySubTag;
 		if (strlen($notifySubTag) <= 0)
 			return false;
 
 		$sqlUser = "";
-		$sqlUser2 = "";
 		if ($authorId !== false)
 		{
 			$sqlUser = " AND M.AUTHOR_ID = ".intval($authorId);
-			$sqlUser2 = " AND AUTHOR_ID = ".intval($authorId);
 		}
 
 		$dbRes = $DB->Query("SELECT M.ID, M.NOTIFY_TYPE, R.USER_ID, R.STATUS FROM b_im_relation R, b_im_message M WHERE M.CHAT_ID = R.CHAT_ID AND M.NOTIFY_SUB_TAG = '".$DB->ForSQL($notifySubTag)."'".$sqlUser, false, "File: ".__FILE__."<br>Line: ".__LINE__);
@@ -1176,10 +1189,12 @@ class CIMNotify
 	public static function DeleteByModule($moduleId, $moduleEvent = '')
 	{
 		global $DB;
+		$moduleId = (string)$moduleId;
 		if (strlen($moduleId) <= 0)
 			return false;
 
 		$sqlEvent = '';
+		$moduleEvent = (string)$moduleEvent;
 		if (strlen($moduleEvent) > 0)
 			$sqlEvent = " AND NOTIFY_EVENT = '".$DB->ForSQL($moduleEvent)."'";
 

@@ -1,0 +1,4 @@
+<?
+$MESS["MAIN_UI_SELECTOR_TAB_SONETGROUPS"] = "Мои группы";
+$MESS["MAIN_UI_SELECTOR_TITLE_SONETGROUPS"] = "Группы:";
+?>

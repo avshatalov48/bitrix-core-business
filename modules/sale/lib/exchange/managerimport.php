@@ -24,21 +24,16 @@ final class ManagerImport extends ManagerBase
 	}
 
 	/**
-	 * @param $typeId
-	 * @return ImportBase
+	 * @param ImportBase $entity
 	 */
-	static public function create($typeId)
+	static public function configure(ImportBase $entity)
 	{
-		$config = static::getImportByType($typeId);
-
-		$entity = Entity\EntityImportFactory::create($typeId);
+		$config = static::getImportByType($entity->getOwnerTypeId());
 
 		$entity->loadSettings($config->settings);
 		$entity->loadCollision($config->collision);
 		$entity->loadCriterion($config->criterion);
 		$entity->loadLogger($config->logger);
-
-		return $entity;
 	}
 
 	/**

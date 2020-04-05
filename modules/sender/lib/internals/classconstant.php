@@ -8,6 +8,7 @@
 namespace Bitrix\Sender\Internals;
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sender\Integration;
 
 Loc::loadMessages(__FILE__);
 
@@ -25,6 +26,20 @@ class ClassConstant
 	 */
 	public static function getName($id)
 	{
+		static $integration = null;
+		if ($integration === null)
+		{
+			$integration = Integration\EventHandler::onConstantList(get_called_class());
+		}
+
+		foreach ($integration as $item)
+		{
+			if ($item['id'] === $id)
+			{
+				return $item['name'];
+			}
+		}
+
 		return static::getCode($id);
 	}
 
@@ -39,7 +54,15 @@ class ClassConstant
 		if ($constants === null)
 		{
 			$class = new \ReflectionClass(get_called_class());
-			$constants = $class->getConstants();
+			$list = $class->getConstants();
+
+			$integration = Integration\EventHandler::onConstantList(get_called_class());
+			foreach ($integration as $item)
+			{
+				$list[$item['code']] = $item['id'];
+			}
+
+			$constants = $list;
 		}
 
 		return $constants;

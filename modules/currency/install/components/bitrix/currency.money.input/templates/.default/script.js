@@ -69,11 +69,19 @@
 
 	BX.Currency.MoneyInput.prototype.setValue = function(value)
 	{
-		if(!!this.resultInput)
+		if(!this.resultInput)
 		{
-			this.resultInput.value = value.length > 0 ? (value + '|' + this.currency) : '';
-			BX.fireEvent(this.resultInput, 'change');
+			return;
 		}
+
+		value = value.length > 0 ? (value + '|' + this.currency) : '';
+		if(value === this.resultInput.value)
+		{
+			return;
+		}
+
+		this.resultInput.value = value;
+		BX.fireEvent(this.resultInput, 'change');
 	};
 
 })();

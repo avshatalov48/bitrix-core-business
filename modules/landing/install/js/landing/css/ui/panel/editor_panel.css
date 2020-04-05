@@ -58,7 +58,7 @@
 }
 
 .landing-ui-panel-editor.landing-ui-hide {
-	animation: hideEditorPanelTop 400ms both;
+	animation: hideEditorPanelTop 200ms both;
 }
 
 .landing-ui-panel-editor.landing-ui-fixed-top.landing-ui-show {

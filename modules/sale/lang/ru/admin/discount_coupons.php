@@ -29,7 +29,6 @@ $MESS["SALE_ADM_DSC_CPN_HEADER_TITLE_TIMESTAMP_X"] = "Дата изменени�
 $MESS["SALE_ADM_DSC_CPN_HEADER_TITLE_CREATED_BY"] = "Кто создал купон";
 $MESS["SALE_ADM_DSC_CPN_HEADER_TITLE_DATE_CREATE"] = "Дата создания купона";
 $MESS["SALE_ADM_DSC_CPN_HEADER_TITLE_DESCRIPTION"] = "Комментарий купона";
-$MESS["BT_SALE_DISCOUNT_COUPON_LIST_MESS_NAV"] = "Купоны";
 $MESS["BT_SALE_DISCOUNT_COUPON_LIST_MESS_EDIT_COUPON"] = "Изменить параметры купона";
 $MESS["BT_SALE_DISCOUNT_COUPON_LIST_CONTEXT_EDIT"] = "Редактировать";
 $MESS["BT_SALE_DISCOUNT_COUPON_LIST_CONTEXT_COPY"] = "Копировать";

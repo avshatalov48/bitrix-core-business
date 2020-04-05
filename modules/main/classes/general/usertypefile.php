@@ -320,21 +320,6 @@ class CUserTypeFile extends Main\UserField\TypeBase
 		{
 			if($value > 0)
 			{
-				$fileInputUtility = FileInputUtility::instance();
-
-				$checkResult = $fileInputUtility->checkFiles($fileInputUtility->getUserFieldCid($arUserField), array($value));
-
-				if(!in_array($value, $checkResult))
-				{
-					$aMsg[] = array(
-						"id" => $arUserField["FIELD_NAME"],
-						"text" => GetMessage("FILE_BAD_TYPE"),
-					);
-				}
-			}
-
-			if($value > 0)
-			{
 				$fileInfo = \CFile::GetFileArray($value);
 				if($fileInfo)
 				{
@@ -615,6 +600,21 @@ class CUserTypeFile extends Main\UserField\TypeBase
 		static::initDisplay();
 
 		return static::getHelper()->wrapDisplayResult(ob_get_clean());
+	}
+
+	public static function getPublicText($arUserField)
+	{
+		$result = array();
+		$value = static::normalizeFieldValue($arUserField['VALUE']);
+		foreach($value as $res)
+		{
+			$fileInfo = \CFile::GetFileArray($res);
+			if(is_array($fileInfo))
+			{
+				$result[] = $fileInfo['ORIGINAL_NAME'];
+			}
+		}
+		return implode(', ', $result);
 	}
 }
 

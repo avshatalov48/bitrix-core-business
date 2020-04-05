@@ -5,6 +5,9 @@ global $APPLICATION;
 global $DB;
 global $USER;
 
+$publicMode = $adminPage->publicMode;
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+
 if(!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_store')))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 CModule::IncludeModule("catalog");
@@ -32,9 +35,8 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
 
 $sTableID = "b_catalog_measure";
 $oSort = new CAdminSorting($sTableID, "ID", "asc");
-$lAdmin = new CAdminList($sTableID, $oSort);
-$arFilterFields = array();
-$lAdmin->InitFilter($arFilterFields);
+$lAdmin = new CAdminUiList($sTableID, $oSort);
+
 $arFilter = array();
 
 if($lAdmin->EditAction() && !$bReadOnly)
@@ -99,6 +101,14 @@ if(($arID = $lAdmin->GroupAction()) && !$bReadOnly)
 				break;
 		}
 	}
+	if ($lAdmin->hasGroupErrors())
+	{
+		$adminSidePanelHelper->sendJsonErrorResponse($lAdmin->getGroupErrors());
+	}
+	else
+	{
+		$adminSidePanelHelper->sendSuccessResponse();
+	}
 }
 $arSelect = array(
 	"ID",
@@ -113,18 +123,20 @@ $arSelect = array(
 if(array_key_exists("mode", $_REQUEST) && $_REQUEST["mode"] == "excel")
 	$arNavParams = false;
 else
-	$arNavParams = array("nPageSize"=>CAdminResult::GetNavSize($sTableID));
+	$arNavParams = array("nPageSize"=>CAdminUiResult::GetNavSize($sTableID));
+
+global $by, $order;
 
 $dbResultList = CCatalogMeasure::getList(
-	array($_REQUEST["by"] => $_REQUEST["order"]),
+	array($by => $order),
 	array(),
 	false,
 	$arNavParams,
 	$arSelect
 );
-$dbResultList = new CCatalogMeasureAdminResult($dbResultList, $sTableID);
+$dbResultList = new CCatalogMeasureAdminUiResult($dbResultList, $sTableID);
 $dbResultList->NavStart();
-$lAdmin->NavText($dbResultList->GetNavPrint(GetMessage("CAT_MEASURE_TITLE")));
+$lAdmin->SetNavigationParams($dbResultList, array("BASE_LINK" => $selfFolderUrl."cat_measure_list.php"));
 
 $lAdmin->AddHeaders(array(
 	array(
@@ -209,7 +221,9 @@ while($arRes = $dbResultList->Fetch())
 			$arUserID[$arRes['MODIFIED_BY']] = true;
 	}
 
-	$arRows[$arRes['ID']] = $row =& $lAdmin->AddRow($arRes['ID'], $arRes);
+	$editUrl = $selfFolderUrl."cat_measure_edit.php?ID=".$arRes["ID"]."&lang=".LANGUAGE_ID;
+	$editUrl = $adminSidePanelHelper->editUrlToPublicPage($editUrl);
+	$arRows[$arRes['ID']] = $row =& $lAdmin->AddRow($arRes['ID'], $arRes, $editUrl);
 	$row->AddField("ID", $arRes['ID']);
 	if($bReadOnly)
 	{
@@ -248,12 +262,20 @@ while($arRes = $dbResultList->Fetch())
 		$row->AddCalendarField("DATE_MODIFY", false);
 
 	$arActions = array();
-	$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("CAT_MEASURE_EDIT_ALT"), "ACTION"=>$lAdmin->ActionRedirect("cat_measure_edit.php?ID=".$arRes['ID']."&lang=".LANGUAGE_ID."&".GetFilterParams("filter_").""), "DEFAULT"=>true);
+	$arActions[] = array(
+		"ICON" => "edit",
+		"TEXT" => GetMessage("CAT_MEASURE_EDIT_ALT"),
+		"LINK" => $editUrl,
+		"DEFAULT" => true
+	);
 
 	if(!$bReadOnly)
 	{
-		$arActions[] = array("SEPARATOR" => true);
-		$arActions[] = array("ICON"=>"delete", "TEXT"=>GetMessage("CAT_MEASURE_DELETE_ALT"), "ACTION"=>"if(confirm('".GetMessageJS('CAT_MEASURE_DELETE_CONFIRM')."')) ".$lAdmin->ActionDoGroup($arRes['ID'], "delete"));
+		$arActions[] = array(
+			"ICON" => "delete",
+			"TEXT" => GetMessage("CAT_MEASURE_DELETE_ALT"),
+			"ACTION" => "if(confirm('".GetMessageJS('CAT_MEASURE_DELETE_CONFIRM')."')) ".$lAdmin->ActionDoGroup($arRes['ID'], "delete")
+		);
 	}
 
 	$row->AddActions($arActions);
@@ -276,7 +298,11 @@ if($arSelectFieldsMap['USER_ID'] || $arSelectFieldsMap['MODIFIED_BY'])
 		while($arOneUser = $rsUsers->Fetch())
 		{
 			$arOneUser['ID'] = (int)$arOneUser['ID'];
-			$arUserList[$arOneUser['ID']] = '<a href="/bitrix/admin/user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arOneUser['ID'].'">'.CUser::FormatName($strNameFormat, $arOneUser).'</a>';
+			$userEdit = $selfFolderUrl."user_edit.php?lang=".LANGUAGE_ID."&ID=".$arOneUser["ID"];
+			if ($publicMode)
+				$arUserList[$arOneUser['ID']] = CUser::FormatName($strNameFormat, $arOneUser);
+			else
+				$arUserList[$arOneUser['ID']] = '<a href="'.$userEdit.'">'.CUser::FormatName($strNameFormat, $arOneUser).'</a>';
 		}
 	}
 
@@ -305,45 +331,33 @@ if($arSelectFieldsMap['USER_ID'] || $arSelectFieldsMap['MODIFIED_BY'])
 		unset($row);
 }
 
-$lAdmin->AddFooter(
-	array(
-		array(
-			"title" => GetMessage("MAIN_ADMIN_LIST_SELECTED"),
-			"value" => $dbResultList->SelectedRowsCount()
-		),
-		array(
-			"counter" => true,
-			"title" => GetMessage("MAIN_ADMIN_LIST_CHECKED"),
-			"value" => "0"
-		),
-	)
-);
-
-if(!$bReadOnly)
+if (!$bReadOnly)
 {
-	$lAdmin->AddGroupActionTable(
-		array(
-			"delete" => GetMessage("MAIN_ADMIN_LIST_DELETE"),
-		)
-	);
+	$lAdmin->AddGroupActionTable([
+		'edit' => true,
+		'delete' => true
+	]);
 }
 
 if(!$bReadOnly && $bCanAdd)
 {
+	$addUrl = $selfFolderUrl."cat_measure_edit.php?lang=".LANGUAGE_ID;
+	$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
 	$aContext = array(
-		array(
-			"TEXT" => GetMessage("CAT_MEASURE_ADD_NEW_OKEI"),
-			"ICON" => "btn_new",
-			"LINK" => "cat_measure_edit.php?lang=".LANGUAGE_ID."&OKEI=Y",
-			"TITLE" => GetMessage("CAT_MEASURE_ADD_NEW_OKEI_ALT")
-		),
 		array(
 			"TEXT" => GetMessage("CAT_MEASURE_ADD_NEW"),
 			"ICON" => "btn_new",
-			"LINK" => "cat_measure_edit.php?lang=".LANGUAGE_ID,
+			"LINK" => $addUrl,
 			"TITLE" => GetMessage("CAT_MEASURE_ADD_NEW_ALT")
 		),
+		array(
+			"TEXT" => GetMessage("CAT_MEASURE_ADD_NEW_OKEI"),
+			"ICON" => "btn_new",
+			"LINK" => $addUrl."&OKEI=Y",
+			"TITLE" => GetMessage("CAT_MEASURE_ADD_NEW_OKEI_ALT")
+		),
 	);
+	$lAdmin->setContextSettings(array("pagePath" => $selfFolderUrl."cat_measure_list.php"));
 	$lAdmin->AddAdminContextMenu($aContext);
 }
 

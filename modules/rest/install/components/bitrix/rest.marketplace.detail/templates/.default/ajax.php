@@ -41,11 +41,6 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["action"])>0 && check_bi
 				"LOGIN" => $USER->GetLogin()
 			));
 
-			//choose all admins
-			$arFilter = array(
-				"ACTIVE" => 'Y',
-				"GROUPS_ID" => array(1)
-			);
 			$arAdmins = \CRestUtil::getAdministratorIdList();
 			foreach($arAdmins as $id)
 			{

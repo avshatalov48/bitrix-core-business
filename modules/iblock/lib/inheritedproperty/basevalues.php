@@ -14,12 +14,16 @@ abstract class BaseValues
 	/** @var array[string][string]string */
 	protected $values = false;
 
+	/** @var ValuesQueue */
+	protected $queue = null;
+
 	/**
 	 * @param integer $iblockId Iblock identifier.
 	 */
 	public function __construct($iblockId)
 	{
-		$this->iblockId = intval($iblockId);
+		$this->iblockId = (int)$iblockId;
+		$this->queue = ValuesQueue::getInstance(get_called_class());
 	}
 
 	/**
@@ -170,7 +174,7 @@ abstract class BaseValues
 	 */
 	public function deleteValues($ipropertyId)
 	{
-		$ipropertyId = intval($ipropertyId);
+		$ipropertyId = (int)$ipropertyId;
 		$connection = \Bitrix\Main\Application::getConnection();
 		$connection->query("
 			DELETE FROM b_iblock_iblock_iprop
@@ -184,5 +188,53 @@ abstract class BaseValues
 			DELETE FROM b_iblock_element_iprop
 			WHERE IPROP_ID = ".$ipropertyId."
 		");
+		ValuesQueue::deleteAll();
+	}
+
+	/**
+	 * Helper method to save batch values.
+	 *
+	 * @param string $tableName Where to insert data.
+	 * @param array  $fields Fields list.
+	 * @param array  $rows Data to insert.
+	 *
+	 * @return void
+	 */
+	protected function insertValues($tableName, $fields, $rows)
+	{
+		$connection = \Bitrix\Main\Application::getConnection();
+		$head = "REPLACE INTO $tableName (".implode(", ", $fields).") VALUES ";
+		$maxBodySize = 1024*1024; //1 Mb
+		$body = array();
+		$bodySize = 0;
+		foreach ($rows as $row)
+		{
+			$values = "('".implode("', '", $row)."')";
+			$bodySize += strlen($values);
+			$body[] = $values;
+			if ($bodySize > $maxBodySize)
+			{
+				$connection->query($head.implode(", ", $body));
+				$body = array();
+				$bodySize = 0;
+			}
+		}
+		if ($body)
+		{
+			$connection->query($head.implode(", ", $body));
+		}
+	}
+
+	/**
+	 * Puts a mark for and element or section to be queried from the database.
+	 *
+	 * @param integer $iblockId IBlock identifier.
+	 * @param integer $id Element or section identifier.
+	 *
+	 * @return void
+	 */
+	public static function queue($iblockId, $id)
+	{
+		ValuesQueue::getInstance(get_called_class())->addElement($iblockId, $id);
 	}
 }

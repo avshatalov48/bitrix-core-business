@@ -24400,7 +24400,7 @@ appear = (function(){
     this.section = this.element.find('.u-header__section--hidden');
     this.defaultState = true;
 
-    this.sectionHeight = this.section.length ? this.section.outerHeight() : 0;
+    this.sectionHeight = this.section.length ? this.section.get(0).offsetHeight : 0;
 
 
     return this;
@@ -24782,7 +24782,12 @@ appear = (function(){
   HSHeaderFloatingObserver.prototype.init = function() {
 
     this.offset = this.element.offset().top;
-    this.sections = this.element.find('.u-header__section');
+    this.elementHeight = this.element.get(0).offsetHeight;
+    // this.sections = this.element.find('.u-header__section');
+    this.sections = this.element.find('[data-header-fix-moment-classes]');
+
+    this.hiddenSection = this.element.find('.u-header__section--hidden');
+    this.hidenSectionHeight = this.hiddenSection.length ? this.hiddenSection.get(0).offsetHeight : 0;
 
     this.defaultState = true;
 
@@ -24836,11 +24841,24 @@ appear = (function(){
    * @return
    */
   HSHeaderFloatingObserver.prototype.changeState = function() {
+    // hide --hidden section
+    if(this.hiddenSection.length)
+    {
+      this.element.stop().animate({
+            'margin-top': this.hidenSectionHeight * -1 - 1, // last '-1' is a small fix
+        });
+    }
 
     this.element
         .addClass('js-header-fix-moment')
         .addClass( this.element.data('header-fix-moment-classes') )
         .removeClass( this.element.data('header-fix-moment-exclude') );
+
+    // add white space to fix relative-fixed conversion
+    if(this.element.hasClass('u-header--floating-relative'))
+    {
+      this.elementWhitespace = $('<div style="height:' + this.elementHeight + 'px"></div>').insertAfter(this.element);
+    }
 
     if( this.sections.length ) {
       this.sections.each(function(i, el){
@@ -24866,6 +24884,19 @@ appear = (function(){
    * @return
    */
   HSHeaderFloatingObserver.prototype.toDefaultState = function() {
+	  // show --hidden section
+    if(this.hiddenSection.length)
+    {
+      this.element.stop().animate({
+            'margin-top': 0,
+        });
+    }
+
+	  // remove white space to fix relative-fixed conversion
+	  if(this.element.hasClass('u-header--floating-relative') && this.elementWhitespace)
+	  {
+		  this.elementWhitespace.remove();
+	  }
 
     this.element
         .removeClass('js-header-fix-moment')
@@ -25120,7 +25151,7 @@ appear = (function(){
       var Section = $(el).data('HSScrollNavSection'),
           $section = Section.section;
 
-      if(scrollTop > Section.offset) {
+      if(scrollTop >= Section.offset) {
         current = Section;
       }
 

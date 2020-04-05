@@ -1,4 +1,6 @@
 <?
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION_ADMIN"] = "Bitrix24 provides easy and hassle free SMS messaging.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_TITLE_ADMIN"] = "Set up your twilio.com account to use SMS notifications";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE"] = "Simple and robust SMS notification";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE_2"] = "Powered by TWILIO.COM";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_TITLE"] = "Explore possibilities of SMS marketing";

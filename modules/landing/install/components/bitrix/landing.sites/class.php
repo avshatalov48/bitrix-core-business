@@ -6,12 +6,17 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Landing;
+use \Bitrix\Landing\Manager;
 
 \CBitrixComponent::includeComponentClass('bitrix:landing.base');
 \CBitrixComponent::includeComponentClass('bitrix:landing.filter');
 
 class LandingSitesComponent extends LandingBaseComponent
 {
+	/**
+	 * Count items per page.
+	 */
+	const COUNT_PER_PAGE = 11;
 
 	/**
 	 * Base executable method.
@@ -23,7 +28,9 @@ class LandingSitesComponent extends LandingBaseComponent
 
 		if ($init)
 		{
-			$b24 = \Bitrix\Landing\Manager::isB24();
+			$b24 = Manager::isB24();
+			$deletedLTdays = Manager::getDeletedLT();
+
 			$this->checkParam('TYPE', '');
 			$this->checkParam('PAGE_URL_SITE', '');
 			$this->checkParam('PAGE_URL_SITE_EDIT', '');
@@ -33,9 +40,19 @@ class LandingSitesComponent extends LandingBaseComponent
 				LandingFilterComponent::TYPE_SITE
 			);
 			$filter['=TYPE'] = $this->arParams['TYPE'];
+			$this->arResult['IS_DELETED'] = LandingFilterComponent::isDeleted();
 			$this->arResult['SITES'] = $this->getSites(array(
-				'filter' => $filter
+				'filter' => $filter,
+				'order' => $this->arResult['IS_DELETED']
+					? array(
+						'DATE_MODIFY' => 'desc'
+					)
+					: array(
+						'ID' => 'desc'
+					),
+				'navigation' => $this::COUNT_PER_PAGE
 			));
+			$this->arResult['NAVIGATION'] = $this->getLastNavigation();
 
 			// detect preview of sites
 			foreach ($this->arResult['SITES'] as &$item)
@@ -74,6 +91,12 @@ class LandingSitesComponent extends LandingBaseComponent
 				{
 					$item['PREVIEW'] = '';
 				}
+				if ($item['DELETED'] == 'Y')
+				{
+					$item['DATE_DELETED_DAYS'] = $deletedLTdays - intval((time() - $item['DATE_MODIFY']->getTimeStamp()) / 86400);
+					$item['DELETE_FINISH'] = $item['DATE_DELETED_DAYS'] <= 0;//@tmp
+				}
+				$item['PUBLIC_URL'] = $this->getTimestampUrl($item['PUBLIC_URL']);
 			}
 			unset($item);
 		}

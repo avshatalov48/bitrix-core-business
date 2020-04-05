@@ -1588,7 +1588,11 @@ class CBlogPostCommentEdit extends CBitrixComponent
 		$this->hideHiddenComments();
 		
 		$this->arResult["PAGE_COUNT"] = 0;
-		if(is_array($this->arResult["CommentsResult"]) && count($this->arResult["CommentsResult"][0]) > $this->arParams["COMMENTS_COUNT"])
+		if(
+				!empty($this->arResult["CommentsResult"])
+				&& is_array($this->arResult["CommentsResult"])
+				&& isset($this->arResult["CommentsResult"][0])
+				&& count($this->arResult["CommentsResult"][0]) > $this->arParams["COMMENTS_COUNT"])
 		{
 			$this->arResult["PAGE"] = $this->arParams["PAGEN"];
 			if($this->arParams["USE_DESC_PAGING"] == "Y")
@@ -1669,7 +1673,7 @@ class CBlogPostCommentEdit extends CBitrixComponent
 				}
 
 //				sort comments by pages
- 				for($i = 1; $i <= $this->arResult["PAGE_COUNT"]; $i++)
+				for($i = 1; $i <= $this->arResult["PAGE_COUNT"]; $i++)
 				{
 					foreach($this->arResult["AllCommentsResult"] as $k => $v)
 					{

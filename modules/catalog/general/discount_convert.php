@@ -1,5 +1,6 @@
 <?
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\Loc,
+	Bitrix\Catalog;
 
 Loc::loadMessages(__FILE__);
 
@@ -556,11 +557,21 @@ class CCatalogDiscountConvert
 				self::$intLastConvertID = $arDiscount['ID'];
 				continue;
 			}
+
+			$iterator = Catalog\DiscountCouponTable::getList(array(
+				'select' => array('DISCOUNT_ID'),
+				'filter' => array('=DISCOUNT_ID' => (int)$arDiscount['ID']),
+				'limit' => 1
+			));
+			$existRow = $iterator->fetch();
+			unset($iterator);
 			$arFields = array(
 				'MODIFIED_BY' => $arDiscount['MODIFIED_BY'],
 				'CONDITIONS' => $arDiscount['CONDITIONS'],
-				'ACTIVE' => $arDiscount['ACTIVE']
+				'ACTIVE' => $arDiscount['ACTIVE'],
+				'USE_COUPONS' => (!empty($existRow) ? 'Y' : 'N')
 			);
+			unset($existRow);
 
 			$mxRes = $obDiscount->Update($arDiscount['ID'], $arFields);
 			if (!$mxRes)

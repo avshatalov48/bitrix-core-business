@@ -19,22 +19,19 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 <tr>
 	<td align="right" width="40%"><span class="adm-required-field"><?= GetMessage("SNBPA_PD_USERS_TO") ?>:</span></td>
 	<td width="60%">
-		<input type="text" name="users_to" id="id_users_to" value="<?= htmlspecialcharsbx($arCurrentValues["users_to"]) ?>" size="40">
-		<input type="button" value="..." onclick="BPAShowSelector('id_users_to', 'user');">
+		<?=CBPDocument::ShowParameterField("user", 'users_to', $arCurrentValues['users_to'], Array('rows'=> 2))?>
 	</td>
 </tr>
 <tr>
 	<td align="right" width="40%"><span class=""><?= GetMessage("SNBPA_PD_POST_TITLE") ?>:</span></td>
 	<td width="60%">
-		<input type="text" name="post_title" id="id_post_title" value="<?= htmlspecialcharsbx($arCurrentValues["post_title"]) ?>" size="40">
-		<input type="button" value="..." onclick="BPAShowSelector('id_post_title', 'string');">
+		<?=CBPDocument::ShowParameterField("string", 'post_title', $arCurrentValues['post_title'], Array('size'=> 50))?>
 	</td>
 </tr>
 <tr>
 	<td align="right" width="40%"><span class="adm-required-field"><?= GetMessage("SNBPA_PD_POST_MESSAGE") ?>:</span></td>
 	<td width="60%">
-		<textarea name="post_message" id="id_post_message" rows="4" cols="40"><?= htmlspecialcharsbx($arCurrentValues["post_message"]) ?></textarea>
-		<input type="button" value="..." onclick="BPAShowSelector('id_post_message', 'string');">
+		<?=CBPDocument::ShowParameterField("text", 'post_message', $arCurrentValues['post_message'], ['rows'=> 7, 'cols' => 40])?>
 	</td>
 </tr>
 <tr>
@@ -52,7 +49,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 			}
 			?>
 		</select><br>
-		<input type="text" name="post_site_x" id="id_post_site_x" size="30" value="<?= $expression ?>" />
-		<input type="button" value="..." onclick="BPAShowSelector('id_post_site_x', 'string');">
+		<?=CBPDocument::ShowParameterField("string", 'post_site_x', $expression, Array('size'=> 30))?>
 	</td>
 </tr>

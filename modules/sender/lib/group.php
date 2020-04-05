@@ -72,7 +72,7 @@ class GroupTable extends Entity\DataManager
 				'default_value' => 'N',
 				'values' => array('N', 'Y'),
 			),
-			'SYSTEM' => array(
+			'IS_SYSTEM' => array(
 				'data_type' => 'boolean',
 				'required' => true,
 				'default_value' => 'N',

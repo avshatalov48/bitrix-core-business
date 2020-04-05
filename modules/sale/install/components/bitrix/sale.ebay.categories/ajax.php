@@ -105,7 +105,7 @@ if(isset($arResult["ERROR"]) <= 0 && $USER->IsAdmin() && check_bitrix_sessid())
 
 			if($res = $catMapRes->fetch())
 			{
-				$catVarEntId = TradingPlatform\Ebay\MapHelper::getCategoryVariationEntityId($iblockId, $res['VALUE_EXTERNAL']);
+				$catVarEntId = TradingPlatform\Ebay\MapHelper::getCategoryVariationEntityId($iBlockId, $res['VALUE_EXTERNAL']);
 				TradingPlatform\MapTable::deleteByMapEntityId($catVarEntId);
 				TradingPlatform\MapTable::delete($res['ID']);
 			}

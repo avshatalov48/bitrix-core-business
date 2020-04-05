@@ -122,7 +122,7 @@
 			BMAjaxWrapper.Wrap({
 				type: 'json',
 				method: 'POST',
-				url: '/mobile/ajax.php?mobile_action=like',
+				url: BX.message('SITE_DIR') + 'mobile/ajax.php?mobile_action=like',
 				data: {
 					RATING_VOTE: 'Y',
 					RATING_VOTE_TYPE_ID: this.entityTypeId,

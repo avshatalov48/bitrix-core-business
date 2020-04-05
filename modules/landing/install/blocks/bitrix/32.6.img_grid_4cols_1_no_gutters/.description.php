@@ -19,7 +19,7 @@ return array(
 				array(
 					'name' => Loc::getMessage('LANDING_BLOCK_32.6.IMG_GRID_4_COLS_NO_GUTTERS_NODES_LANDINGBLOCKNODEIMG'),
 					'type' => 'img',
-					'dimensions' => array('width' => 960, 'height' => 960),
+					'dimensions' => array('width' => 576, 'height' => 576),
 					'allowInlineEdit' => false,
 				),
 		),

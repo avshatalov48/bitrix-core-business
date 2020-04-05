@@ -360,7 +360,7 @@ class CForumTopic extends CAllForumTopic
 					$val = (is_array($val) ? $val : array("USER_ID" => $val));
 					$val["USER_ID"] = intVal($val["USER_ID"]);
 					if ($val["USER_ID"] <= 0):
-						continue;
+						break;
 					endif;
 					$perms = "NOT_CHECK";
 					$arUserGroups = $GLOBALS["USER"]->GetGroups();

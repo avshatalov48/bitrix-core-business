@@ -324,6 +324,23 @@ class MessageMail implements Message\iBase, Message\iMailable
 			->copyConfiguration($id);
 	}
 
+	protected function removePhp($html)
+	{
+		static $isCloud = null;
+		if ($isCloud === null)
+		{
+			$isCloud = Integration\Bitrix24\Service::isCloud();
+			Loader::includeModule('fileman');
+		}
+
+		if ($isCloud)
+		{
+			return Block\EditorMail::removePhpFromHtml($html);
+		}
+
+		return $html;
+	}
+
 	/**
 	 * Get main body.
 	 *
@@ -331,15 +348,17 @@ class MessageMail implements Message\iBase, Message\iMailable
 	 */
 	public function getMailBody()
 	{
+		Loader::includeModule('fileman');
+
 		$msg = $this->configuration->getOption('MESSAGE')->getValue();
 		$template = $this->getTemplate();
 		if (!$template)
 		{
-			return $msg;
+			return $this->removePhp($msg);
 		}
 		if (!isset($template['FIELDS']) || !$template['FIELDS']['MESSAGE']['ON_DEMAND'])
 		{
-			return $msg;
+			return $this->removePhp($msg);
 		}
 
 		$templateHtml = null;
@@ -353,12 +372,11 @@ class MessageMail implements Message\iBase, Message\iMailable
 		}
 		if (!$templateHtml)
 		{
-			return $msg;
+			return $this->removePhp($msg);
 		}
 
 		$document = new Document;
 		$document->loadHTML($templateHtml);
-		Loader::includeModule('fileman');
 		if(!Block\Content\Engine::create($document)->setContent($msg)->fill())
 		{
 			return '';
@@ -367,6 +385,13 @@ class MessageMail implements Message\iBase, Message\iMailable
 		StyleInliner::inlineDocument($document);
 		$msg = $document->saveHTML();
 		unset($document);
+
+		$msg = $this->removePhp($msg);
+		$msgTmp = Block\Editor::replaceCharset($msg, '#SENDER_MAIL_CHARSET#', true);
+		if ($msgTmp)
+		{
+			$msg = $msgTmp;
+		}
 
 		if (Option::get('sender', 'use_inliner_for_each_template_mail', 'N') != 'Y')
 		{

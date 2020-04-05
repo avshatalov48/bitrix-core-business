@@ -300,6 +300,17 @@
 			});
 		},
 
+		getStickedColumns: function()
+		{
+			return this.getItems().reduce(function(accumulator, item) {
+				if (item.isSticked())
+				{
+					accumulator.push(item.getId());
+				}
+
+				return accumulator;
+			}, []);
+		},
 
 		/**
 		 * Saves columns settings
@@ -310,6 +321,7 @@
 		{
 			var options = this.parent.getUserOptions();
 			var columnNames = this.getColumnNames();
+			var stickedColumns = this.getStickedColumns();
 			var batch = [];
 
 			batch.push({
@@ -320,6 +332,11 @@
 			batch.push({
 				action: options.getAction('SET_CUSTOM_NAMES'),
 				custom_names: columnNames
+			});
+
+			batch.push({
+				action: options.getAction('GRID_SET_STICKED_COLUMNS'),
+				stickedColumns: stickedColumns
 			});
 
 			if (this.isForAll())

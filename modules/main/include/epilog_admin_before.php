@@ -40,9 +40,19 @@ if($USER->IsAuthorized() && (!defined("BX_AUTH_FORM") || !BX_AUTH_FORM))
 			&& method_exists("Bitrix\\Socialservices\\Network", "displayAdminPopup")
 		)
 		{
-			\Bitrix\Socialservices\Network::displayAdminPopup(array(
-				"SHOW" => true,
-			));
+			global $adminSidePanelHelper;
+			if (!is_object($adminSidePanelHelper))
+			{
+				require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/admin_lib.php");
+				$adminSidePanelHelper = new CAdminSidePanelHelper();
+			}
+
+			if (!$adminSidePanelHelper->isPublicSidePanel())
+			{
+				\Bitrix\Socialservices\Network::displayAdminPopup(array(
+					"SHOW" => true,
+				));
+			}
 		}
 	}
 }

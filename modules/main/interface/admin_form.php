@@ -167,7 +167,7 @@ class CAdminForm extends CAdminTabControl
 				$aAdditionalMenu[] = array(
 					"TEXT"=>GetMessage("admin_lib_menu_settings"),
 					"TITLE"=>GetMessage("admin_lib_context_sett_title"),
-					"ONCLICK"=>$this->name.".ShowSettings('".htmlspecialcharsex(CUtil::JSEscape($link))."')",
+					"ONCLICK"=>$this->name.".ShowSettings('".htmlspecialcharsbx(CUtil::JSEscape($link))."')",
 					"GLOBAL_ICON"=>"adm-menu-setting"
 				);
 
@@ -204,7 +204,6 @@ class CAdminForm extends CAdminTabControl
 				else
 				{
 					$s .= '<a class="adm-detail-settings" href="javascript:void(0)" onclick="'.$aAdditionalMenu[0]['ONCLICK'].'"></a>';
-
 				}
 			}
 		}

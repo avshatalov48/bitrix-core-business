@@ -9,6 +9,8 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
+global $CACHE_MANAGER;
+
 if (!CModule::IncludeModule("socialnetwork"))
 {
 	ShowError(GetMessage("SONET_MODULE_NOT_INSTALL"));
@@ -1113,8 +1115,8 @@ if (
 		{
 			if (defined("BX_COMP_MANAGED_CACHE"))
 			{
-				$GLOBALS["CACHE_MANAGER"]->StartTagCache($path);
-				$GLOBALS["CACHE_MANAGER"]->RegisterTag("USER_CARD_".intval($arResult["VARIABLES"]["user_id"] / TAGGED_user_card_size));
+				$CACHE_MANAGER->StartTagCache($path);
+				$CACHE_MANAGER->RegisterTag("USER_CARD_".intval($arResult["VARIABLES"]["user_id"] / TAGGED_user_card_size));
 			}
 
 			$extranet_site_id = COption::GetOptionString("extranet", "extranet_site");
@@ -1184,7 +1186,7 @@ if (
 
 			$obCache->EndDataCache($arCachedResult);
 			if(defined("BX_COMP_MANAGED_CACHE"))
-				$GLOBALS["CACHE_MANAGER"]->EndTagCache();
+				$CACHE_MANAGER->EndTagCache();
 		}
 		else
 			$arCachedResult = $obCache->GetVars();
@@ -1206,8 +1208,8 @@ if (
 		{
 			if (defined("BX_COMP_MANAGED_CACHE"))
 			{
-				$GLOBALS["CACHE_MANAGER"]->StartTagCache($path);
-				$GLOBALS["CACHE_MANAGER"]->RegisterTag("USER_CARD_".intval($arResult["VARIABLES"]["user_id"] / TAGGED_user_card_size));
+				$CACHE_MANAGER->StartTagCache($path);
+				$CACHE_MANAGER->RegisterTag("USER_CARD_".intval($arResult["VARIABLES"]["user_id"] / TAGGED_user_card_size));
 			}
 
 			if (
@@ -1241,7 +1243,7 @@ if (
 
 			$obCache->EndDataCache($arCachedResult);
 			if(defined("BX_COMP_MANAGED_CACHE"))
-				$GLOBALS["CACHE_MANAGER"]->EndTagCache();
+				$CACHE_MANAGER->EndTagCache();
 		}
 		else
 			$arCachedResult = $obCache->GetVars();
@@ -1405,9 +1407,9 @@ $this->IncludeComponentTemplate($componentPage, array_key_exists($componentPage,
 ********************************************************************/
 
 //top panel button to reindex
-if($GLOBALS['USER']->IsAdmin())
+if($USER->IsAdmin())
 {
-	$GLOBALS['APPLICATION']->AddPanelButton(array(
+	$APPLICATION->AddPanelButton(array(
 		"HREF"=> $arResult["PATH_TO_REINDEX"],
 		"ICON"=>"bx-panel-reindex-icon",
 		"ALT"=>GetMessage('SONET_PANEL_REINDEX_TITLE'),

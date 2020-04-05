@@ -26,7 +26,9 @@ Loc::loadMessages(__FILE__);
 
 class OrderRoundTable extends Main\Entity\DataManager
 {
-	const ENTITY_TYPE_BASKET = 0x0001;
+	const ENTITY_TYPE_BASKET_ITEM = 0x0001;
+	/** @deprecated */
+	const ENTITY_TYPE_BASKET = self::ENTITY_TYPE_BASKET_ITEM;
 
 	/**
 	 * Returns DB table name for entity.
@@ -66,7 +68,7 @@ class OrderRoundTable extends Main\Entity\DataManager
 			)),
 			'ENTITY_TYPE' => new Main\Entity\EnumField('ENTITY_TYPE', array(
 				'required' => true,
-				'values' => array(self::ENTITY_TYPE_BASKET),
+				'values' => array(self::ENTITY_TYPE_BASKET_ITEM),
 				'title' => Loc::getMessage('ORDER_ROUND_ENTITY_ENTITY_TYPE_FIELD')
 			)),
 			'ENTITY_ID' => new Main\Entity\IntegerField('ENTITY_ID', array(
@@ -99,5 +101,25 @@ class OrderRoundTable extends Main\Entity\DataManager
 		return array(
 			new Main\Entity\Validator\Length(null, 255),
 		);
+	}
+
+	/**
+	 * Delete data by order.
+	 *
+	 * @param int $order		Order id.
+	 * @return bool
+	 */
+	public static function clearByOrder($order)
+	{
+		$order = (int)$order;
+		if ($order <= 0)
+			return false;
+
+		$conn = Main\Application::getConnection();
+		$helper = $conn->getSqlHelper();
+		$conn->queryExecute('delete from '.$helper->quote(self::getTableName()).' where '.$helper->quote('ORDER_ID').' = '.$order);
+		unset($helper, $conn);
+
+		return true;
 	}
 }

@@ -49,6 +49,9 @@ class RepoTable extends Entity\DataManager
 			'SECTIONS' => new Entity\StringField('SECTIONS', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_SECTIONS')
 			)),
+			'SITE_TEMPLATE_ID' => new Entity\StringField('SITE_TEMPLATE_ID', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_SITE_TEMPLATE_ID')
+			)),
 			'PREVIEW' => new Entity\StringField('PREVIEW', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_PREVIEW')
 			)),

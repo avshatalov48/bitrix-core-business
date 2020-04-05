@@ -194,6 +194,8 @@ class BizprocDocument extends CIBlockDocument
 					{
 						if($property['MULTIPLE'] == 'Y')
 						{
+							$result = self::setArray($result, 'PROPERTY_'.$propertyId);
+							$result = self::setArray($result, 'PROPERTY_'.$propertyId.'_PRINTABLE');
 							$result['PROPERTY_'.$propertyId][] = 'user_'.intval($user['ID']);
 							$result['PROPERTY_'.$propertyId.'_PRINTABLE'][] = '('.$user['LOGIN'].')'.
 								((strlen($user['NAME']) > 0 || strlen($user['LAST_NAME']) > 0) ? ' ' : '').$user['NAME'].
@@ -214,6 +216,8 @@ class BizprocDocument extends CIBlockDocument
 					$userType = \CIBlockProperty::getUserType($property['USER_TYPE']);
 					if(is_array($diskValues))
 					{
+						$result = self::setArray($result, 'PROPERTY_'.$propertyId);
+						$result = self::setArray($result, 'PROPERTY_'.$propertyId.'_PRINTABLE');
 						foreach($diskValues as $attachedId)
 						{
 							$fileId = null;
@@ -250,6 +254,7 @@ class BizprocDocument extends CIBlockDocument
 					}
 					else
 					{
+						$result = self::setArray($result, 'PROPERTY_'.$propertyId);
 						foreach($property['VALUE'] as $htmlValue)
 						{
 							if($htmlValue['TYPE'] == 'HTML')
@@ -268,6 +273,8 @@ class BizprocDocument extends CIBlockDocument
 					$userType = \CIBlockProperty::getUserType($property['USER_TYPE']);
 					if(is_array($property['VALUE']))
 					{
+						$result = self::setArray($result, 'PROPERTY_'.$propertyId);
+						$result = self::setArray($result, 'PROPERTY_'.$propertyId.'_PRINTABLE');
 						foreach($property['VALUE'] as $moneyValue)
 						{
 							$result['PROPERTY_'.$propertyId][] = $moneyValue;
@@ -299,6 +306,8 @@ class BizprocDocument extends CIBlockDocument
 			}
 			elseif ($property['PROPERTY_TYPE'] == 'L')
 			{
+				$result = self::setArray($result, 'PROPERTY_'.$propertyId);
+				//$result = self::setArray($result, 'PROPERTY_'.$propertyId.'_PRINTABLE');
 				$propertyArray = array();
 				$propertyKeyArray = array();
 				if(!is_array($property['VALUE']))
@@ -321,20 +330,22 @@ class BizprocDocument extends CIBlockDocument
 			}
 			elseif ($property['PROPERTY_TYPE'] == 'F')
 			{
+				$result = self::setArray($result, 'PROPERTY_'.$propertyId);
+				$result = self::setArray($result, 'PROPERTY_'.$propertyId.'_PRINTABLE');
 				$propertyArray = $property['VALUE'];
 				if (!is_array($propertyArray))
 					$propertyArray = array($propertyArray);
 
 				foreach ($propertyArray as $v)
 				{
-					$userArray = CFile::getFileArray($v);
-					if ($userArray)
+					$fileArray = \CFile::getFileArray($v);
+					if ($fileArray)
 					{
-						$result['PROPERTY_'.$propertyId][intval($v)] = $userArray['SRC'];
-						$result['PROPERTY_'.$propertyId.'_printable'][intval($v)] =
+						$result['PROPERTY_'.$propertyId][] = intval($v);
+						$result['PROPERTY_'.$propertyId.'_printable'][] =
 							"[url=/bitrix/tools/bizproc_show_file.php?f=".
-							urlencode($userArray["FILE_NAME"])."&i=".$v."&h=".md5($userArray["SUBDIR"])."]".
-							htmlspecialcharsbx($userArray["ORIGINAL_NAME"])."[/url]";
+							urlencode($fileArray["FILE_NAME"])."&i=".$v."&h=".md5($fileArray["SUBDIR"])."]".
+							htmlspecialcharsbx($fileArray["ORIGINAL_NAME"])."[/url]";
 					}
 				}
 			}
@@ -354,6 +365,15 @@ class BizprocDocument extends CIBlockDocument
 			}
 		}
 
+		return $result;
+	}
+
+	protected static function setArray(array $result, $value)
+	{
+		if (!is_array($result[$value]))
+		{
+			$result[$value] = array();
+		}
 		return $result;
 	}
 
@@ -688,6 +708,12 @@ class BizprocDocument extends CIBlockDocument
 			elseif ($property["PROPERTY_TYPE"] == "S")
 			{
 				$result[$key]["Type"] = "string";
+				$result[$key]["DefaultValue"] = $property["DEFAULT_VALUE"];
+			}
+			elseif ($property["PROPERTY_TYPE"] == "E")
+			{
+				$result[$key]["Type"] = "E:EList";
+				$result[$key]["Options"] = $property["LINK_IBLOCK_ID"];
 				$result[$key]["DefaultValue"] = $property["DEFAULT_VALUE"];
 			}
 			else
@@ -1328,7 +1354,7 @@ class BizprocDocument extends CIBlockDocument
 			$arFields["PROPERTY_VALUES"] = $arFieldsPropertyValues;
 
 		$iblockElement = new CIBlockElement();
-		if (count($arFields["PROPERTY_VALUES"]) > 0)
+		if (isset($arFields["PROPERTY_VALUES"]) && count($arFields["PROPERTY_VALUES"]) > 0)
 			$iblockElement->SetPropertyValuesEx($documentId, $arResult["IBLOCK_ID"], $arFields["PROPERTY_VALUES"]);
 
 		UnSet($arFields["PROPERTY_VALUES"]);

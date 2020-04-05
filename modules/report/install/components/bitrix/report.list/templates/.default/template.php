@@ -7,6 +7,8 @@ global $APPLICATION;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
+\Bitrix\Main\UI\Extension::load("ui.buttons.icons");
+
 CJSCore::Init(array('report', 'socnetlogdest'));
 
 $GLOBALS['APPLICATION']->SetTitle(GetMessage('REPORT_LIST'));
@@ -312,19 +314,13 @@ define("REPORT_LIST_CREATE_BUTTON", true);?>
 
 </div>
 <? $this->SetViewTarget("pagetitle", 100);?>
-	<a class="webform-small-button webform-small-button-blue"
-		onclick="BX.Report['<?=$jsClass?>'].import()">
-		<span class="webform-small-button-text"><?=GetMessage('REPORT_IMPORT_BUTTON')?></span>
-	</a>
+	<a class="ui-btn ui-btn-primary" onclick="BX.Report['<?=$jsClass?>'].import()"><?=GetMessage('REPORT_IMPORT_BUTTON')?></a>
 
-	<a class="webform-small-button webform-small-button-blue webform-small-button-add"
+	<a class="ui-btn ui-btn-primary ui-btn-icon-add"
 		href="<?=CComponentEngine::MakePathFromTemplate(
 					$arParams["PATH_TO_REPORT_CONSTRUCT"],
 					array("report_id" => 0, 'action' => 'create'));?>
-	">
-		<span class="webform-small-button-icon"></span>
-		<span class="webform-small-button-text"><?=GetMessage('REPORT_ADD')?></span>
-	</a>
+	"><?=GetMessage('REPORT_ADD')?></a>
 <?
 
 $this->EndViewTarget();

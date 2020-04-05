@@ -12,6 +12,15 @@ $description = array(
 	'COMMISSION' => Loc::getMessage('SALE_HPS_PAYPAL_DESC_COMMISSION')
 );
 
+if (IsModuleInstalled('crm'))
+{
+	$returnUrl = 'https://'.$_SERVER['HTTP_HOST'].'/bitrix/tools/sale_ps_success.php';
+}
+else
+{
+	$returnUrl = 'https://'.$_SERVER['HTTP_HOST'].'/personal/payment/success.php';
+}
+
 $data = array(
 	'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_NAME'),
 	'SORT' => 1000,
@@ -134,7 +143,7 @@ $data = array(
 			'SORT' => 1700,
 			'GROUP' => 'CONNECT_SETTINGS_PAYPAL',
 			'DEFAULT' => array(
-				'PROVIDER_VALUE' => 'https://'.$_SERVER['HTTP_HOST'].'/personal/payment/success.php',
+				'PROVIDER_VALUE' => $returnUrl,
 				'PROVIDER_KEY' => 'VALUE',
 			)
 		),

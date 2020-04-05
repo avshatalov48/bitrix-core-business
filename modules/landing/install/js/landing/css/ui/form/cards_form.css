@@ -68,8 +68,11 @@
 	transition: color 200ms ease;
 }
 
-.landing-ui-form-card-item-header-title .landing-card-title-icon {
+.landing-ui-form-card-item-header-title .landing-card-title-icon,
+.landing-ui-form-card-item-header-title .landing-card-title-icon span {
 	color: rgba(0,0,0,.3) !important;
+	position: static!important;
+	transform: none!important;
 }
 
 .landing-ui-form-card-item-header-edit,
@@ -164,6 +167,7 @@
 .landing-card-title {
 	display: flex;
 	align-items: center;
+	max-width: 300px;
 }
 
 .landing-card-title > * {

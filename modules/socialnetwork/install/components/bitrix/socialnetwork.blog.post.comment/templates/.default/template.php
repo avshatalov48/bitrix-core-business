@@ -101,6 +101,7 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 		"SHOW_LOGIN" => $arParams['SHOW_LOGIN'],
 
 		"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT"],
+		"DATE_TIME_FORMAT_WITHOUT_YEAR" => $arParams["DATE_TIME_FORMAT_WITHOUT_YEAR"],
 		"LAZYLOAD" => $arParams["LAZYLOAD"],
 
 		"NOTIFY_TAG" => ($arParams["bFromList"] ? "BLOG|COMMENT" : ""),
@@ -119,9 +120,21 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 	$this->__component
 );
 if ($eventHandlerID > 0 )
+{
 	RemoveEventHandler('main', 'system.field.view.file', $eventHandlerID);
+}
 
-?><div class="feed-comments-block" id="blg-comment-<?=$arParams["ID"]?>"><?
+$blockClassName = "feed-comments-block";
+if (
+	!empty($arResult["OUTPUT_LIST"]["DATA"])
+	&& !empty($arResult["OUTPUT_LIST"]["DATA"]["NAV_STRING_COUNT_MORE"])
+	&& intval($arResult["OUTPUT_LIST"]["DATA"]["NAV_STRING_COUNT_MORE"]) > 0
+)
+{
+	$blockClassName .= " feed-comments-block-nav";
+}
+
+?><div class="<?=$blockClassName?>" id="blg-comment-<?=$arParams["ID"]?>"><?
 	?><a name="comments"></a><?
 	?><?=$arResult["OUTPUT_LIST"]["HTML"]?><?
 ?></div><?

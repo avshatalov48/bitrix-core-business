@@ -494,6 +494,7 @@
 #bx-panel .bx-panel-performance-icon { background: scroll transparent url(../images/panel/top-panel-sprite-2.png) no-repeat -112px -1646px !important; }
 #bx-panel .bx-panel-translate-icon { background: scroll transparent url(../images/panel/top-panel-sprite-2.png) no-repeat -37px -1802px !important; }
 #bx-panel .bx-panel-statistics-icon { background: scroll transparent url(../images/panel/top-panel-sprite-2.png) no-repeat -165px -1644px !important; }
+#bx-panel .bx-panel-themes-icon { background: scroll transparent url(../images/panel/top-panel-sprite-2.png?v=2) no-repeat -215px -1644px !important; }
 #bx-panel .bx-panel-reindex-icon { background: scroll transparent url(../images/panel/top-panel-sprite-2.png) no-repeat -63px -1802px !important; }
 #bx-panel .bx-panel-iblock-icon { background: scroll transparent url(../images/panel/top-panel-sprite-2.png) no-repeat -88px -1802px !important; }
 #bx-panel .bx-panel-short-url-icon { background: scroll transparent url(../images/panel/top-panel-sprite-2.png) no-repeat -138px -1646px !important; }
@@ -558,6 +559,9 @@
 #bx-panel .bx-panel-small-button-text-hover .bx-panel-statistics-icon,
 #bx-panel .bx-panel-small-button-arrow-hover .bx-panel-statistics-icon,
 #bx-panel .bx-panel-small-button-hover .bx-panel-statistics-icon { background: scroll transparent url(../images/panel/top-panel-sprite-2.png) no-repeat -165px -1684px !important;}
+#bx-panel .bx-panel-small-button-text-hover .bx-panel-themes-icon,
+#bx-panel .bx-panel-small-button-arrow-hover .bx-panel-themes-icon,
+#bx-panel .bx-panel-small-button-hover .bx-panel-themes-icon { background: scroll transparent url(../images/panel/top-panel-sprite-2.png) no-repeat -215px -1684px !important;}
 #bx-panel .bx-panel-small-button-text-hover .bx-panel-reindex-icon,
 #bx-panel .bx-panel-small-button-arrow-hover .bx-panel-reindex-icon,
 #bx-panel .bx-panel-small-button-hover .bx-panel-reindex-icon { background: scroll transparent url(../images/panel/top-panel-sprite-2.png) no-repeat -63px -1837px !important;}

@@ -174,16 +174,28 @@ if($this->StartResultCache(false))
 		foreach($arField as $key => $value)
 		{
 			$data["~".$key] = $value;
-			if(is_array($value))
+
+			if ($key == "DEFAULT_VALUE")
 			{
-				foreach($value as $key1=>$value1)
-					if(!is_array($value1))
-						$value[$key1] = htmlspecialcharsbx($value1);
 				$data[$key] = $value;
 			}
 			else
 			{
-				$data[$key] = htmlspecialcharsbx($value);
+				if (is_array($value))
+				{
+					foreach ($value as $key1=>$value1)
+					{
+						if (!is_array($value1))
+						{
+							$value[$key1] = htmlspecialcharsbx($value1);
+						}
+					}
+					$data[$key] = $value;
+				}
+				else
+				{
+					$data[$key] = htmlspecialcharsbx($value);
+				}
 			}
 		}
 
@@ -271,4 +283,3 @@ $APPLICATION->AddChainItem($arResult["IBLOCK"]["NAME"], $arResult["~LIST_URL"]);
 $APPLICATION->AddChainItem(GetMessage("CC_BLF_CHAIN_EDIT"), $arResult["~LIST_EDIT_URL"]);
 if($arResult["IBLOCK_ID"])
 	$APPLICATION->AddChainItem(GetMessage("CC_BLF_CHAIN_FIELDS"), $arResult["~LIST_FIELDS_URL"]);
-?>

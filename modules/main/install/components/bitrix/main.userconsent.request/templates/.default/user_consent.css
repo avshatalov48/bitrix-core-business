@@ -37,6 +37,10 @@
 	font: normal 18px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	color: #000;
 	text-align: left;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+	max-width: 260px;
 }
 
 .main-user-consent-request-popup-textarea-block {
@@ -107,7 +111,6 @@
 	-moz-appearance: none;
 }
 
-
 /** LOADER **/
 .main-user-consent-request-loader {
 	position: relative;
@@ -153,6 +156,13 @@
 	stroke-linecap: round;
 }
 
+.main-user-consent-request-announce{
+	cursor: pointer;
+	color: #333;
+	font-size:13px;
+	line-height: 15px;
+}
+
 @keyframes rotate {
 	100% {
 		transform: rotate(360deg);
@@ -161,6 +171,22 @@
 
 @-webkit-keyframes rotate {
 	100% {
-		transform: rotate(360deg);
+		-webkit-transform: rotate(360deg);
+	}
+}
+
+@media (min-width: 1000px) {
+
+	.main-user-consent-request-popup-cont {
+		min-height: 400px;
+		min-width: 640px;
+	}
+
+	.main-user-consent-request-popup-header {
+		max-width: 590px;
+	}
+
+	.main-user-consent-request-popup-text {
+		height: 240px;
 	}
 }

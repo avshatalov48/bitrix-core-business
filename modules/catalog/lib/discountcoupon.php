@@ -91,7 +91,10 @@ class DiscountCouponTable extends Main\Entity\DataManager
 				'title' => Loc::getMessage('DISCOUNT_COUPON_ENTITY_ONE_TIME_FIELD')
 			)),
 			'TIMESTAMP_X' => new Main\Entity\DatetimeField('TIMESTAMP_X', array(
-				'default_value' => function(){ return new Main\Type\DateTime(); },
+				'default_value' => function()
+					{
+						return new Main\Type\DateTime();
+					},
 				'title' => Loc::getMessage('DISCOUNT_COUPON_ENTITY_TIMESTAMP_X_FIELD')
 			)),
 			'MODIFIED_BY' => new Main\Entity\IntegerField('MODIFIED_BY', array(
@@ -99,7 +102,10 @@ class DiscountCouponTable extends Main\Entity\DataManager
 				'title' => Loc::getMessage('DISCOUNT_COUPON_ENTITY_MODIFIED_BY_FIELD')
 			)),
 			'DATE_CREATE' => new Main\Entity\DatetimeField('DATE_CREATE', array(
-				'default_value' => function(){ return new Main\Type\DateTime(); },
+				'default_value' => function()
+					{
+						return new Main\Type\DateTime();
+					},
 				'title' => Loc::getMessage('DISCOUNT_COUPON_ENTITY_DATE_CREATE_FIELD')
 			)),
 			'CREATED_BY' => new Main\Entity\IntegerField('CREATED_BY', array(
@@ -257,6 +263,25 @@ class DiscountCouponTable extends Main\Entity\DataManager
 	}
 
 	/**
+	 * Delete all coupons for discount.
+	 *
+	 * @param int $discount			Discount id.
+	 * @return void
+	 */
+	public static function deleteByDiscount($discount)
+	{
+		$discount = (int)$discount;
+		if ($discount <= 0)
+			return;
+		$conn = Main\Application::getConnection();
+		$helper = $conn->getSqlHelper();
+		$conn->queryExecute(
+			'delete from '.$helper->quote(self::getTableName()).' where '.$helper->quote('DISCOUNT_ID').' = '.$discount
+		);
+		unset($helper, $conn);
+	}
+
+	/**
 	 * Return methods for coupons manager.
 	 *
 	 * @param Main\Event $event			Event from coupons manager.
@@ -298,6 +323,10 @@ class DiscountCouponTable extends Main\Entity\DataManager
 		if (self::$existCouponsManager === null)
 			self::initUseMode();
 
+		$coupon = trim($coupon);
+		if ($coupon === '')
+			return false;
+
 		$couponIterator = self::getList(array(
 			'select' => array(
 				'ID', 'COUPON', 'DISCOUNT_ID', 'TYPE', 'ACTIVE',
@@ -306,7 +335,9 @@ class DiscountCouponTable extends Main\Entity\DataManager
 			),
 			'filter' => array('=COUPON' => $coupon)
 		));
-		if ($existCoupon = $couponIterator->fetch())
+		$existCoupon = $couponIterator->fetch();
+		unset($couponIterator);
+		if (!empty($existCoupon))
 		{
 			if (!empty(self::$types))
 			{
@@ -329,11 +360,17 @@ class DiscountCouponTable extends Main\Entity\DataManager
 	 */
 	public static function isExist($coupon)
 	{
+		$coupon = trim($coupon);
+		if ($coupon === '')
+			return false;
+
 		$couponIterator = self::getList(array(
 			'select' => array('ID', 'COUPON'),
 			'filter' => array('=COUPON' => $coupon)
 		));
-		if ($existCoupon = $couponIterator->fetch())
+		$existCoupon = $couponIterator->fetch();
+		unset($couponIterator);
+		if (!empty($existCoupon))
 		{
 			return array(
 				'ID' => $existCoupon['ID'],
@@ -399,7 +436,7 @@ class DiscountCouponTable extends Main\Entity\DataManager
 				$multiCoupons[$existCoupon['COUPON']] = $existCoupon['ID'];
 			}
 		}
-		unset($existCoupon, $couponIterator, $coupons);
+		unset($existCoupon, $couponIterator);
 		if (!empty($deactivateCoupons) || !empty($multiCoupons))
 		{
 			$conn = Application::getConnection();

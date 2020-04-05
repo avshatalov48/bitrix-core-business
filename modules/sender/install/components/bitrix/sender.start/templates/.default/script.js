@@ -27,7 +27,6 @@
 
 		var buttons = Helper.getNodes('letter-add', this.context);
 		buttons.forEach(function (node) {
-			var self = this;
 			var path = node.getAttribute('data-bx-url');
 			BX.bind(node, 'click', function (e) {
 				e.stopPropagation();

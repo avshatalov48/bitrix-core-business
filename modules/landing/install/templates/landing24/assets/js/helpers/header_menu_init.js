@@ -1,61 +1,27 @@
-;(function() {
+;(function ()
+{
 	"use strict";
 
 	/**
 	 * @todo Refactoring
 	 */
-	BX.addCustomEvent(window, "BX.Landing.Block:init", function(event) {
+	BX.addCustomEvent(window, "BX.Landing.Block:init", function (event)
+	{
 		var headerSelector = event.makeRelativeSelector('.u-header');
 		if (event.block.querySelectorAll(headerSelector).length > 0)
 		{
-			var headers;
-
-			if (BX.Landing.getMode() !== "view")
+			// in edit mode menu must be like a usual block
+			if (BX.Landing.getMode() == "view")
 			{
-				headers = [].slice.call(event.block.querySelectorAll(".u-header"));
-				headers.forEach(function (header)
-				{
-					var subheader = [].slice.call(header.querySelectorAll(".u-header__section"));
-
-					if (subheader.length)
-					{
-						subheader.forEach(function (item)
-						{
-							item.style.zIndex = "auto";
-						});
-					}
-
-					header.style.zIndex = "auto";
-					BX.removeClass(header, "u-header--sticky-top");
-					BX.removeClass(header, "u-header--change-appearance");
-				});
-			}
-			else
-			{
-				headers = [].slice.call(event.block.querySelectorAll(".u-header"));
-				headers.forEach(function (header)
-				{
-					var subheader = [].slice.call(header.querySelectorAll(".u-header__section"));
-
-					if (subheader.length)
-					{
-						subheader.forEach(function (item)
-						{
-							item.style.zIndex = null;
-						});
-					}
-
-					header.style.zIndex = null;
-					BX.addClass(header, "u-header--sticky-top");
-					BX.addClass(header, "u-header--change-appearance");
-				});
-				$.HSCore.components.HSHeader.init($(".u-header"));
+				$.HSCore.components.HSHeader.init($(headerSelector));
 			}
 		}
 
 		var scrollNavSelector = event.makeRelativeSelector('.js-scroll-nav');
 		if (event.block.querySelectorAll(scrollNavSelector).length > 0)
 		{
+			checkActive(scrollNavSelector);
+
 			$.HSCore.components.HSScrollNav.init($('.js-scroll-nav'), {
 				duration: 400,
 				easing: 'easeOutExpo'
@@ -64,16 +30,94 @@
 	});
 
 
-	//unset ACTIVE on menu link
-	BX.addCustomEvent("BX.Landing.Block:Card:add", function (event)
+	// remove all ".active"
+	function removeAllActive(selector)
 	{
-		var headerSelector = event.makeRelativeSelector('.u-header');
-		if (event.block.querySelectorAll(headerSelector).length > 0)
+		removeActive($(selector).find('.nav-item.active'));
+	}
+
+	/**
+	 * @param node - may be Node or selector
+	 */
+	function removeActive(node)
+	{
+		$(node)
+		.removeClass('active')
+		.find('span.sr-only').remove();
+	}
+
+	/**
+	 * @param node - may be Node or selector
+	 */
+	function addActive(node)
+	{
+		$(node)
+		.addClass('active')
+		.find('a.nav-link').after('<span class="sr-only">(current)</span>');
+	}
+
+
+	// unset not actual @active@ class, set true
+	function checkActive(selector)
+	{
+		removeAllActive(selector);
+
+		// in editor - set first element as active, for example
+		if (BX.Landing.getMode() == "edit")
+		{
+			addActive($(selector).find('a').parent('.nav-item').eq(0));
+		}
+		// in viewer - set active by curr URL
+		else
+		{
+			var pageUrl = document.location.pathname;
+
+			$(selector).find('a').each(function (i)
+			{
+				var currNode = $(this).get()[0];
+				// if href has hash - it link to block and they was be processed by scroll nav
+				if (
+					currNode.pathname == pageUrl &&
+					currNode.hash == ''
+				)
+				{
+					addActive($(this).parent('.nav-item'));
+				}
+			});
+		}
+	}
+
+
+	//unset ACTIVE on menu link
+	BX.addCustomEvent("BX.Landing.Block:Card:beforeAdd", function (event)
+	{
+		var scrollNavSelector = event.makeRelativeSelector('.js-scroll-nav');
+		if (event.block.querySelectorAll(scrollNavSelector).length > 0)
 		{
 			if (event.card && BX.hasClass(event.card, 'active'))
 			{
-				BX.removeClass(event.card, 'active');
+				removeActive(event.card);
+				BX.addCustomEvent("BX.Landing.Block:Card:add", returnActiveClass);
 			}
 		}
 	});
+
+
+	// run only after clone active card - return active class for parent card
+	function returnActiveClass(event)
+	{
+		var scrollNavSelector = event.makeRelativeSelector('.js-scroll-nav');
+		if (event.block.querySelectorAll(scrollNavSelector).length > 0)
+		{
+			if (event.card)
+			{
+				var prevCard = BX.findPreviousSibling(event.card);
+				if (prevCard)
+				{
+					addActive(prevCard);
+				}
+			}
+			BX.removeCustomEvent("BX.Landing.Block:Card:add", returnActiveClass)
+		}
+	}
 })();

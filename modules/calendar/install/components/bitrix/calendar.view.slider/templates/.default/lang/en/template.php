@@ -1,4 +1,5 @@
 <?
+$MESS["EC_VIEW_SLIDER_EVENT_NOT_FOUND"] = "Event was not found or cannot be shown.";
 $MESS["EC_VIEW_SLIDER_IMPORTANT_EVENT"] = "This event is important";
 $MESS["EC_VIEW_SLIDER_SAVE_EVENT_BUTTON"] = "Save";
 $MESS["EC_VIEW_SLIDER_CANCEL_BUTTON"] = "Cancel";

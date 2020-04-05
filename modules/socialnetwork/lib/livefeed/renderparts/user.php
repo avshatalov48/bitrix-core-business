@@ -13,9 +13,21 @@ final class User extends Base
 	{
 		static $userPath = null;
 		static $userNameTemplate = null;
+		static $intranetInstalled = null;
+		static $extranetInstalled = null;
 
 		$result = $this->getMetaResult();
 		$options = $this->getOptions();
+
+		if ($intranetInstalled === null)
+		{
+			$intranetInstalled = ModuleManager::isModuleInstalled("intranet");
+		}
+
+		if ($extranetInstalled === null)
+		{
+			$extranetInstalled = ($intranetInstalled && ModuleManager::isModuleInstalled("extranet"));
+		}
 
 		$extranetSite = (
 			isset($options['extranetSite'])
@@ -26,7 +38,7 @@ final class User extends Base
 		if (intval($entityId) == 0)
 		{
 			$result['name'] = (
-				ModuleManager::isModuleInstalled("intranet")
+				$intranetInstalled
 					? Loc::getMessage("SONET_LIVEFEED_RENDERPARTS_USER_ALL")
 					: Loc::getMessage("SONET_LIVEFEED_RENDERPARTS_USER_ALL_BUS")
 			);
@@ -54,6 +66,19 @@ final class User extends Base
 			}
 
 			$result['name'] = \CUser::formatName($userNameTemplate, $fields, true, false);
+			$result['type'] = '';
+			if ($fields['EXTERNAL_AUTH_ID'] == 'email')
+			{
+				$result['type'] = 'email';
+			}
+			elseif (
+				$extranetInstalled
+				&& isset($fields['UF_DEPARTMENT'])
+				&& empty($fields['UF_DEPARTMENT'])
+			)
+			{
+				$result['type'] = 'extranet';
+			}
 
 			if (
 				empty($options['skipLink'])

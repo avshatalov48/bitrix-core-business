@@ -63,5 +63,5 @@ else
 	<?
 }
 ?>
-<input type="submit" value="<?=CSalePaySystemAction::GetParamValue("PAY_BUTTON")?>">
+<input type="submit" value="<?=CSalePaySystemAction::GetParamValue("PAY_BUTTON")?>" class="btn btn-primary">
 </form>

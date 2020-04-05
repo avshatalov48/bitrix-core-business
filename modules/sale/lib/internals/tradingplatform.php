@@ -72,6 +72,10 @@ class TradingPlatformTable extends Entity\DataManager
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateClass'),
 				'title' => Loc::getMessage('TRADING_PLATFORMS_ENTITY_CLASS_FIELD'),
+			),
+			'XML_ID' => array(
+				'data_type' => 'string',
+				'title' => 'XML_ID',
 			)
 		);
 	}

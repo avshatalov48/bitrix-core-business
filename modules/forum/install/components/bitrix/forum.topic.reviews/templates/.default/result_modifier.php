@@ -13,9 +13,10 @@ $arParams["EDITOR_CODE_DEFAULT"] = ($arParams["EDITOR_CODE_DEFAULT"] == "Y" ? "Y
 $arResult["QUESTIONS"] = (is_array($arResult["QUESTIONS"]) ? array_values($arResult["QUESTIONS"]) : array());
 
 
-
 if ($arParams['AJAX_POST']=='Y' && ($_REQUEST["save_product_review"] == "Y"))
 {
 	ob_start();
 }
+
+$arResult["isIntranetInstalled"] = \Bitrix\Main\ModuleManager::isModuleInstalled('intranet');
 ?>

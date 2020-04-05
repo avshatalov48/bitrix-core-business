@@ -71,6 +71,11 @@ $arComponentParameters = Array(
 			"DEFAULT" => "={\$ID}",
 			"COLS" => 25,
 		),
+		"DISALLOW_CANCEL" => Array(
+			"NAME" => GetMessage("SPOL_DISALLOW_CANCEL"),
+			"TYPE" => "CHECKBOX",
+			"DEFAULT" => "N",
+		),
 		"SET_TITLE" => Array(),
 		"SAVE_IN_SESSION" => array(
 			"PARENT" => "ADDITIONAL_SETTINGS",

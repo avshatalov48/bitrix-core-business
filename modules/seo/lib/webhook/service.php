@@ -4,6 +4,8 @@ namespace Bitrix\Seo\WebHook;
 
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Context;
+use Bitrix\Main\Error;
+use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Web\Json;
@@ -16,17 +18,21 @@ use Bitrix\Seo\Engine\Bitrix as EngineBitrix;
 class Service
 {
 	const ANSWER_ERROR_SYSTEM = '001';
-	const ANSWER_ERROR_NO_TYPE = '002';
+	const ANSWER_ERROR_NO_CODE = '002';
 	const ANSWER_ERROR_NO_EXT_ID = '003';
 	const ANSWER_ERROR_NO_PAYLOAD = '004';
 	const ANSWER_ERROR_NO_SEC_CODE = '005';
 	const ANSWER_ERROR_WRONG_SEC_CODE = '006';
 
+	/** @var  ErrorCollection $errorCollection Error collection. */
+	protected $errorCollection;
+
 	protected $type;
 
 	protected $externalId;
 
-	protected $payload = array();
+	/** @var Payload\Batch $payload Payload instance. */
+	protected $payload;
 
 	protected $errors = array();
 
@@ -52,6 +58,8 @@ class Service
 	 */
 	public function __construct($type, $externalId)
 	{
+		$this->errorCollection = new ErrorCollection();
+
 		$this->type = $type;
 		$this->externalId = $externalId;
 
@@ -82,9 +90,8 @@ class Service
 		{
 			$errorMessages = array(
 				self::ANSWER_ERROR_SYSTEM => 'Error.',
-				self::ANSWER_ERROR_NO_TYPE => 'Parameter `type` not found.',
+				self::ANSWER_ERROR_NO_CODE => 'Parameter `code` not found.',
 				self::ANSWER_ERROR_NO_EXT_ID => 'Parameter `externalId` not found.',
-				self::ANSWER_ERROR_NO_PAYLOAD => 'Parameter `payload` not found.',
 				self::ANSWER_ERROR_NO_SEC_CODE => 'Parameter `sec` not found.',
 				self::ANSWER_ERROR_WRONG_SEC_CODE => 'Wrong `sec` parameter.',
 			);
@@ -114,10 +121,10 @@ class Service
 	public static function listen()
 	{
 		$request = Context::getCurrent()->getRequest();
-		$type = $request->get('type');
+		$type = $request->get('code');
 		if (!$type)
 		{
-			self::answerError(self::ANSWER_ERROR_NO_TYPE);
+			self::answerError(self::ANSWER_ERROR_NO_CODE);
 			return;
 		}
 
@@ -138,6 +145,7 @@ class Service
 		try
 		{
 			$payload = Json::decode($request->get('payload'));
+			$payload = (new Payload\Batch())->setArray($payload);
 		}
 		catch (ArgumentException $e)
 		{
@@ -145,28 +153,43 @@ class Service
 			return;
 		}
 
-		self::create($type, $externalId)->handle($payload, $securityCode);
+		$instance = self::create($type, $externalId);
+		if (!$instance->checkSecurityCode($securityCode))
+		{
+			self::answerError(self::ANSWER_ERROR_WRONG_SEC_CODE);
+		}
+
+		try
+		{
+			$instance->handle($payload);
+		}
+		catch (\Exception $e)
+		{
+			self::answerError($e->getCode(), $e->getMessage());
+			return;
+		}
+
+
+
+		foreach ($instance->getErrorCollection()->toArray() as $error)
+		{
+			/** @var Error $error Error. */
+			self::answerError($error->getCode(), $error->getMessage());
+		}
+
 		self::answerData();
 	}
 
 	/**
 	 * Handle web hook.
 	 *
-	 * @param array $payload Payload.
-	 * @param string|null $securityCode Security code.
+	 * @param Payload\Batch $payload Payload instance.
 	 * @return $this
 	 */
-	public function handle(array $payload, $securityCode = null)
+	public function handle(Payload\Batch $payload)
 	{
 		$this->payload = $payload;
-		if (!$securityCode || !$this->checkSecurityCode($securityCode))
-		{
-			self::answerError(self::ANSWER_ERROR_WRONG_SEC_CODE);
-		}
-		else
-		{
-			$this->sendEvent();
-		}
+		$this->sendEvent();
 
 		return $this;
 	}
@@ -174,16 +197,22 @@ class Service
 	/**
 	 * Register web hook.
 	 *
+	 * @param array $parameters Parameters.
 	 * @return bool
 	 */
-	public function register()
+	public function register(array $parameters = [])
 	{
 		if (!$this->data)
 		{
-			$addResult = Internals\WebHookTable::add(array(
+			$addParameters = [
 				'TYPE' => $this->type,
 				'EXTERNAL_ID' => $this->externalId,
-			));
+			];
+			if (!empty($parameters['SECURITY_CODE']))
+			{
+				$addParameters['SECURITY_CODE'] = $parameters['SECURITY_CODE'];
+			}
+			$addResult = Internals\WebHookTable::add($addParameters);
 			if (!$addResult->isSuccess())
 			{
 				return false;
@@ -197,7 +226,11 @@ class Service
 			array(
 				'CODE' => $this->data['TYPE'],
 				'EXTERNAL_ID' => $this->data['EXTERNAL_ID'],
-				'SECURITY_CODE' => $this->data['SECURITY_CODE']
+				'SECURITY_CODE' => $this->data['SECURITY_CODE'],
+				'CONFIRMATION_CODE' => isset($parameters['CONFIRMATION_CODE']) ?
+					$parameters['CONFIRMATION_CODE']
+					:
+					null,
 			)
 		);
 
@@ -255,18 +288,42 @@ class Service
 		return (isset($response['result']['RESULT']) && $response['result']['RESULT']);
 	}
 
-	protected function checkSecurityCode($code)
+	/**
+	 * Check security code.
+	 *
+	 * @param string $securityCode Code.
+	 * @return bool
+	 */
+	public function checkSecurityCode($securityCode)
 	{
-		return ($this->data && $this->data['SECURITY_CODE'] == $code);
+		return ($this->data && $this->data['SECURITY_CODE'] === $securityCode);
+	}
+
+	/**
+	 * Get error collection.
+	 *
+	 * @return ErrorCollection
+	 */
+	public function getErrorCollection()
+	{
+		return $this->errorCollection;
 	}
 
 	protected function sendEvent()
 	{
 		$event = new Event('seo', 'OnWebHook', array(
-			'TYPE' => $this->type,
-			'EXTERNAL_ID' => $this->externalId,
 			'PAYLOAD' => $this->payload,
 		));
 		EventManager::getInstance()->send($event);
+		foreach ($event->getResults() as $result)
+		{
+			$parameters = $result->getParameters();
+			if (!empty($parameters['ERROR_COLLECTION']))
+			{
+				/** @var ErrorCollection $resultErrorCollection */
+				$resultErrorCollection = $parameters['ERROR_COLLECTION'];
+				$this->errorCollection->add($resultErrorCollection->toArray());
+			}
+		}
 	}
 }

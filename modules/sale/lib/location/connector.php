@@ -226,17 +226,17 @@ abstract class Connector extends Entity\DataManager
 		$entityPrimary = 	Assert::expectStringNotNull($entityPrimary, '$entityPrimary');
 		$links = 			static::checkUpdateLinks($links);
 
-		$updateLocations = 	is_array($links[self::DB_LOCATION_FLAG]);
-		$updateGroups = 	is_array($links[self::DB_GROUP_FLAG]) && static::getUseGroups();
+		$updateLocations = 	is_array($links[static::DB_LOCATION_FLAG]);
+		$updateGroups = 	is_array($links[static::DB_GROUP_FLAG]) && static::getUseGroups();
 
 		// get existed relations
 		$existed = 			static::getLinkedLocations($entityPrimary);
 
 		if($updateLocations)
-			static::updateMultipleLinkType($entityPrimary, $links[self::DB_LOCATION_FLAG], $existed[self::DB_LOCATION_FLAG], self::DB_LOCATION_FLAG, $behaviour['REMOVE_ABSENT']);
+			static::updateMultipleLinkType($entityPrimary, $links[static::DB_LOCATION_FLAG], $existed[static::DB_LOCATION_FLAG], static::DB_LOCATION_FLAG, $behaviour['REMOVE_ABSENT']);
 
 		if($updateGroups)
-			static::updateMultipleLinkType($entityPrimary, $links[self::DB_GROUP_FLAG], $existed[self::DB_GROUP_FLAG], self::DB_GROUP_FLAG, $behaviour['REMOVE_ABSENT']);
+			static::updateMultipleLinkType($entityPrimary, $links[static::DB_GROUP_FLAG], $existed[static::DB_GROUP_FLAG], static::DB_GROUP_FLAG, $behaviour['REMOVE_ABSENT']);
 
 		static::resetLinkUsage($entityPrimary);
 
@@ -255,21 +255,38 @@ abstract class Connector extends Entity\DataManager
 		{
 			// low-level drop
 			$dbConnection = Main\HttpApplication::getConnection();
-			$dbConnection->query('delete from '.static::getTableName().' where '.static::getLinkField().' = \''.$dbConnection->getSqlHelper()->forSql($entityPrimary).'\'');
+			$typeField = static::getTypeField();
+
+			$sql ='
+				delete 
+					from 
+						'.static::getTableName().' 
+					where 
+						'.static::getLinkField().' = \''.$dbConnection->getSqlHelper()->forSql($entityPrimary).'\'';
+
+			if(strlen($typeField) > 0)
+			{
+				$sql .= '	AND (
+					'.$typeField.' = \''.static::DB_LOCATION_FLAG.'\' 
+					OR '.$typeField.' = \''.static::DB_GROUP_FLAG.'\'
+					)';
+			}
+
+			$dbConnection->query($sql);
 		}
 		else
 		{
 			// get existed relations
 			$existed = static::getLinkedLocations($entityPrimary);
 
-			static::updateMultipleLinkType($entityPrimary, array(), $existed[self::DB_LOCATION_FLAG], self::DB_LOCATION_FLAG, true);
+			static::updateMultipleLinkType($entityPrimary, array(), $existed[static::DB_LOCATION_FLAG], static::DB_LOCATION_FLAG, true);
 
 			if(static::getUseGroups())
-				static::updateMultipleLinkType($entityPrimary, array(), $existed[self::DB_GROUP_FLAG], self::DB_GROUP_FLAG, true);
+				static::updateMultipleLinkType($entityPrimary, array(), $existed[static::DB_GROUP_FLAG], static::DB_GROUP_FLAG, true);
 		}
 
-		static::setLinkUsage($entityPrimary, self::DB_LOCATION_FLAG, false);
-		static::setLinkUsage($entityPrimary, self::DB_GROUP_FLAG, false);
+		static::setLinkUsage($entityPrimary, static::DB_LOCATION_FLAG, false);
+		static::setLinkUsage($entityPrimary, static::DB_GROUP_FLAG, false);
 
 		$GLOBALS['CACHE_MANAGER']->ClearByTag('sale-location-data');
 		static::onAfterModifiy();
@@ -315,40 +332,40 @@ abstract class Connector extends Entity\DataManager
 		));
 
 		$smthAdded = false;
-		if(is_array($links[self::DB_LOCATION_FLAG]))
+		if(is_array($links[static::DB_LOCATION_FLAG]))
 		{
-			foreach($links[self::DB_LOCATION_FLAG] as $id)
+			foreach($links[static::DB_LOCATION_FLAG] as $id)
 			{
 				$data = array(
 					$linkFld => $entityPrimary,
 					$locationLinkFld => $id,
 				);
 				if($useGroups)
-					$data[$typeFld] = self::DB_LOCATION_FLAG;
+					$data[$typeFld] = static::DB_LOCATION_FLAG;
 
 				$inserter->insert($data);
 				$smthAdded = true;
 			}
 		}
-		static::setLinkUsage($entityPrimary, self::DB_LOCATION_FLAG, $smthAdded);
+		static::setLinkUsage($entityPrimary, static::DB_LOCATION_FLAG, $smthAdded);
 
 		$smthAdded = false;
-		if(is_array($links[self::DB_GROUP_FLAG]) && $useGroups)
+		if(is_array($links[static::DB_GROUP_FLAG]) && $useGroups)
 		{
-			foreach($links[self::DB_GROUP_FLAG] as $id)
+			foreach($links[static::DB_GROUP_FLAG] as $id)
 			{
 				$data = array(
 					$linkFld => $entityPrimary,
 					$locationLinkFld => $id,
 				);
 				if($useGroups)
-					$data[$typeFld] = self::DB_GROUP_FLAG;
+					$data[$typeFld] = static::DB_GROUP_FLAG;
 
 				$inserter->insert($data);
 				$smthAdded = true;
 			}
 		}
-		static::setLinkUsage($entityPrimary, self::DB_GROUP_FLAG, $smthAdded);
+		static::setLinkUsage($entityPrimary, static::DB_GROUP_FLAG, $smthAdded);
 
 		$inserter->flush();
 
@@ -484,14 +501,14 @@ abstract class Connector extends Entity\DataManager
 		
 		$sqls = array();
 
-		if(static::checkLinkUsage($entityPrimary, self::DB_LOCATION_FLAG))
+		if(static::checkLinkUsage($entityPrimary, static::DB_LOCATION_FLAG))
 		{
 			$strictFilter = array_merge($filter, array(
 				'='.static::getLinkField() => $entityPrimary
 			));
 
 			if($useGroups)
-				$strictFilter['='.static::getTypeField()] = self::DB_LOCATION_FLAG;
+				$strictFilter['='.static::getTypeField()] = static::DB_LOCATION_FLAG;
 
 			$query = new Entity\Query(self::getEntity());
 			$query
@@ -502,7 +519,7 @@ abstract class Connector extends Entity\DataManager
 			$sqls[] = $query->getQuery();
 		}
 
-		if(static::checkLinkUsage($entityPrimary, self::DB_GROUP_FLAG) && $getLinkedThroughGroups)
+		if(static::checkLinkUsage($entityPrimary, static::DB_GROUP_FLAG) && $getLinkedThroughGroups)
 		{
 			$query = new Entity\Query(static::getEntity());
 
@@ -515,7 +532,7 @@ abstract class Connector extends Entity\DataManager
 							'data_type' => '\Bitrix\Sale\Location\GroupTable',
 							'reference' => array(
 								'=this.'.static::getLocationLinkField() => 'ref.CODE',
-								'=this.'.static::getTypeField() => array('?', self::DB_GROUP_FLAG)
+								'=this.'.static::getTypeField() => array('?', static::DB_GROUP_FLAG)
 							),
 							'join_type' => 'inner'
 						)
@@ -549,7 +566,7 @@ abstract class Connector extends Entity\DataManager
 				/*
 				select LOCATION.*
 					from b_sale_delivery2location DL
-						inner join b_sale_location_group G on (G.CODE = DL.LOCATION_CODE and DL.LOCATION_TYPE = self::DB_GROUP_FLAG)
+						inner join b_sale_location_group G on (G.CODE = DL.LOCATION_CODE and DL.LOCATION_TYPE = static::DB_GROUP_FLAG)
 						inner join b_sale_location2location_group LG on (LG.LOCATION_GROUP_ID = G.ID)
 						inner join b_sale_location LOCATION on (LG.LOCATION_ID = LOCATION.ID)
 					where
@@ -565,7 +582,7 @@ abstract class Connector extends Entity\DataManager
 							'data_type' => '\Bitrix\Sale\Location\GroupLocation',
 							'reference' => array(
 								'=this.'.static::getLocationLinkField() => 'ref.'.GroupLocationTable::getLinkField(),
-								'=this.'.static::getTypeField() => array('?', self::DB_GROUP_FLAG)
+								'=this.'.static::getTypeField() => array('?', static::DB_GROUP_FLAG)
 							),
 							'join_type' => 'inner'
 						)
@@ -589,7 +606,7 @@ abstract class Connector extends Entity\DataManager
 				/*
 				select LOCATION.*
 					from b_sale_delivery2location DL
-						inner join b_sale_location2location_group LG on (LG.LOCATION_GROUP_ID = DL.LOCATION_ID and DL.LOCATION_TYPE = self::DB_GROUP_FLAG)
+						inner join b_sale_location2location_group LG on (LG.LOCATION_GROUP_ID = DL.LOCATION_ID and DL.LOCATION_TYPE = static::DB_GROUP_FLAG)
 						inner join b_sale_location LOCATION on (LG.LOCATION_ID = LOCATION.ID)
 					where
 						DL.DELIVERY_ID = 2;
@@ -729,7 +746,7 @@ abstract class Connector extends Entity\DataManager
 			'=this.'.$targetPrimaryFld/*ID*/ => 'ref.'.$linkFld/*DELIVERY_ID*/
 		);
 		if($useGroups)
-			$DLCondition['=ref.'.$typeFld/*LOCATION_TYPE*/] = array('?', self::DB_LOCATION_FLAG);
+			$DLCondition['=ref.'.$typeFld/*LOCATION_TYPE*/] = array('?', static::DB_LOCATION_FLAG);
 
 		$query
 			->registerRuntimeField(
@@ -797,7 +814,7 @@ abstract class Connector extends Entity\DataManager
 						'data_type' => get_called_class(),
 						'reference' => array(
 							'=this.'.$targetPrimaryFld/*ID*/ => 'ref.'.$linkFld/*DELIVERY_ID*/,
-							'=ref.'.$typeFld/*LOCATION_TYPE*/ => array('?', self::DB_GROUP_FLAG)
+							'=ref.'.$typeFld/*LOCATION_TYPE*/ => array('?', static::DB_GROUP_FLAG)
 						),
 						'join_type' => 'inner'
 					)
@@ -881,7 +898,7 @@ abstract class Connector extends Entity\DataManager
 		$res = static::getList(array('filter' => array(static::getLinkField() => $entityPrimary)));
 		while($item = $res->fetch())
 		{
-			if(!in_array($item[static::getTypeField()], array(self::DB_GROUP_FLAG, self::DB_LOCATION_FLAG))) // strange record found. skip it
+			if(!in_array($item[static::getTypeField()], array(static::DB_GROUP_FLAG, static::DB_LOCATION_FLAG))) // strange record found. skip it
 				continue;
 
 			$existed[$item[static::getTypeField()]][$item[$linkFld]] = true;
@@ -1035,7 +1052,7 @@ abstract class Connector extends Entity\DataManager
 	{
 		$entityPrimary = Assert::expectStringNotNull($entityPrimary, '$entityPrimary');
 
-		return static::checkLinkUsage($entityPrimary, self::DB_LOCATION_FLAG) || static::checkLinkUsage($entityPrimary, self::DB_GROUP_FLAG);
+		return static::checkLinkUsage($entityPrimary, static::DB_LOCATION_FLAG) || static::checkLinkUsage($entityPrimary, static::DB_GROUP_FLAG);
 	}
 
 	/**
@@ -1053,7 +1070,7 @@ abstract class Connector extends Entity\DataManager
 		$entityPrimary = Assert::expectStringNotNull($entityPrimary, '$entityPrimary');
 		$linkType = Assert::expectEnumerationMember(
 			$linkType,
-			array(self::DB_LOCATION_FLAG, self::DB_GROUP_FLAG),
+			array(static::DB_LOCATION_FLAG, static::DB_GROUP_FLAG),
 			'$linkType'
 		);
 
@@ -1062,7 +1079,7 @@ abstract class Connector extends Entity\DataManager
 
 		$useGroups = static::getUseGroups();
 
-		if(!$useGroups && $linkType == self::DB_GROUP_FLAG)
+		if(!$useGroups && $linkType == static::DB_GROUP_FLAG)
 			return false; // we know we dont use groups
 
 		$usageFlags = static::getLinkUsageOptionValue();
@@ -1074,20 +1091,20 @@ abstract class Connector extends Entity\DataManager
 			static::getLinkField() => $entityPrimary
 		);
 		if($useGroups)
-			$strictFilter['LOCATION_TYPE'] = self::DB_LOCATION_FLAG;
+			$strictFilter['LOCATION_TYPE'] = static::DB_LOCATION_FLAG;
 
-		$usageFlags[$entityPrimary][self::DB_LOCATION_FLAG] = !!static::getList(array(
+		$usageFlags[$entityPrimary][static::DB_LOCATION_FLAG] = !!static::getList(array(
 			'limit' => 1,
 			'filter' => $strictFilter
 		))->fetch();
 
 		if($useGroups)
 		{
-			$usageFlags[$entityPrimary][self::DB_GROUP_FLAG] = !!static::getList(array(
+			$usageFlags[$entityPrimary][static::DB_GROUP_FLAG] = !!static::getList(array(
 				'limit' => 1,
 				'filter' => array(
 					static::getLinkField() => $entityPrimary,
-					'LOCATION_TYPE' => self::DB_GROUP_FLAG
+					'LOCATION_TYPE' => static::DB_GROUP_FLAG
 				)
 			))->fetch();
 		}
@@ -1106,8 +1123,8 @@ abstract class Connector extends Entity\DataManager
 		if(!static::getUseLinkTracking())
 			return;
 
-		if(!in_array($linkType, array(self::DB_LOCATION_FLAG, self::DB_GROUP_FLAG)))
-			$linkType = self::DB_LOCATION_FLAG;
+		if(!in_array($linkType, array(static::DB_LOCATION_FLAG, static::DB_GROUP_FLAG)))
+			$linkType = static::DB_LOCATION_FLAG;
 
 		$usageFlags = static::getLinkUsageOptionValue();
 		$usageFlags[$entityPrimary][$linkType] = $way;
@@ -1141,14 +1158,14 @@ abstract class Connector extends Entity\DataManager
 		$hasGroupLink = false;
 		while($item = $res->fetch())
 		{
-			if(isset($item[$typeFld]) && $item[$typeFld] == self::DB_GROUP_FLAG)
+			if(isset($item[$typeFld]) && $item[$typeFld] == static::DB_GROUP_FLAG)
 				$hasGroupLink = true;
 			else
 				$hasLocationLink = true;
 		}
 
-		static::setLinkUsage($entityPrimary, self::DB_LOCATION_FLAG, $hasLocationLink);
-		static::setLinkUsage($entityPrimary, self::DB_GROUP_FLAG, $hasGroupLink);
+		static::setLinkUsage($entityPrimary, static::DB_LOCATION_FLAG, $hasLocationLink);
+		static::setLinkUsage($entityPrimary, static::DB_GROUP_FLAG, $hasGroupLink);
 	}
 
 	/**
@@ -1192,26 +1209,26 @@ abstract class Connector extends Entity\DataManager
 		$useCodes = static::getUseCodes();
 		$useGroups = static::getUseGroups();
 
-		$locationArgName = 	'$links['.self::DB_LOCATION_FLAG.']';
-		$groupArgName = 	'$links['.self::DB_GROUP_FLAG.']';
+		$locationArgName = 	'$links['.static::DB_LOCATION_FLAG.']';
+		$groupArgName = 	'$links['.static::DB_GROUP_FLAG.']';
 
-		if(is_array($links[self::DB_LOCATION_FLAG]))
+		if(is_array($links[static::DB_LOCATION_FLAG]))
 		{
 			if($useCodes)
-				$links[self::DB_LOCATION_FLAG] = Assert::expectArrayOfUniqueStringNotNull($links[self::DB_LOCATION_FLAG], $locationArgName);
+				$links[static::DB_LOCATION_FLAG] = Assert::expectArrayOfUniqueStringNotNull($links[static::DB_LOCATION_FLAG], $locationArgName);
 			else
-				$links[self::DB_LOCATION_FLAG] = Assert::expectArrayOfUniqueIntegerNotNull($links[self::DB_LOCATION_FLAG], $locationArgName);
+				$links[static::DB_LOCATION_FLAG] = Assert::expectArrayOfUniqueIntegerNotNull($links[static::DB_LOCATION_FLAG], $locationArgName);
 		}
 
-		if(is_array($links[self::DB_GROUP_FLAG]))
+		if(is_array($links[static::DB_GROUP_FLAG]))
 		{
 			if(!$useGroups)
 				Assert::announceNotSupported(Loc::getMessage('SALE_LOCATION_CONNECTOR_ENTITY_DOESNT_SUPPORT_GROUPS'));
 
 			if($useCodes)
-				$links[self::DB_GROUP_FLAG] = Assert::expectArrayOfUniqueStringNotNull($links[self::DB_GROUP_FLAG], $groupArgName);
+				$links[static::DB_GROUP_FLAG] = Assert::expectArrayOfUniqueStringNotNull($links[static::DB_GROUP_FLAG], $groupArgName);
 			else
-				$links[self::DB_GROUP_FLAG] = Assert::expectArrayOfUniqueIntegerNotNull($links[self::DB_GROUP_FLAG], $groupArgName);
+				$links[static::DB_GROUP_FLAG] = Assert::expectArrayOfUniqueIntegerNotNull($links[static::DB_GROUP_FLAG], $groupArgName);
 		}
 
 		return $links;

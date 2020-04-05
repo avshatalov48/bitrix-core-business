@@ -181,15 +181,6 @@ class PropertiesDialog
 						else
 						{
 							$this->currentValues[$property['FieldName']] = $currentActivity['Properties'][$id];
-
-							if ($compatible && $property['Type'] === FieldType::USER)
-							{
-								$this->currentValues[$property['FieldName']] = \CBPHelper::usersArrayToString(
-									$currentActivity['Properties'][$id],
-									$this->getWorkflowTemplate(),
-									$this->getDocumentType()
-								);
-							}
 						}
 					}
 
@@ -199,18 +190,33 @@ class PropertiesDialog
 					)
 					{
 						$this->currentValues[$property['FieldName']] = $property['Default'];
-						if ($compatible && $property['Type'] === FieldType::USER)
-						{
-							$this->currentValues[$property['FieldName']] = \CBPHelper::usersArrayToString(
-								$property['Default'],
-								$this->getWorkflowTemplate(),
-								$this->getDocumentType()
-							);
-						}
-
 					}
 				}
 			}
+		}
+
+		if ($compatible && $this->currentValues)
+		{
+			$compatibleValues = $this->currentValues;
+
+			foreach ($this->getMap() as $id => $property)
+			{
+				if (!isset($property['FieldName']))
+				{
+					continue;
+				}
+
+				if ($property['Type'] === FieldType::USER && !isset($property['Getter']))
+				{
+					$compatibleValues[$property['FieldName']] = \CBPHelper::usersArrayToString(
+						$compatibleValues[$property['FieldName']],
+						$this->getWorkflowTemplate(),
+						$this->getDocumentType()
+					);
+				}
+			}
+
+			return $compatibleValues;
 		}
 
 		return $this->currentValues;
@@ -223,8 +229,13 @@ class PropertiesDialog
 	 */
 	public function getCurrentValue($valueKey, $default = null)
 	{
+		if (is_array($valueKey))
+		{
+			$valueKey = isset($valueKey['FieldName']) ? $valueKey['FieldName'] : '';
+		}
+
 		$values = $this->getCurrentValues();
-		return isset($values[$valueKey]) ? $values[$valueKey] : $default;
+		return (is_array($values) && isset($values[$valueKey])) ? $values[$valueKey] : $default;
 	}
 
 	/**
@@ -324,12 +335,41 @@ class PropertiesDialog
 		/** @var \CBPDocumentService $documentService */
 		$documentService = $runtime->getService('DocumentService');
 
+		$field = FieldType::normalizeProperty($field);
+
 		$typeClass = $documentService->getTypeClass($this->getDocumentType(), $field['Type']);
 		if ($typeClass && class_exists($typeClass))
 		{
 			return new FieldType($field, $this->getDocumentType(), $typeClass);
 		}
 		return null;
+	}
+
+	public function renderFieldControl($field, $value = null, $allowSelection = true, $renderMode = FieldType::RENDER_MODE_PUBLIC)
+	{
+		if (is_string($field))
+		{
+			$field = $this->getMap()[$field];
+		}
+
+		$fieldType = $field ? $this->getFieldTypeObject($field) : null;
+
+		if (!$fieldType)
+		{
+			return 'incorrect field type';
+		}
+
+		if ($value === null)
+		{
+			$value = $this->getCurrentValue($field);
+		}
+
+		return $fieldType->renderControl(
+			['Form' => $this->getFormName(), 'Field' => $field['FieldName']],
+			$value,
+			$allowSelection,
+			$renderMode
+		);
 	}
 
 	public function setRenderer($callable)

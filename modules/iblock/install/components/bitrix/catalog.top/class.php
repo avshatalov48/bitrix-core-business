@@ -98,6 +98,7 @@ class CatalogTopComponent extends ElementList
 
 		if (isset($this->arParams['VIEW_MODE']) && $this->arParams['VIEW_MODE'] === 'SLIDER')
 		{
+			$this->arResult['RAW_ITEMS'] = $this->arResult['ITEMS'];
 			$this->sliceItemsForSlider($this->arResult['ITEMS']);
 		}
 	}
@@ -115,7 +116,7 @@ class CatalogTopComponent extends ElementList
 				$siteId = $this->getSiteId();
 				$templateId = Main\Config\Option::get('main', 'wizard_template_id', 'eshop_bootstrap', $siteId);
 				$templateId = preg_match('/^eshop_adapt/', $templateId) ? 'eshop_adapt' : $templateId;
-				$theme = Main\Config\Option::get('main', 'wizard_'.$templateId.'_theme_id', 'blue', $siteId);
+				$theme = Main\Config\Option::get('main', 'wizard_'.$templateId.'_theme_id', '', $siteId);
 			}
 
 			if ($theme != '')
@@ -123,16 +124,95 @@ class CatalogTopComponent extends ElementList
 				$documentRoot = Main\Application::getDocumentRoot();
 				$templateFolder = $this->getTemplate()->GetFolder();
 
-				if (!is_file($documentRoot.$templateFolder.'/'.ToLower($this->arParams['VIEW_MODE']).'/themes/'.$theme.'/style.css'))
+				$themesFolder = new Main\IO\Directory($documentRoot.$templateFolder.'/themes/');
+
+				if ($themesFolder->isExists())
 				{
-					$theme = '';
+					$file = new Main\IO\File($documentRoot.$templateFolder.'/themes/'.$theme.'/style.css');
+
+					if (!$file->isExists())
+					{
+						$theme = '';
+					}
 				}
 			}
 		}
 
 		if ($theme == '')
 		{
-			$theme = 'blue';
+//			$theme = 'blue';
 		}
+	}
+
+	public static function getTemplateVariantsMapForSlider()
+	{
+		return array(
+			array(
+				'VARIANT' => 0,
+				'TYPE' => 'CARD',
+				'COLS' => 1,
+				'CLASS' => 'product-item-list-col-1',
+				'CODE' => '1',
+				'ENLARGED_POS' => false,
+				'SHOW_ONLY_FULL' => false,
+				'COUNT' => 1,
+				'DEFAULT' => 'N'
+			),
+			array(
+				'VARIANT' => 1,
+				'TYPE' => 'CARD',
+				'COLS' => 2,
+				'CLASS' => 'product-item-list-col-2',
+				'CODE' => '2',
+				'ENLARGED_POS' => false,
+				'SHOW_ONLY_FULL' => false,
+				'COUNT' => 2,
+				'DEFAULT' => 'N'
+			),
+			array(
+				'VARIANT' => 2,
+				'TYPE' => 'CARD',
+				'COLS' => 3,
+				'CLASS' => 'product-item-list-col-3',
+				'CODE' => '3',
+				'ENLARGED_POS' => false,
+				'SHOW_ONLY_FULL' => false,
+				'COUNT' => 3,
+				'DEFAULT' => 'Y'
+			),
+			array(
+				'VARIANT' => 3,
+				'TYPE' => 'CARD',
+				'COLS' => 4,
+				'CLASS' => 'product-item-list-col-4',
+				'CODE' => '4',
+				'ENLARGED_POS' => false,
+				'SHOW_ONLY_FULL' => false,
+				'COUNT' => 4,
+				'DEFAULT' => 'N'
+			),
+			array(
+				'VARIANT' => 6,
+				'TYPE' => 'CARD',
+				'COLS' => 6,
+				'CLASS' => 'product-item-list-col-6',
+				'CODE' => '6',
+				'ENLARGED_POS' => false,
+				'SHOW_ONLY_FULL' => false,
+				'COUNT' => 6,
+				'DEFAULT' => 'N'
+			),
+			array(
+				'VARIANT' => 9,
+				'TYPE' => 'LINE',
+				'COLS' => 1,
+				'CLASS' => 'product-item-line-list',
+				'CODE' => 'line',
+				'ENLARGED_POS' => false,
+				'SHOW_ONLY_FULL' => false,
+				'COUNT' => 1,
+				'DEFAULT' => 'N'
+			)
+		);
 	}
 }

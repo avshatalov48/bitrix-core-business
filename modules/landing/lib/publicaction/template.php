@@ -2,8 +2,8 @@
 namespace Bitrix\Landing\PublicAction;
 
 use \Bitrix\Landing\Template as TemplateCore;
-use \Bitrix\Landing\Site;
-use \Bitrix\Landing\Landing;
+use \Bitrix\Landing\Site as SiteCore;
+use \Bitrix\Landing\Landing as LandingCore;
 use \Bitrix\Landing\TemplateRef;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Landing\PublicActionResult;
@@ -17,7 +17,7 @@ class Template
 	 * @param array $params Params ORM array.
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function getList($params = array())
+	public static function getList(array $params = array())
 	{
 		$result = new PublicActionResult();
 
@@ -25,6 +25,14 @@ class Template
 		$res = TemplateCore::getList($params);
 		while ($row = $res->fetch())
 		{
+			if (isset($row['DATE_CREATE']))
+			{
+				$row['DATE_CREATE'] = (string) $row['DATE_CREATE'];
+			}
+			if (isset($row['DATE_MODIFY']))
+			{
+				$row['DATE_MODIFY'] = (string) $row['DATE_MODIFY'];
+			}
 			$data[] = $row;
 		}
 		$result->setResult($data);
@@ -40,19 +48,20 @@ class Template
 	 * @param array $data Ref array (area => landing).
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	protected static function refProcess($id, $type, $method, $data = array())
+	protected static function refProcess($id, $type, $method, array $data = array())
 	{
 		$result = new PublicActionResult();
 		$error = new \Bitrix\Landing\Error;
+		$data = (array) $data;
 
 		if ($type == TemplateRef::ENTITY_TYPE_SITE)
 		{
-			$entityClass = Site::class;
+			$entityClass = SiteCore::class;
 			$method = $method . 'ForSite';
 		}
 		else if ($type == TemplateRef::ENTITY_TYPE_LANDING)
 		{
-			$entityClass = Landing::class;
+			$entityClass = LandingCore::class;
 			$method = $method . 'ForLanding';
 		}
 
@@ -96,7 +105,7 @@ class Template
 	 * @param array $data Ref array (area => landing).
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function setSiteRef($id, $data = array())
+	public static function setSiteRef($id, array $data = array())
 	{
 		return self::refProcess($id, TemplateRef::ENTITY_TYPE_SITE, 'set', $data);
 	}
@@ -107,7 +116,7 @@ class Template
 	 * @param array $data Ref array (area => landing).
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function setLandingRef($id, $data = array())
+	public static function setLandingRef($id, array $data = array())
 	{
 		return self::refProcess($id, TemplateRef::ENTITY_TYPE_LANDING, 'set', $data);
 	}

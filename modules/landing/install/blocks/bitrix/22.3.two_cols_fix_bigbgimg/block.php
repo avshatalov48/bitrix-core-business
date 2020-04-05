@@ -13,7 +13,7 @@
 						Excepteur sint occaecat cupidatat
 					</h2>
 				</div>
-				<img class="landing-block-node-img img-fluid g-mb-20"
+				<img class="landing-block-node-img img-fluid g-mb-20 flex-shrink-0"
 					 src="https://cdn.bitrix24.site/bitrix/images/landing/business/1000x565/img1.jpg" alt="">
 				<div class="landing-block-node-text g-line-height-1_8 g-font-size-default g-color-white-opacity-0_8 g-mb-40">
 					<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
@@ -36,7 +36,7 @@
 						Excepteur sint occaecat cupidatat
 					</h2>
 				</div>
-				<img class="landing-block-node-img img-fluid g-mb-20"
+				<img class="landing-block-node-img img-fluid g-mb-20 flex-shrink-0"
 					 src="https://cdn.bitrix24.site/bitrix/images/landing/business/1000x565/img2.jpg" alt="">
 				<div class="landing-block-node-text g-line-height-1_8 g-font-size-default g-color-white-opacity-0_8 g-mb-40">
 					<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla

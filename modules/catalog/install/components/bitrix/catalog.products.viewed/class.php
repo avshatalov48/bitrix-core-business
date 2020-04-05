@@ -112,7 +112,7 @@ class CatalogProductsViewedComponent extends ElementList
 
 			$this->filterFields = $this->getFilter();
 			$this->filterFields['IBLOCK_ID'] = array_keys($this->arParams['SHOW_PRODUCTS']);
-			$this->initPricesQuery();
+			$this->prepareElementQueryFields();
 
 			$ids = array_slice($this->filterByParams($ids, array(), false), 0, $this->arParams['PAGE_ELEMENT_COUNT']);
 		}

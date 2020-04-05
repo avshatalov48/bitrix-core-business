@@ -11,7 +11,7 @@
 
 	BX.Sale.Cashbox = {
 
-		ajaxUrl: "/bitrix/admin/sale_cashbox_ajax.php",
+		ajaxUrl: "sale_cashbox_ajax.php",
 
 		getRestrictionParamsHtml: function (params)
 		{

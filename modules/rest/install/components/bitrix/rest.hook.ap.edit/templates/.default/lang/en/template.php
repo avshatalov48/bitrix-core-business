@@ -14,6 +14,6 @@ $MESS["REST_HAPE_COMMENT"] = "Description";
 $MESS["REST_HAPE_SCOPE"] = "Access permissions";
 $MESS["REST_HAPE_SCOPE_DESC"] = "Specify access permissions <br/>for user data <br/> allowed for the app password";
 $MESS["REST_HAPE_SAVE"] = "Save";
-$MESS["REST_HAPE_AP_NOTE"] = "This code is used to authenticate the web hook in Bitrix24. Save it in a safe place and keep it confidential.";
+$MESS["REST_HAPE_AP_NOTE"] = "This code is used to authenticate the webhook in Bitrix24. Save it in a safe place and keep it confidential.";
 $MESS["REST_HAPE_AP_EXAMPLE"] = "REST call example URL";
 ?>

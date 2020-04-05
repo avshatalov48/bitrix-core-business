@@ -1,5 +1,6 @@
 var jsGoogleCE = {
 	map: null,
+	mapId: '',
 	arData: null,
 	obForm: null,
 	
@@ -16,14 +17,20 @@ var jsGoogleCE = {
 	__currentPolyLine: null,
 	__currentPolyLineObject: null,
 	
-	init: function() 
+	init: function(params)
 	{
+
+		if(typeof (params.mapId) !== 'undefined')
+		{
+			jsGoogleCE.mapId = params.mapId;
+		}
+
 		BX.loadCSS('/bitrix/components/bitrix/map.google.system/templates/.default/style.css');
 	
-		jsGoogleCE.map = GLOBAL_arMapObjects['system_view_edit'];
+		jsGoogleCE.map = GLOBAL_arMapObjects['system_view_edit_' + jsGoogleCE.mapId];
 		
 		jsGoogleCE.arData = arPositionData;
-		jsGoogleCE.obForm = document.forms['bx_popup_form_google_map'];
+		jsGoogleCE.obForm = document.forms['bx_popup_form_google_map_' + jsGoogleCE.mapId];
 		jsGoogleCE.obForm.onsubmit = jsGoogleCE.__saveChanges;
 		
 		
@@ -69,9 +76,9 @@ var jsGoogleCE = {
 			}
 		}
 
-		BX('bx_restore_position').onclick = jsGoogleCE.restorePositionValues;
-		BX('bx_google_map_controls').style.visibility = 'visible';
-		BX('bx_google_map_address_search').style.visibility = 'visible';
+		BX('bx_restore_position_' + jsGoogleCE.mapId).onclick = jsGoogleCE.restorePositionValues;
+		BX('bx_google_map_controls_' + jsGoogleCE.mapId).style.visibility = 'visible';
+		BX('bx_google_map_address_search_' + jsGoogleCE.mapId).style.visibility = 'visible';
 	},
 	
 	__getPositionValues: function()
@@ -141,8 +148,8 @@ var jsGoogleCE = {
 		{
 			jsGoogleCE.bAddPointMode = false;
 			jsGoogleCE.map.disableDoubleClickZoom = false;
-			BX('bx_google_addpoint_link').style.display = 'block';
-			BX('bx_google_addpoint_message').style.display = 'none';
+			BX('bx_google_addpoint_link_' + jsGoogleCE.mapId).style.display = 'block';
+			BX('bx_google_addpoint_message' + jsGoogleCE.mapId).style.display = 'none';
 			
 			if (jsGoogleCE.DblClickObserver)
 				google.maps.event.removeListener(jsGoogleCE.DblClickObserver);
@@ -151,8 +158,8 @@ var jsGoogleCE = {
 		{
 			jsGoogleCE.bAddPointMode = true;
 			jsGoogleCE.map.disableDoubleClickZoom = true;
-			document.getElementById('bx_google_addpoint_link').style.display = 'none';
-			document.getElementById('bx_google_addpoint_message').style.display = 'block';
+			document.getElementById('bx_google_addpoint_link_' + jsGoogleCE.mapId).style.display = 'none';
+			document.getElementById('bx_google_addpoint_message_' + jsGoogleCE.mapId).style.display = 'block';
 			
 			jsGoogleCE.DblClickObserver = google.maps.event.addListener(jsGoogleCE.map, 'dblclick', jsGoogleCE.__addPoint);
 		}
@@ -264,7 +271,7 @@ var jsGoogleCE = {
 	
 	__createPointView: function()
 	{
-		var obView = BX('bx_google_points').appendChild(BX.create('LI', {
+		var obView = BX('bx_google_points_' + jsGoogleCE.mapId).appendChild(BX.create('LI', {
 			events: {
 				mouseover: jsGoogleCE.__point_link_hover,
 				mouseout: jsGoogleCE.__point_link_hout
@@ -437,7 +444,7 @@ var jsGoogleCE = {
 		window.jsGoogleCEOpener.saveData(jsGoogleCE.__serialize(jsGoogleCE.arData), jsGoogleCE.currentView);
 		return false;
 	}
-}
+};
 
 var jsGoogleCESearch = {
 	bInited: false,
@@ -634,5 +641,5 @@ var jsGoogleCESearch = {
 		jsGoogleCESearch.obInput = null;
 		jsGoogleCESearch.timerID = null;
 	}
-}
+};
 

@@ -222,11 +222,24 @@ while($arRes = $messageList->fetch())
 		endif;
 
 	endif;
-	$str .= '<a href="mail_message_view.php?lang='.LANG.'&amp;ID='.$arRes['ID'].'">'.(strlen($arRes['SUBJECT'])>0?$arRes['SUBJECT']:GetMessage("MAIL_MSG_ADM_NOSUBJ"));
+
+	$str .= sprintf(
+		'<a href="mail_message_view.php?lang=%s&amp;ID=%u">%s</a>',
+		htmlspecialcharsbx(LANG),
+		$arRes['ID'],
+		strlen($arRes['SUBJECT']) > 0 ? htmlspecialcharsbx($arRes['SUBJECT']) : getMessage('MAIL_MSG_ADM_NOSUBJ')
+	);
 
 	$row->AddViewField("SUBJECT", $str);
 
-	$str = $arRes['MAILBOX_NAME'].' [<a title="'.GetMessage("MAIL_MSG_ADM_CHANGE_MBOX").'" href="mail_mailbox_edit.php?ID='.$arRes['MAILBOX_ID'].'&lang='.LANG.'">'.$arRes['MAILBOX_ID'].'</a>]';
+	$str = sprintf(
+		'%s [<a title="%s" href="mail_mailbox_edit.php?ID=%u&lang=%s">%u</a>]',
+		htmlspecialcharsbx($arRes['MAILBOX_NAME']),
+		htmlspecialcharsbx(getMessage('MAIL_MSG_ADM_CHANGE_MBOX')),
+		$arRes['MAILBOX_ID'],
+		htmlspecialcharsbx(LANG),
+		$arRes['MAILBOX_ID']
+	);
 
 	$row->AddViewField("MAILBOX_NAME", $str);
 	$row->AddViewField("MESSAGE_SIZE", CFile::FormatSize($arRes['MESSAGE_SIZE']));

@@ -10,12 +10,12 @@ Loc::loadMessages(__FILE__);
 class Demos
 {
 	/**
-	 * Get demo items.
+	 * Get demo items from files in component.
 	 * @param string $type Type of demo-template (page, store, etc...).
 	 * @param bool $page If true, list of pages, not site.
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	protected static function getList($type, $page = false)
+	protected static function getFilesList($type, $page = false)
 	{
 		$result = new PublicActionResult();
 
@@ -42,11 +42,13 @@ class Demos
 			{
 				if (isset($item['DATA']['items']))
 				{
+//					always convert to UTF-8 for REST
 					$item['DATA']['encoded'] = true;
+					$item['DATA']['charset'] = 'UTF-8';
 					$item['DATA']['items'] = \Bitrix\Main\Text\Encoding::convertEncoding(
-						$data['DATA']['items'],
-						'cp1251',
-						SITE_CHARSET
+						$item['DATA']['items'],
+						SITE_CHARSET,
+						'UTF-8'
 					);
 				}
 			}
@@ -65,7 +67,7 @@ class Demos
 	 */
 	public static function getSiteList($type)
 	{
-		return self::getList($type);
+		return self::getFilesList($type);
 	}
 
 	/**
@@ -75,7 +77,7 @@ class Demos
 	 */
 	public static function getPageList($type)
 	{
-		return self::getList($type, true);
+		return self::getFilesList($type, true);
 	}
 
 	/**
@@ -102,79 +104,236 @@ class Demos
 	}
 
 	/**
-	 * Register new item.
-	 * @param string $code Unique code of item (for one app context).
-	 * @param array $fields Item data.
-	 * @param array $manifest Manifest data.
+	 * Register new demo template (site [and pages]).
+	 * @param array $data Full data from \Bitrix\Landing\Site::fullExport.
+	 * @param array $params Additional params.
+	 * @see \Bitrix\Landing\Site::fullExport
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function register($code, $fields, $manifest = array())
+	public static function register(array $data = array(), array $params = array())
 	{
-		static $internal = true;
-
 		$result = new PublicActionResult();
 		$error = new \Bitrix\Landing\Error;
+		$themeCode = null;
+		$themeCodeTypo = null;
 
-		$check = false;
-		$fields['XML_ID'] = trim($code);
-		$fields['MANIFEST'] = serialize((array)$manifest);
+		// make line array from site and pages
+		if (
+			isset($data['items'])
+		)
+		{
+			if (is_array($data['items']))
+			{
+				$dataPages = $data['items'];
+			}
+			else
+			{
+				$dataPages = array();
+			}
+			unset($data['items']);
+			// set theme codes from sites to pages
+			if (isset($data['fields']['ADDITIONAL_FIELDS']['THEME_CODE']))
+			{
+				$themeCode = $data['fields']['ADDITIONAL_FIELDS']['THEME_CODE'];
+			}
+			if (isset($data['fields']['ADDITIONAL_FIELDS']['THEME_CODE_TYPO']))
+			{
+				$themeCodeTypo = $data['fields']['ADDITIONAL_FIELDS']['THEME_CODE_TYPO'];
+			}
+			foreach ($dataPages as &$page)
+			{
+				if (
+					!isset($page['fields']) ||
+					!is_array($page['fields'])
+				)
+				{
+					$page['fields'] = array();
+				}
+				if (
+					!isset($page['fields']['ADDITIONAL_FIELDS']) ||
+					!is_array($page['fields']['ADDITIONAL_FIELDS'])
+				)
+				{
+					$page['fields']['ADDITIONAL_FIELDS'] = array();
+				}
+				if (!isset($page['fields']['ADDITIONAL_FIELDS']['THEME_CODE']))
+				{
+					$page['fields']['ADDITIONAL_FIELDS']['THEME_CODE'] = $themeCode;
+				}
+				if (!isset($page['fields']['ADDITIONAL_FIELDS']['THEME_CODE_TYPO']))
+				{
+					$page['fields']['ADDITIONAL_FIELDS']['THEME_CODE_TYPO'] = $themeCodeTypo;
+				}
+			}
+			unset($page);
+
+			$data['items'] = array_keys($dataPages);
+			$data['tpl_type'] = DemoCore::TPL_TYPE_SITE;
+			$data = array_merge([$data], $dataPages);
+		}
+
+		if (empty($data) || !is_array($data))
+		{
+			$error->addError(
+				'REGISTER_ERROR_DATA',
+				Loc::getMessage('LANDING_DEMO_REGISTER_ERROR_DATA')
+			);
+			$result->setError($error);
+			return $result;
+		}
 
 		// set app code
 		if (($app = \Bitrix\Landing\PublicAction::restApplication()))
 		{
-			$fields['APP_CODE'] = $app['CODE'];
-		}
-
-		// check unique
-		if ($fields['XML_ID'])
-		{
-			$check = DemoCore::getList(array(
-				'select' => array(
-					'ID'
-				),
-				'filter' =>
-					isset($fields['APP_CODE'])
-					? array(
-						'=XML_ID' => $fields['XML_ID'],
-						'=APP_CODE' => $fields['APP_CODE']
-					)
-					: array(
-						'=XML_ID' => $fields['XML_ID']
-					)
-			))->fetch();
-		}
-
-		// register (add / update)
-		if ($check)
-		{
-			$res = DemoCore::update($check['ID'], $fields);
+			$appCode = $app['CODE'];
 		}
 		else
 		{
-			$res = DemoCore::add($fields);
+			$appCode = null;
 		}
-		if ($res->isSuccess())
+
+		$deleteAdded = function(array $added)
 		{
-			$result->setResult($res->getId());
-		}
-		else
+			foreach ($added as $id)
+			{
+				DemoCore::delete($id);
+			}
+		};
+
+		// add item separate
+		$success = $return = array();
+		$fieldCode = array(
+			'TYPE', 'TPL_TYPE', 'SHOW_IN_LIST', 'TITLE', 'DESCRIPTION',
+			'PREVIEW_URL', 'PREVIEW', 'PREVIEW2X', 'PREVIEW3X'
+		);
+		foreach ($data as $item)
 		{
-			$error->addFromResult($res);
-			$result->setError($error);
+			// collect fields
+			$fields = array(
+				'XML_ID' => null,
+				'APP_CODE' => $appCode,
+				'TPL_TYPE' => DemoCore::TPL_TYPE_PAGE,
+				'LANG' => []
+			);
+			if (isset($params['site_template_id']))
+			{
+				$fields['SITE_TEMPLATE_ID'] = $params['site_template_id'];
+			}
+			else
+			{
+				$fields['SITE_TEMPLATE_ID'] = '';
+			}
+			if (isset($item['code']))
+			{
+				$fields['XML_ID'] = trim($item['code']);
+			}
+			if (isset($item['name']))
+			{
+				$fields['TITLE'] = $item['name'];
+			}
+			if (isset($params['lang']))
+			{
+				$fields['LANG']['lang'] = $params['lang'];
+			}
+			if (isset($params['lang_original']))
+			{
+				$fields['LANG']['lang_original'] = $params['lang_original'];
+			}
+			foreach ($fieldCode as $code)
+			{
+				$codel = strtolower($code);
+				if (isset($item[$codel]))
+				{
+					$fields[$code] = $item[$codel];
+				}
+			}
+			// serialize and check content
+			$item = (array) $item;
+			$fields['LANG'] = (array) $fields['LANG'];
+			$fields['MANIFEST'] = serialize($item);
+			if ($fields['LANG'])
+			{
+				$fields['LANG'] = serialize($fields['LANG']);
+			}
+			if (isset($item['fields']['ADDITIONAL_FIELDS']))
+			{
+				unset($item['fields']['ADDITIONAL_FIELDS']);
+			}
+			\Bitrix\Landing\Manager::sanitize(
+				serialize($item),
+				$bad
+			);
+			if ($bad)
+			{
+				$error->addError(
+					'CONTENT_IS_BAD',
+					Loc::getMessage('LANDING_DEMO_CONTENT_IS_BAD') .
+					' [code: ' . $fields['XML_ID'] . ']'
+				);
+				$result->setError($error);
+				$deleteAdded($success);
+				return $result;
+			}
+			$check = false;
+			// check unique
+			if ($fields['XML_ID'])
+			{
+				$check = DemoCore::getList(array(
+					'select' => array(
+						'ID'
+					),
+					'filter' =>
+						isset($fields['APP_CODE'])
+						? array(
+							'=XML_ID' => $fields['XML_ID'],
+							'=APP_CODE' => $fields['APP_CODE'],
+							'=TPL_TYPE' => $fields['TPL_TYPE']
+						)
+						: array(
+							'=XML_ID' => $fields['XML_ID'],
+							'=TPL_TYPE' => $fields['TPL_TYPE']
+						)
+					)
+				)->fetch();
+			}
+			// register (add / update)
+			if ($check)
+			{
+				$res = DemoCore::update($check['ID'], $fields);
+			}
+			else
+			{
+				$res = DemoCore::add($fields);
+				if ($res->isSuccess())
+				{
+					$success[] = $res->getId();
+				}
+			}
+			if ($res->isSuccess())
+			{
+				$return[] = $res->getId();
+			}
+			else
+			{
+				$error->addFromResult($res);
+				$result->setError($error);
+				$deleteAdded($success);
+				return $result;
+			}
 		}
+
+		$result->setResult($return);
 
 		return $result;
 	}
 
 	/**
-	 * Unregister new block.
-	 * @param string $code Code of block.
+	 * Unregister demo template.
+	 * @param string $code Code of item.
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
 	public static function unregister($code)
 	{
-		static $internal = true;
-
 		$result = new PublicActionResult();
 		$error = new \Bitrix\Landing\Error;
 
@@ -186,7 +345,7 @@ class Demos
 			// set app code
 			$app = \Bitrix\Landing\PublicAction::restApplication();
 
-			$row = DemoCore::getList(array(
+			$res = DemoCore::getList(array(
 				'select' => array(
 					'ID'
 				),
@@ -199,23 +358,73 @@ class Demos
 					: array(
 						'=XML_ID' => $code
 					)
-			))->fetch();
-			if ($row)
+			));
+			while ($row = $res->fetch())
 			{
 				// delete block from repo
-				$res = DemoCore::delete($row['ID']);
-				if ($res->isSuccess())
+				$resDel = DemoCore::delete($row['ID']);
+				if ($resDel->isSuccess())
 				{
 					$result->setResult(true);
 				}
 				else
 				{
-					$error->addFromResult($res);
+					$error->addFromResult($resDel);
+					$result->setError($error);
+					return $result;
 				}
 			}
 		}
 
-		$result->setError($error);
+		return $result;
+	}
+
+	/**
+	 * Get items of current app.
+	 * @param array $params Params ORM array.
+	 * @return \Bitrix\Landing\PublicActionResult
+	 */
+	public static function getList(array $params = array())
+	{
+		$result = new PublicActionResult();
+
+		if (!is_array($params))
+		{
+			$params = array();
+		}
+		if (
+			!isset($params['filter']) ||
+			!is_array($params['filter'])
+		)
+		{
+			$params['filter'] = array();
+		}
+		// set app code
+		if (($app = \Bitrix\Landing\PublicAction::restApplication()))
+		{
+			$params['filter']['APP_CODE'] = $app['CODE'];
+		}
+		else
+		{
+			$params['filter']['APP_CODE'] = false;
+		}
+
+		$data = array();
+		$res = DemoCore::getList($params);
+		while ($row = $res->fetch())
+		{
+			if (isset($row['DATE_CREATE']))
+			{
+				$row['DATE_CREATE'] = (string) $row['DATE_CREATE'];
+			}
+			if (isset($row['DATE_MODIFY']))
+			{
+				$row['DATE_MODIFY'] = (string) $row['DATE_MODIFY'];
+			}
+			$row['MANIFEST'] = unserialize($row['MANIFEST']);
+			$data[] = $row;
+		}
+		$result->setResult($data);
 
 		return $result;
 	}

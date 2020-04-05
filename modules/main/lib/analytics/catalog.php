@@ -315,7 +315,11 @@ class Catalog
 		$siteUserId = $order['USER_ID'];
 
 		$phone = '';
+		$phone256 = '';
+		$phone256_e164 = '';
+
 		$email = '';
+		$email256 = '';
 
 		$result = \CSaleOrderPropsValue::GetList(array(), array("ORDER_ID" => $orderId));
 		while ($row = $result->fetch())
@@ -327,6 +331,8 @@ class Catalog
 				if (!empty($stPhone))
 				{
 					$phone = sha1($stPhone);
+					$phone256 = hash('sha256', $stPhone);
+					$phone256_e164 = hash('sha256', '+'.$stPhone);
 				}
 			}
 
@@ -335,6 +341,7 @@ class Catalog
 				if (!empty($row['VALUE']))
 				{
 					$email = sha1($row['VALUE']);
+					$email256 = hash('sha256', strtolower(trim($row['VALUE'])));
 				}
 			}
 		}
@@ -394,7 +401,10 @@ class Catalog
 			'order_id' => $orderId,
 			'user_id' => $siteUserId,
 			'phone' => $phone,
+			'phone256' => $phone256,
+			'phone256_e164' => $phone256_e164,
 			'email' => $email,
+			'email256' => $email256,
 			'products' => $products,
 			'price' => $order['PRICE'],
 			'currency' => $order['CURRENCY']

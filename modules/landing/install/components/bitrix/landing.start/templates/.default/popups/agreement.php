@@ -42,7 +42,7 @@ $id = 'landing-agreement-popup';
 			buttons: [
 				new BX.PopupWindowButton({
 					text: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACCEPT'));?>',
-					className: "webform-small-button webform-small-button-accept",
+					className: 'popup-window-button-accept',
 					events: {
 						click: function()
 						{

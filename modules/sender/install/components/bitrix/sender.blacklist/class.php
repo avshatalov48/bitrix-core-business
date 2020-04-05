@@ -6,6 +6,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
 
 use Bitrix\Sender\Security;
+use Bitrix\Sender\Integration;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -26,7 +27,8 @@ class SenderBlacklistComponent extends CBitrixComponent
 			$this->errors->setError(new Error('Module `sender` is not installed.'));
 			return false;
 		}
-		return true;
+
+		return Integration\Bitrix24\Service::isAvailable();
 	}
 
 	protected function initParams()
@@ -100,7 +102,8 @@ class SenderBlacklistComponent extends CBitrixComponent
 				$key = 'PATH_TO_'.strtoupper($url);
 				$value = substr($value, 0, -1);
 				$value = str_replace('/', '&ID=', $value);
-				$this->arResult[$key] = $APPLICATION->GetCurPage() . "?$value";
+				$lang = isset($_REQUEST['lang']) ? $_REQUEST['lang'] : null;
+				$this->arResult[$key] = $APPLICATION->GetCurPage() . "?$value" . ($lang ? "&lang=$lang" : '');
 			}
 		}
 

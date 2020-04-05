@@ -20,42 +20,54 @@ header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 CUtil::JSPostUnescape();
 if (check_bitrix_sessid())
 {
-	if (isset($_POST['GET_INPUT']) && $_POST['GET_INPUT'] == 'Y')
+	if (
+		(isset($_POST['GET_INPUT']) && $_POST['GET_INPUT'] == 'Y')
+		&& (isset($_POST['PROPERTY_ID']) && is_string($_POST['PROPERTY_ID']))
+	)
 	{
-		/** @global CMain $APPLICATION */
-		$APPLICATION->RestartBuffer();
-		if($_POST['PROPERTY_ID'] == "DETAIL" || $_POST['PROPERTY_ID'] == "ANNOUNCE")
+		$fieldId = trim($_POST['PROPERTY_ID']);
+		if ($fieldId !== '')
 		{
-			echo CFileInput::Show('PROP['.$_POST['PROPERTY_ID'].']['.$_POST['ROW_ID'].']', array(), array(
-					"IMAGE" => "Y",
-					"PATH" => "Y",
-					"FILE_SIZE" => "Y",
-					"DIMENSIONS" => "Y",
-					"IMAGE_POPUP" => "Y",
-					"MAX_SIZE" => array(
-						"W" => (int)Main\Config\Option::get('iblock', 'detail_image_size'),
-						"H" => (int)Main\Config\Option::get('iblock', 'detail_image_size'),
-					),
-				), array(
-					'upload' => true,
-					'medialib' => true,
-					'file_dialog' => true,
-					'cloud' => true,
-					'del' => true,
-					'description' => false,
-				));
-		}
-		else
-		{
-			$properties = CIBlockProperty::GetList(
-				array("SORT" => "ASC", "NAME" => "ASC"),
-				array("ID" => $_POST["PROPERTY_ID"], "ACTIVE" => "Y", "CHECK_PERMISSIONS" => "N")
-			);
-			if ($prop_fields = $properties->Fetch())
+			/** @global CMain $APPLICATION */
+			$APPLICATION->RestartBuffer();
+			if ($fieldId == "DETAIL" || $fieldId == "ANNOUNCE")
 			{
-				$prop_fields["VALUE"] = array();
-				$prop_fields["~VALUE"] = array();
-				_ShowPropertyField('PROP[' . $prop_fields["ID"] . '][' . $_POST['ROW_ID'] . ']', $prop_fields, $prop_fields["VALUE"], false, false, 50000, 'iblock_generator_form');
+				echo \Bitrix\Main\UI\FileInput::createInstance(array(
+					"name" => 'PROP['.$fieldId.']['.$_POST['ROW_ID'].']',
+					"description" => false,
+					"upload" => true,
+					"allowUpload" => "I",
+					"medialib" => true,
+					"fileDialog" => true,
+					"cloud" => true,
+					"delete" => true,
+					"maxCount" => 1
+				))->show([]);
+			}
+			else
+			{
+				$fieldId = (int)$fieldId;
+				if ($fieldId > 0)
+				{
+					$properties = CIBlockProperty::GetList(
+						array("SORT" => "ASC", "NAME" => "ASC"),
+						array("ID" => $fieldId, "ACTIVE" => "Y", "CHECK_PERMISSIONS" => "N")
+					);
+					if ($prop_fields = $properties->Fetch())
+					{
+						$prop_fields["VALUE"] = array();
+						$prop_fields["~VALUE"] = array();
+						_ShowPropertyField(
+							'PROP['.$prop_fields["ID"].']['.$_POST['ROW_ID'].']',
+							$prop_fields,
+							$prop_fields["VALUE"],
+							false,
+							false,
+							50000,
+							'iblock_generator_form'
+						);
+					}
+				}
 			}
 		}
 	}

@@ -185,7 +185,14 @@ class Lead extends ConnectorBaseFilter
 			"id" => "DATE_CREATE",
 			"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_LEAD_FIELD_DATE_CREATE'),
 			"type" => "date",
-			"include" => [AdditionalDateType::CUSTOM_DATE],
+			"include" => [
+				AdditionalDateType::CUSTOM_DATE,
+				AdditionalDateType::PREV_DAY,
+				AdditionalDateType::NEXT_DAY,
+				AdditionalDateType::MORE_THAN_DAYS_AGO,
+				AdditionalDateType::AFTER_DAYS,
+			],
+			"allow_years_switcher" => true,
 			"default" => true
 		);
 
@@ -246,10 +253,15 @@ class Lead extends ConnectorBaseFilter
 			"id" => "ASSIGNED_BY_ID",
 			"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_LEAD_FIELD_ASSIGNED_BY_ID'),
 			'type' => 'custom_entity',
+			'params' => array('multiple' => 'Y'),
 			'selector' => array(
 				'TYPE' => 'user',
 				'DATA' => array('ID' => 'assigned_by', 'FIELD_ID' => 'ASSIGNED_BY_ID')
 			),
+			'sender_segment_callback' => function ($field)
+			{
+				return Helper::getFilterFieldUserSelector($field['selector']['DATA'], 'crm_segment_lead');
+			},
 			"default" => false,
 		);
 
@@ -257,7 +269,14 @@ class Lead extends ConnectorBaseFilter
 			"id" => "BIRTHDATE",
 			"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_LEAD_FIELD_BIRTHDATE'),
 			'type' => 'date',
-			"include" => [AdditionalDateType::CUSTOM_DATE],
+			"include" => [
+				AdditionalDateType::CUSTOM_DATE,
+				AdditionalDateType::PREV_DAY,
+				AdditionalDateType::NEXT_DAY,
+				AdditionalDateType::MORE_THAN_DAYS_AGO,
+				AdditionalDateType::AFTER_DAYS,
+			],
+			"allow_years_switcher" => true,
 			"default" => false,
 		);
 
@@ -293,6 +312,16 @@ class Lead extends ConnectorBaseFilter
 				'sender_segment_name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_LEAD_PRESET_SEGMENT_INW'),
 				'fields' => array(
 					'STATUS_SEMANTIC_ID' => array(PhaseSemantics::PROCESS),
+				)
+			),
+			'crm_lead_birthday' => array(
+				'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_LEAD_PRESET_BIRTH'),
+				'sender_segment_name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_LEAD_PRESET_SEGMENT_BIRTH'),
+				'sender_segment_business_case' => true,
+				'fields' => array(
+					'BIRTHDATE_datesel' => 'NEXT_DAY',
+					'BIRTHDATE_days' => '5',
+					'BIRTHDATE_allow_year' => '0',
 				)
 			),
 		);

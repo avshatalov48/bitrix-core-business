@@ -124,6 +124,16 @@
 			return this.earRight;
 		},
 
+		getShadowLeft: function()
+		{
+			return this.parent.getContainer().querySelector(".main-grid-fade-shadow-left");
+		},
+
+		getShadowRight: function()
+		{
+			return this.parent.getContainer().querySelector(".main-grid-fade-shadow-right");
+		},
+
 		adjustEarOffset: function(prepare)
 		{
 			if (prepare)
@@ -226,7 +236,7 @@
 			var left = this.container.scrollLeft;
 
 			BX.Grid.Utils.requestAnimationFrame(BX.delegate(function() {
-				this.fixedTable.style.transform = 'translate3d(-'+left+'px, 0px, 0)';
+				this.fixedTable.style.marginLeft = -left + 'px';
 			}, this));
 		},
 

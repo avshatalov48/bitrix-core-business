@@ -208,6 +208,7 @@ class CSqlUtil
 
 		$strSqlSelect = '';
 		$strSqlFrom = '';
+		$strSqlFromWhere = '';
 		$strSqlGroupBy = '';
 
 		$arGroupByFunct = array("COUNT", "AVG", "MIN", "MAX", "SUM");
@@ -311,9 +312,20 @@ class CSqlUtil
 
 		foreach($arJoins as $join)
 		{
-			if($join !== '' && !in_array($join, $arAlreadyJoined))
+			if($join === '')
 			{
-				if (strlen($strSqlFrom) > 0)
+				continue;
+			}
+
+			if ($strSqlFromWhere !== '')
+			{
+				$strSqlFromWhere .= ' ';
+			}
+			$strSqlFromWhere .= $join;
+
+			if(!in_array($join, $arAlreadyJoined))
+			{
+				if ($strSqlFrom !== '')
 				{
 					$strSqlFrom .= ' ';
 				}
@@ -407,6 +419,7 @@ class CSqlUtil
 			"SELECT" => $strSqlSelect,
 			"FROM" => $strSqlFrom,
 			"WHERE" => $strSqlWhere,
+			"FROM_WHERE" => $strSqlFromWhere,
 			"GROUPBY" => $strSqlGroupBy,
 			"ORDERBY" => $strSqlOrderBy
 		);

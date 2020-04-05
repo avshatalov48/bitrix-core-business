@@ -1,4 +1,12 @@
 <?
+$MESS["SENDER_LETTER_TIME_TMPL_SCHEDULE_SHOW_ADDITIONAL"] = "set month and date";
+$MESS["SENDER_LETTER_TIME_TMPL_SCHEDULE_DAY"] = "Date";
+$MESS["SENDER_LETTER_TIME_TMPL_SCHEDULE_MONTH"] = "Month";
+$MESS["SENDER_LETTER_TIME_TMPL_SCHEDULE_TEXT_YE"] = "Monthly: %month%";
+$MESS["SENDER_LETTER_TIME_OUTSIDE_ADD_SUCCESS"] = "Newsletter has been saved!<br>
+You can now access in the CRM Marketing area (<a href=\"%path%\">Newsletters</a>)";
+$MESS["SENDER_LETTER_TIME_TMPL_MONTH_DAYS"] = "Days of month";
+$MESS["SENDER_LETTER_TIME_TMPL_SCHEDULE_TEXT_MO"] = "Specific days: %days%";
 $MESS["SENDER_LETTER_TIME_TMPL_TITLE_NEW"] = "Campaign %name% has been created and is now ready to be sent!";
 $MESS["SENDER_LETTER_TIME_TMPL_TITLE_EXISTS"] = "Campaign %name%";
 $MESS["SENDER_LETTER_TIME_TMPL_ACT_SEND"] = "Send messages";

@@ -100,19 +100,24 @@ DragNDropAddParameterControl.prototype =
 		{
 			if (values.hasOwnProperty(k))
 			{
-				if (
-					items[values[k].VARIANT]
-					&& (
-						!this.useBigData && !values[k].BIG_DATA
-						|| this.useBigData
-					)
-				)
+				for (var i in items)
 				{
-					result.push({
-						variant: values[k].VARIANT,
-						bigData: values[k].BIG_DATA,
-						message: items[values[k].VARIANT].CODE
-					});
+					if (
+						items.hasOwnProperty(i)
+						&& items[i].VARIANT == values[k].VARIANT
+						&& (
+							!this.useBigData && !values[k].BIG_DATA
+							|| this.useBigData
+						)
+					)
+					{
+						result.push({
+							variant: values[k].VARIANT,
+							bigData: values[k].BIG_DATA,
+							message: items[i].CODE
+						});
+
+					}
 				}
 			}
 		}
@@ -593,13 +598,13 @@ DragNDropAddParameterControl.prototype =
 
 	getVariantsCountMap: function(items)
 	{
-		var map = [];
+		var map = {};
 
 		for (var i in items)
 		{
 			if (items.hasOwnProperty(i))
 			{
-				map.push(items[i].COUNT);
+				map[items[i].VARIANT] = items[i].COUNT;
 			}
 		}
 

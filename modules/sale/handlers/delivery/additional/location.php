@@ -1,6 +1,7 @@
 <?
 namespace Sale\Handlers\Delivery\Additional;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Text\Encoding;
@@ -8,17 +9,10 @@ use Bitrix\Main\Web\HttpClient;
 use Bitrix\Sale\Result;
 use Bitrix\Main\IO\File;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Sale\Location\Comparator;
 use Bitrix\Sale\Delivery\ExternalLocationMap;
 
 Loc::loadMessages(__FILE__);
 
-Loader::registerAutoLoadClasses(
-	'sale',
-	array(
-		'\Sale\Handlers\Delivery\Additional\Location\Replacement' => 'handlers/delivery/additional/location/ru/replacement.php',
-	)
-);
 /**
  * Class Location
  * Convert service locations to local and back
@@ -89,6 +83,20 @@ class Location extends ExternalLocationMap
 					return $result;
 				}
 
+				$res = \Bitrix\Sale\Location\LocationTable::getList(array(
+					'runtime' => array(new \Bitrix\Main\Entity\ExpressionField('MAX', 'MAX(ID)')),
+					'select' => array('MAX')
+				));
+
+				if($loc = $res->fetch())
+				{
+					$_SESSION['SALE_HNDL_ADD_DLV_LOC_MAX_ID'] = (int)$loc['MAX'];
+				}
+				else
+				{
+					$_SESSION['SALE_HNDL_ADD_DLV_LOC_MAX_ID'] = 0;
+				}
+
 				$result->setData(array(
 					'STAGE' => 'create_ethalon_loc_tmp_table',
 					'MESSAGE' => Loc::getMessage('SALE_DLVRS_ADDL_LOCATIONS_CREATE_TMP_TABLE'),
@@ -149,13 +157,25 @@ class Location extends ExternalLocationMap
 
 			case 'create_normalized_loc_table':
 
-				self::fillNormalizedTable();
+				$lastId = self::fillNormalizedTable((int)$step, $timeout);
 
-				$result->setData(array(
-					'STAGE' => 'map_by_names',
-					'MESSAGE' => Loc::getMessage('SALE_DLVRS_ADDL_LOCATIONS_COMP_BY_NAMES'),
-					'PROGRESS' => $progress + 5
-				));
+				if($lastId < $_SESSION['SALE_HNDL_ADD_DLV_LOC_MAX_ID'])
+				{
+					$result->setData(array(
+						'STAGE' => 'create_normalized_loc_table',
+						'STEP' => $lastId,
+						'MESSAGE' => Loc::getMessage('SALE_DLVRS_ADDL_LOCATIONS_NORM'),
+						'PROGRESS' => $progress <= 25 ? $progress + 1 : $progress
+					));
+				}
+				else
+				{
+					$result->setData(array(
+						'STAGE' => 'map_by_names',
+						'MESSAGE' => Loc::getMessage('SALE_DLVRS_ADDL_LOCATIONS_COMP_BY_NAMES'),
+						'PROGRESS' => $progress + 5
+					));
+				}
 
 				break;
 
@@ -164,11 +184,11 @@ class Location extends ExternalLocationMap
 				$lastProcessedId = self::mapByNames($srvId, $step, $timeout);
 
 				if($_SESSION['SALE_HNDL_ADD_DLV_ETH_LOC_LAST'] <= 0)
-					$progress = $progress <= 90 ? ($progress + intval($step)+1) : $progress;
-				elseif($lastProcessedId <= 0)
+					$progress = $progress <= 90 ? $progress + 1 : 90;
+				elseif($lastProcessedId <= 0 || $lastProcessedId == $_SESSION['SALE_HNDL_ADD_DLV_ETH_LOC_LAST'])
 					$progress = 100;
 				else
-					$progress = $progress + round(75 * $lastProcessedId / $_SESSION['SALE_HNDL_ADD_DLV_ETH_LOC_LAST']);
+					$progress = 32 + round(60 * $lastProcessedId / $_SESSION['SALE_HNDL_ADD_DLV_ETH_LOC_LAST']);
 
 				if($progress < 100)
 				{
@@ -184,7 +204,7 @@ class Location extends ExternalLocationMap
 					$result->setData(array(
 						'STAGE' => 'finish',
 						'MESSAGE' => Loc::getMessage('SALE_DLVRS_ADDL_LOCATIONS_COMP_COMPLETE'),
-						'PROGRESS' => $progress
+						'PROGRESS' => 100
 					));
 				}
 
@@ -220,8 +240,50 @@ class Location extends ExternalLocationMap
 		return  self::unpackLocations($archiveFileName);
 	}
 
+	protected static function getReplacementClass()
+	{
+		$result = null;
+
+		$replacementPath = Application::getDocumentRoot().
+			'/bitrix/modules/sale/handlers/delivery/additional/location/'.
+			LANGUAGE_ID.'/replacement.php';
+
+		if(file_exists($replacementPath))
+		{
+			require_once($replacementPath);
+
+			if(class_exists('\Sale\Handlers\Delivery\Additional\Location\Replacement'))
+			{
+				$result = '\Sale\Handlers\Delivery\Additional\Location\Replacement';
+			}
+		}
+
+		return $result;
+	}
+
+	protected static function getCountryName()
+	{
+		$result = '';
+		/** @var \Sale\Handlers\Delivery\Additional\Location\Replacement $relpacementClass */
+		$relpacementClass = static::getReplacementClass();
+
+		if($relpacementClass)
+		{
+			$result = $relpacementClass::getCountryName();
+		}
+
+		return $result;
+	}
+
 	protected static function mapByNames($srvId, $startId = 0, $timeout = 0)
 	{
+		$countryName = self::getCountryName();
+
+		if(strlen($countryName) <= 0)
+		{
+			return 0;
+		}
+
 		$startTime = mktime(true);
 		$con = \Bitrix\Main\Application::getConnection();
 		$sqlHelper = $con->getSqlHelper();
@@ -246,7 +308,6 @@ class Location extends ExternalLocationMap
 		}
 
 		$dbRes = $con->query($query);
-		$t = $t1 = mktime(true);
 
 		while($ethLoc = $dbRes->fetch())
 		{

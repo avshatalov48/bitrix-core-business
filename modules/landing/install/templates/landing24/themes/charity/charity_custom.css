@@ -1,21 +1,9 @@
-/*
-For colors, than white in dark themes and vice versa
-Use color from standart H
-*/
-h2.g-theme-light-color-dark, h4.g-theme-light-color-dark {color: #000;}
-
 
 /* Fix for complex button with icon. Need no bg color */
 .u-btn-inset > .u-btn-darkgray {
 	background-color: transparent;
 }
 
-/* for overwrite P color */
-.g-color-primary,
-.g-color-primary *,
-.g-color-primary p {
-	color: #777;
-}
 
 
 /*charity have very hard yelLow color, it makes me cry (( Need use g-color-gray-dark-v1 for font-color, if we want read text */
@@ -143,10 +131,6 @@ h2.g-theme-light-color-dark, h4.g-theme-light-color-dark {color: #000;}
 THEMES CUSTOM COLORS
 *********** */
 
-.landing-block-node-menu-list.navbar-nav .nav-item .nav-link:hover, .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link {
-	color: #777 !important;
-}
-
 .u-btn-primary:hover, .u-btn-primary:active, .u-btn-primary:focus {
 	color: #111;
 }
@@ -235,44 +219,6 @@ THEMES CUSTOM COLORS
 	color: #000 !important;
 }
 
-.g-bg-white .landing-block-node-menu-list.navbar-nav .nav-item .nav-link-color-hover:hover {
-	background-color: #f5f219 !important;
-	color: #000 !important;
-}
-
-.g-bg-white .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link-color-hover {
-	background-color: #f5f219 !important;
-	color: #000 !important;
-}
-
-.g-color-primary--hover:hover * {
-	color: #f5f219 !important;
-}
-
-.g-bg-gray-dark-v1 .navbar-nav .nav-item .nav-link {
-	color: #fff;
-}
-
-.g-bg-gray-dark-v1 .navbar-nav .nav-item .nav-link:hover, .g-bg-gray-dark-v1 .navbar-nav .nav-item.active .nav-link {
-	color: #f5f219 !important;
-}
-
-.light-theme .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link, .light-theme .landing-block-node-menu-list.navbar-nav .nav-item .nav-link:hover {
-	color: #f5f219 !important;
-}
-
-.light-theme .landing-block-node-menu-list.navbar-nav .nav-item .nav-link:hover {
-	color: #f5f219 !important;
-}
-
-.dark-theme.js-header-change-moment .navbar-nav .nav-item .nav-link:hover {
-	color: #f5f219 !important;
-}
-
-.dark-theme.js-header-change-moment .navbar-nav .nav-item.active .nav-link {
-	color: #f5f219 !important;
-}
-
 .g-pos-rel .g-absolute-centered .g-bg-primary-opacity-0_9 .g-color-white {
 	color: #000 !important;
 }
@@ -353,10 +299,6 @@ THEMES CUSTOM COLORS
 	background-color: #000 !important;
 }
 
-/* RESTAURANT */
-.u-theme-restaurant-shadow-v1 {
-	box-shadow: inset 2px 2px 2px #eae70a;
-}
 
 /* BUTTON HOVERS */
 

@@ -17,7 +17,9 @@
 		this.idPlace = 3;
 		this.params = {
 			autoplay: 1,
+			loop: 0,
 			hd: 1,
+			muted: 0,
 			background: 0,
 			show_title: 1,
 			show_byline: 1,
@@ -92,6 +94,30 @@
 							{name: "1080p", value: "1080p"},
 							{name: "780p", value: "780p"},
 							{name: "360p ("+BX.message("LANDING_CONTENT_URL_MEDIA_QUALITY_LOW")+")", value: "360p"}
+						]
+					})
+				);
+
+				this.form.addField(
+					new BX.Landing.UI.Field.Dropdown({
+						title: BX.message("LANDING_CONTENT_URL_MEDIA_LOOP"),
+						selector: "loop",
+						content: settings.loop,
+						items: [
+							{name: BX.message("LANDING_CONTENT_URL_MEDIA_YES"), value: 1},
+							{name: BX.message("LANDING_CONTENT_URL_MEDIA_NO"), value: 0}
+						]
+					})
+				);
+
+				this.form.addField(
+					new BX.Landing.UI.Field.Dropdown({
+						title: BX.message("LANDING_CONTENT_URL_MEDIA_SOUND"),
+						selector: "muted",
+						content: settings.muted,
+						items: [
+							{name: BX.message("LANDING_CONTENT_URL_MEDIA_YES"), value: 0},
+							{name: BX.message("LANDING_CONTENT_URL_MEDIA_NO"), value: 1}
 						]
 					})
 				);

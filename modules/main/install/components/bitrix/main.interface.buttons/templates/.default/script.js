@@ -62,6 +62,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		this.classSecret = 'secret';
 		this.classItemLocked = 'locked';
 		this.submenuIdPrefix = 'main_buttons_popup_';
+		this.childMenuIdPrefix = 'main_buttons_popup_child_';
 		this.submenuWindowIdPrefix = 'menu-popup-';
 		this.classSettingMenuItem = 'main-buttons-submenu-setting';
 		this.classEditState = 'main-buttons-edit';
@@ -180,6 +181,8 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			}
 
 			this.moreButton = this.getMoreButton();
+
+			this.listChildItems = {};
 
 			if (this.isSettingsEnabled)
 			{
@@ -780,7 +783,8 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		setContainerHeight: function()
 		{
 			var containerHeight = this.getContainerHeight();
-			BX.height(this.listContainer, containerHeight);
+			var itemMarginBottom = 8;
+			BX.height(this.listContainer, containerHeight-itemMarginBottom);
 		},
 
 
@@ -1284,6 +1288,19 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			return id;
 		},
 
+		getChildMenuId: function()
+		{
+			var id = '';
+
+			if (BX.type.isDomNode(this.listContainer) &&
+				BX.type.isNotEmptyString(this.listContainer.id))
+			{
+				id = this.childMenuIdPrefix + this.listContainer.id;
+			}
+
+			return id;
+		},
+
 
 		/**
 		 * Gets submenu item content
@@ -1318,6 +1335,32 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 			return result;
 		},
+
+		getChildMenuItemText: function(item)
+		{
+			var text, counter, result;
+			if (!BX.type.isDomNode(item))
+			{
+				return null;
+			}
+
+			text = this.findChildrenByClassName(item, this.classItemText);
+			counter = this.findChildrenByClassName(item, this.classItemCounter);
+
+			if (BX.type.isDomNode(counter) && BX.type.isDomNode(text))
+			{
+				counter.dataset.counter = this.dataValue(item, 'counter');
+				result = text.outerHTML + counter.outerHTML;
+			}
+			else
+			{
+				text = this.dataValue(item, 'text');
+				result = text;
+			}
+
+			return result;
+		},
+
 
 
 		/**
@@ -1400,7 +1443,8 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 						href: this.dataValue(current, 'url'),
 						onclick: this.dataValue(current, 'onclick'),
 						title: current.getAttribute('title'),
-						className: className.join(' ')
+						className: className.join(' '),
+						items: this.getChildMenuItems(current)
 					});
 				}, this);
 			}
@@ -1455,8 +1499,10 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 							href: this.dataValue(current, 'url'),
 							onclick: this.dataValue(current, 'onclick'),
 							title: current.getAttribute('title'),
-							className: className.join(' ')
+							className: className.join(' '),
+							items: this.getChildMenuItems(current)
 						});
+
 					}, this);
 				}
 
@@ -1495,6 +1541,90 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			return result;
 		},
 
+		getChildMenuItems: function(item)
+		{
+			var data;
+			try
+			{
+				data = JSON.parse(this.dataValue(item, 'item'));
+			}
+			catch (err)
+			{
+				data = null;
+			}
+
+			if (!BX.type.isPlainObject(data))
+			{
+				return [];
+			}
+
+			if (!BX.type.isArray(this.listChildItems[item.id]))
+			{
+				var listAllItems = {};
+				this.setListAllItems(listAllItems, data);
+
+				var items = this.getListItems(listAllItems, "");
+				if (items.length)
+				{
+					this.listChildItems[item.id] = (BX.type.isArray(items[0].items) ? items[0].items : []);
+				}
+			}
+
+			return this.listChildItems[item.id];
+		},
+
+		setListAllItems: function(listAllItems, data)
+		{
+			var items = [];
+			if (BX.type.isPlainObject(data))
+			{
+				items.push(data);
+			}
+			else
+			{
+				items = data;
+			}
+
+			items.forEach(function(item) {
+				listAllItems[item["ID"].replace(this.containerId + "_", "")] = item;
+				if (BX.type.isArray(item["ITEMS"]))
+				{
+					this.setListAllItems(listAllItems, item["ITEMS"]);
+				}
+			}, this);
+		},
+
+		getListItems: function(listAllItems, parentId)
+		{
+			var listItems = [];
+
+			for (var itemId in listAllItems)
+			{
+				if (!listAllItems.hasOwnProperty(itemId))
+				{
+					continue;
+				}
+				var item = listAllItems[itemId];
+				if (item["PARENT_ID"] === parentId)
+				{
+					var listChildItems, itemData = {
+						text: item["TEXT"],
+						href: item["URL"],
+						onclick: item["ON_CLICK"],
+						title: item["TITLE"]
+					};
+					listChildItems = this.getListItems(listAllItems, itemId);
+					if (listChildItems.length)
+					{
+						itemData.items = listChildItems;
+					}
+					listItems.push(itemData);
+					delete listAllItems[itemId];
+				}
+			}
+
+			return listItems;
+		},
 
 		/**
 		 * Gets BX.PopupMenu.show arguments
@@ -1516,7 +1646,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 					'position': 'top',
 					'offset': 100
 				},
-				zIndex: 20,
+				zIndex: 0,
 				'events':
 				{
 					'onPopupClose': BX.delegate(this._onSubmenuClose, this)
@@ -1524,6 +1654,25 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			};
 
 			return [menuId, anchor, menuItems, params];
+		},
+
+		getChildMenuArgs: function(item)
+		{
+			var menuId = this.getChildMenuId();
+			var menuItems = this.getChildMenuItems(item);
+
+			if (!menuItems || (BX.type.isArray(menuItems) && !menuItems.length))
+			{
+				return [];
+			}
+
+			var params = {
+				autoHide: true,
+				angle: true,
+				offsetLeft: item.getBoundingClientRect().width/2
+			};
+
+			return [menuId, item, menuItems, params];
 		},
 
 
@@ -1565,6 +1714,11 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			return menu;
 		},
 
+		createChildMenu: function(item)
+		{
+			return BX.PopupMenu.create.apply(BX.PopupMenu, this.getChildMenuArgs(item));
+		},
+
 
 		/**
 		 * Shows submenu
@@ -1597,6 +1751,30 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			}
 		},
 
+		showChildMenu: function(item)
+		{
+			var currentMenu = BX.PopupMenu.getMenuById(this.getChildMenuId()), childMenu = null;
+			if (currentMenu && currentMenu.bindElement)
+			{
+				if (currentMenu.bindElement.id !== item.id)
+				{
+					this.destroyChildMenu(item);
+					childMenu = this.createChildMenu(item);
+					childMenu.popupWindow.show();
+				}
+				else
+				{
+					currentMenu.popupWindow.show();
+				}
+			}
+			else
+			{
+				this.destroyChildMenu(item);
+				childMenu = this.createChildMenu(item);
+				childMenu.popupWindow.show();
+			}
+		},
+
 
 		/**
 		 * Closes submenu
@@ -1621,6 +1799,18 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			this.setSubmenuShown(false);
 		},
 
+		closeChildMenu: function(item)
+		{
+			var childMenu = this.getChildMenu(item);
+
+			if (childMenu === null)
+			{
+				return;
+			}
+
+			childMenu.popupWindow.close();
+		},
+
 
 		/**
 		 * Gets current submenu
@@ -1633,6 +1823,11 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			return BX.PopupMenu.getMenuById(this.getSubmenuId());
 		},
 
+		getChildMenu: function()
+		{
+			return BX.PopupMenu.getMenuById(this.getChildMenuId());
+		},
+
 
 		/**
 		 * Destroys submenu
@@ -1643,6 +1838,11 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		destroySubmenu: function()
 		{
 			BX.PopupMenu.destroy(this.getSubmenuId());
+		},
+
+		destroyChildMenu: function()
+		{
+			BX.PopupMenu.destroy(this.getChildMenuId());
 		},
 
 
@@ -2954,6 +3154,10 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 			if (event.type === 'mouseover' && !BX.hasClass(item, this.classItemOver))
 			{
+				if (!BX.hasClass(item, this.classItemMore))
+				{
+					this.showChildMenu(item);
+				}
 				BX.addClass(item, this.classItemOver);
 			}
 

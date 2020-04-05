@@ -27,8 +27,36 @@ class WorkflowInstanceTable extends Entity\DataManager
 				'data_type' => 'string',
 				'primary' => true,
 			),
+			'MODULE_ID' => array(
+				'data_type' => 'string'
+			),
+			'ENTITY' => array(
+				'data_type' => 'string'
+			),
+			'DOCUMENT_ID' => array(
+				'data_type' => 'string'
+			),
+			'WORKFLOW_TEMPLATE_ID' => array(
+				'data_type' => 'integer'
+			),
 			'WORKFLOW' => array(
 				'data_type' => 'string'
+			),
+			'STARTED' => array(
+				'data_type' => 'datetime'
+			),
+			'STARTED_BY' => array(
+				'data_type' => 'integer'
+			),
+			'STARTED_USER' => array(
+				'data_type' => '\Bitrix\Main\UserTable',
+				'reference' => array(
+					'=this.STARTED_BY' => 'ref.ID'
+				),
+				'join_type' => 'LEFT',
+			),
+			'STARTED_EVENT_TYPE' => array(
+				'data_type' => 'integer'
 			),
 			'STATUS' => array(
 				'data_type' => 'integer'
@@ -49,6 +77,13 @@ class WorkflowInstanceTable extends Entity\DataManager
 				),
 				'join_type' => 'LEFT',
 			),
+			'TEMPLATE' => array(
+				'data_type' => '\Bitrix\Bizproc\WorkflowTemplateTable',
+				'reference' => array(
+					'=this.WORKFLOW_TEMPLATE_ID' => 'ref.ID'
+				),
+				'join_type' => 'LEFT'
+			),
 		);
 	}
 
@@ -58,13 +93,74 @@ class WorkflowInstanceTable extends Entity\DataManager
 		$rows = static::getList([
 			'select' => ['ID'],
 			'filter' => [
-				'=STATE.MODULE_ID' => $documentId[0],
-				'=STATE.ENTITY' => $documentId[1],
-				'=STATE.DOCUMENT_ID' => $documentId[2]
+				'=MODULE_ID' => $documentId[0],
+				'=ENTITY' => $documentId[1],
+				'=DOCUMENT_ID' => $documentId[2]
 			]
 		])->fetchAll();
 
 		return array_column($rows, 'ID');
+	}
+
+	public static function mergeByDocument($paramFirstDocumentId, $paramSecondDocumentId)
+	{
+		$firstDocumentId = \CBPHelper::parseDocumentId($paramFirstDocumentId);
+		$secondDocumentId = \CBPHelper::parseDocumentId($paramSecondDocumentId);
+
+		$connection = Main\Application::getConnection();
+		$sqlHelper = $connection->getSqlHelper();
+		$table = $sqlHelper->forSql(static::getTableName());
+
+		$firstDocId = $sqlHelper->forSql($firstDocumentId[2]);
+		$firstEntity = $sqlHelper->forSql($firstDocumentId[1]);
+		$firstModule = $sqlHelper->forSql($firstDocumentId[0]);
+
+		$secondDocId = $sqlHelper->forSql($secondDocumentId[2]);
+		$secondEntity = $sqlHelper->forSql($secondDocumentId[1]);
+		$secondModule = $sqlHelper->forSql($secondDocumentId[0]);
+
+		$connection->queryExecute("UPDATE {$table} 
+			SET 
+				DOCUMENT_ID = '{$firstDocId}',
+				ENTITY = '{$firstEntity}',
+				MODULE_ID = '{$firstModule}' 
+			WHERE 
+				DOCUMENT_ID = '{$secondDocId}' 
+				AND ENTITY = '{$secondEntity}' 
+				AND MODULE_ID = '{$secondModule}'
+		");
+
+		return true;
+	}
+
+	public static function migrateDocumentType($paramOldType, $paramNewType, $workflowTemplateIds)
+	{
+		$oldType = \CBPHelper::parseDocumentId($paramOldType);
+		$newType = \CBPHelper::parseDocumentId($paramNewType);
+
+		$connection = Main\Application::getConnection();
+		$sqlHelper = $connection->getSqlHelper();
+		$table = $sqlHelper->forSql(static::getTableName());
+
+		$firstEntity = $sqlHelper->forSql($oldType[1]);
+		$firstModule = $sqlHelper->forSql($oldType[0]);
+
+		$secondEntity = $sqlHelper->forSql($newType[1]);
+		$secondModule = $sqlHelper->forSql($newType[0]);
+
+		$templates = implode(",", array_map('intval', $workflowTemplateIds));
+
+		$connection->queryExecute("UPDATE {$table} 
+			SET 
+				ENTITY = '{$firstEntity}',
+				MODULE_ID = '{$firstModule}' 
+			WHERE 
+				ENTITY = '{$secondEntity}' 
+				AND MODULE_ID = '{$secondModule}' 
+				AND WORKFLOW_TEMPLATE_ID IN ({$templates})
+		");
+
+		return true;
 	}
 
 	/**

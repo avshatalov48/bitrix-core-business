@@ -424,9 +424,10 @@
 		},
 		preparePost : function(data, prepareForm)
 		{
+			var siteId = (BX.message.SITE_ID ? BX.message("SITE_ID") : "");
 			if (prepareForm === true && this.params["uploadFormData"] == "Y" && !this.post)
 			{
-				var post2 = {data : {"AJAX_POST" : "Y", SITE_ID : BX.message("SITE_ID"), USER_ID : BX.message("USER_ID")}, filesCount : 0, size : 10};
+				var post2 = {data : {"AJAX_POST" : "Y", SITE_ID : siteId, USER_ID : BX.message("USER_ID")}, filesCount : 0, size : 10};
 				post2 = (this.form ? BX.UploaderUtils.FormToArray(this.form, post2) : post2);
 				if (!!post2.data[this.params["filesInputName"]])
 				{
@@ -452,7 +453,7 @@
 				post2.size = BX.UploaderUtils.sizeof(post2.data);
 				this.post = post2;
 			}
-			var post = (prepareForm === true && this.params["uploadFormData"] == "Y" ? this.post : {data : {"AJAX_POST" : "Y", SITE_ID : BX.message("SITE_ID"), USER_ID : BX.message("USER_ID")}, filesCount : 0, size : 10}), size = 0;
+			var post = (prepareForm === true && this.params["uploadFormData"] == "Y" ? this.post : {data : {"AJAX_POST" : "Y", SITE_ID : siteId, USER_ID : BX.message("USER_ID")}, filesCount : 0, size : 10}), size = 0;
 			post.data["sessid"] = BX.bitrix_sessid();
 			post.size += (6 + BX.bitrix_sessid().length);
 			if (data)
@@ -1425,17 +1426,21 @@
 					return ar1;
 				};
 			this.response = merge((this.response || {}), (data || {}));
+			var uploader = this.streams.getUploader();
 			var item, id, file, nonProcessRun, files, ij, copies;
 			for (id in stream.files)
 			{
 				if (stream.files.hasOwnProperty(id))
 				{
 					item = this.repo.getItem(id);
-					if (item && (file = data.files[id]))
+					file = data.files[id];
+					if (item)
 					{
 						if (!file) // has never been loaded
 						{
-							this.queue.restoreFiles(new BX.UploaderUtils.Hash([item]));
+							uploader.queue.restoreFiles(new BX.UploaderUtils.Hash([item]), false, true);
+							delete item.uploadStatus;
+							this.data.setItem(item.id, item);
 						}
 						else if (!file["status"]) // was downloaded partly before but not this time
 						{
@@ -1450,7 +1455,9 @@
 									copies[file["copy"]] = "Y";
 									if (file["copy"] == "default" && file["package"] <= 0)
 									{
-										this.queue.restoreFiles(new BX.UploaderUtils.Hash([item]));
+										uploader.queue.restoreFiles(new BX.UploaderUtils.Hash([item]));
+										delete item.uploadStatus;
+										this.data.setItem(item.id, item);
 										break;
 									}
 
@@ -1836,6 +1843,10 @@
 				}
 			}
 			this.start();
+		},
+		getUploader: function()
+		{
+			return this.uploaded;
 		},
 		exec : function()
 		{

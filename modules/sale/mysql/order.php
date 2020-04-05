@@ -166,7 +166,9 @@ class CSaleOrder extends CAllSaleOrder
 				$arFields1 = \Bitrix\Sale\Compatible\OrderCompatibility::backRawField(\Bitrix\Sale\Compatible\OrderCompatibility::ENTITY_ORDER, $arFields1);
 			}
 
+			\Bitrix\Sale\DiscountCouponsManager::freezeCouponStorage();
 			$result = \Bitrix\Sale\Compatible\OrderCompatibility::update($ID, array_merge($arFields, $arFields1), $bDateUpdate);
+			\Bitrix\Sale\DiscountCouponsManager::unFreezeCouponStorage();
 			if (!$result->isSuccess())
 			{
 				foreach($result->getErrorMessages() as $error)

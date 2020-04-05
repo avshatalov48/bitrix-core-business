@@ -45,6 +45,9 @@ class BlockTable extends Entity\DataManager
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CODE'),
 				'required' => true
 			)),
+			'ANCHOR' => new Entity\StringField('ANCHOR', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_ANCHOR')
+			)),
 			'MANIFEST_DB' => new Entity\ReferenceField(
 				'MANIFEST_DB',
 				'\Bitrix\Landing\Internals\ManifestTable',
@@ -71,7 +74,9 @@ class BlockTable extends Entity\DataManager
 			)),
 			'CONTENT' => new Entity\StringField('CONTENT', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CONTENT'),
-				'required' => true
+				'required' => true,
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			)),
 			'CREATED_BY_ID' => new Entity\IntegerField('CREATED_BY_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CREATED_BY_ID'),

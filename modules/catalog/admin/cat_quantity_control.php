@@ -1,4 +1,7 @@
 <?
+use Bitrix\Main\Loader,
+	Bitrix\Catalog;
+
 define('STOP_STATISTICS', true);
 define('NO_AGENT_CHECK', true);
 define('DisableEventsCheck', true);
@@ -10,19 +13,19 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_befo
 IncludeModuleLangFile(__FILE__);
 header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 
-$userId = $USER->GetID();
+$userId = (int)$USER->GetID();
 
-if(intval($userId) <= 0)
+if ($userId <= 0)
 {
 	echo CUtil::PhpToJSObject(array('ERROR' => 'AUTHORIZE_ERROR'));
 	die();
 }
-if(!CModule::IncludeModule("catalog"))
+if (!Loader::includeModule('catalog'))
 {
 	echo CUtil::PhpToJSObject(array('ERROR' => 'CATALOG_MODULE_NOT_INSTALL'));
 	die();
 }
-$strUseStoreControl = COption::GetOptionString('catalog', 'default_use_store_control', 'N');
+$useStoreControl = Catalog\Config\State::isUsedInventoryManagement();
 $buttonId = htmlspecialcharsbx($_REQUEST['elId']);
 $strDateAction = date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL")), time());
 if(check_bitrix_sessid())
@@ -36,7 +39,7 @@ if(check_bitrix_sessid())
 	CUtil::JSPostUnescape();
 	if($_REQUEST['action'] == "clearQuantity")
 	{
-		if($strUseStoreControl === 'N')
+		if (!$useStoreControl)
 		{
 			$dbElements = CCatalogProduct::GetList(array(), array("ELEMENT_IBLOCK_ID" => $iblockId, "!QUANTITY" => 0), false, false, array("ID"));
 			while($arElements = $dbElements->Fetch())
@@ -88,7 +91,7 @@ if(check_bitrix_sessid())
 			while($arStoreElements = $dbStoreElements->Fetch())
 			{
 				CCatalogStoreProduct::Update($arStoreElements["ID"], array("AMOUNT" => 0));
-				if($strUseStoreControl === 'Y')
+				if ($useStoreControl)
 				{
 					$arElementsId[$arStoreElements["PRODUCT_ID"]] = $arElementsId[$arStoreElements["PRODUCT_ID"]] - $arStoreElements["AMOUNT"];
 					CCatalogProduct::Update($arStoreElements["PRODUCT_ID"], array("QUANTITY" => $arElementsId[$arStoreElements["PRODUCT_ID"]]));

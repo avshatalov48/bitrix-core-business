@@ -21,7 +21,7 @@ class Type extends ClassConstant
 	const BASE = 1;
 	const USER = 2;
 	const ADDITIONAL = 3;
-	const SITE_TMPL = 3;
+	const SITE_TMPL = 4;
 
 	/**
 	 * Get caption.
@@ -31,8 +31,7 @@ class Type extends ClassConstant
 	 */
 	public static function getName($id)
 	{
-		$code = self::getCode($id);
-		$name = Loc::getMessage('SENDER_TEMPLATES_TYPE_CAPTION_' . $code) ?: $code;
-		return $name;
+		$name = Loc::getMessage('SENDER_TEMPLATES_TYPE_CAPTION_' . self::getCode($id));
+		return $name ?: parent::getName($id);
 	}
 }

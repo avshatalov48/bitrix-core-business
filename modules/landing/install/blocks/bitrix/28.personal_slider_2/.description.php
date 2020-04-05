@@ -76,6 +76,11 @@ return array(
 						'name' => Loc::getMessage('LANDING_BLOCK_28.PERSONAL_SLIDER_STYLE_LANDINGBLOCKNODEPERSONLINK'),
 						'type' => 'typo',
 					),
+				'.landing-block-node-person-photo' =>
+					array(
+						'name' => Loc::getMessage('LANDING_BLOCK_28.PERSONAL_SLIDER_NODES_LANDINGBLOCKNODEPERSONPHOTO'),
+						'type' => 'background-size',
+					),
 			),
 		),
 	'assets' => array(

@@ -22,6 +22,7 @@ class Category extends ClassConstant
 	const BASE = 1;
 	const USER = 2;
 	const ADDITIONAL = 3;
+	const CASES = 4;
 
 	/**
 	 * Get caption.
@@ -31,9 +32,8 @@ class Category extends ClassConstant
 	 */
 	public static function getName($id)
 	{
-		$code = self::getCode($id);
-		$name = Loc::getMessage('SENDER_TEMPLATES_CATEGORY_' . $code) ?: $code;
-		return $name;
+		$name = Loc::getMessage('SENDER_TEMPLATES_CATEGORY_' . self::getCode($id));
+		return $name ?: parent::getName($id);
 	}
 
 	/**
@@ -47,13 +47,13 @@ class Category extends ClassConstant
 	{
 		$order = array(
 			self::RECENT => 1,
-			self::BASE => 2,
-			self::USER => 3,
-			self::ADDITIONAL => 4,
+			self::BASE => 200,
+			self::USER => 210,
+			self::ADDITIONAL => 220,
 		);
 
-		$orderA = $order[self::getId($codeA)];
-		$orderB = $order[self::getId($codeB)];
+		$orderA = isset($order[self::getId($codeA)]) ? $order[self::getId($codeA)] : 100;
+		$orderB = isset($order[self::getId($codeB)]) ? $order[self::getId($codeB)] : 100;
 
 		if ($orderA < $orderB)
 		{

@@ -142,7 +142,7 @@ if($_REQUEST['save'])
 					break;
 				case 2:
 					if ($w%2)
-						$arWeekDays = array(1,3,5);
+						$arWeekDays = array(1,3,5,0);
 					else
 						$arWeekDays = array(0,2,4,6);
 					break;

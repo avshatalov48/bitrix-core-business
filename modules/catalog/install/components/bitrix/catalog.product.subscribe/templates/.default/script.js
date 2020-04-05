@@ -33,8 +33,10 @@
 		this.jsObject = params.jsObject;
 		this.ajaxUrl = '/bitrix/components/bitrix/catalog.product.subscribe/ajax.php';
 		this.alreadySubscribed = params.alreadySubscribed;
+		this.listIdAlreadySubscribed = params.listIdAlreadySubscribed;
 		this.urlListSubscriptions = params.urlListSubscriptions;
 		this.listOldItemId = {};
+		this.landingId = params.landingId;
 
 		this.elemButtonSubscribe = null;
 		this.elemPopupWin = null;
@@ -65,6 +67,7 @@
 		}
 
 		this.setButton(this.alreadySubscribed);
+		this.setIdAlreadySubscribed(this.listIdAlreadySubscribed);
 	};
 
 	window.JCCatalogProductSubscribe.prototype.checkSubscribe = function()
@@ -114,7 +117,8 @@
 				sessid: BX.bitrix_sessid(),
 				subscribe: 'Y',
 				itemId: this.elemButtonSubscribe.dataset.item,
-				siteId: BX.message('SITE_ID')
+				siteId: BX.message('SITE_ID'),
+				landingId: this.landingId
 			},
 			onsuccess: BX.delegate(function (result) {
 				if(result.success)
@@ -439,6 +443,13 @@
 				BX.create('input', {
 					props: {
 						type: 'hidden',
+						name: 'landingId',
+						value: this.landingId
+					}
+				}),
+				BX.create('input', {
+					props: {
+						type: 'hidden',
 						name: 'siteId',
 						value: BX.message('SITE_ID')
 					}
@@ -561,6 +572,14 @@
 			this.elemButtonSubscribe.className = this.buttonClass + ' ' + this.defaultButtonClass;
 			this.elemButtonSubscribe.innerHTML = '<span>' + BX.message('CPST_SUBSCRIBE_BUTTON_NAME') + '</span>';
 			BX.bind(this.elemButtonSubscribe, 'click', this._elemButtonSubscribeClickHandler);
+		}
+	};
+
+	window.JCCatalogProductSubscribe.prototype.setIdAlreadySubscribed = function(listIdAlreadySubscribed)
+	{
+		if (BX.type.isPlainObject(listIdAlreadySubscribed))
+		{
+			this.listOldItemId = listIdAlreadySubscribed;
 		}
 	};
 

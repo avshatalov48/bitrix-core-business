@@ -1,4 +1,12 @@
 <?
+$MESS["SBP_PARAMETERS_USE_DISCOUNT_ID"] = "Use existing deal";
+$MESS["SBP_PARAMETERS_DISCOUNT_ID"] = "Shopping cart rule";
+$MESS["SBP_PARAMETERS_COUPON_IS_LIMITED"] = "Limited-time offer";
+$MESS["SBP_PARAMETERS_COUPON_LIMIT_VALUE"] = "Coupon will expire in (since created)";
+$MESS["SBP_PARAMETERS_COUPON_LIMIT_TYPE"] = "Unit";
+$MESS["SBP_PARAMETERS_COUPON_DAY_LIMIT_TYPE"] = "day(s)";
+$MESS["SBP_PARAMETERS_COUPON_WEEK_LIMIT_TYPE"] = "week(s)";
+$MESS["SBP_PARAMETERS_COUPON_MONTH_LIMIT_TYPE"] = "month(s)";
 $MESS["SBP_NEED_REQUIRED_MODULES"] = "This component requires the e-Store, Information Blocks and Commercial Catalog modules.";
 $MESS["SBP_GROUPS_DISCOUNT"] = "Discount";
 $MESS["SBP_GROUPS_COUPON"] = "Coupon";

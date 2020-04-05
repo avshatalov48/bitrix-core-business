@@ -584,8 +584,8 @@ function makeSelectorFromPaySystems($psTypeYandex, $psIdValue, $personTypeId, $s
 				'=SERVICE_ID' => array_keys($allPaySystems),
 				'=SERVICE_TYPE' => Restrictions\Manager::SERVICE_TYPE_PAYMENT,
 				'=CLASS_NAME' => array(
-					'\Bitrix\Sale\Services\PaySystem\Restrictions\Site',
-					'\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType'
+					'\\'.Restrictions\Site::class,
+					'\\'.Restrictions\PersonType::class
 				)
 			)
 		));
@@ -599,12 +599,12 @@ function makeSelectorFromPaySystems($psTypeYandex, $psIdValue, $personTypeId, $s
 
 		foreach($allPaySystems as $psId => $psName)
 		{
-			if(!empty($rstParams[$psId]['\Bitrix\Sale\Services\PaySystem\Restrictions\Site']['SITE_ID']))
-				if(!in_array($siteId, $rstParams[$psId]['\Bitrix\Sale\Services\PaySystem\Restrictions\Site']['SITE_ID']))
+			if(!empty($rstParams[$psId]['\\'.Restrictions\Site::class]['SITE_ID']))
+				if(!in_array($siteId, $rstParams[$psId]['\\'.Restrictions\Site::class]['SITE_ID']))
 					continue;
 
-			if(!empty($rstParams[$psId]['\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType']['PERSON_TYPE_ID']))
-				if(!in_array($personTypeId, $rstParams[$psId]['\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType']['PERSON_TYPE_ID']))
+			if(!empty($rstParams[$psId]['\\'.Restrictions\PersonType::class]['PERSON_TYPE_ID']))
+				if(!in_array($personTypeId, $rstParams[$psId]['\\'.Restrictions\PersonType::class]['PERSON_TYPE_ID']))
 					continue;
 
 			$paySystems[$siteId][] = $psId;

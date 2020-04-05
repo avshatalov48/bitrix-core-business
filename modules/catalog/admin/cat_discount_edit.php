@@ -527,15 +527,15 @@ $tabControl->BeginNextFormTab();
 	$tabControl->EndCustomField("VALUE_TYPE",
 		'<input type="hidden" name="VALUE_TYPE" value="'.htmlspecialcharsbx($arDiscount['VALUE_TYPE']).'">'
 	);
-	$tabControl->AddEditField("VALUE", GetMessage("DSC_VALUE").":", true, array('size' => 20, 'maxlength' => 20), roundEx($arDiscount['VALUE'], CATALOG_VALUE_PRECISION));
+	$tabControl->AddEditField("VALUE", GetMessage("DSC_VALUE").":", true, array('size' => 20, 'maxlength' => 20), htmlspecialcharsbx($arDiscount['VALUE']));
 	$tabControl->AddDropDownField("CURRENCY", GetMessage('DSC_CURRENCY').':', true, $arCurrencyList, $arDiscount['CURRENCY']);
 	$tabControl->BeginCustomField("MAX_DISCOUNT", GetMessage('DSC_MAX_SUM').":",false);
 	?><tr id="tr_MAX_DISCOUNT" style="display: <? echo 'P' == $arDiscount['VALUE_TYPE'] ? 'table-row' : 'none'; ?>;">
 		<td width="40%"><? echo $tabControl->GetCustomLabelHTML(); ?></td>
-		<td width="60%"><input id="ob_max_discount" type="text" name="MAX_DISCOUNT" size="20" maxlength="20" value="<?= roundEx($arDiscount['MAX_DISCOUNT'], CATALOG_VALUE_PRECISION) ?>"></td>
+		<td width="60%"><input id="ob_max_discount" type="text" name="MAX_DISCOUNT" size="20" maxlength="20" value="<?=htmlspecialcharsbx($arDiscount['MAX_DISCOUNT']); ?>"></td>
 	</tr><?
 	$tabControl->EndCustomField("MAX_DISCOUNT",
-		'<input type="hidden" name="MAX_DISCOUNT" value="'.roundEx($arDiscount['MAX_DISCOUNT'], CATALOG_VALUE_PRECISION).'">'
+		'<input type="hidden" name="MAX_DISCOUNT" value="'.htmlspecialcharsbx($arDiscount['MAX_DISCOUNT']).'">'
 	);
 	$tabControl->AddCheckBoxField("RENEWAL", GetMessage("DSC_RENEW").":", false, "Y", $arDiscount['RENEWAL']=="Y");
 	$tabControl->AddEditField("PRIORITY", GetMessage("BT_CAT_DISCOUNT_EDIT_FIELDS_PRIORITY").":", false, array("size" => 20, "maxlength" => 20), intval($arDiscount['PRIORITY']));

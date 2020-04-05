@@ -187,9 +187,10 @@ BX.CrmEntitySelector = (function ()
 
 	CrmEntitySelector.prototype.initWidgetEntitySelection = function()
 	{
+		BX.loadCSS('/bitrix/js/crm/css/crm.css');
+
 		if(typeof(CRM) == 'undefined')
 		{
-			BX.loadCSS('/bitrix/js/crm/css/crm.css');
 			BX.loadScript('/bitrix/js/crm/crm.js', BX[''+this.jsObject+''].initWidgetEntitySelection());
 			return;
 		}
@@ -208,6 +209,7 @@ BX.CrmEntitySelector = (function ()
 				'company': BX.message('CRM_FF_COMPANY'),
 				'deal': BX.message('CRM_FF_DEAL'),
 				'quote': BX.message('CRM_FF_QUOTE'),
+				'order': BX.message('CRM_FF_ORDER'),
 				'ok': BX.message('CRM_FF_OK'),
 				'cancel': BX.message('CRM_FF_CANCEL'),
 				'close': BX.message('CRM_FF_CLOSE'),

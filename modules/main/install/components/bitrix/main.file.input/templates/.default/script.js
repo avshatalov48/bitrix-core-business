@@ -339,7 +339,7 @@
 								value = BX.UploaderUtils.getFormattedSize(value, 0);
 							else if (ii.toLowerCase() === 'name')
 								value = file["originalName"];
-							html = html.replace(new RegExp("#" + ii.toLowerCase() + "#", "gi"), value).replace(new RegExp("#" + ii.toUpperCase() + "#", "gi"), value);
+							html = html.replace(new RegExp("#" + ii.toLowerCase() + "#", "gi"), BX.util.htmlspecialchars(value)).replace(new RegExp("#" + ii.toUpperCase() + "#", "gi"), BX.util.htmlspecialchars(value));
 						}
 					}
 					item.file.file_id = file["file_id"];

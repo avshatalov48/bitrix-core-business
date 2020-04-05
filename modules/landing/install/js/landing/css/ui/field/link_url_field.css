@@ -1,5 +1,8 @@
 .landing-ui-field-link-url {
 	position: relative;
+}
+
+.landing-ui-field-link .landing-ui-field-link-url {
 	margin-bottom: 0;
 }
 
@@ -15,9 +18,11 @@
 }
 
 .landing-ui-field-link-url .landing-ui-field-input::before {
-	overflow: hidden;
 	text-overflow: ellipsis;
 	width: calc(100% - 10px);
+	white-space: nowrap;
+	overflow: hidden;
+	display: inherit;
 }
 
 .landing-ui-button-select-link {

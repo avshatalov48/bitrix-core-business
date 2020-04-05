@@ -87,20 +87,20 @@ $sign = bx_hmac("sha1",
 ?>
 
 <form name="cardform" action="<?=$server_url?>" method="post">
-<input type="hidden" name="TRTYPE" VALUE="<?=$trtype?>">
-<input type="hidden" name="AMOUNT" value="<?=$amount?>">
-<input type="hidden" name="CURRENCY" value="<?=$currency?>">
-<input type="hidden" name="ORDER" value="<?=$order?>">
-<input type="hidden" name="DESC" value="<?=htmlspecialcharsbx($desc)?>">
-<input type="hidden" name="MERCH_NAME" value="<?=htmlspecialcharsbx($m_name)?>">
-<input type="hidden" name="MERCH_URL" value="<?=htmlspecialcharsbx($m_url)?>">
-<input type="hidden" name="MERCHANT" value="<?=htmlspecialcharsbx($merchant)?>">
-<input type="hidden" name="TERMINAL" value="<?=htmlspecialcharsbx($terminal)?>">
-<input type="hidden" name="EMAIL" value="<?=htmlspecialcharsbx($email)?>">
-<input type="hidden" name="LANG" value="">
-<input type="hidden" name="BACKREF" value="<?=$backref?>">
-<input type="hidden" name="NONCE" value="<?=$nonce?>">
-<input type="hidden" name="P_SIGN" value="<?=$sign?>">
-<input type="hidden" name="TIMESTAMP" value="<?=$time?>">
-<input type="submit" value="<?=GetMessage("PAY_BUTTON")?>" name="send_button">
+	<input type="hidden" name="TRTYPE" VALUE="<?=$trtype?>">
+	<input type="hidden" name="AMOUNT" value="<?=$amount?>">
+	<input type="hidden" name="CURRENCY" value="<?=$currency?>">
+	<input type="hidden" name="ORDER" value="<?=$order?>">
+	<input type="hidden" name="DESC" value="<?=htmlspecialcharsbx($desc)?>">
+	<input type="hidden" name="MERCH_NAME" value="<?=htmlspecialcharsbx($m_name)?>">
+	<input type="hidden" name="MERCH_URL" value="<?=htmlspecialcharsbx($m_url)?>">
+	<input type="hidden" name="MERCHANT" value="<?=htmlspecialcharsbx($merchant)?>">
+	<input type="hidden" name="TERMINAL" value="<?=htmlspecialcharsbx($terminal)?>">
+	<input type="hidden" name="EMAIL" value="<?=htmlspecialcharsbx($email)?>">
+	<input type="hidden" name="LANG" value="">
+	<input type="hidden" name="BACKREF" value="<?=$backref?>">
+	<input type="hidden" name="NONCE" value="<?=$nonce?>">
+	<input type="hidden" name="P_SIGN" value="<?=$sign?>">
+	<input type="hidden" name="TIMESTAMP" value="<?=$time?>">
+	<input type="submit" class="btn btn-primary" value="<?=GetMessage("PAY_BUTTON")?>" name="send_button">
 </form>

@@ -22,16 +22,16 @@ class Basket
 	/**
 	 * Add to basket from public components.
 	 *
-	 * @param array $product                Product data (with properties).
-	 * @param array $basketFields           Basket fields (if used).
-	 * @param array $options                Add options.
+	 * @param array $product				Product data (with properties).
+	 * @param array $basketFields			Basket fields (if used).
+	 * @param array $options				Execute options.
 	 *
 	 * @return Main\Result
 	 *
 	 * @throws Main\LoaderException
 	 * @throws Main\ObjectNotFoundException
 	 */
-	public static function addProduct(array $product, array $basketFields = array(), array $options = array())
+	public static function addProduct(array $product, array $basketFields = [], array $options = [])
 	{
 		$result = new Main\Result();
 
@@ -69,7 +69,6 @@ class Basket
 		$context = array(
 			'SITE_ID' => $siteId,
 		);
-
 		$basket = Sale\Basket::loadItemsForFUser(Sale\Fuser::getId(), $siteId);
 
 		$options['CHECK_PERMISSIONS'] = 'Y';
@@ -77,6 +76,7 @@ class Basket
 		$options['CHECK_CRAWLERS'] = 'Y';
 
 		$result = static::add($basket, $product, $context, $options);
+
 		if ($result->isSuccess())
 		{
 			$saveResult = $basket->save();
@@ -130,15 +130,17 @@ class Basket
 	 * @param Sale\BasketBase $basket		Working basket.
 	 * @param array $fields					Basket item fields for add.
 	 * @param array $context				Working context (site, user).
+	 * @param array $options				Execute options.
 	 *
 	 * @return Main\Result
 	 *
 	 * @throws Main\LoaderException
 	 * @throws Main\ObjectNotFoundException
 	 */
-	public static function addProductToBasket(Sale\BasketBase $basket, array $fields, array $context)
+	public static function addProductToBasket(Sale\BasketBase $basket, array $fields, array $context, array $options = [])
 	{
-		return static::add($basket, $fields, $context, array('CHECK_CRAWLERS' => 'N'));
+		$options['CHECK_CRAWLERS'] = 'N';
+		return static::add($basket, $fields, $context, $options);
 	}
 
 	/**
@@ -147,21 +149,19 @@ class Basket
 	 * @param Sale\BasketBase $basket		Working basket.
 	 * @param array $fields					Basket item fields for add.
 	 * @param array $context				Working context (site, user).
-	 * @param bool $useMerge                Search existing row in basket before add.
+	 * @param bool|array $options			Execute options (by default - search existing row in basket before add options value).
 	 *
 	 * @return Main\Result
 	 *
 	 * @throws Main\LoaderException
 	 * @throws Main\ObjectNotFoundException
 	 */
-	public static function addProductToBasketWithPermissions(Sale\BasketBase $basket, array $fields, array $context, $useMerge = true)
+	public static function addProductToBasketWithPermissions(Sale\BasketBase $basket, array $fields, array $context, $options = true)
 	{
-		$options = array(
-			'CHECK_PERMISSIONS' => 'Y',
-			'USE_MERGE' => $useMerge ? 'Y' : 'N',
-			'CHECK_CRAWLERS' => 'Y',
-			'MODULE' => 'catalog'
-		);
+		if (!is_array($options))
+			$options = ['USE_MERGE' => ($options ? 'Y' : 'N')];
+		$options['CHECK_PERMISSIONS'] = 'Y';
+		$options['CHECK_CRAWLERS'] = 'Y';
 		return static::add($basket, $fields, $context, $options);
 	}
 
@@ -172,14 +172,14 @@ class Basket
 	 * @param Sale\BasketBase $basket		Working basket.
 	 * @param array $fields					Basket item fields for add.
 	 * @param array $context				Working context (site, user).
-	 * @param array $options                Options (check permiisons, search existing row, etc).
+	 * @param array $options				Options (check permiisons, search existing row, etc).
 	 *
 	 * @return Main\Result
 	 *
 	 * @throws Main\LoaderException
 	 * @throws Main\ObjectNotFoundException
 	 */
-	private static function add(Sale\BasketBase $basket, array $fields, array $context, array $options = array())
+	private static function add(Sale\BasketBase $basket, array $fields, array $context, array $options = [])
 	{
 		$result = new Main\Result();
 
@@ -230,9 +230,7 @@ class Basket
 
 		$module = 'catalog';
 
-		$presets = array(
-			'PRODUCT_ID' => $productId
-		);
+		$presets = ['PRODUCT_ID' => $productId];
 
 		if (array_key_exists('MODULE', $fields))
 		{
@@ -240,37 +238,21 @@ class Basket
 			unset($fields['MODULE']);
 		}
 
-		if (isset($fields['PRODUCT_PROVIDER_CLASS']))
-		{
-			$presets['PRODUCT_PROVIDER_CLASS'] = $fields['PRODUCT_PROVIDER_CLASS'];
-		}
-		unset($fields['PRODUCT_PROVIDER_CLASS']);
+		$transferFields = [
+			'PRODUCT_PROVIDER_CLASS' => true,
+			'CALLBACK_FUNC' => true,
+			'PAY_CALLBACK_FUNC' => true,
+			'SUBSCRIBE' => true
+		];
+		$presets = array_merge($presets, array_intersect_key($fields, $transferFields));
+		$fields = array_diff_key($fields, $transferFields);
+		unset($transferFields);
 
-		if (isset($fields['CALLBACK_FUNC']))
-		{
-			$presets['CALLBACK_FUNC'] = $fields['CALLBACK_FUNC'];
-		}
-		unset($fields['CALLBACK_FUNC']);
-
-		if (isset($fields['PAY_CALLBACK_FUNC']))
-		{
-			$presets['PAY_CALLBACK_FUNC'] = $fields['PAY_CALLBACK_FUNC'];
-		}
-		unset($fields['PAY_CALLBACK_FUNC']);
-
-		if (isset($fields['SUBSCRIBE']))
-		{
-			$presets['SUBSCRIBE'] = $fields['SUBSCRIBE'];
-		}
-		unset($fields['SUBSCRIBE']);
-
-		$propertyList = array();
-		if (!empty($fields['PROPS']) && is_array($fields['PROPS']))
-		{
-			$propertyList = $fields['PROPS'];
+		$propertyList = (!empty($fields['PROPS']) && is_array($fields['PROPS']) ? $fields['PROPS'] : []);
+		if (array_key_exists('PROPS', $fields))
 			unset($fields['PROPS']);
-		}
 
+		$productFields = [];
 		if ($module == 'catalog')
 		{
 			$elementFilter = array(
@@ -311,7 +293,7 @@ class Basket
 				'select' => array(
 					'ID', 'TYPE', 'AVAILABLE', 'CAN_BUY_ZERO', 'QUANTITY_TRACE', 'QUANTITY',
 					'WEIGHT', 'WIDTH', 'HEIGHT', 'LENGTH',
-					'MEASURE'
+					'MEASURE', 'BARCODE_MULTI'
 				),
 				'filter' => array('=ID' => $productId)
 			));
@@ -465,8 +447,61 @@ class Basket
 					$propertyList[] = $propertyData;
 				unset($propertyData);
 			}
-
 			unset($propertyIndex);
+
+			//TODO: change to d7 measure class
+			$productFields['MEASURE'] = (int)$productFields['MEASURE'];
+			$productFields['MEASURE_NAME'] = '';
+			$productFields['MEASURE_CODE'] = 0;
+			if ($productFields['MEASURE'] <= 0)
+			{
+				$measure = \CCatalogMeasure::getDefaultMeasure(true, true);
+				$productFields['MEASURE_NAME'] = $measure['~SYMBOL_RUS'];
+				$productFields['MEASURE_CODE'] = $measure['CODE'];
+				unset($measure);
+			}
+			else
+			{
+				$measureIterator = \CCatalogMeasure::getList(
+					[],
+					['ID' => $productFields['MEASURE']],
+					false,
+					false,
+					['ID', 'SYMBOL_RUS', 'CODE']
+				);
+				$measure = $measureIterator->Fetch();
+				unset($measureIterator);
+				if (!empty($measure))
+				{
+					$productFields['MEASURE_NAME'] = $measure['SYMBOL_RUS'];
+					$productFields['MEASURE_CODE'] = $measure['CODE'];
+				}
+				unset($measure);
+			}
+
+			if (isset($options['FILL_PRODUCT_PROPERTIES']) && $options['FILL_PRODUCT_PROPERTIES'] === 'Y')
+			{
+				if ($productFields['TYPE'] == Catalog\ProductTable::TYPE_OFFER)
+				{
+					self::fillOfferProperties($propertyList, $productId, $elementFields['IBLOCK_ID']);
+				}
+			}
+
+			$fields = $fields +
+				[
+					'DETAIL_PAGE_URL' => $elementFields['~DETAIL_PAGE_URL'],
+					'BARCODE_MULTI' => $productFields['BARCODE_MULTI'],
+					'WEIGHT' => (float)$productFields['WEIGHT'],
+					'DIMENSIONS' => [
+						'WIDTH' => $productFields['WIDTH'],
+						'HEIGHT' => $productFields['HEIGHT'],
+						'LENGTH' => $productFields['LENGTH']
+					],
+					'TYPE' => ($productFields['TYPE'] == Catalog\ProductTable::TYPE_SET ? \CCatalogProductSet::TYPE_SET : null),
+					'MEASURE_ID' => $productFields['MEASURE'],
+					'MEASURE_NAME' => $productFields['MEASURE_NAME'],
+					'MEASURE_CODE' => $productFields['MEASURE_CODE']
+				];
 		}
 
 		if (static::isCompatibilityEventAvailable())
@@ -495,8 +530,10 @@ class Basket
 					$fields[$key] = $value;
 				}
 			}
+			unset($key, $value);
 
 			$propertyList = $eventResult['PROPS'];
+			unset($eventResult);
 		}
 
 		$basketItem = null;
@@ -513,7 +550,8 @@ class Basket
 		else
 		{
 			$fields['QUANTITY'] = $quantity;
-			$basketItem = $basket->createItem($module, $productId);
+			$basketCode = !empty($fields['BASKET_CODE']) ? $fields['BASKET_CODE'] : null;
+			$basketItem = $basket->createItem($module, $productId, $basketCode);
 		}
 
 		if (!$basketItem)
@@ -533,6 +571,12 @@ class Basket
 		{
 			$result->addErrors($r->getErrors());
 			return $result;
+		}
+
+		//If error happend while setting quantity field we will know the name of product.
+		if(!empty($elementFields['~NAME']))
+		{
+			$basketItem->setField('NAME', $elementFields['~NAME']);
 		}
 
 		$r = $basketItem->setField('QUANTITY', $fields['QUANTITY']);
@@ -556,11 +600,7 @@ class Basket
 			}
 		}
 
-		$result->setData(
-			array(
-				'BASKET_ITEM' => $basketItem
-			)
-		);
+		$result->setData(['BASKET_ITEM' => $basketItem]);
 
 		return $result;
 	}
@@ -586,6 +626,87 @@ class Basket
 		}
 
 		return $fields;
+	}
+
+	/**
+	 * @param array &$propertyList
+	 * @param int $id
+	 * @param int $iblockId
+	 * @return void
+	 */
+	private static function fillOfferProperties(array &$propertyList, $id, $iblockId)
+	{
+		static $properties = [];
+
+		$skuInfo = \CCatalogSku::GetInfoByOfferIBlock($iblockId);
+		if (empty($skuInfo))
+			return;
+		$skuPropertyId = $skuInfo['SKU_PROPERTY_ID'];
+		$parentIblockId = $skuInfo['PRODUCT_IBLOCK_ID'];
+		unset($skuInfo);
+
+		if (!isset($properties[$iblockId]))
+		{
+			$properties[$iblockId] = [];
+			$iterator = Iblock\PropertyTable::getList([
+				'select' => ['ID'],
+				'filter' => [
+					'=IBLOCK_ID' => $iblockId,
+					'=ACTIVE' => 'Y',
+					'=PROPERTY_TYPE' => [
+						Iblock\PropertyTable::TYPE_ELEMENT,
+						Iblock\PropertyTable::TYPE_LIST,
+						Iblock\PropertyTable::TYPE_STRING
+					],
+					'=MULTIPLE' => 'N'
+				],
+				'order' => ['ID' => 'ASC']
+			]);
+			while ($row = $iterator->fetch())
+			{
+				$row['ID'] = (int)$row['ID'];
+				if ($row['ID'] == $skuPropertyId)
+					continue;
+				$properties[$iblockId][] = $row['ID'];
+			}
+			unset($row, $iterator);
+		}
+		if (empty($properties[$iblockId]))
+			return;
+
+		$offerProperties = \CIBlockPriceTools::GetOfferProperties(
+			$id,
+			$parentIblockId,
+			$properties[$iblockId]
+		);
+		unset($parentIblockId, $skuPropertyId);
+
+		if (empty($offerProperties))
+			return;
+
+		$codeMap = [];
+		if (!empty($propertyList))
+		{
+			foreach ($propertyList as $row)
+			{
+				if (!isset($row['CODE']))
+					continue;
+				$index = (string)$row['CODE'];
+				if ($index === '')
+					continue;
+				$codeMap[$index] = true;
+			}
+			unset($index, $row);
+		}
+		foreach ($offerProperties as $row)
+		{
+			$index = (string)$row['CODE'];
+			if (isset($codeMap[$index]))
+				continue;
+			$codeMap[$index] = true;
+			$propertyList[] = $row;
+		}
+		unset($index, $row, $codeMap, $offerProperties);
 	}
 
 	/**

@@ -55,22 +55,39 @@ if ($json)
 
 if (isset($data['kkm']) && count($data['kkm']) > 0)
 {
-	$processedCheckIds = Cashbox\CashboxBitrix::applyPrintResult($data);
+	if (isset($data['api_version']) && (string)$data['api_version'] == '2')
+	{
+		/** @var Cashbox\CashboxBitrix $cashboxHandler */
+		$cashboxHandler = Cashbox\CashboxBitrixV2::class;
+	}
+	else
+	{
+		/** @var Cashbox\CashboxBitrixV2 $cashboxHandler */
+		$cashboxHandler = Cashbox\CashboxBitrix::class;
+	}
+
+	$processedCheckIds = $cashboxHandler::applyPrintResult($data);
 	if ($processedCheckIds)
 	{
 		$result->ack = $processedCheckIds;
 	}
 	else
 	{
-		$cashboxList = Cashbox\CashboxBitrix::getCashboxList($data);
+		$cashboxList = $cashboxHandler::getCashboxList($data);
 		foreach ($cashboxList as $item)
-			Cashbox\Manager::saveCashbox($item);
+		{
+			$cashboxHandler::saveCashbox($item);
+		}
 
 		$enabledCashbox = array();
 		foreach ($cashboxList as $item)
 		{
-			if ($item['ENABLED'] === 'Y'  && $item['ACTIVE'] === 'Y')
+			if ($item['PRESENTLY_ENABLED'] === 'Y'
+				&& $item['ACTIVE'] === 'Y'
+			)
+			{
 				$enabledCashbox[$item['ID']] = $item;
+			}
 		}
 
 		if ($enabledCashbox)

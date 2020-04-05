@@ -11,7 +11,6 @@ Loc::loadMessages(__FILE__);
 final class BlogPost extends Provider
 {
 	const PROVIDER_ID = 'BLOG_POST';
-	const TYPE = 'entry';
 	const CONTENT_TYPE_ID = 'BLOG_POST';
 
 	public static function getId()
@@ -36,7 +35,13 @@ final class BlogPost extends Provider
 
 	public function getType()
 	{
-		return static::TYPE;
+		return Provider::TYPE_POST;
+	}
+
+	public function getCommentProvider()
+	{
+		$provider = new \Bitrix\Socialnetwork\Livefeed\BlogComment();
+		return $provider;
 	}
 
 	public function initSourceFields()

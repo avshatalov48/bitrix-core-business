@@ -29,8 +29,9 @@ $arDetParams = array(
 		"CACHE_GROUPS" => $arParams["CACHE_GROUPS"],
 		"RESTRICT_CHANGE_PAYSYSTEM" => $arParams["ORDER_RESTRICT_CHANGE_PAYSYSTEM"],
 		"REFRESH_PRICES" => $arParams["ORDER_REFRESH_PRICES"],
+		"DISALLOW_CANCEL" => $arParams["ORDER_DISALLOW_CANCEL"],
 		"HIDE_USER_INFO" => $arParams["ORDER_HIDE_USER_INFO"],
-
+		"AUTH_FORM_IN_TEMPLATE" => 'Y',
 		"CUSTOM_SELECT_PROPS" => $arParams["CUSTOM_SELECT_PROPS"]
 	);
 foreach($arParams as $key => $val)

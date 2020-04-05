@@ -9,6 +9,7 @@ Loc::loadMessages(__FILE__);
 class Text
 {
 	private static $replacements = Array();
+	private static $parsers = Array();
 
 	public static function parse($text, $params = Array())
 	{
@@ -28,6 +29,7 @@ class Text
 			"FONT" => "N",
 			"LIST" => "N",
 			"SMILES" => $params['SMILES'] == 'N'? 'N': 'Y',
+			"EMOJI" => "Y",
 			"NL2BR" => "Y",
 			"VIDEO" => "N",
 			"TABLE" => "N",
@@ -36,14 +38,26 @@ class Text
 			"ALIGN" => "N"
 		);
 
-		$parser = new \CTextParser();
-		$parser->serverName = Common::getPublicDomain();
-		$parser->maxAnchorLength = intval($params['LINK_LIMIT'])? $params['LINK_LIMIT']: 55;
-		$parser->maxStringLen = intval($params['TEXT_LIMIT']);
-		$parser->allow = $allowTags;
+		$parseId = md5($params['LINK'].$params['SMILES'].$params['LINK_LIMIT'].$params['TEXT_LIMIT']);
+		if (isset(self::$parsers[$parseId]))
+		{
+			$parser = self::$parsers[$parseId];
+		}
+		else
+		{
+			$parser = new \CTextParser();
+			$parser->serverName = Common::getPublicDomain();
+			$parser->maxAnchorLength = intval($params['LINK_LIMIT'])? $params['LINK_LIMIT']: 55;
+			$parser->maxStringLen = intval($params['TEXT_LIMIT']);
+			$parser->allow = $allowTags;
+
+			self::$parsers[$parseId] = $parser;
+		}
+
 
 		$text = preg_replace_callback("/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/i", Array('\Bitrix\Im\Text', 'setReplacement'), $text);
 		$text = preg_replace_callback("/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/i", Array('\Bitrix\Im\Text', 'setReplacement'), $text);
+		$text = preg_replace_callback("/\[CODE\](.*?)\[\/CODE\]/si", Array('\Bitrix\Im\Text', 'setReplacement'), $text);
 
 		if (isset($params['CUT_STRIKE']) && $params['CUT_STRIKE'] == 'Y')
 		{
@@ -136,28 +150,13 @@ class Text
 		return $text;
 	}
 
-	public static function prepareBeforeSave($text)
+	public static function encodeEmoji($text)
 	{
-		$text = self::replaceEmoji($text);
-
-		return $text;
+		return \Bitrix\Main\Text\Emoji::encode($text);
 	}
 
-	public static function replaceEmoji($text)
+	public static function decodeEmoji($text)
 	{
-		if (!\Bitrix\Main\Application::isUtfMode())
-		{
-			return $text;
-		}
-
-		$text = preg_replace('/[\x{1F300}-\x{1F5FF}]/u', '('.Loc::getMessage('IM_MESSAGE_EMOJI').')', $text);
-		$text = preg_replace('/[\x{1F600}-\x{1F64F}]/u', '('.Loc::getMessage('IM_MESSAGE_EMOJI').')', $text);
-		$text = preg_replace('/[\x{1F680}-\x{1F6FF}]/u', '('.Loc::getMessage('IM_MESSAGE_EMOJI').')', $text);
-		$text = preg_replace('/[\x{1F1E6}-\x{1F1FF}]/u', '('.Loc::getMessage('IM_MESSAGE_EMOJI').')', $text);
-		$text = preg_replace('/[\x{2600}-\x{26FF}]/u', '('.Loc::getMessage('IM_MESSAGE_EMOJI').')', $text);
-		$text = preg_replace('/[\x{2700}-\x{27BF}]/u', '('.Loc::getMessage('IM_MESSAGE_EMOJI').')', $text);
-		$text = preg_replace('/[\x{FE00}-\x{FE00}]/u', '('.Loc::getMessage('IM_MESSAGE_EMOJI').')', $text);
-
-		return $text;
+		return \Bitrix\Main\Text\Emoji::decode($text);
 	}
 }

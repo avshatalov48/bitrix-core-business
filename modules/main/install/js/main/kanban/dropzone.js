@@ -264,6 +264,7 @@ BX.Kanban.DropZone.prototype =
 		this.getDropZoneArea().show();
 		this.setCaptured();
 		this.unsetActive();
+		this.animateRemove(item.layout.container);
 
 		this.getGrid().hideItem(item);
 
@@ -276,6 +277,28 @@ BX.Kanban.DropZone.prototype =
 			}.bind(this),
 			this.getDropZoneArea().getDropZoneTimeout()
 		);
+	},
+
+	animateRemove: function(itemNode)
+	{
+		// itemNode.style.width = itemNode.offsetWidth + "px";
+		// itemNode.style.top = "-" + (itemNode.offsetHeight / 2 + 20) + "px";
+		// itemNode.style.left = "-" + itemNode.offsetWidth / 2 + "px";
+
+		this.dropZoneArea.layout.container.parentNode.style.overflow = "hidden";
+		// this.layout.container.appendChild(itemNode);
+
+		setTimeout(function()
+		{
+			this.dropZoneArea.layout.container.parentNode.style.overflow = "inherit";
+		}.bind(this), 250);
+
+		// BX.bind(itemNode, "animationend",function()
+		// {
+		// 	itemNode.removeAttribute("style");
+		// 	itemNode.parentNode.removeChild(itemNode);
+		// 	BX.unbindAll(itemNode);
+		// }.bind(this));
 	},
 
 	restore: function()

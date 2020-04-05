@@ -216,10 +216,6 @@ if ($arResult["ShowMode"] != "Success" && !$arResult['ReadOnly'])
 	try
 	{
 		$documentType = $documentService->GetDocumentType($arResult["TASK"]["PARAMETERS"]["DOCUMENT_ID"]);
-		if (!array_key_exists("BP_AddShowParameterInit_".$documentType[0]."_".$documentType[1]."_".$documentType[2], $GLOBALS))
-		{
-			CBPDocument::AddShowParameterInit($documentType[0], "only_users", $documentType[2], $documentType[1], $arResult["TASK"]["PARAMETERS"]["DOCUMENT_ID"][2]);
-		}
 
 		// deprecated old style
 		list($arResult["TaskForm"], $arResult["TaskFormButtons"]) = CBPDocument::ShowTaskForm(

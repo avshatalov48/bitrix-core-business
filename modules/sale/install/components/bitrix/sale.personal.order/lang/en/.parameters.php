@@ -1,4 +1,5 @@
 <?
+$MESS["SPO_DISALLOW_CANCEL"] = "Don't allow order cancellation";
 $MESS["SPO_ORDERS_PER_PAGE"] = "Number of orders per page";
 $MESS["SPO_DESC_YES"] = "Yes";
 $MESS["SPO_DESC_NO"] = "No";

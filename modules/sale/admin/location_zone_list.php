@@ -118,9 +118,15 @@ if(empty($fatal))
 <?SearchHelper::checkIndexesValid();?>
 
 <?if(strlen($fatal)):?>
-
+	<?
+	$messageParams = array('MESSAGE' => $fatal, 'type' => 'ERROR');
+	if ($publicMode)
+	{
+		$messageParams["SKIP_PUBLIC_MODE"] = true;
+	}
+	?>
 	<div class="error-message">
-		<?CAdminMessage::ShowMessage(array('MESSAGE' => $fatal, 'type' => 'ERROR'))?>
+		<?CAdminMessage::ShowMessage($messageParams)?>
 	</div>
 
 <?else:?>

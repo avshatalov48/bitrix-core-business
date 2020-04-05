@@ -87,19 +87,25 @@
 
 		show: function()
 		{
-			this.adjustLoaderOffset();
-			this.getContainer().style.display = "block";
-			this.getContainer().style.opacity = "1";
-			this.getContainer().style.visibility = "visible";
-			this.loader.show();
+			if (!this.loader.isShown())
+			{
+				this.adjustLoaderOffset();
+				this.getContainer().style.display = "block";
+				this.getContainer().style.opacity = "1";
+				this.getContainer().style.visibility = "visible";
+				this.loader.show();
+			}
 		},
 
 		hide: function()
 		{
-			this.adjustLoaderOffset();
-			this.loader.hide().then(function() {
-				this.getContainer().style.display = "none";
-			}.bind(this));
+			if (this.loader.isShown())
+			{
+				this.adjustLoaderOffset();
+				this.loader.hide().then(function() {
+					this.getContainer().style.display = "none";
+				}.bind(this));
+			}
 		}
 	};
 })();

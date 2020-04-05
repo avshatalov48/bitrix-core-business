@@ -1,4 +1,5 @@
 <?
+$MESS["PLAYER_FLASH_CHECK"] = "Adobe Flash Player may be disabled or not installed";
 $MESS["ENABLE_JAVASCRIPT"] = "JavaScript is disabled in your browser";
 $MESS["JS_PLAYLISTERROR"] = "Error occurred during playlist load";
 $MESS["JS_CLICKTOPLAY"] = "Click to play";

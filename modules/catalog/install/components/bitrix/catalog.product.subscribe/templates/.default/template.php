@@ -17,15 +17,25 @@ CJSCore::init(array('popup', 'ajax'));
 
 $this->setFrameMode(true);
 
+$landingId = null;
+if (is_callable(["LandingPubComponent", "getMainInstance"]))
+{
+	$instance = \LandingPubComponent::getMainInstance();
+	$landingId = $instance["SITE_ID"];
+}
+
 $strMainId = $this->getEditAreaId($arResult['PRODUCT_ID']);
 $jsObject = 'ob'.preg_replace("/[^a-zA-Z0-9_]/", "x", $strMainId);
 $paramsForJs = array(
 	'buttonId' => $arResult['BUTTON_ID'],
 	'jsObject' => $jsObject,
 	'alreadySubscribed' => $arResult['ALREADY_SUBSCRIBED'],
+	'listIdAlreadySubscribed' => (!empty($_SESSION['SUBSCRIBE_PRODUCT']['LIST_PRODUCT_ID']) ?
+		$_SESSION['SUBSCRIBE_PRODUCT']['LIST_PRODUCT_ID'] : []),
 	'productId' => $arResult['PRODUCT_ID'],
 	'buttonClass' => htmlspecialcharsbx($arResult['BUTTON_CLASS']),
 	'urlListSubscriptions' => '/',
+	'landingId' => ($landingId ? $landingId : 0)
 );
 
 $showSubscribe = true;

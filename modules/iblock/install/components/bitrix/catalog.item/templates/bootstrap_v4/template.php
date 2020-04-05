@@ -99,6 +99,7 @@ if (isset($arResult['ITEM']))
 	$labelPositionClass .= $arParams['LABEL_POSITION_CLASS'];
 
 	$buttonSizeClass = isset($arResult['BIG_BUTTONS']) && $arResult['BIG_BUTTONS'] === 'Y' ? 'btn-md' : 'btn-sm';
+	$itemHasDetailUrl = isset($item['DETAIL_PAGE_URL']) && $item['DETAIL_PAGE_URL'] != '';
 	?>
 
 	<div class="product-item-container<?=(isset($arResult['SCALABLE']) && $arResult['SCALABLE'] === 'Y' ? ' product-item-scalable-card' : '')?>"
@@ -115,7 +116,7 @@ if (isset($arResult['ITEM']))
 		if (!$haveOffers)
 		{
 			$jsParams = array(
-				'PRODUCT_TYPE' => $item['CATALOG_TYPE'],
+				'PRODUCT_TYPE' => $item['PRODUCT']['TYPE'],
 				'SHOW_QUANTITY' => $arParams['USE_PRODUCT_QUANTITY'],
 				'SHOW_ADD_BASKET_BTN' => false,
 				'SHOW_BUY_BTN' => true,
@@ -180,7 +181,7 @@ if (isset($arResult['ITEM']))
 		else
 		{
 			$jsParams = array(
-				'PRODUCT_TYPE' => $item['CATALOG_TYPE'],
+				'PRODUCT_TYPE' => $item['PRODUCT']['TYPE'],
 				'SHOW_QUANTITY' => false,
 				'SHOW_ADD_BASKET_BTN' => false,
 				'SHOW_BUY_BTN' => true,

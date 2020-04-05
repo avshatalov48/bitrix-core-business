@@ -16,21 +16,27 @@ $arPlacemarks = array();
 $gpsN = '';
 $gpsS = '';
 ?>
-<div class="catalog-detail-properties_sam">
-	<div class="catalog-detail-line"></div>
-	<?if(is_array($arResult["STORES"]) && !empty($arResult["STORES"])):?>
-	<?foreach($arResult["STORES"] as $pid=>$arProperty):?>
+<div class="catalog-detail-properties">
+	<?if(is_array($arResult["STORES"]) && !empty($arResult["STORES"])):
+	foreach($arResult["STORES"] as $pid=>$arProperty):?>
 	<div class="catalog-detail-property">
-		<span><a href="<?=$arProperty["URL"]?>"><?=$arProperty["TITLE"]?></a></span>
-		<? if(isset($arProperty["PHONE"])):?>
+		<p class="catalog-detail-properties-title"><a href="<?=$arProperty["URL"]?>"><?=$arProperty["TITLE"]?></a></p><?
+		if (!empty($arProperty['DETAIL_IMG']))
+		{
+			?><img class="catalog-detail-image" src="<?=$arProperty['DETAIL_IMG']['SRC']; ?>"><?
+		}
+		if ($arProperty["DESCRIPTION"] != '')
+		{
+			?><p><?=$arProperty["DESCRIPTION"]; ?></p><?
+		}
+		if(isset($arProperty["PHONE"])):?>
 		<span>&nbsp;&nbsp;<?=GetMessage('S_PHONE')?></span>
 		<span><?=$arProperty["PHONE"]?></span>
-		<?endif;?>
-		<? if(isset($arProperty["SCHEDULE"])):?>
+		<?endif;
+		if(isset($arProperty["SCHEDULE"])):?>
 		<span>&nbsp;&nbsp;<?=GetMessage('S_SCHEDULE')?></span>
 		<span><?=$arProperty["SCHEDULE"]?></span>
-		<?endif;?>
-		<?
+		<?endif;
 		if($arProperty["GPS_S"]!=0 && $arProperty["GPS_N"]!=0)
 		{
 			$gpsN=substr(doubleval($arProperty["GPS_N"]),0,15);
@@ -40,8 +46,8 @@ $gpsS = '';
 		?>
 	</div>
 		<br>
-	<?endforeach;?>
-	<?endif;?>
+	<?endforeach;
+	endif;?>
 </div><br><br>
 <?
 if ($arResult['VIEW_MAP'])
@@ -89,4 +95,3 @@ if ($arResult['VIEW_MAP'])
 		);
 	}
 }
-?>

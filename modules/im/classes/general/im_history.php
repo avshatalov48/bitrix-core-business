@@ -856,6 +856,7 @@ class CIMHistory
 	public function GetMessagesByDate($chatId, $date, $messageStart = 0, $timezone = true)
 	{
 		$chatId = intval($chatId);
+		$messageStart = intval($messageStart);
 
 		if ($date instanceof \Bitrix\Main\Type\DateTime)
 		{

@@ -3,9 +3,9 @@ namespace Bitrix\Sale\Services\Company\Restrictions;
 
 use Bitrix\Main;
 use Bitrix\Sale\Internals;
-use Bitrix\Sale\Services\Base\RestrictionManager;
+use Bitrix\Sale\Services\Base;
 
-class Manager extends RestrictionManager
+class Manager extends Base\RestrictionManager
 {
 	protected static $classNames = null;
 
@@ -22,7 +22,7 @@ class Manager extends RestrictionManager
 	/**
 	 * @return array
 	 */
-	public static function getBuildInRestrictions()
+	protected static function getBuildInRestrictions()
 	{
 		return array(
 			'\Bitrix\Sale\Services\Company\Restrictions\Currency' => 'lib/services/company/restrictions/currency.php',

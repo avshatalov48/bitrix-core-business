@@ -180,6 +180,7 @@ class CSaleDeliveryHelper
 	{
 		$packCount = 1;
 		$packVolume = 0;
+		$itemsDims = [];
 
 		reset($arPacks);
 		$FIRST_PACK = key($arPacks);
@@ -214,11 +215,29 @@ class CSaleDeliveryHelper
 				$arTmpItems[$item["PRODUCT_ID"]]["SET_PARENT_ID"] = $item["SET_PARENT_ID"];
 				$arTmpItems[$item["PRODUCT_ID"]]["TYPE"] = $item["TYPE"];
 
+				if( $packVolume <= 0
+					&& (int)$item['DIMENSIONS']['LENGTH'] > 0
+					&& (int)$item['DIMENSIONS']['WIDTH'] > 0
+					&& (int)$item['DIMENSIONS']['HEIGHT'] > 0
+				)
+				{
+					$itemsDims[] = [
+						(int)$item['DIMENSIONS']['LENGTH'],
+						(int)$item['DIMENSIONS']['WIDTH'],
+						(int)$item['DIMENSIONS']['HEIGHT']
+					];
+				}
+
 				if($item["QUANTITY"] > 1)
 				{
 					for ($i=$item["QUANTITY"]; $i > 1 ; $i--)
 					{
 						$arTmpItems[$item["PRODUCT_ID"]."_".$i] = $arTmpItems[$item["PRODUCT_ID"]];
+						$itemsDims[] = [
+							(int)$item['DIMENSIONS']['LENGTH'],
+							(int)$item['DIMENSIONS']['WIDTH'],
+							(int)$item['DIMENSIONS']['HEIGHT']
+						];
 					}
 				}
 			}
@@ -308,14 +327,35 @@ class CSaleDeliveryHelper
 				}
 
 				$arResultPacksParams[$packCount-1] = array();
-				$arResultPacksParams[$packCount-1]["VOLUME"] = intval($packVolume) > 0 ? $packVolume : $tmpPackageVolume;
 				$arResultPacksParams[$packCount-1]["WEIGHT"] = $tmpPackageWeight;
 				$arResultPacksParams[$packCount-1]["PRICE"] = $tmpPackagePrice;
-				$arResultPacksParams[$packCount-1]["DIMENSIONS"] = array(
-					"WIDTH" => $arPacks[$FIRST_PACK]['DIMENSIONS'][$P_WIDTH_IDX],
-					"HEIGHT" => $arPacks[$FIRST_PACK]['DIMENSIONS'][$P_HEIGHT_IDX],
-					"LENGTH" => $arPacks[$FIRST_PACK]['DIMENSIONS'][$P_LENGTH_IDX]
-				);
+
+				if($packCount == 1 && $packVolume <= 0 && !empty($itemsDims))
+				{
+					$dimensions = \Bitrix\Sale\Delivery\Packing\Packer::countMinContainerSize($itemsDims);
+					$arResultPacksParams[$packCount-1]["DIMENSIONS"] = array(
+						"WIDTH" => $dimensions[0],
+						"HEIGHT" => $dimensions[1],
+						"LENGTH" => $dimensions[2],
+					);
+
+					$volume = $dimensions[0]*$dimensions[1]*$dimensions[2];
+
+					if($tmpPackageVolume < $volume)
+					{
+						$tmpPackageVolume = $volume;
+					}
+				}
+				else
+				{
+					$arResultPacksParams[$packCount-1]["DIMENSIONS"] = array(
+						"WIDTH" => $arPacks[$FIRST_PACK]['DIMENSIONS'][$P_WIDTH_IDX],
+						"HEIGHT" => $arPacks[$FIRST_PACK]['DIMENSIONS'][$P_HEIGHT_IDX],
+						"LENGTH" => $arPacks[$FIRST_PACK]['DIMENSIONS'][$P_LENGTH_IDX]
+					);
+				}
+
+				$arResultPacksParams[$packCount-1]["VOLUME"] = intval($packVolume) > 0 ? $packVolume : $tmpPackageVolume;
 			}
 		}
 

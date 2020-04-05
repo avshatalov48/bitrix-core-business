@@ -9,58 +9,64 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
-if (!CModule::IncludeModule("forum")):
+if (!CModule::IncludeModule("forum"))
+{
 	ShowError(GetMessage("F_NO_MODULE"));
 	return false;
-elseif (!CModule::IncludeModule("socialnetwork")):
+}
+elseif (!CModule::IncludeModule("socialnetwork"))
+{
 	ShowError(GetMessage("SONET_MODULE_NOT_INSTALL"));
 	return false;
-elseif (intVal($arParams["FID"]) <= 0):
+}
+elseif (intVal($arParams["FID"]) <= 0)
+{
 	ShowError(GetMessage("F_FID_IS_EMPTY"));
 	return false;
-endif;
+}
+
 /********************************************************************
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$GLOBALS["FID"] = $arParams["FID"] = intVal($arParams["FID"]);
-	$arParams["USE_DESC_PAGE"] = ($arParams["USE_DESC_PAGE"] == "N" ? "N" : "Y");
+$GLOBALS["FID"] = $arParams["FID"] = intVal($arParams["FID"]);
+$arParams["USE_DESC_PAGE"] = ($arParams["USE_DESC_PAGE"] == "N" ? "N" : "Y");
 
-	$arParams["MODE"] = ($arParams["SOCNET_GROUP_ID"] > 0 ? "GROUP" : "USER");
-	$arParams["SOCNET_GROUP_ID"] = intVal($arParams["SOCNET_GROUP_ID"]);
-	$arParams["USER_ID"] = intVal(!empty($arParams["USER_ID"]) ? $arParams["USER_ID"] : $USER->GetID());
+$arParams["MODE"] = ($arParams["SOCNET_GROUP_ID"] > 0 ? "GROUP" : "USER");
+$arParams["SOCNET_GROUP_ID"] = intVal($arParams["SOCNET_GROUP_ID"]);
+$arParams["USER_ID"] = intVal(!empty($arParams["USER_ID"]) ? $arParams["USER_ID"] : $USER->GetID());
 /***************** URL *********************************************/
-	$URL_NAME_DEFAULT = array(
-			"topic_list" => "PAGE_NAME=topic_list",
-			"topic" => "PAGE_NAME=topic&TID=#TID#",
-			"topic_edit" => "PAGE_NAME=topic_edit&TID=#TID#&MID=#MID#&MESSAGE_TYPE=#MESSAGE_TYPE#",
-			"message" => "PAGE_NAME=message&FID=#FID#&TID=#TID#&MID=#MID#",
-			"profile_view" => "PAGE_NAME=profile_view&UID=#UID#");
-	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
-	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
-	}
+$URL_NAME_DEFAULT = array(
+		"topic_list" => "PAGE_NAME=topic_list",
+		"topic" => "PAGE_NAME=topic&TID=#TID#",
+		"topic_edit" => "PAGE_NAME=topic_edit&TID=#TID#&MID=#MID#&MESSAGE_TYPE=#MESSAGE_TYPE#",
+		"message" => "PAGE_NAME=message&FID=#FID#&TID=#TID#&MID=#MID#",
+		"profile_view" => "PAGE_NAME=profile_view&UID=#UID#");
+foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
+{
+	if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+	$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
+	$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+}
 /***************** ADDITIONAL **************************************/
-	$arParams["PAGEN"] = (intVal($arParams["PAGEN"]) <= 0 ? 1 : intVal($arParams["PAGEN"]));
-	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
+$arParams["PAGEN"] = (intVal($arParams["PAGEN"]) <= 0 ? 1 : intVal($arParams["PAGEN"]));
+$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
+$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 
-	$arParams["TOPICS_PER_PAGE"] = intVal($arParams["TOPICS_PER_PAGE"] > 0 ? $arParams["TOPICS_PER_PAGE"] : COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
-	$arParams["MESSAGES_PER_PAGE"] = intVal($arParams["MESSAGES_PER_PAGE"] > 0 ? $arParams["MESSAGES_PER_PAGE"] : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
-	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
-	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
-	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : CSite::GetNameFormat());
+$arParams["TOPICS_PER_PAGE"] = intVal($arParams["TOPICS_PER_PAGE"] > 0 ? $arParams["TOPICS_PER_PAGE"] : COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
+$arParams["MESSAGES_PER_PAGE"] = intVal($arParams["MESSAGES_PER_PAGE"] > 0 ? $arParams["MESSAGES_PER_PAGE"] : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
+$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
+$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : CSite::GetNameFormat());
 
-	$arParams["WORD_LENGTH"] = intVal($arParams["WORD_LENGTH"]);
+$arParams["WORD_LENGTH"] = intVal($arParams["WORD_LENGTH"]);
 /***************** STANDART ****************************************/
-	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
-		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
-	else
-		$arParams["CACHE_TIME"] = 0;
-	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
+if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
+	$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
+else
+	$arParams["CACHE_TIME"] = 0;
+$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
 /********************************************************************
 				/Input params
 ********************************************************************/
@@ -68,12 +74,57 @@ endif;
 /********************************************************************
 				Default values
 ********************************************************************/
+if ($arParams["MODE"] == "GROUP")
+{
+	$res = \Bitrix\Socialnetwork\WorkgroupTable::getList(array(
+		'filter' => array(
+			'=ID' => $arParams["SOCNET_GROUP_ID"]
+		),
+		'select' => array('ID')
+	));
+	$entity = $res->fetch();
+	if (!$entity)
+	{
+		ShowError(GetMessage("SFTL_ERROR_NO_GROUP"));
+		return false;
+	}
+}
+elseif ($arParams["MODE"] == "USER")
+{
+	$filter = array(
+		'=ID' => $arParams["USER_ID"]
+	);
+	if (!\Bitrix\Main\ModuleManager::isModuleInstalled('intranet'))
+	{
+		$filter['=ACTIVE'] = 'Y';
+	}
+	$res = \Bitrix\Main\UserTable::getList(array(
+		'filter' => $filter,
+		'select' => array('ID')
+	));
+	$entity = $res->fetch();
+	if (!$entity)
+	{
+		ShowError(GetMessage("SFTL_ERROR_NO_USER"));
+		return false;
+	}
+}
+
 //************** SocNet Activity ***********************************/
-if (($arParams["MODE"] == "GROUP" && !CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum")) ||
-	($arParams["MODE"] != "GROUP" && !CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $arParams["USER_ID"], "forum"))):
+if (
+	(
+		$arParams["MODE"] == "GROUP"
+		&& !CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum")
+	)
+	|| (
+		$arParams["MODE"] != "GROUP"
+		&& !CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $arParams["USER_ID"], "forum")
+	)
+)
+{
 	ShowError(GetMessage("FORUM_SONET_MODULE_NOT_AVAIBLE"));
 	return false;
-endif;
+}
 
 //************** Forum *********************************************/
 	$arResult["TOPICS"] = array();

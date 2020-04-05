@@ -19,7 +19,7 @@ return array(
 				array(
 					'name' => Loc::getMessage('LANDING_BLOCK_46.2.COVER_WITH_2_BIG_IMAGES_NODES_LANDINGBLOCKNODEIMG'),
 					'type' => 'img',
-					'dimensions' => array('width' => 1440, 'height' => 960),
+					'dimensions' => array('width' => 500, 'height' => 700),
 					'allowInlineEdit' => false,
 				),
 			'.landing-block-node-img-title' =>

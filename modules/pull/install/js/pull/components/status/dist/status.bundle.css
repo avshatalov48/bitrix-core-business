@@ -1,0 +1,126 @@
+.bx-pull-status {
+	height: 0;
+}
+.bx-pull-status-wrap {
+	position: relative;
+	font: 12px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #fff;
+	text-align: center;
+	-webkit-transition: height .4s, background .4s;
+	-o-transition: height .4s, background .4s;
+	transition: height .4s, background .4s;
+	overflow: hidden;
+	opacity: 0;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: horizontal;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: row;
+	        flex-direction: row;
+	-ms-flex-wrap: nowrap;
+	    flex-wrap: nowrap;
+	z-index: 100;
+}
+.bx-pull-status-show .bx-pull-status-wrap {
+	opacity: 1;
+	-webkit-animation: pullStatusShow .4s 1;
+	animation: pullStatusShow .4s 1;
+}
+.bx-pull-status-hide .bx-pull-status-wrap {
+	-webkit-animation: pullStatusHide .4s 1;
+	animation: pullStatusHide .4s 1;
+}
+.bx-pull-status-offline .bx-pull-status-wrap {
+	background-color: rgba(191,0,0,.70);
+}
+.bx-pull-status-connecting .bx-pull-status-wrap {
+	background-color: rgba(225,127,0,.80);
+	-webkit-animation: imConnectionAnimation 2s infinite;
+	animation: imConnectionAnimation 3s infinite;
+}
+.bx-pull-status-online .bx-pull-status-wrap {
+	background-color: rgba(42,152,215,.80);
+	padding-right: 0;
+}
+.bx-pull-status-text {
+	-webkit-box-flex: 1;
+	    -ms-flex-positive: 1;
+	        flex-grow: 1;
+	-ms-flex-negative: 1;
+	    flex-shrink: 1;
+    padding: 10px;
+}
+.bx-pull-status-text + .bx-pull-status-button {
+	margin-left: -10px;
+}
+.bx-pull-status-button {
+	padding: 10px 0;
+	cursor: pointer;
+	white-space: nowrap;
+	-webkit-box-flex: 0;
+	    -ms-flex-positive: 0;
+	        flex-grow: 0;
+	-ms-flex-negative: 0;
+	    flex-shrink: 0;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+}
+.bx-pull-status-button:hover {
+	background: none repeat scroll 0 0 rgba(255, 255, 255, 0.2);
+}
+.bx-pull-status-button-title {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+.bx-pull-status-button-key {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+.bx-pull-status-button-title+.bx-pull-status-button-key{
+	padding-left: 0;
+}
+
+.bx-pull-status-button-key {
+	font-size: 11px;
+	text-decoration: underline;
+}
+.bx-pull-status-button-key:hover {
+	text-decoration: none;
+}
+
+.bx-pull-status-online .bx-pull-status-button {
+	display: none;
+}
+.bx-ie .bx-pull-status {
+	position: absolute;
+}
+.bx-ie .bx-pull-status-wrap {
+	min-width: 533px;
+}
+
+@-webkit-keyframes pullStatusShow {
+	0% { opacity: 0; max-height: 0; }
+	25% { opacity: 1;  }
+	100% { opacity: 1; max-height: 50px; }
+}
+@keyframes pullStatusShow {
+	0% { opacity: 0; max-height: 0; }
+	25% { opacity: 1;  }
+	100% { opacity: 1; max-height: 50px; }
+}
+
+@-webkit-keyframes pullStatusHide {
+	0% { opacity: 1; max-height: 50px; }
+	75% { opacity: 1; }
+	100% { opacity: 0; max-height: 0; }
+}
+@keyframes pullStatusHide {
+	0% { opacity: 1; max-height: 50px; }
+	75% { opacity: 1; }
+	100% { opacity: 0; max-height: 0; }
+}

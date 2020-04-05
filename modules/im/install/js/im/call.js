@@ -238,7 +238,7 @@
 
 		this.pluginHandle = null;
 		this.localStream = null;
-	}
+	};
 
 	Receiver = function(config)
 	{

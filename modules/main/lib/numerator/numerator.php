@@ -4,10 +4,8 @@ namespace Bitrix\Main\Numerator;
 
 use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Entity\Query;
-use Bitrix\Main\Entity\UpdateResult;
 use Bitrix\Main\Error;
 use Bitrix\Main\Event;
-use Bitrix\Main\EventResult;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Numerator\Generator\Contract\UserConfigurable;
 use Bitrix\Main\Numerator\Generator\Contract\DynamicConfigurable;
@@ -33,6 +31,8 @@ class Numerator
 	private $generators;
 	private $id;
 
+	const NUMERATOR_DEFAULT_TYPE = 'DEFAULT';
+	const NUMERATOR_ALL_GENERATORS_TYPE = 'ALL';
 	/** * @var NumberGeneratorFactory */
 	static protected $numberGeneratorFactory;
 
@@ -74,22 +74,22 @@ class Numerator
 		$settings = ['settingsFields' => [], 'settingsWords' => [],];
 		$settings['settingsFields'][static::getType()] = [
 			[
-				'title'       => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_NUMERATOR_NAME_TITLE'),
+				'title' => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_NUMERATOR_NAME_TITLE'),
 				'settingName' => 'name',
-				'type'        => 'string',
-				'default'     => Loc::getMessage('NUMERATOR_DEFAULT_NUMERATOR_NAME', ['#NUMBER#' => $numeratorsAmount]),
+				'type' => 'string',
+				'default' => Loc::getMessage('NUMERATOR_DEFAULT_NUMERATOR_NAME', ['#NUMBER#' => $numeratorsAmount]),
 			],
 			[
 				'settingName' => 'template',
-				'type'        => 'string',
-				'title'       => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_NUMERATOR_TEMPLATE_TITLE'),
+				'type' => 'string',
+				'title' => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_NUMERATOR_TEMPLATE_TITLE'),
 			],
 		];
 		$allGeneratorsClasses = static::getNumberGeneratorFactory()->getClasses();
 		foreach ($allGeneratorsClasses as $class)
 		{
 			/** @var $class NumberGenerator|UserConfigurable */
-			$isAvailableForAll = $class::getAvailableForType() == 'DEFAULT';
+			$isAvailableForAll = $class::getAvailableForType() == static::NUMERATOR_DEFAULT_TYPE;
 			if ($isAvailableForAll || $class::getAvailableForType() == $numeratorType)
 			{
 				if (in_array(UserConfigurable::class, class_implements($class)))
@@ -153,8 +153,12 @@ class Numerator
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function getListByType($type = 'DEFAULT', $sort = null)
+	public static function getListByType($type = null, $sort = null)
 	{
+		if (is_null($type))
+		{
+			$type = static::NUMERATOR_DEFAULT_TYPE;
+		}
 		return NumeratorTable::getNumeratorList($type, $sort);
 	}
 
@@ -166,8 +170,12 @@ class Numerator
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function getOneByType($type = 'DEFAULT')
+	public static function getOneByType($type = null)
 	{
+		if (is_null($type))
+		{
+			$type = static::NUMERATOR_DEFAULT_TYPE;
+		}
 		$numeratorSettings = static::getListByType($type);
 		if ($numeratorSettings && isset($numeratorSettings[0]))
 		{
@@ -181,15 +189,19 @@ class Numerator
 	 * @return array
 	 * @throws \Bitrix\Main\NotImplementedException
 	 */
-	public static function getTemplateWordsForType($isAvailableByType = 'DEFAULT')
+	public static function getTemplateWordsForType($isAvailableByType = null)
 	{
+		if (is_null($isAvailableByType))
+		{
+			$isAvailableByType = static::NUMERATOR_DEFAULT_TYPE;
+		}
 		$settings = [];
 		$allGeneratorsClasses = static::getNumberGeneratorFactory()->getClasses();
 		foreach ($allGeneratorsClasses as $class)
 		{
 			/** @var $class NumberGenerator */
-			$isAllTypesNeeded = $isAvailableByType === 'ALL';
-			$isAvailableByDefault = $class::getAvailableForType() == 'DEFAULT';
+			$isAllTypesNeeded = $isAvailableByType === static::NUMERATOR_ALL_GENERATORS_TYPE;
+			$isAvailableByDefault = $class::getAvailableForType() == static::NUMERATOR_DEFAULT_TYPE;
 			if ($isAllTypesNeeded || $isAvailableByDefault || $class::getAvailableForType() == $isAvailableByType)
 			{
 				$settings = array_merge($settings, [$class::getType() => $class::getTemplateWordsForParse()]);
@@ -258,6 +270,9 @@ class Numerator
 	 * @return \Bitrix\Main\Entity\AddResult|\Bitrix\Main\Entity\UpdateResult|Result
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\NotImplementedException
+	 * @throws \Bitrix\Main\ObjectException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function update($numId, $config)
 	{
@@ -301,23 +316,21 @@ class Numerator
 	/**
 	 * @return \Bitrix\Main\Entity\AddResult|\Bitrix\Main\Entity\UpdateResult
 	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function save()
 	{
 		$settingsToStore = $this->getSettings();
 		$result = NumeratorTable::saveNumerator($this->id, [
-			'NAME'     => $this->name,
+			'NAME' => $this->name,
 			'TEMPLATE' => $this->template,
-			'TYPE'     => $this->type ? $this->type : 'DEFAULT',
+			'TYPE' => $this->type ? $this->type : static::NUMERATOR_DEFAULT_TYPE,
 			'SETTINGS' => $settingsToStore,
 		]);
 		if ($result->isSuccess())
 		{
-			if ($result instanceof UpdateResult && $result->getAffectedRowsCount() != 1)
-			{
-				$result->addError(new Error('wrong id'));
-				return $result;
-			}
 			$this->id = $result->getId();
 		}
 
@@ -423,21 +436,37 @@ class Numerator
 		return null;
 	}
 
+	/** check if numerator has {NUMBER} in template
+	 * @return bool
+	 */
+	public function hasSequentialNumber()
+	{
+		foreach ($this->generators as $generator)
+		{
+			if ($generator instanceof Sequenceable)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * The only way to affect the NEXT number
 	 * - function forces the numerator to start counting with a given number
-	 * @param int $number
+	 * @param int $nextNumber
+	 * @param $whereNumber - old value of next number
 	 * @param string $hash
 	 * @return Result
 	 */
-	public function setNextSequentialNumber($number, $hash = null)
+	public function setNextSequentialNumber($nextNumber, $whereNumber = null, $hash = null)
 	{
 		$this->setNumberHashForGenerators($hash);
 		foreach ($this->generators as $generator)
 		{
 			if ($generator instanceof Sequenceable)
 			{
-				return $generator->setNextNumber($this->id, $number);
+				return $generator->setNextNumber($this->id, $nextNumber, $whereNumber);
 			}
 		}
 		return (new Result())->addError(new Error(Loc::getMessage('NUMERATOR_SET_SEQUENTIAL_IS_IMPOSSIBLE')));
@@ -450,10 +479,10 @@ class Numerator
 	{
 		$selfConfig = [
 			static::getType() => [
-				'name'     => $this->name,
+				'name' => $this->name,
 				'template' => $this->template,
-				'id'       => $this->id,
-				'type'     => $this->type,
+				'id' => $this->id,
+				'type' => $this->type,
 			],
 		];
 		$generatorConfigs = [];
@@ -504,6 +533,30 @@ class Numerator
 		return $result;
 	}
 
+	private function createGenerators()
+	{
+		$generatorTypesToCreate = $this->getGeneratorTypesByTemplate();
+		if ($this->type === static::NUMERATOR_ALL_GENERATORS_TYPE)
+		{
+			return $this->createGeneratorsOfTypes($generatorTypesToCreate);
+		}
+
+		$factory = static::getNumberGeneratorFactory();
+		$typesForCurrentNumerator = [];
+		foreach ($generatorTypesToCreate as $index => $generatorType)
+		{
+			$generatorClass = $factory->getClassByType($generatorType);
+			if ($generatorClass::getAvailableForType() === $this->type
+				|| $generatorClass::getAvailableForType() === static::NUMERATOR_DEFAULT_TYPE
+			)
+			{
+				$typesForCurrentNumerator[] = $generatorType;
+			}
+		}
+
+		return $this->createGeneratorsOfTypes($typesForCurrentNumerator);
+	}
+
 	/**
 	 * @param $config
 	 * @return Result
@@ -511,8 +564,7 @@ class Numerator
 	 */
 	private function setGeneratorsConfig($config)
 	{
-		$generatorTypesToCreate = $this->getGeneratorTypesByTemplate();
-		$generators = $this->createGeneratorsOfTypes($generatorTypesToCreate);
+		$generators = $this->createGenerators();
 		foreach ($generators as $index => $generator)
 		{
 			$this->addGenerator($generator);
@@ -699,5 +751,10 @@ class Numerator
 		/** @var NumberGenerator $generatorClass */
 		$generatorClass = get_class($generator);
 		return $generatorClass::getType();
+	}
+
+	public function getId()
+	{
+		return $this->id;
 	}
 }

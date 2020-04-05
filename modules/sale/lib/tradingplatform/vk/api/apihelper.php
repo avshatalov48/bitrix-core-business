@@ -25,6 +25,7 @@ class ApiHelper
 	private $api;
 	private $executer;
 	private $exportId;
+	private $logger;
 	
 	/**
 	 * ApiHelper constructor.
@@ -39,6 +40,7 @@ class ApiHelper
 		$this->vk = Vk::getInstance();
 		$this->api = $this->vk->getApi($exportId);
 		$this->executer = $this->vk->getExecuter($exportId);
+		$this->logger = new Logger($this->exportId);
 	}
 	
 	
@@ -87,12 +89,16 @@ class ApiHelper
 	public static function addResultToData($data = array(), $result = array(), $referenceKey)
 	{
 		if (empty($result) || !isset($referenceKey))
+		{
 			return $data;
+		}
 		
 		foreach ($result as $item)
 		{
 			if (isset($data[$item[$referenceKey]]))
+			{
 				$data[$item[$referenceKey]] += $item;
+			}
 		}
 		
 		return $data;
@@ -129,6 +135,7 @@ class ApiHelper
 	
 	/**
 	 * Check photo size, get upload server, upload photo and save them
+	 * @deprecated use PhotoUploader class
 	 *
 	 * @param $data
 	 * @param $vkGroupId
@@ -175,11 +182,6 @@ class ApiHelper
 				throw new SystemException("Wrong photo upload type");
 				break;
 		}
-		
-//		add rich log for catch errors. Use only if set option
-		$richLog = $this->vk->getRichLog($this->exportId);
-		if($richLog)
-			$logger = new Logger($this->exportId);
 
 //		PROCESSED
 		foreach ($data as $item)
@@ -193,30 +195,26 @@ class ApiHelper
 			if ($uploadType == 'PRODUCT_MAIN_PHOTO')
 				$getServerParams += self::setUploadServerMainPhotoParams($item[$keyPhotoBx]);
 			
-			if(isset($logger) && $richLog)
-				$logger->addLog("Get photo upload server", $getServerParams);
-			
 			$uploadServer = $this->api->run($uploadServerMethod, $getServerParams);
-//			$uploadServer = Json::decode($uploadServer);
+//			todo: may be this error in upload server response
+			$this->logger->addLog("Get photo upload server", [
+				'PARAMS' => $getServerParams,
+				'RESULT' => $uploadServer,
+			]);
 			$uploadServer = $uploadServer["upload_url"];
+			
 
 //			UPLOAD photo by http
-			if(isset($logger) && $richLog)
-//				different array for albums and products
-				$logger->addLog("Upload photo HTTP", array(
-					"UPLOAD_TYPE" => $uploadType,
-					"ITEM" => array_key_exists("BX_ID", $item) ?
-						$item["BX_ID"].': '.$item["NAME"] :
-						$item["SECTION_ID"].': '.$item["TITLE"],
-					"PHOTO_BX_ID" => array_key_exists("PHOTO_MAIN_BX_ID", $item) ? $item["PHOTO_MAIN_BX_ID"] : $item["PHOTO_BX_ID"],
-					"PHOTO_URL" => array_key_exists("PHOTO_MAIN_URL", $item) ? $item["PHOTO_MAIN_URL"] : $item["PHOTO_URL"],
-					"PHOTOS" => $item["PHOTOS"]	//only for products
-				));
-			$responseHttp = ApiHelper::uploadPhotoHttp($item, $uploadServer, $uploadType, $timer);
-			$responseHttp = Json::decode($responseHttp);
-			
-			if(isset($logger) && $richLog)
-				$logger->addLog("Upload photo HTTP response", $responseHttp);
+			$this->logger->addLog("Upload photo HTTP before", array(
+				"UPLOAD_TYPE" => $uploadType,
+				"ITEM" => array_key_exists("BX_ID", $item) ?
+					$item["BX_ID"].': '.$item["NAME"] :
+					$item["SECTION_ID"].': '.$item["TITLE"],
+				"PHOTO_BX_ID" => array_key_exists("PHOTO_MAIN_BX_ID", $item) ? $item["PHOTO_MAIN_BX_ID"] : $item["PHOTO_BX_ID"],
+				"PHOTO_URL" => array_key_exists("PHOTO_MAIN_URL", $item) ? $item["PHOTO_MAIN_URL"] : $item["PHOTO_URL"],
+				"PHOTOS" => $item["PHOTOS"]	//only for products
+			));
+			$responseHttp = $this->uploadPhotoHttp($item, $uploadServer, $uploadType, $timer);
 			
 //			SAVE upload result
 			$photoSaveParams = array(
@@ -252,6 +250,7 @@ class ApiHelper
 	
 	/**
 	 * Formatted params and run http-upload process
+	 * @deprecated use PhotoUploader class
 	 *
 	 * @param $data
 	 * @param $uploadServer
@@ -261,7 +260,7 @@ class ApiHelper
 	 * @throws SystemException
 	 * @throws TimeIsOverException
 	 */
-	private static function uploadPhotoHttp($data, $uploadServer, $uploadType, Timer $timer = NULL)
+	private function uploadPhotoHttp($data, $uploadServer, $uploadType, Timer $timer = NULL)
 	{
 		switch ($uploadType)
 		{
@@ -278,7 +277,7 @@ class ApiHelper
 				$postParams = array(
 					"url" => $data["PHOTO_MAIN_URL"],
 					"filename" => IO\Path::getName($data["PHOTO_MAIN_URL"]),
-					"param_name" => 'photo',
+					"param_name" => 'file',
 					"timer" => $timer,
 				);
 				break;
@@ -287,7 +286,7 @@ class ApiHelper
 				$postParams = array(
 					"url" => $data["PHOTO_URL"],
 					"filename" => IO\Path::getName($data["PHOTO_URL"]),
-					"param_name" => 'photo',
+					"param_name" => 'file',
 					"timer" => $timer,
 				);
 				break;
@@ -298,9 +297,41 @@ class ApiHelper
 			
 		}
 		
-		return self::uploadHttp($uploadServer, $postParams);
+		return $this->uploadHttp($uploadServer, $postParams);
 	}
 	
+	
+	/**
+	 * Build params for http photo upload
+	 *
+	 * @deprecated use PhotoUploader class
+	 * @param $photoId
+	 * @return array
+	 */
+	private static function setUploadServerMainPhotoParams($photoId)
+	{
+				$result = array();
+		$result["main_photo"] = 1;
+		
+		$photoParams = \CFile::GetFileArray($photoId);
+		$w = $photoParams["WIDTH"];
+		$h = $photoParams["HEIGHT"];
+		
+		if ($w >= $h)
+		{
+			$result["crop_x"] = ceil(($w + $h) / 2);
+			$result["crop_y"] = 0;
+			$result["crop_width"] = $h;
+		}
+		else
+		{
+			$result["crop_x"] = 0;
+			$result["crop_y"] = ceil(($w + $h) / 2);
+			$result["crop_width"] = $w;
+		}
+		
+		return $result;
+	}
 	
 	/**
 	 * Execute http requst
@@ -327,7 +358,15 @@ class ApiHelper
 		$http->setHeader('Content-type', 'multipart/form-data; boundary=' . $boundary);
 		$http->setHeader('Content-length', \Bitrix\Main\Text\BinaryString::getLength($data));
 		
+		$this->logger->addLog("Upload photo HTTP params", [
+			'SERVER' => $uploadServer,
+			'PARAMS' => $params,
+			'FILE_OK' => $file ? 'Y' : 'N',
+		]);
 		$result = $http->post($uploadServer, $data);
+		
+		$result = Json::decode($result);
+		$this->logger->addLog("Upload photo HTTP response", $result);
 		
 //		check TIMER if set
 		if (array_key_exists("timer", $params))
@@ -501,8 +540,10 @@ class ApiHelper
 			}
 			
 //			check VK_CATEGORY
-			if (!(isset($item["CATEGORY_VK"]) && is_int($item["CATEGORY_VK"])))
-				$item["CATEGORY_VK"] = Vk::VERY_DEFAULT_VK_CATEGORY;    // we need some category
+			if (!(isset($item["CATEGORY_VK"]) && intval($item["CATEGORY_VK"]) > 0))
+			{
+				$item["CATEGORY_VK"] = Vk::VERY_DEFAULT_VK_CATEGORY;
+			}    // we need some category
 			
 			$result[] = $item;
 		}
@@ -511,36 +552,7 @@ class ApiHelper
 	}
 	
 	
-	/**
-	 * Build params for http photo upload
-	 *
-	 * @param $photoId
-	 * @return array
-	 */
-	private static function setUploadServerMainPhotoParams($photoId)
-	{
-		$result = array();
-		$result["main_photo"] = 1;
-		
-		$photoParams = \CFile::GetFileArray($photoId);
-		$w = $photoParams["WIDTH"];
-		$h = $photoParams["HEIGHT"];
-		
-		if ($w >= $h)
-		{
-			$result["crop_x"] = ceil(($w + $h) / 2);
-			$result["crop_y"] = 0;
-			$result["crop_width"] = $h;
-		}
-		else
-		{
-			$result["crop_x"] = 0;
-			$result["crop_y"] = ceil(($w + $h) / 2);
-			$result["crop_width"] = $w;
-		}
-		
-		return $result;
-	}
+
 	
 	
 	/**

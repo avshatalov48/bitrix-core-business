@@ -73,7 +73,7 @@
 
 		getTileCalculating : function()
 		{
-			var wrapperWidth = this.wrapper.clientWidth;
+			var wrapperWidth = this.wrapper.clientWidth - 12; // margin-right for wrapper
 			var wholeMarginSize =  wrapperWidth / 100 * 6; // 6% of whole width for margins
 			var width = 0,
 				tileAmountInRow = 0;
@@ -109,6 +109,14 @@
 
 		action: function(action, data)
 		{
+			var loaderContainer = BX.create('div',{
+				attrs:{className:'landing-filter-loading-container'}
+			});
+			document.body.appendChild(loaderContainer);
+
+			var loader = new BX.Loader({size: 130, color: "#bfc3c8"});
+			loader.show(loaderContainer);
+
 			BX.ajax({
 				url: '/bitrix/tools/landing/ajax.php?action=' + action,
 				method: 'POST',
@@ -119,6 +127,9 @@
 				dataType: 'json',
 				onsuccess: function(data)
 				{
+					loader.hide();
+					loaderContainer.classList.add('landing-filter-loading-hide');
+
 					if (
 						typeof data.type !== 'undefined' &&
 						typeof data.result !== 'undefined'
@@ -126,12 +137,28 @@
 					{
 						if (data.type === 'error')
 						{
+							var errorCode = data.result[0].error;
 							var msg = BX.Landing.UI.Tool.ActionDialog.getInstance();
-							msg.show({
-								content: data.result[0].error_description,
-								confirm: 'OK',
-								type: 'alert'
-							});
+							if (
+								(
+									errorCode == 'PUBLIC_SITE_REACHED' ||
+									errorCode == 'PUBLIC_PAGE_REACHED'
+								) &&
+								typeof BX.Landing.PaymentAlertShow !== 'undefined'
+							)
+							{
+								BX.Landing.PaymentAlertShow({
+									message: data.result[0].error_description
+								});
+							}
+							else
+							{
+								msg.show({
+									content: data.result[0].error_description,
+									confirm: 'OK',
+									type: 'alert'
+								});
+							}
 						}
 						else
 						{

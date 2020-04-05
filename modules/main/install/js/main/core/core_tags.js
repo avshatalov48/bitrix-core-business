@@ -138,7 +138,7 @@ BX.TagsWindowArea.prototype.selectAllTags = function(selected, arTagsFilter)
 		for (i = 0, length = this.tags.length; i < length; i++)
 			this.tags[i].selected = selected;
 	}
-}
+};
 
 BX.TagsWindowArea.prototype.indexOfTag = function(tag)
 {
@@ -184,8 +184,8 @@ BX.TagsWindowArea.prototype.getSelectedTags = function()
 
 BX.TagsWindowArea.prototype.getTags = function()
 {
-	return this.tags[i];
-}
+	return this.tags;
+};
 
 BX.TagsWindowArea.prototype.sortTags = function()
 {
@@ -334,7 +334,7 @@ BX.TagsWindowArea.prototype.__resize = function(selectedCnt, unselectedCnt)
 	}
 	else if ((selectedCnt == 0 && unselectedCnt == 0) || this.tagsContainer.offsetHeight < 40)
 		this.tagsContainer.style.height = "40px";
-}
+};
 
 
 BX.TagsWindowArea.prototype._renderHighlight = function(params)

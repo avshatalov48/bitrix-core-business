@@ -36,6 +36,7 @@ class Auth
 		if($authKey !== null || Context::getCurrent()->getRequest()->getHeader('X-Bitrix-Csrf-Token') !== null)
 		{
 			static::checkHttpAuth();
+			static::checkCookieAuth();
 
 			if(check_bitrix_sessid() || $authKey === bitrix_sessid())
 			{
@@ -61,11 +62,6 @@ class Auth
 			{
 				$error = true;
 				$res = array('error' => 'session_failed', 'error_description' => 'Sessid check failed', 'additional' => array('sessid' => bitrix_sessid()));
-			}
-
-			if($error)
-			{
-				static::requireHttpAuth();
 			}
 
 			return !$error;
@@ -117,6 +113,16 @@ class Auth
 			{
 				$APPLICATION->SetAuthResult($httpAuth);
 			}
+		}
+	}
+
+	protected static function checkCookieAuth()
+	{
+		global $USER;
+
+		if(!$USER->IsAuthorized())
+		{
+			$USER->LoginByCookies();
 		}
 	}
 }

@@ -1,5 +1,5 @@
 <? if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die(); ?>
-
+<?\Bitrix\Main\UI\Extension::load("ui.notification");?>
 <div id="new_from_email_dialog_content" style="display: none; ">
 	<div class="new-from-email-dialog-error" style="display: none; "></div>
 	<div class="new-from-email-dialog-content">
@@ -8,7 +8,7 @@
 				<div style="padding-bottom: 8px; "><?=getMessage(
 					empty($arParams['IS_SMTP_AVAILABLE'])
 						? 'MAIN_MAIL_CONFIRM_EMAIL_HINT'
-						: 'MAIN_MAIL_CONFIRM_EMAIL_HINT_SMTP'
+						: 'MAIN_MAIL_CONFIRM_EMAIL_HINT_SMTP_2'
 				) ?></div>
 				<div class="new-from-email-dialog-table" style="padding: 0; ">
 					<div class="new-from-email-dialog-row-group">
@@ -35,7 +35,7 @@
 								</div>
 							</div>
 						</div>
-						<div class="new-from-email-dialog-row">
+						<div class="new-from-email-dialog-row" <? if (!$arParams['IS_ADMIN']): ?> style="display: none; "<? endif ?>>
 							<div class="new-from-email-dialog-text new-from-email-dialog-cell"></div>
 							<div class="new-from-email-dialog-cell new-from-email-dialog-full-width-cell">
 								<label style="display: flex; align-items: center; ">
@@ -126,6 +126,7 @@
 		MAIN_MAIL_CONFIRM_GET_CODE: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_GET_CODE')) ?>',
 		MAIN_MAIL_CONFIRM_SAVE: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_SAVE')) ?>',
 		MAIN_MAIL_CONFIRM_CANCEL: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_CANCEL')) ?>',
+		MAIN_MAIL_CONFIRM_BACK: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_BACK')) ?>',
 		MAIN_MAIL_CONFIRM_EMPTY_EMAIL: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_EMPTY_EMAIL')) ?>',
 		MAIN_MAIL_CONFIRM_INVALID_EMAIL: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_INVALID_EMAIL')) ?>',
 		MAIN_MAIL_CONFIRM_EMPTY_SMTP_SERVER: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_EMPTY_SMTP_SERVER')) ?>',
@@ -134,7 +135,10 @@
 		MAIN_MAIL_CONFIRM_INVALID_SMTP_PORT: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_INVALID_SMTP_PORT')) ?>',
 		MAIN_MAIL_CONFIRM_EMPTY_SMTP_LOGIN: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_EMPTY_SMTP_LOGIN')) ?>',
 		MAIN_MAIL_CONFIRM_EMPTY_SMTP_PASSWORD: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_EMPTY_SMTP_PASSWORD')) ?>',
-		MAIN_MAIL_CONFIRM_EMPTY_CODE: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_EMPTY_CODE')) ?>'
+		MAIN_MAIL_CONFIRM_EMPTY_CODE: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_EMPTY_CODE')) ?>',
+		MAIN_MAIL_CONFIRM_DELETE: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_DELETE')) ?>',
+		MAIN_MAIL_CONFIRM_DELETE_SENDER_CONFIRM: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_DELETE_SENDER_CONFIRM')) ?>',
+		MAIN_MAIL_DELETE_SENDER_ERROR: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_DELETE_SENDER_ERROR')) ?>'
 	});
 
 </script>

@@ -32,6 +32,7 @@
 
 		this.initUi();
 		Page.initButtons();
+		Helper.hint.init(this.context);
 	};
 	Editor.prototype.initUi = function ()
 	{
@@ -57,6 +58,10 @@
 
 		if (this.isFrame && this.isSaved)
 		{
+			if (top.BX.Sender.Page)
+			{
+				top.BX.Sender.Page.reloadGrid();
+			}
 			top.BX.onCustomEvent(top, 'sender-campaign-edit-change', [this.campaignTile]);
 			BX.Sender.Page.slider.close();
 		}

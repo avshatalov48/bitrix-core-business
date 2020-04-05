@@ -31,7 +31,7 @@ if(is_array($indexes) && !empty($indexes))
 	}
 }
 
-if(!empty($absent))
+if(!empty($absent) && !$adminSidePanelHelper->isPublicSidePanel())
 {
 	?>
 

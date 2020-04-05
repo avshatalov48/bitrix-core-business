@@ -152,6 +152,10 @@ class OrderUserProperties
 					'DATE_UPDATE' => 'USER_PROPERTY.DATE_UPDATE',
 					'MULTIPLE' => 'PROPERTY.MULTIPLE',
 					'TYPE' => 'PROPERTY.TYPE',
+				),
+				'order' => array(
+					'USER_PROPERTY.DATE_UPDATE' => 'DESC',
+					'USER_PROPERTY.NAME' => 'ASC'
 				)
 			)
 		);

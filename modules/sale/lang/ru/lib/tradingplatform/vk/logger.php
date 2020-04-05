@@ -43,6 +43,9 @@ $MESS["SALE_VK_ERRORS__EMPTY_SECTIONS_LIST"] = "Не задано <b>ни одн
 $MESS["SALE_VK_ERRORS__EMPTY_SECTION_PRODUCTS"] = "Не задано <b>ни одного товара для экспорта</b>";
 $MESS["SALE_VK_ERRORS__TOO_MANY_SECTIONS_TO_EXPORT"] = "Для экспорта передано <b>слишком много альбомов</b>. Будут использованы только первые";
 $MESS["SALE_VK_ERRORS__TOO_MANY_PRODUCTS_TO_EXPORT"] = "Для экспорта передано <b>слишком много товаров</b>. Будут использованы только первые";
+$MESS["SALE_VK_ERRORS__ERR_UPLOAD_BAD_IMAGE_SIZE_ALBUM_PHOTO"] = "Ошибка при сохранении фотографии ВКонтакте для альбома";
+$MESS["SALE_VK_ERRORS__ERR_UPLOAD_BAD_IMAGE_SIZE_PRODUCT_MAIN_PHOTO"] = "Ошибка при сохранении фотографии ВКонтакте. Товар пропущен";
+$MESS["SALE_VK_ERRORS__ERR_UPLOAD_BAD_IMAGE_SIZE_PRODUCT_PHOTOS"] = "Ошибка при сохранении фотографии ВКонтакте в товаре";
 $MESS["SALE_VK_ERRORS__MORE_ELEMENTS"] = "... и ещё #C1";
 $MESS["SALE_VK_ERRORS__LESS_ELEMENTS"] = "Свернуть ошибки.";
 ?>

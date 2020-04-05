@@ -339,7 +339,7 @@ class OrderCreate extends Base
 			if(!empty($shipmentParams['PHONE']))
 				$item['tel-address'] = preg_replace('/[^\d]/','',$shipmentParams['PHONE']);
 
-			$price = $shipmentParams['PRICE'] * 100; //rubles -> kopeck
+			$price = ($shipmentParams['PRICE'] + $shipmentParams['PRICE_DELIVERY']) * 100; //rubles -> kopeck
 
 			if($shipmentParams['DELIVERY_SERVICE_CONFIG']['MAIN']['CATEGORY'] == 2 || $shipmentParams['DELIVERY_SERVICE_CONFIG']['MAIN']['CATEGORY'] == 4)
 				$item['insr-value'] = $price;

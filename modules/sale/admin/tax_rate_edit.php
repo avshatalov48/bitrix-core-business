@@ -4,6 +4,10 @@ use Bitrix\Sale\Location;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+$listUrl = $selfFolderUrl."sale_tax_rate.php?lang=".LANGUAGE_ID;
+$listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
+
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions < "W")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
@@ -24,6 +28,7 @@ $lpEnabled = CSaleLocation::isLocationProEnabled();
 
 if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleModulePermissions=="W" && check_bitrix_sessid())
 {
+	$adminSidePanelHelper->decodeUriComponent();
 	$TAX_ID = IntVal($TAX_ID);
 	if ($TAX_ID<=0)
 		$strError .= GetMessage("ERROR_NO_TAX_ID")."<br>";
@@ -117,10 +122,19 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleMod
 		}
 	}
 
-	if (strlen($strError)>0) $bInitVars = True;
+	if (strlen($strError)>0)
+	{
+		$adminSidePanelHelper->sendJsonErrorResponse($strError);
+		$bInitVars = True;
+	}
 
-	if (strlen($save)>0 && strlen($strError)<=0)
-		LocalRedirect("sale_tax_rate.php?lang=".LANG.GetFilterParams("filter_", false));
+	$adminSidePanelHelper->sendSuccessResponse("base");
+
+	if (strlen($save) > 0 && strlen($strError) <= 0)
+	{
+		$adminSidePanelHelper->localRedirect($listUrl);
+		LocalRedirect($listUrl);
+	}
 }
 
 if ($ID>0)
@@ -156,36 +170,46 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 
 <?
 $aMenu = array(
-		array(
-				"TEXT" => GetMessage("STREN_2FLIST"),
-				"ICON" => "btn_list",
-				"LINK" => "/bitrix/admin/sale_tax_rate.php?lang=".LANG.GetFilterParams("filter_")
-			)
-	);
+	array(
+		"TEXT" => GetMessage("STREN_2FLIST"),
+		"ICON" => "btn_list",
+		"LINK" => $listUrl
+	)
+);
 
 if ($ID > 0 && $saleModulePermissions >= "W")
 {
 	$aMenu[] = array("SEPARATOR" => "Y");
-
+	$addUrl = $selfFolderUrl."sale_tax_rate_edit.php?lang=".LANGUAGE_ID;
+	$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
 	$aMenu[] = array(
-			"TEXT" => GetMessage("STREN_NEW_RATE"),
-			"ICON" => "btn_new",
-			"LINK" => "/bitrix/admin/sale_tax_rate_edit.php?lang=".LANG.GetFilterParams("filter_")
-		);
-
+		"TEXT" => GetMessage("STREN_NEW_RATE"),
+		"ICON" => "btn_new",
+		"LINK" => $addUrl
+	);
+	$deleteUrl = $selfFolderUrl."sale_tax_rate.php?action=delete&ID[]=".$ID."&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."#tb";
+	$buttonAction = "LINK";
+	if ($adminSidePanelHelper->isPublicFrame())
+	{
+		$deleteUrl = $adminSidePanelHelper->editUrlToPublicPage($deleteUrl);
+		$buttonAction = "ONCLICK";
+	}
 	$aMenu[] = array(
-			"TEXT" => GetMessage("STREN_DELETE_RATE"),
-			"ICON" => "btn_delete",
-			"LINK" => "javascript:if(confirm('".GetMessage("STREN_DELETE_RATE_CONFIRM")."')) window.location='/bitrix/admin/sale_tax_rate.php?action=delete&ID[]=".$ID."&lang=".LANG."&".bitrix_sessid_get()."#tb';",
-		);
+		"TEXT" => GetMessage("STREN_DELETE_RATE"),
+		"ICON" => "btn_delete",
+		$buttonAction => "javascript:if(confirm('".GetMessage("STREN_DELETE_RATE_CONFIRM")."')) top.window.location.href='".$deleteUrl."';",
+	);
 }
 $context = new CAdminContextMenu($aMenu);
 $context->Show();
 ?>
 
 <?CAdminMessage::ShowMessage($strError);?>
-
-<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?" name="form1">
+<?
+$actionUrl = $APPLICATION->GetCurPage();
+$actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
+?>
+<form method="POST" action="<?=$actionUrl?>" name="form1">
 <?echo GetFilterHiddens("filter_");?>
 <input type="hidden" name="Update" value="Y">
 <input type="hidden" name="lang" value="<?echo LANG ?>">
@@ -233,7 +257,7 @@ $tabControl->BeginNextTab();
 				$db_TAX = CSaleTax::GetList(array("NAME" => "ASC"), array());
 				while ($db_TAX_arr = $db_TAX->NavNext(true, "fp_"))
 				{
-					?><option value="<?echo intval($fp_ID) ?>" <?if (IntVal($fp_ID)==IntVal($str_TAX_ID)) echo "selected";?>><?echo htmlspecialcharsbx($fp_NAME) ?> (<?echo $fp_LID ?>)</option><?
+					?><option value="<?echo intval($fp_ID) ?>" <?if (IntVal($fp_ID)==IntVal($str_TAX_ID)) echo "selected";?>><?= $fp_NAME ?> (<?echo $fp_LID ?>)</option><?
 				}
 				?>
 			</select>
@@ -371,18 +395,7 @@ $tabControl->BeginNextTab();
 
 <?
 $tabControl->EndTab();
-?>
-
-<?
-$tabControl->Buttons(
-		array(
-				"disabled" => ($saleModulePermissions < "W"),
-				"back_url" => "/bitrix/admin/sale_tax_rate.php?lang=".LANG.GetFilterParams("filter_")
-			)
-	);
-?>
-
-<?
+$tabControl->Buttons(array("disabled" => ($saleModulePermissions < "W"), "back_url" => $listUrl));
 $tabControl->End();
 ?>
 

@@ -10,3 +10,6 @@ drop table if exists b_landing_file;
 drop table if exists b_landing_syspage;
 drop table if exists b_landing_demo;
 drop table if exists b_landing_manifest;
+drop table if exists b_landing_placement;
+drop table if exists b_landing_update_block;
+drop table if exists b_landing_urlrewrite;

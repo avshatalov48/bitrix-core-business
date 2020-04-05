@@ -9,6 +9,7 @@ $component = $this->getComponent();
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\UI;
 
 $this->setFrameMode(true);
 
@@ -23,9 +24,11 @@ elseif (strlen($arResult["FatalError"])>0)
 }
 
 CUtil::InitJSCore(array("ajax", "window", "tooltip", "popup", "fx", "viewer", "content_view", "clipboard"));
+UI\Extension::load("socialnetwork.commentaux");
 
 $APPLICATION->SetUniqueJS('live_feed_v2'.($arParams["IS_CRM"] != "Y" ? "" : "_crm"));
 $APPLICATION->SetUniqueCSS('live_feed_v2'.($arParams["IS_CRM"] != "Y" ? "" : "_crm"));
+\Bitrix\Main\Page\Asset::getInstance()->addJs("/bitrix/js/main/rating_like.js");
 
 if (SITE_TEMPLATE_ID == "bitrix24")
 {
@@ -159,7 +162,8 @@ if (!$arResult["AJAX_CALL"])
 			"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 			"CHECK_PERMISSIONS_DEST" => $arParams["CHECK_PERMISSIONS_DEST"],
 			"TOP_TABS_VISIBLE" => (array_key_exists("TOP_TABS_VISIBLE", $arParams) ? $arParams["TOP_TABS_VISIBLE"] : "Y"),
-			"SHOW_BLOG_FORM_TARGET" => $arResult["FORM_TARGET_ID"] === false
+			"SHOW_BLOG_FORM_TARGET" => $arResult["FORM_TARGET_ID"] === false,
+			"SELECTOR_VERSION" => 2
 		);
 
 		if ($arParams["ENTITY_TYPE"] == SONET_ENTITY_GROUP)
@@ -295,7 +299,7 @@ if (!$arResult["AJAX_CALL"])
 					?><span class="feed-new-message-inf-text new-message-balloon"><?
 						?><span class="feed-new-message-icon new-message-balloon-icon"></span><?
 						?><span class="new-message-balloon-text"><?=GetMessage("SONET_C30_COUNTER_TEXT_1")?></span><?
-						?><span class="feed-new-message-informer-counter new-message-balloon-counter" id="sonet_log_counter_2">0</span><?
+						?><span class="feed-new-message-informer-counter" id="sonet_log_counter_2">0</span><span class="feed-new-message-informer-counter feed-new-message-informer-counter-plus-hidden" id="sonet_log_counter_2_plus">+</span><?
 					?></span><?
 					?><span class="feed-new-message-inf-text feed-new-message-inf-text-reload new-message-balloon" style="display: none;"><?
 						?><?=GetMessage("SONET_C30_T_RELOAD_NEEDED")?><?
@@ -347,7 +351,6 @@ elseif (
 }
 else // AJAX_CALL
 {
-	ob_end_clean();
 	$APPLICATION->RestartBuffer();
 }
 
@@ -384,6 +387,7 @@ if (!$arResult["AJAX_CALL"])
 			sonetLMenuDeleteConfirm: '<?=GetMessageJS("SONET_C30_MENU_TITLE_DELETE_CONFIRM")?>',
 			sonetLMenuDeleteSuccess: '<?=GetMessageJS("SONET_C30_MENU_TITLE_DELETE_SUCCESS")?>',
 			sonetLMenuDeleteFailure: '<?=GetMessageJS("SONET_C30_MENU_TITLE_DELETE_FAILURE")?>',
+			sonetLMenuCreateTask: '<?=GetMessageJS("SONET_C30_MENU_TITLE_CREATETASK")?>',
 			sonetLCounterType: '<?=CUtil::JSEscape($arResult["COUNTER_TYPE"])?>',
 			sonetLIsB24: '<?=(SITE_TEMPLATE_ID == "bitrix24" ? "Y" : "N")?>',
 			sonetRatingType : '<?=CUtil::JSEscape($arParams["RATING_TYPE"])?>',
@@ -391,16 +395,6 @@ if (!$arResult["AJAX_CALL"])
 			sonetLIsCRM : '<?=CUtil::JSEscape($arParams["IS_CRM"])?>',
 			sonetLCanDelete : '<?=($arResult["CAN_DELETE"] ? 'Y' : 'N')?>',
 			sonetLForumID : <?=intval($arParams["FORUM_ID"])?>,
-			sonetLFCreateTaskWait: '<?=GetMessageJS("SONET_C30_T_CREATE_TASK_WAIT")?>',
-			sonetLFCreateTaskButtonTitle: '<?=GetMessageJS("SONET_C30_T_CREATE_TASK_BUTTON_TITLE")?>',
-			sonetLFCreateTaskSuccessTitle: '<?=GetMessageJS("SONET_C30_T_CREATE_TASK_SUCCESS_TITLE")?>',
-			sonetLFCreateTaskFailureTitle: '<?=GetMessageJS("SONET_C30_T_CREATE_TASK_FAILURE_TITLE")?>',
-			sonetLFCreateTaskSuccessDescription: '<?=GetMessageJS("SONET_C30_T_CREATE_TASK_SUCCESS_DESCRIPTION")?>',
-			sonetLFCreateTaskErrorGetData: '<?=GetMessageJS("SONET_C30_T_CREATE_TASK_ERROR_GET_DATA")?>',
-			sonetLFCreateTaskTaskPath: '<?=CUtil::JSEscape(\Bitrix\Main\Config\Option::get('socialnetwork', 'user_page', SITE_DIR.'company/personal/'))?>user/#user_id#/tasks/task/view/#task_id#/',
-			sonetLFCreateTaskEntityLink: '<?=GetMessageJS("SONET_C30_T_CREATE_TASK_LINK")?>',
-			sonetLFCreateTaskEntityLinkBLOG_POST: '<?=GetMessageJS("SONET_C30_T_CREATE_TASK_LINK_BLOG_POST")?>',
-			sonetLFCreateTaskEntityLinkBLOG_COMMENT: '<?=GetMessageJS("SONET_C30_T_CREATE_TASK_LINK_BLOG_COMMENT")?>',
 			SONET_C30_T_LINK_COPIED: '<?=GetMessageJS("SONET_C30_T_LINK_COPIED")?>',
 			SONET_C30_T_EMPTY: '<?=GetMessageJS("SONET_C30_T_EMPTY")?>',
 			SONET_C30_T_EMPTY_SEARCH: '<?=GetMessageJS("SONET_C30_T_EMPTY_SEARCH")?>'
@@ -446,7 +440,9 @@ if (!$arResult["AJAX_CALL"])
 					"bxajaxid",
 					"logajax",
 					"RELOAD",
-					"useBXMainFilter"
+					"useBXMainFilter",
+					"apply_filter",
+					"FIND"
 				), false)?>'
 			});
 		});
@@ -562,17 +558,34 @@ if (!$arResult["AJAX_CALL"])
 		{
 			if(\Bitrix\Main\Page\Frame::isAjaxRequest())
 			{
-				?>setTimeout(function() {
+				?>
+				setTimeout(function() {
 					oLF.recalcMoreButton();
 					oLF.registerViewAreaList();
-				}, 1000);<?
+				}, 1000);
+				<?
+			}
+			elseif (!empty($arParams["CRM_ENTITY_ID"]))
+			{
+				?>
+				BX.bind(window, 'load', function() {
+					setTimeout(function() {
+						oLF.recalcMoreButton();
+					}, 1000);
+					oLF.registerViewAreaList();
+				});
+				<?
 			}
 			else
 			{
-				?>BX.bind(window, 'load', function() {
-					oLF.recalcMoreButton();
+				?>
+				BX.ready(function() {
+					setTimeout(BX.proxy(oLF.recalcMoreButton, oLF), 1);
+				});
+				BX.bind(window, 'load', function() {
 					oLF.registerViewAreaList();
-				});<?
+				});
+				<?
 			}
 		}
 	}
@@ -649,214 +662,240 @@ if (
 
 	foreach ($arResult["Events"] as $arEvent)
 	{
-		if (!empty($arEvent))
+		if (empty($arEvent))
 		{
-			$event_cnt++;
-			$ind = RandString(8);
-			$event_date_log_ts = (isset($arEvent["LOG_DATE_TS"]) ? $arEvent["LOG_DATE_TS"] : (MakeTimeStamp($arEvent["LOG_DATE"]) - intval($arResult["TZ_OFFSET"])));
+			continue;
+		}
 
-			$is_unread = (
-				$arParams["SHOW_UNREAD"] == "Y"
-				&& ($arResult["COUNTER_TYPE"] == "**" || $arResult["COUNTER_TYPE"] == "CRM_**" || $arResult["COUNTER_TYPE"] == "blog_post")
-				&& $arEvent["USER_ID"] != $arResult["currentUserId"]
-				&& intval($arResult["LAST_LOG_TS"]) > 0
-				&& $event_date_log_ts > $arResult["LAST_LOG_TS"]
+		$event_cnt++;
+		$ind = RandString(8);
+		$event_date_log_ts = (isset($arEvent["LOG_DATE_TS"]) ? $arEvent["LOG_DATE_TS"] : (MakeTimeStamp($arEvent["LOG_DATE"]) - intval($arResult["TZ_OFFSET"])));
+
+		$is_unread = (
+			$arParams["SHOW_UNREAD"] == "Y"
+			&& ($arResult["COUNTER_TYPE"] == "**" || $arResult["COUNTER_TYPE"] == "CRM_**" || $arResult["COUNTER_TYPE"] == "blog_post")
+			&& $arEvent["USER_ID"] != $arResult["currentUserId"]
+			&& intval($arResult["LAST_LOG_TS"]) > 0
+			&& $event_date_log_ts > $arResult["LAST_LOG_TS"]
+		);
+
+		if(in_array($arEvent["EVENT_ID"], array_merge($blogPostEventIdList, array("blog_comment", "blog_comment_micro"))))
+		{
+			if (intval($arEvent["SOURCE_ID"]) <= 0)
+			{
+				continue;
+			}
+
+			$hasBlogEvent = true;
+
+			$arAditMenu = array();
+
+			$arComponentParams = Array(
+				"PATH_TO_BLOG" => $arParams["PATH_TO_USER_BLOG"],
+				"PATH_TO_POST" => $arParams["PATH_TO_USER_MICROBLOG_POST"],
+				"PATH_TO_POST_IMPORTANT" => $arParams["PATH_TO_USER_BLOG_POST_IMPORTANT"],
+				"PATH_TO_BLOG_CATEGORY" => $arParams["PATH_TO_USER_BLOG_CATEGORY"],
+				"PATH_TO_POST_EDIT" => $arParams["PATH_TO_USER_BLOG_POST_EDIT"],
+				"PATH_TO_GROUP_BLOG" => $arParams["PATH_TO_GROUP_MICROBLOG"],
+				"PATH_TO_SEARCH_TAG" => $arParams["PATH_TO_SEARCH_TAG"],
+				"PATH_TO_LOG_TAG" => $arResult["PATH_TO_LOG_TAG"],
+				"PATH_TO_USER" => $arParams["PATH_TO_USER"],
+				"PATH_TO_GROUP" => $arParams["PATH_TO_GROUP"],
+				"PATH_TO_SMILE" => $arParams["PATH_TO_BLOG_SMILE"],
+				"PATH_TO_MESSAGES_CHAT" => $arParams["PATH_TO_MESSAGES_CHAT"],
+				"SET_NAV_CHAIN" => "N",
+				"SET_TITLE" => "N",
+				"POST_PROPERTY" => $arParams["POST_PROPERTY"],
+				"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT"],
+				"DATE_TIME_FORMAT_WITHOUT_YEAR" => $arParams["DATE_TIME_FORMAT_WITHOUT_YEAR"],
+				"TIME_FORMAT" => $arParams["TIME_FORMAT"],
+				"CREATED_BY_ID" => (
+					array_key_exists("log_filter_submit", $_REQUEST)
+					&& array_key_exists("flt_comments", $_REQUEST)
+					&& $_REQUEST["flt_comments"] == "Y"
+						? $arParams["CREATED_BY_ID"]
+						: false
+				),
+				"USER_ID" => $arEvent["USER_ID"],
+				"ENTITY_TYPE" => SONET_ENTITY_USER,
+				"ENTITY_ID" => $arEvent["ENTITY_ID"],
+				"EVENT_ID" => $arEvent["EVENT_ID"],
+				"EVENT_ID_FULLSET" => $arEvent["EVENT_ID_FULLSET"],
+				"IND" => $ind,
+				"GROUP_ID" => $arParams["BLOG_GROUP_ID"],
+				"SONET_GROUP_ID" => $arParams["GROUP_ID"],
+				"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
+				"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
+				"SHOW_YEAR" => $arParams["SHOW_YEAR"],
+				"PATH_TO_CONPANY_DEPARTMENT" => $arParams["PATH_TO_CONPANY_DEPARTMENT"],
+				"PATH_TO_VIDEO_CALL" => $arParams["PATH_TO_VIDEO_CALL"],
+				"USE_SHARE" => $arParams["USE_SHARE"],
+				"SHARE_HIDE" => $arParams["SHARE_HIDE"],
+				"SHARE_TEMPLATE" => $arParams["SHARE_TEMPLATE"],
+				"SHARE_HANDLERS" => $arParams["SHARE_HANDLERS"],
+				"SHARE_SHORTEN_URL_LOGIN" => $arParams["SHARE_SHORTEN_URL_LOGIN"],
+				"SHARE_SHORTEN_URL_KEY" => $arParams["SHARE_SHORTEN_URL_KEY"],
+				"SHOW_RATING" => $arParams["SHOW_RATING"],
+				"RATING_TYPE" => $arParams["RATING_TYPE"],
+				"IMAGE_MAX_WIDTH" => $arParams["BLOG_IMAGE_MAX_WIDTH"],
+				"IMAGE_MAX_HEIGHT" => $arParams["BLOG_IMAGE_MAX_HEIGHT"],
+				"ALLOW_POST_CODE" => $arParams["ALLOW_POST_CODE"],
+				"ID" => $arEvent["SOURCE_ID"],
+				"LOG_ID" => $arEvent["ID"],
+				"FROM_LOG" => "Y",
+				"ADIT_MENU" => $arAditMenu,
+				"IS_UNREAD" => $is_unread,
+				"MARK_NEW_COMMENTS" => (
+					$USER->isAuthorized()
+					&& $arResult["COUNTER_TYPE"] == "**"
+					&& $arParams["SHOW_UNREAD"] == "Y"
+				)
+					? "Y"
+					: "N",
+				"IS_HIDDEN" => false,
+				"LAST_LOG_TS" => ($arResult["LAST_LOG_TS"] + $arResult["TZ_OFFSET"]),
+				"CACHE_TIME" => $arParams["CACHE_TIME"],
+				"CACHE_TYPE" => $arParams["CACHE_TYPE"],
+				"ALLOW_VIDEO" => $arParams["BLOG_COMMENT_ALLOW_VIDEO"],
+				"ALLOW_IMAGE_UPLOAD" => $arParams["BLOG_COMMENT_ALLOW_IMAGE_UPLOAD"],
+				"USE_CUT" => $arParams["BLOG_USE_CUT"],
+				"AVATAR_SIZE_COMMON" => $arParams["AVATAR_SIZE_COMMON"],
+				"AVATAR_SIZE" => $arParams["AVATAR_SIZE"],
+				"AVATAR_SIZE_COMMENT" => $arParams["AVATAR_SIZE_COMMENT"],
+				"LAZYLOAD" => "Y",
+				"CHECK_COMMENTS_PERMS" => (isset($arParams["CHECK_COMMENTS_PERMS"]) && $arParams["CHECK_COMMENTS_PERMS"] == "Y" ? "Y" : "N"),
+				"GROUP_READ_ONLY" => (isset($arResult["Group"]) && isset($arResult["Group"]["READ_ONLY"]) && $arResult["Group"]["READ_ONLY"] == "Y" ? "Y" : "N"),
+				"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
+				"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
+				'TOP_RATING_DATA' => (!empty($arResult['TOP_RATING_DATA'][$arEvent["ID"]]) ? $arResult['TOP_RATING_DATA'][$arEvent["ID"]] : false),
+				"SELECTOR_VERSION" => 2,
 			);
 
-			if(in_array($arEvent["EVENT_ID"], array_merge($blogPostEventIdList, array("blog_comment", "blog_comment_micro"))))
+			if ($arResult["SHOW_FOLLOW_CONTROL"] == "Y")
 			{
-				if (intval($arEvent["SOURCE_ID"]) <= 0)
-				{
-					continue;
-				}
+				$arComponentParams["FOLLOW"] = $arEvent["FOLLOW"];
+			}
 
-				$hasBlogEvent = true;
+			if ($arResult["CURRENT_PAGE_DATE"])
+			{
+				$arComponentParams["CURRENT_PAGE_DATE"] = $arResult["CURRENT_PAGE_DATE"];
+			}
 
-				$arAditMenu = array();
+			if (
+				(
+					!isset($arParams["USE_FAVORITES"])
+					|| $arParams["USE_FAVORITES"] != "N"
+				)
+				&& $USER->isAuthorized()
+			)
+			{
+				$arComponentParams["FAVORITES_USER_ID"] = (array_key_exists("FAVORITES_USER_ID", $arEvent) && intval($arEvent["FAVORITES_USER_ID"]) > 0 ? intval($arEvent["FAVORITES_USER_ID"]) : 0);
+			}
 
-				$arComponentParams = Array(
-					"PATH_TO_BLOG" => $arParams["PATH_TO_USER_BLOG"],
-					"PATH_TO_POST" => $arParams["PATH_TO_USER_MICROBLOG_POST"],
-					"PATH_TO_POST_IMPORTANT" => $arParams["PATH_TO_USER_BLOG_POST_IMPORTANT"],
-					"PATH_TO_BLOG_CATEGORY" => $arParams["PATH_TO_USER_BLOG_CATEGORY"],
-					"PATH_TO_POST_EDIT" => $arParams["PATH_TO_USER_BLOG_POST_EDIT"],
-					"PATH_TO_GROUP_BLOG" => $arParams["PATH_TO_GROUP_MICROBLOG"],
-					"PATH_TO_SEARCH_TAG" => $arParams["PATH_TO_SEARCH_TAG"],
-					"PATH_TO_LOG_TAG" => $arResult["PATH_TO_LOG_TAG"],
-					"PATH_TO_USER" => $arParams["PATH_TO_USER"],
-					"PATH_TO_GROUP" => $arParams["PATH_TO_GROUP"],
-					"PATH_TO_SMILE" => $arParams["PATH_TO_BLOG_SMILE"],
-					"PATH_TO_MESSAGES_CHAT" => $arParams["PATH_TO_MESSAGES_CHAT"],
-					"SET_NAV_CHAIN" => "N",
-					"SET_TITLE" => "N",
-					"POST_PROPERTY" => $arParams["POST_PROPERTY"],
-					"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT"],
-					"DATE_TIME_FORMAT_WITHOUT_YEAR" => $arParams["DATE_TIME_FORMAT_WITHOUT_YEAR"],
-					"TIME_FORMAT" => $arParams["TIME_FORMAT"],
-					"CREATED_BY_ID" => (
-						array_key_exists("log_filter_submit", $_REQUEST)
-						&& array_key_exists("flt_comments", $_REQUEST)
-						&& $_REQUEST["flt_comments"] == "Y"
-							? $arParams["CREATED_BY_ID"]
-							: false
-					),
-					"USER_ID" => $arEvent["USER_ID"],
-					"ENTITY_TYPE" => SONET_ENTITY_USER,
-					"ENTITY_ID" => $arEvent["ENTITY_ID"],
-					"EVENT_ID" => $arEvent["EVENT_ID"],
-					"EVENT_ID_FULLSET" => $arEvent["EVENT_ID_FULLSET"],
-					"IND" => $ind,
-					"GROUP_ID" => $arParams["BLOG_GROUP_ID"],
-					"SONET_GROUP_ID" => $arParams["GROUP_ID"],
-					"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
-					"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
-					"SHOW_YEAR" => $arParams["SHOW_YEAR"],
-					"PATH_TO_CONPANY_DEPARTMENT" => $arParams["PATH_TO_CONPANY_DEPARTMENT"],
-					"PATH_TO_VIDEO_CALL" => $arParams["PATH_TO_VIDEO_CALL"],
-					"USE_SHARE" => $arParams["USE_SHARE"],
-					"SHARE_HIDE" => $arParams["SHARE_HIDE"],
-					"SHARE_TEMPLATE" => $arParams["SHARE_TEMPLATE"],
-					"SHARE_HANDLERS" => $arParams["SHARE_HANDLERS"],
-					"SHARE_SHORTEN_URL_LOGIN" => $arParams["SHARE_SHORTEN_URL_LOGIN"],
-					"SHARE_SHORTEN_URL_KEY" => $arParams["SHARE_SHORTEN_URL_KEY"],
-					"SHOW_RATING" => $arParams["SHOW_RATING"],
-					"RATING_TYPE" => $arParams["RATING_TYPE"],
-					"IMAGE_MAX_WIDTH" => $arParams["BLOG_IMAGE_MAX_WIDTH"],
-					"IMAGE_MAX_HEIGHT" => $arParams["BLOG_IMAGE_MAX_HEIGHT"],
-					"ALLOW_POST_CODE" => $arParams["ALLOW_POST_CODE"],
-					"ID" => $arEvent["SOURCE_ID"],
-					"LOG_ID" => $arEvent["ID"],
-					"FROM_LOG" => "Y",
-					"ADIT_MENU" => $arAditMenu,
-					"IS_UNREAD" => $is_unread,
-					"MARK_NEW_COMMENTS" => (
-						$USER->isAuthorized()
-						&& $arResult["COUNTER_TYPE"] == "**"
-						&& $arParams["SHOW_UNREAD"] == "Y"
-					)
-						? "Y"
-						: "N",
-					"IS_HIDDEN" => false,
-					"LAST_LOG_TS" => ($arResult["LAST_LOG_TS"] + $arResult["TZ_OFFSET"]),
-					"CACHE_TIME" => $arParams["CACHE_TIME"],
-					"CACHE_TYPE" => $arParams["CACHE_TYPE"],
-					"ALLOW_VIDEO" => $arParams["BLOG_COMMENT_ALLOW_VIDEO"],
-					"ALLOW_IMAGE_UPLOAD" => $arParams["BLOG_COMMENT_ALLOW_IMAGE_UPLOAD"],
-					"USE_CUT" => $arParams["BLOG_USE_CUT"],
-					"AVATAR_SIZE_COMMON" => $arParams["AVATAR_SIZE_COMMON"],
-					"AVATAR_SIZE" => $arParams["AVATAR_SIZE"],
-					"AVATAR_SIZE_COMMENT" => $arParams["AVATAR_SIZE_COMMENT"],
-					"LAZYLOAD" => "Y",
-					"CHECK_COMMENTS_PERMS" => (isset($arParams["CHECK_COMMENTS_PERMS"]) && $arParams["CHECK_COMMENTS_PERMS"] == "Y" ? "Y" : "N"),
-					"GROUP_READ_ONLY" => (isset($arResult["Group"]) && isset($arResult["Group"]["READ_ONLY"]) && $arResult["Group"]["READ_ONLY"] == "Y" ? "Y" : "N"),
-					"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
-					"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
-					'TOP_RATING_DATA' => (!empty($arResult['TOP_RATING_DATA'][$arEvent["ID"]]) ? $arResult['TOP_RATING_DATA'][$arEvent["ID"]] : false)
+			if (!empty($arEvent['CONTENT_ID']))
+			{
+				$arComponentParams['CONTENT_ID'] = $arEvent['CONTENT_ID'];
+				$arComponentParams['CONTENT_VIEW_CNT'] = (
+					!empty($arResult["ContentViewData"][$arEvent['CONTENT_ID']])
+						? $arResult["ContentViewData"][$arEvent['CONTENT_ID']]['CNT']
+						: 0
 				);
+			}
 
-				if ($arParams["USE_FOLLOW"] == "Y")
-				{
-					$arComponentParams["FOLLOW"] = $arEvent["FOLLOW"];
-				}
+			if (
+				!empty($arEvent['CONTENT_ITEM_TYPE'])
+				&& !empty($arEvent['CONTENT_ITEM_ID'])
+			)
+			{
+				$arComponentParams['LOG_CONTENT_ITEM_TYPE'] = $arEvent['CONTENT_ITEM_TYPE'];
+				$arComponentParams['LOG_CONTENT_ITEM_ID'] = intval($arEvent['CONTENT_ITEM_ID']);
+			}
 
-				if ($arResult["CURRENT_PAGE_DATE"])
+			$APPLICATION->IncludeComponent(
+				"bitrix:socialnetwork.blog.post",
+				"",
+				$arComponentParams,
+				$component
+			);
+		}
+		else
+		{
+			$arComponentParams = array_merge($arParams, array(
+				"LOG_ID" => $arEvent["ID"],
+				"LAST_LOG_TS" => ($arParams["SET_LOG_COUNTER"] == "Y" ? $arResult["LAST_LOG_TS"] : 0),
+				"COUNTER_TYPE" => $arResult["COUNTER_TYPE"],
+				"AJAX_CALL" => $arResult["AJAX_CALL"],
+				"bReload" => $arResult["bReload"],
+				"bGetComments" => $arResult["bGetComments"],
+				"IND" => $ind,
+				"CURRENT_PAGE_DATE" => $arResult["CURRENT_PAGE_DATE"],
+				"EVENT" => array(
+					"IS_UNREAD" => $is_unread
+				),
+				"LAZYLOAD" => "Y",
+				"FROM_LOG" => (isset($arParams["LOG_ID"]) && intval($arParams["LOG_ID"]) > 0 ? "N" : "Y"),
+				"PATH_TO_LOG_TAG" => $arResult["PATH_TO_LOG_TAG"],
+				'TOP_RATING_DATA' => (!empty($arResult['TOP_RATING_DATA'][$arEvent["ID"]]) ? $arResult['TOP_RATING_DATA'][$arEvent["ID"]] : false)
+			));
+
+			if ($USER->isAuthorized())
+			{
+				if ($arResult["SHOW_FOLLOW_CONTROL"] == "Y")
 				{
-					$arComponentParams["CURRENT_PAGE_DATE"] = $arResult["CURRENT_PAGE_DATE"];
+					$arComponentParams["USE_FOLLOW"] = "Y";
+					$arComponentParams["EVENT"]["FOLLOW"] = $arEvent["FOLLOW"];
+					$arComponentParams["EVENT"]["DATE_FOLLOW"] = $arEvent["DATE_FOLLOW"];
 				}
 
 				if (
-					(
-						!isset($arParams["USE_FAVORITES"])
-						|| $arParams["USE_FAVORITES"] != "N"
-					)
-					&& $USER->isAuthorized()
+					!isset($arParams["USE_FAVORITES"])
+					|| $arParams["USE_FAVORITES"] != "N"
 				)
 				{
-					$arComponentParams["FAVORITES_USER_ID"] = (array_key_exists("FAVORITES_USER_ID", $arEvent) && intval($arEvent["FAVORITES_USER_ID"]) > 0 ? intval($arEvent["FAVORITES_USER_ID"]) : 0);
-				}
-
-				if (!empty($arEvent['CONTENT_ID']))
-				{
-					$arComponentParams['CONTENT_ID'] = $arEvent['CONTENT_ID'];
-					$arComponentParams['CONTENT_VIEW_CNT'] = (
-						!empty($arResult["ContentViewData"][$arEvent['CONTENT_ID']])
-							? $arResult["ContentViewData"][$arEvent['CONTENT_ID']]['CNT']
-							: 0
-					);
-				}
-
-				$APPLICATION->IncludeComponent(
-					"bitrix:socialnetwork.blog.post",
-					"",
-					$arComponentParams,
-					$component
-				);
-			}
-			else
-			{
-				$arComponentParams = array_merge($arParams, array(
-					"COMMENT_ID" => intval($_REQUEST["commentId"]),
-					"LOG_ID" => $arEvent["ID"],
-					"LAST_LOG_TS" => ($arParams["SET_LOG_COUNTER"] == "Y" ? $arResult["LAST_LOG_TS"] : 0),
-					"COUNTER_TYPE" => $arResult["COUNTER_TYPE"],
-					"AJAX_CALL" => $arResult["AJAX_CALL"],
-					"bReload" => $arResult["bReload"],
-					"bGetComments" => $arResult["bGetComments"],
-					"IND" => $ind,
-					"CURRENT_PAGE_DATE" => $arResult["CURRENT_PAGE_DATE"],
-					"EVENT" => array(
-						"IS_UNREAD" => $is_unread
-					),
-					"LAZYLOAD" => "Y",
-					"FROM_LOG" => (isset($arParams["LOG_ID"]) && intval($arParams["LOG_ID"]) > 0 ? "N" : "Y"),
-					"PATH_TO_LOG_TAG" => $arResult["PATH_TO_LOG_TAG"],
-					'TOP_RATING_DATA' => (!empty($arResult['TOP_RATING_DATA'][$arEvent["ID"]]) ? $arResult['TOP_RATING_DATA'][$arEvent["ID"]] : false)
-				));
-
-				if ($USER->isAuthorized())
-				{
-					if ($arParams["USE_FOLLOW"] == "Y")
-					{
-						$arComponentParams["EVENT"]["FOLLOW"] = $arEvent["FOLLOW"];
-						$arComponentParams["EVENT"]["DATE_FOLLOW"] = $arEvent["DATE_FOLLOW"];
-					}
-
-					if (
-						!isset($arParams["USE_FAVORITES"])
-						|| $arParams["USE_FAVORITES"] != "N"
-					)
-					{
-						$arComponentParams["EVENT"]["FAVORITES"] = (
+					$arComponentParams["EVENT"]["FAVORITES"] = (
 						array_key_exists("FAVORITES_USER_ID", $arEvent)
 						&& intval($arEvent["FAVORITES_USER_ID"]) > 0
 							? "Y"
 							: "N"
-						);
-					}
+					);
 				}
-
-				if ($arResult["CURRENT_PAGE_DATE"])
-				{
-					$arComponentParams["CURRENT_PAGE_DATE"] = $arResult["CURRENT_PAGE_DATE"];
-				}
-
-				if (!empty($arEvent['CONTENT_ID']))
-				{
-					$arComponentParams['CONTENT_ID'] = $arEvent['CONTENT_ID'];
-
-					if (!empty($arResult["ContentViewData"][$arEvent['CONTENT_ID']]))
-					{
-						$arComponentParams['CONTENT_VIEW_CNT'] = $arResult["ContentViewData"][$arEvent['CONTENT_ID']]['CNT'];
-					}
-				}
-
-				$APPLICATION->IncludeComponent(
-					"bitrix:socialnetwork.log.entry",
-					"",
-					$arComponentParams,
-					$component
-				);
 			}
+
+			if ($arResult["CURRENT_PAGE_DATE"])
+			{
+				$arComponentParams["CURRENT_PAGE_DATE"] = $arResult["CURRENT_PAGE_DATE"];
+			}
+
+			if (!empty($arEvent['CONTENT_ID']))
+			{
+				$arComponentParams['CONTENT_ID'] = $arEvent['CONTENT_ID'];
+
+				if (!empty($arResult["ContentViewData"][$arEvent['CONTENT_ID']]))
+				{
+					$arComponentParams['CONTENT_VIEW_CNT'] = $arResult["ContentViewData"][$arEvent['CONTENT_ID']]['CNT'];
+				}
+			}
+
+			if (!empty($_REQUEST["commentId"]))
+			{
+				$arComponentParams["COMMENT_ID"] = intval($_REQUEST["commentId"]);
+			}
+/*
+			elseif (
+				!empty($arEvent['CONTENT_ITEM_TYPE'])
+				&& $arEvent['CONTENT_ITEM_TYPE'] == \Bitrix\Socialnetwork\LogIndexTable::ITEM_TYPE_COMMENT
+				&& !empty($arEvent['CONTENT_ITEM_ID'])
+			)
+			{
+				$arComponentParams['COMMENT_ID'] = $arEvent['CONTENT_ITEM_ID'];
+			}
+*/
+			$APPLICATION->IncludeComponent(
+				"bitrix:socialnetwork.log.entry",
+				"",
+				$arComponentParams,
+				$component
+			);
 		}
 	}
 }
@@ -882,13 +921,27 @@ else
 
 if ($arParams["SHOW_NAV_STRING"] != "N" && is_array($arResult["Events"]))
 {
-	$strParams = "logajax=Y&PAGEN_".$arResult["PAGE_NAVNUM"]."=".($arResult["PAGE_NUMBER"] + 1);
+	$uri = new \Bitrix\Main\Web\Uri(htmlspecialcharsback(POST_FORM_ACTION_URI));
+
+	$uri->deleteParams([
+		"PAGEN_".$arResult["PAGE_NAVNUM"],
+		"RELOAD",
+		"logajax",
+		"pplogid",
+		"pagesize"
+	]);
+
+	$uriParams = [
+		'logajax' => 'Y',
+		'PAGEN_'.$arResult["PAGE_NAVNUM"] => ($arResult["PAGE_NUMBER"] + 1)
+	];
+
 	if (
 		!$arResult["AJAX_CALL"]
 		|| $arResult["bReload"]
 	)
 	{
-		$strParams .= "&ts=".$arResult["LAST_LOG_TS"];
+		$uriParams['ts'] = $arResult["LAST_LOG_TS"];
 	}
 
 	if (
@@ -896,23 +949,22 @@ if ($arParams["SHOW_NAV_STRING"] != "N" && is_array($arResult["Events"]))
 		&& count($arResult["arLogTmpID"]) > 0
 	)
 	{
-		$strParams .= "&pplogid=".implode("|", $arResult["arLogTmpID"]);
+		$uriParams['pplogid'] = implode("|", $arResult["arLogTmpID"]);
 	}
-
 	if (intval($arResult["NEXT_PAGE_SIZE"]) > 0)
 	{
-		$strParams .= "&pagesize=".intval($arResult["NEXT_PAGE_SIZE"]);
+		$uriParams['pagesize'] = intval($arResult["NEXT_PAGE_SIZE"]);
 	}
-
 	if (!$hasBlogEvent)
 	{
-		$strParams .= "&noblog=Y";
+		$uriParams['noblog'] = 'Y';
 	}
+	$uri->addParams($uriParams);
 
 	?>
 	<script>
 		BX.ready(function() {
-			oLF.nextURL = '<?=CUtil::JSEscape($APPLICATION->GetCurPageParam($strParams, array("PAGEN_".$arResult["PAGE_NAVNUM"], "RELOAD", "logajax", "pplogid", "pagesize")))?>';
+			oLF.nextURL = '<?=CUtil::JSEscape(htmlspecialcharsEx($uri->getUri()))?>';
 			<?
 			if (
 				$arResult["PAGE_NUMBER"] == 1
@@ -1003,29 +1055,20 @@ else
 		CUtil::PhpToJSObject($component->arResult["ENTITIES_XML_ID"]).', '.
 		CUtil::PhpToJSObject($component->arResult["ENTITIES_CORRESPONDENCE"]).');';
 	$additional_data .= '</script>';
+	$additional_data .= \Bitrix\Main\Page\Asset::getInstance()->getJs();
 
-	if ($arResult["AJAX_CALL"])
-	{
-		$strText = ob_get_clean();
-		echo CUtil::PhpToJSObject(array(
-			"PROPS" => array(
-				"CONTENT" => $additional_data.$strText,
-				"STRINGS" => array(),
-				"JS" => $arAdditionalData["SCRIPTS"],
-				"CSS" => $arAdditionalData["CSS"]
-			),
-			"LAST_TS" => ($arResult["dateLastPageTS"] ? intval($arResult["dateLastPageTS"]) : 0),
-			"LAST_ID" => ($arResult["dateLastPageId"] ? intval($arResult["dateLastPageId"]) : 0)
-		));
-	}
-	else
-	{
-		echo $additional_data;
-	}
-
-	if(CModule::IncludeModule("compression"))
-		CCompress::DisableCompression();
-	CMain::FinalActions();
+	$strText = ob_get_clean();
+	$strText = CUtil::PhpToJSObject(array(
+		"PROPS" => array(
+			"CONTENT" => $additional_data.$strText,
+			"STRINGS" => array(),
+			"JS" => $arAdditionalData["SCRIPTS"],
+			"CSS" => $arAdditionalData["CSS"]
+		),
+		"LAST_TS" => ($arResult["dateLastPageTS"] ? intval($arResult["dateLastPageTS"]) : 0),
+		"LAST_ID" => ($arResult["dateLastPageId"] ? intval($arResult["dateLastPageId"]) : 0)
+	));
+	CMain::FinalActions($strText);
 	die();
 }
 
@@ -1124,7 +1167,9 @@ $formParams = array(
 			),
 			array('ELEMENT_ID' => 'url_preview_'.$arParams["FORM_ID"])
 		)
-	)
+	),
+	"SELECTOR_VERSION" => 2,
+	"DISABLE_CREATING_FILE_BY_CLOUD" => ($arParams["PUBLIC_MODE"] == "Y")
 );
 
 ?><div style="display: none;">

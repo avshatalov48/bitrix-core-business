@@ -12,7 +12,8 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STORE.ORDER_NAME'),
 			'section' => array('store'),
 			'type' => 'null',
-			'html' => false
+			'html' => false,
+			'namespace' => 'bitrix'
 		),
 	'nodes' =>
 		array(

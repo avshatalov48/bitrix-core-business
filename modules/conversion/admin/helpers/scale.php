@@ -71,7 +71,7 @@ function renderSite($siteName, array $siteMenu)
 	?>
 	<div class="adm-profit-title">
 		<?=Loc::getMessage('CONVERSION_SITE')?>:
-		<span id="bitrix-conversion-site" class="adm-profit-title-name"><?=$siteName?></span>
+		<span id="bitrix-conversion-site" class="adm-profit-title-name"><?=htmlspecialcharsbx($siteName) ?></span>
 		<span class="adm-profit-title-name-select"></span>
 		<?renderMenu('bitrix-conversion-site', $siteMenu)?>
 	</div>

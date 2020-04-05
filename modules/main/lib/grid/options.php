@@ -31,8 +31,6 @@ class Options extends \CGridOptions
 		{
 			$this->all_options = $_SESSION["main.ui.grid.options"][$this->id];
 		}
-
-		$test = $this->all_options;
 	}
 
 
@@ -278,11 +276,37 @@ class Options extends \CGridOptions
 	{
 		$currentOptions = $this->getCurrentOptions();
 
-		if (!is_string($currentOptions["columns"]) && $currentOptions["columns"] !== "")
+		if (is_string($currentOptions["columns"]) && $currentOptions["columns"] !== "")
 		{
 			return explode(",", $currentOptions["columns"]);
 		}
 
 		return $defaultColumns;
+	}
+
+
+	/**
+	 * Sets sticked columns
+	 * @param string[] $columns
+	 */
+	public function setStickedColumns($columns = [])
+	{
+		$this->all_options["views"]["default"]["sticked_columns"] = is_array($columns) ? $columns : [];
+	}
+
+	/**
+	 * Gets sticked columns
+	 * @return string[]|null
+	 */
+	public function getStickedColumns()
+	{
+		$currentOptions = $this->getCurrentOptions();
+
+		if (is_array($currentOptions["sticked_columns"]))
+		{
+			return $currentOptions["sticked_columns"];
+		}
+
+		return null;
 	}
 }

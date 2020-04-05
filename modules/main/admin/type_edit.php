@@ -12,6 +12,8 @@
  * @global CDatabase $DB
  */
 
+use Bitrix\Main\Mail\Internal\EventTypeTable;
+
 require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
 define("HELP_FILE", "settings/mail_events/messagetype_edit.php");
@@ -67,6 +69,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 			"DESCRIPTION" => $_POST["FIELDS"][$idLang]["DESCRIPTION"],
 			"LID" => $idLang,
 			"EVENT_NAME" => $res["EVENT_NAME"],
+			"EVENT_TYPE" => ($_POST["EVENT_TYPE"] == EventTypeTable::TYPE_SMS? EventTypeTable::TYPE_SMS : EventTypeTable::TYPE_EMAIL),
 		);
 		$admList = new CAdminList("dummy");
 		if ($admList->IsUpdated($idLang) && $_REQUEST[$idLang] == "Y")
@@ -136,8 +139,8 @@ if ($arParams["EVENT_NAME"] <> '')
 	}
 }
 
-$aTabs = array(array("DIV" => "edit1", "TAB" => GetMessage("EVENT_NAME_TITLE"), "ICON" => "mail", "TITLE" => GetMessage("EVENT_NAME_DESCR")));
-if ($arParams["ACTION"] == "UPDATE")
+$aTabs = array(array("DIV" => "edit1", "TAB" => GetMessage("EVENT_NAME_TITLE"), "ICON" => "mail", "TITLE" => GetMessage("EVENT_NAME_DESCR1")));
+if ($arParams["ACTION"] == "UPDATE" && $arParams["DATA"]["EVENT_TYPE"] == EventTypeTable::TYPE_EMAIL)
 	$aTabs[] = array("DIV" => "edit2", "TAB" => GetMessage("TEMPLATES_TITLE"), "ICON" => "mail", "TITLE" => GetMessage("TEMPLATES_DESCR"));
 	
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
@@ -205,14 +208,23 @@ $arParams["EVENT_NAME"] = htmlspecialcharsbx($arParams["EVENT_NAME"]);
 <?$tabControl->Begin();?>
 <?$tabControl->BeginNextTab();?>
 <tr class="adm-detail-required-field">
-	<td width="40%"><?=GetMessage('EVENT_NAME')?>:</td>
+	<td width="40%"><?=GetMessage('EVENT_NAME1')?>:</td>
 	<td width="0%">
 	<?if ($arParams["ACTION"] == "ADD"):?>
-		<input type="text" name="EVENT_NAME" value="<?=$arParams["EVENT_NAME"]?>">
+		<input type="text" name="EVENT_NAME" value="<?=$arParams["EVENT_NAME"]?>" size="50">
 	<?else:?>
 		<input type="hidden" name="EVENT_NAME" value="<?=$arParams["EVENT_NAME"]?>"> 
 		<?=$arParams["EVENT_NAME"]?>
 	<?endif;?>
+	</td>
+</tr>
+<tr>
+	<td><?echo GetMessage("type_edit_event_type")?></td>
+	<td>
+		<select name="EVENT_TYPE">
+			<option value="<?=EventTypeTable::TYPE_EMAIL?>"<?if($arParams["DATA"]["EVENT_TYPE"] == EventTypeTable::TYPE_EMAIL) echo " selected"?>><?echo GetMessage("type_edit_event_type_email")?></option>
+			<option value="<?=EventTypeTable::TYPE_SMS?>"<?if($arParams["DATA"]["EVENT_TYPE"] == EventTypeTable::TYPE_SMS) echo " selected"?>><?echo GetMessage("type_edit_event_type_sms")?></option>
+		</select>
 	</td>
 </tr>
 <?
@@ -253,7 +265,7 @@ $arParams["EVENT_NAME"] = htmlspecialcharsbx($arParams["EVENT_NAME"]);
 </tr>
 <?endforeach;?>
 <?
-if ($arParams["ACTION"] == "UPDATE"):
+if ($arParams["ACTION"] == "UPDATE" && $arParams["DATA"]["EVENT_TYPE"] == EventTypeTable::TYPE_EMAIL):
 	$tabControl->BeginNextTab();
 ?>
 <tr>

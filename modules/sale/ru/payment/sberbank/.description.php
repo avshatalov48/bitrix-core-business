@@ -3,6 +3,7 @@ include(GetLangFileName(dirname(__FILE__)."/", "/sberbank.php"));
 
 $psTitle = GetMessage("SSBP_DTITLE");
 $psDescription = GetMessage("SSBP_DDESCR");
+$isAvailable = \Bitrix\Sale\PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
 
 $arPSCorrespondence = array(
 		"SELLER_PARAMS" => array(

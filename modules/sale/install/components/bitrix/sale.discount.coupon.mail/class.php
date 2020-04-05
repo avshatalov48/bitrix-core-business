@@ -9,6 +9,10 @@ Loc::loadMessages(__FILE__);
 
 class CSaleDiscountCouponMailComponent extends CBitrixComponent
 {
+	const DAY_LIMIT_TYPE = 'days';
+	const WEEK_LIMIT_TYPE = 'weeks';
+	const MONTH_LIMIT_TYPE = 'months';
+	protected $isNewDiscount = false;
 	/**
 	 * @param $params
 	 * @override
@@ -18,11 +22,6 @@ class CSaleDiscountCouponMailComponent extends CBitrixComponent
 	{
 		$params["CACHE_TIME"] = 0;
 		$params["DETAIL_URL"] = trim($params["DETAIL_URL"]);
-
-		if(Loader::includeModule("sale"))
-		{
-
-		}
 
 		return $params;
 	}
@@ -40,20 +39,86 @@ class CSaleDiscountCouponMailComponent extends CBitrixComponent
 	}
 
 	/**
+	 * @param $type
+	 *
+	 * @return bool
+	 */
+	protected function checkTypeLimit($type)
+	{
+		return in_array($type, [
+			self::DAY_LIMIT_TYPE,
+			self::WEEK_LIMIT_TYPE,
+			self::MONTH_LIMIT_TYPE,
+		]);
+	}
+
+	/**
 	 * @override
 	 * @throws Exception
 	 */
 	protected function prepareData()
 	{
-		$saleDiscountId = null;
-		$wasAdded = false;
+		if ($this->arParams['USE_DISCOUNT_ID'] === 'Y')
+		{
+			$saleDiscountId = (int)$this->arParams['DISCOUNT_ID'];
+		}
+		else
+		{
+			$saleDiscountId = $this->getDiscountId();
+		}
+
+		$type = ($this->arParams['COUPON_TYPE'] === 'Basket') ? DiscountCouponTable::TYPE_BASKET_ROW : DiscountCouponTable::TYPE_ONE_ORDER;
+		$this->arResult['COUPON'] = '';
+		if ($saleDiscountId)
+		{
+			$coupon = DiscountCouponTable::generateCoupon(true);
+			$addFields = [
+				'DISCOUNT_ID' => $saleDiscountId,
+				'COUPON' => $coupon,
+				'TYPE' => $type,
+				'MAX_USE' => 1,
+				'USER_ID' => 0,
+				'DESCRIPTION' => $this->arParams['COUPON_DESCRIPTION'],
+			];
+
+			if ($this->arParams['COUPON_IS_LIMITED'] === 'Y'
+				&& (int)$this->arParams['COUPON_LIMIT_VALUE'] >= 0
+				&& $this->checkTypeLimit($this->arParams['COUPON_LIMIT_TYPE'])
+			)
+			{
+				$today = new \Bitrix\Main\Type\DateTime;
+				$addFields['ACTIVE_FROM'] = clone($today);
+				$addFields['ACTIVE_TO'] = $today->add((int)$this->arParams['COUPON_LIMIT_VALUE']." ".$this->arParams['COUPON_LIMIT_TYPE']);
+			}
+
+			$addDb = DiscountCouponTable::add($addFields);
+			if ($addDb->isSuccess())
+			{
+				$this->arResult['COUPON'] = $coupon;
+				if ($this->isNewDiscount)
+				{
+					CSaleDiscount::Update($saleDiscountId, array('ACTIVE' => 'Y'));
+				}
+			}
+		}
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getDiscountId()
+	{
+		$discountId = null;
 		$xmlId = $this->arParams['DISCOUNT_XML_ID'];
 		$saleDiscountValue = (float) $this->arParams['DISCOUNT_VALUE'];
 		$saleDiscountUnit = (string) $this->arParams['DISCOUNT_UNIT'];
 		$siteId = $this->getSiteId();
 		if (strlen($xmlId) <= 0 && $saleDiscountValue > 0 && strlen($saleDiscountUnit) > 0)
+		{
 			$xmlId = "generatedCouponMail_".$saleDiscountValue."_".$saleDiscountUnit;
-		$fieldsAdd = array(
+		}
+
+		$fieldsAdd = [
 			'LID' => $siteId ? $siteId : CSite::GetDefSite(),
 			'NAME' => Loc::getMessage("CVP_DISCOUNT_NAME"),
 			'ACTIVE' => 'Y',
@@ -63,87 +128,66 @@ class CSaleDiscountCouponMailComponent extends CBitrixComponent
 			'SORT' => 100,
 			'LAST_DISCOUNT' => 'Y',
 			'XML_ID' => $xmlId,
-			'USER_GROUPS' => array(2),
-			'ACTIONS' => serialize(Array(
+			'USER_GROUPS' => [2],
+			'ACTIONS' => [
 				'CLASS_ID' => 'CondGroup',
-				'DATA' => Array
-				(
-					'All' => 'AND'
-				),
-				'CHILDREN' => Array(
-					Array(
+				'DATA' => [ 'All' => 'AND' ],
+				'CHILDREN' => [
+					[
 						'CLASS_ID' => 'ActSaleBsktGrp',
-						'DATA' => Array(
+						'DATA' => [
 							'Type' => 'Discount',
 							'Value' => $saleDiscountValue,
 							'Unit' => $saleDiscountUnit,
 							'All' => 'AND',
-						),
-						'CHILDREN' => Array()
-					)
-				)
-			)),
-			'CONDITIONS' => serialize(Array(
+							'Max' => '0',
+							'True' => 'True'
+						],
+						'CHILDREN' => []
+					]
+				]
+			],
+			'CONDITIONS' => [
 				'CLASS_ID' => 'CondGroup',
-				'DATA' => Array(
+				'DATA' => [
 					'All' => 'AND',
 					'True' => 'True',
-				),
-				'CHILDREN' => Array()
-			))
-		);
+				],
+				'CHILDREN' => []
+			]
+		];
 
 		if(strlen($xmlId) <= 0)
 		{
-			return;
+			return null;
 		}
 
-		$fields = array(
+		$fields = [
 			'XML_ID' => $xmlId,
 			'ACTIVE' => 'Y'
-		);
-		$saleDiscountDb = CSaleDiscount::GetList(array('DATE_CREATE' => 'DESC'), $fields, false, false, array('ID', 'ACTIONS', 'CONDITIONS'));
-		if($saleDiscount = $saleDiscountDb->Fetch())
+		];
+		$saleDiscountData = \Bitrix\Sale\Internals\DiscountTable::getList([
+			'filter' => $fields,
+			'select' => ['ID', 'ACTIONS', 'CONDITIONS']
+		]);
+		$serializedAction = serialize($fieldsAdd['ACTIONS']);
+		$serializedCondition = serialize($fieldsAdd['CONDITIONS']);
+		while ($saleDiscount = $saleDiscountData->fetch())
 		{
-			if($saleDiscount['ACTIONS'] == $fieldsAdd['ACTIONS'] && $saleDiscount['CONDITIONS'] == $fieldsAdd['CONDITIONS'])
+			if($saleDiscount['ACTIONS'] == $serializedAction && $saleDiscount['CONDITIONS'] == $serializedCondition)
 			{
-				$saleDiscountId = $saleDiscount['ID'];
+				$discountId = $saleDiscount['ID'];
 			}
 		}
 
-		if(!$saleDiscountId)
+		if (!$discountId)
 		{
 			$fieldsAdd['ACTIVE'] = 'N';
-			$saleDiscountId = CSaleDiscount::Add($fieldsAdd);
-			$wasAdded = true;
+			$discountId = CSaleDiscount::Add($fieldsAdd);
+			$this->isNewDiscount = true;
 		}
 
-		$type = ($this->arParams['COUPON_TYPE'] === 'Basket') ? DiscountCouponTable::TYPE_BASKET_ROW : DiscountCouponTable::TYPE_ONE_ORDER;
-		$this->arResult['COUPON'] = '';
-		if($saleDiscountId)
-		{
-			$coupon = DiscountCouponTable::generateCoupon(true);
-			//$activeFrom = new \Bitrix\Main\Type\DateTime;
-			//$activeTo = clone $activeFrom;
-			$addDb = DiscountCouponTable::add(array(
-				'DISCOUNT_ID' => $saleDiscountId,
-				//'ACTIVE_FROM' => $activeFrom,
-				//'ACTIVE_TO' => $activeTo->add('+365 days'),
-				'COUPON' => $coupon,
-				'TYPE' => $type,
-				'MAX_USE' => 1,
-				'USER_ID' => 0,
-				'DESCRIPTION' => $this->arParams['COUPON_DESCRIPTION'],
-			));
-			if($addDb->isSuccess())
-			{
-				$this->arResult['COUPON'] = $coupon;
-				if($wasAdded)
-				{
-					CSaleDiscount::Update($saleDiscountId, array('ACTIVE' => 'Y'));
-				}
-			}
-		}
+		return $discountId;
 	}
 
 	/**

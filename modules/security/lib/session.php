@@ -103,6 +103,10 @@ class SessionTable
 	public static function lock($id, $timeout = 60)
 	{
 		$result = true;
+
+		$pool = \Bitrix\Main\Application::getInstance()->getConnectionPool();
+		$pool->useMasterOnly(true);
+
 		$connection = static::getEntity()->getConnection();
 		if ($connection instanceof \Bitrix\Main\DB\MysqlCommonConnection)
 		{
@@ -185,6 +189,8 @@ class SessionTable
 			trigger_error(sprintf('SessionTable::lock not supported for connection of type "%s"', get_class($connection)), E_USER_WARNING);
 		}
 
+		$pool->useMasterOnly(false);
+
 		return $result;
 	}
 
@@ -197,6 +203,9 @@ class SessionTable
 	 */
 	public static function unlock($id)
 	{
+		$pool = \Bitrix\Main\Application::getInstance()->getConnectionPool();
+		$pool->useMasterOnly(true);
+
 		$connection = static::getEntity()->getConnection();
 		if ($connection instanceof \Bitrix\Main\DB\MysqlCommonConnection)
 		{
@@ -218,6 +227,8 @@ class SessionTable
 			trigger_error(sprintf('SessionTable::unlock not supported for connection of type "%s"', get_class($connection)), E_USER_WARNING);
 		}
 
+		$pool->useMasterOnly(false);
+
 		return true;
 	}
 
@@ -229,10 +240,13 @@ class SessionTable
 	 */
 	public static function deleteOlderThan($sec)
 	{
+		$pool = \Bitrix\Main\Application::getInstance()->getConnectionPool();
+		$pool->useMasterOnly(true);
 		$connection = static::getEntity()->getConnection();
 		$connection->queryExecute(
 			sprintf('delete from b_sec_session where TIMESTAMP_X < %s',
 				$connection->getSqlHelper()->addSecondsToDateTime('-'.$sec))
 		);
+		$pool->useMasterOnly(false);
 	}
 }

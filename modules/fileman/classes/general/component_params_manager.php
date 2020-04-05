@@ -31,7 +31,15 @@ class CComponentParamsManager
 		?>
 		<script type="text/javascript">
 			BX.message(<?=CUtil::PhpToJSObject($mess_lang, false);?>);
-			top.oBXComponentParamsManager = window.oBXComponentParamsManager = new BXComponentParamsManager(<?=CUtil::PhpToJSObject($config)?>);
+			if (window.BXComponentParamsManager)
+			{
+				window.oBXComponentParamsManager = new BXComponentParamsManager(<?=CUtil::PhpToJSObject($config)?>);
+			}
+			else
+			{
+				window.oBXComponentParamsManager = new top.BXComponentParamsManager(<?=CUtil::PhpToJSObject($config)?>);
+			}
+			top.oBXComponentParamsManager = window.oBXComponentParamsManager;
 		</script>
 		<?
 

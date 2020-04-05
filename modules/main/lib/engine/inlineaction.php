@@ -27,11 +27,16 @@ final class InlineAction extends Action
 	{
 		if ($this->binder === null)
 		{
-			$this->binder = new Binder(
-				$this->controller,
-				$this->methodName,
-				$this->getController()->getSourceParametersList()
-			);
+			$controller = $this->getController();
+			$this->binder = AutoWire\Binder::buildForMethod($controller, $this->methodName)
+				->setSourcesParametersToMap($controller->getSourceParametersList())
+				->setAutoWiredParameters(
+					array_filter(array_merge(
+						[$controller->getPrimaryAutoWiredParameter()],
+						$controller->getAutoWiredParameters()
+					))
+				)
+			;
 		}
 
 		return $this;

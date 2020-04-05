@@ -1,11 +1,22 @@
 <?php
+if (
+	isset($_GET['template']) &&
+	preg_match('/^[a-z0-9_]+$/i', $_GET['template'])
+)
+{
+	define('SITE_TEMPLATE_ID', $_GET['template']);
+}
+else
+{
+	define('SITE_TEMPLATE_ID', 'landing24');
+}
+
 require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php');
 
 use \Bitrix\Main\Application;
 use \Bitrix\Main\Loader;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\SiteTable;
-use \Bitrix\Main\ModuleManager;
 use \Bitrix\Main\Page\Asset;
 use \Bitrix\Landing\Domain;
 use \Bitrix\Landing\Site;
@@ -19,7 +30,6 @@ define('ADMIN_MODULE_NAME', 'landing');
 $request = Application::getInstance()->getContext()->getRequest();
 $server = Application::getInstance()->getContext()->getServer();
 $application = Manager::getApplication();
-$siteTemplate = Manager::getOption('site_template_id');
 $site = $request->get('site');
 $siteId = $request->get('siteId');
 $landing = $request->get('id');
@@ -27,6 +37,8 @@ $cmp = $request->get('cmp');
 $isFrame = $request->get('IFRAME') == 'Y';
 $isAjax = $request->get('IS_AJAX') == 'Y';
 $actionFolder = 'folderId';
+$siteTemplate = Manager::getTemplateId($site);
+
 define('SMN_SITE_ID', $site);
 
 // refresh block repo
@@ -100,7 +112,9 @@ if (!$siteId)
 // paths
 $landingsPage = 'landing_site.php?lang=' . LANGUAGE_ID . '&site=' . $site;
 $editPage = $landingsPage . '&cmp=landing_edit&id=#landing_edit#';
-$editSite = $landingsPage . '&cmp=site_edit' . '&site=' . $site;
+$editPage .= ($siteTemplate ? '&template=' . $siteTemplate : '');
+$editSite = $landingsPage . '&cmp=site_edit';
+$editSite .= ($siteTemplate ? '&template=' . $siteTemplate : '');
 $viewPage ='landing_view.php?lang=' . LANGUAGE_ID . '&id=#landing_edit#&site=' . $site . '&template=' . $siteTemplate;
 
 if ($isFrame)
@@ -129,9 +143,9 @@ else if (!$isAjax)
 // content area
 echo '<div class="landing-content-title-admin">';
 
-if (!$cmp)
+if (!$cmp && !$isFrame)
 {
-	if (ModuleManager::isModuleInstalled('sale'))
+	if (!Manager::isB24() && Manager::isStoreEnabled())
 	{
 		$buttons = array(
 			array(
@@ -153,10 +167,11 @@ if (!$cmp)
 		$buttons = array(
 			array(
 				'LINK' => str_replace('#landing_edit#', 0, $editPage) . '&type=PAGE',
-				'TITLE' => Loc::getMessage('LANDING_ADMIN_ACTION_ADD_PAGE')
+				'TITLE' => Loc::getMessage('LANDING_ADMIN_ACTION_ADD_ONE')
 			)
 		);
 	}
+	$folderId = $request->get($actionFolder);
 	$APPLICATION->IncludeComponent(
 		'bitrix:landing.filter',
 		'.default',
@@ -164,7 +179,8 @@ if (!$cmp)
 			'FILTER_TYPE' => 'LANDING',
 			'TYPE' => $type,
 			'SETTING_LINK' => $editSite,
-			'BUTTONS' => $buttons
+			'BUTTONS' => $buttons,
+			'FOLDER_SITE_ID' => !$folderId ? $siteId : 0
 		),
 		false
 	);
@@ -179,6 +195,8 @@ if ($isAjax)
 
 echo '<div id="workarea-content" class="landing-content-admin">';
 
+\Bitrix\Landing\Update\Stepper::show();
+
 if ($cmp == 'landing_edit')
 {
 	if ($landing > 0)
@@ -190,7 +208,8 @@ if ($cmp == 'landing_edit')
 				'SITE_ID' => $siteId,
 				'LANDING_ID' => $landing,
 				'PAGE_URL_LANDINGS' => $landingsPage,
-				'PAGE_URL_LANDING_VIEW' => $viewPage
+				'PAGE_URL_LANDING_VIEW' => $viewPage,
+				'PAGE_URL_SITE_EDIT' => $editSite
 			),
 			$component
 		);
@@ -202,14 +221,14 @@ if ($cmp == 'landing_edit')
 		{
 			$createType = 'PAGE';
 		}
-		if ($template = $request->get('tpl'))
+		if ($tpl = $request->get('tpl'))
 		{
 			$APPLICATION->IncludeComponent(
 				'bitrix:landing.demo_preview',
 				'.default',
 				array(
 					'TYPE' => $createType,
-					'CODE' => $template,
+					'CODE' => $tpl,
 					'SITE_ID' => $siteId,
 					'PAGE_URL_BACK' => $landingsPage,
 					'SITE_WORK_MODE' => 'Y'
@@ -237,7 +256,7 @@ if ($cmp == 'landing_edit')
 }
 elseif ($cmp == 'site_edit')
 {
-	$template = $request->get('tpl');
+	$tpl = $request->get('tpl');
 	$APPLICATION->IncludeComponent(
 		'bitrix:landing.site_edit',
 		'.default',
@@ -246,7 +265,7 @@ elseif ($cmp == 'site_edit')
 			'SITE_ID' => $siteId,
 			'PAGE_URL_SITES' => '',
 			'PAGE_URL_LANDING_VIEW' => $viewPage,
-			'TEMPLATE' => $template
+			'TEMPLATE' => $tpl
 		),
 		$component
 	);

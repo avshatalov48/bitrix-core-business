@@ -228,7 +228,7 @@ $containerId = 'bx-sender-segment-edit';
 			</div>
 			<div class="sender-box-informer">
 				<div class="sender-box-informer-text"><?=Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_LIST_DESC')?></div>
-				<div data-hint="<?=Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_LIST_HINT')?>"></div>
+				<div data-hint="<?=Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_LIST_HINT1')?>"></div>
 			</div>
 		</div>
 
@@ -282,7 +282,7 @@ $containerId = 'bx-sender-segment-edit';
 				'availableConnectors' => array_values($arResult['CONNECTOR']['AVAILABLE']),
 				'prettyDateFormat' => PrettyDate::getDateFormat(),
 				'mess' => array(
-					'patternTitle' => Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_PATTERN_TITLE'),
+					'patternTitle' => Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_PATTERN_TITLE1') ?: Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_PATTERN_TITLE'),
 					'newTitle' => Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_NEW_TITLE'),
 					'filterPlaceholder' => Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_FLT_PLACEHOLDER'),
 					'filterPlaceholderCrmLead' => Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_FLT_PLACEHOLDER_CRM_LEAD'),

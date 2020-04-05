@@ -98,7 +98,7 @@ class ExchangeLogTable extends Main\Entity\DataManager
 			{
 				$maxDateInsert = $loggingRecord['MAX_DATE_INSERT'];
 				$date = new Main\Type\DateTime($maxDateInsert);
-				$interval = Logger::getInterval();
+				$interval = LoggerDiag::getInterval();
 				$connection = Main\Application::getConnection();
 				$connection->queryExecute("delete from {$tableName} where DATE_INSERT < DATE_SUB('{$date->format("Y-m-d")}', INTERVAL {$interval} DAY) and DIRECTION='{$direction}'");
 			}

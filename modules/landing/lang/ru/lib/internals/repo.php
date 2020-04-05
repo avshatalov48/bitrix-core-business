@@ -5,6 +5,7 @@ $MESS['LANDING_TABLE_FIELD_ACTIVE'] = 'Флаг активности';
 $MESS['LANDING_TABLE_FIELD_NAME'] = 'Название';
 $MESS['LANDING_TABLE_FIELD_DESCRIPTION'] = 'Описание';
 $MESS['LANDING_TABLE_FIELD_SECTIONS'] = 'Категории';
+$MESS['LANDING_TABLE_FIELD_SITE_TEMPLATE_ID'] = 'Шаблон главного модуля';
 $MESS['LANDING_TABLE_FIELD_PREVIEW'] = 'Превью-изображение';
 $MESS['LANDING_TABLE_FIELD_MANIFEST'] = 'Манифест';
 $MESS['LANDING_TABLE_FIELD_CONTENT'] = 'Содержимое блока';

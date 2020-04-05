@@ -1,5 +1,7 @@
 <?php
 use \Bitrix\Landing\Template;
+use \Bitrix\Landing\Landing as LandingCore;
+use \Bitrix\Landing\Site;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Main\Config\Option;
@@ -14,6 +16,7 @@ if (class_exists('Landing'))
 class Landing extends \CModule
 {
 	public $MODULE_ID = 'landing';
+	public $MODULE_GROUP_RIGHTS = 'Y';
 	public $MODULE_VERSION;
 	public $MODULE_VERSION_DATE;
 	public $MODULE_NAME;
@@ -93,7 +96,12 @@ class Landing extends \CModule
 		}
 		elseif ($step == 2)
 		{
-			$this->uninstallDB(array('savedata' => isset($_GET['savedata']) && $_GET['savedata'] == 'Y'));
+			$params = [];
+			if (isset($_GET['savedata']))
+			{
+				$params['savedata'] = $_GET['savedata'] == 'Y';
+			}
+			$this->uninstallDB($params);
 			$this->uninstallFiles();
 			$APPLICATION->includeAdminFile(
 				Loc::getMessage('LANDING_UNINSTALL_TITLE'),
@@ -111,7 +119,10 @@ class Landing extends \CModule
 		global $DB, $APPLICATION;
 
 		// db
-		$errors = $DB->runSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/landing/install/db/' . strtolower($DB->type) . '/install.sql');
+		$errors = $DB->runSQLBatch(
+			$this->docRoot . '/bitrix/modules/landing/install/db/' .
+			strtolower($DB->type) . '/install.sql'
+		);
 		if ($errors !== false)
 		{
 			$APPLICATION->throwException(implode('', $errors));
@@ -123,13 +134,75 @@ class Landing extends \CModule
 
 		// events
 		$eventManager = Bitrix\Main\EventManager::getInstance();
-		$eventManager->registerEventHandler('rest', 'OnRestServiceBuildDescription', $this->MODULE_ID, '\Bitrix\Landing\Publicaction', 'restBase');
-		$eventManager->registerEventHandler('rest', 'OnRestAppDelete', $this->MODULE_ID, '\Bitrix\Landing\Publicaction', 'restApplicationDelete');
+		$eventManager->registerEventHandler(
+			'rest',
+			'OnRestServiceBuildDescription',
+			$this->MODULE_ID,
+			'\Bitrix\Landing\Publicaction',
+			'restBase'
+		);
+		$eventManager->registerEventHandler(
+			'rest',
+			'OnRestAppDelete',
+			$this->MODULE_ID,
+			'\Bitrix\Landing\Publicaction',
+			'restApplicationDelete'
+		);
+		$eventManager->registerEventHandler(
+			'main',
+			'OnBeforeSiteDelete',
+			$this->MODULE_ID,
+			'\Bitrix\Landing\Site',
+			'onBeforeMainSiteDelete'
+		);
+		$eventManager->registerEventHandler(
+			'main',
+			'OnSiteDelete',
+			$this->MODULE_ID,
+			'\Bitrix\Landing\Site',
+			'onMainSiteDelete'
+		);
+		if ($this->isB24())
+		{
+			$eventManager->registerEventHandler(
+				'bitrix24',
+				'OnDomainChange',
+				$this->MODULE_ID,
+				'\Bitrix\Landing\Update\Block\NodeAttributes',
+				'updateFormDomain'
+			);
+		}
+		if ($this->isB24Connector())
+		{
+			$eventManager->registerEventHandler(
+				'socialservices',
+				'\Bitrix\Socialservices\ApTable::OnAfterAdd',
+				$this->MODULE_ID,
+				'\Bitrix\Landing\Update\Block\NodeAttributes',
+				'updateFormDomainByConnector'
+			);
+		}
+
+		// agents
+		\CAgent::addAgent(
+			'Bitrix\Landing\Agent::clearRecycle();',
+			$this->MODULE_ID,
+			'N',
+			7200
+		);
+		// agents
+		\CAgent::addAgent(
+			'Bitrix\Landing\Agent::clearFiles();',
+			$this->MODULE_ID,
+			'N',
+			3600
+		);
 
 		// templates
 		if (\Bitrix\Main\Loader::includeModule($this->MODULE_ID))
 		{
 			$this->installTemplates();
+			$this->setOptions();
 		}
 		$this->setSiteTemplates();
 
@@ -156,6 +229,21 @@ class Landing extends \CModule
 		}
 	}
 
+	/**
+	 * Its SMN with b24connector module installed.
+	 * @return bool
+	 */
+	private function isB24Connector()
+	{
+		static $isConnector = null;
+		if ($isConnector === null)
+		{
+			$isConnector = ModuleManager::isModuleInstalled('b24connector') &&
+							ModuleManager::isModuleInstalled('socialservices');
+		}
+		return $isConnector;
+	}
+
 
 	/**
 	 * Install or uninstall main site templates.
@@ -169,19 +257,16 @@ class Landing extends \CModule
 			'TEMPLATE' => Option::get('landing', 'site_template_id')
 		);
 
-		// uninstall tpl in site
-		if (!$install)
+		// uninstall tpl in site (always, and before the install)
+		$resCheck = \Bitrix\Main\SiteTemplateTable::getList(array(
+			'filter' => $tplFields
+		));
+		while ($rowCheck = $resCheck->fetch())
 		{
-			$resCheck = \Bitrix\Main\SiteTemplateTable::getList(array(
-				'filter' => $tplFields
-			));
-			while ($rowCheck = $resCheck->fetch())
-			{
-				$clearCache = true;
-				\Bitrix\Main\SiteTemplateTable::delete(
-					$rowCheck['ID']
-				);
-			}
+			$clearCache = true;
+			\Bitrix\Main\SiteTemplateTable::delete(
+				$rowCheck['ID']
+			);
 		}
 
 		// set template for every site
@@ -226,26 +311,31 @@ class Landing extends \CModule
 			ModuleManager::isModuleInstalled('intranet')
 		)
 		{
+			$clearCache = true;
 			\Bitrix\Main\SiteTemplateTable::add(
 				$tplFields + array(
 					'SITE_ID' => 's1',//@todo
-					'SORT' => 0,
+					'SORT' => 500,
 					'CONDITION' => 'preg_match(\'#/sites/site/[\d]+/view/[\d]+/#\', ' .
 								   '$GLOBALS[\'APPLICATION\']->GetCurPage(0))'
 				)
 			);
 		}
 
-		// work with cloud repo always
-		$repoAddr = 'https://repo.bitrix24.site/rest/1/w1uqy3swvyp50bso/';
-		Option::set('landing', 'block_vendor_bitrix', $repoAddr);
-		Option::set('landing', 'disabled_namespaces', 'bitrix');
-
 		if ($clearCache)
 		{
-			$GLOBALS['CACHE_MANAGER']->cleanAll();
-			$GLOBALS['CACHE_MANAGER']->cleanDir('b_site_template');
+			$GLOBALS['CACHE_MANAGER']->clean('b_site_template');
 		}
+	}
+
+	/**
+	 * Settings required options.
+	 * @return void
+	 */
+	public function setOptions()
+	{
+		Option::set('landing', 'disabled_namespaces', 'bitrix');
+		\Bitrix\Landing\Manager::getRestPath();
 	}
 
 	/**
@@ -267,9 +357,9 @@ class Landing extends \CModule
 				'area_count' => 1
 			),
 			'sidebar_right' => array(
-				'content' => '<div class="landing-layout-flex">
-								<div class="g-width-25x--lg landing-flex-order-1 g-max-width-100x landing-sidebar">#AREA_1#</div> 
-								<div class="g-width-75x--lg landing-flex-order-0 g-max-width-100x landing-main">#CONTENT#</div> 
+				'content' => '<div class="landing-layout-flex sidebar-right">
+								<div class="g-width-25x--lg g-max-width-100x landing-sidebar">#AREA_1#</div> 
+								<div class="g-width-75x--lg  g-max-width-100x landing-main">#CONTENT#</div> 
 							</div>',
 				'area_count' => 1
 			),
@@ -281,9 +371,9 @@ class Landing extends \CModule
 			),
 			'without_left' => array(
 				'content' => '<div class="landing-header">#AREA_1#</div> 
-								<div class="landing-layout-flex">
-									<div class="g-width-25x--lg g-max-width-100x landing-flex-order-1 landing-sidebar">#AREA_2#</div>
-									<div class="g-width-75x--lg g-max-width-100x landing-flex-order-0 landing-main">#CONTENT#</div> 
+								<div class="landing-layout-flex without-left">
+									<div class="g-width-25x--lg g-max-width-100x landing-sidebar">#AREA_2#</div>
+									<div class="g-width-75x--lg g-max-width-100x landing-main">#CONTENT#</div> 
 								</div> 
 							<div class="landing-footer">#AREA_3#</div>',
 				'area_count' => 3
@@ -370,12 +460,56 @@ class Landing extends \CModule
 					'CONDITION' => '#^/sites/#'
 				)
 			);
+
+			$GLOBALS['CACHE_MANAGER']->CleanDir('menu');
+			\CBitrixComponent::clearComponentCache('bitrix:menu');
 		}
 
 		$GLOBALS['CACHE_MANAGER']->clearByTag('landing_blocks');
 		$GLOBALS['CACHE_MANAGER']->clearByTag('landing_demo');
 
 		return true;
+	}
+
+	/**
+	 * Remove all pages and sites first.
+	 * @return void
+	 */
+	public function removeData()
+	{
+		if (\Bitrix\Main\Loader::includeModule($this->MODULE_ID))
+		{
+			// first delete landings
+			$res = LandingCore::getList([
+				'select' => [
+					'ID'
+				],
+				'filter' => [
+					'=DELETED' => ['Y', 'N'],
+					'=SITE.DELETED' => ['Y', 'N']
+				]
+			]);
+			while ($row = $res->fetch())
+			{
+				$resDel = LandingCore::delete($row['ID'], true);
+				$resDel->isSuccess();// for trigger
+			}
+
+			// then delete sites
+			$res = Site::getList([
+				'select' => [
+					'ID'
+				],
+				'filter' => [
+					'=DELETED' => ['Y', 'N']
+				],
+			]);
+			while ($row = $res->fetch())
+			{
+				$resDel = Site::delete($row['ID']);
+				$resDel->isSuccess();// for trigger
+			}
+		}
 	}
 
 	/**
@@ -393,7 +527,8 @@ class Landing extends \CModule
 		if (isset($arParams['savedata']) && !$arParams['savedata'])
 		{
 			$errors = $DB->runSQLBatch(
-				$this->docRoot . '/bitrix/modules/landing/install/db/' . strtolower($DB->type) . '/uninstall.sql'
+				$this->docRoot . '/bitrix/modules/landing/install/db/' .
+				strtolower($DB->type) . '/uninstall.sql'
 			);
 		}
 		if ($errors !== false)
@@ -402,10 +537,58 @@ class Landing extends \CModule
 			return false;
 		}
 
+		\CAgent::removeModuleAgents($this->MODULE_ID);
+
 		// unregister events
 		$eventManager = Bitrix\Main\EventManager::getInstance();
-		$eventManager->unregisterEventHandler('rest', 'OnRestServiceBuildDescription', $this->MODULE_ID, '\Bitrix\Landing\Publicaction', 'restBase');
-		$eventManager->unregisterEventHandler('rest', 'OnRestAppDelete', $this->MODULE_ID, '\Bitrix\Landing\Publicaction', 'restApplicationDelete');
+		$eventManager->unregisterEventHandler(
+			'rest', 
+			'OnRestServiceBuildDescription', 
+			$this->MODULE_ID, 
+			'\Bitrix\Landing\Publicaction', 
+			'restBase'
+		);
+		$eventManager->unregisterEventHandler(
+			'rest', 
+			'OnRestAppDelete', 
+			$this->MODULE_ID, 
+			'\Bitrix\Landing\Publicaction', 
+			'restApplicationDelete'
+		);
+		$eventManager->unregisterEventHandler(
+			'main',
+			'OnBeforeSiteDelete',
+			$this->MODULE_ID,
+			'\Bitrix\Landing\Site',
+			'onBeforeMainSiteDelete'
+		);
+		$eventManager->unregisterEventHandler(
+			'main',
+			'OnSiteDelete',
+			$this->MODULE_ID,
+			'\Bitrix\Landing\Site',
+			'onMainSiteDelete'
+		);
+		if ($this->isB24())
+		{
+			$eventManager->unregisterEventHandler(
+				'bitrix24', 
+				'OnDomainChange', 
+				$this->MODULE_ID, 
+				'\Bitrix\Landing\Update\Block\NodeAttributes', 
+				'updateFormDomain'
+			);
+		}
+		if ($this->isB24Connector())
+		{
+			$eventManager->unregisterEventHandler(
+				'socialservices', 
+				'\Bitrix\Socialservices\ApTable::OnAfterAdd', 
+				$this->MODULE_ID, 
+				'\Bitrix\Landing\Update\Block\NodeAttributes', 
+				'updateFormDomainByConnector'
+			);
+		}
 
 		// module
 		unregisterModule($this->MODULE_ID);
@@ -454,5 +637,20 @@ class Landing extends \CModule
 		$GLOBALS['CACHE_MANAGER']->clearByTag('landing_demo');
 
 		return true;
+	}
+
+	/**
+	 * Get module rights.
+	 * @return array
+	 */
+	public function getModuleRightList()
+	{
+		return array(
+			'reference_id' => array('D', 'W'),
+			'reference' => array(
+				'[D] ' . Loc::getMessage('LANDING_RIGHT_D'),
+				'[W] ' . Loc::getMessage('LANDING_RIGHT_W')
+			)
+		);
 	}
 }

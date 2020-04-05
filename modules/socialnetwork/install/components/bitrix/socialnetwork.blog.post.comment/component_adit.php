@@ -1,4 +1,7 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
+$arResult["SELECTOR_VERSION"] = (!empty($arParams["SELECTOR_VERSION"]) ? intval($arParams["SELECTOR_VERSION"]) : 1);
+
 if($arResult["CanUserComment"])
 {
 	/* @deprecated */
@@ -45,55 +48,62 @@ if($arResult["CanUserComment"])
 		if ($arParams["CACHE_TIME"] > 0)
 			$cache->EndDataCache(array("comment_props" => $arResult["COMMENT_PROPERTIES"]));
 	}
+
 	CJSCore::Init(array('socnetlogdest'));
-	$lastAuthors = Array();
-	if($arParams["FROM_LOG"] != "Y")
+
+	if ($arResult["SELECTOR_VERSION"] < 2)
 	{
-		$lastAuthors["U".$arPost["AUTHOR_ID"]] = "U".$arPost["AUTHOR_ID"];
-		if (
-			isset($arResult["CommentsResult"])
-			&& is_array($arResult["CommentsResult"])
-		)
-			foreach($arResult["CommentsResult"] as $v)
-				$lastAuthors["U".$v["AUTHOR_ID"]] = "U".$v["AUTHOR_ID"];
-	}
+		$lastAuthors = Array();
+		if($arParams["FROM_LOG"] != "Y")
+		{
+			$lastAuthors["U".$arPost["AUTHOR_ID"]] = "U".$arPost["AUTHOR_ID"];
+			if (
+				isset($arResult["CommentsResult"])
+				&& is_array($arResult["CommentsResult"])
+			)
+				foreach($arResult["CommentsResult"] as $v)
+					$lastAuthors["U".$v["AUTHOR_ID"]] = "U".$v["AUTHOR_ID"];
+		}
 
-	$arLastDestinations = CSocNetLogDestination::GetDestinationSort(array(
-		"DEST_CONTEXT" => "MENTION",
-		"CODE_TYPE" => 'U'
-	));
+		$arLastDestinations = CSocNetLogDestination::GetDestinationSort(array(
+			"DEST_CONTEXT" => "MENTION",
+			"CODE_TYPE" => 'U'
+		));
 
-	$arResult["FEED_DESTINATION"]['LAST'] = array(
-		'USERS' => array()
-	);
-	CSocNetLogDestination::fillLastDestination($arLastDestinations, $arResult["FEED_DESTINATION"]['LAST']);
+		$arResult["FEED_DESTINATION"]['LAST'] = array(
+			'USERS' => array()
+		);
+		CSocNetLogDestination::fillLastDestination($arLastDestinations, $arResult["FEED_DESTINATION"]['LAST']);
 
-	if(count($lastAuthors) >= 5)
-	{
-		$arResult["FEED_DESTINATION"]['LAST']['USERS'] = $lastAuthors;
-	}
-	else
-	{
-		$arResult["FEED_DESTINATION"]['LAST']['USERS'] = array_merge($arResult["FEED_DESTINATION"]['LAST']['USERS'], $lastAuthors);
-	}
+		if(count($lastAuthors) >= 5)
+		{
+			$arResult["FEED_DESTINATION"]['LAST']['USERS'] = $lastAuthors;
+		}
+		else
+		{
+			$arResult["FEED_DESTINATION"]['LAST']['USERS'] = array_merge($arResult["FEED_DESTINATION"]['LAST']['USERS'], $lastAuthors);
+		}
 
-	$arStructure = CSocNetLogDestination::GetStucture(array("LAZY_LOAD" => true));
-	$arResult["FEED_DESTINATION"]['DEPARTMENT'] = $arStructure['department'];
-	$arResult["FEED_DESTINATION"]['DEPARTMENT_RELATION'] = $arStructure['department_relation'];
+		$arStructure = CSocNetLogDestination::GetStucture(array("LAZY_LOAD" => true));
+		$arResult["FEED_DESTINATION"]['DEPARTMENT'] = $arStructure['department'];
+		$arResult["FEED_DESTINATION"]['DEPARTMENT_RELATION'] = $arStructure['department_relation'];
 
-	if (CModule::IncludeModule('extranet') && !CExtranet::IsIntranetUser())
-	{
-		$arResult["FEED_DESTINATION"]['EXTRANET_USER'] = 'Y';
-		$arResult["FEED_DESTINATION"]['USERS'] = CSocNetLogDestination::GetExtranetUser();
-	}
-	else
-	{
-		$arDestUser = Array();
-		foreach ($arResult["FEED_DESTINATION"]['LAST']['USERS'] as $value)
-			$arDestUser[] = str_replace('U', '', $value);
+		if (CModule::IncludeModule('extranet') && !CExtranet::IsIntranetUser())
+		{
+			$arResult["FEED_DESTINATION"]['EXTRANET_USER'] = 'Y';
+			$arResult["FEED_DESTINATION"]['USERS'] = CSocNetLogDestination::GetExtranetUser();
+		}
+		else
+		{
+			$arDestUser = Array();
+			foreach ($arResult["FEED_DESTINATION"]['LAST']['USERS'] as $value)
+			{
+				$arDestUser[] = str_replace('U', '', $value);
+			}
 
-		$arResult["FEED_DESTINATION"]['EXTRANET_USER'] = 'N';
-		$arResult["FEED_DESTINATION"]['USERS'] = CSocNetLogDestination::GetUsers(Array('id' => $arDestUser));
+			$arResult["FEED_DESTINATION"]['EXTRANET_USER'] = 'N';
+			$arResult["FEED_DESTINATION"]['USERS'] = CSocNetLogDestination::GetUsers(Array('id' => $arDestUser));
+		}
 	}
 }
 ?>

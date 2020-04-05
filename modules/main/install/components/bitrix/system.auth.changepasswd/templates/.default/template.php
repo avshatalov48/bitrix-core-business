@@ -1,10 +1,19 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
+<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
+if($arResult["PHONE_REGISTRATION"])
+{
+	CJSCore::Init('phone_auth');
+}
+?>
 
 <div class="bx-auth">
 
 <?
 ShowMessage($arParams["~AUTH_RESULT"]);
 ?>
+
+<?if($arResult["SHOW_FORM"]):?>
+
 <form method="post" action="<?=$arResult["AUTH_FORM"]?>" name="bform">
 	<?if (strlen($arResult["BACKURL"]) > 0): ?>
 	<input type="hidden" name="backurl" value="<?=$arResult["BACKURL"]?>" />
@@ -18,14 +27,28 @@ ShowMessage($arParams["~AUTH_RESULT"]);
 			</tr>
 		</thead>
 		<tbody>
+<?if($arResult["PHONE_REGISTRATION"]):?>
+			<tr>
+				<td><?echo GetMessage("sys_auth_chpass_phone_number")?></td>
+				<td>
+					<input type="text" value="<?=htmlspecialcharsbx($arResult["USER_PHONE_NUMBER"])?>" class="bx-auth-input" disabled="disabled" />
+					<input type="hidden" name="USER_PHONE_NUMBER" value="<?=htmlspecialcharsbx($arResult["USER_PHONE_NUMBER"])?>" />
+				</td>
+			</tr>
+			<tr>
+				<td><span class="starrequired">*</span><?echo GetMessage("sys_auth_chpass_code")?></td>
+				<td><input type="text" name="USER_CHECKWORD" maxlength="50" value="<?=$arResult["USER_CHECKWORD"]?>" class="bx-auth-input" autocomplete="off" /></td>
+			</tr>
+<?else:?>
 			<tr>
 				<td><span class="starrequired">*</span><?=GetMessage("AUTH_LOGIN")?></td>
 				<td><input type="text" name="USER_LOGIN" maxlength="50" value="<?=$arResult["LAST_LOGIN"]?>" class="bx-auth-input" /></td>
 			</tr>
 			<tr>
 				<td><span class="starrequired">*</span><?=GetMessage("AUTH_CHECKWORD")?></td>
-				<td><input type="text" name="USER_CHECKWORD" maxlength="50" value="<?=$arResult["USER_CHECKWORD"]?>" class="bx-auth-input" /></td>
+				<td><input type="text" name="USER_CHECKWORD" maxlength="50" value="<?=$arResult["USER_CHECKWORD"]?>" class="bx-auth-input" autocomplete="off" /></td>
 			</tr>
+<?endif?>
 			<tr>
 				<td><span class="starrequired">*</span><?=GetMessage("AUTH_NEW_PASSWORD_REQ")?></td>
 				<td><input type="password" name="USER_PASSWORD" maxlength="50" value="<?=$arResult["USER_PASSWORD"]?>" class="bx-auth-input" autocomplete="off" />
@@ -69,16 +92,45 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 			</tr>
 		</tfoot>
 	</table>
+</form>
 
 <p><?echo $arResult["GROUP_POLICY"]["PASSWORD_REQUIREMENTS"];?></p>
 <p><span class="starrequired">*</span><?=GetMessage("AUTH_REQ")?></p>
-<p>
-<a href="<?=$arResult["AUTH_AUTH_URL"]?>"><b><?=GetMessage("AUTH_AUTH")?></b></a>
-</p>
 
-</form>
+<?if($arResult["PHONE_REGISTRATION"]):?>
 
 <script type="text/javascript">
-document.bform.USER_LOGIN.focus();
+new BX.PhoneAuth({
+	containerId: 'bx_chpass_resend',
+	errorContainerId: 'bx_chpass_error',
+	interval: <?=$arResult["PHONE_CODE_RESEND_INTERVAL"]?>,
+	data:
+		<?=CUtil::PhpToJSObject([
+			'signedData' => $arResult["SIGNED_DATA"]
+		])?>,
+	onError:
+		function(response)
+		{
+			var errorDiv = BX('bx_chpass_error');
+			var errorNode = BX.findChildByClassName(errorDiv, 'errortext');
+			errorNode.innerHTML = '';
+			for(var i = 0; i < response.errors.length; i++)
+			{
+				errorNode.innerHTML = errorNode.innerHTML + BX.util.htmlspecialchars(response.errors[i].message) + '<br>';
+			}
+			errorDiv.style.display = '';
+		}
+});
 </script>
+
+<div id="bx_chpass_error" style="display:none"><?ShowError("error")?></div>
+
+<div id="bx_chpass_resend"></div>
+
+<?endif?>
+
+<?endif?>
+
+<p><a href="<?=$arResult["AUTH_AUTH_URL"]?>"><b><?=GetMessage("AUTH_AUTH")?></b></a></p>
+
 </div>

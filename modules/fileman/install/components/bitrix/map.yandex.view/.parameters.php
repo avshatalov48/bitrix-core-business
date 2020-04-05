@@ -90,6 +90,13 @@ $arComponentParameters = array(
 			'DEFAULT' => '',
 			'PARENT' => 'ADDITIONAL_SETTINGS',
 		),
+
+		'API_KEY' => array(
+			'NAME' => GetMessage('MYMS_PARAM_API_KEY'),
+			'TYPE' => 'STRING',
+			'DEFAULT' => '',
+			'PARENT' => 'ADDITIONAL_SETTINGS',
+		)
 	),
 );
 ?>

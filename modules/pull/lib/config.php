@@ -39,8 +39,13 @@ class Config
 			'SERVER_ENABLED' => \CPullOptions::GetQueueServerStatus(),
 			'LONG_POLLING' => str_replace('#DOMAIN#', $domain, \CPullOptions::GetListenUrl()),
 			'LONG_POOLING_SECURE' => str_replace('#DOMAIN#', $domain, \CPullOptions::GetListenSecureUrl()),
+			'WEBSOCKET_ENABLED' => \CPullOptions::GetWebSocket(),
 			'WEBSOCKET' => str_replace('#DOMAIN#', $domain, \CPullOptions::GetWebSocketUrl()),
 			'WEBSOCKET_SECURE' => str_replace('#DOMAIN#', $domain, \CPullOptions::GetWebSocketSecureUrl()),
+			'PUBLISH_ENABLED' => \CPullOptions::GetPublishWebEnabled(),
+			'PUBLISH' => str_replace('#DOMAIN#', $domain, \CPullOptions::GetPublishWebUrl()),
+			'PUBLISH_SECURE' => str_replace('#DOMAIN#', $domain, \CPullOptions::GetPublishWebSecureUrl()),
+			'CONFIG_TIMESTAMP' => \CPullOptions::GetConfigTimestamp(),
 		);
 		$config['API'] = Array(
 			'REVISION_WEB' => PULL_REVISION_WEB,
@@ -53,15 +58,29 @@ class Config
 			$config['CHANNELS']['SHARED'] = Array(
 				'ID' => \CPullChannel::SignChannel($sharedChannel["CHANNEL_ID"]),
 				'START' => $sharedChannel['CHANNEL_DT'],
-				'END' => $sharedChannel['CHANNEL_DT']+43205,
+				'END' => $sharedChannel['CHANNEL_DT']+\CPullChannel::CHANNEL_TTL,
 			);
 		}
 		if ($privateChannel)
 		{
+			if (\CPullOptions::GetQueueServerVersion() > 3)
+			{
+				$privateId = $privateChannel["CHANNEL_PUBLIC_ID"]? $privateChannel["CHANNEL_ID"].":".$privateChannel["CHANNEL_PUBLIC_ID"]: $privateChannel["CHANNEL_ID"];
+				$privateId = \CPullChannel::SignChannel($privateId);
+
+				$publicId = \CPullChannel::SignPublicChannel($privateChannel["CHANNEL_PUBLIC_ID"]);
+			}
+			else
+			{
+				$privateId = \CPullChannel::SignChannel($privateChannel["CHANNEL_ID"]);
+				$publicId = '';
+			}
+
 			$config['CHANNELS']['PRIVATE'] = Array(
-				'ID' => \CPullChannel::SignChannel($privateChannel["CHANNEL_ID"]),
+				'ID' => $privateId,
+				'PUBLIC_ID' => $publicId,
 				'START' => $privateChannel['CHANNEL_DT'],
-				'END' => $privateChannel['CHANNEL_DT']+43205,
+				'END' => $privateChannel['CHANNEL_DT']+\CPullChannel::CHANNEL_TTL,
 			);
 		}
 

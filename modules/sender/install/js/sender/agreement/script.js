@@ -66,6 +66,7 @@
 				{
 					content: '<div class="sender-agreement-wrap">' + BX.message('SENDER_AGREEMENT_TEXT') + '</div>',
 					titleBar: BX.message('SENDER_AGREEMENT_TITLE'),
+					maxHeight: 400,
 					autoHide: false,
 					lightShadow: false,
 					overlay: {

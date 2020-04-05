@@ -39,16 +39,13 @@
 		show: function()
 		{
 			BX.PopupWindow.prototype.show.call(this);
-			return show(this.popupContainer);
+			return Promise.resolve();
 		},
 
 		close: function()
 		{
 			BX.PopupWindow.prototype.close.call(this);
-			this.popupContainer.style.display = "block";
-			return hide(this.popupContainer).then(function() {
-				this.popupContainer.style.display = "none";
-			}.bind(this));
+			return Promise.resolve();
 		}
 	}
 })();

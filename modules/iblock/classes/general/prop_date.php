@@ -26,6 +26,7 @@ class CIBlockPropertyDate extends CIBlockPropertyDateTime
 			"GetAdminFilterHTML" => array(__CLASS__, "GetAdminFilterHTML"),
 			"GetPublicFilterHTML" => array(__CLASS__, "GetPublicFilterHTML"),
 			"AddFilterFields" => array(__CLASS__, "AddFilterFields"),
+			"GetUIFilterProperty" => array(__CLASS__, "GetUIFilterProperty")
 		);
 	}
 
@@ -76,5 +77,17 @@ class CIBlockPropertyDate extends CIBlockPropertyDateTime
 			'&nbsp;<input type="text" size="20" name="'.$strHTMLControlName["DESCRIPTION"].'" value="'.htmlspecialcharsbx($value["DESCRIPTION"]).'">'
 			:''
 		);
+	}
+
+	/**
+	 * @param array $property
+	 * @param array $control
+	 * @param array &$fields
+	 * @return void
+	 */
+	public static function GetUIFilterProperty($property, $control, &$fields)
+	{
+		parent::GetUIFilterProperty($property, $control, $fields);
+		unset($fields["time"]);
 	}
 }

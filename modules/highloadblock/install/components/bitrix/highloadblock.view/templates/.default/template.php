@@ -10,8 +10,6 @@ if (!empty($arResult['ERROR']))
 
 global $USER_FIELD_MANAGER;
 
-$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/js/highloadblock/css/highloadblock.css');
-
 //$GLOBALS['APPLICATION']->SetTitle('Highloadblock Row');
 
 $listUrl = str_replace('#BLOCK_ID#', intval($arParams['BLOCK_ID']),	$arParams['LIST_URL']);

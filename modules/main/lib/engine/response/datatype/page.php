@@ -6,20 +6,23 @@ use Bitrix\Main\Type\Contract\Arrayable;
 
 final class Page implements Arrayable, \IteratorAggregate, \ArrayAccess, \JsonSerializable
 {
+	/** @var string */
+	private $id;
 	/** @var array */
-	private $items = array();
+	private $items = [];
 
 	/** @var int|\Closure */
 	private $totalCount;
 	private $calculatedTotalCount;
 
 	/**
+	 * @param string $id Id of collection.
 	 * @param array|\Traversable $items
 	 * @param int|\Closure $totalCount The parameter can be Closure to prevent unnecessary actions for calculation.
 	 */
-	public function __construct($items, $totalCount)
+	public function __construct($id, $items, $totalCount)
 	{
-		$data = array();
+		$data = [];
 		if (!is_array($items) && $items instanceof \Traversable)
 		{
 			foreach ($items as $item)
@@ -32,6 +35,7 @@ final class Page implements Arrayable, \IteratorAggregate, \ArrayAccess, \JsonSe
 			$data = $items;
 		}
 
+		$this->id = $id;
 		$this->items = $data;
 		$this->totalCount = $totalCount;
 	}
@@ -54,7 +58,18 @@ final class Page implements Arrayable, \IteratorAggregate, \ArrayAccess, \JsonSe
 	}
 
 
-	public function toArray()
+	/**
+	 * @return string
+	 */
+	public function getId()
+	{
+		return $this->id;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getItems()
 	{
 		return $this->items;
 	}
@@ -162,6 +177,13 @@ final class Page implements Arrayable, \IteratorAggregate, \ArrayAccess, \JsonSe
 	 */
 	public function jsonSerialize()
 	{
-		return $this->items;
+		return $this->toArray();
+	}
+
+	public function toArray()
+	{
+		return [
+			$this->id => $this->items
+		];
 	}
 }

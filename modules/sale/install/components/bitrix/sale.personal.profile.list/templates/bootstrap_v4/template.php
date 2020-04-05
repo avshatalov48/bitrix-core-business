@@ -3,9 +3,31 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main\Localization\Loc;
 
-if(strlen($arResult["ERROR_MESSAGE"])>0)
+if (!empty($arResult['ERRORS']))
 {
-	ShowError($arResult["ERROR_MESSAGE"]);
+	$component = $this->__component;
+	foreach($arResult['ERRORS'] as $code => $error)
+	{
+		if ($code !== $component::E_NOT_AUTHORIZED)
+			ShowError($error);
+	}
+
+	if ($arParams['AUTH_FORM_IN_TEMPLATE'] && isset($arResult['ERRORS'][$component::E_NOT_AUTHORIZED]))
+	{
+		?>
+		<div class="row">
+			<div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+				<div class="alert alert-danger"><?=$arResult['ERRORS'][$component::E_NOT_AUTHORIZED]?></div>
+			</div>
+			<? $authListGetParams = array(); ?>
+			<div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3" id="catalog-subscriber-auth-form" style="<?=$authStyle?>">
+				<?$APPLICATION->AuthForm('', false, false, 'N', false);?>
+			</div>
+		</div>
+		<?
+
+		return;
+	}
 }
 if(strlen($arResult["NAV_STRING"]) > 0)
 {

@@ -3,7 +3,7 @@ namespace Bitrix\Main\DB;
 
 class MssqlResult extends Result
 {
-	/** @var \Bitrix\Main\Entity\ScalarField[]  */
+	/** @var \Bitrix\Main\ORM\Fields\ScalarField[]  */
 	private $resultFields = null;
 
 	/**
@@ -19,7 +19,7 @@ class MssqlResult extends Result
 	/**
 	 * Returns an array of fields according to columns in the result.
 	 *
-	 * @return \Bitrix\Main\Entity\ScalarField[]
+	 * @return \Bitrix\Main\ORM\Fields\ScalarField[]
 	 */
 	public function getFields()
 	{

@@ -10,7 +10,7 @@ return array(
 	'block' =>
 		array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.7.THREE_COLUMNS_WITH_IMG_AND_PRICE_NAME'),
-			'section' => array('tariffs', 'columns'),
+			'section' => array('tariffs'),
 		),
 	'cards' =>
 		array(
@@ -36,7 +36,7 @@ return array(
 				array(
 					'name' => Loc::getMessage('LANDING_BLOCK_44.7.THREE_COLUMNS_WITH_IMG_AND_PRICE_NODES_LANDINGBLOCKNODECARDIMG'),
 					'type' => 'img',
-					'dimensions' => array('width' => 570, 'height' => 570),
+					'dimensions' => array('width' => 740, 'height' => 380),
 				),
 			'.landing-block-node-card-price-subtitle' =>
 				array(

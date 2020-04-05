@@ -11,6 +11,7 @@
  * @global CMain $APPLICATION
  * @global CUserTypeManager $USER_FIELD_MANAGER
  */
+use Bitrix\Main;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 define("HELP_FILE", "settings/userfield_edit.php");
@@ -20,6 +21,12 @@ IncludeModuleLangFile(__FILE__);
 $ID = intval($_REQUEST["ID"]);
 $back_url = $_REQUEST["back_url"];
 $list_url = $_REQUEST["list_url"];
+
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+if ($adminSidePanelHelper->isPublicFrame())
+{
+	$back_url = $adminSidePanelHelper->setDefaultQueryParams($back_url);
+}
 
 $RIGHTS = $USER_FIELD_MANAGER->GetRights(false, $ID);
 if($RIGHTS < "W")
@@ -63,6 +70,8 @@ $bVarsFromForm = false;
 
 if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] != "" || $_POST["apply"] != "") && ($RIGHTS >= "W") && check_bitrix_sessid())
 {
+	$adminSidePanelHelper->decodeUriComponent();
+
 	$arFields = array(
 		"ENTITY_ID" => $_REQUEST["ENTITY_ID"],
 		"FIELD_NAME" => $_REQUEST["FIELD_NAME"],
@@ -115,17 +124,41 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] != "" || $_POST["appl
 
 	if($res)
 	{
-		if($_POST["apply"] != "")
-			LocalRedirect("/bitrix/admin/userfield_edit.php?ID=".$ID."&lang=".LANG."&back_url=".urlencode($back_url)."&".$tabControl->ActiveTabParam());
-		elseif($back_url)
-			LocalRedirect($back_url);
+		if ($adminSidePanelHelper->isAjaxRequest())
+		{
+			$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
+		}
 		else
-			LocalRedirect("/bitrix/admin/userfield_admin.php?lang=".LANG);
+		{
+			if ($_POST["apply"] != "")
+			{
+				$applyUrl = $selfFolderUrl."userfield_edit.php?ID=".$ID."&lang=".LANG."&back_url=".
+					urlencode($back_url)."&".$tabControl->ActiveTabParam();
+				$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
+				LocalRedirect($applyUrl);
+			}
+			elseif ($back_url)
+			{
+				$back_url = $adminSidePanelHelper->editUrlToPublicPage($back_url);
+				$adminSidePanelHelper->localRedirect($back_url);
+				LocalRedirect($back_url);
+			}
+			else
+			{
+				$redirectUrl = $selfFolderUrl."userfield_admin.php?lang=".LANG;
+				$redirectUrl = $adminSidePanelHelper->editUrlToPublicPage($redirectUrl);
+				$adminSidePanelHelper->localRedirect($redirectUrl);
+				LocalRedirect($redirectUrl);
+			}
+		}
 	}
 	else
 	{
 		if($e = $APPLICATION->GetException())
+		{
 			$message = new CAdminMessage(GetMessage("USER_TYPE_SAVE_ERROR"), $e);
+			$adminSidePanelHelper->sendJsonErrorResponse($e->GetString());
+		}
 		$bVarsFromForm = true;
 	}
 
@@ -193,14 +226,16 @@ if (!empty($list_url))
 	$list_url = substr($list_url, 0, 1) === '/' ? $list_url : '/'.$list_url;
 }
 
-$aMenu = array(
-	array(
+$aMenu = array();
+if (!$adminSidePanelHelper->isPublicFrame())
+{
+	$aMenu[] = array(
 		"TEXT"=>GetMessage("USER_TYPE_LIST"),
 		"TITLE"=>GetMessage("USER_TYPE_LIST_TITLE"),
 		"LINK"=>!empty($list_url)? $list_url : "userfield_admin.php?lang=".LANG,
 		"ICON"=>"btn_list",
-	)
-);
+	);
+}
 if($ID>0)
 {
 	$aMenu[] = array("SEPARATOR"=>"Y");
@@ -292,7 +327,11 @@ BX.ready(function(){
 });
 //-->
 </script>
-<form method="POST" Action="<?echo $APPLICATION->GetCurPage()."?lang=".urlencode(LANG)?>" ENCTYPE="multipart/form-data" name="post_form">
+<?
+$formAction = $APPLICATION->GetCurPage();
+$formAction = $adminSidePanelHelper->setDefaultQueryParams($formAction);
+?>
+<form method="POST" action="<?=$formAction?>" ENCTYPE="multipart/form-data" name="post_form">
 <?
 $tabControl->Begin();
 ?>
@@ -318,6 +357,7 @@ $tabControl->BeginNextTab();
 			{
 				$arUserTypes = $USER_FIELD_MANAGER->GetUserType();
 				$arr = array("reference"=>array(), "reference_id"=>array());
+				Main\Type\Collection::sortByColumn($arUserTypes, 'DESCRIPTION', '', null, true);
 				foreach($arUserTypes as $arUserType)
 				{
 					$arr["reference"][] = $arUserType["DESCRIPTION"];
@@ -531,9 +571,8 @@ endif;
 <?
 $tabControl->Buttons(
 	array(
-		"disabled"=>$RIGHTS<"W",
-		"back_url"=>!empty($back_url) ? $back_url : "userfield_admin.php?lang=".LANG,
-
+		"disabled" => ($RIGHTS < "W"),
+		"back_url" => !empty($back_url) ? $back_url : "userfield_admin.php?lang=".LANG
 	)
 );
 ?>

@@ -49,6 +49,7 @@ class SubscribeManager
 		'ITEM_ID',
 		'NEED_SENDING',
 		'SITE_ID',
+		'LANDING_SITE_ID'
 	);
 
 	public function __construct()
@@ -58,9 +59,9 @@ class SubscribeManager
 		$this->contactTypes = SubscribeTable::getContactTypes();
 
 		global $USER;
-		if(is_object($USER) && $USER->isAuthorized())
+		if (is_object($USER) && $USER->isAuthorized())
 		{
-			$this->isAdmin = $USER->isAdmin();
+			$this->isAdmin = ($USER->isAdmin() || $USER->canDoOperation('bitrix24_config'));
 			$this->userId = $USER->getId();
 		}
 	}
@@ -171,10 +172,7 @@ class SubscribeManager
 			}
 		}
 
-		if(!empty($_SESSION['SUBSCRIBE_PRODUCT']['LIST_PRODUCT_ID'][$itemId]))
-		{
-			unset($_SESSION['SUBSCRIBE_PRODUCT']['LIST_PRODUCT_ID'][$itemId]);
-		}
+		$this->deleteSessionOfSibscribedProducts($itemId);
 
 		return true;
 	}
@@ -393,11 +391,13 @@ class SubscribeManager
 			return false;
 		}
 
+		$itemId = intval($data['productId']);
+
 		$subscribe = SubscribeTable::getList(array(
 			'select' => array('CNT'),
 			'filter' => array(
 				'=ID' => intval($data['subscribeId']),
-				'=ITEM_ID' => intval($data['productId']),
+				'=ITEM_ID' => $itemId,
 				'=USER_CONTACT' => $data['userContact'],
 			),
 			'runtime' => array(new Entity\ExpressionField('CNT', 'COUNT(*)'))
@@ -412,6 +412,8 @@ class SubscribeManager
 				Loc::getMessage('ERROR_UNSUBSCRIBE_ALREADY_UNSUBSCRIBE'), self::ERROR_UNSUBSCRIBE)));
 			return false;
 		}
+
+		$this->deleteSessionOfSibscribedProducts($itemId);
 
 		return true;
 	}
@@ -515,6 +517,14 @@ class SubscribeManager
 
 			$_SESSION['SUBSCRIBE_PRODUCT']['LIST_PRODUCT_ID'] = array();
 			$_SESSION['SUBSCRIBE_PRODUCT']['LIST_PRODUCT_ID'][$itemId] = true;
+		}
+	}
+
+	private function deleteSessionOfSibscribedProducts($itemId = 0)
+	{
+		if(!empty($_SESSION['SUBSCRIBE_PRODUCT']['LIST_PRODUCT_ID'][$itemId]))
+		{
+			unset($_SESSION['SUBSCRIBE_PRODUCT']['LIST_PRODUCT_ID'][$itemId]);
 		}
 	}
 

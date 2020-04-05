@@ -5,8 +5,11 @@
 
 	var trim = BX.Landing.Utils.trim;
 	var isPlainObject = BX.Landing.Utils.isPlainObject;
+	var isString = BX.Landing.Utils.isString;
 	var textToPlaceholders = BX.Landing.Utils.textToPlaceholders;
 	var create = BX.Landing.Utils.create;
+	var escapeText = BX.Landing.Utils.escapeText;
+	var decodeDataValue = BX.Landing.Utils.decodeDataValue;
 
 	/**
 	 * Implements interface for works with link or button
@@ -41,7 +44,7 @@
 			this.contentEditTimeout = setTimeout(function() {
 				BX.Landing.History.getInstance().push(
 					new BX.Landing.History.Entry({
-						block: top.BX.Landing.Block.storage.getByChildNode(this.node).id,
+						block: this.getBlock().id,
 						selector: this.selector,
 						command: "editLink",
 						undo: this.startValue,
@@ -100,7 +103,7 @@
 			{
 				var field = this.getField(true).hrefInput;
 
-				if (data.text.includes("{{name}}"))
+				if (isString(data.text) && data.text.includes("{{name}}"))
 				{
 					field.getPlaceholderData(data.href)
 						.then(function(placeholdersData) {
@@ -112,16 +115,15 @@
 				}
 				else
 				{
-
-					if (!this.getField().containsHtml())
+					if (!this.getField().containsHtml() && !this.manifest.skipContent)
 					{
-						this.node.innerHTML = data.text;
+						this.node.innerHTML = escapeText(data.text);
 					}
 				}
 			}
 
-			this.node.setAttribute("href", data.href);
-			this.node.setAttribute("target", data.target);
+			this.node.setAttribute("href", decodeDataValue(data.href));
+			this.node.setAttribute("target", escapeText(data.target));
 
 			if ("attrs" in data)
 			{
@@ -135,7 +137,8 @@
 			}
 			else
 			{
-				this.node.removeAttribute("data-url")
+				this.node.removeAttribute("data-url");
+				this.node.removeAttribute("data-embed");
 			}
 
 			this.onChange();
@@ -164,7 +167,7 @@
 		getValue: function()
 		{
 			var value = {
-				text: textToPlaceholders(trim(BX.util.htmlspecialcharsback(this.node.innerHTML))),
+				text: textToPlaceholders(trim(this.node.innerHTML)),
 				href: trim(this.node.getAttribute("href")),
 				target: trim(this.node.getAttribute("target") || "_self")
 			};
@@ -184,6 +187,12 @@
 				}
 
 				value.attrs["data-dynamic"] = this.node.getAttribute("data-dynamic");
+			}
+
+			if (this.manifest.skipContent)
+			{
+				value['skipContent'] = true;
+				delete value.text;
 			}
 
 			return value;
@@ -215,6 +224,7 @@
 				this.field = new BX.Landing.UI.Field.Link({
 					title: this.manifest.name,
 					selector: this.selector,
+					skipContent: this.manifest.skipContent,
 					content: value,
 					options: {
 						siteId: BX.Landing.Main.getInstance().options.site_id,
@@ -234,6 +244,7 @@
 					this.field.content = value;
 					this.field.hrefInput.content = value.href;
 					this.field.hrefInput.makeDisplayedHrefValue();
+					this.field.hrefInput.removeHrefTypeFromHrefString();
 				}
 			}
 

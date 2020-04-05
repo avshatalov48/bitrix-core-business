@@ -20,8 +20,6 @@ Loc::loadMessages(__FILE__);
 $context = \Bitrix\Main\Application::getInstance()->getContext();
 $request = $context->getRequest();
 
-$APPLICATION->setTitle(Loc::getMessage('LANDING_TPL_TITLE'));
-
 \Bitrix\Main\UI\Extension::load("ui.buttons");
 
 if ($arResult['ERRORS'])
@@ -40,6 +38,7 @@ if ($arResult['FATAL'])
 }
 
 // vars
+$isIndex = false;
 $domainId = 0;
 $domainName = '';
 $domainProtocol = '';
@@ -50,6 +49,8 @@ $hooksSite = $arResult['HOOKS_SITE'];
 $domains = $arResult['DOMAINS'];
 $tplRefs = $arResult['TEMPLATES_REF'];
 $sites = $arResult['SITES'];
+
+// correct some vars
 if (!$row['SITE_ID']['CURRENT'])
 {
 	$row['SITE_ID']['CURRENT'] = $arParams['SITE_ID'];
@@ -57,6 +58,7 @@ if (!$row['SITE_ID']['CURRENT'])
 if (isset($sites[$row['SITE_ID']['CURRENT']]))
 {
 	$domainId = $sites[$row['SITE_ID']['CURRENT']]['DOMAIN_ID'];
+	$isIndex = $row['ID']['CURRENT'] == $sites[$row['SITE_ID']['CURRENT']]['LANDING_ID_INDEX'];
 }
 if (isset($domains[$domainId]))
 {
@@ -67,11 +69,15 @@ if (isset($domains[$domainId]))
 // title
 if ($arParams['LANDING_ID'])
 {
-	$APPLICATION->setTitle(Loc::getMessage('LANDING_TPL_TITLE_EDIT'));
+	Manager::setPageTitle(
+		Loc::getMessage('LANDING_TPL_TITLE_EDIT')
+	);
 }
 else
 {
-	$APPLICATION->setTitle(Loc::getMessage('LANDING_TPL_TITLE_ADD'));
+	Manager::setPageTitle(
+		Loc::getMessage('LANDING_TPL_TITLE_ADD')
+	);
 }
 
 // assets
@@ -92,6 +98,26 @@ $uriSave = new \Bitrix\Main\Web\Uri(\htmlspecialcharsback(POST_FORM_ACTION_URI))
 $uriSave->addParams(array(
 	'action' => 'save'
 ));
+?>
+
+<script type="text/javascript">
+	BX.ready(function()
+	{
+		var editComponent = new BX.Landing.EditComponent();
+		top.window['landingSettingsSaved'] = false;
+		<?if ($arParams['SUCCESS_SAVE']):?>
+		top.window['landingSettingsSaved'] = true;
+		top.BX.onCustomEvent("BX.Main.Filter:apply");
+		editComponent.actionClose();
+		<?endif;?>
+	});
+</script>
+
+<?
+if ($arParams['SUCCESS_SAVE'])
+{
+	return;
+}
 ?>
 
 <form action="<?= \htmlspecialcharsbx($uriSave->getUri());?>" method="post" class="ui-form ui-form-gray-padding landing-form-collapsed landing-form-settings landing-page-set-form" id="landing-page-set-form">
@@ -128,10 +154,22 @@ $uriSave->addParams(array(
 										$request->get('site')
 									);
 								}
+								if ($arResult['FOLDER'])
+								{
+									echo $arResult['FOLDER']['CODE'] . '/';
+								}
 								?>
 							</span>
-							<input type="text" name="fields[CODE]" value="<?= \htmlspecialcharsbx($row['CODE']['CURRENT'])?>" class="ui-input" />
-							<span class="landing-form-site-name-label">/</span>
+							<input type="<?= $isIndex ? 'hidden' : 'text';?>" name="fields[CODE]" value="<?= \htmlspecialcharsbx($row['CODE']['CURRENT'])?>" class="ui-input" />
+							<?= $isIndex ? '' : '<span class="landing-form-site-name-label">/</span>';?>
+							<?if ($isIndex):?>
+								<div class="ui-form-field-description">
+									<?= Loc::getMessage('LANDING_TPL_CODE_SETTINGS', [
+										'#LINK1#' => $arParams['PAGE_URL_SITE_EDIT'] ? '<a href="' . $arParams['PAGE_URL_SITE_EDIT'] . '">' : '',
+										'#LINK2#' => $arParams['PAGE_URL_SITE_EDIT'] ? '</a>' : ''
+									]);?>
+								</div>
+							<?endif;?>
 						</div>
 					</td>
 				</tr>
@@ -191,7 +229,7 @@ $uriSave->addParams(array(
 								<script type="text/javascript">
 									BX.ready(function()
 									{
-										new BX.Landing.EditTitleForm(BX('ui-editable-page-title'));
+										new BX.Landing.EditTitleForm(BX('ui-editable-page-title'), 0, true, true);
 									});
 								</script>
 								<div class="landing-form-social-text-title">
@@ -219,7 +257,7 @@ $uriSave->addParams(array(
 								<script type="text/javascript">
 									BX.ready(function()
 									{
-										new BX.Landing.EditTitleForm(BX('ui-editable-page-text'));
+										new BX.Landing.EditTitleForm(BX('ui-editable-page-text'), 0, true);
 									});
 								</script>
 								<div class="landing-form-social-text">
@@ -257,35 +295,37 @@ $uriSave->addParams(array(
 									$selectParams['options'] = $pageFields['THEME_CODE']->getOptions();
 									$selectParams['value'] = $pageFields['THEME_CODE']->getValue();
 									
-//									set color and border for DEFAULT
-									$selectParams['options'][""]['class'] = 'select-color-popup-menu-item--underline';
+									// set color and border for DEFAULT
+									$selectParams['options']['']['class'] = 'select-color-popup-menu-item--underline';
 									$siteFields = $hooksSite['THEME']->getPageFields();
-									if($value = $siteFields['THEME_CODE']->getValue())
+									if ($value = $siteFields['THEME_CODE']->getValue())
 									{
-//										set color from site
-										$selectParams['options'][""]['color'] = $selectParams['options'][$value]['color'];
+										// set color from site
+										$selectParams['options']['']['color'] = $selectParams['options'][$value]['color'];
 									}
 									else
 									{
-//										set last color
+										// set last color
 										$lastOption = end($selectParams['options']);
-										$selectParams['options'][""]['color'] = $lastOption['color'];
+										$selectParams['options']['']['color'] = $lastOption['color'];
 									}
 									?>
 										
 									<input
 										id="<?=$selectParams['id']?>_select_color"
 										type="hidden"
-										name="<?=$pageFields['THEME_CODE']->getName('fields[ADDITIONAL_FIELDS][#field_code#]')?>"
-										value="<?=$selectParams['value']?>"
+										name="<?= $pageFields['THEME_CODE']->getName('fields[ADDITIONAL_FIELDS][#field_code#]');?>"
+										value="<?= \htmlspecialcharsbx($selectParams['value']);?>"
 									/>
 									
 									<div class="ui-select select-color-wrap"
-										 id="<?=$selectParams['id']?>_select_color_wrap">
+										 id="<?= $selectParams['id'];?>_select_color_wrap">
 									</div>
 
 									<script>
-										var sc = new BX.Landing.SelectColor(<?=\CUtil::PhpToJSObject($selectParams)?>);
+										var sc = new BX.Landing.SelectColor(
+											<?=\CUtil::PhpToJSObject($selectParams);?>
+										);
 										sc.show();
 									</script>
 								</div>
@@ -632,7 +672,7 @@ $uriSave->addParams(array(
 						<?$template->showSimple('GACOUNTER');?>
 						<?$template->showSimple('GTM');?>
 						<?
-						if (in_array(Manager::getZone(), array('ru', 'by', 'kz')))
+						if (Manager::availableOnlyForZone('ru'))
 						{
 							$template->showSimple('YACOUNTER');
 						}
@@ -645,6 +685,20 @@ $uriSave->addParams(array(
 						});
 					</script>
 				</tr>
+				<?endif;?>
+				<?if (isset($hooks['PIXELFB']) || isset($hooks['PIXELVK'])):?>
+					<tr class="landing-form-hidden-row">
+						<td class="ui-form-label ui-form-label-align-top"><?= Loc::getMessage('LANDING_TPL_HOOK_PIXEL');?></td>
+						<td class="ui-form-right-cell ui-form-right-cell-pixel">
+							<?$template->showSimple('PIXELFB');?>
+							<?
+							if (Manager::availableOnlyForZone('ru'))
+							{
+								$template->showSimple('PIXELVK');
+							}
+							?>
+						</td>
+					</tr>
 				<?endif;?>
 				<?if (isset($hooks['METAROBOTS'])):
 					$pageFields = $hooks['METAROBOTS']->getPageFields();
@@ -752,7 +806,7 @@ $uriSave->addParams(array(
 
 	<div class="<?if ($request->get('IFRAME') == 'Y'){?>landing-edit-footer-fixed <?}?>pinable-block">
 		<div class="landing-form-footer-container">
-			<button type="submit" class="ui-btn ui-btn-success"  name="submit"  value="<?= Loc::getMessage('LANDING_TPL_BUTTON_' . ($arParams['SITE_ID'] ? 'SAVE' : 'ADD'));?>">
+			<button id="landing-save-btn" type="submit" class="ui-btn ui-btn-success"  name="submit"  value="<?= Loc::getMessage('LANDING_TPL_BUTTON_' . ($arParams['SITE_ID'] ? 'SAVE' : 'ADD'));?>">
 				<?= Loc::getMessage('LANDING_TPL_BUTTON_' . ($arParams['LANDING_ID'] ? 'SAVE' : 'ADD'))?>
 			</button>
 			<a class="ui-btn ui-btn-md ui-btn-link"<?if ($request->get('IFRAME') == 'Y'){?> id="action-close" href="#"<?} else {?> href="<?= $arParams['PAGE_URL_LANDINGS']?>"<?}?>>
@@ -765,6 +819,7 @@ $uriSave->addParams(array(
 <script type="text/javascript">
 	BX.ready(function()
 	{
+		<?if ($arResult['TEMPLATES']):?>
 		new BX.Landing.Layout({
 			siteId: '<?= $row['SITE_ID']['CURRENT'];?>',
 			landingId: '<?= $row['ID']['CURRENT'];?>',
@@ -780,15 +835,9 @@ $uriSave->addParams(array(
 			,current: 'empty'
 			<?endif;?>
 		});
-		new BX.Landing.EditTitleForm(BX('ui-editable-title'), 600);
+		<?endif;?>
+		new BX.Landing.EditTitleForm(BX('ui-editable-title'), 600, true);
 		new BX.Landing.ToggleFormFields(BX('landing-page-set-form'));
-		// for save
-		var editComponent = new BX.Landing.EditComponent();
-		top.window['landingSettingsSaved'] = false;
-	<?if ($arParams['SUCCESS_SAVE']):?>
-		top.window['landingSettingsSaved'] = true;
-		top.BX.onCustomEvent("BX.Main.Filter:apply");
-		editComponent.actionClose();
-	<?endif;?>
+		new BX.Landing.SaveBtn(BX('landing-save-btn'));
 	});
 </script>

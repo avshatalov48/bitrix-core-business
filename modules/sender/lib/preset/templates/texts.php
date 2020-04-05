@@ -113,12 +113,12 @@ class Texts
 				break;
 			}
 
-			if (!isset($card['COMPANY_NAME']))
+			if (!isset($card['COMPANY_NAME']) || !$card['COMPANY_NAME'])
 			{
 				$card['COMPANY_NAME'] = Loc::getMessage('SENDER_PRESET_TEMPLATE_DEFAULT_COMPANY');
 			}
 
-			if (!isset($card['PHONE']))
+			if (!isset($card['PHONE']) || !$card['PHONE'])
 			{
 				$card['PHONE'] = Loc::getMessage('SENDER_PRESET_TEMPLATE_DEFAULT_PHONE');
 			}

@@ -52,7 +52,10 @@ $actions[] = Controller\Action::create('test')->setHandler(
 
 				if ($option->getType() === \Bitrix\Sender\Message\ConfigurationOption::TYPE_MAIL_EDITOR)
 				{
-					$messageData[$option->getCode()] = Security\Sanitizer::fixReplacedStyles($messageData[$option->getCode()]);
+					$value = $messageData[$option->getCode()];
+					$value = Security\Sanitizer::fixReplacedStyles($value);
+					$value = Security\Sanitizer::sanitizeHtml($value, $option->getValue());
+					$messageData[$option->getCode()] = $value;
 				}
 
 				if ($option->getType() !== \Bitrix\Sender\Message\ConfigurationOption::TYPE_FILE)

@@ -10,6 +10,9 @@ use Bitrix\Main;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
+$publicMode = $adminPage->publicMode;
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions=="D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
@@ -37,33 +40,11 @@ $usedProtocol = ($request->isHttps() ? 'https://' : 'http://');
 $sTableID = "tbl_sale_basket";
 
 $oSort = new CAdminSorting($sTableID, "DATE_UPDATE_MAX", "DESC");
-
-$lAdmin = new CAdminList($sTableID, $oSort);
-
-$arFilterFields = array(
-	"filter_universal",
-	"filter_user_id",
-	"filter_fuser_id",
-	"filter_login",
-	"filter_price_all_from",
-	"filter_price_all_to",
-	"filter_quantity_all_from",
-	"filter_quantity_all_to",
-	"filter_cnt_from",
-	"filter_cnt_to",
-	"filter_basket_type",
-	"filter_date_insert_from",
-	"filter_date_insert_to",
-	"filter_date_update_from",
-	"filter_date_update_to",
-	"filter_product_id",
-	"filter_currency",
-	"filter_lang",
-	"filter_group_id",
-);
+$lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $siteName = Array();
 $serverName = Array();
+$listSite = array();
 $b = "sort";
 $o = "asc";
 $dbSite = CSite::GetList($b, $o, array());
@@ -71,6 +52,7 @@ while ($arSite = $dbSite->Fetch())
 {
 	$serverName[$arSite["LID"]] = $arSite["SERVER_NAME"];
 	$siteName[$arSite["LID"]] = $arSite["NAME"];
+	$listSite[$arSite["LID"]] = $arSite["NAME"]." [".$arSite["LID"]."]";
 	if (strlen($serverName[$arSite["LID"]]) <= 0)
 	{
 		if (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0)
@@ -93,100 +75,149 @@ while ($arAccessibleSite = $dbAccessibleSites->Fetch())
 		$arAccessibleSites[] = $arAccessibleSite["SITE_ID"];
 }
 
-$lAdmin->InitFilter($arFilterFields);
+$listGroup = array();
+$groupQueryObject = CGroup::getDropDownList("AND ID!=2");
+while ($group = $groupQueryObject->fetch())
+{
+	$listGroup[$group["REFERENCE_ID"]] = $group["REFERENCE"];
+}
+$listCurrency = array();
+$currencyList = Bitrix\Currency\CurrencyManager::getCurrencyList();
+foreach ($currencyList as $currencyId => $currencyName)
+{
+	$listCurrency[$currencyId] = $currencyName;
+}
+
+$filterFields = array(
+	array(
+		"id" => "NAME_SEARCH",
+		"name" => GetMessage('SB_UNIVERSAL'),
+		"filterable" => "%",
+		"quickSearch" => "%",
+		"default" => true
+	),
+	array(
+		"id" => "USER_ID",
+		"name" => GetMessage('SB_USER_ID'),
+		"type" => "custom_entity",
+		"selector" => array("type" => "user"),
+		"filterable" => ""
+	),
+	array(
+		"id" => "FUSER_ID",
+		"name" => GetMessage('SB_FUSER_ID'),
+		"type" => "number",
+		"filterable" => ""
+	),
+	array(
+		"id" => "USER_LOGIN",
+		"name" => GetMessage("SB_USER_LOGIN"),
+		"filterable" => "",
+		"default" => true
+	),
+	array(
+		"id" => "PRICE_ALL",
+		"name" => GetMessage("SB_PRICE_ALL"),
+		"type" => "number",
+		"filterable" => ""
+	),
+	array(
+		"id" => "QUANTITY_ALL",
+		"name" => GetMessage("SB_QUANTITY_ALL"),
+		"type" => "number",
+		"filterable" => ""
+	),
+	array(
+		"id" => "PR_COUNT",
+		"name" => GetMessage("SB_CNT"),
+		"type" => "number",
+		"filterable" => ""
+	),
+	array(
+		"id" => "BASKET_TYPE",
+		"name" => GetMessage("SB_BASKET_TYPE"),
+		"type" => "list",
+		"items" => array(
+			"CAN_BUY" => GetMessage("SB_TYPE_CAN_BUY"),
+			"DELAY" => GetMessage("SB_TYPE_DELAY"),
+			"SUBSCRIBE" => GetMessage("SB_TYPE_SUBCRIBE"),
+		),
+		"filterable" => ""
+	),
+	array(
+		"id" => "DATE_INSERT",
+		"name" => GetMessage("SB_DATE_INSERT"),
+		"type" => "date",
+		"filterable" => ""
+	),
+	array(
+		"id" => "DATE_UPDATE",
+		"name" => GetMessage("SB_DATE_UPDATE"),
+		"type" => "date",
+		"filterable" => ""
+	),
+	array(
+		"id" => "PRODUCT_ID",
+		"name" => GetMessage("SB_QUANTITY_ALL"),
+		"type" => "custom_entity",
+		"selector" => array("type" => "product"),
+		"filterable" => ""
+	),
+	array(
+		"id" => "CURRENCY",
+		"name" => GetMessage("SB_CURRENCY"),
+		"type" => "list",
+		"items" => $listCurrency,
+		"filterable" => ""
+	),
+	array(
+		"id" => "USER_GROUP_ID",
+		"name" => GetMessage("SB_USER_GROUP_ID"),
+		"type" => "list",
+		"items" => $listGroup,
+		"params" => array("multiple" => "Y"),
+		"filterable" => ""
+	),
+	array(
+		"id" => "LID",
+		"name" => GetMessage("SB_LID"),
+		"type" => "list",
+		"items" => $listSite,
+		"filterable" => ""
+	),
+);
+$filterPresets = array(
+	"find_1" => array(
+		"name" => GetMessage("SB_FILTER_WEEK")
+	),
+	"find_2" => array(
+		"name" => GetMessage("SB_FILTER_ALL")
+	),
+	"find_3" => array(
+		"name" => GetMessage("SB_FILTER_PRD")
+	)
+);
+$lAdmin->setFilterPresets($filterPresets);
 
 $arFilter = array("ORDER_ID" => false);
 
-if (IntVal($filter_user_id) > 0)
-	$arFilter["USER_ID"] = IntVal($filter_user_id);
-if (IntVal($filter_fuser_id) > 0)
-	$arFilter["FUSER_ID"] = IntVal($filter_fuser_id);
-if (strlen($filter_login) > 0)
-	$arFilter["USER_LOGIN"] = $filter_login;
-if (strlen($filter_currency) > 0)
-	$arFilter["CURRENCY"] = $filter_currency;
-if (IntVal($filter_price_all_from) > 0)
-	$arFilter[">=PRICE_ALL"] = IntVal($filter_price_all_from);
-if (IntVal($filter_price_all_to) > 0)
-	$arFilter["<PRICE_ALL"] = IntVal($filter_price_all_to);
-if (IntVal($filter_quantity_all_from) > 0)
-	$arFilter[">=QUANTITY_ALL"] = IntVal($filter_quantity_all_from);
-if (IntVal($filter_quantity_all_to) > 0)
-	$arFilter["<QUANTITY_ALL"] = IntVal($filter_quantity_all_to);
-if (IntVal($filter_cnt_from) > 0)
-	$arFilter[">=PR_COUNT"] = IntVal($filter_cnt_from);
-if (IntVal($filter_cnt_to) > 0)
-	$arFilter["<PR_COUNT"] = IntVal($filter_cnt_to);
-if (isset($filter_universal) && strlen($filter_universal) > 0)
-	$arFilter["%NAME_SEARCH"] = trim($filter_universal);
+$lAdmin->AddFilter($filterFields, $arFilter);
 
-if(strlen($filter_basket_type) > 0)
+if (isset($arFilter["BASKET_TYPE"]))
 {
-	if($filter_basket_type == "CAN_BUY")
-		$arFilter["CAN_BUY"] = "Y";
-	if($filter_basket_type == "DELAY")
-		$arFilter["DELAY"] = "Y";
-	if($filter_basket_type == "SUBSCRIBE")
-		$arFilter["SUBSCRIBE"] = "Y";
-}
-if (strlen($filter_date_insert_from)>0) $arFilter[">=DATE_INSERT"] = Trim($filter_date_insert_from);
-if (strlen($filter_date_insert_to)>0)
-{
-	if ($arDate = ParseDateTime($filter_date_insert_to, CSite::GetDateFormat("FULL", SITE_ID)))
+	switch ($arFilter["BASKET_TYPE"])
 	{
-		if (StrLen($filter_date_insert_to) < 11)
-		{
-			$arDate["HH"] = 23;
-			$arDate["MI"] = 59;
-			$arDate["SS"] = 59;
-		}
-
-		$filter_date_insert_to = date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL", SITE_ID)), mktime($arDate["HH"], $arDate["MI"], $arDate["SS"], $arDate["MM"], $arDate["DD"], $arDate["YYYY"]));
-		$arFilter["<=DATE_INSERT"] = $filter_date_insert_to;
+		case "CAN_BUY":
+			$arFilter["CAN_BUY"] = "Y";
+			break;
+		case "DELAY":
+			$arFilter["DELAY"] = "Y";
+			break;
+		case "SUBSCRIBE":
+			$arFilter["SUBSCRIBE"] = "Y";
+			break;
 	}
-	else
-	{
-		$filter_date_insert_to = "";
-	}
-}
-if (strlen($filter_date_update_from)>0) $arFilter[">=DATE_UPDATE"] = Trim($filter_date_update_from);
-if (strlen($filter_date_update_to)>0)
-{
-	if ($arDate = ParseDateTime($filter_date_update_to, CSite::GetDateFormat("FULL", SITE_ID)))
-	{
-		if (StrLen($filter_date_update_to) < 11)
-		{
-			$arDate["HH"] = 23;
-			$arDate["MI"] = 59;
-			$arDate["SS"] = 59;
-		}
-
-		$filter_date_update_to = date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL", SITE_ID)), mktime($arDate["HH"], $arDate["MI"], $arDate["SS"], $arDate["MM"], $arDate["DD"], $arDate["YYYY"]));
-		$arFilter["<=DATE_UPDATE"] = $filter_date_update_to;
-	}
-	else
-	{
-		$filter_date_update_to = "";
-	}
-}
-if (strlen($filter_product_id) > 0)
-	$arFilter["PRODUCT_ID"] = $filter_product_id;
-
-if (is_array($filter_lang) && count($filter_lang) > 0)
-{
-	foreach($filter_lang as $v)
-	{
-		if(strlen($v) > 0 && (empty($arAccessibleSites) || in_array($v, $arAccessibleSites)))
-			$arFilter["LID"][] = $v;
-	}
-}
-if (is_array($filter_group_id) && count($filter_group_id) > 0)
-{
-	foreach($filter_group_id as $v)
-	{
-		if(IntVal($v) > 0)
-			$arFilter["USER_GROUP_ID"][] = $v;
-	}
+	unset($arFilter["BASKET_TYPE"]);
 }
 
 if(!$USER->IsAdmin() && !empty($arAccessibleSites) && count($arAccessibleSites) != count($siteName))
@@ -204,43 +235,26 @@ if (isset($_REQUEST['action']))
 		{
 			$userID = IntVal($_REQUEST["USER_ID"]);
 			$siteID = $_REQUEST["SITE_ID"];
-			$url = "/bitrix/admin/sale_order_create.php?lang=".LANG."&SITE_ID=".$siteID."&USER_ID=".$userID."&FUSER_ID=".$fuserID."&ABANDONED=Y";
-
-			$dbBasketList = CSaleBasket::GetList(
-				array("ID" => "ASC"),
-				array(
-					"FUSER_ID" => $fuserID,
-					"LID" => $siteID,
-					// "CAN_BUY" => "Y",
-					// "DELAY" => "N",
-					"ORDER_ID" => false,
-				),
-				false,
-				false,
-				array("ID", "PRODUCT_ID", "CAN_BUY", "DELAY", "SUBSCRIBE", "QUANTITY")
-			);
-			$arID = Array();
-			while($arItems = $dbBasketList->Fetch())
+			if ($publicMode)
 			{
-				if($arItems["CAN_BUY"] == "Y" && $arItems["DELAY"] == "N")
-				{
-					$arID[] = $arItems["ID"];
-				}
-				elseif($arItems["DELAY"] == "Y")
-				{
-					$url .= "&productDelay[]=".$arItems["PRODUCT_ID"];
-				}
-				elseif($arItems["SUBSCRIBE"] == "Y")
-				{
-					$url .= "&productSub[]=".$arItems["PRODUCT_ID"];
-				}
-				else
-				{
-					$url .= "&productNA[]=".$arItems["PRODUCT_ID"];
-				}
+				$url = "/shop/orders/details/0/?lang=".LANG."&SITE_ID=".$siteID."&USER_ID=".$userID."&FUSER_ID=".$fuserID."&ABANDONED=Y";
+			}
+			else
+			{
+				$url = $selfFolderUrl."sale_order_create.php?lang=".LANG."&SITE_ID=".$siteID."&USER_ID=".$userID."&FUSER_ID=".$fuserID."&ABANDONED=Y";
 			}
 
-			if (count($arID) > 0)
+			$basketData = \Bitrix\Sale\Basket::getList([
+				'filter' => [
+					"=FUSER_ID" => $fuserID,
+					"=LID" => $siteID,
+					"=ORDER_ID" => false,
+					"CAN_BUY" => "Y",
+					"DELAY" => "N",
+				],
+				'limit' => 1
+			]);
+			if ($basketData->fetch())
 			{
 				LocalRedirect($url);
 				die();
@@ -249,17 +263,16 @@ if (isset($_REQUEST['action']))
 	}
 }
 
-$dbResultList = CSaleBasket::GetLeave(
-	array($by => $order),
-	$arFilter,
-	false,
-	array("nPageSize"=>CAdminResult::GetNavSize($sTableID))
-);
+global $by, $order;
+$by = (isset($by) ? $by : "NAME_SEARCH");
+$order = (isset($order) ? $order : "ASC");
 
-$dbResultList = new CAdminResult($dbResultList, $sTableID);
+$dbResultList = CSaleBasket::GetLeave(array($by => $order), $arFilter);
+
+$dbResultList = new CAdminUiResult($dbResultList, $sTableID);
 $dbResultList->NavStart();
 
-$lAdmin->NavText($dbResultList->GetNavPrint(GetMessage("SB_NAV")));
+$lAdmin->SetNavigationParams($dbResultList, array("BASE_LINK" => $selfFolderUrl."sale_basket.php"));
 
 $lAdmin->AddHeaders(array(
 	array("id" => "DATE_UPDATE_MAX", "content" => GetMessage("SB_DATE_UPDATE"), "sort" => "DATE_UPDATE_MAX", "default" => true),
@@ -287,9 +300,15 @@ while ($arBasket = $dbResultList->Fetch())
 	$fieldValue = GetMessage("SB_NOT_AUTH");
 	if((int)$arBasket["USER_ID"] > 0)
 	{
-		$fieldValue = "[<a href=\"/bitrix/admin/user_edit.php?ID=".$arBasket["USER_ID"]."&lang=".LANG."\" title=\"".GetMessage("SB_USER_INFO")."\">".$arBasket["USER_ID"]."</a>] ";
+		$userEditUrl = $selfFolderUrl."user_edit.php?ID=".$arBasket["USER_ID"]."&lang=".LANGUAGE_ID;
+		if ($publicMode)
+		{
+			$userEditUrl = $selfFolderUrl."sale_buyers_profile.php?USER_ID=".$arBasket["USER_ID"]."&lang=".LANGUAGE_ID;
+			$userEditUrl = $adminSidePanelHelper->editUrlToPublicPage($userEditUrl);
+		}
+		$fieldValue = "[<a href=".$userEditUrl." title=\"".GetMessage("SB_USER_INFO")."\">".$arBasket["USER_ID"]."</a>] ";
 		$fieldValue .= " (".htmlspecialcharsEx($arBasket["USER_LOGIN"]).") ";
-		$fieldValue .= "<a href=\"sale_buyers_profile.php?USER_ID=".$arBasket["USER_ID"]."&lang=".LANG."\" title=\"".GetMessage("SB_FUSER_INFO")."\">".htmlspecialcharsEx($arBasket["USER_NAME"].((strlen($arBasket["USER_NAME"])<=0 || strlen($arBasket["USER_LAST_NAME"])<=0) ? "" : " ").$arBasket["USER_LAST_NAME"])."</a><br />";
+		$fieldValue .= "<a href=\"".$userEditUrl."\" title=\"".GetMessage("SB_FUSER_INFO")."\">".htmlspecialcharsEx($arBasket["USER_NAME"].((strlen($arBasket["USER_NAME"])<=0 || strlen($arBasket["USER_LAST_NAME"])<=0) ? "" : " ").$arBasket["USER_LAST_NAME"])."</a><br />";
 		$fieldValue .= "<a href=\"mailto:".htmlspecialcharsEx($arBasket["USER_EMAIL"])."\" title=\"".GetMessage("SB_MAILTO")."\">".htmlspecialcharsEx($arBasket["USER_EMAIL"])."</a>";
 	}
 	$row->AddField("USER_ID", $fieldValue);
@@ -350,6 +369,19 @@ while ($arBasket = $dbResultList->Fetch())
 				$url = $usedProtocol.$serverName[$arB["LID"]].$arB["DETAIL_PAGE_URL"];
 			else
 				$url = $arB["DETAIL_PAGE_URL"];
+
+			if ($publicMode)
+			{
+				$elementQueryObject = CIBlockElement::getList(array(), array(
+					"ID" => $arB["PRODUCT_ID"]), false, false, array("IBLOCK_ID", "IBLOCK_TYPE_ID"));
+				if ($elementData = $elementQueryObject->fetch())
+				{
+					$url = $selfFolderUrl."cat_product_edit.php?IBLOCK_ID=".$elementData["IBLOCK_ID"].
+						"&type=".$elementData["IBLOCK_TYPE_ID"]."&ID=".$arB["PRODUCT_ID"]."&lang=".LANGUAGE_ID."&WF=Y";
+					$url = $adminSidePanelHelper->editUrlToPublicPage($url);
+				}
+			}
+
 			$basketName .= "<nobr><a href=\"".$url."\">";
 			$basket .= "<nobr><a href=\"".$url."\">";
 		}
@@ -380,281 +412,46 @@ while ($arBasket = $dbResultList->Fetch())
 	$row->AddField("BASKET_QUANTITY", $basketQuantity);
 
 	$arActions = Array();
-	$arActions[] = array("ICON"=>"", "TEXT"=>GetMessage("SB_CREATE_ORDER"), "ACTION"=>$lAdmin->ActionRedirect("sale_basket.php?FUSER_ID=".$arBasket["FUSER_ID"]."&SITE_ID=".$arBasket["LID"]."&USER_ID=".$arBasket["USER_ID"]."&action=order_basket&lang=".LANG), "DEFAULT" => true);
-
-	if((int)$arBasket["USER_ID"] > 0)
+	$orderAction = array(
+		"ICON" => "",
+		"TEXT" => GetMessage("SB_CREATE_ORDER"),
+		"ACTION" => $lAdmin->ActionRedirect("sale_basket.php?FUSER_ID=".$arBasket["FUSER_ID"]."&SITE_ID=".
+			$arBasket["LID"]."&USER_ID=".$arBasket["USER_ID"]."&action=order_basket&lang=".LANGUAGE_ID),
+		"DEFAULT" => true
+	);
+	if ($publicMode)
 	{
-		$arActions[] = array("ICON"=>"", "TEXT"=>GetMessage("SB_FUSER_INFO"), "ACTION"=>$lAdmin->ActionRedirect("sale_buyers_profile.php?USER_ID=".$arBasket["USER_ID"]."&lang=".LANG));
+		$orderAction["ACTION"] = "top.BX.adminSidePanel.onOpenPage('/shop/orders/details/0/?USER_ID=".
+			CUtil::JSEscape($arBasket["USER_ID"])."&lang=".LANGUAGE_ID."&SITE_ID=".CUtil::JSEscape($arBasket["LID"]).
+			CUtil::JSEscape($productId)."');";
+	}
+	$arActions[] = $orderAction;
+
+	if ((int)$arBasket["USER_ID"] > 0)
+	{
+		$profileLink = $selfFolderUrl."sale_buyers_profile.php?USER_ID=".$arBasket["USER_ID"]."&lang=".LANGUAGE_ID;
+		$profileLink = $adminSidePanelHelper->editUrlToPublicPage($profileLink);
+		$arActions[] = array(
+			"TEXT" => GetMessage("SB_FUSER_INFO"),
+			"LINK" => $profileLink
+		);
 	}
 
 	$row->AddActions($arActions);
 }
 
-
-$arFooterArray = array(
-	array(
-		"title" => GetMessage("MAIN_ADMIN_LIST_SELECTED"),
-		"value" => $dbResultList->SelectedRowsCount()
-	),
-);
-
-$lAdmin->AddFooter($arFooterArray);
-
-$aContext = Array();
+$aContext = array();
+$lAdmin->setContextSettings(array("pagePath" => $selfFolderUrl."sale_basket.php"));
 $lAdmin->AddAdminContextMenu($aContext);
 
 $lAdmin->CheckListMode();
-
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
 $APPLICATION->SetTitle(GetMessage("SB_TITLE"));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-?>
-<form name="find_form" method="GET" action="<?echo $APPLICATION->GetCurPage()?>?">
-<?
-$oFilter = new CAdminFilter(
-	$sTableID."_filter",
-	array(
-		"find_universal" => GetMessage("SB_UNIVERSAL"),
-		"find_user" => GetMessage("SB_USER_ID"),
-		"find_fuser" => GetMessage("SB_FUSER_ID"),
-		"find_user_login" => GetMessage("SB_USER_LOGIN"),
-		"find_price" => GetMessage("SB_PRICE_ALL"),
-		"find_quantity" => GetMessage("SB_QUANTITY_ALL"),
-		"find_cnt" => GetMessage("SB_CNT"),
-		"find_bt" => GetMessage("SB_BASKET_TYPE"),
-		"find_di" => GetMessage("SB_DATE_INSERT"),
-		"find_du" => GetMessage("SB_DATE_UPDATE"),
-		"find_pi" => GetMessage("SB_PRODUCT_ID"),
-		"find_cur" => GetMessage("SB_CURRENCY"),
-		"find_ug" => GetMessage("SB_USER_GROUP_ID"),
-		"find_lid" => GetMessage("SB_LID"),
-	)
-);
 
-$oFilter->SetDefaultRows(Array("find_universal", "find_price", "find_ug", "find_quantity"));
-$oFilter->AddPreset(array(
-		"ID" => "find_1",
-		"NAME" => GetMessage("SB_FILTER_WEEK"),
-		"FIELDS" => array(
-			"filter_date_update_from_FILTER_PERIOD" => "week",
-			"filter_date_update_from_FILTER_DIRECTION" => "previous",
-			"filter_date_update_from" => ConvertTimeStamp(AddToTimeStamp(Array("DD" => -7))),
-			),
-		"SORT_FIELD" => Array("PRICE_ALL" => "DESC"),
-	));
-$oFilter->AddPreset(array(
-		"ID" => "find_2",
-		"NAME" => GetMessage("SB_FILTER_ALL"),
-		"FIELDS" => array("find_user" => ""),
-		"SORT_FIELD" => Array("PRICE_ALL" => "DESC"),
-	));
-$oFilter->AddPreset(array(
-		"ID" => "find_3",
-		"NAME" => GetMessage("SB_FILTER_PRD"),
-		"FIELDS" => array("find_user" => ""),
-		"SORT_FIELD" => Array("PR_COUNT" => "DESC"),
-	));
-
-$oFilter->Begin();
-?>
-	<tr>
-		<td><?echo GetMessage("SB_UNIVERSAL")?>:</td>
-		<td>
-			<input type="text" name="filter_universal" value="<?echo htmlspecialcharsbx($filter_universal)?>" size="40">
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SB_USER_ID")?>:</td>
-		<td>
-			<?echo FindUserID("filter_user_id", $filter_user_id, "", "find_form");?>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SB_FUSER_ID")?>:</td>
-		<td>
-			<input type="text" name="filter_fuser_id" size="50" value="<?=((intval($filter_fuser_id) > 0) ? intval($filter_fuser_id):"")?>">
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SB_USER_LOGIN")?>:</td>
-		<td>
-			<input type="text" name="filter_login" size="50" value="<?= htmlspecialcharsbx($filter_login) ?>">
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SB_PRICE_ALL");?>:</td>
-		<td>
-			<?echo GetMessage("SB_F_FROM");?>
-			<input type="text" name="filter_price_all_from" id="filter_price_all_from" value="<?echo (IntVal($filter_price_all_from) > 0) ? IntVal($filter_price_all_from):""?>" size="10">
-			<?echo GetMessage("SB_F_TO");?>
-			<input type="text" name="filter_price_all_to" id="filter_price_all_to" value="<?echo (IntVal($filter_price_all_to)>0)?IntVal($filter_price_all_to):""?>" size="10">
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SB_QUANTITY_ALL");?>:</td>
-		<td>
-			<?echo GetMessage("SB_F_FROM");?>
-			<input type="text" name="filter_quantity_all_from" value="<?echo (IntVal($filter_quantity_all_from) > 0) ? IntVal($filter_quantity_all_from):""?>" size="10">
-			<?echo GetMessage("SB_F_TO");?>
-			<input type="text" name="filter_quantity_all_to" value="<?echo (IntVal($filter_quantity_all_to)>0)?IntVal($filter_quantity_all_to):""?>" size="10">
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SB_CNT");?>:</td>
-		<td>
-			<?echo GetMessage("SB_F_FROM");?>
-			<input type="text" name="filter_cnt_from" value="<?echo (IntVal($filter_price_all_from) > 0) ? IntVal($filter_cnt_from):""?>" size="10">
-			<?echo GetMessage("SB_F_TO");?>
-			<input type="text" name="filter_cnt_to" value="<?echo (IntVal($filter_cnt_to)>0)?IntVal($filter_cnt_to):""?>" size="10">
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SB_BASKET_TYPE")?>:</td>
-		<td>
-			<select name="filter_basket_type">
-				<option value=""<?if(empty($filter_basket_type)) echo " selected"?>><?echo GetMessage("SB_ALL")?></option>
-				<option value="CAN_BUY"<?if($filter_basket == "CAN_BUY") echo " selected"?>><?=GetMessage("SB_TYPE_CAN_BUY")?></option>
-				<option value="DELAY"<?if($filter_basket_type == "DELAY") echo " selected"?>><?=GetMessage("SB_TYPE_DELAY")?></option>
-				<option value="SUBSCRIBE"<?if($filter_basket_type == "SUBSCRIBE") echo " selected"?>><?=GetMessage("SB_TYPE_SUBCRIBE")?></option>
-			</select>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SB_DATE_INSERT");?>:</td>
-		<td>
-			<?echo CalendarPeriod("filter_date_insert_from", $filter_date_insert_from, "filter_date_insert_to", $filter_date_insert_to, "find_form", "Y")?>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SB_DATE_UPDATE");?>:</td>
-		<td>
-			<?echo CalendarPeriod("filter_date_update_from", $filter_date_update_from, "filter_date_update_to", $filter_date_update_to, "find_form", "Y")?>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SB_PRODUCT_ID")?></td>
-		<td>
-			<script language="JavaScript">
-			<!--
-			function getProductData(arParams)
-			{
-				var productId = arParams['id'],
-					dateURL = '<?=bitrix_sessid_get()?>&ORDER_AJAX=Y&get_product_params=Y&LID=<?=CUtil::JSEscape($LID)?>&productId=' + productId;
-
-				BX.showWait();
-
-				BX.ajax.post(
-					'/bitrix/admin/sale_order_new.php',
-					dateURL,
-					getProductDataResult
-				);
-			}
-
-			function getProductDataResult(result)
-			{
-				BX.closeWait();
-				var res = eval( '('+result+')' ),
-					params = res['params'];
-
-				if (params["id"])
-					BX('filter_product_id').value = params["id"];
-
-				if (params["name"])
-				{
-					el = BX("product_name_alt");
-					if(el)
-						el.innerHTML = params["name"];
-				}
-			}
-
-			function showProductSearchDialog()
-			{
-				var popup = makeProductSearchDialog({
-					caller: 'basket_admin',
-					lang: '<?=LANGUAGE_ID?>',
-					callback: 'getProductData'
-				});
-				popup.Show();
-			}
-
-			function makeProductSearchDialog(params)
-			{
-				var caller = params.caller || '',
-					lang = params.lang || 'ru',
-					site_id = params.site_id || '',
-					callback = params.callback || '',
-					store_id = params.store_id || '0';
-
-				var popup = new BX.CDialog({
-					content_url: '/bitrix/tools/sale/product_search_dialog.php?lang='+lang+'&LID='+site_id+'&caller=' + caller + '&func_name='+callback+'&STORE_FROM_ID='+store_id,
-					height: Math.max(500, window.innerHeight-400),
-					width: Math.max(800, window.innerWidth-400),
-					draggable: true,
-					resizable: true,
-					min_height: 500,
-					min_width: 800
-				});
-				BX.addCustomEvent(popup, 'onWindowRegister', BX.defer(function(){
-					popup.Get().style.position = 'fixed';
-					popup.Get().style.top = (parseInt(popup.Get().style.top) - BX.GetWindowScrollPos().scrollTop) + 'px';
-				}));
-				return popup;
-			}
-
-
-			//-->
-			</script>
-			<input name="filter_product_id" id="filter_product_id" value="<?= htmlspecialcharsbx($filter_product_id) ?>" size="5" type="text">&nbsp;<input type="button" value="..." id="cat_prod_button" onClick="showProductSearchDialog()"><span id="product_name_alt" class="adm-filter-text-search"></span>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SB_CURRENCY")?>:</td>
-		<td align="left">
-			<?= CCurrency::SelectBox("filter_currency", $filter_currency, GetMessage("SB_ALL"), True, "", ""); ?>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SB_USER_GROUP_ID")?>:</td>
-		<td>
-			<?
-			$z = CGroup::GetDropDownList("AND ID!=2");
-			echo SelectBoxM("filter_group_id[]", $z, $filter_group_id, "", false, 5);
-			?>
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("SB_LID");?>:</td>
-		<td>
-			<select name="filter_lang[]" multiple size="5">
-				<option value=""<?if(empty($filter_lang)) echo " selected"?>><?=GetMessage("SB_ALL")?></option>
-				<?
-				foreach($siteName as $id => $val)
-				{
-					if (!in_array($id, $arAccessibleSites)
-						&& $saleModulePermissions < "W")
-						continue;
-
-					?><option value="<?= htmlspecialcharsbx($id)?>"<?if(is_array($filter_lang) && in_array($id, $filter_lang)) echo " selected";?>>[<?= htmlspecialcharsbx($id) ?>]&nbsp;<?= htmlspecialcharsbx($val) ?></option><?
-				}
-				?>
-			</select>
-		</td>
-	</tr>
-<?
-$oFilter->Buttons(
-	array(
-		"table_id" => $sTableID,
-		"url" => $APPLICATION->GetCurPage(),
-		"form" => "find_form"
-	)
-);
-$oFilter->End();
-?>
-</form>
-<?
-
+$lAdmin->DisplayFilter($filterFields);
 $lAdmin->DisplayList();
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

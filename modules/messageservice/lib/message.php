@@ -53,7 +53,10 @@ class Message
 		if (!$sender && isset($fields['SENDER_ID']))
 		{
 			$sender = Sender\SmsManager::getSenderById($fields['SENDER_ID']);
-			$message->setSender($sender);
+			if ($sender)
+			{
+				$message->setSender($sender);
+			}
 		}
 		if (isset($fields['TYPE']))
 			$message->setType($fields['TYPE']);

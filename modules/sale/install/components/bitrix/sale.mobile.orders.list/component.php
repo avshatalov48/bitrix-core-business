@@ -183,7 +183,7 @@ while ($arOrderItem = $dbOrderList->GetNext())
 	else
 		$arOrderItem["ADD_ORDER_STEP"] = 'step1';
 
-	$arOrderItem["ORDER_DETAIL_LINK"] = $arResult["ORDER_DETAIL_PATH"]."?id=".urlencode(urlencode($arOrderItem["ACCOUNT_NUMBER"]));
+	$arOrderItem["ORDER_DETAIL_LINK"] = $arResult["ORDER_DETAIL_PATH"]."?id=".(int)$arOrderItem["ID"];
 	$arOrderItem["DATE_UPDATE"] = CSaleMobileOrderUtils::getDateTime($arOrderItem["DATE_UPDATE"]);
 	$arOrderItem["PRICE_DELIVERY"] = SaleFormatCurrency($arOrderItem["PRICE_DELIVERY"], $arOrderItem["CURRENCY"]);
 	$arOrderItem["SUM_PAID"] = SaleFormatCurrency($arOrderItem["SUM_PAID"], $arOrderItem["CURRENCY"]);

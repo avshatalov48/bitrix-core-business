@@ -31,4 +31,5 @@ $MESS["MYMS_PARAM_DATA_GET_KEY_URL"] = "http://api.yandex.ru/maps/form.xml";
 $MESS["MYMS_PARAM_MAP_HEIGHT"] = "Высота карты";
 $MESS["MYMS_PARAM_MAP_WIDTH"] = "Ширина карты";
 $MESS["MYMS_PARAM_MAP_ID"] = "Идентификатор карты";
+$MESS["MYMS_PARAM_API_KEY"] = "Ключ API";
 ?>

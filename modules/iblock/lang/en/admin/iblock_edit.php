@@ -230,7 +230,6 @@ $MESS["IB_E_SHOW_ADD_PROP_ROW"] = "More";
 $MESS["IB_E_SHOW_ADD_PROP_ROW_DESCR"] = "Add one more property";
 $MESS["IB_E_OF_PROPERTY_DETAIL"] = "SKU Property Parameters";
 $MESS["IB_E_IB_PROPERTY_DETAIL"] = "Information Block Property Parameters";
-$MESS["IB_E_CAT_CONFIRM"] = "All the product properties (stock, weight) and the price offers will be deleted. Are you sure you want to delete them?";
 $MESS["IB_E_URL_PRODUCT_ID"] = "Commercial catalog element path";
 $MESS["IB_E_RIGHTS_MODE_SECTION_TITLE"] = "Access permission mode";
 $MESS["IB_E_RIGHTS_MODE"] = "Extended permission management:";

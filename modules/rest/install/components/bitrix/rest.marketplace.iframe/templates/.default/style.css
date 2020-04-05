@@ -1,0 +1,20 @@
+.rest-mp-slider-body {
+	height: auto;
+}
+
+.rest-mp-slider-wrap {
+	margin: 21px 25px 25px 25px;
+}
+
+.rest-mp-title {
+	display: block;
+	overflow: hidden;
+	margin: 0;
+	font-size: 21px;
+	color: #525c69;
+	font-family: "OpenSans-Light", Helvetica, Arial, sans-serif;
+}
+
+.main-ui-filter-search {
+	width: 100%;
+}

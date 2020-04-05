@@ -25,4 +25,5 @@ $MESS["SPOL_ORDER_LIST_DEFAULT_SORT"] = "Сортировка заказов";
 $MESS["SPOL_RESTRICT_CHANGE_PAYSYSTEM"] = "Запретить смену платежной системы у заказов в статусах";
 $MESS["SPOL_REFRESH_PRICE_AFTER_PAYSYSTEM_CHANGE"] = "Пересчитывать заказ после смены платежной системы";
 $MESS["SPOL_NOT_CHOSEN"] = "(не выбрано)";
+$MESS["SPOL_DISALLOW_CANCEL"] = "Запретить отмену заказа";
 ?>

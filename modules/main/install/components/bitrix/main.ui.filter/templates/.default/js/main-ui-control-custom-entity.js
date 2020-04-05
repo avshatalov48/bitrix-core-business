@@ -93,7 +93,10 @@
 
 		getSquareByValue: function(value)
 		{
-			return BX.Filter.Utils.getBySelector(this.getField(), '[data-item*=":'+BX.util.jsencode(value)+'}"]');
+			return BX.Filter.Utils.getBySelector(this.getField(), [
+				'[data-item*=":'+BX.util.jsencode(value)+'}"]',
+				'[data-item*=":\\"'+BX.util.jsencode(value)+'\\"}"]'
+			].join(', '));
 		},
 
 		getSquares: function()

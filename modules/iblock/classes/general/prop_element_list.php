@@ -19,6 +19,7 @@ class CIBlockPropertyElementList
 			"GetPublicEditHTML" => array(__CLASS__, "GetPropertyFieldHtml"),
 			"GetPublicEditHTMLMulty" => array(__CLASS__, "GetPropertyFieldHtmlMulty"),
 			"GetPublicViewHTML" => array(__CLASS__,  "GetPublicViewHTML"),
+			"GetUIFilterProperty" => array(__CLASS__, "GetUIFilterProperty"),
 			"GetAdminFilterHTML" => array(__CLASS__, "GetAdminFilterHTML"),
 			"PrepareSettings" =>array(__CLASS__, "PrepareSettings"),
 			"GetSettingsHTML" =>array(__CLASS__, "GetSettingsHTML"),
@@ -221,6 +222,61 @@ class CIBlockPropertyElementList
 		return  $html;
 	}
 
+	public static function GetUIFilterProperty($arProperty, $strHTMLControlName, &$fields)
+	{
+		$fields["type"] = "list";
+		$fields["items"] = self::getItemsForUiFilter($arProperty);
+	}
+
+	private static function getItemsForUiFilter($arProperty)
+	{
+		$items = array();
+		$settings = CIBlockPropertyElementList::PrepareSettings($arProperty);
+
+		if ($settings["group"] === "Y")
+		{
+			$arElements = CIBlockPropertyElementList::GetElements($arProperty["LINK_IBLOCK_ID"]);
+			$arTree = CIBlockPropertyElementList::GetSections($arProperty["LINK_IBLOCK_ID"]);
+			foreach ($arElements as $i => $arElement)
+			{
+				if(
+					$arElement["IN_SECTIONS"] == "Y"
+					&& array_key_exists($arElement["IBLOCK_SECTION_ID"], $arTree)
+				)
+				{
+					$arTree[$arElement["IBLOCK_SECTION_ID"]]["E"][] = $arElement;
+					unset($arElements[$i]);
+				}
+			}
+
+			// todo add <optgroup> for ui filter
+			foreach ($arTree as $arSection)
+			{
+				if (isset($arSection["E"]))
+				{
+					foreach ($arSection["E"] as $arItem)
+					{
+						$items[$arItem["ID"]] = $arItem["NAME"];
+					}
+				}
+			}
+			foreach ($arElements as $arItem)
+			{
+				$items[$arItem["ID"]] = $arItem["NAME"];
+			}
+
+		}
+		else
+		{
+			foreach (CIBlockPropertyElementList::GetElements($arProperty["LINK_IBLOCK_ID"]) as $arItem)
+			{
+				$items[$arItem["ID"]] = $arItem["NAME"];
+			}
+		}
+
+		return $items;
+	}
+
 	public static function GetPublicViewHTML($arProperty, $arValue, $strHTMLControlName)
 	{
 		static $cache = array();
@@ -229,31 +285,58 @@ class CIBlockPropertyElementList
 		$arValue['VALUE'] = intval($arValue['VALUE']);
 		if (0 < $arValue['VALUE'])
 		{
+			$viewMode = '';
+			$resultKey = '';
+			if (!empty($strHTMLControlName['MODE']))
+			{
+				switch ($strHTMLControlName['MODE'])
+				{
+					case 'CSV_EXPORT':
+						$viewMode = 'CSV_EXPORT';
+						$resultKey = 'ID';
+						break;
+					case 'EXTERNAL_ID':
+						$viewMode = 'EXTERNAL_ID';
+						$resultKey = '~XML_ID';
+						break;
+					case 'SIMPLE_TEXT':
+						$viewMode = 'SIMPLE_TEXT';
+						$resultKey = '~NAME';
+						break;
+					case 'ELEMENT_TEMPLATE':
+						$viewMode = 'ELEMENT_TEMPLATE';
+						$resultKey = '~NAME';
+						break;
+				}
+			}
+
 			if (!isset($cache[$arValue['VALUE']]))
 			{
-				$arFilter = array();
-				$intIBlockID = intval($arProperty['LINK_IBLOCK_ID']);
-				if (0 < $intIBlockID) $arFilter['IBLOCK_ID'] = $intIBlockID;
+				$arFilter = [];
+				$intIBlockID = (int)$arProperty['LINK_IBLOCK_ID'];
+				if ($intIBlockID > 0)
+					$arFilter['IBLOCK_ID'] = $intIBlockID;
 				$arFilter['ID'] = $arValue['VALUE'];
-				$arFilter["ACTIVE"] = "Y";
-				$arFilter["ACTIVE_DATE"] = "Y";
-				$arFilter["CHECK_PERMISSIONS"] = "Y";
-				$rsElements = CIBlockElement::GetList(array(), $arFilter, false, false, array("ID","IBLOCK_ID","NAME","DETAIL_PAGE_URL"));
-				$cache[$arValue['VALUE']] = $rsElements->GetNext(true,false);
-			}
-			if (is_array($cache[$arValue['VALUE']]))
-			{
-				if (isset($strHTMLControlName['MODE']) && 'CSV_EXPORT' == $strHTMLControlName['MODE'])
+				if ($viewMode === '')
 				{
-					$strResult = $cache[$arValue['VALUE']]['ID'];
+					$arFilter['ACTIVE'] = 'Y';
+					$arFilter['ACTIVE_DATE'] = 'Y';
+					$arFilter['CHECK_PERMISSIONS'] = 'Y';
+					$arFilter['MIN_PERMISSION'] = 'R';
 				}
-				elseif (isset($strHTMLControlName['MODE']) && ('SIMPLE_TEXT' == $strHTMLControlName['MODE'] || 'ELEMENT_TEMPLATE' == $strHTMLControlName['MODE']))
+				$rsElements = CIBlockElement::GetList(array(), $arFilter, false, false, array("ID","IBLOCK_ID","NAME","DETAIL_PAGE_URL"));
+				$cache[$arValue['VALUE']] = $rsElements->GetNext(true, true);
+				unset($rsElements);
+			}
+			if (!empty($cache[$arValue['VALUE']]) && is_array($cache[$arValue['VALUE']]))
+			{
+				if ($viewMode !== '' && $resultKey !== '')
 				{
-					$strResult = $cache[$arValue['VALUE']]["NAME"];
+					$strResult = $cache[$arValue['VALUE']][$resultKey];
 				}
 				else
 				{
-					$strResult = '<a href="'.$cache[$arValue['VALUE']]["DETAIL_PAGE_URL"].'">'.$cache[$arValue['VALUE']]["NAME"].'</a>';;
+					$strResult = '<a href="'.$cache[$arValue['VALUE']]['DETAIL_PAGE_URL'].'">'.$cache[$arValue['VALUE']]['NAME'].'</a>';
 				}
 			}
 		}

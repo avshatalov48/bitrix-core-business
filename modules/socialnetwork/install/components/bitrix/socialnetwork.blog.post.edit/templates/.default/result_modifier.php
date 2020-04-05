@@ -87,18 +87,21 @@ if (isset($arResult["POST_PROPERTIES"]["DATA"])
 	$postImportantTillDate = $postImportantTillDate->add("1D");
 	$arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]["VALUE"] = $postImportantTillDate->format(\Bitrix\Main\Type\Date::convertFormatToPhp(\CSite::GetDateFormat('SHORT')));
 }
-foreach ($arResult["REMAIN_IMPORTANT_TILL"] as $key => $attributesForPopupList)
+if (is_array($arResult["REMAIN_IMPORTANT_TILL"]))
 {
-	if ($attributesForPopupList["VALUE"] === "CUSTOM")
+	foreach ($arResult["REMAIN_IMPORTANT_TILL"] as $key => $attributesForPopupList)
 	{
-		$arResult["REMAIN_IMPORTANT_TILL"][$key]["CLASS"] = "js-custom-date-end";
-	}
-	else
-	{
-		$arResult["REMAIN_IMPORTANT_TILL"][$key]["CLASS"] = "";
-		if ($attributesForPopupList["VALUE"] === "ALWAYS")
+		if ($attributesForPopupList["VALUE"] === "CUSTOM")
 		{
-			$arResult["REMAIN_IMPORTANT_DEFAULT_OPTION"]['TEXT_KEY'] = $arResult["REMAIN_IMPORTANT_TILL"][$key]["TEXT_KEY"];
+			$arResult["REMAIN_IMPORTANT_TILL"][$key]["CLASS"] = "js-custom-date-end";
+		}
+		else
+		{
+			$arResult["REMAIN_IMPORTANT_TILL"][$key]["CLASS"] = "";
+			if ($attributesForPopupList["VALUE"] === "ALWAYS")
+			{
+				$arResult["REMAIN_IMPORTANT_DEFAULT_OPTION"]['TEXT_KEY'] = $arResult["REMAIN_IMPORTANT_TILL"][$key]["TEXT_KEY"];
+			}
 		}
 	}
 }

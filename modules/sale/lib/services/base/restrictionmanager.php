@@ -30,10 +30,26 @@ class RestrictionManager
 	protected static function init()
 	{
 		if(static::$classNames != null)
+		{
 			return;
+		}
 
 		$classes = static::getBuildInRestrictions();
+
 		Loader::registerAutoLoadClasses('sale', $classes);
+
+		/**
+		 * @var Restriction $class
+		 * @var string $path
+		 */
+		foreach ($classes as $class => $path)
+		{
+			if (!$class::isAvailable())
+			{
+				unset($classes[$class]);
+			}
+		}
+
 		$event = new Event('sale', static::getEventName());
 		$event->send();
 		$resultList = $event->getResults();
@@ -288,10 +304,10 @@ class RestrictionManager
 	}
 
 	/**
-	 * @return array
 	 * @throws NotImplementedException
+	 * @return array
 	 */
-	public static function getBuildInRestrictions()
+	protected static function getBuildInRestrictions()
 	{
 		throw new NotImplementedException;
 	}

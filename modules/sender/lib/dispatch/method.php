@@ -61,7 +61,15 @@ class Method implements iMethod
 	 */
 	public function canChange()
 	{
-		return $this->letter->isReiterate() || !$this->letter->getState()->wasStartedSending();
+		return (
+			(
+				$this->letter->isReiterate()
+				||
+				!$this->letter->getState()->wasStartedSending()
+			)
+			&&
+			!$this->letter->getState()->isFinished()
+		);
 	}
 
 	/**

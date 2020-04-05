@@ -48,6 +48,8 @@ if ($bSimpleForm)
 
 if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions >= "U" && check_bitrix_sessid())
 {
+	$adminSidePanelHelper->decodeUriComponent();
+
 	if ($ID <= 0 && $saleModulePermissions < "W")
 		$errorMessage .= GetMessage("SRE_NO_PERMS2ADD").".<br>";
 
@@ -127,15 +129,18 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions >= "U
 				$errorMessage .= $ex->GetString().".<br>";
 			else
 				$errorMessage .= GetMessage("SRE_ERROR_SAVING").".<br>";
+			$adminSidePanelHelper->sendJsonErrorResponse($errorMessage);
 		}
 		else
 		{
+			$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
 			if (strlen($apply)<=0)
 				LocalRedirect("/bitrix/admin/sale_recurring_admin.php?lang=".LANGUAGE_ID.GetFilterParams("filter_", false));
 		}
 	}
 	else
 	{
+		$adminSidePanelHelper->sendJsonErrorResponse($errorMessage);
 		$bVarsFromForm = true;
 	}
 }

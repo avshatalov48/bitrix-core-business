@@ -15,5 +15,6 @@ $MESS["BLOG_DR_ANOTHER_USER_DRAFT"] = "You are not authorized to view other user
 $MESS["BLOG_DR_TITLE"] = "Drafts";
 $MESS["BLOG_DR_PUB"] = "Publish";
 $MESS["BLOG_DR_DELETE"] = "Delete";
+$MESS["BLOG_DR_EDIT"] = "Edit";
 $MESS["BLOG_DR_DELETE_CONFIRM"] = "Are you sure you want to delete the conversation?";
 ?>

@@ -42,23 +42,32 @@ class Mail
 	protected $contentTransferEncoding = '8bit';
 	protected $to;
 	protected $subject;
-	protected $headers;
+	protected $headers = [];
 	protected $body;
 	protected $additionalParameters;
 	/** @var  Context */
 	protected $context;
 	/** @var  Multipart */
 	protected $multipart;
+	/** @var  array */
+	protected $blacklistedEmails = [];
+	/** @var  array */
+	protected $blacklistCheckedEmails = [];
+	/** @var  bool */
+	protected $useBlacklist = true;
+	/** @var array  */
+	protected static $emailHeaders = ['to', 'cc', 'bcc'];
 
+	/**
+	 * Mail constructor.
+	 *
+	 * @param array $mailParams Mail parameters.
+	 */
 	public function __construct(array $mailParams)
 	{
 		if(array_key_exists('LINK_PROTOCOL', $mailParams) && strlen($mailParams['LINK_PROTOCOL']) > 0)
 		{
 			$this->trackLinkProtocol = $mailParams['LINK_PROTOCOL'];
-		}
-		else
-		{
-			$this->trackLinkProtocol = 'http';
 		}
 
 		if(array_key_exists('TRACK_READ', $mailParams) && !empty($mailParams['TRACK_READ']))
@@ -93,6 +102,10 @@ class Mail
 		$this->eol = $this->getMailEol();
 
 		$this->attachment = (isset($mailParams['ATTACHMENT']) ? $mailParams['ATTACHMENT'] : array());
+		if (isset($mailParams['USE_BLACKLIST']))
+		{
+			$this->useBlacklist = (bool) $mailParams['USE_BLACKLIST'];
+		}
 
 		$this->initSettings();
 
@@ -115,7 +128,9 @@ class Mail
 	}
 
 	/**
-	 * @param array $mailParams
+	 * Create instance.
+	 *
+	 * @param array $mailParams Mail parameters.
 	 * @return static
 	 */
 	public static function createInstance(array $mailParams)
@@ -124,7 +139,9 @@ class Mail
 	}
 
 	/**
-	 * @param $mailParams
+	 * Send email.
+	 *
+	 * @param array $mailParams Mail parameters.
 	 * @return bool
 	 */
 	public static function send($mailParams)
@@ -148,52 +165,85 @@ class Mail
 		else
 		{
 			$mail = static::createInstance($mailParams);
+			if ($mail->canSend())
+			{
+				$mailResult = bxmail(
+					$mail->getTo(),
+					$mail->getSubject(),
+					$mail->getBody(),
+					$mail->getHeaders(),
+					$mail->getAdditionalParameters(),
+					$mail->getContext()
+				);
 
-			$mailResult = bxmail(
-				$mail->getTo(),
-				$mail->getSubject(),
-				$mail->getBody(),
-				$mail->getHeaders(),
-				$mail->getAdditionalParameters(),
-				$mail->getContext()
-			);
-
-			if($mailResult)
-				$result = true;
+				if($mailResult)
+				{
+					$result = true;
+				}
+			}
 		}
 
 		return $result;
 	}
 
 	/**
-	 * @throws \Bitrix\Main\ArgumentNullException
+	 * Return true if mail can be sent.
+	 *
+	 * @return bool
+	 */
+	public function canSend()
+	{
+		$pseudoHeaders = ['To' => $this->to];
+		$this->filterHeaderEmails($pseudoHeaders);
+
+		return !$this->useBlacklist || !empty($pseudoHeaders);
+	}
+
+	/**
+	 * Init settings.
+	 *
+	 * @return void
 	 */
 	public function initSettings()
 	{
 		if(defined("BX_MS_SMTP") && BX_MS_SMTP===true)
+		{
 			$this->settingServerMsSmtp = true;
+		}
 
 		if(Config\Option::get("main", "fill_to_mail", "N")=="Y")
+		{
 			$this->settingMailFillToEmail = true;
-
+		}
 		if(Config\Option::get("main", "convert_mail_header", "Y")=="Y")
+		{
 			$this->settingMailConvertMailHeader = true;
-
+		}
 		if(Config\Option::get("main", "send_mid", "N")=="Y")
+		{
 			$this->settingMailAddMessageId = true;
-
+		}
 		if(Config\Option::get("main", "CONVERT_UNIX_NEWLINE_2_WINDOWS", "N")=="Y")
+		{
 			$this->settingConvertNewLineUnixToWindows = true;
-
+		}
 		if(Config\Option::get("main", "attach_images", "N")=="Y")
+		{
 			$this->settingAttachImages = true;
-		
+		}
 		if(Config\Option::get("main", "mail_encode_base64", "N") == "Y")
+		{
 			$this->settingMailEncodeBase64 = true;
+		}
 
 		if(!isset($this->settingServerName) || strlen($this->settingServerName) <= 0)
 		{
 			$this->settingServerName = Config\Option::get("main", "server_name", "");
+		}
+
+		if (!$this->trackLinkProtocol)
+		{
+			$this->trackLinkProtocol = Config\Option::get("main", "mail_link_protocol") ?: "http";
 		}
 
 		$this->generateTextVersion = Config\Option::get("main", "mail_gen_text_version", "Y") === 'Y';
@@ -206,7 +256,10 @@ class Mail
 	}
 
 	/**
-	 * @param string $additionalParameters
+	 * Set additional parameters.
+	 *
+	 * @param string $additionalParameters Additional parameters.
+	 * @return void
 	 */
 	public function setAdditionalParameters($additionalParameters = '')
 	{
@@ -216,7 +269,8 @@ class Mail
 
 	/**
 	 * Set body.
-	 * @param string $bodyPart
+	 *
+	 * @param string $bodyPart Html or text of body.
 	 * @return void
 	 */
 	public function setBody($bodyPart)
@@ -233,6 +287,7 @@ class Mail
 			$bodyPart = $this->replaceImages($bodyPart);
 			$bodyPart = $this->replaceHrefs($bodyPart);
 			$bodyPart = $this->trackRead($bodyPart);
+			$bodyPart = $this->addMessageIdToBody($bodyPart, true, $messageId);
 
 			$htmlPart = new Part();
 			$htmlPart->addHeader('Content-Type', 'text/html; charset=' . $charset);
@@ -286,6 +341,8 @@ class Mail
 	}
 
 	/**
+	 * Return true if mail has attachment.
+	 *
 	 * @return bool
 	 */
 	public function hasAttachment()
@@ -294,7 +351,9 @@ class Mail
 	}
 
 	/**
+	 * Set attachment.
 	 *
+	 * @return void
 	 */
 	public function setAttachment()
 	{
@@ -320,6 +379,7 @@ class Mail
 				$name = $this->encodeSubject($attachment["NAME"], $this->charset);
 				$part = (new Part())
 					->addHeader('Content-Type', $attachment['CONTENT_TYPE'] . "; name=\"$name\"")
+					->addHeader('Content-Disposition', "attachment; filename=\"$name\"")
 					->addHeader('Content-Transfer-Encoding', 'base64')
 					->addHeader('Content-ID', "<{$attachment['ID']}>")
 					->setBody($fileContent);
@@ -329,10 +389,60 @@ class Mail
 	}
 
 	/**
-	 * @param array $headers
+	 * Set headers.
+	 *
+	 * @param array $headers Headers.
+	 * @return $this
 	 */
 	public function setHeaders(array $headers)
 	{
+		$this->headers = $headers;
+		return $this;
+	}
+
+	/**
+	 * Set subject.
+	 *
+	 * @param string $subject Subject.
+	 * @return $this
+	 */
+	public function setSubject($subject)
+	{
+		$this->subject = $subject;
+		return $this;
+	}
+
+	/**
+	 * Set to.
+	 *
+	 * @param string $to To.
+	 * @return $this
+	 */
+	public function setTo($to)
+	{
+		$this->to = $to ? trim($to) : null;
+		return $this;
+	}
+
+	/**
+	 * Get body.
+	 *
+	 * @return string
+	 */
+	public function getBody()
+	{
+		return $this->body;
+	}
+
+	/**
+	 * Get headers.
+	 *
+	 * @return string
+	 */
+	public function getHeaders()
+	{
+		$headers = $this->headers;
+
 		foreach($headers as $k=>$v)
 		{
 			$headers[$k] = trim($v, "\r\n");
@@ -341,6 +451,8 @@ class Mail
 				unset($headers[$k]);
 			}
 		}
+
+		$this->filterHeaderEmails($headers);
 
 		if($headers["Reply-To"] == '' && $headers["From"] <> '')
 		{
@@ -395,9 +507,9 @@ class Mail
 			}
 		}
 
-		if($this->settingMailFillToEmail && $headers["To"] != $this->to)
+		if($this->settingMailFillToEmail)
 		{
-			$headers["To"] = $this->to;
+			$headers["To"] = $this->getTo();
 		}
 
 		if($this->messageId != '')
@@ -414,26 +526,42 @@ class Mail
 		// Content-Transfer-Encoding & Content-Type add from Multipart
 		$headerString .= rtrim($this->multipart->toStringHeaders());
 
-		$this->headers = $headerString;
+		return $headerString;
 	}
 
 	/**
-	 * @param string $subject
+	 * Get message ID.
+	 *
+	 * @return string
 	 */
-	public function setSubject($subject)
+	public function getMessageId()
+	{
+		return $this->messageId;
+	}
+
+	/**
+	 * Get subject.
+	 *
+	 * @return string
+	 */
+	public function getSubject()
 	{
 		if($this->settingMailConvertMailHeader)
-			$this->subject = $this->encodeSubject($subject, $this->charset);
-		else
-			$this->subject = $subject;
+		{
+			return $this->encodeSubject($this->subject, $this->charset);
+		}
+
+		return $this->subject;
 	}
 
 	/**
-	 * @param string $to
+	 * Get to.
+	 *
+	 * @return string
 	 */
-	public function setTo($to)
+	public function getTo()
 	{
-		$resultTo = $to;
+		$resultTo = $this->to;
 
 		if($this->settingMailConvertMailHeader)
 		{
@@ -445,50 +573,12 @@ class Mail
 			$resultTo = preg_replace("/(.*)\\<(.*)\\>/i", '$2', $resultTo);
 		}
 
-		$this->to = $resultTo;
+		return $resultTo;
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getBody()
-	{
-		return $this->body;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getHeaders()
-	{
-		return $this->headers;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getMessageId()
-	{
-		return $this->messageId;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getSubject()
-	{
-		return $this->subject;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getTo()
-	{
-		return $this->to;
-	}
-
-	/**
+	 * Get additional parameters.
+	 *
 	 * @return mixed
 	 */
 	public function getAdditionalParameters()
@@ -497,6 +587,8 @@ class Mail
 	}
 
 	/**
+	 * Get context instance.
+	 *
 	 * @return Context|null
 	 */
 	public function getContext()
@@ -505,6 +597,8 @@ class Mail
 	}
 
 	/**
+	 * Dump email data.
+	 *
 	 * @return string
 	 */
 	public function dump()
@@ -523,17 +617,21 @@ class Mail
 
 
 	/**
-	 * @param $str
+	 * Return true if input string is in 8bit charset.
+	 *
+	 * @param string $inputString Input string.
 	 * @return bool
 	 */
-	public static function is8Bit($str)
+	public static function is8Bit($inputString)
 	{
-		return preg_match("/[\\x80-\\xFF]/", $str) > 0;
+		return preg_match("/[\\x80-\\xFF]/", $inputString) > 0;
 	}
 
 	/**
-	 * @param $text
-	 * @param $charset
+	 * Encode mime string.
+	 *
+	 * @param string $text Text string.
+	 * @param string $charset Charset.
 	 * @return string
 	 */
 	public static function encodeMimeString($text, $charset)
@@ -556,8 +654,10 @@ class Mail
 	}
 
 	/**
-	 * @param $text
-	 * @param $charset
+	 * Encode subject.
+	 *
+	 * @param string $text Text string.
+	 * @param string $charset Charset.
 	 * @return string
 	 */
 	public static function encodeSubject($text, $charset)
@@ -566,8 +666,10 @@ class Mail
 	}
 
 	/**
-	 * @param $text
-	 * @param $charset
+	 * Encode header From.
+	 *
+	 * @param string $text Text string.
+	 * @param string $charset Charset.
 	 * @return string
 	 */
 	public static function encodeHeaderFrom($text, $charset)
@@ -586,6 +688,8 @@ class Mail
 	}
 
 	/**
+	 * Get symbol of mail End-Of-Line.
+	 *
 	 * @return string
 	 */
 	public static function getMailEol()
@@ -731,8 +835,11 @@ class Mail
 	}
 
 	/**
-	 * @param $text
-	 * @return mixed
+	 * Replace images.
+	 * All src of images in html will be added by protocol and domain.
+	 *
+	 * @param string $text Html text.
+	 * @return string
 	 */
 	public function replaceImages($text)
 	{
@@ -796,6 +903,7 @@ class Mail
 
 	/**
 	 * Replace href attribute in links.
+	 * All href of links in html will be added by protocol and domain.
 	 *
 	 * @param string $text Text.
 	 * @return mixed
@@ -816,7 +924,10 @@ class Mail
 	}
 
 	/**
-	 * @param $matches
+	 * Track click.
+	 * All href of links in html will be wrapped by tracking url for click-detecting.
+	 *
+	 * @param array $matches Result of preg_match call.
 	 * @return string
 	 */
 	public function trackClick($matches)
@@ -945,5 +1056,109 @@ class Mail
 
 		// decode html-entities
 		return html_entity_decode($body);
+	}
+
+	/**
+	 * Filter header emails by blacklist.
+	 *
+	 * @param array &$headers Headers.
+	 * return void
+	 */
+	protected function filterHeaderEmails(array &$headers)
+	{
+		if (!$this->useBlacklist || !Internal\BlacklistTable::hasBlacklistedEmails())
+		{
+			return;
+		}
+
+		$list = [];
+		$allEmails = [strtolower($this->to)];
+
+		// get all emails for query Blacklist, prepare emails as Address instances
+		foreach ($headers as $name => $value)
+		{
+			// exclude non target headers
+			if (!in_array(strtolower($name), static::$emailHeaders))
+			{
+				continue;
+			}
+
+			$list[$name] = [];
+			$emails = explode(',', $value);
+			foreach ($emails as $email)
+			{
+				$email = trim($email);
+				if (!$email)
+				{
+					continue;
+				}
+
+				$address = new Address($email);
+				$email = $address->getEmail();
+				if ($email)
+				{
+					$list[$name][] = $address;
+					$allEmails[] = $address->getEmail();
+				}
+			}
+		}
+
+		// get blacklisted emails from all emails
+		$allEmails = array_diff($allEmails, $this->blacklistCheckedEmails);
+		if (!empty($allEmails))
+		{
+			$blacklisted = Internal\BlacklistTable::getList([
+				'select' => ['CODE'],
+				'filter' => ['=CODE' => $allEmails]
+			])->fetchAll();
+			$blacklisted = array_column($blacklisted, 'CODE');
+
+			$this->blacklistedEmails = array_unique(array_merge($this->blacklistedEmails, $blacklisted));
+			$this->blacklistCheckedEmails = array_merge($this->blacklistCheckedEmails, $allEmails);
+		}
+
+		if (empty($this->blacklistedEmails))
+		{
+			return;
+		}
+
+		// remove blacklisted emails, remove empty headers
+		$blacklisted = $this->blacklistedEmails;
+		foreach ($headers as $name => $value)
+		{
+			// exclude non target headers
+			if (!in_array(strtolower($name), static::$emailHeaders))
+			{
+				continue;
+			}
+			// filter Address instances by blacklist
+			$emails = array_filter(
+				$list[$name],
+				function (Address $address) use ($blacklisted)
+				{
+					$email = $address->getEmail();
+					return $email && !in_array($email, $blacklisted);
+				}
+			);
+			// get emails from Address instances
+			$emails = array_map(
+				function (Address $address)
+				{
+					return $address->getName() ? $address->get() : $address->getEmail();
+				},
+				$emails
+			);
+			// get header emails as string
+			$emails = implode(', ', $emails);
+			// remove empty or update headers
+			if (!$emails)
+			{
+				unset($headers[$name]);
+			}
+			else
+			{
+				$headers[$name] = $emails;
+			}
+		}
 	}
 }

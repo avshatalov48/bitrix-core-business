@@ -69,5 +69,6 @@ $catalog_default_option = array(
 	'viewed_period' => 5,
 	'default_product_vat_included' => 'N',
 	'subscribe_repeated_notify' => 'Y',
-	'enable_processing_deprecated_events' => 'N'
+	'enable_processing_deprecated_events' => 'N',
+	'landing_product_limit' => 0
 );

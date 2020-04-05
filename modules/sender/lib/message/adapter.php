@@ -53,6 +53,9 @@ class Adapter implements iBase
 	/** @var string $recipientType Recipient type. */
 	protected $recipientType;
 
+	/** @var [] $recipientData Recipient data. */
+	protected $recipientData;
+
 	/** @var Tracker $readTracker Read tracker. */
 	protected $readTracker;
 
@@ -404,6 +407,27 @@ class Adapter implements iBase
 	}
 
 	/**
+	 * Get recipient data.
+	 *
+	 * @return []
+	 */
+	public function getRecipientData()
+	{
+		return $this->recipientData;
+	}
+
+	/**
+	 * Set recipient data.
+	 *
+	 * @param [] $data Data.
+	 * @return void
+	 */
+	public function setRecipientData(array $data)
+	{
+		$this->recipientData = $data;
+	}
+
+	/**
 	 * Get read tracker.
 	 *
 	 * @return Tracker
@@ -571,6 +595,16 @@ class Adapter implements iBase
 	}
 
 	/**
+	 * Return true if is hidden.
+	 *
+	 * @return bool
+	 */
+	public function isHidden()
+	{
+		return ($this->message instanceof iHideable && $this->message->isHidden());
+	}
+
+	/**
 	 * Is available.
 	 *
 	 * @return bool
@@ -590,7 +624,7 @@ class Adapter implements iBase
 			switch ($this->getCode())
 			{
 				case iBase::CODE_MAIL:
-					return true;
+					return Integration\Bitrix24\Service::isEmailAvailable();
 
 				default:
 					return Integration\Bitrix24\Service::isMailingsAvailable();

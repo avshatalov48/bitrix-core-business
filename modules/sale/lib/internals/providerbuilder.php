@@ -56,7 +56,7 @@ class ProviderBuilder extends ProviderBuilderBase
 			'BASKET_CODE' => $basketItem->getBasketCode(),
 			'PRODUCT_ID' => $productId,
 			'QUANTITY' => $shipmentItem->getQuantity(),
-			'RESERVED_QUANTITY' => $shipmentItem->getQuantity(),
+			'RESERVED_QUANTITY' => $shipmentItem->getReservedQuantity(),
 			'IS_BARCODE_MULTI' => $basketItem->isBarcodeMulti(),
 			'BUNDLE_CHILD' => $basketItem->isBundleChild(),
 			'SHIPMENT_ITEM_DATA' => array(

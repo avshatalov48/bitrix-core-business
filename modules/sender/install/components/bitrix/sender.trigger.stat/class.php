@@ -68,6 +68,7 @@ class SenderTriggerStatComponent extends CBitrixComponent
 
 		$this->arResult['ROW'] = $this->campaignEntity->getData();
 		$this->arResult['DATA'] = $this->getTriggerStat();
+		$this->arResult['CHAIN_LIST'] = [];
 
 		$uri = new \Bitrix\Main\Web\Uri(str_replace('#id#', $this->arParams['CHAIN_ID'], $this->arParams['PATH_TO_RECIPIENT']));
 		$uri->addParams(['apply_filter' => 'Y']);

@@ -21,7 +21,8 @@ $MESS["BUYER_ROW_SUM_ORDER"] = "Сумма оплаченных заказов";
 $MESS["BUYER_ROW_COUNT_FULL_PAID_ORDER"] = "Кол-во полностью оплаченных заказов";
 $MESS["BUYER_ROW_COUNT_PART_PAID_ORDER"] = "Кол-во частично оплаченных заказов";
 $MESS["BUYER_ROW_SUM_PAID"] = "Сумма полученных оплат";
-$MESS["BUYER_SUB_ACTION_PROFILE"] = "Профиль пользователя";
+$MESS["BUYER_SUB_ACTION_PROFILE"] = "Профиль покупателя";
+$MESS["BUYER_SUB_ACTION_EDIT_PROFILE"] = "Редактировать покупателя";
 $MESS["BUYER_SUB_ACTION_ORDER"] = "Создать заказ";
 $MESS["BUYER_ROW_DATE_REGISTER"] = "Дата регистрации";
 $MESS["BUYER_F_LAST"] = "Фамилия";
@@ -58,4 +59,5 @@ $MESS["BUYER_F_TO"] = "по";
 $MESS["BUYER_ROW_LAST_ORDER_DATE"] = "Дата последнего заказа";
 $MESS["BUYER_F_LAST_ORDER_DATE"] = "Дата последнего заказа";
 $MESS["BUYER_ORDERS_LID"] = "Заказы сайта";
+$MESS["BUYER_ADD_USER"] = "Добавить покупателя";
 ?>

@@ -26,7 +26,8 @@ BX.UserContentView = {
 	commentsClassName: 'feed-com-text-inner',
 	commentsFullContentClassName: 'feed-com-text-inner-inner',
 	currentPopupId: null,
-	popupList: {}
+	popupList: {},
+	toSendList: []
 };
 
 BX.UserContentView.clear = function()
@@ -238,20 +239,21 @@ BX.UserContentView.isNodeVisibleOnScreen = function(node)
 BX.UserContentView.sendViewAreaData = function()
 {
 	var val = null,
-		i = null,
-		toSendList = [];
+		i = null;
+
+	this.toSendList = [];
 
 	for (i = 0, length = this.viewAreaReadList.length; i < length; i++)
 	{
 		val = this.viewAreaReadList[i];
 		if (!BX.util.in_array(val.xmlId, this.viewAreaSentList))
 		{
-			toSendList.push(val);
+			this.toSendList.push(val);
 		}
 	}
 
 	if (
-		toSendList.length > 0
+		this.toSendList.length > 0
 		&& this.ajaxUrl
 	)
 	{
@@ -260,41 +262,55 @@ BX.UserContentView.sendViewAreaData = function()
 			sessid: BX.bitrix_sessid(),
 			site : BX.message('SITE_ID'),
 			lang: BX.message('LANGUAGE_ID'),
-			viewXMLIdList : toSendList
+			viewXMLIdList : this.toSendList
 		};
 
 		if (!!this.mobile)
 		{
 			request_data.mobile_action = 'set_content_view';
-		}
 
-		BX.ajax({
-			url: this.ajaxUrl,
-			method: 'POST',
-			dataType: 'json',
-			data: request_data,
-			onsuccess: BX.delegate(function(data) {
-				if (
-					BX.type.isNotEmptyString(data.SUCCESS)
-					&& data.SUCCESS == "Y"
-				)
-				{
-					for (i = 0, length = toSendList.length; i < length; i++)
-					{
-						this.viewAreaSentList.push(toSendList[i].xmlId);
-					}
-					if (BX.browser.SupportLocalStorage())
-					{
-						BX.localStorage.set('viewedContent', this.viewAreaSentList, 86400);
-					}
-				}
-			}, this),
-			onfailure: function(data) {
-			}
-		});
+			var BMAjaxWrapper = new MobileAjaxWrapper;
+			BMAjaxWrapper.Wrap({
+				type: 'json',
+				method: 'POST',
+				url: this.ajaxUrl,
+				data: request_data,
+				callback: BX.delegate(BX.UserContentView.success, this),
+				callback_failure: function(data) {}
+			});
+		}
+		else
+		{
+			BX.ajax({
+				url: this.ajaxUrl,
+				method: 'POST',
+				dataType: 'json',
+				data: request_data,
+				onsuccess: BX.delegate(BX.UserContentView.success, this),
+				onfailure: function(data) {}
+			});
+		}
 	}
 
 	setTimeout(BX.delegate(this.sendViewAreaData, this), this.sendViewAreaTimeout);
+};
+
+BX.UserContentView.success = function(data)
+{
+	if (
+		BX.type.isNotEmptyString(data.SUCCESS)
+		&& data.SUCCESS == "Y"
+	)
+	{
+		for (i = 0, length = this.toSendList.length; i < length; i++)
+		{
+			this.viewAreaSentList.push(this.toSendList[i].xmlId);
+		}
+		if (BX.browser.SupportLocalStorage())
+		{
+			BX.localStorage.set('viewedContent', this.viewAreaSentList, 86400);
+		}
+	}
 };
 
 BX.UserContentView.registerViewArea = function(nodeId, fullContentNode)
@@ -498,6 +514,8 @@ BX.UserContentView.Counter = function()
 	this.popupContentPage = 1;
 	this.popupShownIdList = [];
 	this.pathToUserProfile = '';
+	this.mouseLeaveTimeoutId = null;
+	this.listXHR = null;
 };
 
 BX.UserContentView.Counter.prototype.init = function(params)
@@ -579,6 +597,11 @@ BX.UserContentView.Counter.prototype.init = function(params)
 
 BX.UserContentView.Counter.prototype.list = function(params)
 {
+	if (this.listXHR)
+	{
+		this.listXHR.abort();
+	}
+
 	var page = params.page;
 
 	if (parseInt(this.node.innerHTML) == 0)
@@ -606,7 +629,7 @@ BX.UserContentView.Counter.prototype.list = function(params)
 		page: page
 	};
 
-	BX.ajax({
+	this.listXHR = BX.ajax({
 		url: BX.UserContentView.ajaxUrl,
 		method: 'POST',
 		dataType: 'json',
@@ -624,18 +647,18 @@ BX.UserContentView.Counter.prototype.list = function(params)
 			if (page == 1)
 			{
 				this.popupContent.innerHTML = '';
-				var spanTag0 = document.createElement("span");
-				spanTag0.className = "bx-contentview-bottom_scroll";
-				this.popupContent.appendChild(spanTag0);
 			}
 
 			this.popupContentPage += 1;
 
 			var avatarNode = null;
 
-			for (var i=0; i<data.items.length; i++)
+			for (var i in data.items)
 			{
-				if (BX.util.in_array(data.items[i]['ID'], this.popupShownIdList))
+				if (
+					!data.items.hasOwnProperty(i)
+					|| BX.util.in_array(data.items[i]['ID'], this.popupShownIdList)
+				)
 				{
 					continue;
 				}
@@ -723,11 +746,21 @@ BX.UserContentView.Counter.prototype.openPopup = function()
 	{
 		this.popup = new BX.PopupWindow('contentview-popup-' + this.contentId, this.node, {
 			lightShadow : true,
-			offsetLeft: 5,
+			offsetLeft: -22,
 			autoHide: true,
 			closeByEsc: true,
 			zIndex: 2005,
-			bindOptions: {position: "top"},
+			bindOptions: {
+				position: 'top'
+			},
+			animationOptions: {
+				show: {
+					type: 'opacity-transform'
+				},
+				close: {
+					type: 'opacity'
+				}
+			},
 			events : {
 				onPopupClose : function() {
 					BX.UserContentView.currentPopupId = null;
@@ -739,8 +772,6 @@ BX.UserContentView.Counter.prototype.openPopup = function()
 		});
 		BX.UserContentView.popupList[this.contentId] = this.popup;
 
-		this.popup.setAngle({});
-
 		BX.bind(BX('contentview-popup-' + this.contentId), 'mouseout' , BX.delegate(function() {
 			clearTimeout(this.popupTimeout);
 			this.popupTimeout = setTimeout(BX.delegate(function() {
@@ -750,6 +781,13 @@ BX.UserContentView.Counter.prototype.openPopup = function()
 
 		BX.bind(BX('contentview-popup-' + this.contentId), 'mouseover' , BX.delegate(function() {
 			clearTimeout(this.popupTimeout);
+			clearTimeout(this.mouseLeaveTimeoutId);
+		}, this));
+
+		BX.bind(this.node, 'mouseleave' , BX.delegate(function() {
+			this.mouseLeaveTimeoutId = setTimeout(BX.delegate(function() {
+				this.popup.close();
+			}, this), 1000);
 		}, this));
 	}
 

@@ -146,9 +146,13 @@
 
 		isAllSelected: function()
 		{
-			return !this.getBodyChild().some(function(current) {
-				return !current.isSelected();
-			});
+			return !this.getBodyChild()
+				.filter(function(current) {
+					return !!current.getCheckbox();
+				})
+				.some(function(current) {
+					return !current.isSelected();
+				});
 		},
 
 		getParent: function()
@@ -471,7 +475,10 @@
 		 */
 		getSourceRows: function()
 		{
-			return BX.Grid.Utils.getByTag(this.getParent().getTable(), 'tr');
+			return BX.Grid.Utils.getBySelector(this.getParent().getTable(), [
+				'.main-grid-header > tr',
+				'.main-grid-header + tbody > tr'
+			].join(', '));
 		},
 
 
@@ -504,6 +511,12 @@
 		{
 			return this.getSourceRows().filter(function(current) {
 				return BX.Grid.Utils.closestParent(current).nodeName === 'TFOOT';
+			});
+		},
+
+		hasEditable: function() {
+			return this.getBodyChild().some(function(current) {
+				return current.isEdit();
 			});
 		}
 	};

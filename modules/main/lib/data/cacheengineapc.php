@@ -228,7 +228,7 @@ class CacheEngineApc
 	/**
 	 * Reads cache from the apc. Returns true if key value exists, not expired, and successfully read.
 	 *
-	 * @param mixed &$arAllVars Cached result.
+	 * @param mixed &$allVars Cached result.
 	 * @param string $baseDir Base cache directory (usually /bitrix/cache).
 	 * @param string $initDir Directory within base.
 	 * @param string $filename File name.
@@ -236,7 +236,7 @@ class CacheEngineApc
 	 *
 	 * @return boolean
 	 */
-	public function read(&$arAllVars, $baseDir, $initDir, $filename, $TTL)
+	public function read(&$allVars, $baseDir, $initDir, $filename, $TTL)
 	{
 		$baseDirVersion = apc_fetch($this->sid.$baseDir);
 		if ($baseDirVersion === false)
@@ -254,9 +254,9 @@ class CacheEngineApc
 		}
 
 		$key = $baseDirVersion."|".$initDirVersion."|".$filename;
-		$arAllVars = apc_fetch($key);
+		$allVars = apc_fetch($key);
 
-		if ($arAllVars === false)
+		if ($allVars === false)
 		{
 			return false;
 		}
@@ -270,8 +270,8 @@ class CacheEngineApc
 				}
 			}
 
-			$this->read = strlen($arAllVars);
-			$arAllVars = unserialize($arAllVars);
+			$this->read = strlen($allVars);
+			$allVars = unserialize($allVars);
 		}
 
 		return true;
@@ -280,7 +280,7 @@ class CacheEngineApc
 	/**
 	 * Puts cache into the apc.
 	 *
-	 * @param mixed $arAllVars Cached result.
+	 * @param mixed $allVars Cached result.
 	 * @param string $baseDir Base cache directory (usually /bitrix/cache).
 	 * @param string $initDir Directory within base.
 	 * @param string $filename File name.
@@ -288,7 +288,7 @@ class CacheEngineApc
 	 *
 	 * @return void
 	 */
-	public function write($arAllVars, $baseDir, $initDir, $filename, $TTL)
+	public function write($allVars, $baseDir, $initDir, $filename, $TTL)
 	{
 		$baseDirVersion = apc_fetch($this->sid.$baseDir);
 		if ($baseDirVersion === false)
@@ -313,11 +313,11 @@ class CacheEngineApc
 			$initDirVersion = "";
 		}
 
-		$arAllVars = serialize($arAllVars);
-		$this->written = strlen($arAllVars);
+		$allVars = serialize($allVars);
+		$this->written = strlen($allVars);
 
 		$key = $baseDirVersion."|".$initDirVersion."|".$filename;
-		apc_store($key, $arAllVars, intval($TTL) * $this->ttlMultiplier);
+		apc_store($key, $allVars, intval($TTL) * $this->ttlMultiplier);
 
 		if ($this->useLock)
 		{

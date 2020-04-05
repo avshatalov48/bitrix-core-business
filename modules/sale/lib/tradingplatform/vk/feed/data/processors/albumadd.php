@@ -6,6 +6,7 @@ use \Bitrix\Main\SystemException;
 use Bitrix\Sale\TradingPlatform\Vk;
 use Bitrix\Sale\TradingPlatform\TimeIsOverException;
 use Bitrix\Sale\TradingPlatform\Timer;
+use Bitrix\Sale\TradingPlatform\Vk\Api\PhotoUploader;
 
 /**
  * Class AlbumAdd - Processor for adding albums to VK
@@ -16,7 +17,7 @@ class AlbumAdd extends DataProcessor
 	private static $firstRunning = true;
 	private static $apiHelper;
 	private static $isAgressive;
-
+	
 	/**
 	 * Main export process method. Adding albums in VK
 	 *
@@ -27,10 +28,9 @@ class AlbumAdd extends DataProcessor
 	 * @throws TimeIsOverException
 	 * @throws Vk\ExecuteException
 	 */
-	public function process($data = NULL, Timer $timer = NULL)
+	public function process($data = null, Timer $timer = null)
 	{
 		$logger = new Vk\Logger($this->exportId);
-		$richLog = self::$vk->getRichLog($this->exportId);
 		
 		if (count($data) > Vk\Vk::MAX_EXECUTION_ITEMS)
 		{
@@ -57,22 +57,27 @@ class AlbumAdd extends DataProcessor
 		$albumsFromVk = $vkExportedData->getData();
 //		$albumsFromVk = self::$apiHelper->getALbumsFromVk($this->vkGroupId);
 		$data = Vk\Map::checkMappingMatches($data, $albumsFromVk, $this->exportId, 'ALBUMS', self::$isAgressive);
-
+		
 		try
 		{
 //			UPLOAD photo
 //			todo: need a photo mapping check before upload
 //			todo: and maybe we need comments and likes
-			if ($richLog)
-				$logger->addLog("Upload album photo");
-			$albumPhotoSaveResults = self::$apiHelper->uploadPhotos($data, $this->vkGroupId, 'ALBUM_PHOTO', $timer);
-			$data = Vk\Api\ApiHelper::addResultToData($data, $albumPhotoSaveResults, "SECTION_ID");
-
+			$logger->addLog("Upload album photo");
+			
+			$photoUploader = new PhotoUploader($this->exportId, PhotoUploader::TYPE_ALBUM_PHOTO, $timer);
+			$albumPhotoSaveResults = $photoUploader->upload($data);
+			
+//			photos UPLOAD may be FAILED on VK side. For albums - do nothing
+			if(!array_key_exists('errors', $albumPhotoSaveResults))
+			{
+				$data = Vk\Api\ApiHelper::addResultToData($data, $albumPhotoSaveResults, "SECTION_ID");
+			}
 
 //			ADD or EDIT albums
-			if ($richLog)
-				$logger->addLog("Add or edit albums", $data);
-			$albumsData = Vk\Api\ApiHelper::extractItemsFromArray($data, array("SECTION_ID", "TITLE", "FLAG_EDIT", "PHOTO_VK_ID", "ALBUM_VK_ID"));
+			$logger->addLog("Add or edit albums", $data);
+			$albumsData = Vk\Api\ApiHelper::extractItemsFromArray($data,
+				array("SECTION_ID", "TITLE", "FLAG_EDIT", "PHOTO_VK_ID", "ALBUM_VK_ID"));
 			$albumsAddEditResults = $this->executer->executeMarketAlbumAddEdit(array(
 				"owner_id" => $this->vkGroupId,
 				"data" => $albumsData,
@@ -93,7 +98,9 @@ class AlbumAdd extends DataProcessor
 			}
 //			we don't need use timer in last operation. Timer will be checked in feed cycle.
 			if (!empty($dataToMapping))
+			{
 				Vk\Map::addAlbumMapping($dataToMapping, $this->exportId);
+			}
 
 
 //			add saved data to CACHE to accelereate export process. Cache updated every hour (for long exports)
@@ -105,16 +112,16 @@ class AlbumAdd extends DataProcessor
 			}
 
 //			check timer before next step, because not-agressive export can be run very long time
-			if ($timer !== NULL && !$timer->check())
+			if ($timer !== null && !$timer->check())
+			{
 				throw new TimeIsOverException();
+			}
 		}
 		catch (TimeIsOverException $e)
 		{
 			throw new TimeIsOverException("Timelimit for export is over", $startPosition);
 		}
-
+		
 		return true;
 	}
-
-
 }

@@ -13,7 +13,7 @@ namespace Bitrix\Main\Data;
  * @package    bitrix
  * @subpackage main
  */
-class HsphpReadConnection extends NosqlConnection implements \Bitrix\Main\Entity\INosqlPrimarySelector
+class HsphpReadConnection extends NosqlConnection implements \Bitrix\Main\ORM\Query\INosqlPrimarySelector
 {
 	protected $host = 'localhost';
 	protected $port = '9998';
@@ -71,7 +71,7 @@ class HsphpReadConnection extends NosqlConnection implements \Bitrix\Main\Entity
 		return null;
 	}
 
-	public function getEntityByPrimary(\Bitrix\Main\Entity\Base $entity, $primary, $select)
+	public function getEntityByPrimary(\Bitrix\Main\ORM\Entity $entity, $primary, $select)
 	{
 		$this->connectInternal();
 

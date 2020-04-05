@@ -289,15 +289,15 @@ class SenderSegmentEditComponent extends CBitrixComponent
 
 			/** @var Connector\Base $connector */
 			$connector->setFieldPrefix('CONNECTOR_SETTING');
-			$result[$connector->getId()] = $this->prepareConnectorData($connector);
+			$result[$connector->getId()] = $this->prepareConnectorData($connector, false);
 		}
 
 		$this->arResult['CONNECTOR']['AVAILABLE'] = $result;
 	}
 
-	protected function prepareConnectorData(Connector\Base $connector)
+	protected function prepareConnectorData(Connector\Base $connector, $calcCount = true)
 	{
-		$dataCounter = $connector->getDataCounter();
+		$dataCounter = $calcCount ? $connector->getDataCounter() : new Connector\DataCounter([]);
 		$dataCounterCloned = clone $dataCounter;
 
 		$connectorData = array(
@@ -312,7 +312,18 @@ class SenderSegmentEditComponent extends CBitrixComponent
 			'IS_RESULT_VIEWABLE' => $connector->isResultViewable() ? 'Y' : 'N',
 			'FILTER_ID' => '',
 			'FILTER_RAW' => $connector->getFieldValues(),
-			'FILTER' => Json::encode($connector->getFieldValues()),
+			'FILTER' => Json::encode(
+				$this->prepareFieldValues(
+					$connector->getFieldValues(),
+					(
+						$connector instanceof Connector\BaseFilter
+							?
+							$connector::getUiFilterFields()
+							:
+							[]
+					)
+				)
+			),
 		);
 
 		if ($connector instanceof Connector\BaseFilter)
@@ -324,6 +335,66 @@ class SenderSegmentEditComponent extends CBitrixComponent
 		$connectorData['FORM'] .= '<input type="hidden" name="'	. $hiddenName . '" value="0">';
 
 		return $connectorData;
+	}
+
+	protected function prepareFieldValues(array $fieldValues, array $fields)
+	{
+		if (empty($fields))
+		{
+			return $fieldValues;
+		}
+
+		$fields = array_combine(
+			array_column($fields, 'id'),
+			array_values($fields)
+			);
+
+		foreach ($fieldValues as $key => $values)
+		{
+			if (empty($fields[$key]) || empty($fields[$key]['selector']))
+			{
+				continue;
+			}
+			if ($fields[$key]['type'] != 'custom_entity' || $fields[$key]['selector']['TYPE'] != 'user')
+			{
+				continue;
+			}
+
+			if (empty($values))
+			{
+				continue;
+			}
+
+			$labelKey = $key . '_label';
+			if (!empty($fieldValues[$labelKey]))
+			{
+				continue;
+			}
+
+			$users = \Bitrix\Main\UserTable::getList([
+				'select' => ['ID', 'NAME', 'LAST_NAME', 'LOGIN', 'SECOND_NAME'],
+				'filter' => ['=ID' => $values]
+			])->fetchAll();
+			$users = array_combine(array_column($users, 'ID'), $users);
+
+			$labelValues = [];
+			foreach ($values as $value)
+			{
+				if (empty($users[$value]))
+				{
+					$labelValues[] = 'Unknown user';
+					continue;
+				}
+
+				$labelValues[] = \CUser::FormatName(
+					$this->arParams['NAME_TEMPLATE'],
+					$users[$value], true, false
+				);
+			}
+			$fieldValues[$labelKey] = $labelValues;
+		}
+
+		return $fieldValues;
 	}
 
 	protected function printErrors()

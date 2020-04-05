@@ -83,10 +83,12 @@
 		{
 			var result = new BX.Landing.Collection.NodeCollection();
 			this.forEach(function(item) {
-				if (item.node.matches(selector))
-				{
-					result.push(item);
-				}
+				try {
+					if (item.node.matches(selector))
+					{
+						result.push(item);
+					}
+				} catch(err) {}
 			});
 
 			return result;
@@ -103,6 +105,23 @@
 			var result = new BX.Landing.Collection.NodeCollection();
 			this.forEach(function(item) {
 				if (!item.node.matches(selector))
+				{
+					result.push(item);
+				}
+			});
+
+			return result;
+		},
+
+		/**
+		 * Gets visible elements
+		 * @return {BX.Landing.Collection.NodeCollection}
+		 */
+		getVisible: function()
+		{
+			var result = new BX.Landing.Collection.NodeCollection();
+			this.forEach(function(item) {
+				if (!item.hidden)
 				{
 					result.push(item);
 				}

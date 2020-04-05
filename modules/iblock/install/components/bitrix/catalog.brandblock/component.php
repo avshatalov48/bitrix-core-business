@@ -30,10 +30,10 @@ if(!isset($arParams["HEIGHT"]) || intval($arParams["HEIGHT"]) <= 0)
 	$arParams["HEIGHT"] = 50;
 
 if(!isset($arParams["WIDTH_SMALL"]) || intval($arParams["WIDTH_SMALL"]) <= 0)
-	$arParams["WIDTH_SMALL"] = 21;
+	$arParams["WIDTH_SMALL"] = 65;
 
 if(!isset($arParams["HEIGHT_SMALL"]) || intval($arParams["HEIGHT_SMALL"]) <= 0)
-	$arParams["HEIGHT_SMALL"] = 17;
+	$arParams["HEIGHT_SMALL"] = 25;
 
 if (!isset($arParams['PROP_CODE']))
 	$arParams['PROP_CODE'] = array();
@@ -232,6 +232,8 @@ if ($this->startResultCache(false, $additionalCache))
 		$fieldsList = $entityDataClass::getMap();
 		if (count($fieldsList) === 1 && isset($fieldsList['ID']))
 			$fieldsList = $entityDataClass::getEntity()->getFields();
+		if (!isset($fieldsList['UF_XML_ID']))
+			continue;
 
 		$directoryOrder = array();
 		if (isset($fieldsList['UF_SORT']))

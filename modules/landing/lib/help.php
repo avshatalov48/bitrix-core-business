@@ -10,14 +10,16 @@ class Help
 	 */
 	protected static $domains = array(
 		'ru' => 'bitrix24.ru',
-		'ua' => 'bitrix24.ua',
 		'by' => 'bitrix24.by',
 		'kz' => 'bitrix24.kz',
-		'pl' => 'bitrix24.pl',
+
+		'ua' => 'bitrix24.ua',
 		'en' => 'bitrix24.com',
 		'de' => 'bitrix24.de',
 		'es' => 'bitrix24.es',
 		'br' => 'bitrix24.com.br',
+
+		'pl' => 'bitrix24.pl',
 		'fr' => 'bitrix24.fr',
 		'cn' => 'bitrix24.cn',
 		'in' => 'bitrix24.in',
@@ -31,14 +33,35 @@ class Help
 	protected static $helpUrl = array(
 		'SITE_LIMIT_REACHED' => array(
 			'ru' => '6519197',
+			'ua' => '6524403',
 			'en' => '6588287',
-			'es' => '6529315',
 			'de' => '6630821',
-			'br' => '7014601',
-			'ua' => '6524403'
+			'es' => '6529315',
+			'br' => '7014601'
 		),
 		'LANDING_EDIT' => array(
-			'ru' => 's93291'
+			'ru' => 's93291',
+			'ua' => 's94173',
+			'en' => 's95157',
+			'de' => 's95161',
+			'es' => 's95265',
+			'br' => 's99169'
+		),
+		'DOMAIN_EDIT' => array(
+			'ru' => '6624333',
+			'ua' => '6626953',
+			'en' => '7389089',
+			'de' => '6637101',
+			'es' => '8479199',
+			'br' => '8513557',
+		),
+		'GMAP_EDIT' => array(
+			'ru' => '8203739',
+			'ua' => '8223491',
+			'en' => '8218073',
+			'de' => '8208835',
+			'es' => '8210537',
+			'br' => '8234081',
 		)
 	);
 

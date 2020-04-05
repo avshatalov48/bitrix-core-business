@@ -211,29 +211,11 @@ class LastSearch
 				{
 					$avatar = \CIMChat::GetAvatarImage($row['CHAT_AVATAR'], 100, false);
 					$color = strlen($row['CHAT_COLOR']) > 0? Color::getColor($row['CHAT_COLOR']): Color::getColorByNumber($row['ITEM_ID']);
-					if ($row["CHAT_TYPE"] == IM_MESSAGE_PRIVATE)
+					$chatType = \Bitrix\Im\Chat::getType($row);
+
+					if ($generalChatId == $row['ITEM_ID'])
 					{
-						$chatType = 'private';
-					}
-					else if ($row["CHAT_ENTITY_TYPE"] == 'CALL')
-					{
-						$chatType = 'call';
-					}
-					else if ($row["CHAT_ENTITY_TYPE"] == 'LINES')
-					{
-						$chatType = 'lines';
-					}
-					else if ($row["CHAT_ENTITY_TYPE"] == 'LIVECHAT')
-					{
-						$chatType = 'livechat';
-					}
-					else
-					{
-						if ($generalChatId == $row['ITEM_ID'])
-						{
-							$row["CHAT_ENTITY_TYPE"] = 'GENERAL';
-						}
-						$chatType = $row["CHAT_TYPE"] == IM_MESSAGE_OPEN? 'open': 'chat';
+						$row["CHAT_ENTITY_TYPE"] = 'GENERAL';
 					}
 
 					$muteList = Array();

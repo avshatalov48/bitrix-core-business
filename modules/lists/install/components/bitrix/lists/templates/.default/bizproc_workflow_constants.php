@@ -25,7 +25,7 @@ if($isBitrix24Template)
 }
 
 ?>
-	<div style="background: #eef2f4; width: 600px; padding: 5px 0px 0px 20px;">
+	<div style="background: #eef2f4; width: 600px; padding: 5px 20px;">
 		<?
 		$APPLICATION->IncludeComponent('bitrix:bizproc.workflow.setconstants', '',
 			array('ID' => $arResult['VARIABLES']['ID'], 'POPUP' => 'N'),

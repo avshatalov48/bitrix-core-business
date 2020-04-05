@@ -56,6 +56,7 @@ if (!empty($arCodes))
 		foreach ($arUpdates as $key => $arApp)
 		{
 			$arUpdates[$key]["STATUS"] = $arStatuses[$arApp["CODE"]];
+			$arUpdates[$key]['CAN_INSTALL'] = \CRestUtil::canInstallApplication($arUpdates[$key]);
 		}
 	}
 

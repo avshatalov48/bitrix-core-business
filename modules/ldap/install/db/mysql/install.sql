@@ -1,7 +1,7 @@
 create table b_ldap_server
 (
 	ID				int 			not null	auto_increment,
-	TIMESTAMP_X		timestamp		not null,
+	TIMESTAMP_X		timestamp		not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
 	NAME			varchar(255)	not null,
 	DESCRIPTION		text,
 	CODE			varchar(255),
@@ -11,11 +11,11 @@ create table b_ldap_server
 	ADMIN_LOGIN		varchar(255)	not null,
 	ADMIN_PASSWORD	varchar(255)	not null,
 	BASE_DN			varchar(255)	not null,
-	GROUP_FILTER	varchar(255)	not null,
+	GROUP_FILTER	varchar(2048)	not null,
 	GROUP_ID_ATTR	varchar(255)	not null,
 	GROUP_NAME_ATTR	varchar(255),
 	GROUP_MEMBERS_ATTR	varchar(255),
-	USER_FILTER 	varchar(255)	not null,
+	USER_FILTER 	varchar(2048)	not null,
 	USER_ID_ATTR	varchar(255)	not null,
 	USER_NAME_ATTR	varchar(255),
 	USER_LAST_NAME_ATTR	varchar(255),
@@ -31,11 +31,16 @@ create table b_ldap_server
 	DEFAULT_DEPARTMENT_NAME varchar(255),
 	IMPORT_STRUCT	char(1)	null	default 'N',
 	STRUCT_HAVE_DEFAULT	char(1),
+	SET_DEPARTMENT_HEAD	char(1) DEFAULT 'Y',
 	SYNC 			char(1),
 	SYNC_ATTR 		varchar(255),
 	SYNC_LAST 		datetime,
 	MAX_PAGE_SIZE	int null,
+	LDAP_OPT_TIMELIMIT	INT NOT NULL DEFAULT 100,
+	LDAP_OPT_TIMEOUT	INT NOT NULL DEFAULT 5,
+	LDAP_OPT_NETWORK_TIMEOUT	INT NOT NULL DEFAULT 5,
 	SYNC_USER_ADD 			char(1),
+	CONNECTION_TYPE int null,
 	primary key(ID)
 );
 

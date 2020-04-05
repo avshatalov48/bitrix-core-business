@@ -1,4 +1,5 @@
 <?
+$MESS["SMOB_PUSH_MES_ORDER_CHECK_ERROR"] = "Error printing receipt ##CHECK_ID# for order ##ACCOUNT_NUMBER#";
 $MESS["SMOB_ORDERS_MANAGEMENT"] = "Manage orders";
 $MESS["SMOB_ORDERS_LIST"] = "Orders";
 $MESS["SMOB_WAITING_FOR_PAY"] = "Still unpaid";

@@ -3,9 +3,18 @@ use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
+$isAvailable = \Bitrix\Sale\PaySystem\Manager::HANDLER_AVAILABLE_TRUE;
+
+$licensePrefix = \Bitrix\Main\Loader::includeModule("bitrix24") ? \CBitrix24::getLicensePrefix() : "";
+if (IsModuleInstalled("bitrix24") && !in_array($licensePrefix, ["ru"]))
+{
+	$isAvailable = \Bitrix\Sale\PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
+}
+
 $data = array(
 	'NAME' => Loc::getMessage('SALE_HPS_WEBMONEY'),
 	'SORT' => 500,
+	'IS_AVAILABLE' => $isAvailable,
 	'CODES' => array(
 		"WEBMONEY_SHOP_ACCT" => array(
 			"NAME" => Loc::getMessage("SALE_HPS_WEBMONEY_NUMBER"),

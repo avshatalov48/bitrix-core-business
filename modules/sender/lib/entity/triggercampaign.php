@@ -34,6 +34,7 @@ class TriggerCampaign extends Campaign
 		return [
 			'ACTIVE' => 'N',
 			'IS_TRIGGER' => 'Y',
+			'SITE_ID' => SITE_ID,
 		] + parent::getDefaultData();
 	}
 

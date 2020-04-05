@@ -1,7 +1,7 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 if (!CModule::IncludeModule("photogallery")) // !important
 	return ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
-elseif (!IsModuleInstalled("iblock")) // !important
+elseif (!CModule::IncludeModule("iblock")) // !important
 	return ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
 
 if (!isset($arParams["ACTION_URL"]))

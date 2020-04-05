@@ -60,5 +60,10 @@ return array(
 					'name' => Loc::getMessage('LANDING_BLOCK_31.1.TWO_COLS_TEXT_IMG_NODES_LANDINGBLOCKNODEBUTTON'),
 					'type' => array('text-align'),
 				),
+			'.landing-block-node-img' =>
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_31.1.TWO_COLS_TEXT_IMG_NODES_LANDINGBLOCKNODEIMG'),
+					'type' => 'background-size',
+				),
 		),
 );

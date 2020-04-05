@@ -538,6 +538,8 @@ BX.Kanban.Column.prototype =
 			this.getGrid().adjustEmptyStub();
 		}
 
+		BX.onCustomEvent(this, "Kanban.Column:render", [this]);
+
 		return columnContainer;
 	},
 

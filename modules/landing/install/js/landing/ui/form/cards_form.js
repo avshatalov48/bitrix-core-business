@@ -3,6 +3,7 @@
 
 	BX.namespace("BX.Landing.UI.Form");
 
+	var throttle = BX.Landing.Utils.throttle;
 	var append = BX.Landing.Utils.append;
 	var create = BX.Landing.Utils.create;
 	var bind = BX.Landing.Utils.bind;
@@ -38,7 +39,9 @@
 	 * @extends {BX.Landing.UI.Form.BaseForm}
 	 * @param {{
 	 * 		[title]: string,
-	 * 		[presets]: object
+	 * 		[presets]: object,
+	 * 		[sync]: string|string[],
+	 * 		[forms]: []
 	 * 	}} data
 	 * @constructor
 	 */
@@ -50,8 +53,11 @@
 		this.code = data.code;
 		this.presets = data.presets;
 		this.childForms = new FormCollection();
+		this.presetForm = new FormCollection();
+		this.sync = data.sync;
+		this.forms = data.forms;
 
-		this.onItemClick = proxy(this.onItemClick, this);
+		this.onItemClick = throttle(this.onItemClick, 200, this);
 		this.onRemoveItemClick = proxy(this.onRemoveItemClick, this);
 		this.onRemoveItemMouseenter = proxy(this.onRemoveItemMouseenter, this);
 		this.onRemoveItemMouseleave = proxy(this.onRemoveItemMouseleave, this);
@@ -181,7 +187,7 @@
 
 			dragItemOffset = Math.min(Math.max(dragItemOffset, minOffset), maxOffset);
 
-			style(item, {
+			void style(item, {
 				zIndex: 999,
 				transform: "translateY("+dragItemOffset+"px)"
 			});
@@ -198,7 +204,7 @@
 					{
 						targetItem = current;
 
-						style(current, {
+						void style(current, {
 							'transform': 'translate3d(0px, '+(-animationOffset)+'px, 0px)',
 							'transition': '300ms'
 						});
@@ -210,7 +216,7 @@
 					{
 						targetItem = current;
 
-						style(current, {
+						void style(current, {
 							'transform': 'translate3d(0px, '+(animationOffset)+'px, 0px)',
 							'transition': '300ms'
 						});
@@ -229,7 +235,7 @@
 							targetItem = current.nextElementSibling;
 						}
 
-						style(current, {
+						void style(current, {
 							'transform': 'translate3d(0px, 0px, 0px)',
 							'transition': '300ms'
 						});
@@ -241,7 +247,7 @@
 		function onDragEnd()
 		{
 			slice(item.parentElement.children).forEach(function(currentItem) {
-				style(currentItem, {
+				void style(currentItem, {
 					zIndex: null,
 					transform: null,
 					transition: null
@@ -256,17 +262,73 @@
 				var currentIndex = [].indexOf.call(targetItem.parentElement.children, currentItem);
 				var targetIndex = [].indexOf.call(targetItem.parentElement.children, targetItem);
 
-				if (targetItem.parentElement.children.length === targetIndex) {
+				if (targetItem.parentElement.children.length === targetIndex)
+				{
 					targetItem.parentElement.appendChild(target);
 				}
 
-				if (currentIndex > targetIndex) {
+				if (currentIndex > targetIndex)
+				{
 					targetItem.parentElement.insertBefore(currentItem, targetItem);
 				}
 
 				if (currentIndex < targetIndex && targetItem.parentElement.children.length !== targetIndex)
 				{
 					targetItem.parentElement.insertBefore(currentItem, targetItem.nextElementSibling);
+				}
+
+				if (parentForm.sync)
+				{
+					var syncSelectors = parentForm.sync;
+
+					if (isString(parentForm.sync))
+					{
+						syncSelectors = [parentForm.sync];
+					}
+
+					if (isArray(syncSelectors))
+					{
+						syncSelectors.forEach(function(syncSelector) {
+							var syncForm = parentForm.forms.find(function(currentForm) {
+								return currentForm.code === syncSelector;
+							});
+
+							if (syncForm)
+							{
+								var syncCurrentItem = syncForm.body.children[currentIndex];
+								var syncTargetItem = syncForm.body.children[targetIndex];
+
+								if (syncTargetItem.parentElement.children.length === targetIndex)
+								{
+									syncTargetItem.parentElement.appendChild(target);
+								}
+
+								if (currentIndex > targetIndex)
+								{
+									syncTargetItem.parentElement.insertBefore(syncCurrentItem, syncTargetItem);
+								}
+
+								if (currentIndex < targetIndex && syncTargetItem.parentElement.children.length !== targetIndex)
+								{
+									syncTargetItem.parentElement.insertBefore(syncCurrentItem, syncTargetItem.nextElementSibling);
+								}
+							}
+
+							syncForm.childForms.forEach(function(currentSyncForms) {
+								var index = [].indexOf.call(
+									currentSyncForms.layout.parentElement.parentElement.parentElement.children,
+									currentSyncForms.layout.parentElement.parentElement
+								);
+
+								currentSyncForms.oldIndex = getSelectorIndex(currentSyncForms.selector);
+								currentSyncForms.selector = join(currentSyncForms.selector.split("@")[0], "@", index);
+							});
+
+							syncForm.childForms.sort(function(a, b) {
+								return parseInt(a.selector.split("@")[1]) < parseInt(b.selector.split("@")[1]) ? -1 : 1;
+							});
+						});
+					}
 				}
 			}
 
@@ -325,6 +387,8 @@
 			field.layout.hidden = false;
 		});
 
+		var textItemIndex = -1;
+
 		labelSelectors.forEach(function(selector) {
 			var field = form.fields.find(function(currentField) {
 				return currentField.selector.split("@")[0] === selector;
@@ -374,13 +438,23 @@
 
 				if (field instanceof BX.Landing.UI.Field.Text)
 				{
-					labelContainer = item.querySelector(".landing-card-title-text");
+					textItemIndex += 1;
+					var labelContainers = item.querySelectorAll(".landing-card-title-text");
+					labelContainer = labelContainers[textItemIndex];
 
 					onCustomEvent(field, "BX.Landing.UI.Field:change", function(value) {
-						labelContainer.innerHTML = value;
+						labelContainer.innerHTML = create("div", {html: value}).innerText;
 					});
 
-					labelContainer.innerHTML = BX.message("LANDING_CARDS_FORM_ITEM_PLACEHOLDER_TEXT");
+					if (labelContainer === labelContainers[0])
+					{
+						labelContainer.innerHTML = BX.message("LANDING_CARDS_FORM_ITEM_PLACEHOLDER_TEXT");
+						field.setValue(BX.message("LANDING_CARDS_FORM_ITEM_PLACEHOLDER_TEXT"));
+					}
+					else
+					{
+						labelContainer.innerHTML = "";
+					}
 				}
 			}
 		});
@@ -457,31 +531,31 @@
 
 			var target = findParent(event.currentTarget, {className: "landing-ui-form-cards-item"});
 
-			if (!hasClass(target, "landing-ui-form-card-item-draggable"))
+			if (!!target && !hasClass(target, "landing-ui-form-card-item-draggable"))
 			{
 				if (!hasClass(target, "landing-ui-form-cards-item-expand"))
 				{
 					addClass(target, "landing-ui-form-cards-item-expand");
 
 					onTransitionEnd(target).then(function() {
-						style(target, {
+						void style(target, {
 							overflow: "visible"
 						});
 					});
 
-					style(target, {
-						height: target.firstChild.clientHeight + "px"
+					void style(target, {
+						"height": "auto"
 					});
 				}
 				else
 				{
 					removeClass(target, "landing-ui-form-cards-item-expand");
-					style(target, null);
+					void style(target, null);
 				}
 			}
 		},
 
-		onRemoveItemClick: function(event)
+		onRemoveItemClick: function(event, preventSync)
 		{
 			event.stopPropagation();
 			if (this.body.children.length > 1)
@@ -495,6 +569,40 @@
 				});
 
 				this.childForms.remove(form);
+
+				if (preventSync !== true)
+				{
+					if (this.sync)
+					{
+						var syncSelectors = this.sync;
+
+						if (isString(this.sync))
+						{
+							syncSelectors = [this.sync];
+						}
+
+						if (isArray(syncSelectors))
+						{
+							syncSelectors.forEach(function(syncSelector) {
+								var syncedForm = this.forms.find(function(currentForm) {
+									return currentForm.code === syncSelector;
+								});
+
+								if (syncedForm)
+								{
+									var childForm = syncedForm.childForms.find(function(currentChildForm) {
+										return currentChildForm.selector.split("@")[1] === form.selector.split("@")[1];
+									});
+
+									syncedForm.onRemoveItemClick({
+										currentTarget: childForm.layout,
+										stopPropagation: (function() {})
+									}, true);
+								}
+							}, this);
+						}
+					}
+				}
 			}
 
 			this.adjustLastFormState();
@@ -525,7 +633,18 @@
 			this.adjustLastFormState();
 		},
 
-		onAddCardClick: function()
+		addPresetForm: function(form)
+		{
+			this.presetForm.add(form);
+			var formWrapper = wrapForm(form, this);
+			formWrapper.hidden = true;
+			append(formWrapper, this.body);
+			makeDraggable(formWrapper, this);
+			this.adjustLastFormState();
+		},
+
+
+		onAddCardClick: function(preventSync)
 		{
 			if (isPlainObject(this.presets) && !isEmpty(this.presets))
 			{
@@ -534,6 +653,33 @@
 			else
 			{
 				this.addEmptyCard();
+
+				if (preventSync !== true)
+				{
+					if (this.sync)
+					{
+						var syncSelectors = this.sync;
+
+						if (isString(this.sync))
+						{
+							syncSelectors = [this.sync];
+						}
+
+						if (isArray(syncSelectors))
+						{
+							syncSelectors.forEach(function(syncSelector) {
+								var form = this.forms.find(function(currentForm) {
+									return currentForm.code === syncSelector;
+								});
+
+								if (form)
+								{
+									form.onAddCardClick(true);
+								}
+							}, this);
+						}
+					}
+				}
 			}
 		},
 
@@ -541,7 +687,10 @@
 		{
 			var preset = this.presets[presetId];
 
-			var newForm = this.childForms[0].clone();
+			var newForm = this.presetForm.find(function(form) {
+				return form.preset.id === presetId;
+			}).clone();
+
 			newForm.selector = join(newForm.selector.split("@")[0], "@", this.childForms.length);
 			newForm.oldIndex = this.childForms.length;
 			newForm.preset = clone(preset);
@@ -596,11 +745,9 @@
 						}
 					}, this),
 					autoHide: true,
-					maxHeight: 176
+					maxHeight: 176,
+					minHeight: 87
 				});
-
-				this.popup.layout.menuContainer.style.height = "116px";
-				this.popup.popupWindow.contentContainer.style.overflowX = "hidden";
 
 				bind(this.popup.popupWindow.popupContainer, "mouseover", this.onMouseOver.bind(this));
 				bind(this.popup.popupWindow.popupContainer, "mouseleave", this.onMouseLeave.bind(this));
@@ -707,9 +854,12 @@
 		 */
 		addEmptyCard: function()
 		{
-			var newForm = this.childForms[0].clone();
+			var newData = clone(this.childForms[0].data);
+			var newSelector = join(newData.selector.split("@")[0], "@", this.childForms.length);
+			newData.selector = newSelector;
+			var newForm = this.childForms[0].clone(newData);
 			newForm.oldIndex = this.childForms.length;
-			newForm.selector = join(newForm.selector.split("@")[0], "@", this.childForms.length);
+			newForm.selector = newSelector;
 			this.addChildForm(newForm);
 			initBindings(newForm);
 			this.adjustLastFormState();

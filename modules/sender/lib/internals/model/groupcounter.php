@@ -55,4 +55,27 @@ class GroupCounterTable extends Entity\DataManager
 		);
 	}
 
+	/**
+	 * Delete counters by group ID.
+	 *
+	 * @param int $groupId Group ID.
+	 * @return bool
+	 */
+	public static function deleteByGroupId($groupId)
+	{
+		$items = static::getList([
+			'select' => ['GROUP_ID', 'TYPE_ID'],
+			'filter' => ['=GROUP_ID' => $groupId]
+		]);
+		foreach ($items as $primary)
+		{
+			$result = static::delete($primary);
+			if (!$result->isSuccess())
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
 }

@@ -23,7 +23,7 @@
 .sale-personal-account-wallet-list-item {
 	position: relative;
 	overflow: hidden;
-	padding: 11px 17px 12px 17px;
+	padding: 11px 17px 12px;
 	border-bottom: 1px solid #e39a20;
 	font-size: 15px;
 }

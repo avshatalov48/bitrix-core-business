@@ -8,15 +8,15 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Iblock;
 use Bitrix\Catalog;
 
-$prologAbsent = (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true);
-if($prologAbsent)
-{
-	require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
-}
+require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
+
 Loader::includeModule('catalog');
 Loc::loadMessages(__FILE__);
 
 $APPLICATION->setTitle(Loc::getMessage('PSL_PAGE_TITLE'));
+
+$publicMode = $adminPage->publicMode;
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
 
 if(!$USER->canDoOperation('catalog_read') && !$USER->canDoOperation('catalog_view'))
 {
@@ -31,48 +31,91 @@ if(isset($_REQUEST['mode']) && ($_REQUEST['mode'] == 'list' || $_REQUEST['mode']
 
 $tableId = 'tbl_product_subscription_list';
 $sortObject = new CAdminSorting($tableId, 'DATE_FROM', 'DESC');
-$listObject = new CAdminList($tableId, $sortObject);
+$listObject = new CAdminUiList($tableId, $sortObject);
 
+global $by, $order;
 if(!isset($by))
 	$by = 'DATE_FROM';
 if(!isset($order))
 	$order = 'DESC';
 
-$filterFields = array(
-	'find_id',
-	'find_user_id',
-	'find_user_contact',
-	'find_item_id',
-	'find_date_from_1',
-	'find_date_from_2',
-	'find_date_to_1',
-	'find_date_to_2',
-	'find_contact_type',
-	'find_active'
-);
-$listObject->initFilter($filterFields);
+$listContactTypes = array();
+$contactType = Catalog\SubscribeTable::getContactTypes();
+foreach ($contactType as $contactTypeId => $contactTypeData)
+{
+	$listContactTypes[$contactTypeId] = $contactTypeData["NAME"];
+}
 
-if(isset($_REQUEST['ITEM_ID']))
-	$find_item_id = $_REQUEST['ITEM_ID'];
+$filterFields = array(
+	array(
+		"id" => "ID",
+		"name" => GetMessage('PSL_FILTER_ID'),
+		"filterable" => "="
+	),
+	array(
+		"id" => "USER_ID",
+		"name" => GetMessage('PSL_FILTER_USER_ID'),
+		"type" => "custom_entity",
+		"selector" => array("type" => "user"),
+		"filterable" => "=",
+		"default" => true
+	),
+	array(
+		"id" => "USER_CONTACT",
+		"name" => GetMessage('PSL_FILTER_USER_CONTACT'),
+		"filterable" => "%",
+		"quickSearch" => "%"
+	),
+	array(
+		"id" => "ITEM_ID",
+		"name" => GetMessage('PSL_FILTER_ITEM_ID'),
+		"type" => "number",
+		"filterable" => "=",
+		"default" => true
+	),
+	array(
+		"id" => "DATE_FROM",
+		"name" => GetMessage("PSL_FILTER_DATE_FROM"),
+		"type" => "date",
+		"filterable" => "",
+		"default" => true
+	),
+	array(
+		"id" => "DATE_TO",
+		"name" => GetMessage("PSL_FILTER_DATE_TO"),
+		"type" => "date",
+		"filterable" => ""
+	),
+	array(
+		"id" => "CONTACT_TYPE",
+		"name" => GetMessage("PSL_FILTER_CONTACT_TYPE"),
+		"type" => "list",
+		"items" => $listContactTypes,
+		"filterable" => "="
+	),
+	array(
+		"id" => "ACTIVE",
+		"name" => GetMessage("PSL_FILTER_ACTIVE"),
+		"type" => "list",
+		"items" => array(
+			"Y" => GetMessage("PSL_FILTER_YES"),
+			"N" => GetMessage("PSL_FILTER_NO")
+		),
+		"filterable" => ""
+	),
+);
 
 $filter = array();
-if($find_id)
-	$filter['=ID'] = $find_id;
-if($find_user_id)
-	$filter['=USER_ID'] = $find_user_id;
-if($find_user_contact)
-	$filter['%USER_CONTACT'] = $find_user_contact;
-if($find_item_id)
-	$filter['=ITEM_ID'] = $find_item_id;
-if($find_date_from_1)
-	$filter['>=DATE_FROM'] = $find_date_from_1;
-if($find_date_to_1)
-	$filter['>=DATE_TO'] = $find_date_to_1;
-if($find_contact_type)
-	$filter['=CONTACT_TYPE'] = $find_contact_type;
-if($find_active)
+
+$listObject->AddFilter($filterFields, $filter);
+
+if (isset($_REQUEST['ITEM_ID']))
 {
-	if($find_active == 'Y')
+	$filter["ITEM_ID"] = $_REQUEST['ITEM_ID'];
+}
+if (isset($filter["ACTIVE"]))
+{
+	if ($filter["ACTIVE"] == 'Y')
 	{
 		$filter[] = array(
 			'LOGIC' => 'OR',
@@ -88,16 +131,7 @@ if($find_active)
 			array('<DATE_TO' => date($DB->dateFormatToPHP(CLang::getDateFormat('FULL')), time()))
 		);
 	}
-}
-if(!empty($find_date_from_2))
-{
-	$filter['<=DATE_FROM'] = CIBlock::isShortDate($find_date_from_2) ?
-		ConvertTimeStamp(AddTime(MakeTimeStamp($find_date_from_2), 1, 'D'), 'FULL'): $find_date_from_2;
-}
-if(!empty($find_date_to_2))
-{
-	$filter['<=DATE_TO'] = CIBlock::isShortDate($find_date_to_2) ?
-		ConvertTimeStamp(AddTime(MakeTimeStamp($find_date_to_2), 1, 'D'), 'FULL'): $find_date_to_2;
+	unset($filter["ACTIVE"]);
 }
 
 $subscribeManager = new Catalog\Product\SubscribeManager();
@@ -108,7 +142,7 @@ if(($listRowId = $listObject->groupAction()))
 	{
 		case 'delete':
 			$itemId = 0;
-			if(isset($_REQUEST['itemId']))
+			if (isset($_REQUEST['itemId']))
 				$itemId = $_REQUEST['itemId'];
 			$subscribeManager->deleteManySubscriptions($listRowId, $itemId);
 			break;
@@ -124,6 +158,15 @@ if(($listRowId = $listObject->groupAction()))
 	if($errorObject)
 	{
 		$listObject->addGroupError($errorObject->getMessage());
+	}
+
+	if ($listObject->hasGroupErrors())
+	{
+		$adminSidePanelHelper->sendJsonErrorResponse($listObject->getGroupErrors());
+	}
+	else
+	{
+		$adminSidePanelHelper->sendSuccessResponse();
 	}
 }
 
@@ -161,19 +204,17 @@ foreach($selectFields as $fieldName)
 $select['PRODUCT_NAME'] = 'IBLOCK_ELEMENT.NAME';
 $select['IBLOCK_ID'] = 'IBLOCK_ELEMENT.IBLOCK_ID';
 
-$nav = new Main\UI\AdminPageNavigation('pages-subscription-list');
 $queryObject = Catalog\SubscribeTable::getList(array(
 	'select' => $select,
 	'filter' => $filter,
 	'order' => array($by => $order),
-	'count_total'=>true,
-	'offset' => $nav->getOffset(),
-	'limit' => $nav->getLimit()
 ));
-$nav->setRecordCount($queryObject->getCount());
-$listObject->setNavigation($nav, Loc::getMessage('PSL_PAGES'));
 
-$contactType = Catalog\SubscribeTable::getContactTypes();
+$queryObject = new CAdminUiResult($queryObject, $tableId);
+$queryObject->NavStart();
+
+$listObject->SetNavigationParams($queryObject, array("BASE_LINK" => $selfFolderUrl."cat_subscription_list.php"));
+
 $actionUrl = '&lang='.LANGUAGE_ID;
 $listUserData = array();
 while($subscribe = $queryObject->fetch())
@@ -197,17 +238,17 @@ while($subscribe = $queryObject->fetch())
 
 	if(defined('CATALOG_PRODUCT'))
 	{
-		$editUrl = CIBlock::getAdminElementEditLink($subscribe['IBLOCK_ID'], $subscribe['ITEM_ID'], array(
-			'find_section_section' => -1, 'WF' => 'Y',
-			'return_url' => $APPLICATION->getCurPageParam('', array('mode', 'table_id'))));
+		$editUrl = $selfFolderUrl.CIBlock::getAdminElementEditLink($subscribe['IBLOCK_ID'], $subscribe['ITEM_ID'], array(
+			'find_section_section' => -1, 'WF' => 'Y', 'replace_script_name' => true,
+			'return_url' => $APPLICATION->getCurPageParam('', array('mode', 'table_id', "internal", "grid_id", "grid_action", "bxajaxid", "sessid")))); //todo replace to $listObject->getCurPageParam()
 	}
 	else
 	{
-		$editUrl = CIBlock::getAdminElementEditLink($subscribe['IBLOCK_ID'], $subscribe['ITEM_ID'], array(
-			'find_section_section' => -1, 'WF' => 'Y'));
+		$editUrl = $selfFolderUrl.CIBlock::getAdminElementEditLink($subscribe['IBLOCK_ID'], $subscribe['ITEM_ID'], array(
+			'find_section_section' => -1, 'WF' => 'Y', 'replace_script_name' => true));
 	}
 	$row->addField('PRODUCT_NAME',
-		'<a href="'.$editUrl.'" target="_blank">'.htmlspecialcharsbx($subscribe['PRODUCT_NAME']).'</a>');
+		'<a href="'.$editUrl.'">'.htmlspecialcharsbx($subscribe['PRODUCT_NAME']).'</a>');
 
 	$actions = array();
 	$actionUrl .= '&itemId='.$subscribe['ITEM_ID'];
@@ -238,18 +279,20 @@ while($user = $userQuery->fetch())
 {
 	if(is_array($listUserData[$user['ID']]))
 	{
+		$urlToUser = $selfFolderUrl."user_edit.php?ID=".$user["ID"]."&lang=".LANGUAGE_ID;
+		if ($publicMode)
+		{
+			$urlToUser = $selfFolderUrl."sale_buyers_profile.php?USER_ID=".$user["ID"]."&lang=".LANGUAGE_ID;
+			$urlToUser = $adminSidePanelHelper->editUrlToPublicPage($urlToUser);
+		}
 		foreach($listUserData[$user['ID']] as $subscribeId)
 		{
-			$userString='<a href="/bitrix/admin/user_edit.php?ID='.$user['ID'].'&lang='.LANGUAGE_ID.'" target="_blank">'.
-				CUser::formatName(CSite::getNameFormat(false), $user, true, false).'</a>';
+			$userString='<a href="'.$urlToUser.'">'.
+				CUser::formatName(CSite::getNameFormat(false), $user, true, true).'</a>';
 			$rowList[$subscribeId]->addField('USER_ID', $userString);
 		}
 	}
 }
-
-$footerArray = array(array('title' => Loc::getMessage('PSL_LIST_SELECTED'),
-	'value' => $queryObject->getCount()));
-$listObject->addFooter($footerArray);
 
 $listObject->addGroupActionTable(array(
 	'delete' => Loc::getMessage('PSL_ACTION_DELETE'),
@@ -258,92 +301,14 @@ $listObject->addGroupActionTable(array(
 ));
 
 $contextListMenu = array();
+$listObject->setContextSettings(array("pagePath" => $selfFolderUrl."cat_subscription_list.php"));
 $listObject->addAdminContextMenu($contextListMenu);
 
 $listObject->checkListMode();
-if($prologAbsent)
-	require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
-?>
 
-<form method="GET" name="find_subscribe_form" id="find_subscribe_form" action="<?=$APPLICATION->getCurPageParam()?>">
-	<?
-	$findFields = array(
-		Loc::getMessage('PSL_FILTER_ID'),
-		Loc::getMessage('PSL_FILTER_USER_ID'),
-		Loc::getMessage('PSL_FILTER_USER_CONTACT'),
-		Loc::getMessage('PSL_FILTER_ITEM_ID'),
-		Loc::getMessage('PSL_FILTER_DATE_FROM'),
-		Loc::getMessage('PSL_FILTER_DATE_TO'),
-		Loc::getMessage('PSL_FILTER_CONTACT_TYPE'),
-		Loc::getMessage('PSL_FILTER_ACTIVE'),
-	);
-	$filterUrl = $APPLICATION->getCurPageParam();
-	$filterObject = new CAdminFilter($tableId.'_filter', $findFields, array('table_id' => $tableId, 'url' => $filterUrl));
-	$filterObject->setDefaultRows(array('find_user_contact', 'find_item_id'));
-	$filterObject->begin(); ?>
-	<tr>
-		<td><?=Loc::getMessage('PSL_FILTER_ID')?></td>
-		<td><input type="text" name="find_id" size="11" value="<?=htmlspecialcharsbx($find_id)?>"></td>
-	</tr>
-	<tr>
-		<td><?=Loc::getMessage('PSL_FILTER_USER_ID')?></td>
-		<td><?=FindUserID('find_user_id', $find_user_id, '', 'find_subscribe_form', '5', '', ' ... ', '', '') ?></td>
-	</tr>
-	<tr>
-		<td><?=Loc::getMessage('PSL_FILTER_USER_CONTACT')?></td>
-		<td><input type="text" name="find_user_contact" size="40" value="<?=htmlspecialcharsbx($find_user_contact)?>"></td>
-	</tr>
-	<tr>
-		<td><?=Loc::getMessage('PSL_FILTER_ITEM_ID')?></td>
-		<td><input type="text" name="find_item_id" size="11" value="<?=htmlspecialcharsbx($find_item_id)?>"></td>
-	</tr>
-	<tr>
-		<td><?=Loc::getMessage('PSL_FILTER_DATE_FROM')?></td>
-		<td><?=CalendarPeriod('find_date_from_1', htmlspecialcharsbx($find_date_from_1),
-				'find_date_from_2', htmlspecialcharsbx($find_date_from_2), 'find_subscribe_form', 'Y')?></td>
-	</tr>
-	<tr>
-		<td><?=Loc::getMessage('PSL_FILTER_DATE_TO')?></td>
-		<td><?=CalendarPeriod('find_date_to_1', htmlspecialcharsbx($find_date_to_1),
-				'find_date_to_2', htmlspecialcharsbx($find_date_to_2), 'find_subscribe_form', 'Y')?></td>
-	</tr>
-	<tr>
-		<td><?=Loc::getMessage('PSL_FILTER_CONTACT_TYPE')?></td>
-		<td>
-			<select name="find_contact_type[]">
-				<option value=""><?=Loc::getMessage('PSL_FILTER_ANY')?></option>
-				<?
-				$contactTypes = !empty($find_contact_type) ? $find_contact_type : array();
-				foreach ($contactType as $contactTypeId => $contactTypeData):?>
-					<option value="<?=$contactTypeId?>"<?=in_array($contactTypeId, $contactTypes) ? ' selected' : ''?>>
-						<?=htmlspecialcharsbx($contactTypeData['NAME']); ?>
-					</option>
-				<?endforeach; ?>
-			</select>
-		</td>
-	</tr>
-	<tr>
-		<td><?=Loc::getMessage('PSL_FILTER_ACTIVE')?></td>
-		<td>
-			<select name="find_active">
-				<option value=""><?=Loc::getMessage('PSL_FILTER_ANY')?></option>
-				<option value="Y"<?if($find_active=="Y")echo " selected"?>>
-					<?=Loc::getMessage('PSL_FILTER_YES')?>
-				</option>
-				<option value="N"<?if($find_active=="N")echo " selected"?>>
-					<?=Loc::getMessage('PSL_FILTER_NO')?>
-				</option>
-			</select>
-		</td>
-	</tr>
-	<?
-	$filterObject->buttons(array('table_id' => $tableId,
-		'url' => $APPLICATION->getCurPageParam('', array('ITEM_ID')), 'form' => 'find_subscribe_form'));
-	$filterObject->end();
-	?>
-</form>
+require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 
-<?$listObject->displayList();
+$listObject->DisplayFilter($filterFields);
+$listObject->displayList();
 
-if($prologAbsent)
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

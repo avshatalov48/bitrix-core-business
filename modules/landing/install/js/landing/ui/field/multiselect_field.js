@@ -40,7 +40,10 @@
 
 			field.fields.add(checkbox);
 
-			append(checkbox.layout, field.getPopup().contentContainer);
+			if (checkbox.layout)
+			{
+				append(checkbox.layout, field.getPopup().contentContainer);
+			}
 
 			if (item.selected)
 			{
@@ -241,7 +244,7 @@
 
 						if (hasClass(this.layout.parentElement.parentElement, "landing-ui-form-style"))
 						{
-							style(this.layout.parentElement.parentElement, {
+							void style(this.layout.parentElement.parentElement, {
 								"z-index": null,
 								"position": null
 							});
@@ -250,11 +253,17 @@
 				}
 			});
 
-			addClass(this.popup.popupContainer, "landing-ui-field-multiselect-popup");
-			append(
-				this.popup.popupContainer,
-				findParent(this.input, {className: "landing-ui-panel-content-body-content"})
-			);
+			if (this.popup.popupContainer)
+			{
+				addClass(this.popup.popupContainer, "landing-ui-field-multiselect-popup");
+
+				var parent = findParent(this.input, {className: "landing-ui-panel-content-body-content"}, document.body);
+
+				if (parent)
+				{
+					append(this.popup.popupContainer, parent);
+				}
+			}
 
 			return this.popup;
 		},

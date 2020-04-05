@@ -537,10 +537,9 @@ class CSearch extends CAllSearch
 			//Copy first exists into inner join in hopeless try to defeat MySQL optimizer
 			$strSqlJoin2 = "";
 			$match = array();
-			if ($strSqlWhere && preg_match('#\\s*EXISTS (\\(SELECT \\* FROM b_search_content_param WHERE SEARCH_CONTENT_ID = sc\\.ID AND PARAM_NAME = \'[^\']+\' AND PARAM_VALUE(\\s*= \'[^\']+\'|\\s+in \\(\'[^\']+\'\\))\\))#', $strSqlWhere, $match))
+			if ($strSqlWhere && preg_match('#\\s*EXISTS \\(SELECT \\* FROM b_search_content_param WHERE (SEARCH_CONTENT_ID = sc\\.ID AND PARAM_NAME = \'[^\']+\' AND PARAM_VALUE(\\s*= \'[^\']+\'|\\s+in \\(\'[^\']+\'\\)))\\)#', $strSqlWhere, $match))
 			{
-				$subTable = str_replace("SEARCH_CONTENT_ID = sc.ID AND", "", $match[1]);
-				$strSqlJoin2 = "INNER JOIN ".$subTable." p1 ON p1.SEARCH_CONTENT_ID = sc.ID";
+				$strSqlJoin2 = "INNER JOIN b_search_content_param scp ON scp.$match[1]";
 			}
 
 			if ($query == "1=1")

@@ -5,6 +5,9 @@ use Bitrix\Main\Entity\DataManager;
 use Bitrix\Main\Entity\DatetimeField;
 use Bitrix\Main\Entity\IntegerField;
 use Bitrix\Main\Entity\StringField;
+use Bitrix\Main\Entity\UpdateResult;
+use Bitrix\Main\Error;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Numerator\Generator\Contract\Sequenceable;
 use Bitrix\Main\Numerator\Numerator;
 use Bitrix\Main\Numerator\NumberGeneratorFactory;
@@ -33,22 +36,22 @@ class NumeratorTable extends DataManager
 	public static function getMap()
 	{
 		return [
-			new IntegerField('ID', [
-				'primary'      => true,
-				'autocomplete' => true,
-			]),
-			new StringField('NAME', [
-				'required' => true,
-			]),
-			new StringField('TEMPLATE', [
-				'required' => true,
-			]),
-			new StringField('SETTINGS', [
-				'required' => true,
-			]),
-			new StringField('TYPE', [
-				'default_value' => 'DEFAULT',
-			]),
+			(new IntegerField('ID'))
+				->configurePrimary(true)
+				->configureAutocomplete(true)
+			,
+			(new StringField('NAME'))
+				->configureRequired(true)
+			,
+			(new StringField('TEMPLATE'))
+				->configureRequired(true)
+			,
+			(new StringField('SETTINGS'))
+				->configureRequired(true)
+			,
+			(new StringField('TYPE'))
+				->configureDefaultValue('DEFAULT')
+			,
 			new DatetimeField('CREATED_AT'),
 			new IntegerField('CREATED_BY'),
 			new DatetimeField('UPDATED_AT'),
@@ -86,22 +89,32 @@ class NumeratorTable extends DataManager
 			$filter = [];
 		}
 		$params = [
-			'select' => ['id' => 'ID', 'name' => 'NAME', 'template' => 'TEMPLATE', 'type' => 'TYPE',],
+			'select' => ['*'],
 			'filter' => $filter,
 		];
 		if ($sort)
 		{
 			$params['order'] = $sort;
 		}
-		return NumeratorTable::getList($params)->fetchAll();
+		$results = NumeratorTable::getList($params)->fetchAll();
+		foreach ($results as &$numerator)
+		{
+			$numerator['id'] = $numerator['ID'];
+			$numerator['name'] = $numerator['NAME'];
+			$numerator['template'] = $numerator['TEMPLATE'];
+			$numerator['type'] = $numerator['TYPE'];
+		}
+		return $results;
 	}
 
 	/**
 	 * @param $numeratorId
 	 * @param $numeratorFields
 	 * @return \Bitrix\Main\Entity\AddResult|\Bitrix\Main\Entity\UpdateResult
+	 * @throws SystemException
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectException
+	 * @throws \Bitrix\Main\ObjectPropertyException
 	 */
 	public static function saveNumerator($numeratorId, $numeratorFields)
 	{
@@ -115,7 +128,25 @@ class NumeratorTable extends DataManager
 		];
 		if ($numeratorId)
 		{
-			return NumeratorTable::update($numeratorId, $fields);
+			if (!(Numerator::load($numeratorId)))
+			{
+				$result = new UpdateResult();
+				$result->addError(new Error(Loc::getMessage('MAIN_NUMERATOR_EDIT_NUMERATOR_NOT_FOUND_ERROR')));
+				return $result;
+			}
+
+			$updateRes = NumeratorTable::update($numeratorId, $fields);
+
+			if ($updateRes->isSuccess())
+			{
+				$numerator = Numerator::load($numeratorId);
+				$isNewNumSequential = $numerator->hasSequentialNumber();
+				if (!$isNewNumSequential)
+				{
+					NumeratorSequenceTable::deleteByNumeratorId($numeratorId);
+				}
+			}
+			return $updateRes;
 		}
 		$fields['CREATED_AT'] = new DateTime();
 		$fields['CREATED_BY'] = static::getCurrentUserId();

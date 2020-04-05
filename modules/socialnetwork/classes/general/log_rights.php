@@ -70,7 +70,14 @@ class CSocNetLogRights
 				{
 					if($followSet)
 					{
-						CSocNetLogFollow::Set($matches[1], "L".$LOG_ID, "Y", ConvertTimeStamp(time() + CTimeZone::GetOffset(), "FULL", SITE_ID));
+						\Bitrix\Socialnetwork\ComponentHelper::userLogSubscribe(array(
+							'logId' => $LOG_ID,
+							'userId' => $matches[1],
+							'typeList' => array(
+								'FOLLOW',
+							),
+							'followDate' => 'CURRENT'
+						));
 					}
 				}
 				elseif (

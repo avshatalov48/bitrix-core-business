@@ -86,6 +86,11 @@ return array(
 					'name' => Loc::getMessage('LANDING_BLOCK_41.2.TEXT_BLOCKS_SLIDER_ON_COLOR_BG_STYLE_LANDINGBLOCKNODECARDBUTTON'),
 					'type' => array('text-align'),
 				),
+			'.landing-block-node-card-container' =>
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_41.2.TEXT_BLOCKS_SLIDER_ON_COLOR_BG_STYLE_LANDINGBLOCKNODECARDBUTTON'),
+					'type' => array('align-items'),
+				),
 		),
 	'assets' => array(
 		'ext' => array('landing_carousel'),

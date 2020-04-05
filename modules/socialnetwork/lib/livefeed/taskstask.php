@@ -7,7 +7,6 @@ use Bitrix\Main\Config\Option;
 final class TasksTask extends Provider
 {
 	const PROVIDER_ID = 'TASK';
-	const TYPE = 'entry';
 	const CONTENT_TYPE_ID = 'TASK';
 
 	public static function getId()
@@ -22,7 +21,13 @@ final class TasksTask extends Provider
 
 	public function getType()
 	{
-		return static::TYPE;
+		return Provider::TYPE_POST;
+	}
+
+	public function getCommentProvider()
+	{
+		$provider = new \Bitrix\Socialnetwork\Livefeed\ForumPost();
+		return $provider;
 	}
 
 	public function initSourceFields()

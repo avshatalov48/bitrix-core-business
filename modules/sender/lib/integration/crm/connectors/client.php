@@ -10,10 +10,12 @@ namespace Bitrix\Sender\Integration\Crm\Connectors;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Page\Asset;
+use Bitrix\Main\Type\Date;
 use Bitrix\Main\UI\Filter\AdditionalDateType;
 
 use Bitrix\Sender\Connector\BaseFilter as ConnectorBaseFilter;
 use Bitrix\Sender\Connector\ResultView;
+use Bitrix\Sender\Integration\Sender\Holiday;
 use Bitrix\Crm\ContactTable as CrmContactTable;
 use Bitrix\Crm\CompanyTable as CrmCompanyTable;
 use Bitrix\Crm\PhaseSemantics;
@@ -394,7 +396,14 @@ class Client extends ConnectorBaseFilter
 			"id" => "DEAL_DATE_CREATE",
 			"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_DEAL_DATE_CREATE'),
 			"type" => "date",
-			"include" => [AdditionalDateType::CUSTOM_DATE],
+			"include" => [
+				AdditionalDateType::CUSTOM_DATE,
+				AdditionalDateType::PREV_DAY,
+				AdditionalDateType::NEXT_DAY,
+				AdditionalDateType::MORE_THAN_DAYS_AGO,
+				AdditionalDateType::AFTER_DAYS,
+			],
+			"allow_years_switcher" => true,
 			"default" => true
 		);
 
@@ -444,6 +453,7 @@ class Client extends ConnectorBaseFilter
 			"id" => "ASSIGNED_BY_ID",
 			"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_ASSIGNED_BY_ID'),
 			'type' => 'custom_entity',
+			'params' => array('multiple' => 'Y'),
 			'selector' => array(
 				'TYPE' => 'user',
 				'DATA' => array('ID' => 'assigned_by', 'FIELD_ID' => 'ASSIGNED_BY_ID'),
@@ -456,11 +466,41 @@ class Client extends ConnectorBaseFilter
 			"default" => false
 		);
 
+		foreach ([\CCrmOwnerType::Company, \CCrmOwnerType::Contact, \CCrmOwnerType::Deal] as $entityTypeId)
+		{
+			$entityTypeCaption = \CCrmOwnerType::getDescription($entityTypeId);
+			$entityTypeName = \CCrmOwnerType::resolveName($entityTypeId);
+			$fieldId = "{$entityTypeName}_ASSIGNED_BY_ID";
+			$list[] = array(
+				"id" => $fieldId,
+				"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_ASSIGNED_BY_ID') . " ($entityTypeCaption)",
+				'type' => 'custom_entity',
+				'params' => array('multiple' => 'Y'),
+				'selector' => array(
+					'TYPE' => 'user',
+					'DATA' => array('ID' => strtolower($fieldId), 'FIELD_ID' => $fieldId),
+				),
+				'sender_segment_callback' => function ($field)
+				{
+					return Helper::getFilterFieldUserSelector($field['selector']['DATA'], 'crm_segment_client');
+				},
+				//"sender_segment_filter" => false,
+				"default" => false
+			);
+		}
+
 		$list[] = array(
 			"id" => "CONTACT_BIRTHDATE",
 			"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_CONTACT_BIRTHDATE'),
 			'type' => 'date',
-			"include" => [AdditionalDateType::CUSTOM_DATE],
+			"include" => [
+				AdditionalDateType::CUSTOM_DATE,
+				AdditionalDateType::PREV_DAY,
+				AdditionalDateType::NEXT_DAY,
+				AdditionalDateType::MORE_THAN_DAYS_AGO,
+				AdditionalDateType::AFTER_DAYS,
+			],
+			"allow_years_switcher" => true,
 			"default" => false,
 		);
 
@@ -493,7 +533,14 @@ class Client extends ConnectorBaseFilter
 			"id" => "DEAL_CLOSEDATE",
 			"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_DEAL_CLOSEDATE'),
 			"type" => "date",
-			"include" => [AdditionalDateType::CUSTOM_DATE],
+			"include" => [
+				AdditionalDateType::CUSTOM_DATE,
+				AdditionalDateType::PREV_DAY,
+				AdditionalDateType::NEXT_DAY,
+				AdditionalDateType::MORE_THAN_DAYS_AGO,
+				AdditionalDateType::AFTER_DAYS,
+			],
+			"allow_years_switcher" => true,
 			"default" => false
 		);
 
@@ -571,7 +618,7 @@ class Client extends ConnectorBaseFilter
 	 */
 	public static function getUiFilterPresets()
 	{
-		return array(
+		$list = array(
 			'crm_client_all' => array(
 				'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_PRESET_ALL'),
 				'sender_segment_name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_PRESET_SEGMENT_ALL'),
@@ -600,7 +647,51 @@ class Client extends ConnectorBaseFilter
 					'DEAL_STAGE_SEMANTIC_ID' => array(PhaseSemantics::FAILURE),
 				)
 			),
+			'crm_client_birthday' => array(
+				'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_PRESET_BIRTH'),
+				'sender_segment_name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_PRESET_SEGMENT_BIRTH'),
+				'sender_segment_business_case' => true,
+				'fields' => array(
+					'CONTACT_BIRTHDATE_datesel' => 'NEXT_DAY',
+					'CONTACT_BIRTHDATE_days' => '5',
+					'CONTACT_BIRTHDATE_allow_year' => '0',
+					'CLIENT_TYPE' => \CCrmOwnerType::ContactName
+				)
+			),
+			'crm_client_aft_deal_clo' => array(
+				'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_PRESET_AFTER_CLOSE_DEAL'),
+				'sender_segment_name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_PRESET_SEGMENT_AFTER_CLOSE_DEAL'),
+				'sender_segment_business_case' => true,
+				'fields' => array(
+					'DEAL_CLOSEDATE_datesel' => 'PREV_DAY',
+					'DEAL_CLOSEDATE_days' => "30",
+					'DEAL_CLOSEDATE_allow_year' => '1',
+				)
+			),
 		);
+
+		foreach (Holiday::getList() as $holiday)
+		{
+			$code = $holiday->getCode();
+			$name = $holiday->getName(
+				Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_PRESET_HOLIDAY'),
+				'%holiday_name%'
+			);
+
+			$list["crm_client_$code"] = [
+				'name' => $name,
+				'sender_segment_name' => $name,
+				'sender_segment_business_case' => true,
+				'fields' => [
+					'DEAL_DATE_CREATE_datesel' => 'RANGE',
+					'DEAL_DATE_CREATE_from' => $holiday->getDateFrom()->toString(),
+					'DEAL_DATE_CREATE_to' => $holiday->getDateTo()->toString(),
+					'CONTACT_BIRTHDATE_allow_year' => '0',
+				]
+			];
+		}
+
+		return $list;
 	}
 
 	/**

@@ -6,13 +6,15 @@ var Errors = {
 	"result_empty" : "Empty result"
 };
 
-function JsTc(oHandler, arSites, sParser)
+function JsTc(oHandler, arSites, sParser, arParams)
 {
 	var t = this;
 	var tmp = 0;
 
 	t.oObj = typeof oHandler == 'object' ? oHandler : document.getElementById("TAGS");
 	t.arSites = arSites;
+	t.arParams = (BX.type.isPlainObject(arParams) ? arParams : {});
+	t.selfFolderUrl = t.arParams.selfFolderUrl || "/bitrix/admin/";
 	// Arrays for data
 	if (sParser)
 	{
@@ -158,7 +160,7 @@ function JsTc(oHandler, arSites, sParser)
 				return;
 			};
 		//alert(t.arSites);
-		var queryString = '/bitrix/admin/search_tags.php?search='+encodeURIComponent(sSearch);
+		var queryString = t.selfFolderUrl+'search_tags.php?search='+encodeURIComponent(sSearch);
 		try
 		{
 			if (t.arSites && t.arSites.constructor.toString().indexOf("Array") != -1)

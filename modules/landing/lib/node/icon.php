@@ -31,11 +31,17 @@ class Icon extends \Bitrix\Landing\Node
 						? $value['classList']
 						: (array)$value;
 			$className = implode(' ', $classList);
+			$url = isset($value['url']) ? trim($value['url']) : '';
+
 			if ($classList)
 			{
 				if (isset($resultList[$pos]))
 				{
 					$resultList[$pos]->setAttribute('class', $className);
+					if ($url)
+					{
+						$resultList[$pos]->setAttribute('data-pseudo-url', $url);
+					}
 				}
 			}
 		}
@@ -55,7 +61,14 @@ class Icon extends \Bitrix\Landing\Node
 
 		foreach ($resultList as $pos => $res)
 		{
-			$data[$pos] = $res->getAttribute('class');
+			$data[$pos] = array(
+				'classList' => [$res->getAttribute('class')]
+			);
+			$pseudoUrl = $res->getAttribute('data-pseudo-url');
+			if ($pseudoUrl)
+			{
+				$data[$pos]['data-pseudo-url'] = $pseudoUrl;
+			}
 		}
 
 		return $data;

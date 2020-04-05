@@ -9,6 +9,7 @@ class Actions
 {
 	const GET_DATA = "getData";
 	const GET_DEPARTMENT_DATA = "getDepartmentData";
+	const GET_TREE_ITEM_DATA = "getTreeItemRelation";
 	const SEARCH = "search";
 
 	public static function getList()
@@ -20,7 +21,6 @@ class Actions
 	public static function processAjax($action = false, $options = array(), $requestFields = array())
 	{
 		$result = array();
-
 		if (isset($requestFields['LD_SEARCH']) && $requestFields['LD_SEARCH'] == 'Y')
 		{
 			$action = self::SEARCH;

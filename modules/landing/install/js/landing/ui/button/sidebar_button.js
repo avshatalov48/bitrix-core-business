@@ -26,6 +26,11 @@
 		{
 			addClass(this.layout, "landing-ui-button-sidebar-child");
 		}
+
+		if (options.empty === true)
+		{
+			addClass(this.layout, "landing-ui-button-sidebar-empty");
+		}
 	};
 
 

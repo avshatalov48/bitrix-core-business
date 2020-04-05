@@ -127,7 +127,7 @@
 			null,
 			{
 				titleBar: this.mess.mailDailyLimitTitle,
-				width: 600,
+				width: 620,
 				height: 225,
 				autoHide: true,
 				lightShadow: true,

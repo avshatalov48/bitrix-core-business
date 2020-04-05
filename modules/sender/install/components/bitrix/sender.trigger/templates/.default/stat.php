@@ -15,7 +15,7 @@ $componentParameters = array(
 	'PATH_TO_CONDITIONS' => $arResult['PATH_TO_CONDITIONS'],
 	'PATH_TO_CHAIN' => $arResult['PATH_TO_CHAIN'],
 	'PATH_TO_STAT' => $arResult['PATH_TO_STAT'],
-	'PATH_TO_RECIPIENT' => $arResult['PATH_TO_RECIPIENT'],
+	'PATH_TO_RECIPIENT' => str_replace('#id#', $arResult['ID'], $arResult['PATH_TO_RECIPIENT']),
 );
 if ($_REQUEST['IFRAME'] == 'Y')
 {

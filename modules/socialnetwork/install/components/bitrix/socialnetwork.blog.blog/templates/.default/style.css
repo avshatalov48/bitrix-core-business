@@ -15,13 +15,24 @@
 }
 #microblog-link .blog-post-new-link span {padding-left:10px;}
 
-.feed-post-text-block table.data-table, .feed-com-text table.data-table {border-collapse: collapse;}
+.feed-post-text-block table.data-table, .feed-com-text table.data-table {
+	border-collapse: collapse;
+}
+
+.feed-com-text table.data-table {
+	width: 100%;
+	/*table-layout: fixed;*/
+	/*word-wrap: break-word;*/
+	overflow: auto;
+}
+
 .feed-post-text-block table.data-table td, .feed-com-text table.data-table td, .feed-post-text-block table.data-table th, .feed-com-text table.data-table th {border: 1px solid grey; padding: 3px;}
 
 table.blogquote, table.blogcode { font-size:1em; margin:0.5em 1em; width:100%; border:1px solid;}
 table.blogquote td,
 table.blogcode td {
 	padding: 4px 40px 8px 27px;
+	height: 18px;
 }
 table.blogcode td {font-family:"Courier New"; white-space:pre-wrap;}
 table.blogcode pre {font-family:"Courier New"; font-size: 12px; margin: 0; line-height: 15px; white-space:pre-wrap;}

@@ -22,8 +22,13 @@ if($formName !== '')
 }
 $randString = $this->randString();
 $jsObject = 'CrmEntitySelector_'.$randString;
-$listPrefix = array('DEAL' => 'D', 'CONTACT' => 'C', 'COMPANY' => 'CO', 'LEAD' => 'L');
+$listPrefix = array('DEAL' => 'D', 'CONTACT' => 'C', 'COMPANY' => 'CO', 'LEAD' => 'L', 'ORDER' => 'O');
 ?>
+<? if ($arResult['PERMISSION_DENIED']): ?>
+<div id="crm-<?=$fieldUID?>-box">
+	<div class="crm-button-open"><?=GetMessage('CRM_SFE_PERMISSION_DENIED')?></div>
+</div>
+<? else: ?>
 <div id="crm-<?=$fieldUID?>-box">
 	<div class="crm-button-open">
 		<span id="crm-<?=$fieldUID?>-open" onclick="obCrm[this.id].Open()">
@@ -59,6 +64,7 @@ $listPrefix = array('DEAL' => 'D', 'CONTACT' => 'C', 'COMPANY' => 'CO', 'LEAD' =
 			CRM_FF_CONTACT: '<?=GetMessageJS("CRM_FF_CONTACT")?>',
 			CRM_FF_COMPANY: '<?=GetMessageJS("CRM_FF_COMPANY")?>',
 			CRM_FF_DEAL: '<?=GetMessageJS("CRM_FF_DEAL")?>',
+			CRM_FF_ORDER: '<?=GetMessageJS("CRM_FF_ORDER")?>',
 			CRM_FF_QUOTE: '<?=GetMessageJS("CRM_FF_QUOTE")?>',
 			CRM_FF_OK: '<?=GetMessageJS("CRM_FF_OK")?>',
 			CRM_FF_CANCEL: '<?=GetMessageJS("CRM_FF_CANCEL")?>',
@@ -77,3 +83,5 @@ $listPrefix = array('DEAL' => 'D', 'CONTACT' => 'C', 'COMPANY' => 'CO', 'LEAD' =
 		window.setTimeout(BX['<?=$jsObject?>'].initWidgetEntitySelection(), 100);
 	});
 </script>
+
+<? endif; ?>

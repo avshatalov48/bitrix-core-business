@@ -371,42 +371,53 @@ abstract class Base
 		if ($value === null)
 			$value = $input['VALUE'];
 
+		$html = '';
+
 		if ($input['HIDDEN'] == 'Y')
-			return static::getHiddenRecursive($name
+		{
+			$html .= static::getHiddenRecursive($name
 				, $input['MULTIPLE'] == 'Y' ? static::asMultiple($value) : static::asSingle($value)
 				, static::extractAttributes($input, array('DISABLED'=>''), array('FORM'=>''), false));
-
-		if ($input['MULTIPLE'] == 'Y')
-		{
-			$tag = isset($input['MULTITAG']) ? htmlspecialcharsbx($input['MULTITAG']) : static::MULTITAG;
-			list ($startTag, $endTag) = $tag ? array("<$tag>", "</$tag>") : array('', '');
-
-			$html = '';
-
-			$index = -1;
-
-			foreach (static::asMultiple($value) as $value)
-			{
-				$namix = $name.'['.(++$index).']';
-				$html .= $startTag
-					.static::getEditHtmlSingle($namix, $input, $value)
-					.static::getEditHtmlSingleDelete($namix, $input)
-					.$endTag;
-			}
-
-			$replace = '##INPUT##NAME##';
-
-			if ($input['DISABLED'] !== 'Y') // TODO
-				$html .= static::getEditHtmlInsert($tag, $replace, $name
-					, static::getEditHtmlSingle($replace, $input, null).static::getEditHtmlSingleDelete($replace, $input)
-					, static::getEditHtmlSingleAfterInsert());
-
-			return $html;
 		}
 		else
 		{
-			return static::getEditHtmlSingle($name, $input, static::asSingle($value));
+			if ($input['MULTIPLE'] == 'Y')
+			{
+				$tag = isset($input['MULTITAG']) ? htmlspecialcharsbx($input['MULTITAG']) : static::MULTITAG;
+				list ($startTag, $endTag) = $tag ? array("<$tag>", "</$tag>") : array('', '');
+
+				$index = -1;
+
+				foreach (static::asMultiple($value) as $value)
+				{
+					$namix = $name.'['.(++$index).']';
+					$html .= $startTag
+						.static::getEditHtmlSingle($namix, $input, $value)
+						.static::getEditHtmlSingleDelete($namix, $input)
+						.$endTag;
+				}
+
+				$replace = '##INPUT##NAME##';
+
+				if ($input['DISABLED'] !== 'Y') // TODO
+					$html .= static::getEditHtmlInsert($tag, $replace, $name
+						, static::getEditHtmlSingle($replace, $input, null).static::getEditHtmlSingleDelete($replace, $input)
+						, static::getEditHtmlSingleAfterInsert());
+			}
+			else
+			{
+				$html .= static::getEditHtmlSingle($name, $input, static::asSingle($value));
+			}
 		}
+
+		if ($input['ADDITIONAL_HIDDEN'] === 'Y')
+		{
+			$html .= static::getHiddenRecursive($name
+				, $input['MULTIPLE'] == 'Y' ? static::asMultiple($value) : static::asSingle($value)
+				, static::extractAttributes($input, array(), array('FORM'=>''), false));
+		}
+
+		return $html;
 	}
 
 	/** @return string */
@@ -979,50 +990,62 @@ class Enum extends Base
 		if ($value === null && isset($input['VALUE']))
 			$value = $input['VALUE'];
 
-		if ($input['HIDDEN'] == 'Y')
-			return static::getHiddenRecursive($name
-				, $multiple ? static::asMultiple($value) : static::asSingle($value)
-				, static::extractAttributes($input, array('DISABLED'=>''), array('FORM'=>1), false));
-
-		if ($value === null)
-			$value = array();
-		else
-			$value = $multiple ? array_flip(static::asMultiple($value)) : array(static::asSingle($value) => true);
-
+		$originalValue = $value;
 		$html = '';
 
-		if ($input['MULTIELEMENT'] == 'Y')
+		if ($input['HIDDEN'] == 'Y')
 		{
-			$tag = isset($input['MULTITAG']) ? htmlspecialcharsbx($input['MULTITAG']) : static::MULTITAG;
-			list ($startTag, $endTag) = $tag ? array("<$tag>", "</$tag>") : array('', '');
-
-			$attributes = static::extractAttributes($input, array('DISABLED'=>''), array('FORM'=>1), false);
-
-			$type = 'radio';
-
-			if ($multiple)
-			{
-				$type = 'checkbox';
-				$name .= '[]';
-			}
-
-			$html .= self::getEditOptionsHtml($options, $value, ' checked',
-				'<fieldset><legend>{GROUP}</legend>{OPTIONS}</fieldset>',
-				$startTag.'<label><input type="'.$type.'" name="'.$name.'" value="{VALUE}"{SELECTED}'.$attributes.'> {TEXT} </label>'.$endTag
-			);
+			$html .= static::getHiddenRecursive($name
+				, $multiple ? static::asMultiple($value) : static::asSingle($value)
+				, static::extractAttributes($input, array('DISABLED'=>''), array('FORM'=>1), false));
 		}
-		else // select
+		else
 		{
-			$attributes = static::extractAttributes($input, array('DISABLED'=>'', 'AUTOFOCUS'=>'', 'REQUIRED'=>''), array('FORM'=>1, 'SIZE'=>1));
+			if ($value === null)
+				$value = array();
+			else
+				$value = $multiple ? array_flip(static::asMultiple($value)) : array(static::asSingle($value) => true);
 
-			$html .= '<select'.$attributes.' name="'.$name.($multiple ? '[]" multiple>' : '">');
+			if ($input['MULTIELEMENT'] == 'Y')
+			{
+				$tag = isset($input['MULTITAG']) ? htmlspecialcharsbx($input['MULTITAG']) : static::MULTITAG;
+				list ($startTag, $endTag) = $tag ? array("<$tag>", "</$tag>") : array('', '');
 
-			$html .= self::getEditOptionsHtml($options, $value, ' selected',
-				'<optgroup label="{GROUP}">{OPTIONS}</optgroup>',
-				'<option value="{VALUE}"{SELECTED}>{TEXT}</option>'
-			);
+				$attributes = static::extractAttributes($input, array('DISABLED'=>''), array('FORM'=>1), false);
 
-			$html .= '</select>';
+				$type = 'radio';
+
+				if ($multiple)
+				{
+					$type = 'checkbox';
+					$name .= '[]';
+				}
+
+				$html .= self::getEditOptionsHtml($options, $value, ' checked',
+					'<fieldset><legend>{GROUP}</legend>{OPTIONS}</fieldset>',
+					$startTag.'<label><input type="'.$type.'" name="'.$name.'" value="{VALUE}"{SELECTED}'.$attributes.'> {TEXT} </label>'.$endTag
+				);
+			}
+			else // select
+			{
+				$attributes = static::extractAttributes($input, array('DISABLED'=>'', 'AUTOFOCUS'=>'', 'REQUIRED'=>''), array('FORM'=>1, 'SIZE'=>1));
+
+				$html .= '<select'.$attributes.' name="'.$name.($multiple ? '[]" multiple>' : '">');
+
+				$html .= self::getEditOptionsHtml($options, $value, ' selected',
+					'<optgroup label="{GROUP}">{OPTIONS}</optgroup>',
+					'<option value="{VALUE}"{SELECTED}>{TEXT}</option>'
+				);
+
+				$html .= '</select>';
+			}
+		}
+
+		if ($input['ADDITIONAL_HIDDEN'] === 'Y')
+		{
+			$html .= static::getHiddenRecursive($name
+				, $multiple ? static::asMultiple($originalValue) : static::asSingle($originalValue)
+				, static::extractAttributes($input, array(), array('FORM'=>1), false));
 		}
 
 		return $html;
@@ -1525,57 +1548,68 @@ class Location extends Base
 		if ($value === null)
 			$value = $input['VALUE'];
 
-		if ($input['HIDDEN'] == 'Y')
-			return static::getHiddenRecursive($name
-				, $input['MULTIPLE'] == 'Y' ? static::asMultiple($value) : static::asSingle($value)
-				, static::extractAttributes($input, array('DISABLED'=>''), array('FORM'=>1), false));
-
 		$html = '';
 
-		$selector = md5("location input selector $name");
-		$input["LOCATION_SELECTOR"] = $selector;
-
-		if ($onChange = $input['ONCHANGE'])
+		if ($input['HIDDEN'] == 'Y')
 		{
-			$functionName = 'OnLocationChange'.$selector;
-			$html .= "<script>function $functionName (){ $onChange }; BX.proxy($functionName, this);</script>";
-			$input['JS_CALLBACK'] = $functionName;
+			$html .= static::getHiddenRecursive($name
+				, $input['MULTIPLE'] == 'Y' ? static::asMultiple($value) : static::asSingle($value)
+				, static::extractAttributes($input, array('DISABLED'=>''), array('FORM'=>1), false));
 		}
 		else
 		{
-			$input['JS_CALLBACK'] = null;
-		}
+			$selector = md5("location input selector $name");
+			$input["LOCATION_SELECTOR"] = $selector;
 
-		if ($input['MULTIPLE'] == 'Y')
-		{
-			$tag = isset($input['MULTITAG']) ? htmlspecialcharsbx($input['MULTITAG']) : static::MULTITAG;
-			list ($startTag, $endTag) = $tag ? array("<$tag>", "</$tag>") : array('', '');
-
-			$index = -1;
-
-			$values = static::asMultiple($value);
-			if (empty($value))
+			if ($onChange = $input['ONCHANGE'])
 			{
-				$values = array(null);
+				$functionName = 'OnLocationChange'.$selector;
+				$html .= "<script>function $functionName (){ $onChange }; BX.proxy($functionName, this);</script>";
+				$input['JS_CALLBACK'] = $functionName;
 			}
-			foreach ($values as $value)
-				$html .= $startTag
-					.static::getEditHtmlSingle($name.'['.(++$index).']', $input, $value)
-					.$endTag;
+			else
+			{
+				$input['JS_CALLBACK'] = null;
+			}
 
-			$replace = '##INPUT##NAME##';
+			if ($input['MULTIPLE'] == 'Y')
+			{
+				$tag = isset($input['MULTITAG']) ? htmlspecialcharsbx($input['MULTITAG']) : static::MULTITAG;
+				list ($startTag, $endTag) = $tag ? array("<$tag>", "</$tag>") : array('', '');
 
-			if ($input['DISABLED'] !== 'Y') // TODO
-				$html .= static::getEditHtmlInsert($tag, $replace, $name
-					, static::getEditHtmlSingle($replace, $input, null)
-					, "var location = BX.locationSelectors['$selector'].spawn(container, {selectedItem: false, useSpawn: false});"
-					."location.clearSelected();"
+				$index = -1;
+
+				$values = static::asMultiple($value);
+				if (empty($value))
+				{
+					$values = array(null);
+				}
+				foreach ($values as $value)
+					$html .= $startTag
+						.static::getEditHtmlSingle($name.'['.(++$index).']', $input, $value)
+						.$endTag;
+
+				$replace = '##INPUT##NAME##';
+
+				if ($input['DISABLED'] !== 'Y') // TODO
+					$html .= static::getEditHtmlInsert($tag, $replace, $name
+						, static::getEditHtmlSingle($replace, $input, null)
+						, "var location = BX.locationSelectors['$selector'].spawn(container, {selectedItem: false, useSpawn: false});"
+						."location.clearSelected();"
 					//."location.focus();" // TODO
-				);
+					);
+			}
+			else
+			{
+				$html .= static::getEditHtmlSingle($name, $input, static::asSingle($value));
+			}
 		}
-		else
+
+		if ($input['ADDITIONAL_HIDDEN'] === 'Y')
 		{
-			$html .= static::getEditHtmlSingle($name, $input, static::asSingle($value));
+			$html .= static::getHiddenRecursive($name
+				, $input['MULTIPLE'] == 'Y' ? static::asMultiple($value) : static::asSingle($value)
+				, static::extractAttributes($input, array(), array('FORM'=>1), false));
 		}
 
 		return $html;
@@ -1584,6 +1618,7 @@ class Location extends Base
 	public static function getEditHtmlSingle($name, array $input, $value)
 	{
 		$filterMode = isset($input['IS_FILTER_FIELD']) && $input['IS_FILTER_FIELD'] === true;
+		$isSearchLine = isset($input['IS_SEARCH_LINE']) && $input['IS_SEARCH_LINE'] === true;
 		$parameters = array(
 			'CODE' => $value,
 			'INPUT_NAME' => $name,
@@ -1606,7 +1641,7 @@ class Location extends Base
 		}
 
 		$GLOBALS['APPLICATION']->IncludeComponent(
-			'bitrix:sale.location.selector.'.($filterMode ? 'search' : \Bitrix\Sale\Location\Admin\Helper::getWidgetAppearance()),
+			'bitrix:sale.location.selector.'.($filterMode || $isSearchLine ? 'search' : \Bitrix\Sale\Location\Admin\Helper::getWidgetAppearance()),
 			'',
 			$parameters,
 			false

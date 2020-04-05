@@ -6,6 +6,8 @@ use Bitrix\Sale\Cashbox\Internals;
 use Bitrix\Main\Page;
 use Bitrix\Main\Type\Date;
 
+$publicMode = $adminPage->publicMode;
+
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions < "W")
 	$APPLICATION->AuthForm(Loc::getMessage("SALE_ACCESS_DENIED"));
@@ -15,6 +17,10 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 CUtil::InitJSCore();
 Page\Asset::getInstance()->addJs("/bitrix/js/sale/admin/cashbox_zreport.js");
 \Bitrix\Main\Loader::includeModule('sale');
+if ($publicMode)
+{
+	Page\Asset::getInstance()->addCss("/bitrix/themes/.default/sale.css");
+}
 
 $tableId = "tbl_sale_cashbox_zreport";
 $instance = \Bitrix\Main\Application::getInstance();
@@ -22,19 +28,37 @@ $context = $instance->getContext();
 $request = $context->getRequest();
 
 $oSort = new CAdminSorting($tableId, "ID", "asc");
-$lAdmin = new CAdminList($tableId, $oSort);
+$lAdmin = new CAdminUiList($tableId, $oSort);
 
-$arFilterFields = array(
-	'filter_cashbox_id'
+$cashBoxList = array();
+$cashBoxQueryObject = Internals\CashboxTable::getList(
+	array('filter' => array('USE_OFFLINE' => 'N', '%HANDLER' => '\\Bitrix\\Sale\\Cashbox\\CashboxBitrix'))
+);
+while ($cashBox = $cashBoxQueryObject->fetch())
+{
+	$cashBoxList[$cashBox['ID']] = $cashBox['NAME'];
+}
+
+$filterFields = array(
+	array(
+		"id" => "CASHBOX_ID",
+		"name" => GetMessage("SALE_F_CASHBOX"),
+		"type" => "list",
+		"items" => $cashBoxList,
+		"filterable" => "",
+		"default" => true
+	),
+	array(
+		"id" => "DATE_CREATE",
+		"name" => GetMessage("SALE_Z_REPORT_CREATE"),
+		"type" => "date",
+		"default" => true
+	),
 );
 
-$lAdmin->InitFilter($arFilterFields);
-$filter = array();
 
-if (strlen($filter_cashbox_id) > 0 && $filter_cashbox_id != "NOT_REF")
-{
-	$filter["CASHBOX_ID"] = trim($filter_cashbox_id);
-}
+$filter = array();
+$lAdmin->AddFilter($filterFields, $filter);
 
 $cashboxList = array();
 
@@ -182,37 +206,6 @@ if (!empty($cashboxList))
 	);
 }
 
-if (strlen($filter_date_create_from) > 0)
-{
-	$filter[">=DATE_CREATE"] = trim($filter_date_create_from);
-}
-elseif($set_filter!="Y" && $del_filter != "Y")
-{
-	$filter_date_create_from_FILTER_PERIOD = 'day';
-	$filter_date_create_from_FILTER_DIRECTION = 'current';
-	$filter[">=DATE_CREATE"] = new \Bitrix\Main\Type\Date();
-}
-
-if (strlen($filter_date_create_to)>0)
-{
-	if($arDate = ParseDateTime($filter_date_create_to, CSite::GetDateFormat("FULL", SITE_ID)))
-	{
-		if(strlen($filter_date_create_to) < 11)
-		{
-			$arDate["HH"] = 23;
-			$arDate["MI"] = 59;
-			$arDate["SS"] = 59;
-		}
-
-		$filter_date_create_to = date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL", SITE_ID)), mktime($arDate["HH"], $arDate["MI"], $arDate["SS"], $arDate["MM"], $arDate["DD"], $arDate["YYYY"]));
-		$filter["<=DATE_CREATE"] = $filter_date_create_to;
-	}
-	else
-	{
-		$filter_date_create_to = "";
-	}
-}
-
 if (($ids = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 {
 	if ($request->get('action_target')=='selected')
@@ -254,9 +247,15 @@ if (($ids = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 				break;
 		}
 	}
+	if ($lAdmin->hasGroupErrors())
+	{
+		$adminSidePanelHelper->sendJsonErrorResponse($lAdmin->getGroupErrors());
+	}
+	else
+	{
+		$adminSidePanelHelper->sendSuccessResponse();
+	}
 }
-
-$navyParams = array();
 
 $params = array(
 	'filter' => $filter,
@@ -275,72 +274,8 @@ if (isset($by) && (in_array($by, array_keys(Internals\CashboxZReportTable::getMa
 	$params['order'] = array(ToUpper($by) => ToUpper($order));
 }
 
-$navyParams = CDBResult::GetNavParams(CAdminResult::GetNavSize($tableId));
-
-if ($navyParams['SHOW_ALL'])
-{
-	$usePageNavigation = false;
-}
-else
-{
-	$navyParams['PAGEN'] = (int)$navyParams['PAGEN'];
-	$navyParams['SIZEN'] = (int)$navyParams['SIZEN'];
-}
-
-
-
-if ($usePageNavigation)
-{
-	$params['limit'] = $navyParams['SIZEN'];
-	$params['offset'] = $navyParams['SIZEN']*($navyParams['PAGEN']-1);
-}
-
-$totalPages = 0;
-
-if ($usePageNavigation)
-{
-	$countQuery = new \Bitrix\Main\Entity\Query(Internals\CashboxZReportTable::getEntity());
-	$countQuery->addSelect(new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(1)'));
-	$countQuery->setFilter($params['filter']);
-
-	foreach ($params['runtime'] as $key => $field)
-		$countQuery->registerRuntimeField($key, clone $field);
-
-	$totalCount = $countQuery->setLimit(null)->setOffset(null)->exec()->fetch();
-	unset($countQuery);
-	$totalCount = (int)$totalCount['CNT'];
-
-	if ($totalCount > 0)
-	{
-		$totalPages = ceil($totalCount/$navyParams['SIZEN']);
-
-		if ($navyParams['PAGEN'] > $totalPages)
-			$navyParams['PAGEN'] = $totalPages;
-
-		$params['limit'] = $navyParams['SIZEN'];
-		$params['offset'] = $navyParams['SIZEN']*($navyParams['PAGEN']-1);
-	}
-	else
-	{
-		$navyParams['PAGEN'] = 1;
-		$params['limit'] = $navyParams['SIZEN'];
-		$params['offset'] = 0;
-	}
-}
-
-$dbResultList = new CAdminResult(Internals\CashboxZReportTable::getList($params), $tableId);
-
-if ($usePageNavigation)
-{
-	$dbResultList->NavStart($params['limit'], $navyParams['SHOW_ALL'], $navyParams['PAGEN']);
-	$dbResultList->NavRecordCount = $totalCount;
-	$dbResultList->NavPageCount = $totalPages;
-	$dbResultList->NavPageNomer = $navyParams['PAGEN'];
-}
-else
-{
-	$dbResultList->NavStart();
-}
+$dbResultList = new CAdminUiResult(Internals\CashboxZReportTable::getList($params), $tableId);
+$dbResultList->NavStart();
 
 $headers = array(
 	array("id" => "ID", "content" => Loc::getMessage("SALE_CASHBOX_ZREPORT_ID"), "sort" => "ID", "default" => true),
@@ -354,7 +289,7 @@ $headers = array(
 	array("id" => "STATUS", "content" => Loc::getMessage("SALE_CASHBOX_STATUS"), "default" => true),
 );
 
-$lAdmin->NavText($dbResultList->GetNavPrint(Loc::getMessage("group_admin_nav")));
+$lAdmin->SetNavigationParams($dbResultList, array("BASE_LINK" => "/bitrix/admin/sale_cashbox_zreport.php"));
 
 $lAdmin->AddHeaders($headers);
 
@@ -410,12 +345,12 @@ if ($saleModulePermissions == "W" )
 		$aContext[] = array(
 			"TEXT" => GetMessage("SALE_CASHBOX_ADD_NEW_ZREPORT"),
 			"TITLE" => GetMessage("SALE_CASHBOX_ADD_NEW_ZREPORT"),
-			"LINK" => "#",
 			"ICON" => "btn_new",
 			'ONCLICK' => "BX.Sale.CashboxReport.createZReport()"
 		);
 	}
 
+	$lAdmin->setContextSettings(array("pagePath" => "/bitrix/admin/sale_cashbox_zreport.php"));
 	$lAdmin->AddAdminContextMenu($aContext);
 }
 	
@@ -424,67 +359,9 @@ $lAdmin->CheckListMode();
 
 $APPLICATION->SetTitle(Loc::getMessage("SALE_CASHBOX_ZREPORT_TITLE"));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-?>
 
-<form name="find_form" method="GET" action="<?echo $APPLICATION->GetCurPage()?>?">
-	<?
-		$oFilter = new CAdminFilter(
-			$tableId."_filter",
-			array(
-				Loc::getMessage("SALE_Z_REPORT_CREATE")
-			)
-		);
+$lAdmin->DisplayFilter($filterFields);
 
-		$oFilter->Begin();
-	?>
-	<tr id="filter_cashbox_id_row">
-		<td><?echo Loc::getMessage("SALE_F_CASHBOX")?>:</td>
-		<td>
-			<select name="filter_cashbox_id" id="filter_cashbox_id" <?=empty($cashboxList) ?"disabled": ""?>>
-				<?
-				$dbRes = Internals\CashboxTable::getList(
-					array(
-						'filter' => array('USE_OFFLINE' => 'N', '%HANDLER' => '\\Bitrix\\Sale\\Cashbox\\CashboxBitrix')
-					)
-				);
-				while ($item = $dbRes->fetch())
-				{
-					?>
-					<option value="<?=$item['ID']?>"
-						<?=$cashboxList['ID'] == $item['ID'] ? "selected" : ""?>>
-						<?= htmlspecialcharsbx($item['NAME']);?>
-					</option>
-					<?
-				}
-				if (empty($cashboxList))
-				{
-					?>
-					<option><?=Loc::getMessage("SALE_CASHBOX_NOT_CONNECTED")?></option>
-					<?
-				}
-				?>				
-			</select>
-		</td>
-	</tr>
-	<tr>
-		<td><?=Loc::getMessage("SALE_Z_REPORT_CREATE");?>:</td>
-		<td>
-			<?=CalendarPeriod("filter_date_create_from", htmlspecialcharsbx($filter_date_create_from), "filter_date_create_to", htmlspecialcharsbx($filter_date_create_to), "find_form", "Y")?>
-		</td>
-	</tr>
-	<?
-		$oFilter->Buttons(
-			array(
-				"table_id" => $tableId,
-				"url" => $APPLICATION->GetCurPage(),
-				"form" => "find_form"
-			)
-		);
-		$oFilter->End();
-	?>
-</form>
-
-<?
 if (isset($blockData))
 {
 	?>
@@ -566,6 +443,19 @@ if (isset($blockData))
 
 $lAdmin->DisplayList();
 ?>
+<select id="filter_cashbox_id" style="display: none;">
+	<?
+	foreach ($cashBoxList as $cashBoxId => $cashBoxName)
+	{
+		?>
+		<option value="<?=$cashBoxId?>"
+			<?=$cashboxList['ID'] == $cashBoxId ? "selected" : ""?>>
+			<?= htmlspecialcharsbx($cashBoxName);?>
+		</option>
+		<?
+	}
+	?>
+</select>
 <script language="JavaScript">
 	BX.message(
 		{

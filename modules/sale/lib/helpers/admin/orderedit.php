@@ -276,7 +276,9 @@ class OrderEdit
 	}
 
 	/**
-	 * @param array $items.
+	 * @param array $items .
+	 * @param string $formId
+	 * @param string $tabId
 	 * @return string HTML Navigation block.
 	 */
 	public static function getFastNavigationHtml(array $items, $formId = '', $tabId = '')
@@ -382,7 +384,7 @@ class OrderEdit
 		return $userId;
 	}
 
-	protected static function getUserId($order, $formData, $createUserIfNeed, \Bitrix\Sale\Result &$result)
+	public static function getUserId($order, $formData, $createUserIfNeed, Result &$result)
 	{
 		if(intval($formData["USER_ID"]) > 0)
 			return intval($formData["USER_ID"]);
@@ -420,11 +422,8 @@ class OrderEdit
 			throw new ArgumentNullException('formData["SITE_ID"]');
 
 		global $APPLICATION, $USER;
-
 		$order = Order::create($formData["SITE_ID"]);
-
 		$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
-
 		$userCompanyId = null;
 
 		if($saleModulePermissions == "P")
@@ -472,6 +471,7 @@ class OrderEdit
 		if(isset($formData["PRODUCT"]) && is_array($formData["PRODUCT"]) && !empty($formData["PRODUCT"]))
 		{
 			$isStartField = $order->isStartField();
+			/** @var Basket $basket */
 			$basket = \Bitrix\Sale\Basket::create($formData["SITE_ID"]);
 
 			$res = $order->setBasket($basket);
@@ -601,7 +601,7 @@ class OrderEdit
 			if(!$res->isSuccess())
 			{
 				$opResult->addErrors($res->getErrors());
-				return null;
+				//return null;
 			}
 
 			if ($isStartField)
@@ -627,7 +627,7 @@ class OrderEdit
 		return $order;
 	}
 
-	protected static function isBasketItemNew($basketCode)
+	public static function isBasketItemNew($basketCode)
 	{
 		return (strpos($basketCode, 'n') === 0) && ($basketCode != self::BASKET_CODE_NEW);
 	}
@@ -716,11 +716,13 @@ class OrderEdit
 		if(!$res->isSuccess())
 			$result->addErrors($res->getErrors());
 
+		/*
 		$currentUserId = $order->getUserId();
+
 		if ($currentUserId && ((int)$currentUserId !== (int)$formData['USER_ID']))
 		{
 			$paymentCollection = $order->getPaymentCollection();
-			/** @var \Bitrix\Sale\Payment $payment */
+			/** @var \Bitrix\Sale\Payment $payment *//*
 			foreach ($paymentCollection as $payment)
 			{
 				if ($payment->isPaid())
@@ -732,6 +734,7 @@ class OrderEdit
 				}
 			}
 		}
+		*/
 
 		$order->setFieldNoDemand(
 			"USER_ID",
@@ -795,7 +798,7 @@ class OrderEdit
 							$errMess = Loc::getMessage("SALE_ORDEREDIT_BASKET_ITEM_DEL_ERROR");
 
 						$result->addError(new Error($errMess));
-						return null;
+//						return null;
 					}
 				}
 			}
@@ -843,7 +846,7 @@ class OrderEdit
 						$errMess = Loc::getMessage("SALE_ORDEREDIT_BASKET_ITEM_DEL_ERROR");
 
 					$result->addError(new Error($errMess));
-					return null;
+//					return null;
 				}
 			}
 		}
@@ -880,7 +883,7 @@ class OrderEdit
 						if(!$res->isSuccess())
 						{
 							$result->addErrors($res->getErrors());
-							return null;
+//							return null;
 						}
 
 						$item = null;
@@ -955,7 +958,7 @@ class OrderEdit
 					if (!$res->isSuccess())
 					{
 						$result->addErrors($res->getErrors());
-						return null;
+//						return null;
 					}
 				}
 
@@ -990,7 +993,7 @@ class OrderEdit
 			if(!$res->isSuccess())
 			{
 				$result->addErrors($res->getErrors());
-				return null;
+//				return null;
 			}
 
 			if ($isStartField)
@@ -1013,14 +1016,6 @@ class OrderEdit
 			$result->addError(new EntityError(Loc::getMessage("SALE_ORDEREDIT_ERROR_NO_PRODUCTS")));
 		}
 
-		if($productAdded)
-		{
-			$res = $basket->refreshData(array('PRICE', 'COUPONS'));
-
-			if (!$res->isSuccess())
-				$result->addErrors($res->getErrors());
-		}
-
 		return $order;
 	}
 
@@ -1031,7 +1026,7 @@ class OrderEdit
 	 *
 	 * @return \Bitrix\Sale\Result
 	 */
-	protected static function fillSimpleFields(Order $order, array $formData, $userId = 0)
+	public static function fillSimpleFields(Order $order, array $formData, $userId = 0)
 	{
 		$result = new \Bitrix\Sale\Result();
 		if(isset($formData["ORDER"]["RESPONSIBLE_ID"]))
@@ -1182,7 +1177,7 @@ class OrderEdit
 			if(!$res->isSuccess())
 			{
 				$result->addErrors($res->getErrors());
-				return $result;
+				//return $result;
 			}
 
 			if(isset($productData["MODULE"]) && $productData["MODULE"] == "catalog")
@@ -1217,6 +1212,7 @@ class OrderEdit
 
 			$providerData = Provider::getProductData($basket, $params);
 
+			/*
 			foreach($basketItems as $item)
 			{
 				$basketCode = $item->getBasketCode();
@@ -1236,12 +1232,16 @@ class OrderEdit
 					);
 				}
 			}
+			*/
+
 		}
 
+		/*
 		if (!$result->isSuccess())
 		{
 			return $result;
 		}
+		*/
 
 		$data = array();
 
@@ -1317,11 +1317,6 @@ class OrderEdit
 					$product['PRICE'] = $productData['PRICE'];
 				elseif(isset($product['BASE_PRICE']))
 					$product['PRICE'] = $product['BASE_PRICE'] - $product['DISCOUNT_PRICE'];
-
-				$discount = $order->getDiscount();
-
-				if ($discount instanceof Discount)
-					$discount->setBasketItemData($basketCode, $data[$basketCode]);
 			}
 
 			if($item->getField("MODULE") == "catalog")
@@ -1374,6 +1369,11 @@ class OrderEdit
 				array_merge($product, $productData)
 			);
 
+			if (!empty($item->getProvider()))
+			{
+				unset($product['PRODUCT_PROVIDER_CLASS']);
+			}
+
 			$res = self::setBasketItemFields($item, $product);
 
 			if(!$res->isSuccess())
@@ -1393,11 +1393,19 @@ class OrderEdit
 	}
 
 	/**
+	 * @deprecated use \Bitrix\Sale\Helpers\Admin\OrderEdit::fillBasketItems()
+	 *
 	 * @param BasketItem $item
 	 * @param array $productData
+	 * @param Order $order
+	 * @param Basket $basket
+	 * @param bool $needDataUpdate
 	 * @return \Bitrix\Sale\Result
+	 * @throws ArgumentNullException
 	 * @throws SystemException
-	 * @deprecated use \Bitrix\Sale\Helpers\Admin\OrderEdit::fillBasketItems()
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\NotSupportedException
+	 * @throws \Bitrix\Main\ObjectNotFoundException
 	 */
 	public static function fillBasketItem(BasketItem &$item, array $productData, Order $order, Basket $basket, $needDataUpdate = false)
 	{
@@ -1490,10 +1498,6 @@ class OrderEdit
 				$product['PRICE'] = $productData['PRICE'];
 			elseif(isset($product['BASE_PRICE']))
 				$product['PRICE'] = $product['BASE_PRICE'] - $product['DISCOUNT_PRICE'];
-
-			$discount = $order->getDiscount();
-			if ($discount instanceof Discount)
-				$discount->setBasketItemData($basketCode, $data[$basketCode]);
 		}
 
 		if(!self::$isTrustProductFormData)
@@ -1568,29 +1572,9 @@ class OrderEdit
 		return true;
 	}
 
-	protected static function setBasketItemFields(\Bitrix\Sale\BasketItem &$item, array $fields = array())
+	public static function setBasketItemFields(BasketItem &$item, array $fields = array())
 	{
-		$result = $item->setFields($fields);
-
-		if(!$result->isSuccess())
-		{
-			foreach($result->getErrors() as $error)
-			{
-				if($error->getCode() == "CATALOG_QUANTITY_NOT_ENOGH")
-				{
-					if((string)Option::get('catalog', 'allow_negative_amount') != 'Y')
-					{
-						$data = $result->getData();
-						$res = $item->setField("QUANTITY", $data["AVAILABLE_QUANTITY"]);
-
-						if(!$res->isSuccess())
-							$result->addErrors($res->getErrors());
-					}
-				}
-			}
-		}
-
-		return $result;
+		return $item->setFields($fields);
 	}
 
 	public static function getSiteName(&$siteId)
@@ -1677,7 +1661,7 @@ class OrderEdit
 		return DiscountCouponsManager::get(true, array(), true, false);
 	}
 
-	public static function getDiscountsApplyResult(\Bitrix\Sale\Order $order, $needRecalculate = false)
+	public static function getDiscountsApplyResult(Order $order, $needRecalculate = false)
 	{
 		static $calcResults = null;
 
@@ -1707,7 +1691,7 @@ class OrderEdit
 		return $calcResults === null ? array() : $calcResults;
 	}
 
-	public static function getOrderedDiscounts(\Bitrix\Sale\Order $order, $needRecalculate = true)
+	public static function getOrderedDiscounts(Order $order, $needRecalculate = true)
 	{
 		$discounts = self::getDiscountsApplyResult($order, $needRecalculate);
 		$discounts["ORDER"] = array();
@@ -1718,7 +1702,7 @@ class OrderEdit
 		return $discounts;
 	}
 
-	public static function getCouponList(\Bitrix\Sale\Order $order = null, $needRecalculate = true)
+	public static function getCouponList(Order $order = null, $needRecalculate = true)
 	{
 		$result = array();
 		$discounts = array();

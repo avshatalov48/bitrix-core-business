@@ -42,6 +42,22 @@ class BlockContent
 		return $this->filterListByType(self::TYPE_BLOCKS);
 	}
 
+	public function setList(array $list)
+	{
+		$this->list = [];
+		foreach ($list as $item)
+		{
+			$this->add($item['type'], $item['place'], $item['value']);
+		}
+
+		return $this;
+	}
+
+	public function getList()
+	{
+		return $this->list;
+	}
+
 	protected function filterListByType($type)
 	{
 		$result = array();

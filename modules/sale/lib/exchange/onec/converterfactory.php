@@ -6,13 +6,12 @@ namespace Bitrix\Sale\Exchange\OneC;
 use Bitrix\Main\ArgumentOutOfRangeException;
 use Bitrix\Main\NotSupportedException;
 use Bitrix\Sale\Exchange\EntityType;
-use Bitrix\Sale\Exchange\IConverter;
 
 class ConverterFactory
 {
 	/**
 	 * @param $typeId
-	 * @return IConverter
+	 * @return Converter
 	 * @throws ArgumentOutOfRangeException
 	 * @throws NotSupportedException
 	 */
@@ -25,7 +24,7 @@ class ConverterFactory
 
 		if(!EntityType::IsDefined($typeId))
 		{
-			throw new ArgumentOutOfRangeException('documentTypeID', DocumentType::FIRST, DocumentType::LAST);
+			throw new ArgumentOutOfRangeException('documentTypeID', EntityType::FIRST, EntityType::LAST);
 		}
 
 		if($typeId === EntityType::ORDER)
@@ -36,26 +35,31 @@ class ConverterFactory
 		{
 			return new ConverterDocumentShipment();
 		}
-		elseif($typeId === EntityType::PAYMENT_CASH)
+		elseif($typeId === EntityType::PAYMENT_CASH ||
+			$typeId === EntityType::PAYMENT_CASH_LESS ||
+			$typeId === EntityType::PAYMENT_CARD_TRANSACTION ||
+			$typeId === EntityType::INVOICE_PAYMENT_CASH ||
+			$typeId === EntityType::INVOICE_PAYMENT_CASH_LESS ||
+			$typeId === EntityType::INVOICE_PAYMENT_CARD_TRANSACTION)
 		{
-			return new ConverterDocumentPaymentCash();
-		}
-		elseif($typeId === EntityType::PAYMENT_CASH_LESS)
-		{
-			return new ConverterDocumentPaymentCashLess();
-		}
-		elseif($typeId === EntityType::PAYMENT_CARD_TRANSACTION)
-		{
-			return new ConverterDocumentPaymentCard();
+			return new ConverterDocumentPayment();
 		}
 		elseif($typeId == EntityType::PROFILE ||
 			$typeId == EntityType::USER_PROFILE)
 		{
 			return new ConverterDocumentProfile();
 		}
+		elseif ($typeId === EntityType::INVOICE)
+		{
+			return new ConverterDocumentInvoice();
+		}
+		elseif ($typeId === EntityType::INVOICE_SHIPMENT)
+		{
+			return new ConverterDocumentShipmentInvoice();
+		}
 		else
 		{
-			throw new NotSupportedException("Entity type: '".EntityType::ResolveName($typeId)."' is not supported in current context");
+			throw new NotSupportedException("Entity type: '".DocumentType::ResolveName($typeId)."' is not supported in current context");
 		}
 	}
 }

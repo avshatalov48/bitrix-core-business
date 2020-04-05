@@ -1,0 +1,1 @@
+{"version":3,"sources":["bundle.config.js"],"names":["module","exports","input","output","namespaceFunction"],"mappings":"AAAAA,OAAOC,SACNC,MAAO,6BACPC,OAAQ,oCACRC,kBAAmB","file":"bundle.config.map.js"}

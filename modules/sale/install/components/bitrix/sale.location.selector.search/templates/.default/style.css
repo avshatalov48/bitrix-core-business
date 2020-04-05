@@ -11,6 +11,14 @@
 	background-color: #fff;
 }
 
+.bx-sls .dropdown-block-ui {
+	font-size: 14px;
+	padding: 0 22px 0 30px;
+	position: relative;
+	background-color: #fff;
+	margin-top: 5px;
+}
+
 .bx-sls .dropdown-arrow {
 	background: url(/bitrix/components/bitrix/sale.location.selector.search/templates/.default/images/dropdown-errow.png) no-repeat center center;
 	height: 100%;

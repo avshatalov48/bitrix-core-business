@@ -27,4 +27,7 @@ $MESS["TRANS_DELETE_CURRENT"] = "Удалить сообщения, перево
 $MESS["TR_FILE_PHP"] = "PHP код";
 $MESS["TRANS_GET_UNTRANSLATE"] = "Выгрузить непереведенные сообщения";
 $MESS["TRANS_GET_UNTRANSLATE_TITLE"] = "Выгрузить непереведенные фразы данного файла";
+$MESS["TRANS_GET_TRANSLATE"] = "Выгрузить сообщения в CSV";
+$MESS["TRANS_GET_FULL_TRANSLATE"] = "Выгрузить все сообщения";
+$MESS["TRANS_GET_FULL_TRANSLATE_TITLE"] = "Выгрузить все фразы данного файла";
 ?>

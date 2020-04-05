@@ -47,7 +47,7 @@ class CCatalogAdminToolsAll
 			return false;
 
 		if (empty($arCatalog))
-			$arCatalog = CCatalogSKU::GetInfoByIBlock($intIBlockID);
+			$arCatalog = CCatalogSku::GetInfoByIBlock($intIBlockID);
 		if (empty($arCatalog))
 			return false;
 
@@ -67,7 +67,7 @@ class CCatalogAdminToolsAll
 				'LINK' => CIBlock::GetAdminElementEditLink($intIBlockID, 0, $arParams),
 				'SHOW_TITLE' => true
 			);
-			if (CCatalogSKU::TYPE_FULL == $arCatalog['CATALOG_TYPE'])
+			if (CCatalogSku::TYPE_FULL == $arCatalog['CATALOG_TYPE'])
 			{
 				$arParams[self::$strMainPrefix.self::TAB_KEY] = self::TAB_SKU;
 				$arSubItems[] = array(
@@ -77,9 +77,9 @@ class CCatalogAdminToolsAll
 					'SHOW_TITLE' => true
 				);
 			}
-			if (CBXFeatures::IsFeatureEnabled('CatCompleteSet'))
+			if (Catalog\Config\Feature::isProductSetsEnabled())
 			{
-				if (CCatalogSKU::TYPE_OFFERS != $arCatalog['CATALOG_TYPE'])
+				if (CCatalogSku::TYPE_OFFERS != $arCatalog['CATALOG_TYPE'])
 				{
 					$arParams[self::$strMainPrefix.self::TAB_KEY] = self::TAB_SET;
 					$arSubItems[] = array(
@@ -117,6 +117,28 @@ class CCatalogAdminToolsAll
 				'MENU' => $arSubItems
 			);
 		}
+
+		if (
+			$arCatalog['CATALOG'] === 'Y'
+			&& (
+				CCatalogSku::TYPE_FULL == $arCatalog['CATALOG_TYPE']
+				|| CCatalogSku::TYPE_CATALOG == $arCatalog['CATALOG_TYPE']
+			)
+			&& \Bitrix\Main\Loader::includeModule('crm')
+		)
+		{
+			if (\Bitrix\Crm\Order\Import\Instagram::isAvailable())
+			{
+				$arItems[] = [
+					'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_INSTAGRAM_IMPORT'),
+					'TITLE' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_INSTAGRAM_IMPORT_TITLE'),
+					'LINK' => \Bitrix\Main\Config\Option::get('crm', 'path_to_order_import_instagram'),
+					'PUBLIC' => true,
+					'SHOW_TITLE' => true,
+				];
+			}
+		}
+
 		if (!empty($arItems))
 			$arResult = $arItems;
 
@@ -132,7 +154,7 @@ class CCatalogAdminToolsAll
 		if ($intIBlockID <= 0 || $intID <= 0)
 			return false;
 		if (empty($arCatalog))
-			$arCatalog = CCatalogSKU::GetInfoByIBlock($intIBlockID);
+			$arCatalog = CCatalogSku::GetInfoByIBlock($intIBlockID);
 		if (empty($arCatalog))
 			return false;
 		if ($arCatalog['CATALOG'] != 'Y')
@@ -141,7 +163,7 @@ class CCatalogAdminToolsAll
 		if (empty($arParams) || !is_array($arParams))
 			$arParams = array();
 
-		$boolFeatureSet = CBXFeatures::IsFeatureEnabled('CatCompleteSet');
+		$boolFeatureSet = Catalog\Config\Feature::isProductSetsEnabled();
 
 		$intProductID = CIBlockElement::GetRealElement($intID);
 
@@ -159,42 +181,68 @@ class CCatalogAdminToolsAll
 		}
 
 		$boolExistOffers = false;
-		if (CCatalogSKU::TYPE_FULL == $arCatalog['CATALOG_TYPE'])
-			$boolExistOffers = CCatalogSKU::IsExistOffers($intID, $intIBlockID);
+		if (CCatalogSku::TYPE_FULL == $arCatalog['CATALOG_TYPE'])
+			$boolExistOffers = CCatalogSku::IsExistOffers($intID, $intIBlockID);
 		$boolExistSet = CCatalogProductSet::isProductHaveSet($intProductID, CCatalogProductSet::TYPE_SET);
 		$existInSet = CCatalogProductSet::isProductInSet($intProductID, CCatalogProductSet::TYPE_SET);
 		$boolExistGroup = CCatalogProductSet::isProductHaveSet($intProductID, CCatalogProductSet::TYPE_GROUP);
 
 		$arItems = array();
-		if (CCatalogSKU::TYPE_OFFERS != $arCatalog['CATALOG_TYPE'])
+		if (CCatalogSku::TYPE_OFFERS != $arCatalog['CATALOG_TYPE'])
 		{
 			if (!$boolExistOffers && !$boolExistSet && !$existInSet)
 			{
 				//product
-				$arItems[] = array(
+				$row = [
 					'ICON' => '',
-					'TEXT' => Loc::getMessage('BT_CAT_SET_PRODUCT_TYPE_CATALOG'),
-					'CHECKED' => true
-				);
-				if (CCatalogSKU::TYPE_FULL == $arCatalog['CATALOG_TYPE'])
+					'TEXT' => Loc::getMessage('BT_CAT_SET_PRODUCT_TYPE_CATALOG')
+				];
+				if ($strProductType == '')
+					$row['CHECKED'] = true;
+				else
+					$row['LINK'] = CIBlock::GetAdminElementEditLink($intIBlockID, $intID, $arParams);
+				$arItems[] = $row;
+				unset($row);
+
+				if (CCatalogSku::TYPE_FULL == $arCatalog['CATALOG_TYPE'])
 				{
-					$arNewParams = $arParams;
-					$arNewParams[self::$strMainPrefix.self::TAB_KEY] = self::TAB_SKU;
-					$arItems[] = array(
+					$row = [
 						'ICON' => '',
 						'TEXT' => Loc::getMessage('BT_CAT_SET_PRODUCT_TYPE_SKU'),
-						'LINK' => CIBlock::GetAdminElementEditLink($intIBlockID, $intID, $arNewParams)
-					);
+					];
+					if ($strProductType == self::TAB_SKU)
+					{
+						$row['CHECKED'] = true;
+					}
+					else
+					{
+						$newParams = $arParams;
+						$newParams[self::$strMainPrefix.self::TAB_KEY] = self::TAB_SKU;
+						$row['LINK'] = CIBlock::GetAdminElementEditLink($intIBlockID, $intID, $newParams);
+						unset($newParams);
+					}
+					$arItems[] = $row;
+					unset($row);
 				}
 				if ($boolFeatureSet)
 				{
-					$arNewParams = $arParams;
-					$arNewParams[self::$strMainPrefix.self::TAB_KEY] = self::TAB_SET;
-					$arItems[] = array(
+					$row = [
 						'ICON' => '',
-						'TEXT' => Loc::getMessage('BT_CAT_SET_PRODUCT_TYPE_SET'),
-						'LINK' => CIBlock::GetAdminElementEditLink($intIBlockID, $intID, $arNewParams)
-					);
+						'TEXT' => Loc::getMessage('BT_CAT_SET_PRODUCT_TYPE_SET')
+					];
+					if ($strProductType == self::TAB_SET)
+					{
+						$row['CHECKED'] = true;
+					}
+					else
+					{
+						$newParams = $arParams;
+						$newParams[self::$strMainPrefix.self::TAB_KEY] = self::TAB_SET;
+						$row['LINK'] = CIBlock::GetAdminElementEditLink($intIBlockID, $intID, $newParams);
+						unset($newParams);
+					}
+					$arItems[] = $row;
+					unset($row);
 				}
 			}
 			elseif ($boolExistOffers)
@@ -237,7 +285,7 @@ class CCatalogAdminToolsAll
 						'TEXT' => Loc::getMessage('BT_CAT_SET_PRODUCT_TYPE_CATALOG'),
 						'ACTION' => "if(confirm('".CUtil::JSEscape(Loc::getMessage('BT_CAT_SET_PRODUCT_TYPE_SET_DELETE_CONFIRM'))."'))window.location='".CIBlock::GetAdminElementEditLink($intIBlockID, $intID, $arNewParams)."';"
 					);
-					if (CCatalogSKU::TYPE_FULL == $arCatalog['CATALOG_TYPE'])
+					if (CCatalogSku::TYPE_FULL == $arCatalog['CATALOG_TYPE'])
 					{
 						$arNewParams[self::$strMainPrefix.self::TAB_KEY] = self::TAB_SKU;
 						$arItems[] = array(
@@ -255,7 +303,7 @@ class CCatalogAdminToolsAll
 				}
 			}
 		}
-		if (!$boolFeatureSet && CCatalogSKU::TYPE_FULL != $arCatalog['CATALOG_TYPE'])
+		if (!$boolFeatureSet && CCatalogSku::TYPE_FULL != $arCatalog['CATALOG_TYPE'])
 			$arItems = array();
 		//group
 		if ($boolFeatureSet && self::TAB_GROUP != $strProductType)
@@ -303,11 +351,11 @@ class CCatalogAdminToolsAll
 			return false;
 
 		if (empty($arCatalog))
-			$arCatalog = CCatalogSKU::GetInfoByIBlock($intIBlockID);
+			$arCatalog = CCatalogSku::GetInfoByIBlock($intIBlockID);
 		if (empty($arCatalog))
 			return false;
 
-		$boolFeatureSet = CBXFeatures::IsFeatureEnabled('CatCompleteSet');
+		$boolFeatureSet = Catalog\Config\Feature::isProductSetsEnabled();
 
 		$arResult = array_fill_keys(self::getTabList(false), false);
 		$strProductType = '';
@@ -327,18 +375,18 @@ class CCatalogAdminToolsAll
 		{
 			$intProductID = CIBlockElement::GetRealElement($intID);
 			$arResult[self::TAB_CATALOG] = (
-				CCatalogSKU::TYPE_CATALOG == $arCatalog['CATALOG_TYPE']
-				|| CCatalogSKU::TYPE_FULL == $arCatalog['CATALOG_TYPE']
-				|| CCatalogSKU::TYPE_OFFERS == $arCatalog['CATALOG_TYPE']
+				CCatalogSku::TYPE_CATALOG == $arCatalog['CATALOG_TYPE']
+				|| CCatalogSku::TYPE_FULL == $arCatalog['CATALOG_TYPE']
+				|| CCatalogSku::TYPE_OFFERS == $arCatalog['CATALOG_TYPE']
 			);
 			$arResult[self::TAB_SKU] = (
-				CCatalogSKU::TYPE_PRODUCT == $arCatalog['CATALOG_TYPE']
-				|| CCatalogSKU::TYPE_FULL == $arCatalog['CATALOG_TYPE']
+				CCatalogSku::TYPE_PRODUCT == $arCatalog['CATALOG_TYPE']
+				|| CCatalogSku::TYPE_FULL == $arCatalog['CATALOG_TYPE']
 			);
-			if (CCatalogSKU::TYPE_FULL == $arCatalog['CATALOG_TYPE'])
+			if (CCatalogSku::TYPE_FULL == $arCatalog['CATALOG_TYPE'])
 			{
-				if (CCatalogSKU::IsExistOffers($intID, $intIBlockID)
-					|| (CCatalogSKU::TYPE_FULL == $arCatalog['CATALOG_TYPE'] && self::TAB_SKU == $strProductType)
+				if (CCatalogSku::IsExistOffers($intID, $intIBlockID)
+					|| (CCatalogSku::TYPE_FULL == $arCatalog['CATALOG_TYPE'] && self::TAB_SKU == $strProductType)
 				)
 				{
 					if ('Y' != COption::GetOptionString('catalog', 'show_catalog_tab_with_offers'))
@@ -349,11 +397,11 @@ class CCatalogAdminToolsAll
 					$arResult[self::TAB_SKU] = false;
 				}
 			}
-			if (CCatalogSKU::TYPE_PRODUCT != $arCatalog['CATALOG_TYPE'])
+			if (CCatalogSku::TYPE_PRODUCT != $arCatalog['CATALOG_TYPE'])
 			{
 				if ($boolFeatureSet)
 				{
-					if (CCatalogSKU::TYPE_OFFERS != $arCatalog['CATALOG_TYPE'])
+					if (CCatalogSku::TYPE_OFFERS != $arCatalog['CATALOG_TYPE'])
 					{
 						$arResult[self::TAB_SET] = (
 							CCatalogProductSet::isProductHaveSet($intProductID, CCatalogProductSet::TYPE_SET)
@@ -376,7 +424,7 @@ class CCatalogAdminToolsAll
 		{
 			if ('' != $strProductType)
 			{
-				if (CCatalogSKU::TYPE_OFFERS == $arCatalog['CATALOG_TYPE'])
+				if (CCatalogSku::TYPE_OFFERS == $arCatalog['CATALOG_TYPE'])
 				{
 					if (self::TAB_SET == $strProductType || self::TAB_SKU == $strProductType)
 						$strProductType = '';
@@ -397,13 +445,13 @@ class CCatalogAdminToolsAll
 			else
 			{
 				$arResult[self::TAB_CATALOG] = (
-					CCatalogSKU::TYPE_CATALOG == $arCatalog['CATALOG_TYPE']
-					|| CCatalogSKU::TYPE_FULL == $arCatalog['CATALOG_TYPE']
-					|| CCatalogSKU::TYPE_OFFERS == $arCatalog['CATALOG_TYPE']
+					CCatalogSku::TYPE_CATALOG == $arCatalog['CATALOG_TYPE']
+					|| CCatalogSku::TYPE_FULL == $arCatalog['CATALOG_TYPE']
+					|| CCatalogSku::TYPE_OFFERS == $arCatalog['CATALOG_TYPE']
 				);
 				$arResult[self::TAB_SKU] = (
-					CCatalogSKU::TYPE_PRODUCT == $arCatalog['CATALOG_TYPE']
-					|| CCatalogSKU::TYPE_FULL == $arCatalog['CATALOG_TYPE']
+					CCatalogSku::TYPE_PRODUCT == $arCatalog['CATALOG_TYPE']
+					|| CCatalogSku::TYPE_FULL == $arCatalog['CATALOG_TYPE']
 				);
 			}
 		}
@@ -412,7 +460,7 @@ class CCatalogAdminToolsAll
 
 	public static function getFormParams($params = array())
 	{
-		$featureSet = CBXFeatures::IsFeatureEnabled('CatCompleteSet');
+		$featureSet = Catalog\Config\Feature::isProductSetsEnabled();
 		$productType = '';
 		if (isset($_REQUEST[self::$strMainPrefix.self::TAB_KEY]))
 		{
@@ -567,7 +615,7 @@ class CCatalogAdminToolsAll
 			return $result;
 
 		if (empty($arCatalog))
-			$arCatalog = CCatalogSKU::GetInfoByIBlock($intIBlockID);
+			$arCatalog = CCatalogSku::GetInfoByIBlock($intIBlockID);
 		if (empty($arCatalog))
 			return $result;
 		if ($arCatalog['CATALOG'] != 'Y')
@@ -575,7 +623,7 @@ class CCatalogAdminToolsAll
 
 		$intProductID = CIBlockElement::GetRealElement($intID);
 
-		$boolFeatureSet = CBXFeatures::IsFeatureEnabled('CatCompleteSet');
+		$boolFeatureSet = Catalog\Config\Feature::isProductSetsEnabled();
 
 		if ($boolFeatureSet)
 		{
@@ -591,7 +639,7 @@ class CCatalogAdminToolsAll
 	{
 		if (!is_array($arParams))
 			return;
-		$boolFeatureSet = CBXFeatures::IsFeatureEnabled('CatCompleteSet');
+		$boolFeatureSet = Catalog\Config\Feature::isProductSetsEnabled();
 		$strProductType = '';
 		if (isset($_REQUEST[self::$strMainPrefix.self::TAB_KEY]))
 		{
@@ -626,30 +674,30 @@ class CCatalogAdminToolsAll
 			return $result;
 		$withDescr = ($withDescr === true);
 
-		$iblockData = CCatalogSKU::GetInfoByIBlock($iblockId);
+		$iblockData = CCatalogSku::GetInfoByIBlock($iblockId);
 		if (empty($iblockData))
 			return $result;
 
 		$data = array(
-			CCatalogSKU::TYPE_CATALOG => array(
+			CCatalogSku::TYPE_CATALOG => array(
 				Catalog\ProductTable::TYPE_PRODUCT
 			),
-			CCatalogSKU::TYPE_PRODUCT => array(
+			CCatalogSku::TYPE_PRODUCT => array(
 				Catalog\ProductTable::TYPE_SKU
 			),
-			CCatalogSKU::TYPE_FULL => array(
+			CCatalogSku::TYPE_FULL => array(
 				Catalog\ProductTable::TYPE_PRODUCT,
 				Catalog\ProductTable::TYPE_SKU
 			),
-			CCatalogSKU::TYPE_OFFERS => array(
+			CCatalogSku::TYPE_OFFERS => array(
 				Catalog\ProductTable::TYPE_OFFER,
 				Catalog\ProductTable::TYPE_FREE_OFFER
 			)
 		);
-		if (CBXFeatures::IsFeatureEnabled('CatCompleteSet'))
+		if (Catalog\Config\Feature::isProductSetsEnabled())
 		{
-			$data[CCatalogSKU::TYPE_CATALOG][] = Catalog\ProductTable::TYPE_SET;
-			$data[CCatalogSKU::TYPE_FULL][] = Catalog\ProductTable::TYPE_SET;
+			$data[CCatalogSku::TYPE_CATALOG][] = Catalog\ProductTable::TYPE_SET;
+			$data[CCatalogSku::TYPE_FULL][] = Catalog\ProductTable::TYPE_SET;
 		}
 		if (!isset($data[$iblockData['CATALOG_TYPE']]))
 			return $result;
@@ -808,7 +856,7 @@ class CCatalogAdminProductSetEdit
 		if (empty($arSets) || !is_array($arSets))
 			return;
 
-		$boolFeatureSet = CBXFeatures::IsFeatureEnabled('CatCompleteSet');
+		$boolFeatureSet = Catalog\Config\Feature::isProductSetsEnabled();
 		if (!$boolFeatureSet)
 			return;
 
@@ -974,7 +1022,7 @@ class CCatalogAdminProductSetEdit
 		if (empty($arSets) || !is_array($arSets))
 			return;
 
-		$boolFeatureSet = CBXFeatures::IsFeatureEnabled('CatCompleteSet');
+		$boolFeatureSet = Catalog\Config\Feature::isProductSetsEnabled();
 		if (!$boolFeatureSet)
 			return;
 
@@ -1061,7 +1109,8 @@ class CCatalogAdminProductSetEdit
 				'PROP_COUNT_ID' => $strIDPrefix.'_ITEMS_CNT',
 				'BTN_ID' => $strIDPrefix.'_ITEMS_ADD',
 				'CELLS' => $arCellInfo['CELLS'],
-				'CELL_PARAMS' => $arCellInfo['CELL_PARAMS']
+				'CELL_PARAMS' => $arCellInfo['CELL_PARAMS'],
+				'SEARCH_PAGE' => (defined('SELF_FOLDER_URL') ? SELF_FOLDER_URL : '/bitrix/admin/').'cat_product_search_dialog.php'
 			);
 			?>
 <script type="text/javascript">
@@ -1194,7 +1243,7 @@ if (!window.ob<?=$blockName; ?>)
 	{
 		self::$arErrors = array();
 
-		$boolFeatureSet = CBXFeatures::IsFeatureEnabled('CatCompleteSet');
+		$boolFeatureSet = Catalog\Config\Feature::isProductSetsEnabled();
 		if (!$boolFeatureSet)
 			return true;
 
@@ -1301,7 +1350,7 @@ if (!window.ob<?=$blockName; ?>)
 
 	public static function saveFormValues($arItem)
 	{
-		$boolFeatureSet = CBXFeatures::IsFeatureEnabled('CatCompleteSet');
+		$boolFeatureSet = Catalog\Config\Feature::isProductSetsEnabled();
 		if (!$boolFeatureSet)
 			return;
 

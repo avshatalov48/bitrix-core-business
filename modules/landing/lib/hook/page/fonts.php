@@ -31,6 +31,12 @@ class Fonts extends \Bitrix\Landing\Hook\Page
 	 */
 	public function exec()
 	{
+		// @fix for 101643
+		$this->fields['CODE'] = str_replace(
+			'onl oad',
+			'onload',
+			$this->fields['CODE']
+		);
 		\Bitrix\Landing\Manager::setPageView(
 			'BeforeHeadClose',
 			$this->fields['CODE']

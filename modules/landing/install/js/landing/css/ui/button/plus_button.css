@@ -10,10 +10,7 @@
 	height: 33px;
 	border-radius: 33px;
 	line-height: 31px;
-	padding-left: 38px;
-	padding-right: 22px;
-	padding-top: 0;
-	padding-bottom: 0;
+	padding: 0 22px 0 38px;
 	color: #ffffff;
 	-webkit-font-smoothing: antialiased;
 	-webkit-transform: translate3d(-50%, -50%, 0);
@@ -22,6 +19,7 @@
 	-o-transform: translate3d(-50%, -50%, 0);
 	transform: translate3d(-50%, -50%, 0);
 	white-space: nowrap;
+	transition: background-color 200ms ease!important;
 }
 
 .landing-ui-button-plus:hover {

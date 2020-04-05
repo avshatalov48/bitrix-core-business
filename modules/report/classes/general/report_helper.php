@@ -6,6 +6,9 @@ abstract class CReportHelper
 {
 	const UF_DATETIME_SHORT_POSTFIX = '_DTSHORT';
 	const UF_TEXT_TRIM_POSTFIX = '_TRIMTX';
+	const UF_BOOLEAN_POSTFIX = '_BLINL';
+	const UF_MONEY_NUMBER_POSTFIX = '_MNNUMB_FLTR';
+	const UF_MONEY_CURRENCY_POSTFIX = '_MNCRCY_FLTR';
 
 	protected static $userNameFormat = null;
 
@@ -62,9 +65,17 @@ abstract class CReportHelper
 		return self::$ufInfo;
 	}
 
-	public static function &getUFEnumerations()
+	protected static function prepareUFEnumerations($usedUFMap = null)
 	{
-		static::prepareUFInfo();
+		if (!is_array(self::$ufEnumerations))
+		{
+			self::$ufEnumerations = array();
+		}
+	}
+
+	public static function &getUFEnumerations($usedUFMap = null)
+	{
+		static::prepareUFEnumerations($usedUFMap);
 
 		return self::$ufEnumerations;
 	}
@@ -175,6 +186,9 @@ abstract class CReportHelper
 				case 'iblock_section':
 					$dataType = 'iblock_section';
 					break;
+				case 'money':
+					$dataType = 'money';
+					break;
 			}
 		}
 
@@ -189,6 +203,11 @@ abstract class CReportHelper
 
 		if (!empty($ufId) && !empty($ufName))
 		{
+			if (!is_array(self::$ufEnumerations) || !isset(self::$ufEnumerations[$ufId][$ufName]))
+			{
+				static::prepareUFEnumerations(array($ufId => array($ufName => true)));
+			}
+
 			if (is_array(self::$ufEnumerations) && isset(self::$ufEnumerations[$ufId][$ufName][$valueKey]['VALUE']))
 				$value = self::$ufEnumerations[$ufId][$ufName][$valueKey]['VALUE'];
 		}
@@ -635,6 +654,38 @@ abstract class CReportHelper
 		return $value;
 	}
 
+	public static function getUserFieldMoneyValue($valueKey, $ufInfo)
+	{
+		$value = $valueKey;
+
+		if (is_array($ufInfo) && is_array($ufInfo['USER_TYPE'])
+			&& isset($ufInfo['USER_TYPE']['VIEW_CALLBACK'])
+			&& is_callable($ufInfo['USER_TYPE']['VIEW_CALLBACK']))
+		{
+			$value = ['VALUE' => $value];
+			$value = call_user_func_array($ufInfo['USER_TYPE']["VIEW_CALLBACK"], [$value]);
+		}
+
+		return $value;
+	}
+
+	public static function getUserFieldMoneyValueForChart($valueKey, $ufInfo)
+	{
+		$value = $valueKey;
+
+		if (is_array($ufInfo) && is_array($ufInfo['USER_TYPE']) && isset($ufInfo['USER_TYPE']['CLASS_NAME'])
+			&& is_string($ufInfo['USER_TYPE']['CLASS_NAME']) && $ufInfo['USER_TYPE']['CLASS_NAME'] !== ''
+			&& is_callable(array($ufInfo['USER_TYPE']['CLASS_NAME'], 'getPublicText')))
+		{
+			$value = ['VALUE' => $value];
+			$value = htmlspecialcharsbx(
+				call_user_func_array([$ufInfo['USER_TYPE']['CLASS_NAME'], 'getPublicText'], [$value])
+			);
+		}
+
+		return $value;
+	}
+
 	public static function setRuntimeFields(\Bitrix\Main\Entity\Base $entity, $sqlTimeInterval)
 	{
 		// do nothing here, could be overwritten in children
@@ -703,6 +754,9 @@ abstract class CReportHelper
 				'COUNT_DISTINCT'
 			),
 			'iblock_section' => array(
+				'COUNT_DISTINCT'
+			),
+			'money' => array(
 				'COUNT_DISTINCT'
 			)
 		);
@@ -789,6 +843,14 @@ abstract class CReportHelper
 			'iblock_section' => array(
 				'EQUAL',
 				'NOT_EQUAL'
+			),
+			'money' => array(
+				'EQUAL',
+				'GREATER_OR_EQUAL',
+				'GREATER',
+				'LESS',
+				'LESS_OR_EQUAL',
+				'NOT_EQUAL'
 			)
 		);
 	}
@@ -819,7 +881,19 @@ abstract class CReportHelper
 
 			// file fields is not filtrable
 			if ($withReferencesChoose && ($fieldType === 'file' || $fieldType === 'disk_file'))
+			{
 				continue;
+			}
+
+			// multiple money fields is not filtrable
+			if ($withReferencesChoose && $fieldType === 'money'
+				&& $treeElem['isUF'] === true
+				&& is_array($treeElem['ufInfo'])
+				&& isset($treeElem['ufInfo']['MULTIPLE'])
+				&& $treeElem['ufInfo']['MULTIPLE'] === 'Y')
+			{
+				continue;
+			}
 
 			if (empty($branch))
 			{
@@ -846,7 +920,7 @@ abstract class CReportHelper
 				// add branch
 
 				$scalarTypes = array('integer', 'float', 'string', 'text', 'boolean', 'file', 'disk_file', 'datetime',
-					'enum', 'employee', 'crm', 'crm_status', 'iblock_element', 'iblock_section');
+					'enum', 'employee', 'crm', 'crm_status', 'iblock_element', 'iblock_section', 'money');
 				if ($withReferencesChoose &&
 					(in_array($fieldType, $scalarTypes) || empty($fieldType))
 				)
@@ -1671,7 +1745,7 @@ abstract class CReportHelper
 			&& (empty($cInfo['aggr']) || $cInfo['aggr'] !== 'COUNT_DISTINCT')
 			&& !strlen($cInfo['prcnt']))
 		{
-			$v = static::getUserFieldEnumerationValue($v, $ufInfo);
+			$v = htmlspecialcharsbx(static::getUserFieldEnumerationValue($v, $ufInfo));
 		}
 		elseif ($isUF && $dataType === 'file' && !empty($v)
 			&& (empty($cInfo['aggr']) || $cInfo['aggr'] !== 'COUNT_DISTINCT')
@@ -1745,6 +1819,17 @@ abstract class CReportHelper
 			$customChartValue['exist'] = true;
 			$customChartValue['type'] = 'string';
 			$customChartValue['value'] = static::getUserFieldIblockSectionValueForChart($valueKey, $ufInfo);
+		}
+		elseif ($isUF && $dataType === 'money' && !empty($v)
+			&& (empty($cInfo['aggr']) || $cInfo['aggr'] !== 'COUNT_DISTINCT')
+			&& !strlen($cInfo['prcnt']))
+		{
+			$valueKey = $v;
+			$v = static::getUserFieldMoneyValue($valueKey, $ufInfo);
+			// unformatted value for charts
+			$customChartValue['exist'] = true;
+			$customChartValue['type'] = 'string';
+			$customChartValue['value'] = static::getUserFieldMoneyValueForChart($valueKey, $ufInfo);
 		}
 		elseif ($dataType == 'datetime' && !empty($v)
 			&& (empty($cInfo['aggr']) || $cInfo['aggr'] !== 'COUNT_DISTINCT')

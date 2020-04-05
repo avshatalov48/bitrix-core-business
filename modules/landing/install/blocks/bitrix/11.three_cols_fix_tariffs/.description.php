@@ -91,7 +91,7 @@ return array(
 			'.landing-block-card-container' =>
 				array(
 					'name' => Loc::getMessage('LANDING_BLOCK_6_THREE_COLS_FIX_TARIFFS_NODES_LANDINGBLOCKNODEPRICECONTAINER'),
-					'type' =>  array('box'),
+					'type' =>  array('box', 'paddings'),
 				),
 			'.landing-block-node-price-container' =>
 				array(

@@ -111,63 +111,16 @@
 		{
 			var className = this.parent.settings.get('classEditorCustom');
 			className = [this.parent.settings.get('classEditor'), className].join(' ');
-			var customControl = BX.create('div', {
+
+			return BX.create('div', {
 				props: {
 					className: className
 				},
 				attrs: {
 					'data-name': editObject.NAME
 				},
-				html: editObject.HTML
+				html: editObject.VALUE || ""
 			});
-			customControl.querySelectorAll('input, select, checkbox, textarea').forEach(function(element) {
-				switch (element.tagName)
-				{
-					case 'SELECT':
-						element.value = '';
-						if (element.multiple)
-						{
-							element.querySelectorAll('option').forEach(function(option) {
-								option.selected = false;
-								if (Array.isArray(editObject.VALUE))
-								{
-									if (BX.util.in_array(option.value, editObject.VALUE))
-									{
-										option.selected = true;
-									}
-								}
-								else
-								{
-									if (option.value === editObject.VALUE)
-									{
-										option.selected = true;
-									}
-								}
-							});
-						}
-						else
-						{
-							element.value = editObject.VALUE;
-						}
-						break;
-					case 'INPUT':
-						switch(element.type.toUpperCase())
-						{
-							case 'CHECKBOX':
-								element.checked = (editObject.VALUE === '1' || editObject.VALUE === 'Y');
-								break;
-							case 'HIDDEN':
-								break;
-							default:
-								element.value = editObject.VALUE;
-						}
-						break;
-					default:
-						element.value = editObject.VALUE;
-				}
-			});
-
-			return customControl;
 		},
 
 		createOutput: function(editObject)
@@ -325,6 +278,21 @@
 
 					case this.types.CUSTOM : {
 						control = this.createCustom(editObject);
+
+						requestAnimationFrame(function() {
+							if (editObject.HTML)
+							{
+								var res = BX.processHTML(editObject.HTML);
+
+								res.SCRIPT.forEach(function(item) {
+									if (item.isInternal && item.JS)
+									{
+										BX.evalGlobal(item.JS);
+									}
+								})
+							}
+						});
+
 						BX.bind(control, 'click', function(event) { event.stopPropagation(); });
 						break;
 					}

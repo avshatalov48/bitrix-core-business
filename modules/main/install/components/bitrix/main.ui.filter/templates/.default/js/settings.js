@@ -81,7 +81,7 @@
 		this.classPinButton = 'main-ui-filter-icon-pin';
 		this.classPopupOverlay = 'popup-window-overlay';
 		this.classPinnedPreset = 'main-ui-item-pin';
-		this.classWaitButtonClass = 'webform-small-button-wait';
+		this.classWaitButtonClass = 'ui-btn-clock';
 		this.classForAllCheckbox = 'main-ui-filter-save-for-all';
 		this.classShow = 'main-ui-show';
 		this.classFocus = 'main-ui-focus';

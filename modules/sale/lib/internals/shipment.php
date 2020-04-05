@@ -62,6 +62,11 @@ class ShipmentTable extends Main\Entity\DataManager
 		return __FILE__;
 	}
 
+	public static function getUfId()
+	{
+		return 'SHIPMENT';
+	}
+
 	/**
 	 * @param $id
 	 * @return Main\Entity\DeleteResult

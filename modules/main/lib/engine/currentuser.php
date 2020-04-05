@@ -110,4 +110,21 @@ final class CurrentUser
 	{
 		return $this->cuser->getFormattedName(false, false);
 	}
+
+	/**
+	 * @param string $operationName
+	 * @return boolean
+	 */
+	public function canDoOperation($operationName)
+	{
+		return $this->cuser->canDoOperation($operationName);
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function isAdmin()
+	{
+		return $this->cuser->isAdmin();
+	}
 }

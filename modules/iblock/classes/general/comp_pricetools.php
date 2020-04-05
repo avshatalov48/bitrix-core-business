@@ -52,7 +52,8 @@ class CIBlockPriceTools
 						"XML_ID" => $value["XML_ID"],
 						"TITLE" => htmlspecialcharsbx($value["NAME_LANG"]),
 						"~TITLE" => $value["NAME_LANG"],
-						"SELECT" => "CATALOG_GROUP_".$value["ID"]
+						"SELECT" => "CATALOG_GROUP_".$value["ID"],
+						"SELECT_EXTENDED" => array("PRICE_".$value["ID"], "CURRENCY_".$value["ID"], "SCALED_PRICE_".$value["ID"])
 					);
 				}
 			}
@@ -87,6 +88,7 @@ class CIBlockPriceTools
 						"TITLE" => htmlspecialcharsbx($arProperty["NAME"]),
 						"~TITLE" => $arProperty["NAME"],
 						"SELECT" => "PROPERTY_".$arProperty["ID"],
+						"SELECT_EXTENDED" => array("PROPERTY_".$arProperty["ID"]),
 						"CAN_VIEW"=>true,
 						"CAN_BUY"=>false,
 					);
@@ -531,6 +533,8 @@ class CIBlockPriceTools
 			return false;
 
 		if (isset($arItem['CATALOG_AVAILABLE']) && $arItem['CATALOG_AVAILABLE'] === 'N')
+			return false;
+		if (isset($arItem['AVAILABLE']) && $arItem['AVAILABLE'] === 'N')
 			return false;
 
 		if (!empty($arItem["PRICE_MATRIX"]) && is_array($arItem["PRICE_MATRIX"]))

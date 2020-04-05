@@ -3,7 +3,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 ?>
 
 <?= $javascriptFunctions ?>
-<script language="JavaScript">
+<script>
 
 BX.namespace('BX.Bizproc');
 
@@ -360,3 +360,10 @@ try{
 	document.getElementById('sfa_pd_list_form').style.display = 'inline';
 }
 </script>
+<?if ($canSetModifiedBy):?>
+	<tr>
+		<td align="right" width="40%" class="adm-detail-content-cell-l"><?= GetMessage("BPSFA_PD_MODIFIED_BY") ?>:</td>
+		<td width="60%" class="adm-detail-content-cell-r"><?=CBPDocument::ShowParameterField("user", 'modified_by', $modifiedByString, ['rows'=>'1'])?>
+		</td>
+	</tr>
+<?endif;?>

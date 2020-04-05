@@ -26,7 +26,7 @@ else
 ?>
 
 <div class="bx-pagination <?=$colorScheme?>">
-	<div class="bx-pagination-container row">
+	<div class="bx-pagination-container">
 		<ul>
 <?if($arResult["REVERSED_PAGES"] === true):?>
 

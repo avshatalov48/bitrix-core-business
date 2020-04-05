@@ -1,10 +1,16 @@
 <?
+use Bitrix\Catalog;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
 global $APPLICATION;
 global $DB;
 global $USER;
 global $USER_FIELD_MANAGER;
+
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+$listUrl = $selfFolderUrl."cat_store_list.php?lang=".LANGUAGE_ID;
+$listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
 
 if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_store')))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
@@ -24,7 +30,7 @@ $id = (isset($_REQUEST['ID']) ? (int)$_REQUEST['ID'] : 0);
 if ($id < 0)
 	$id = 0;
 
-if(!CBXFeatures::IsFeatureEnabled('CatMultiStore'))
+if(!Catalog\Config\Feature::isMultiStoresEnabled())
 {
 	$dbResultList = CCatalogStore::GetList(array());
 	if(($arResult = $dbResultList->Fetch()) && $id != $arResult["ID"])
@@ -48,6 +54,8 @@ $entityId = "CAT_STORE";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_REQUEST["Update"]) > 0 && !$bReadOnly && check_bitrix_sessid())
 {
+	$adminSidePanelHelper->decodeUriComponent();
+
 	$arPREVIEW_PICTURE = $_FILES["IMAGE_ID"];
 	$arPREVIEW_PICTURE["del"] = $IMAGE_ID_del;
 	$arPREVIEW_PICTURE["MODULE_ID"] = "catalog";
@@ -126,14 +134,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_REQUEST["Update"]) > 0 && !
 		$DB->Commit();
 
 		if (strlen($_REQUEST["apply"]) <= 0)
-			LocalRedirect("/bitrix/admin/cat_store_list.php?lang=".LANGUAGE_ID."&".GetFilterParams("filter_", false));
+		{
+			$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $id));
+			$adminSidePanelHelper->localRedirect($listUrl);
+			LocalRedirect($listUrl);
+		}
 		else
-			LocalRedirect("/bitrix/admin/cat_store_edit.php?lang=".LANGUAGE_ID."&ID=".$id."&".GetFilterParams("filter_", false));
+		{
+			$applyUrl = $selfFolderUrl."cat_store_edit.php?lang=".LANGUAGE_ID."&ID=".$id;
+			$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
+			$adminSidePanelHelper->sendSuccessResponse("apply", array("reloadUrl" => $applyUrl));
+			LocalRedirect($applyUrl);
+		}
 	}
 	else
 	{
 		$bVarsFromForm = true;
 		$DB->Rollback();
+		$adminSidePanelHelper->sendJsonErrorResponse($errorMessage);
 	}
 }
 
@@ -183,7 +201,7 @@ $aMenu = array(
 	array(
 		"TEXT" => GetMessage("STORE_LIST"),
 		"ICON" => "btn_list",
-		"LINK" => "/bitrix/admin/cat_store_list.php?lang=".LANG."&".GetFilterParams("filter_", false)
+		"LINK" => $listUrl
 	)
 );
 
@@ -191,16 +209,22 @@ if ($id > 0 && !$bReadOnly)
 {
 	$aMenu[] = array("SEPARATOR" => "Y");
 
+	$addUrl = $selfFolderUrl."cat_store_edit.php?lang=".LANGUAGE_ID;
+	$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
 	$aMenu[] = array(
 		"TEXT" => GetMessage("STORE_NEW"),
 		"ICON" => "btn_new",
-		"LINK" => "/bitrix/admin/cat_store_edit.php?lang=".LANG."&".GetFilterParams("filter_", false)
+		"LINK" => $addUrl
 	);
-
+	$deleteUrl = $selfFolderUrl."cat_store_list.php?action=delete&ID[]=".$id."&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."#tb";
+	if ($adminSidePanelHelper->isPublicFrame())
+	{
+		$deleteUrl = $adminSidePanelHelper->editUrlToPublicPage($deleteUrl);
+	}
 	$aMenu[] = array(
 		"TEXT" => GetMessage("STORE_DELETE"),
 		"ICON" => "btn_delete",
-		"LINK" => "javascript:if(confirm('".GetMessage("STORE_DELETE_CONFIRM")."')) window.location='/bitrix/admin/cat_store_list.php?action=delete&ID[]=".$id."&lang=".LANG."&".bitrix_sessid_get()."#tb';",
+		"LINK" => "javascript:if(confirm('".GetMessage("STORE_DELETE_CONFIRM")."')) top.window.location='".$deleteUrl."';",
 		"WARNING" => "Y"
 	);
 }
@@ -228,7 +252,15 @@ if ($rsCount <= 0)
 
 CAdminMessage::ShowMessage($errorMessage);?>
 
-<form enctype="multipart/form-data" method="POST" action="<?echo $APPLICATION->GetCurPage()?>?" name="store_edit">
+<?
+$actionUrl = $APPLICATION->GetCurPage();
+$actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
+
+$userFieldUrl = $selfFolderUrl."userfield_edit.php?lang=".LANGUAGE_ID."&ENTITY_ID=".$entityId;
+$userFieldUrl = $adminSidePanelHelper->editUrlToPublicPage($userFieldUrl);
+$userFieldUrl .= "&back_url=".urlencode($APPLICATION->GetCurPageParam('', array('bxpublic'))."&tabControl_active_tab=user_fields_tab");
+?>
+<form enctype="multipart/form-data" method="POST" action="<?=$actionUrl?>" name="store_edit">
 	<?echo GetFilterHiddens("filter_");?>
 	<input type="hidden" name="Update" value="Y">
 	<input type="hidden" name="lang" value="<?echo LANGUAGE_ID; ?>">
@@ -245,7 +277,7 @@ CAdminMessage::ShowMessage($errorMessage);?>
 	?>
 	<tr>
 		<td align="left" colspan="2">
-			<a href="/bitrix/admin/userfield_edit.php?lang=<?=LANGUAGE_ID;?>&amp;ENTITY_ID=<?=$entityId;?>&amp;back_url=<?echo urlencode($APPLICATION->GetCurPageParam('', array('bxpublic'))."&tabControl_active_tab=user_fields_tab")?>"><?=GetMessage("STORE_E_USER_FIELDS_ADD_HREF");?></a>
+			<a href="<?=$userFieldUrl?>"><?=GetMessage("STORE_E_USER_FIELDS_ADD_HREF");?></a>
 		</td>
 	</tr>
 	<?if ($id > 0):?>
@@ -380,13 +412,7 @@ CAdminMessage::ShowMessage($errorMessage);?>
 		}
 
 	$tabControl->EndTab();
-
-	$tabControl->Buttons(
-		array(
-			"disabled" => $bReadOnly,
-			"back_url" => "/bitrix/admin/cat_store_list.php?lang=".LANG."&".GetFilterParams("filter_", false)
-		)
-	);
+	$tabControl->Buttons(array("disabled" => $bReadOnly, "back_url" => $listUrl));
 	$tabControl->End();
 	?>
 </form>

@@ -91,7 +91,7 @@ abstract class NumberGenerator
 	{
 		if (property_exists(static::class, $value))
 		{
-			if (isset($config[$value]) && $config[$value])
+			if (isset($config[$value]) && $config[$value] !== '')
 			{
 				if ($type === 'int')
 				{

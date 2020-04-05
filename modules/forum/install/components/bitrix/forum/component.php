@@ -190,14 +190,12 @@ if ($arParams["SEF_MODE"] == "Y")
 	{
 		$arVariableAliases = CComponentEngine::MakeComponentVariableAliases($arDefaultVariableAliases, array());
 		CComponentEngine::InitComponentVariables(false, $arComponentVariables, $arVariableAliases, $arVariables);
-		$componentPage = strToLower($arVariables["PAGE_NAME"]);
 	}
 }
 else
 {
 	$arVariableAliases = CComponentEngine::MakeComponentVariableAliases($arDefaultVariableAliases, $arParams["VARIABLE_ALIASES"]);
 	CComponentEngine::InitComponentVariables(false, $arComponentVariables, $arVariableAliases, $arVariables);
-	$componentPage = strToLower($arVariables["PAGE_NAME"]);
 	foreach ($arDefaultVariableAliasesForPages as $url => $value)
 	{
 		$arURL = array("PAGE_NAME" => $url); unset($value["PAGE_NAME"]);
@@ -209,6 +207,12 @@ else
 			array_merge($arVariableAliases, array("sessid", "result", "MESSAGE_TYPE", "PAGEN_".($GLOBALS["NavNum"] + 1))));
 	}
 }
+
+if (!empty($arVariables["PAGE_NAME"]))
+{
+	$componentPage = strToLower($arVariables["PAGE_NAME"]);
+}
+
 $bFounded = false;
 if (in_array($componentPage, array("message", "message_small"))):
 	$componentPage = "read";

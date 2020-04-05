@@ -144,6 +144,16 @@ class CAllSocNetLogComments
 		if (!$USER_FIELD_MANAGER->CheckFields("SONET_COMMENT", $ID, $arFields, (isset($arFields["USER_ID"]) && intval($arFields["USER_ID"]) > 0 ? intval($arFields["USER_ID"]) : false)))
 			return false;
 
+		if (!empty($arFields['TEXT_MESSAGE']))
+		{
+			$arFields["TEXT_MESSAGE"] = \Bitrix\Main\Text\Emoji::encode($arFields["TEXT_MESSAGE"]);
+		}
+
+		if (!empty($arFields['MESSAGE']))
+		{
+			$arFields["MESSAGE"] = \Bitrix\Main\Text\Emoji::encode($arFields["MESSAGE"]);
+		}
+
 		return True;
 	}
 
@@ -597,7 +607,7 @@ class CAllSocNetLogComments
 						if (StrLen($siteID) <= 0)
 							$siteID = $arSubscriber["USER_LID"];
 						if (StrLen($siteID) <= 0)
-							continue;
+							break;
 
 						$event = new CEvent;
 						$event->Send($mailTemplate, $siteID, $arFields, "N");

@@ -20,7 +20,7 @@ $APPLICATION->IncludeComponent(
 	'bitrix:sale.location.reindex',
 	'admin',
 	array(
-		'PATH_TO_REINDEX' => Helper::getReindexUrl(),
+		'PATH_TO_REINDEX' => Bitrix\Main\Loader::includeModule("sale") ? Helper::getReindexUrl() : "",
 		'INITIAL_TIME' => $INITIAL_TIME
 	),
 	false

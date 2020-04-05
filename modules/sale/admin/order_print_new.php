@@ -76,7 +76,8 @@ if (empty($errorMsg) && $_SERVER["REQUEST_METHOD"] == "GET" && check_bitrix_sess
 						'select' => array('BASKET_ID', 'QUANTITY'),
 						'filter' => array(
 							'DELIVERY.ORDER_ID' => $orderId,
-							'ORDER_DELIVERY_ID' => $shipmentId
+							'ORDER_DELIVERY_ID' => $shipmentId,
+							'BASKET.SET_PARENT_ID' => 0
 						)
 					);
 

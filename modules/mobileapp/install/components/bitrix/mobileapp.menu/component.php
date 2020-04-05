@@ -28,7 +28,7 @@ else
 $arResult["AJAX_URL"] = $componentPath."/ajax.php";
 
 CModule::IncludeModule('pull');
-CJSCore::Init(array('pull'));
+CJSCore::Init(array('ajax', 'pull'));
 
 $this->IncludeComponentTemplate();
 ?>

@@ -42,7 +42,7 @@ CREATE INDEX TARGET_NODE ON b_learn_lesson_edges(TARGET_NODE);
 CREATE TABLE b_learn_course
 (
 	ID int(11) unsigned not null auto_increment,
-	TIMESTAMP_X timestamp not null,
+	TIMESTAMP_X timestamp not null default current_timestamp on update current_timestamp,
 	ACTIVE char(1) not null default 'Y',
 	CODE varchar(50),
 	NAME varchar(255) not null default 'name',
@@ -73,7 +73,7 @@ CREATE TABLE b_learn_course_site
 CREATE TABLE b_learn_chapter
 (
 	ID int(11) unsigned not null auto_increment,
-	TIMESTAMP_X timestamp not null,
+	TIMESTAMP_X timestamp not null default current_timestamp on update current_timestamp,
 	ACTIVE char(1) not null default 'Y',
 	COURSE_ID int(11) unsigned not null,
 	CHAPTER_ID int(11),
@@ -93,7 +93,7 @@ CREATE TABLE b_learn_chapter
 CREATE TABLE b_learn_lesson
 (
 	ID int(11) unsigned not null auto_increment,
-	TIMESTAMP_X timestamp not null,
+	TIMESTAMP_X timestamp not null default current_timestamp on update current_timestamp,
 	DATE_CREATE datetime,
 	CREATED_BY int(18),
 	ACTIVE char(1) not null default 'Y',
@@ -125,7 +125,7 @@ CREATE TABLE b_learn_question
 (
 	ID int(11) unsigned not null auto_increment,
 	ACTIVE char(1) not null default 'Y',
-	TIMESTAMP_X timestamp not null,
+	TIMESTAMP_X timestamp not null default current_timestamp on update current_timestamp,
 	LESSON_ID int(11) unsigned not null REFERENCES b_learn_lesson(ID),
 	QUESTION_TYPE char(1) not null default 'S',
 	NAME varchar(255) not null,
@@ -163,7 +163,7 @@ CREATE TABLE b_learn_test
 (
 	ID int(11) not null AUTO_INCREMENT,
 	COURSE_ID int(11) not null REFERENCES b_learn_course(ID),
-	TIMESTAMP_X timestamp not null,
+	TIMESTAMP_X timestamp not null default current_timestamp on update current_timestamp,
 	SORT int(11) not null default '500',
 	ACTIVE char(1) not null default 'Y',
 	NAME varchar(255) not null,
@@ -251,7 +251,7 @@ CREATE TABLE b_learn_certification
 	ID int(11) unsigned not null auto_increment,
 	STUDENT_ID int(18) not null,
 	COURSE_ID int(11) not null REFERENCES b_learn_course(ID),
-	TIMESTAMP_X timestamp not null,
+	TIMESTAMP_X timestamp not null default current_timestamp on update current_timestamp,
 	DATE_CREATE datetime,
 	ACTIVE char(1) not null default 'Y',
 	SORT int(11) not null default '500',

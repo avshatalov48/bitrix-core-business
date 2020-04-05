@@ -323,7 +323,7 @@ if ('' == $strImportErrorMessage)
 {
 	$currentUserID = $USER->GetID();
 
-	$boolUseStoreControl = (COption::GetOptionString('catalog', 'default_use_store_control') == 'Y');
+	$boolUseStoreControl = Catalog\Config\State::isUsedInventoryManagement();
 	$arDisableFields = array(
 		'CP_QUANTITY' => true,
 		'CP_PURCHASING_PRICE' => true,
@@ -365,6 +365,7 @@ if ('' == $strImportErrorMessage)
 			$bThereIsGroups = false;
 			$bDeactivationStarted = false;
 			$arProductGroups = array();
+			$currentProductSection = [];
 			$bUpdatePrice = 'N';
 		}
 
@@ -765,7 +766,7 @@ if ('' == $strImportErrorMessage)
 					$arFilter,
 					false,
 					false,
-					array('ID', 'PREVIEW_PICTURE', 'DETAIL_PICTURE')
+					array('ID', 'PREVIEW_PICTURE', 'DETAIL_PICTURE', 'IBLOCK_SECTION_ID')
 				);
 				if ($arr = $res->Fetch())
 				{
@@ -787,6 +788,8 @@ if ('' == $strImportErrorMessage)
 					}
 					if ($bThereIsGroups)
 					{
+						if (!isset($currentProductSection[$PRODUCT_ID]))
+							$currentProductSection[$PRODUCT_ID] = $arr['IBLOCK_SECTION_ID'];
 						$LAST_GROUP_CODE_tmp = (($LAST_GROUP_CODE > 0) ? $LAST_GROUP_CODE : false);
 						if (!isset($arProductGroups[$PRODUCT_ID]))
 							$arProductGroups[$PRODUCT_ID] = array();
@@ -795,6 +798,7 @@ if ('' == $strImportErrorMessage)
 							$arProductGroups[$PRODUCT_ID][] = $LAST_GROUP_CODE_tmp;
 						}
 						$arLoadProductArray["IBLOCK_SECTION"] = $arProductGroups[$PRODUCT_ID];
+						$arLoadProductArray['IBLOCK_SECTION_ID'] = $currentProductSection[$PRODUCT_ID];
 						$updateFacet = true;
 					}
 					$res = $el->Update($PRODUCT_ID, $arLoadProductArray, $bWorkflow, false, 'Y' === $IMAGE_RESIZE);
@@ -1006,13 +1010,30 @@ if ('' == $strImportErrorMessage)
 						$arLoadOfferArray['fields']['QUANTITY_RESERVED'] = 0;
 						$arLoadOfferArray['fields']['QUANTITY_TRACE'] = Catalog\ProductTable::STATUS_YES;
 						$arLoadOfferArray['fields']['CAN_BUY_ZERO'] = Catalog\ProductTable::STATUS_NO;
+						$arLoadOfferArray['fields']['PURCHASING_PRICE'] = null;
+						$arLoadOfferArray['fields']['PURCHASING_CURRENCY'] = null;
 					}
 					else
 					{
 						if (isset($arLoadOfferArray['fields']['QUANTITY']) && $arLoadOfferArray['fields']['QUANTITY'] === '')
 							unset($arLoadOfferArray['fields']['QUANTITY']);
-						if (isset($arLoadOfferArray['fields']['QUANTITY_RESERVED']) && $arLoadOfferArray['fields']['QUANTITY_RESERVED'] === '')
-							unset($arLoadOfferArray['fields']['QUANTITY_RESERVED']);
+						$emptyStartPrice = (
+							(
+								isset($arLoadOfferArray['fields']['PURCHASING_PRICE'])
+								&& $arLoadOfferArray['fields']['PURCHASING_PRICE'] === ''
+							)
+							&&
+							(
+								isset($arLoadOfferArray['fields']['PURCHASING_CURRENCY'])
+								&& $arLoadOfferArray['fields']['PURCHASING_CURRENCY'] === ''
+							)
+						);
+						if ($emptyStartPrice)
+						{
+							unset($arLoadOfferArray['fields']['PURCHASING_PRICE']);
+							unset($arLoadOfferArray['fields']['PURCHASING_CURRENCY']);
+						}
+						unset($emptyStartPrice);
 					}
 					if (isset($arLoadOfferArray['fields']['WEIGHT']) && $arLoadOfferArray['fields']['WEIGHT'] === '')
 						unset($arLoadOfferArray['fields']['WEIGHT']);
@@ -1020,19 +1041,27 @@ if ('' == $strImportErrorMessage)
 				}
 				else
 				{
-					if ($boolUseStoreControl)
-					{
-						if (isset($arLoadOfferArray['fields']['QUANTITY']))
-							unset($arLoadOfferArray['fields']['QUANTITY']);
-						if (isset($arLoadOfferArray['fields']['QUANTITY_RESERVED']))
-							unset($arLoadOfferArray['fields']['QUANTITY_RESERVED']);
-					}
-					else
+					if (!$boolUseStoreControl)
 					{
 						if (isset($arLoadOfferArray['fields']['QUANTITY']) && $arLoadOfferArray['fields']['QUANTITY'] === '')
 							$arLoadOfferArray['fields']['QUANTITY'] = 0;
-						if (isset($arLoadOfferArray['fields']['QUANTITY_RESERVED']) && $arLoadOfferArray['fields']['QUANTITY_RESERVED'] === '')
-							$arLoadOfferArray['fields']['QUANTITY_RESERVED'] = 0;
+						$emptyStartPrice = (
+							(
+								isset($arLoadOfferArray['fields']['PURCHASING_PRICE'])
+								&& $arLoadOfferArray['fields']['PURCHASING_PRICE'] === ''
+							)
+							&&
+							(
+								isset($arLoadOfferArray['fields']['PURCHASING_CURRENCY'])
+								&& $arLoadOfferArray['fields']['PURCHASING_CURRENCY'] === ''
+							)
+						);
+						if ($emptyStartPrice)
+						{
+							$arLoadOfferArray['fields']['PURCHASING_PRICE'] = null;
+							$arLoadOfferArray['fields']['PURCHASING_CURRENCY'] = null;
+						}
+						unset($emptyStartPrice);
 					}
 					if (isset($arLoadOfferArray['fields']['WEIGHT']) && $arLoadOfferArray['fields']['WEIGHT'] === '')
 						$arLoadOfferArray['fields']['WEIGHT'] = 0;

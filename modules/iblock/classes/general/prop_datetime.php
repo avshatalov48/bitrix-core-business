@@ -27,6 +27,7 @@ class CIBlockPropertyDateTime
 			"GetAdminFilterHTML" => array(__CLASS__, "GetAdminFilterHTML"),
 			"GetPublicFilterHTML" => array(__CLASS__, "GetPublicFilterHTML"),
 			"AddFilterFields" => array(__CLASS__, "AddFilterFields"),
+			"GetUIFilterProperty" => array(__CLASS__, "GetUIFilterProperty")
 		);
 	}
 
@@ -34,12 +35,15 @@ class CIBlockPropertyDateTime
 	{
 		$filtered = false;
 
-		//TODO: remove this condition after main 17.0.0 will be stable
-		$existFilterOptions = class_exists('\Bitrix\Main\UI\Filter\Options') && method_exists('\Bitrix\Main\UI\Filter\Options', 'getFilter');
-
 		$from = "";
 		$from_name = $strHTMLControlName["VALUE"].'_from';
-		if(isset($_REQUEST[$from_name]))
+		if (isset($strHTMLControlName["FILTER_ID"]))
+		{
+			$filterOption = new \Bitrix\Main\UI\Filter\Options($strHTMLControlName["FILTER_ID"]);
+			$filterData = $filterOption->getFilter();
+			$from = !empty($filterData[$from_name]) ? $filterData[$from_name] : "";
+		}
+		elseif (isset($_REQUEST[$from_name]))
 		{
 			$from = $_REQUEST[$from_name];
 		}
@@ -47,12 +51,6 @@ class CIBlockPropertyDateTime
 			isset($_SESSION["main.interface.grid"][$strHTMLControlName["GRID_ID"]]["filter"][$from_name]))
 		{
 			$from = $_SESSION["main.interface.grid"][$strHTMLControlName["GRID_ID"]]["filter"][$from_name];
-		}
-		elseif($existFilterOptions && isset($strHTMLControlName["FILTER_ID"]))
-		{
-			$filterOption = new \Bitrix\Main\UI\Filter\Options($strHTMLControlName["FILTER_ID"]);
-			$filterData = $filterOption->getFilter();
-			$from = !empty($filterData[$from_name]) ? $filterData[$from_name] : "";
 		}
 
 		if($from)
@@ -72,16 +70,7 @@ class CIBlockPropertyDateTime
 
 		$to = "";
 		$to_name = $strHTMLControlName["VALUE"].'_to';
-		if(isset($_REQUEST[$to_name]))
-		{
-			$to = $_REQUEST[$to_name];
-		}
-		elseif(isset($strHTMLControlName["GRID_ID"]) &&
-			isset($_SESSION["main.interface.grid"][$strHTMLControlName["GRID_ID"]]["filter"][$to_name]))
-		{
-			$to = $_SESSION["main.interface.grid"][$strHTMLControlName["GRID_ID"]]["filter"][$to_name];
-		}
-		elseif($existFilterOptions && isset($strHTMLControlName["FILTER_ID"]))
+		if (isset($strHTMLControlName["FILTER_ID"]))
 		{
 			$filterOption = new \Bitrix\Main\UI\Filter\Options($strHTMLControlName["FILTER_ID"]);
 			$filterData = $filterOption->getFilter();
@@ -96,6 +85,15 @@ class CIBlockPropertyDateTime
 					$to .= " ".date($timeFormat, mktime(23, 59, 59, 0, 0, 0));
 				}
 			}
+		}
+		elseif (isset($_REQUEST[$to_name]))
+		{
+			$to = $_REQUEST[$to_name];
+		}
+		elseif(isset($strHTMLControlName["GRID_ID"]) &&
+			isset($_SESSION["main.interface.grid"][$strHTMLControlName["GRID_ID"]]["filter"][$to_name]))
+		{
+			$to = $_SESSION["main.interface.grid"][$strHTMLControlName["GRID_ID"]]["filter"][$to_name];
 		}
 
 		if($to)
@@ -327,5 +325,18 @@ class CIBlockPropertyDateTime
 		);
 
 		return '';
+	}
+
+	/**
+	 * @param array $property
+	 * @param array $strHTMLControlName
+	 * @param array &$fields
+	 * @return void
+	 */
+	public static function GetUIFilterProperty($property, $strHTMLControlName, &$fields)
+	{
+		$fields["type"] = "date";
+		$fields["time"] = true;
+		$fields["filterable"] = "";
 	}
 }

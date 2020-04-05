@@ -331,7 +331,7 @@ if ($action === 'STEXPORT')
 	}
 	else
 	{
-		$fileUrl = SITE_DIR.'bitrix/components/bitrix/report.view/stexport.php?type='.$exportType;
+		$fileUrl = '/bitrix/components/bitrix/report.view/stexport.php?type='.$exportType;
 		CUserOptions::DeleteOption('report', 'report_stexport');
 		__ReportStExportEndResponse(
 			array(

@@ -60,7 +60,7 @@ if ($_REQUEST['ajax_mode'] == 'Y')
 	{
 		?>
 		<script>
-			BX('db_size').innerHTML = "(<?=CFile::FormatSize(getTableSize())?>)";
+			BX('db_size').innerHTML = "(<?=CFile::FormatSize(getTableSize(""))?>)";
 			BX('db_stat_size').innerHTML = "(<?=CFile::FormatSize(getTableSize("^b_stat"))?>)";
 			BX('db_search_size').innerHTML = "(<?=CFile::FormatSize(getTableSize("^b_search"))?>)";
 			BX('db_event_size').innerHTML = "(<?=CFile::FormatSize(getTableSize("^b_event_log$"))?>)";

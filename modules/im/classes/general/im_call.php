@@ -226,7 +226,7 @@ class CIMCall
 				$dbUsers = CUser::GetList(($sort_by = false), ($dummy=''), array('ID' => $USER->GetID()), array('FIELDS' => $arSelect));
 				if ($arUser = $dbUsers->GetNext(true, false))
 				{
-					$sName = CUser::FormatName(CSite::GetNameFormat(false), $arUser, true, false);
+					$sName = \Bitrix\Im\User::formatFullNameFromDatabase($arUser);
 					$pushText = GetMessage('IM_CALL_INVITE', Array('#USER_NAME#' => $sName));
 				}
 				else
@@ -707,7 +707,7 @@ class CIMCall
 			$arSelect = Array("ID", "LAST_NAME", "NAME", "LOGIN", "SECOND_NAME", "PERSONAL_GENDER");
 			$dbUsers = CUser::GetList(($sort_by = false), ($dummy=''), array('ID' => $userId), array('FIELDS' => $arSelect));
 			if ($arUser = $dbUsers->Fetch())
-				$message = GetMessage($messageId.($addGenderToMessageId? ($arUser["PERSONAL_GENDER"] == 'F'? 'F': 'M'): ''), Array('#USER_NAME#' => CUser::FormatName(CSite::GetNameFormat(false), $arUser, true, false)));
+				$message = GetMessage($messageId.($addGenderToMessageId? ($arUser["PERSONAL_GENDER"] == 'F'? 'F': 'M'): ''), Array('#USER_NAME#' => \Bitrix\Im\User::formatFullNameFromDatabase($arUser)));
 		}
 		else
 		{
@@ -741,7 +741,7 @@ class CIMCall
 			$arSelect = Array("ID", "LAST_NAME", "NAME", "LOGIN", "SECOND_NAME", "PERSONAL_GENDER");
 			$dbUsers = CUser::GetList(($sort_by = false), ($dummy=''), array('ID' => $userSelectId), array('FIELDS' => $arSelect));
 			if ($arUser = $dbUsers->Fetch())
-				$message = GetMessage($messageId.($addGenderToMessageId? ($arUser["PERSONAL_GENDER"] == 'F'? 'F': 'M'): ''), Array('#USER_NAME#' => CUser::FormatName(CSite::GetNameFormat(false), $arUser, true, false)));
+				$message = GetMessage($messageId.($addGenderToMessageId? ($arUser["PERSONAL_GENDER"] == 'F'? 'F': 'M'): ''), Array('#USER_NAME#' => \Bitrix\Im\User::formatFullNameFromDatabase($arUser)));
 		}
 		else
 		{

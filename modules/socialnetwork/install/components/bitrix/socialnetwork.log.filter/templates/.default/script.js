@@ -453,9 +453,67 @@ BitrixLFFilter.prototype.ShowFilterPopup = function(bindElement)
 	}
 };
 
-BitrixLFFilter.prototype.__SLFShowExpertModePopup = function(bindObj)
+BitrixLFFilter.prototype.__SLFShowInfoPopup = function(params)
 {
-	var modalWindow = new BX.PopupWindow('setExpertModePopup', bindObj, {
+	var buttons = [
+		BX.create('BUTTON', {
+			props: {
+				className: 'ui-btn ui-btn-md ui-btn-success'
+			},
+			text: BX.message('sonetLFDialogRead'),
+			events: {
+				click: function () {
+					BX.ajax({
+						method: 'POST',
+						dataType: 'json',
+						url: BX.message('ajaxControllerURL'),
+						data: {
+							sessid : BX.bitrix_sessid(),
+							popupType: params.type,
+							closePopup: 'Y'
+						},
+						onsuccess: function(response)
+						{
+							if (
+								typeof (response) != 'undefined'
+								&& typeof (response.SUCCESS) != 'undefined'
+								&& response.SUCCESS == 'Y'
+							)
+							{
+								modalWindow.close();
+								if (params.reload)
+								{
+									top.location = top.location.href;
+								}
+							}
+						}
+					});
+				}
+			}
+		})
+	];
+
+	if (BX.type.isArray(params.buttonsAdd))
+	{
+		var buttonAdd = 0;
+
+		for (var i = 0; i < params.buttonsAdd.length; i++)
+		{
+			buttonAdd = params.buttonsAdd[i];
+
+			buttons.push(BX.create('BUTTON', {
+				props: {
+					className: 'ui-btn ui-btn-md ui-btn-' + buttonAdd.type
+				},
+				text: buttonAdd.title,
+				events: {
+					click: buttonAdd.click
+				}
+			}));
+		}
+	}
+
+	var modalWindow = new BX.PopupWindow(params.name, params.bindObj, {
 		closeByEsc: false,
 		closeIcon: false,
 		autoHide: false,
@@ -469,7 +527,7 @@ BitrixLFFilter.prototype.__SLFShowExpertModePopup = function(bindObj)
 					props: {
 						className: 'bx-slf-popup-title'
 					},
-					text: BX.message('sonetLFExpertModePopupTitle')
+					text: params.title
 				}),
 				BX.create('DIV', {
 					props: {
@@ -480,26 +538,35 @@ BitrixLFFilter.prototype.__SLFShowExpertModePopup = function(bindObj)
 							props: {
 								className: 'bx-slf-popup-cont-title'
 							},
-							html: BX.message('sonetLFExpertModePopupText1')
+							html: params.description1
 						}),
 						BX.create('DIV', {
 							props: {
 								className: 'bx-slf-popup-descript'
 							},
 							children: [
-								BX.create('DIV', {
-									html: BX.message('sonetLFExpertModePopupText2')
-								}),
-								BX.create('IMG', {
-									props: {
-										className: 'bx-slf-popup-descript-img'
-									},
-									attrs: {
-										src: BX.message('sonetLFExpertModeImagePath'),
-										width: 354,
-										height: 201
-									}
-								})
+								(
+									BX.type.isNotEmptyString(params.description2)
+										? BX.create('DIV', {
+											html: params.description2
+										})
+										: null
+								),
+								(
+									BX.type.isPlainObject(params.descriptionImage)
+									&& BX.type.isNotEmptyString(params.descriptionImage.src)
+										? BX.create('IMG', {
+											props: {
+												className: 'bx-slf-popup-descript-img'
+											},
+											attrs: {
+												src: params.descriptionImage.src,
+												width: params.descriptionImage.width,
+												height: params.descriptionImage.height
+											}
+										})
+										: null
+								)
 							]
 						})
 					]
@@ -508,62 +575,16 @@ BitrixLFFilter.prototype.__SLFShowExpertModePopup = function(bindObj)
 					props: {
 						className: 'popup-window-buttons'
 					},
-					children: [
-						BX.create('SPAN', {
-							props: {
-								className: 'popup-window-button popup-window-button-accept'
-							},
-							events: {
-								click: function () {
-									BX.ajax({
-										method: 'POST',
-										dataType: 'json',
-										url: BX.message('ajaxControllerURL'),
-										data: {
-											sessid : BX.bitrix_sessid(),
-											closePopup: 'Y'
-										},
-										onsuccess: function(response)
-										{
-											if (
-												typeof (response) != 'undefined'
-												&& typeof (response.SUCCESS) != 'undefined'
-												&& response.SUCCESS == 'Y'
-											)
-											{
-												modalWindow.close();
-												top.location = top.location.href;
-											}
-										}
-									});
-								}
-							},
-							children: [
-								BX.create('SPAN', {
-									props: {
-										className: 'popup-window-button-left'
-									}
-								}),
-								BX.create('SPAN', {
-									props: {
-										className: 'popup-window-button-text'
-									},
-									text: BX.message('sonetLFDialogRead')
-								}),
-								BX.create('SPAN', {
-									props: {
-										className: 'popup-window-button-right'
-									}
-								})
-							]
-						})
-					]
+					children: buttons
 				})
 			]
 		})
 	});
 	modalWindow.show();
+
+	return modalWindow;
 };
+
 
 BitrixLFFilter.prototype.onClickMenuItem = function(params)
 {
@@ -582,309 +603,6 @@ BitrixLFFilter.prototype.closeHint = function(element)
 {
 
 };
-
-BitrixLFFilterDestinationSelectorManager = {
-	controls: {},
-
-	onSelect: function(params)
-	{
-		if (
-			typeof params == 'undefined'
-			|| !BX.type.isNotEmptyString(params.name)
-			|| typeof params.item == 'undefined'
-			|| !BX.type.isNotEmptyString(params.type)
-		)
-		{
-			return;
-		}
-
-		var
-			name = params.name,
-			type = params.type,
-			item = params.item;
-
-		BX.SocNetLogDestination.obItemsSelected[name] = {};
-		BX.SocNetLogDestination.obItemsSelected[name][item.id] = type;
-
-		var control = BitrixLFFilterDestinationSelectorManager.controls[name];
-		if (control)
-		{
-			control.setData(BX.util.htmlspecialcharsback(item.name), item.id);
-			control.getLabelNode().value = '';
-			control.getLabelNode().blur();
-
-			if (BX.SocNetLogDestination.popupWindow != null)
-			{
-				BX.SocNetLogDestination.popupWindow.close();
-			}
-			if (BX.SocNetLogDestination.popupSearchWindow != null)
-			{
-				BX.SocNetLogDestination.popupSearchWindow.close();
-			}
-		}
-	},
-
-	onDialogOpen: function(params)
-	{
-		if (
-			typeof params == 'undefined'
-			|| !BX.type.isNotEmptyString(params.name)
-		)
-		{
-			return;
-		}
-
-		var name = params.name;
-
-		var item = BitrixLFFilterDestinationSelector.items[name];
-		if(item)
-		{
-			item.onDialogOpen();
-		}
-	},
-
-	onDialogClose: function(params)
-	{
-		if (
-			typeof params == 'undefined'
-			|| !BX.type.isNotEmptyString(params.name)
-		)
-		{
-			return;
-		}
-
-		var name = params.name;
-
-		var item = BitrixLFFilterDestinationSelector.items[name];
-		if(item)
-		{
-			item.onDialogClose();
-		}
-	}
-};
-
-BitrixLFFilterDestinationSelector = function ()
-{
-	this.id = "";
-	this.filterId = "";
-	this.settings = {};
-	this.fieldId = "";
-	this.control = null;
-	this.inited = null;
-};
-
-BitrixLFFilterDestinationSelector.items = {};
-
-BitrixLFFilterDestinationSelector.create = function(id, settings)
-{
-	var self = new BitrixLFFilterDestinationSelector(id, settings);
-	self.initialize(id, settings);
-	this.items[id] = self;
-	BX.onCustomEvent(window, 'BX.Livefeed.Filter:create', [ id ]);
-	return self;
-};
-
-BitrixLFFilterDestinationSelector.prototype.getSetting = function(name, defaultval)
-{
-	return this.settings.hasOwnProperty(name) ? this.settings[name] : defaultval;
-};
-
-BitrixLFFilterDestinationSelector.prototype.getSearchInput = function()
-{
-	return this.control ? this.control.getLabelNode() : null;
-};
-
-BitrixLFFilterDestinationSelector.prototype.initialize = function(id, settings)
-{
-	this.id = id;
-	this.settings = settings ? settings : {};
-	this.fieldId = this.getSetting("fieldId", "");
-	this.filterId = this.getSetting("filterId", "");
-	this.inited = false;
-	this.opened = null;
-
-	var initialValue = this.getSetting("initialValue",false);
-	if (!!initialValue)
-	{
-		var initialSettings = {};
-		initialSettings[this.fieldId] = initialValue.itemId;
-		initialSettings[this.fieldId + '_label'] = initialValue.itemName;
-
-		BX.Main.filterManager.getById(this.filterId).getApi().setFields(initialSettings);
-	}
-	BX.addCustomEvent(window, "BX.Main.Filter:customEntityFocus", BX.delegate(this.onCustomEntitySelectorOpen, this));
-	BX.addCustomEvent(window, "BX.Main.Filter:customEntityBlur", BX.delegate(this.onCustomEntitySelectorClose, this));
-	BX.addCustomEvent(window, "BX.Main.Filter:onGetStopBlur", BX.delegate(this.onGetStopBlur, this));
-	BX.addCustomEvent(window, "BX.Main.Selector:beforeInitDialog", BX.delegate(this.onBeforeInitDialog, this));
-	BX.addCustomEvent(window, "BX.SocNetLogDestination:onBeforeSwitchTabFocus", BX.delegate(this.onBeforeSwitchTabFocus, this));
-	BX.addCustomEvent(window, "BX.SocNetLogDestination:onBeforeSelectItemFocus", BX.delegate(this.onBeforeSelectItemFocus, this));
-	BX.addCustomEvent(window, "BX.Main.Filter:customEntityRemove", BX.delegate(this.onCustomEntityRemove, this));
-};
-
-BitrixLFFilterDestinationSelector.prototype.open = function()
-{
-	var name = this.id;
-
-	if (!this.inited)
-	{
-		var input = this.getSearchInput();
-		input.id = input.name;
-
-		BX.addCustomEvent(window, "BX.Main.Selector:afterInitDialog", BX.delegate(function(params) {
-			if (
-				typeof params.id != 'undefined'
-				|| params.id != this.id
-			)
-			{
-				return;
-			}
-
-			this.opened = true;
-		}, this));
-
-		BX.onCustomEvent(window, 'BX.Livefeed.Filter:openInit', [ {
-			id: this.id,
-			inputId: input.id,
-			containerId: input.id
-		} ]);
-	}
-	else
-	{
-		var currentValue = {};
-		currentValue[this.currentUser.entityId] = "users";
-
-		BX.onCustomEvent(window, 'BX.Livefeed.Filter:open', [ {
-			id: this.id,
-			bindNode: this.control.getField(),
-			value: currentValue
-		} ]);
-
-		this.opened = true;
-	}
-};
-
-BitrixLFFilterDestinationSelector.prototype.close = function()
-{
-	if(typeof(BX.Main.selectorManager.controls[this.id]) !== "undefined")
-	{
-		BX.Main.selectorManager.controls[this.id].closeDialog();
-	}
-};
-
-BitrixLFFilterDestinationSelector.prototype.onCustomEntitySelectorOpen = function(control)
-{
-	var fieldId = control.getId();
-
-	if(this.fieldId !== fieldId)
-	{
-		this.control = null;
-	}
-	else
-	{
-		this.control = control;
-
-		if(this.control)
-		{
-			var current = this.control.getCurrentValues();
-			this.currentUser = {
-				entityId: current["value"]
-			};
-		}
-
-		BitrixLFFilterDestinationSelectorManager.controls[this.id] = this.control;
-
-		if (!this.opened)
-		{
-			this.open();
-		}
-		else
-		{
-			this.close();
-		}
-	}
-};
-
-BitrixLFFilterDestinationSelector.prototype.onCustomEntitySelectorClose = function(control)
-{
-	if(
-		this.fieldId === control.getId()
-		&& this.inited === true
-		&& this.opened === true
-	)
-	{
-		this.control = null;
-		window.setTimeout(BX.delegate(this.close, this), 0);
-	}
-};
-
-BitrixLFFilterDestinationSelector.prototype.onGetStopBlur = function(event, result)
-{
-	if (BX.findParent(event.target, { className: 'bx-lm-box'}))
-	{
-		result.stopBlur = true;
-	}
-};
-
-BitrixLFFilterDestinationSelector.prototype.onCustomEntityRemove = function(control)
-{
-	if(this.fieldId === control.getId())
-	{
-		if (
-			typeof control.hiddenInput != 'undefined'
-			&& typeof control.hiddenInput.value != 'undefined'
-			&& typeof BX.SocNetLogDestination.obItemsSelected[this.id] != 'undefined'
-			&& typeof BX.SocNetLogDestination.obItemsSelected[this.id][control.hiddenInput.value] != 'undefined'
-		)
-		{
-			delete BX.SocNetLogDestination.obItemsSelected[this.id][control.hiddenInput.value];
-		}
-	}
-};
-
-BitrixLFFilterDestinationSelector.prototype.onBeforeSwitchTabFocus = function(ob)
-{
-	if(this.id === ob.id)
-	{
-		ob.blockFocus = true;
-	}
-};
-
-BitrixLFFilterDestinationSelector.prototype.onBeforeSelectItemFocus = function(ob)
-{
-	if(this.id === ob.id)
-	{
-		ob.blockFocus = true;
-	}
-};
-
-BitrixLFFilterDestinationSelector.prototype.onBeforeInitDialog = function(params)
-{
-	if (
-		typeof params.id == 'undefined'
-		|| params.id != this.id
-	)
-	{
-		return;
-	}
-
-	this.inited = true;
-
-	if (!this.control)
-	{
-		params.blockInit = true;
-	}
-};
-
-BitrixLFFilterDestinationSelector.prototype.onDialogOpen = function()
-{
-	this.opened = true;
-};
-
-BitrixLFFilterDestinationSelector.prototype.onDialogClose = function()
-{
-	this.opened = false;
-};
-
 
 oLFFilter = new BitrixLFFilter;
 window.oLFFilter = oLFFilter;

@@ -115,12 +115,6 @@ BX.BXSGRE.processUserList = function(listNode)
 					}
 					e.preventDefault();
 				});
-
-				userId = userNodeList[i].getAttribute('bx-user-id');
-				if (userId)
-				{
-					BX.tooltip(userId, userNodeList[i].id);
-				}
 			}
 		}
 	}

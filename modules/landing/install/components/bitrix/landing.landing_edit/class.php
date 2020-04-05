@@ -214,6 +214,7 @@ class LandingEditComponent extends LandingBaseFormComponent
 			$this->checkParam('LANDING_ID', 0);
 			$this->checkParam('PAGE_URL_LANDINGS', '');
 			$this->checkParam('PAGE_URL_LANDING_VIEW', '');
+			$this->checkParam('PAGE_URL_SITE_EDIT', '');
 
 			$this->id = $this->arParams['LANDING_ID'];
 			$this->successSavePage = $this->arParams['PAGE_URL_LANDINGS'];
@@ -228,6 +229,25 @@ class LandingEditComponent extends LandingBaseFormComponent
 												)
 											))
 										: array();
+
+			// if current page in folder
+			$this->arResult['FOLDER'] = array();
+			if ($this->arResult['LANDING']['FOLDER_ID']['CURRENT'])
+			{
+				$folderId = $this->arResult['LANDING']['FOLDER_ID']['CURRENT'];
+				$res = Landing::getList(array(
+					'select' => array(
+						'*'
+					),
+					'filter' => array(
+						'ID' => $folderId
+					)
+				));
+				if ($row = $res->fetch())
+				{
+					$this->arResult['FOLDER'] = $row;
+				}
+			}
 
 			if (!$this->arResult['LANDING'])
 			{

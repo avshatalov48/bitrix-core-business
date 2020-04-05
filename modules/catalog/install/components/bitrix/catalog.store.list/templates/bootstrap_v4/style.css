@@ -1,0 +1,25 @@
+.catalog-stores-item-info {
+	min-width: 250px;
+	max-width: 250px !important;
+	width: 250px;
+	border-left: 1px solid #d3d3d3;
+}
+
+.catalog-stores-item-title-link {
+	font-weight: bold;
+	font-size: 15px;
+}
+
+.catalog-store-item-image {
+	max-width: 100%;
+	height: auto;
+}
+
+@media (max-width: 767px) {
+	.catalog-stores-item-info {
+		min-width: 0 !important;
+		max-width: 100% !important;
+		width: 100%;
+		border-left: none;
+	}
+}

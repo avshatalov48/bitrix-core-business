@@ -98,5 +98,6 @@
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2219%22%20height%3D%227%22%20viewBox%3D%220%200%2019%207%22%3E%0A%20%20%3Cpolygon%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22%20points%3D%223.546%207.425%203.546%201.607%201.607%201.607%201.607%208.394%201.607%209.364%209.364%209.364%209.364%207.425%22%20transform%3D%22rotate%28-45%20.657%203.485%29%22/%3E%0A%3C/svg%3E%0A');
 	background-repeat: no-repeat;
 	background-position: right center;
-	font: 15px/12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/38px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	padding: 0 30px 0 14px;
 }

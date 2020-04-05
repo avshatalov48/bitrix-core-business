@@ -26,6 +26,8 @@ class CBitrixPersonalOrderDetailMail extends CBitrixPersonalOrderDetailComponent
 
 	/**
 	 * Function could describe what to do when order ID not set. By default, component will redirect to list page.
+	 *
+	 * @throws Main\SystemException
 	 * @return void
 	 */
 	protected function doCaseOrderIdNotSet()
@@ -66,7 +68,7 @@ class CBitrixPersonalOrderDetailMail extends CBitrixPersonalOrderDetailComponent
 			//$this->checkAuthorized();
 			$this->loadOptions();
 			$this->processRequest();
-
+			$this->setRegistry();
 			$this->obtainData();
 			$this->formatResult();
 

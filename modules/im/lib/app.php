@@ -398,6 +398,9 @@ class App
 					'extra' => \Bitrix\Im\Common::getPullExtra()
 				));
 			}
+			else if ($update['ICON_ID'])
+			{
+			}
 			else
 			{
 				\CPullStack::AddShared(Array(

@@ -1,3 +1,3 @@
 <?
-$MESS["REST_HOOK_TITLE"] = "Web hooks";
+$MESS["REST_HOOK_TITLE"] = "Webhooks";
 ?>

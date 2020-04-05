@@ -388,7 +388,7 @@ else
 					<p id="passwordText_<?=htmlspecialcharsbx($arResult['ID']);?>" data-l10n-id="password_label">Enter the password to open this PDF file:</p>
 				</div>
 				<div class="row">
-					<input type="password" id="password_<?=htmlspecialcharsbx($arResult['ID']);?>" class="toolbarField">
+					<input type="password" id="password_<?=htmlspecialcharsbx($arResult['ID']);?>" class="toolbarField" autocomplete="new-password">
 				</div>
 				<div class="buttonRow">
 					<button id="passwordCancel_<?=htmlspecialcharsbx($arResult['ID']);?>" class="overlayButton"><span data-l10n-id="password_cancel">Cancel</span></button>

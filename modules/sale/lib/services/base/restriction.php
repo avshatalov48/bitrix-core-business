@@ -39,9 +39,9 @@ abstract class Restriction {
 	}
 
 	/**
-	 * @param $params
-	 * @param array $restrictionParams
-	 * @param int $serviceId
+	 * @param mixed $params Params to check.
+	 * @param array $restrictionParams Restriction params.
+	 * @param int $serviceId Service identifier.
 	 * @return bool
 	 * @throws NotImplementedException
 	 */
@@ -147,6 +147,14 @@ abstract class Restriction {
 	 * @return bool
 	 */
 	public static function prepareData(array $servicesIds)
+	{
+		return true;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public static function isAvailable()
 	{
 		return true;
 	}

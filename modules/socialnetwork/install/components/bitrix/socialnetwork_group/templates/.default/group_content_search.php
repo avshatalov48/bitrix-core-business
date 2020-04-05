@@ -19,7 +19,7 @@ if (
 )
 {
 	$feature = "search";
-	$arEntityActiveFeatures = CSocNetFeatures::GetActiveFeaturesNames(SONET_ENTITY_GROUP, $arResult["VARIABLES"]["group_id"]);		
+	$arEntityActiveFeatures = CSocNetFeatures::GetActiveFeaturesNames(SONET_ENTITY_GROUP, $arResult["VARIABLES"]["group_id"]);
 	$strFeatureTitle = ((array_key_exists($feature, $arEntityActiveFeatures) && StrLen($arEntityActiveFeatures[$feature]) > 0) ? $arEntityActiveFeatures[$feature] : GetMessage("GROUP_CONTENT_SEARCH_TITLE"));
 
 	$GLOBALS["APPLICATION"]->SetTitle($arGroupFields["NAME"].": ".$strFeatureTitle);

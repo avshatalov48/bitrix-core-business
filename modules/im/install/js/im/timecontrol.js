@@ -20,7 +20,7 @@ BX.namespace('BX.ImTimeControl');
 			this.pullEvent();
 
 			clearInterval(this.workerTimeout);
-			this.workerTimeout = setInterval(this.worker.bind(this), 1000);
+			this.workerTimeout = setInterval(this.worker.bind(this), 5000);
 
 			BX.desktop.addCustomEvent('imTimeControlCloseWindow', () => { this.blockExecute = false; });
 
@@ -45,6 +45,7 @@ BX.namespace('BX.ImTimeControl');
 			console.info('ImTimeControl.execute: ', [absenceId, duration, dateStart, dateFinish]);
 
 			BX.desktop.openTopmostWindow('<div id="timecontrol"></div>', `
+				BX.desktop.setWindowName('timecontrol');
 				BX.desktop.setWindowSize({ Width: 740, Height: 335 });
 				BX.desktop.setWindowSize({ Width: 740, Height: 335 });
 				BX.desktop.setWindowMinSize({ Width: 740, Height: 335 });
@@ -64,6 +65,9 @@ BX.namespace('BX.ImTimeControl');
 				timecontrol.success(() => {
 					BX.desktop.onCustomEvent('imTimeControlCloseWindow', []);
 					BX.desktop.windowCommand('close');
+				});
+				timecontrol.fail(() => {
+					BX.desktop.login(() => {});
 				});
 				
 				BX.bind(window, "beforeunload", () => {
@@ -102,11 +106,18 @@ BX.namespace('BX.ImTimeControl');
 					continue;
 				}
 
-				if (this.execute(this.stack[i]))
+				if (BX.browser.IsMac() || BX.desktop.enableInVersion(41))
 				{
-					this.stack = this.stack.filter(element => element.absenceId != this.stack[i].absenceId);
-					break;
+					this.execute(this.stack[i]);
 				}
+				else
+				{
+					var elementOfStack = BX.clone(this.stack[i]);
+					setTimeout(() => this.execute(elementOfStack), 10000);
+				}
+
+				this.stack = this.stack.filter(element => element.absenceId != this.stack[i].absenceId);
+				break;
 			}
 
 			return true;

@@ -23,7 +23,7 @@ if (!\Bitrix\Main\Loader::includeModule("rest"))
 $arResult = \Bitrix\Rest\Marketplace\Client::getTop($arParams['ACTION']);
 
 $arResult['ITEMS_INSTALLED'] = array();
-if(count($arResult['ITEMS']) > 0)
+if(!empty($arResult['ITEMS']) && is_array($arResult['ITEMS']))
 {
 	$listAppCode = array();
 	foreach($arResult['ITEMS'] as $catagory)

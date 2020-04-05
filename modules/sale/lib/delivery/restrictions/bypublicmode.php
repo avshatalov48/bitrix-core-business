@@ -30,7 +30,7 @@ class ByPublicMode extends Restrictions\Base
 		$context = Application::getInstance()->getContext();
 		$request = $context->getRequest();
 
-		if (empty($restrictionParams) || $request->isAdminSection())
+		if (empty($restrictionParams) || $request->isAdminSection() || (defined("BX_PUBLIC_MODE") && BX_PUBLIC_MODE == true))
 			return true;
 
 		return $restrictionParams["PUBLIC_SHOW"] == 'Y';

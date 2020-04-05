@@ -6,14 +6,16 @@ class CBPHelper
 	const DISTR_B24 = 'b24';
 	const DISTR_BOX = 'box';
 
-	static private $serverName;
-	static protected $cAccess;
-	static protected $groupsCache = array();
+	private static $serverName;
+	protected static $cAccess;
+	protected static $groupsCache = array();
 
 	protected static function getAccessProvider()
 	{
 		if (self::$cAccess === null)
+		{
 			self::$cAccess = new CAccess;
+		}
 		return self::$cAccess;
 	}
 
@@ -21,11 +23,13 @@ class CBPHelper
 	{
 		if (is_array($arUsers))
 		{
-			$r = array();
+			$r = [];
 
 			$keys = array_keys($arUsers);
 			foreach ($keys as $key)
+			{
 				$r[$key] = self::UsersArrayToStringInternal($arUsers[$key], $arWorkflowTemplate, $arAllowableUserGroups, $appendId);
+			}
 
 			if (count($r) == 2)
 			{
@@ -47,14 +51,20 @@ class CBPHelper
 		else
 		{
 			if (array_key_exists(strtolower($arUsers), $arAllowableUserGroups))
+			{
 				return $arAllowableUserGroups[strtolower($arUsers)];
+			}
 
 			if (CBPActivity::isExpression($arUsers))
+			{
 				return $arUsers;
+			}
 
 			$userId = 0;
 			if (substr($arUsers, 0, strlen("user_")) == "user_")
+			{
 				$userId = intval(substr($arUsers, strlen("user_")));
+			}
 
 			if ($userId > 0)
 			{
@@ -71,7 +81,9 @@ class CBPHelper
 				{
 					$str = CUser::FormatName(COption::GetOptionString("bizproc", "name_template", CSite::GetNameFormat(false), SITE_ID), $ar, true, false);
 					if ($appendId)
+					{
 						$str = $str." [".$ar["ID"]."]";
+					}
 					return str_replace(",", " ", $str);
 				}
 			}
@@ -88,43 +100,50 @@ class CBPHelper
 	public static function UsersArrayToString($arUsers, $arWorkflowTemplate, $documentType, $appendId = true)
 	{
 		if (!is_array($arUsers) && strlen($arUsers) <= 0 || is_array($arUsers) && count($arUsers) <= 0)
+		{
 			return "";
+		}
 
-		$arAllowableUserGroups = array();
+		$arAllowableUserGroups = [];
 		$arAllowableUserGroupsTmp = CBPDocument::GetAllowableUserGroups($documentType);
 		foreach ($arAllowableUserGroupsTmp as $k1 => $v1)
+		{
 			$arAllowableUserGroups[strtolower($k1)] = str_replace(",", " ", $v1);
+		}
 
 		return self::UsersArrayToStringInternal($arUsers, $arWorkflowTemplate, $arAllowableUserGroups, $appendId);
 	}
 
 	public static function UsersStringToArray($strUsers, $documentType, &$arErrors, $callbackFunction = null)
 	{
-		$arErrors = array();
+		$arErrors = [];
 
 		$strUsers = trim($strUsers);
 		if (strlen($strUsers) <= 0)
+		{
 			return ($callbackFunction != null) ? array(array(), array()) : array();
+		}
 
 		if (CBPActivity::isExpression($strUsers))
 		{
 			return ($callbackFunction != null) ? array(array($strUsers), array()) : array($strUsers);
 		}
 
-		$arUsers = array();
+		$arUsers = [];
 		$strUsers = str_replace(";", ",", $strUsers);
 		$arUsersTmp = explode(",", $strUsers);
 		foreach ($arUsersTmp as $user)
 		{
 			$user = trim($user);
 			if (strlen($user) > 0)
+			{
 				$arUsers[] = $user;
+			}
 		}
 
 		$arAllowableUserGroups = null;
 
-		$arResult = array();
-		$arResultAlt = array();
+		$arResult = $arResultAlt = [];
 		foreach ($arUsers as $user)
 		{
 			$bCorrectUser = false;
@@ -138,10 +157,12 @@ class CBPHelper
 			{
 				if ($arAllowableUserGroups == null)
 				{
-					$arAllowableUserGroups = array();
+					$arAllowableUserGroups = [];
 					$arAllowableUserGroupsTmp = CBPDocument::GetAllowableUserGroups($documentType);
 					foreach ($arAllowableUserGroupsTmp as $k1 => $v1)
+					{
 						$arAllowableUserGroups[strtolower($k1)] = strtolower($v1);
+					}
 				}
 
 				if (array_key_exists(strtolower($user), $arAllowableUserGroups))
@@ -203,24 +224,30 @@ class CBPHelper
 		return ($callbackFunction != null) ? array($arResult, $arResultAlt) : $arResult;
 	}
 
-	private function SearchUserByName($user)
+	private static function SearchUserByName($user)
 	{
 		$user = trim($user);
 		if (strlen($user) <= 0)
-			return array();
+		{
+			return [];
+		}
 
 		$userId = 0;
 		if ($user."|" == intval($user)."|")
+		{
 			$userId = intval($user);
+		}
 
 		if ($userId <= 0)
 		{
-			$arMatches = array();
+			$arMatches = [];
 			if (preg_match('#\[(\d+)\]#i', $user, $arMatches))
+			{
 				$userId = intval($arMatches[1]);
+			}
 		}
 
-		$arResult = array();
+		$arResult = [];
 
 		$dbUsers = false;
 		if ($userId > 0)
@@ -231,15 +258,13 @@ class CBPHelper
 				($by = "LAST_NAME"),
 				($order = "asc"),
 				$arFilter,
-				array(
-					"NAV_PARAMS" => false,
-				)
+				['NAV_PARAMS' => false]
 			);
 		}
 		else
 		{
 			$userLogin = "";
-			$arMatches = array();
+			$arMatches = [];
 			if (preg_match('#\((.+?)\)#i', $user, $arMatches))
 			{
 				$userLogin = $arMatches[1];
@@ -247,26 +272,30 @@ class CBPHelper
 			}
 
 			$userEmail = "";
-			$arMatches = array();
+			$arMatches = [];
 			if (preg_match("#<(.+?)>#i", $user, $arMatches))
 			{
 				if (check_email($arMatches[1]))
 				{
 					$userEmail = $arMatches[1];
-					$user = Trim(Str_Replace("<".$userEmail.">", "", $user));
+					$user = trim(Str_Replace("<".$userEmail.">", "", $user));
 				}
 			}
 
-			$arUser = array();
-			$arUserTmp = Explode(" ", $user);
+			$arUser = [];
+			$arUserTmp = explode(" ", $user);
 			foreach ($arUserTmp as $s)
 			{
-				$s = Trim($s);
-				if (StrLen($s) > 0)
+				$s = trim($s);
+				if (strlen($s) > 0)
+				{
 					$arUser[] = $s;
+				}
 			}
 			if (strlen($userLogin) > 0)
+			{
 				$arUser[] = $userLogin;
+			}
 
 			$dbUsers = CUser::SearchUserByName($arUser, $userEmail, true);
 		}
@@ -274,7 +303,9 @@ class CBPHelper
 		if ($dbUsers)
 		{
 			while ($arUsers = $dbUsers->GetNext())
+			{
 				$arResult[] = $arUsers["ID"];
+			}
 		}
 
 		return $arResult;
@@ -297,29 +328,37 @@ class CBPHelper
 
 		$s = "";
 		if ($days > 0)
+		{
 			$s .= str_replace(
 				array("#VAL#", "#UNIT#"),
 				array($days, self::MakeWord($days, array(GetMessage("BPCGHLP_DAY1"), GetMessage("BPCGHLP_DAY2"), GetMessage("BPCGHLP_DAY3")))),
 				"#VAL# #UNIT# "
 			);
+		}
 		if ($hours > 0)
+		{
 			$s .= str_replace(
 				array("#VAL#", "#UNIT#"),
 				array($hours, self::MakeWord($hours, array(GetMessage("BPCGHLP_HOUR1"), GetMessage("BPCGHLP_HOUR2"), GetMessage("BPCGHLP_HOUR3")))),
 				"#VAL# #UNIT# "
 			);
+		}
 		if ($minutes > 0)
+		{
 			$s .= str_replace(
 				array("#VAL#", "#UNIT#"),
 				array($minutes, self::MakeWord($minutes, array(GetMessage("BPCGHLP_MIN1"), GetMessage("BPCGHLP_MIN2"), GetMessage("BPCGHLP_MIN3")))),
 				"#VAL# #UNIT# "
 			);
+		}
 		if ($seconds > 0)
+		{
 			$s .= str_replace(
 				array("#VAL#", "#UNIT#"),
 				array($seconds, self::MakeWord($seconds, array(GetMessage("BPCGHLP_SEC1"), GetMessage("BPCGHLP_SEC2"), GetMessage("BPCGHLP_SEC3")))),
 				"#VAL# #UNIT# "
 			);
+		}
 
 		return $s;
 	}
@@ -327,14 +366,22 @@ class CBPHelper
 	private static function MakeWord($val, $arWords)
 	{
 		if ($val > 20)
+		{
 			$val = ($val % 10);
+		}
 
 		if ($val == 1)
+		{
 			return $arWords[0];
+		}
 		elseif ($val > 1 && $val < 5)
+		{
 			return $arWords[1];
+		}
 		else
+		{
 			return $arWords[2];
+		}
 	}
 
 	public static function GetFilterOperation($key)
@@ -411,7 +458,7 @@ class CBPHelper
 
 		$arGroupByFunct = array("COUNT", "AVG", "MIN", "MAX", "SUM");
 
-		$arAlreadyJoined = array();
+		$arAlreadyJoined = [];
 
 		// GROUP BY -->
 		if (is_array($arGroupBy) && count($arGroupBy)>0)
@@ -433,9 +480,13 @@ class CBPHelper
 						foreach ($toJoin as $join)
 						{
 							if (in_array($join, $arAlreadyJoined))
+							{
 								continue;
+							}
 							if (strlen($strSqlFrom) > 0)
+							{
 								$strSqlFrom .= " ";
+							}
 							$strSqlFrom .= $join;
 							$arAlreadyJoined[] = $join;
 						}
@@ -578,10 +629,10 @@ class CBPHelper
 		// <-- SELECT
 
 		// WHERE -->
-		$arSqlSearch = Array();
+		$arSqlSearch = [];
 
 		if (!is_array($arFilter))
-			$filter_keys = Array();
+			$filter_keys = [];
 		else
 			$filter_keys = array_keys($arFilter);
 
@@ -769,7 +820,9 @@ class CBPHelper
 	public static function ParseDocumentId($parameterDocumentId)
 	{
 		if (!is_array($parameterDocumentId))
+		{
 			$parameterDocumentId = array($parameterDocumentId);
+		}
 
 		$moduleId = "";
 		$entity = "";
@@ -791,21 +844,29 @@ class CBPHelper
 		$moduleId = trim($moduleId);
 
 		if (!is_array($documentId))
+		{
 			$documentId = trim($documentId);
+		}
 		if ($documentId === '')
+		{
 			throw new CBPArgumentNullException("documentId");
+		}
 
 		$entity = trim($entity);
 		if ($entity === '')
+		{
 			throw new CBPArgumentNullException("entity");
+		}
 
-		return array($moduleId, $entity, $documentId);
+		return [$moduleId, $entity, $documentId];
 	}
 
 	public static function ParseDocumentIdArray($parameterDocumentId)
 	{
 		if (!is_array($parameterDocumentId))
+		{
 			$parameterDocumentId = array($parameterDocumentId);
+		}
 
 		$moduleId = "";
 		$entity = "";
@@ -828,33 +889,41 @@ class CBPHelper
 
 		$entity = trim($entity);
 		if (strlen($entity) <= 0)
+		{
 			throw new Exception("entity");
+		}
 
 		if (is_array($documentId))
 		{
-			$a = array();
+			$a = [];
 			foreach ($documentId as $v)
 			{
 				$v = trim($v);
 				if (strlen($v) > 0)
+				{
 					$a[] = $v;
+				}
 			}
 			$documentId = $a;
 			if (count($documentId) <= 0)
+			{
 				throw new CBPArgumentNullException("documentId");
+			}
 		}
 		else
 		{
 			$documentId = trim($documentId);
 			if (strlen($documentId) <= 0)
+			{
 				throw new CBPArgumentNullException("documentId");
+			}
 			$documentId = array($documentId);
 		}
 
-		return array($moduleId, $entity, $documentId);
+		return [$moduleId, $entity, $documentId];
 	}
 
-	public function GetFieldValuePrintable($fieldName, $fieldType, $result)
+	public static function GetFieldValuePrintable($fieldName, $fieldType, $result)
 	{
 		$newResult = null;
 
@@ -863,9 +932,11 @@ class CBPHelper
 			case "user":
 				if (is_array($result))
 				{
-					$newResult = array();
+					$newResult = [];
 					foreach ($result as $r)
+					{
 						$newResult[] = CBPHelper::ConvertUserToPrintableForm($r);
+					}
 				}
 				else
 				{
@@ -882,7 +953,9 @@ class CBPHelper
 						$r = intval($r);
 						$dbImg = CFile::GetByID($r);
 						if ($arImg = $dbImg->Fetch())
+						{
 							$newResult[] = "[url=/bitrix/tools/bizproc_show_file.php?f=".urlencode($arImg["FILE_NAME"])."&i=".$r."]".htmlspecialcharsbx($arImg["ORIGINAL_NAME"])."[/url]";
+						}
 					}
 				}
 				else
@@ -890,7 +963,9 @@ class CBPHelper
 					$result = intval($result);
 					$dbImg = CFile::GetByID($result);
 					if ($arImg = $dbImg->Fetch())
+					{
 						$newResult = "[url=/bitrix/tools/bizproc_show_file.php?f=".urlencode($arImg["FILE_NAME"])."&i=".$result."]".htmlspecialcharsbx($arImg["ORIGINAL_NAME"])."[/url]";
+					}
 				}
 				break;
 
@@ -901,13 +976,17 @@ class CBPHelper
 		return $newResult;
 	}
 
-	public function ConvertUserToPrintableForm($userId, $nameTemplate = "")
+	public static function ConvertUserToPrintableForm($userId, $nameTemplate = "")
 	{
 		if (substr($userId, 0, strlen("user_")) == "user_")
+		{
 			$userId = substr($userId, strlen("user_"));
+		}
 
 		if (empty($nameTemplate))
+		{
 			$nameTemplate = COption::GetOptionString("bizproc", "name_template", CSite::GetNameFormat(false), SITE_ID);
+		}
 
 		$userId = intval($userId);
 
@@ -931,7 +1010,7 @@ class CBPHelper
 		return $str;
 	}
 
-	public function GetJSFunctionsForFields($objectName, $arDocumentFields, $arDocumentFieldTypes)
+	public static function GetJSFunctionsForFields($objectName, $arDocumentFields, $arDocumentFieldTypes)
 	{
 		ob_start();
 
@@ -1095,7 +1174,7 @@ class CBPHelper
 		return $str;
 	}
 
-	static public function GetDocumentFieldTypes()
+	public static function GetDocumentFieldTypes()
 	{
 		$arResult = array(
 			"string" => array("Name" => GetMessage("BPCGHLP_PROP_STRING"), "BaseType" => "string"),
@@ -1103,6 +1182,7 @@ class CBPHelper
 			"int" => array("Name" => GetMessage("BPCGHLP_PROP_INT"), "BaseType" => "int"),
 			"double" => array("Name" => GetMessage("BPCGHLP_PROP_DOUBLE"), "BaseType" => "double"),
 			"select" => array("Name" => GetMessage("BPCGHLP_PROP_SELECT"), "BaseType" => "select"),
+			"internalselect" => array("Name" => GetMessage("BPCGHLP_PROP_INTERNALSELECT"), "BaseType" => "internalselect"),
 			"bool" => array("Name" => GetMessage("BPCGHLP_PROP_BOOL"), "BaseType" => "bool"),
 			"date" => array("Name" => GetMessage("BPCGHLP_PROP_DATA"), "BaseType" => "date"),
 			"datetime" => array("Name" => GetMessage("BPCGHLP_PROP_DATETIME"), "BaseType" => "datetime"),
@@ -1116,7 +1196,7 @@ class CBPHelper
 	/**
 	 * @deprecated
 	 */
-	static public function GetGUIFieldEdit($documentType, $formName, $fieldName, $fieldValue, $arDocumentField, $bAllowSelection)
+	public static function GetGUIFieldEdit($documentType, $formName, $fieldName, $fieldValue, $arDocumentField, $bAllowSelection)
 	{
 		return self::GetFieldInputControl(
 			$documentType,
@@ -1127,10 +1207,12 @@ class CBPHelper
 		);
 	}
 
-	static public function GetFieldInputControl($documentType, $arFieldType, $arFieldName, $fieldValue, $bAllowSelection = false)
+	public static function GetFieldInputControl($documentType, $arFieldType, $arFieldName, $fieldValue, $bAllowSelection = false)
 	{
 		if (!is_array($fieldValue) || is_array($fieldValue) && CBPHelper::IsAssociativeArray($fieldValue))
+		{
 			$fieldValue = array($fieldValue);
+		}
 
 		ob_start();
 
@@ -1343,9 +1425,9 @@ class CBPHelper
 		return $s;
 	}
 
-	function GetFieldInputValue($documentType, $arFieldType, $arFieldName, $arRequest, &$arErrors)
+	public static function GetFieldInputValue($documentType, $arFieldType, $arFieldName, $arRequest, &$arErrors)
 	{
-		$result = array();
+		$result = [];
 
 		if ($arFieldType["Type"] == "user")
 		{
@@ -1356,21 +1438,27 @@ class CBPHelper
 				if (count($arErrors) > 0)
 				{
 					foreach ($arErrors as $e)
+					{
 						$arErrors[] = $e;
+					}
 				}
 			}
 		}
 		elseif (array_key_exists($arFieldName["Field"], $arRequest) || array_key_exists($arFieldName["Field"]."_text", $arRequest))
 		{
-			$arValue = array();
+			$arValue = [];
 			if (array_key_exists($arFieldName["Field"], $arRequest))
 			{
 				$arValue = $arRequest[$arFieldName["Field"]];
 				if (!is_array($arValue) || is_array($arValue) && CBPHelper::IsAssociativeArray($arValue))
+				{
 					$arValue = array($arValue);
+				}
 			}
 			if (array_key_exists($arFieldName["Field"]."_text", $arRequest))
+			{
 				$arValue[] = $arRequest[$arFieldName["Field"]."_text"];
+			}
 
 			foreach ($arValue as $value)
 			{
@@ -1525,7 +1613,7 @@ class CBPHelper
 		return $result;
 	}
 
-	function GetFieldInputValuePrintable($documentType, $arFieldType, $fieldValue)
+	public static function GetFieldInputValuePrintable($documentType, $arFieldType, $fieldValue)
 	{
 		$result = $fieldValue;
 
@@ -1578,7 +1666,7 @@ class CBPHelper
 		return $result;
 	}
 
-	static function SetGUIFieldEdit($documentType, $fieldName, $arRequest, &$arErrors, $arDocumentField = null)
+	public static function SetGUIFieldEdit($documentType, $fieldName, $arRequest, &$arErrors, $arDocumentField = null)
 	{
 		return self::GetFieldInputValue($documentType, $arDocumentField, array("Field" => $fieldName), $arRequest, $arErrors);
 	}
@@ -1586,17 +1674,22 @@ class CBPHelper
 	public static function ConvertTextForMail($text, $siteId = false)
 	{
 		if (is_array($text))
+		{
 			$text = implode(', ', $text);
+		}
 
 		$text = trim($text);
 		if (strlen($text) <= 0)
+		{
 			return "";
+		}
 
 		if (!$siteId)
+		{
 			$siteId = SITE_ID;
+		}
 
-		$arPattern = array();
-		$arReplace = array();
+		$arPattern = $arReplace = [];
 
 		$arPattern[] = "/\[(code|quote)(.*?)\]/is".BX_UTF_PCRE_MODIFIER;
 		$arReplace[] = "\n>================== \\1 ===================\n";
@@ -1649,9 +1742,13 @@ class CBPHelper
 		if (strLen(static::$serverName) <= 0)
 		{
 			if (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0)
+			{
 				static::$serverName = SITE_SERVER_NAME;
+			}
 			else
+			{
 				static::$serverName = COption::GetOptionString("main", "server_name", "");
+			}
 		}
 
 		$text = preg_replace_callback(
@@ -1687,7 +1784,9 @@ class CBPHelper
 		$url = str_replace(' ', '%20', $url);
 
 		if (strlen($text) > 0 && $text !== $url)
+		{
 			return $text." ( ".$url." )";
+		}
 
 		return $url;
 	}
@@ -1695,7 +1794,10 @@ class CBPHelper
 	public static function IsAssociativeArray($ar)
 	{
 		if (!is_array($ar))
+		{
 			return false;
+		}
+
 		$fl = false;
 
 		$arKeys = array_keys($ar);
@@ -1731,10 +1833,12 @@ class CBPHelper
 
 	public static function ExtractUsersFromUserGroups($value, $activity)
 	{
-		$result = array();
+		$result = [];
 
 		if (!is_array($value))
+		{
 			$value = array($value);
+		}
 
 		$l = strlen("user_");
 		$runtime = CBPRuntime::GetRuntime();
@@ -1750,9 +1854,13 @@ class CBPHelper
 			{
 				$arDSUsers = self::extractUsersFromExtendedGroup($v);
 				if ($arDSUsers === false)
+				{
 					$arDSUsers = $documentService->GetUsersFromUserGroup($v, $activity->GetDocumentId());
+				}
 				foreach ($arDSUsers as $v1)
+				{
 					$result[] = "user_".$v1;
+				}
 			}
 		}
 
@@ -1769,19 +1877,25 @@ class CBPHelper
 	public static function extractUsersFromExtendedGroup($code)
 	{
 		if (strpos($code, 'group_') !== 0)
+		{
 			return false;
+		}
 		$code = strtoupper(substr($code, strlen('group_')));
 
 		if (strpos($code, 'G') === 0)
 		{
 			$group = (int)substr($code, 1);
 			if ($group <= 0)
-				return array();
-			$result = array();
+			{
+				return [];
+			}
+			$result = [];
 
 			$iterator = CUser::GetList(($b = "ID"), ($o = "ASC"), array("GROUPS_ID" => $group, "ACTIVE" => "Y"));
 			while ($user = $iterator->fetch())
+			{
 				$result[] = $user['ID'];
+			}
 
 			return $result;
 		}
@@ -1793,7 +1907,7 @@ class CBPHelper
 
 		if ($code == 'UA' && CModule::IncludeModule('intranet'))
 		{
-			$result = array();
+			$result = [];
 			$iterator = CUser::GetList(($by="id"), ($order="asc"),
 				array('ACTIVE' => 'Y', '>UF_DEPARTMENT' => 0),
 				array('FIELDS' => array('ID'))
@@ -1814,6 +1928,7 @@ class CBPHelper
 
 			if ($recursive)
 			{
+				//TODO: replace with \CIntranetUtils::getSubStructure($id)
 				$iterator = CIBlockSection::GetList(
 					array('ID' => 'ASC'),
 					array('=IBLOCK_ID' => $iblockId, 'ID'=> $id),
@@ -1890,10 +2005,12 @@ class CBPHelper
 
 	public static function ExtractUsers($arUsersDraft, $documentId, $bFirst = false)
 	{
-		$result = array();
+		$result = [];
 
 		if (!is_array($arUsersDraft))
+		{
 			$arUsersDraft = array($arUsersDraft);
+		}
 
 		$l = strlen("user_");
 
@@ -1903,7 +2020,9 @@ class CBPHelper
 		foreach ($arUsersDraft as $user)
 		{
 			if (!is_scalar($user))
+			{
 				continue;
+			}
 
 			if (substr($user, 0, $l) === "user_")
 			{
@@ -1911,7 +2030,9 @@ class CBPHelper
 				if (($user > 0) && !in_array($user, $result))
 				{
 					if ($bFirst)
+					{
 						return $user;
+					}
 					$result[] = $user;
 				}
 			}
@@ -1919,14 +2040,18 @@ class CBPHelper
 			{
 				$users = self::extractUsersFromExtendedGroup($user);
 				if ($users === false)
+				{
 					$users = $documentService->GetUsersFromUserGroup($user, $documentId);
+				}
 				foreach ($users as $u)
 				{
 					$u = (int)$u;
 					if (($u > 0) && !in_array($u, $result))
 					{
 						if ($bFirst)
+						{
 							return $u;
+						}
 						$result[] = $u;
 					}
 				}
@@ -1934,10 +2059,14 @@ class CBPHelper
 		}
 
 		if (!$bFirst)
+		{
 			return $result;
+		}
 
 		if (count($result) > 0)
+		{
 			return $result[0];
+		}
 
 		return null;
 	}
@@ -1945,9 +2074,11 @@ class CBPHelper
 	public static function MakeArrayFlat($ar)
 	{
 		if (!is_array($ar))
+		{
 			return array($ar);
+		}
 
-		$result = array();
+		$result = [];
 
 		if (!CBPHelper::IsAssociativeArray($ar) && (count($ar) == 2) && in_array($ar[0], array("Variable", "Document", "Template", "Workflow", "User", "System")) && is_string($ar[1]))
 		{
@@ -1974,12 +2105,30 @@ class CBPHelper
 
 	public static function getBool($value)
 	{
-		return (empty($value) || is_int($value) && ($value == 0) || (strtoupper($value) == 'N')) ? false : true;
+		if (empty($value) || $value === 'false' || is_int($value) && ($value == 0) || (strtoupper($value) == 'N'))
+		{
+			return false;
+		}
+
+		return (bool)$value;
 	}
 
 	public static function isEmptyValue($value)
 	{
-		return $value === null || $value === '' || is_array($value) && sizeof($value) <= 0;
+		$filter = function ($value)
+		{
+			return ($value !== null && $value !== '' && $value !== false);
+		};
+
+		return (
+			$value === null
+			||
+			$value === ''
+			||
+			$value === false
+			||
+			is_array($value) && count(array_filter($value, $filter)) === 0
+		);
 	}
 
 	public static function ConvertParameterValues($val)
@@ -2095,7 +2244,7 @@ class CBPHelper
 	public static function convertToSimpleGroups($users, $extractUsers = false)
 	{
 		$users = (array)$users;
-		$converted = array();
+		$converted = [];
 
 		foreach ($users as $user)
 		{
@@ -2151,9 +2300,7 @@ class CBPHelper
 
 	public static function getDistrName()
 	{
-		if (CModule::IncludeModule('bitrix24'))
-			return static::DISTR_B24;
-		return static::DISTR_BOX;
+		return CModule::IncludeModule('bitrix24') ? static::DISTR_B24 : static::DISTR_BOX;
 	}
 
 	/**
@@ -2208,7 +2355,7 @@ class CBPHelper
 	{
 		CUtil::DecodeUriComponent($data);
 
-		foreach (array('arWorkflowTemplate', 'arWorkflowParameters', 'arWorkflowVariables', 'arWorkflowConstants', 'USER_PARAMS') as $k)
+		foreach (['arWorkflowTemplate', 'arWorkflowParameters', 'arWorkflowVariables', 'arWorkflowGlobalConstants', 'arWorkflowConstants', 'USER_PARAMS'] as $k)
 		{
 			if (!isset($data[$k]) || !is_array($data[$k]))
 			{

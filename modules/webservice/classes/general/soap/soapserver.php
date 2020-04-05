@@ -368,38 +368,49 @@ class CSOAPServer
 		// get the SOAP body
 		$body = $dom->elementsByName("Body");
 
-		$children = $body[0]->children();
-
-		if (count($children) == 1)
+		if(count($body) <= 0)
 		{
-			$requestNode = $children[0];
-			$requestParsed = false;
-
-			// get target namespace for request
-			// it often function request message. in wsdl gen. = function+"request"
-			$functionName = $requestNode->name();
-			$namespaceURI = $requestNode->namespaceURI();
-
-			for ($i = 0; $i < count($this->OnRequestEvent); $i++)
-			{
-				if ($this->OnRequestEvent[$i]->ProcessRequestBody($this, $requestNode))
-				{
-					$requestParsed = true;
-					break;
-				}
-			}
-
-			for ($i = 0; $i < count($this->OnRequestEvent); $i++)
-				$this->OnRequestEvent[$i]->OnAfterResponse($this);
-
-			if (!$requestParsed)
-				$this->ShowSOAPFault('Unknown operation requested.');
-
-			return $requestParsed;
+			$this->ShowSOAPFault('No "Body" element in the request');
 		}
 		else
 		{
-			$this->ShowSOAPFault('"Body" element in the request has wrong number of children');
+			$children = $body[0]->children();
+
+			if(count($children) == 1)
+			{
+				$requestNode = $children[0];
+				$requestParsed = false;
+
+				// get target namespace for request
+				// it often function request message. in wsdl gen. = function+"request"
+				$functionName = $requestNode->name();
+				$namespaceURI = $requestNode->namespaceURI();
+
+				for($i = 0; $i < count($this->OnRequestEvent); $i++)
+				{
+					if($this->OnRequestEvent[$i]->ProcessRequestBody($this, $requestNode))
+					{
+						$requestParsed = true;
+						break;
+					}
+				}
+
+				for($i = 0; $i < count($this->OnRequestEvent); $i++)
+				{
+					$this->OnRequestEvent[$i]->OnAfterResponse($this);
+				}
+
+				if(!$requestParsed)
+				{
+					$this->ShowSOAPFault('Unknown operation requested.');
+				}
+
+				return $requestParsed;
+			}
+			else
+			{
+				$this->ShowSOAPFault('"Body" element in the request has wrong number of children');
+			}
 		}
 
 		return false;

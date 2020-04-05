@@ -25,7 +25,7 @@ class PriceMaths
 			}
 		}
 
-		return roundEx($value, self::$valuePrecision);
+		return round(doubleval($value), self::$valuePrecision);
 	}
 
 	/**

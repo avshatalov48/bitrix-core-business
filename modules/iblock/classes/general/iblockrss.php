@@ -185,46 +185,49 @@ class CAllIBlockRSS
 				}
 			}
 
-			foreach($arRes["item"] as $i => $arItem)
+			if (!empty($arRes["item"]) && is_array($arRes["item"]))
 			{
-				if(!is_array($arItem) || !is_array($arItem["#"]))
-					continue;
-
-				if(is_array($arItem["#"]["title"][0]["#"]))
-					$arItem["#"]["title"][0]["#"] = $arItem["#"]["title"][0]["#"]["cdata-section"][0]["#"];
-
-				if(is_array($arItem["#"]["description"][0]["#"]))
-					$arItem["#"]["description"][0]["#"] = $arItem["#"]["description"][0]["#"]["cdata-section"][0]["#"];
-				elseif(is_array($arItem["#"]["encoded"][0]["#"]))
-					$arItem["#"]["description"][0]["#"] = $arItem["#"]["encoded"][0]["#"]["cdata-section"][0]["#"];
-				$arResult["item"][$i]["description"] = $arItem["#"]["description"][0]["#"];
-
-				if(is_array($arItem["#"]["title"][0]["#"]))
-					$arItem["#"]["title"][0]["#"] = $arItem["#"]["title"][0]["#"]["cdata-section"][0]["#"];
-				$arResult["item"][$i]["title"] = $arItem["#"]["title"][0]["#"];
-
-				if(is_array($arItem["#"]["link"][0]["#"]))
-					$arItem["#"]["link"][0]["#"] = $arItem["#"]["link"][0]["#"]["cdata-section"][0]["#"];
-				$arResult["item"][$i]["link"] = $arItem["#"]["link"][0]["#"];
-
-				if ($arItem["#"]["enclosure"])
+				foreach ($arRes["item"] as $i => $arItem)
 				{
-					$arResult["item"][$i]["enclosure"]["url"] = $arItem["#"]["enclosure"][0]["@"]["url"];
-					$arResult["item"][$i]["enclosure"]["length"] = $arItem["#"]["enclosure"][0]["@"]["length"];
-					$arResult["item"][$i]["enclosure"]["type"] = $arItem["#"]["enclosure"][0]["@"]["type"];
-					if ($arItem["#"]["enclosure"][0]["@"]["width"])
-					{
-						$arResult["item"][$i]["enclosure"]["width"] = $arItem["#"]["enclosure"][0]["@"]["width"];
-					}
-					if ($arItem["#"]["enclosure"][0]["@"]["height"])
-					{
-						$arResult["item"][$i]["enclosure"]["height"] = $arItem["#"]["enclosure"][0]["@"]["height"];
-					}
-				}
-				$arResult["item"][$i]["category"] = $arItem["#"]["category"][0]["#"];
-				$arResult["item"][$i]["pubDate"] = $arItem["#"]["pubDate"][0]["#"];
+					if (!is_array($arItem) || !is_array($arItem["#"]))
+						continue;
 
-				$arRes["item"][$i] = $arItem;
+					if (is_array($arItem["#"]["title"][0]["#"]))
+						$arItem["#"]["title"][0]["#"] = $arItem["#"]["title"][0]["#"]["cdata-section"][0]["#"];
+
+					if (is_array($arItem["#"]["description"][0]["#"]))
+						$arItem["#"]["description"][0]["#"] = $arItem["#"]["description"][0]["#"]["cdata-section"][0]["#"];
+					elseif (is_array($arItem["#"]["encoded"][0]["#"]))
+						$arItem["#"]["description"][0]["#"] = $arItem["#"]["encoded"][0]["#"]["cdata-section"][0]["#"];
+					$arResult["item"][$i]["description"] = $arItem["#"]["description"][0]["#"];
+
+					if (is_array($arItem["#"]["title"][0]["#"]))
+						$arItem["#"]["title"][0]["#"] = $arItem["#"]["title"][0]["#"]["cdata-section"][0]["#"];
+					$arResult["item"][$i]["title"] = $arItem["#"]["title"][0]["#"];
+
+					if (is_array($arItem["#"]["link"][0]["#"]))
+						$arItem["#"]["link"][0]["#"] = $arItem["#"]["link"][0]["#"]["cdata-section"][0]["#"];
+					$arResult["item"][$i]["link"] = $arItem["#"]["link"][0]["#"];
+
+					if ($arItem["#"]["enclosure"])
+					{
+						$arResult["item"][$i]["enclosure"]["url"] = $arItem["#"]["enclosure"][0]["@"]["url"];
+						$arResult["item"][$i]["enclosure"]["length"] = $arItem["#"]["enclosure"][0]["@"]["length"];
+						$arResult["item"][$i]["enclosure"]["type"] = $arItem["#"]["enclosure"][0]["@"]["type"];
+						if ($arItem["#"]["enclosure"][0]["@"]["width"])
+						{
+							$arResult["item"][$i]["enclosure"]["width"] = $arItem["#"]["enclosure"][0]["@"]["width"];
+						}
+						if ($arItem["#"]["enclosure"][0]["@"]["height"])
+						{
+							$arResult["item"][$i]["enclosure"]["height"] = $arItem["#"]["enclosure"][0]["@"]["height"];
+						}
+					}
+					$arResult["item"][$i]["category"] = $arItem["#"]["category"][0]["#"];
+					$arResult["item"][$i]["pubDate"] = $arItem["#"]["pubDate"][0]["#"];
+
+					$arRes["item"][$i] = $arItem;
+				}
 			}
 		}
 		else
@@ -246,40 +249,43 @@ class CAllIBlockRSS
 				$arResult["image"]["height"] = $arRes["image"][0]["#"]["height"][0]["#"];
 			}
 
-			foreach($arRes["item"] as $i => $arItem)
+			if (!empty($arRes["item"]) && is_array($arRes["item"]))
 			{
-				if(!is_array($arItem) || !is_array($arItem["#"]))
-					continue;
-
-				if(is_array($arItem["#"]["title"][0]["#"]))
-					$arItem["#"]["title"][0]["#"] = $arItem["#"]["title"][0]["#"]["cdata-section"][0]["#"];
-
-				if(is_array($arItem["#"]["description"][0]["#"]))
-					$arItem["#"]["description"][0]["#"] = $arItem["#"]["description"][0]["#"]["cdata-section"][0]["#"];
-				elseif(is_array($arItem["#"]["encoded"][0]["#"]))
-					$arItem["#"]["description"][0]["#"] = $arItem["#"]["encoded"][0]["#"]["cdata-section"][0]["#"];
-				$arResult["item"][$i]["description"] = $arItem["#"]["description"][0]["#"];
-
-				$arResult["item"][$i]["title"] = $arItem["#"]["title"][0]["#"];
-				$arResult["item"][$i]["link"] = $arItem["#"]["link"][0]["#"];
-				if ($arItem["#"]["enclosure"])
+				foreach ($arRes["item"] as $i => $arItem)
 				{
-					$arResult["item"][$i]["enclosure"]["url"] = $arItem["#"]["enclosure"][0]["@"]["url"];
-					$arResult["item"][$i]["enclosure"]["length"] = $arItem["#"]["enclosure"][0]["@"]["length"];
-					$arResult["item"][$i]["enclosure"]["type"] = $arItem["#"]["enclosure"][0]["@"]["type"];
-					if ($arItem["#"]["enclosure"][0]["@"]["width"])
-					{
-						$arResult["item"][$i]["enclosure"]["width"] = $arItem["#"]["enclosure"][0]["@"]["width"];
-					}
-					if ($arItem["#"]["enclosure"][0]["@"]["height"])
-					{
-						$arResult["item"][$i]["enclosure"]["height"] = $arItem["#"]["enclosure"][0]["@"]["height"];
-					}
-				}
-				$arResult["item"][$i]["category"] = $arItem["#"]["category"][0]["#"];
-				$arResult["item"][$i]["pubDate"] = $arItem["#"]["pubDate"][0]["#"];
+					if (!is_array($arItem) || !is_array($arItem["#"]))
+						continue;
 
-				$arRes["item"][$i] = $arItem;
+					if (is_array($arItem["#"]["title"][0]["#"]))
+						$arItem["#"]["title"][0]["#"] = $arItem["#"]["title"][0]["#"]["cdata-section"][0]["#"];
+
+					if (is_array($arItem["#"]["description"][0]["#"]))
+						$arItem["#"]["description"][0]["#"] = $arItem["#"]["description"][0]["#"]["cdata-section"][0]["#"];
+					elseif (is_array($arItem["#"]["encoded"][0]["#"]))
+						$arItem["#"]["description"][0]["#"] = $arItem["#"]["encoded"][0]["#"]["cdata-section"][0]["#"];
+					$arResult["item"][$i]["description"] = $arItem["#"]["description"][0]["#"];
+
+					$arResult["item"][$i]["title"] = $arItem["#"]["title"][0]["#"];
+					$arResult["item"][$i]["link"] = $arItem["#"]["link"][0]["#"];
+					if ($arItem["#"]["enclosure"])
+					{
+						$arResult["item"][$i]["enclosure"]["url"] = $arItem["#"]["enclosure"][0]["@"]["url"];
+						$arResult["item"][$i]["enclosure"]["length"] = $arItem["#"]["enclosure"][0]["@"]["length"];
+						$arResult["item"][$i]["enclosure"]["type"] = $arItem["#"]["enclosure"][0]["@"]["type"];
+						if ($arItem["#"]["enclosure"][0]["@"]["width"])
+						{
+							$arResult["item"][$i]["enclosure"]["width"] = $arItem["#"]["enclosure"][0]["@"]["width"];
+						}
+						if ($arItem["#"]["enclosure"][0]["@"]["height"])
+						{
+							$arResult["item"][$i]["enclosure"]["height"] = $arItem["#"]["enclosure"][0]["@"]["height"];
+						}
+					}
+					$arResult["item"][$i]["category"] = $arItem["#"]["category"][0]["#"];
+					$arResult["item"][$i]["pubDate"] = $arItem["#"]["pubDate"][0]["#"];
+
+					$arRes["item"][$i] = $arItem;
+				}
 			}
 		}
 		return $arResult;
@@ -300,10 +306,10 @@ class CAllIBlockRSS
 	function ExtractProperties($str, &$arProps, &$arItem)
 	{
 		reset($arProps);
-		while (list($key, $val) = each($arProps))
+		foreach ($arProps as $key => $val)
 			$str = str_replace("#".$key."#", $val["VALUE"], $str);
 		reset($arItem);
-		while (list($key, $val) = each($arItem))
+		foreach ($arItem as $key => $val)
 			$str = str_replace("#".$key."#", $val, $str);
 		return $str;
 	}
@@ -336,4 +342,3 @@ class CAllIBlockRSS
 		echo "</rss>\n";
 	}
 }
-?>

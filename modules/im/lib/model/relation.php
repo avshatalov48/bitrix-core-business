@@ -81,6 +81,11 @@ class RelationTable extends Entity\DataManager
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('RELATION_ENTITY_LAST_ID_FIELD'),
 			),
+			'UNREAD_ID' => array(
+				'data_type' => 'integer',
+				'title' => Loc::getMessage('RELATION_ENTITY_UNREAD_ID_FIELD'),
+				'default' => 0
+			),
 			'LAST_SEND_ID' => array(
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('RELATION_ENTITY_LAST_SEND_ID_FIELD'),
@@ -165,6 +170,19 @@ class RelationTable extends Entity\DataManager
 		return array(
 			new Entity\Validator\Length(null, 50),
 		);
+	}
+
+	/**
+	 * @param array $fields Record as returned by getList
+	 * @return string
+	 */
+	public static function generateSearchContent(array $fields)
+	{
+		$result = \Bitrix\Main\Search\MapBuilder::create()
+			->addText($fields['TITLE'])
+			->build();
+
+		return $result;
 	}
 }
 

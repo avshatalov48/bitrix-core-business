@@ -94,6 +94,8 @@ class EditorMail
 					.'</span>';
 				$html = str_replace($php[2], $surrogate, $html);
 			}
+
+			$html = str_replace(['<?', '?>'], ['< ?', '? >'], $html);
 		}
 
 		return $html;
@@ -321,9 +323,7 @@ class EditorMail
 											</td>
 										</tr>
 									</tbody>
-									</table>
-
-									<table align="left" border="0" cellpadding="0" cellspacing="0" width="260">
+									</table><table align="left" border="0" cellpadding="0" cellspacing="0" width="260">
 									<tbody>
 										<tr>
 											<td valign="top" class="bxBlockPadding bxBlockContentImage">

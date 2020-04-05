@@ -9,6 +9,7 @@ namespace Bitrix\Lists\Integration\Socialnetwork;
 
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
+use Bitrix\Main\Loader;
 use Bitrix\Socialnetwork\Item\LogIndex;
 
 class Log
@@ -36,8 +37,6 @@ class Log
 	 */
 	public static function onIndexGetContent(Event $event)
 	{
-		global $USER_FIELD_MANAGER;
-
 		$result = new EventResult(
 			EventResult::UNDEFINED,
 			array(),
@@ -78,6 +77,28 @@ class Log
 			)
 			{
 				$content .= \CTextParser::clearAllTags($logEntryParams["ELEMENT_NAME"]);
+			}
+
+			if (
+				!empty($logFieldList["MESSAGE"])
+				&& Loader::includeModule('bizproc')
+				&& ($documentData = \CBPStateService::GetStateDocumentId($logFieldList["MESSAGE"]))
+				&& ($documentData[0] == 'lists')
+				&& (intval($documentData[2]) > 0)
+				&& Loader::includeModule('iblock')
+			)
+			{
+				$elementObject = \CIBlockElement::getList(
+					array(),
+					array('ID' => intval($documentData[2])),
+					false,
+					false,
+					array('SEARCHABLE_CONTENT')
+				);
+				if ($element = $elementObject->fetch())
+				{
+					$content .= " ".$element["SEARCHABLE_CONTENT"];
+				}
 			}
 		}
 

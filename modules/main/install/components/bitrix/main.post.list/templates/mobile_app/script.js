@@ -47,7 +47,7 @@
 	};
 	BX.addCustomEvent(window, 'OnUCFormSubmit', function(){ setText(''); });
 
-	BXMobileApp.addCustomEvent("main.post.form/text", function(text){
+	BX.addCustomEvent("main.post.form/text", function(text){
 		text = BX.type.isArray(text) ? text[0] : text;
 		setText(text);
 	});
@@ -187,6 +187,18 @@
 						if (act === "EDIT")
 						{
 							this.show([entityId, id], data['messageBBCode'], data['messageFields']);
+						}
+						else if (act === "MODERATE")
+						{
+							BX.onCustomEvent(window, 'OnUCAfterRecordAdd', [
+								data.messageId[0],
+								data.messageId[1],
+								this,
+								data,
+								{
+									node: BX('record-' + data.messageId[0] + '-' + data.messageId[1])
+								}
+							]);
 						}
 						else if (data['errorMessage'])
 						{
@@ -347,9 +359,15 @@
 				}
 			}
 
+			var actionUrl = entityHdl['url'];
+			actionUrl = BX.util.add_url_param(actionUrl, {
+				b24statAction: (comment.id[1] > 0 ? 'editComment' : 'addComment'),
+				b24statContext: 'mobile'
+			});
+
 			post.Wrap({
 				method: 'POST',
-				url: entityHdl['url'],
+				url: actionUrl,
 				data: {},
 				type: 'json',
 				processData : true,
@@ -358,9 +376,13 @@
 				callback: BX.proxy(function(data) {
 					BX.onCustomEvent(window, 'OnUCFormResponse', [comment.id[0], comment.id[1], this, data, comment]);
 					if (data['errorMessage'])
+					{
 						this.showError(comment, data['errorMessage']);
+					}
 					else
+					{
 						BX.onCustomEvent(window, 'OnUCAfterRecordAdd', [comment.id[0], comment.id[1], this, data, comment]);
+					}
 				}, this),
 				callback_failure: BX.delegate(function(data) {
 					BX.onCustomEvent(window, 'OnUCFormResponse', [comment.id[0], comment.id[1], this, data, comment]);
@@ -491,7 +513,7 @@
 		}
 
 		BX.eventCancelBubble(e);
-		BX.PreventDefault(e);
+		e.preventDefault();
 
 		var node = BX('record-' + makeId(ENTITY_XML_ID, ID)),
 			menu = [], action;
@@ -524,10 +546,19 @@
 			menu.push({
 				title: (hidden ? BX.message("BPC_MES_SHOW") : BX.message("BPC_MES_HIDE")),
 				callback: function() {
-					repo["list"][ENTITY_XML_ID].act(node.getAttribute('bx-mpl-moderate-url').
+					var moderateUrl = node.getAttribute('bx-mpl-moderate-url').
 						replace("#action#", (hidden ? "show" : "hide")).
-						replace("#ACTION#", (hidden ? "SHOW" : "HIDE")),
-						ID, 'MODERATE');
+						replace("#ACTION#", (hidden ? "SHOW" : "HIDE"));
+
+					if (BX.type.isNotEmptyString(moderateUrl))
+					{
+						moderateUrl = BX.util.add_url_param(moderateUrl, {
+							b24statAction: (hidden ? "showComment" : "hideComment"),
+							b24statContext: 'mobile'
+						});
+					}
+
+					repo["list"][ENTITY_XML_ID].act(moderateUrl, ID, 'MODERATE');
 				}
 			});
 		}
@@ -536,17 +567,25 @@
 				title: BX.message('BPC_MES_DELETE'),
 				callback: function() { repo["list"][ENTITY_XML_ID].act(node.getAttribute('bx-mpl-delete-url'), ID, 'DELETE'); }});
 		if (node.getAttribute("bx-mpl-createtask-show") == "Y")
+		{
+			var
+				commentEntityType = node.getAttribute('bx-mpl-comment-entity-type'),
+				postEntityType = node.getAttribute('bx-mpl-post-entity-type');
+
 			menu.push({
 				title: BX.message('BPC_MES_CREATETASK'),
 				callback: function() {
 					if (typeof oMSL != 'undefined')
 					{
 						oMSL.createTask({
-							entityType: 'BLOG_COMMENT',
+							postEntityType: (BX.type.isNotEmptyString(postEntityType) ? postEntityType : 'BLOG_POST'),
+							entityType: (BX.type.isNotEmptyString(commentEntityType) ? commentEntityType : 'BLOG_COMMENT'),
 							entityId: ID
 						});
 					}
-				}});
+				}
+			});
+		}
 		if (menu.length > 0)
 		{
 			action = new window.BXMobileApp.UI.ActionSheet({ buttons: menu }, "commentSheet" );
@@ -556,15 +595,15 @@
 	};
 	window.mobileReply = function(ENTITY_XML_ID, e) {
 		BX.eventCancelBubble(e);
-		BX.PreventDefault(e);
+		e.preventDefault();
 		repo["list"][ENTITY_XML_ID].reply(e.target);
 		return false;
 	};
 	window.mobileExpand = function(node, e) {
 		BX.eventCancelBubble(e);
-		BX.PreventDefault(e);
+		e.preventDefault();
 
-		var el2 = (BX(node) ? node.previousSibling : null);
+		var el2 = (BX(node) ? BX.findChild(node.previousSibling, { className: 'post-comment-text'}, true) : null);
 		if (BX(el2))
 		{
 			var el = el2.parentNode,
@@ -602,6 +641,17 @@
 		return false;
 	};
 
+	window.mobileIOSVersion = function() {
+		if (/iP(hone|od|ad)/.test(navigator.platform)) {
+			var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
+			return [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
+		}
+		else
+		{
+			return false;
+		}
+	};
+
 	var init = function(window) {
 		BX.MPL = function(params, staticParams, formParams)
 		{
@@ -623,7 +673,8 @@
 				}
 			}, this);
 			this.windowEvents['OnUCAfterRecordAdd'] = BX.delegate(function(ENTITY_XML_ID, ENTITY_ID, obj, data, comment) {
-				if (this.ENTITY_XML_ID == ENTITY_XML_ID) {
+				if (this.ENTITY_XML_ID == ENTITY_XML_ID)
+				{
 					this.add(comment, data["messageId"], data, true, "simple");
 				}
 			}, this);
@@ -674,7 +725,13 @@
 			BXMobileApp.addCustomEvent(window, 'onPull-unicomments', this.windowEvents['onPull-unicomments']);
 
 			if (staticParams['SHOW_POST_FORM'] == "Y")
+			{
 				MPFForm.link(this.ENTITY_XML_ID, formParams);
+			}
+
+			setTimeout(function() {
+				this.recalcMoreButtonsList();
+			}.bind(this), 50); // quote problem
 
 			repo["list"][this.ENTITY_XML_ID] = this;
 			return this;
@@ -690,7 +747,7 @@
 				text = BX.util.htmlspecialchars(text).replace(/\n/gi, "<br />");
 				text = text.replace(/\001/, '').
 					replace(/(\[\/user\])/gi, "\001").
-					replace(/\[user=(\d+)\]([^\001]?.+)(\001)/gi, "$2").
+					replace(/\[user=(\d+)\]([^\001].+?)(\001)/gi, "$2").
 					replace(/\001/, "[/user]");
 
 				var html = window.fcParseTemplate(
@@ -707,31 +764,52 @@
 
 				var node = container,
 					curPos = BX.pos(node),
+					top = (curPos.top),
 					size = BX.GetWindowInnerSize(),
-					top = (curPos.top - size.innerHeight);
+					iosPatchNeeded = false,
+					iosPatchDelta = 0,
+					iOSVersion = window.mobileIOSVersion();
 
-				if (BX.GetWindowScrollPos()["scrollTop"] < top)
-					window.scrollTo(0, top);
+				if (
+					window.platform == "ios"
+					&& BX.type.isArray(iOSVersion)
+				)
+				{
+					iOSVersion = iOSVersion[0];
+					iosPatchNeeded = (iOSVersion >= 11 && inner.keyBoardIsShown);
+					iosPatchDelta = 260;
+				}
 
-				var scroll = BX.GetWindowScrollPos();
+				if (
+					!iosPatchNeeded
+					|| (top > (size.innerHeight - iosPatchDelta)) // out of visible area
+				)
+				{
+					window.scrollTo(0, top - iosPatchDelta);
+				}
 
 				(new BX["easing"]({
 					duration : 500,
 					start : { opacity : 0, height : 0},
 					finish : { opacity: 100, height : node.scrollHeight},
-					transition : BX.easing.makeEaseOut(BX.easing.transitions.quart),
+					transition : BX.easing.makeEaseInOut(BX.easing.transitions.quad),
 					step : function(state){
 						node.style.height = state.height + "px";
 						node.style.opacity = state.opacity / 100;
-						if ((scroll.scrollTop + size.innerHeight) < (curPos.top + state.height))
+
+						if (
+							!iosPatchNeeded
+							|| ((top + state.height) > (size.innerHeight - iosPatchDelta)) // out of visible area
+						)
 						{
-							window.scrollTo(0, (top + state.height));
+							window.scrollTo(0, (top + state.height - iosPatchDelta));
 						}
 					},
-
 					complete : function(){
 						if (node.style.display !== 'none')
+						{
 							node.style.cssText = '';
+						}
 					}
 				})).animate();
 
@@ -779,17 +857,35 @@
 		};
 		BX.MPL.prototype.send = function() {
 			if (BX(this.nav))
-				BX.addClass(this.nav.parentNode, "post-comments-button-waiter");
+			{
+				var waiter = BX.findChild(this.nav, { className: 'post-comments-button-waiter'});
+				if (waiter)
+				{
+					BX.addClass(waiter, "post-comments-button-waiter-active");
+				}
+			}
 			BX.MPL.superclass.send.apply(this, arguments);
 		};
 		BX.MPL.prototype.build = function() {
 			if (BX(this.nav))
-				BX.removeClass(this.nav.parentNode, "post-comments-button-waiter");
+			{
+				var waiter = BX.findChild(this.nav, { className: 'post-comments-button-waiter'});
+				if (waiter)
+				{
+					BX.removeClass(waiter, "post-comments-button-waiter-active");
+				}
+			}
 			BX.MPL.superclass.build.apply(this, arguments);
 		};
 		BX.MPL.prototype.complete = function() {
 			if (BX(this.nav))
-				BX.removeClass(this.nav.parentNode, "post-comments-button-waiter");
+			{
+				var waiter = BX.findChild(this.nav, { className: 'post-comments-button-waiter'});
+				if (waiter)
+				{
+					BX.removeClass(waiter, "post-comments-button-waiter-active");
+				}
+			}
 			BX.MPL.superclass.complete.apply(this, arguments);
 		};
 		BX.MPL.prototype.showWait = function(id) {
@@ -802,6 +898,42 @@
 			if (id > 0 && container)
 				BX.removeClass(container, "feed-com-block-cover-wait");
 		};
+		BX.MPL.prototype.recalcMoreButtonsList = function(listContainer) {
+			if (!BX(listContainer))
+			{
+				listContainer = BX.findParent(BX('record-' + this.ENTITY_XML_ID + '-new'), { className: 'post-comments-wrap'});
+			}
+			if (listContainer)
+			{
+				var nodes = BX.findChildren(listContainer, {className: 'post-comment-more'}, true);
+				for (var i = 0; i < nodes.length; i++)
+				{
+					this.recalcMoreButton(nodes[i]);
+				}
+			}
+		};
+		BX.MPL.prototype.recalcMoreButton = function(buttonNode) {
+			if (BX(buttonNode))
+			{
+				var outerNode = BX.findChild(BX(buttonNode).parentNode, { className: 'post-comment-wrap' });
+				if (outerNode)
+				{
+					var innerNode = BX.findChild(outerNode, { className: 'post-comment-text' });
+					if (innerNode)
+					{
+						var posInner = BX.pos(innerNode);
+						var posOuter = BX.pos(outerNode);
+						if (posOuter.height >= posInner.height)
+						{
+							BX.cleanNode(BX(buttonNode), true);
+						}
+					}
+				}
+			}
+		};
+		BX.MPL.prototype.findMoreButton = function(commentNode) {
+			return BX.findChild(BX(commentNode), { className: 'post-comment-more' }, true);
+		};
 		BX.MPL.createInstance = function(params, staticParams, formParams) {
 			return (new BX.MPL(params, staticParams, formParams));
 		};
@@ -809,6 +941,10 @@
 		BX.MPL.getInstance = function(entity_xml_id) {
 			return repo['list'][entity_xml_id];
 		};
+
+		BX.MPL.recalcMoreButtonCommentsList = function() {};
+		BX.MPL.recalcMoreButtonComment = function() {};
+		BX.MPL.recalcMoreButtonCommentById = function() {};
 
 		BX.addCustomEvent(window, "OnUCHasBeenDestroyed", function(ENTITY_XML_ID) {
 			delete repo["list"][ENTITY_XML_ID];

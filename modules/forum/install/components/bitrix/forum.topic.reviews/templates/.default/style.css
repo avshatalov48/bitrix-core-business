@@ -80,6 +80,26 @@ table.reviews-post-table thead td .review-rating {
 	float: right;
 }
 
+table.reviews-post-table thead td .review-rating.review-rating-react {
+	display: flex!important;
+}
+
+table.reviews-post-table thead td .review-rating.review-rating-react .feed-post-emoji-icon-box {
+	padding-top: 4px;
+	height: 21px;
+}
+
+table.reviews-post-table thead td .review-rating.review-rating-react .feed-post-emoji-icon-item {
+	margin-left: -7px;
+}
+
+table.reviews-post-table thead td .review-rating.review-rating-react .feed-post-emoji-text-item:hover {
+	border-bottom: none;
+}
+table.reviews-post-table thead td .review-rating.review-rating-react .feed-post-emoji-icon-box {
+	cursor: pointer;
+}
+
 table.reviews-post-table thead td .review-rating .rating-vote {
 	line-height: 24px;
 }

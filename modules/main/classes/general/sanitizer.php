@@ -213,13 +213,19 @@
 		 * !WARNING! if DeleteSanitizedTags = false and ApplyHtmlSpecChars = false
 		 * html will not be sanitized!
 		 * @param bool $bApply true|false
+		 * @deprecated
 		 */
 		public function ApplyHtmlSpecChars($bApply=true)
 		{
 			if($bApply)
+			{
 				$this->bHtmlSpecChars = true;
+			}
 			else
+			{
 				$this->bHtmlSpecChars = false;
+				trigger_error('It is strongly not recommended to use \CBXSanitizer::ApplyHtmlSpecChars(false)', E_USER_WARNING);
+			}
 		}
 
 		/**
@@ -351,7 +357,7 @@
 						'h6'		=> array('style','id','class','align'),
 						'hr'		=> array('style','id','class'),
 						'i'		=> array('style','id','class'),
-						'img'		=> array('style','id','class','src','alt','height','width','title'),
+						'img'		=> array('style','id','class','src','alt','height','width','title','align'),
 						'ins'		=> array('title','style','id','class'),
 						'li'		=> array('style','id','class'),
 						'map'		=> array('shape','coords','href','alt','title','style','id','class','name'),
@@ -424,6 +430,7 @@
 					break;
 
 				case 'style':
+					$attrValue = str_replace('&quot;', '',  $attrValue);
 					$valid = !preg_match("#(behavior|expression|position|javascript)#i".BX_UTF_PCRE_MODIFIER, $attrValue) && !preg_match("#[^\\/\\w\\s)(!%,:\\.;\\-\\#\\']#i".BX_UTF_PCRE_MODIFIER, $attrValue)
 							? true : false;
 					break;
@@ -450,6 +457,35 @@
 			}
 
 			return $valid;
+		}
+
+		protected function encodeAttributeValue(array $attr)
+		{
+			if (!$this->bHtmlSpecChars)
+			{
+				return $attr[3];
+			}
+
+			$result = $attr[3];
+			$flags = ENT_QUOTES;
+
+			if ($attr[1] === 'style')
+			{
+				$flags = ENT_COMPAT;
+			}
+			elseif ($attr[1] === 'href')
+			{
+				$result = str_replace('&', '##AMP##', $result);
+			}
+
+			$result = htmlspecialchars($result, $flags, LANG_CHARSET, $this->bDoubleEncode);
+
+			if ($attr[1] === 'href')
+			{
+				$result = str_replace('##AMP##', '&', $result);
+			}
+
+			return $result;
 		}
 
 		/**
@@ -667,7 +703,7 @@
 							}
 
 							//find attributies an erase unallowed
-							preg_match_all('#([a-z_-]+)\s*=\s*([\'\"])\s*(.*?)\s*\2#is'.BX_UTF_PCRE_MODIFIER, $matches[3], $arTagAttrs, PREG_SET_ORDER);
+							preg_match_all('#([a-z0-9_-]+)\s*=\s*([\'\"])\s*(.*?)\s*\2#is'.BX_UTF_PCRE_MODIFIER, $matches[3], $arTagAttrs, PREG_SET_ORDER);
 							$attr = array();
 							foreach($arTagAttrs as $arTagAttr)
 							{
@@ -693,14 +729,7 @@
 
 									if($this->IsValidAttr($arTagAttr))
 									{
-										if($this->bHtmlSpecChars)
-										{
-											$attr[$attrOne] = htmlspecialchars($arTagAttr[3], ENT_QUOTES, LANG_CHARSET, $this->bDoubleEncode);
-										}
-										else
-										{
-											$attr[$attrOne] = $arTagAttr[3];
-										}
+										$attr[$attrOne] = $this->encodeAttributeValue($arTagAttr);
 									}
 								}
 							}

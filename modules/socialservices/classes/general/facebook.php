@@ -354,7 +354,6 @@ class CFacebookInterface extends CSocServOAuthTransport
 
 	protected $scope = array(
 		"email",
-		"publish_actions",
 		"user_friends",
 	);
 
@@ -430,7 +429,7 @@ class CFacebookInterface extends CSocServOAuthTransport
 			if(isset($arResultLongLive["access_token"]) && $arResultLongLive["access_token"] <> '')
 			{
 				$arResult["access_token"] = $arResultLongLive["access_token"];
-				$arResult["expires"] = $arResultLongLive["expires_in"];
+				$arResult["expires"] = isset($arResultLongLive["expires_in"]) ? $arResultLongLive["expires_in"] : 86400 * 60;
 				$_SESSION["OAUTH_DATA"] = array(
 					"OATOKEN" => $arResultLongLive["access_token"],
 					"OATOKEN_EXPIRES" => time() + $arResultLongLive['expires'],

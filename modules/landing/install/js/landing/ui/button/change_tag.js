@@ -111,7 +111,7 @@
 				if (newActive)
 				{
 					newActive.layout.text.innerHTML = "<strong>"+newActive.layout.text.innerText+"</strong>";
-					this.layout.innerText = newActive.id;
+					this.layout.innerHTML = "<span class=\"landing-ui-icon-editor-"+newActive.id.toLowerCase()+"\"></span>";
 				}
 			}
 		},

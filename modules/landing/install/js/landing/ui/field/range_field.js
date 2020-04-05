@@ -41,7 +41,7 @@
 		this.layout.classList.add("landing-ui-field-range");
 		this.stepPercent = 100 /this.values.length;
 
-		if ((this.content === null || this.content === undefined))
+		if ((this.content === null || this.content === undefined || this.content === ""))
 		{
 			if (this.isMultiple)
 			{

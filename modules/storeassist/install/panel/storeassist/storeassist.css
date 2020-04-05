@@ -9,9 +9,9 @@
 .adm-s-thermometer-container *::selection {
 	background: transparent;
 	-webkit-user-select: none;
-	 -khtml-user-select: none;
-	   -moz-user-select: none;
-		-ms-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
 }
 .adm-s-thermometer-title{
 	font-size:22px;
@@ -175,10 +175,10 @@
 	color:#596d7c;
 	text-shadow:0 1px 0 #fff;
 	-webkit-transition:opacity .3s ease;
-	   -moz-transition:opacity .3s ease;
-		-ms-transition:opacity .3s ease;
-		 -o-transition:opacity .3s ease;
-			transition:opacity .3s ease;
+	-moz-transition:opacity .3s ease;
+	-ms-transition:opacity .3s ease;
+	-o-transition:opacity .3s ease;
+	transition:opacity .3s ease;
 }
 .adm-s-thermometer-block-status.active .adm-s-thermometer-point-desc{
 	opacity: 1;
@@ -196,10 +196,10 @@
 	border-style: solid;
 	border-width: 10px 32px 0px 32px;
 	-webkit-border-image: url(images/thermometer1.png) 10 32 0 32 repeat;
-	   -moz-border-image: url(images/thermometer1.png) 10 32 0 32 repeat;
-		-ms-border-image: url(images/thermometer1.png) 10 32 0 32 repeat;
-		 -o-border-image: url(images/thermometer1.png) 10 32 0 32 repeat;
-			border-image: url(images/thermometer1.png) 10 32 0 32 fill repeat;
+	-moz-border-image: url(images/thermometer1.png) 10 32 0 32 repeat;
+	-ms-border-image: url(images/thermometer1.png) 10 32 0 32 repeat;
+	-o-border-image: url(images/thermometer1.png) 10 32 0 32 repeat;
+	border-image: url(images/thermometer1.png) 10 32 0 32 fill repeat;
 }
 .bx-ie8 .adm-s-thermometer-track{
 	border: none;
@@ -224,10 +224,10 @@
 }
 .adm-s-thermometer-point.animate{
 	-webkit-transition:left .5s cubic-bezier(.53,1.53,.53,.76);
-	   -moz-transition:left .5s cubic-bezier(.53,1.53,.53,.76);
-		-ms-transition:left .5s cubic-bezier(.53,1.53,.53,.76);
-		 -o-transition:left .5s cubic-bezier(.53,1.53,.53,.76);
-			transition:left .5s cubic-bezier(.53,1.53,.53,.76);
+	-moz-transition:left .5s cubic-bezier(.53,1.53,.53,.76);
+	-ms-transition:left .5s cubic-bezier(.53,1.53,.53,.76);
+	-o-transition:left .5s cubic-bezier(.53,1.53,.53,.76);
+	transition:left .5s cubic-bezier(.53,1.53,.53,.76);
 }
 .adm-s-thermometer-point-tablet{
 	font-size:22px;
@@ -307,7 +307,7 @@ h2.adm-s-setting-title{
 	vertical-align:middle;
 	white-space:nowrap;
 	-ms-text-overflow:ellipsis;
-		text-overflow:ellipsis;
+	text-overflow:ellipsis;
 	color:#fff;
 }
 /** BLOCK TITLE action */
@@ -378,10 +378,10 @@ h2.adm-s-setting-title{
 	height:16px;
 	margin-left:-8px;
 	-webkit-transform:rotate(45deg);
-	   -moz-transform:rotate(45deg);
-		-ms-transform:rotate(45deg);
-		 -o-transform:rotate(45deg);
-			transform:rotate(45deg);
+	-moz-transform:rotate(45deg);
+	-ms-transform:rotate(45deg);
+	-o-transform:rotate(45deg);
+	transform:rotate(45deg);
 	border-right:2px solid #fff;
 	border-bottom:2px solid #fff;
 }
@@ -724,7 +724,7 @@ ul.adm-s-setting-tasklist{
 .adm-s-setting-task{
 	float:left;
 	width:50%;
-	height:30px;
+	min-height:30px;
 	margin-bottom:2px;
 }
 .adm-s-setting-content-block.one .adm-s-setting-task{
@@ -732,36 +732,30 @@ ul.adm-s-setting-tasklist{
 	width:100%;
 }
 
-.adm-s-setting-task span{
+.adm-s-setting-task-item{
 	font-size:13px;
-	line-height:16px;
+	line-height:20px;
 	position:relative;
 	display:inline-block;
 	overflow:hidden;
-	-webkit-box-sizing:border-box;
-	   -moz-box-sizing:border-box;
-			box-sizing:border-box;
+	box-sizing:border-box;
 	max-width:100%;
-	height:30px;
+	min-height:30px;
 	padding:7px 20px 7px 36px;
 	cursor:pointer;
-	-webkit-transition:background-color .3s ease;
-	   -moz-transition:background-color .3s ease;
-		-ms-transition:background-color .3s ease;
-		 -o-transition:background-color .3s ease;
-			transition:background-color .3s ease;
+	transition:background-color .3s ease;
 	vertical-align:middle;
 	white-space:nowrap;
-		text-overflow:ellipsis;
+	text-overflow:ellipsis;
 	-ms-text-overflow:ellipsis;
 	border-radius:3px;
 }
-.adm-s-setting-task span:hover{
+.adm-s-setting-task-item:hover{
 	background:#e1ebed;
 }
-.adm-s-setting-task span:before{
+.adm-s-setting-task-item:before{
 	position:absolute;
-	top:50%;
+	top:16px;
 	left:10px;
 	width:16px;
 	height:16px;
@@ -769,21 +763,44 @@ ul.adm-s-setting-tasklist{
 	content:' ';
 	background:url(images/sprite.png) no-repeat 0 -240px;
 }
-.adm-s-setting-task.complited span{
+.adm-s-setting-task-item a{
+	text-decoration: none;
+	color:#1c53a2;
+}
+.adm-s-setting-task.complited .adm-s-setting-task-item a{
 	/*text-decoration:line-through;*/
+	text-decoration: none;
 	color:#4a515d;
 }
-.adm-s-setting-task.complited span:before{
+.adm-s-setting-task.complited .adm-s-setting-task-item:before{
 	background-position:0 -224px;
 }
-.adm-s-setting-task.add span{
+.adm-s-setting-task.add .adm-s-setting-task-item{
 	line-height:28px;
 	width:auto;
 	padding:0 20px 0 36px;
 	border:1px solid #bfd1d4;
 }
-.adm-s-setting-task.add span:before{
+.adm-s-setting-task.add .adm-s-setting-task-item:before{
 	background-position:0 -256px;
+}
+
+.adm-s-setting-task-sub-item{
+	display: block;
+	color: #4a515d;
+}
+.adm-s-setting-task-sub-item a{
+	text-decoration: none;
+	color:#1c53a2;
+}
+.adm-s-setting-task-sub-item a:hover{
+	text-decoration: underline;
+}
+
+.adm-s-setting-task.complited .adm-s-setting-task-item,
+.adm-s-setting-task.complited .adm-s-setting-task-item a{
+	text-decoration: none;
+	color:#4a515d;
 }
 
 .adm-s-setting-content-block-body-line-two-h-t{
@@ -855,10 +872,6 @@ ul.adm-s-setting-tasklist{
 	top:0;
 	right:0;
 	left:0;
-	-webkit-transition:background-color .3s ease;
-	-moz-transition:background-color .3s ease;
-	-ms-transition:background-color .3s ease;
-	-o-transition:background-color .3s ease;
 	transition:background-color .3s ease;
 	border-radius:3px;
 }
@@ -867,13 +880,10 @@ ul.adm-s-setting-tasklist{
 	background:#fff;
 	box-shadow: 0 4px 10px 0 rgba(0,0,0,.15);
 }
-.adm-s-toolbar-hidden-block{
+.adm-s-toolbar-hidden-block {
+	margin-top: 10px;
 	/*white-space: pre-line;*/
 	display:none;
-	-webkit-transition:opacity .3s ease;
-	-moz-transition:opacity .3s ease;
-	-ms-transition:opacity .3s ease;
-	-o-transition:opacity .3s ease;
 	transition:opacity .3s ease;
 	opacity:0;
 }
@@ -892,4 +902,4 @@ ul.adm-s-setting-tasklist{
 	padding-left:91px;
 	background: url(images/i.png) no-repeat left top;
 	min-height: 68px;
- }
+}

@@ -3,6 +3,7 @@
 namespace Bitrix\Mail;
 
 use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
 
 Main\Localization\Loc::loadMessages(__FILE__);
 
@@ -277,11 +278,9 @@ class User
 		switch ($type)
 		{
 			case 'rpl':
-				$eventId = sprintf('onReplyReceived%s', $userRelation['ENTITY_TYPE']);
 				$content = Message::parseReply($message);
 				break;
 			case 'fwd':
-				$eventId = sprintf('onForwardReceived%s', $userRelation['ENTITY_TYPE']);
 				$content = Message::parseForward($message);
 				break;
 		}
@@ -292,20 +291,165 @@ class User
 			return false;
 		}
 
-		$event = new Main\Event(
-			'mail', $eventId,
-			array(
-				'site_id'     => $userRelation['SITE_ID'],
-				'entity_id'   => $userRelation['ENTITY_ID'],
-				'from'        => $userRelation['USER_ID'],
-				'subject'     => $message['subject'],
-				'content'     => $content,
-				'attachments' => $message['files']
-			)
-		);
-		$event->send();
+		$attachments = array();
+		if (is_array($message['files']))
+		{
+			$tmpDir = \CTempFile::getDirectoryName(6);
+			checkDirPath($tmpDir);
 
-		return $event->getResults();
+			foreach($message['files'] as $key => $file)
+			{
+				if(
+					!is_uploaded_file($file['tmp_name'])
+					|| $file['size'] <= 0
+				)
+				{
+					continue;
+				}
+
+				$uploadFile = $tmpDir.bx_basename($file['name']);
+				if(move_uploaded_file($file['tmp_name'], $uploadFile))
+				{
+					$attachments[$key] = $uploadFile;
+				}
+			}
+		}
+
+		$addResult = User\MessageTable::add(array(
+			'TYPE' => $type,
+			'SITE_ID' => $userRelation['SITE_ID'],
+			'ENTITY_TYPE' => $userRelation['ENTITY_TYPE'],
+			'ENTITY_ID' => $userRelation['ENTITY_ID'],
+			'USER_ID' => $userRelation['USER_ID'],
+			'SUBJECT' => $message['subject'],
+			'CONTENT' => $content,
+			'ATTACHMENTS' => serialize($attachments),
+		));
+
+		if ($addResult->isSuccess())
+		{
+			\CAgent::addAgent(
+				"\\Bitrix\\Mail\\User::sendEventAgent(".$addResult->getId().");",
+				"mail", //module
+				"N", //period
+				10 //interval
+			);
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Agent method, retrieves stored user message and sends an event
+	 */
+	public static function sendEventAgent($messageId = 0, $cnt = 0)
+	{
+		$messageId = intval($messageId);
+		if ($messageId <= 0)
+		{
+			return;
+		}
+
+		$res = User\MessageTable::getList(array(
+			'filter' => array(
+				'=ID' => $messageId
+			)
+		));
+		if ($messageFields = $res->fetch())
+		{
+			if (intval($cnt) > 10)
+			{
+				if (Main\Loader::includeModule('im'))
+				{
+					$title = trim($messageFields['SUBJECT']);
+					if (strlen($title) <= 0)
+					{
+						$title = trim($messageFields['CONTENT']);
+						$title = preg_replace("/\[ATTACHMENT\s*=\s*[^\]]*\]/is".BX_UTF_PCRE_MODIFIER, "", $title);
+
+						$CBXSanitizer = new \CBXSanitizer;
+						$CBXSanitizer->delAllTags();
+						$title = $CBXSanitizer->sanitizeHtml($title);
+					}
+
+					\CIMNotify::add(array(
+						"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,
+						"NOTIFY_TYPE" => IM_NOTIFY_SYSTEM,
+						"NOTIFY_MODULE" => "mail",
+						"NOTIFY_EVENT" => "user_message_failed",
+						"TO_USER_ID" => $messageFields['USER_ID'],
+						"NOTIFY_MESSAGE" => Loc::getMessage("MAIL_USER_MESSAGE_FAILED", array(
+							"#TITLE#" => $title
+						))
+					));
+				}
+				User\MessageTable::delete($messageId);
+				return;
+			}
+
+			switch ($messageFields['TYPE'])
+			{
+				case 'rpl':
+					$eventId = sprintf('onReplyReceived%s', $messageFields['ENTITY_TYPE']);
+					break;
+				case 'fwd':
+					$eventId = sprintf('onForwardReceived%s', $messageFields['ENTITY_TYPE']);
+					break;
+			}
+
+			if (!empty($eventId))
+			{
+				$attachments = array();
+				if (!empty($messageFields['ATTACHMENTS']))
+				{
+					$tmpAttachments = unserialize($messageFields['ATTACHMENTS']);
+					if (is_array($tmpAttachments))
+					{
+						foreach($tmpAttachments as $key => $uploadFile)
+						{
+							$file = \CFile::makeFileArray($uploadFile);
+							if (
+								is_array($file)
+								&& !empty($file)
+							)
+							{
+								$attachments[$key] = $file;
+							}
+						}
+					}
+				}
+
+				$event = new Main\Event(
+					'mail', $eventId,
+					array(
+						'site_id'     => $messageFields['SITE_ID'],
+						'entity_id'   => $messageFields['ENTITY_ID'],
+						'from'        => $messageFields['USER_ID'],
+						'subject'     => $messageFields['SUBJECT'],
+						'content'     => $messageFields['CONTENT'],
+						'attachments' => $attachments
+					)
+				);
+				$event->send();
+
+				foreach ($event->getResults() as $eventResult)
+				{
+					if ($eventResult->getType() == \Bitrix\Main\EventResult::ERROR)
+					{
+						$cnt++;
+
+						global $pPERIOD;
+						$pPERIOD = 10 + (60 * $cnt);
+						return "\\Bitrix\\Mail\\User::sendEventAgent(".$messageId.", ".$cnt.");";
+					}
+				}
+
+				User\MessageTable::delete($messageId);
+			}
+		}
+
+		return;
 	}
 
 	/**

@@ -91,8 +91,15 @@ class Delivery extends Base\Restriction
 			/** @var \Bitrix\Sale\Shipment $shipment */
 			foreach ($shipmentCollection as $shipment)
 			{
+				if ($shipment->isSystem())
+				{
+					continue;
+				}
+
 				if ($deliveryId = $shipment->getDeliveryId())
+				{
 					$result[] = $deliveryId;
+				}
 			}
 		}
 

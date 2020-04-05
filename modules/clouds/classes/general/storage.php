@@ -90,10 +90,12 @@ class CCloudStorage
 	 */
 	public static function FindBucketForFile($arFile, $strFileName)
 	{
-		if (array_key_exists("size", $arFile))
+		if (array_key_exists("size", $arFile) && $arFile["size"] > 0)
 			$file_size = intval($arFile["size"]);
-		else
+		elseif (array_key_exists("FILE_SIZE", $arFile) && $arFile["FILE_SIZE"] > 0)
 			$file_size = intval($arFile["FILE_SIZE"]);
+		else
+			$file_size = intval($arFile["file_size"]);
 
 		foreach (CCloudStorageBucket::GetAllBuckets() as $bucket)
 		{

@@ -7,7 +7,9 @@ use Bitrix\Main\Type\DateTime;
 use Bitrix\Sale\Exchange\EntityType;
 use Bitrix\Sale\Exchange\ImportBase;
 use Bitrix\Sale\Exchange\ImportOneCBase;
+use Bitrix\Sale\Exchange\ISettings;
 use Bitrix\Sale\Exchange\ISettingsExport;
+use Bitrix\Sale\Exchange\ISettingsImport;
 use Bitrix\Sale\Internals\StatusLangTable;
 use Bitrix\Sale\Order;
 
@@ -24,14 +26,6 @@ class ConverterDocumentOrder extends Converter
 	protected function getFieldsInfo()
 	{
 		return OrderDocument::getFieldsInfo();
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getOwnerEntityTypeId()
-	{
-		return DocumentType::ORDER;
 	}
 
 	/**
@@ -98,8 +92,9 @@ class ConverterDocumentOrder extends Converter
 				case 'STATUS_ID':
 					if(isset($params['REK_VALUES']['1C_STATUS_ID']))
 					{
+						/** @var ISettingsImport $settings */
 						$settings = $this->getSettings();
-						if($settings->changeStatusFor(EntityType::ORDER) == 'Y')
+						if($settings->changeStatusFor($this->getEntityTypeId()) == 'Y')
 							$fields[$k] = $params['REK_VALUES']['1C_STATUS_ID'];
 					}
 					break;
@@ -112,7 +107,7 @@ class ConverterDocumentOrder extends Converter
 		}
 
 		$result['TRAITS'] = isset($fields)? $fields:array();
-		$result['ITEMS'] = isset($params['ITEMS'])? $params['ITEMS']:array();
+		$result['ITEMS'] = isset($params['ITEMS'])? $this->modifyItemIdByItemName($params['ITEMS']):array();
 		$result['TAXES'] = isset($params['TAXES'])? $params['TAXES']:array();
 
 		return $result;
@@ -123,7 +118,7 @@ class ConverterDocumentOrder extends Converter
 	 * @param array $fields
 	 * @throws ArgumentException
 	 */
-	public function sanitizeFields($order=null, array &$fields)
+	static public function sanitizeFields($order=null, array &$fields, ISettings $settings)
 	{
 		if(!empty($order) && !($order instanceof Order))
 			throw new ArgumentException("Entity must be instanceof Order");
@@ -178,7 +173,7 @@ class ConverterDocumentOrder extends Converter
 					break;
 				case 'NUMBER':
 					/** TODO: only EntityType::ORDER */
-					$value = $settings->prefixFor(EntityType::ORDER).$traits['ACCOUNT_NUMBER'];
+					$value = $settings->prefixFor($this->getEntityTypeId()).$traits['ACCOUNT_NUMBER'];
 					break;
 				case 'ID_1C':
 					$value = ($traits[$k]<>'' ? $traits[$k]:'');
@@ -187,7 +182,7 @@ class ConverterDocumentOrder extends Converter
 					$value = $traits['DATE_INSERT'];
 					break;
 				case 'OPERATION':
-					$value = DocumentBase::resolveDocumentTypeName($this->getOwnerEntityTypeId());
+					$value = DocumentBase::resolveDocumentTypeName($this->getDocmentTypeId());
 					break;
 				case 'ROLE':
 					$value = DocumentBase::getLangByCodeField('SELLER');
@@ -315,10 +310,11 @@ class ConverterDocumentOrder extends Converter
 			foreach($info['FIELDS'] as $name=>$fieldInfo)
 			{
 				$value='';
+				$fieldValues = [];
 				switch ($name)
 				{
 					case 'ID':
-						$value = $item['PRODUCT_XML_ID'];
+						$value = static::normalizeExternalCode($item['PRODUCT_XML_ID']);
 						break;
 					case 'CATALOG_ID':
 						$value = $item['CATALOG_XML_ID'];
@@ -353,7 +349,7 @@ class ConverterDocumentOrder extends Converter
 									break;
 							}
 							$this->externalizeField($unitValue, $unitFieldInfo);
-							$value[$unitFieldName] = $unitValue;
+							$fieldValues[$unitFieldName] = $unitValue;
 						}
 						break;
 					case 'DISCOUNTS':
@@ -376,14 +372,14 @@ class ConverterDocumentOrder extends Converter
 										break;
 								}
 								$this->externalizeField($discountValue, $discountFieldInfo);
-								$value[$discountFieldName] = $discountValue;
+								$fieldValues[$discountFieldName] = $discountValue;
 							}
 						}
 						break;
 					case 'REK_VALUES':
 						foreach($fieldInfo['FIELDS'] as $rekFieldName=>$rekFieldInfo)
 						{
-							$propertyValue = '';
+							$fieldValue = [];
 							switch ($rekFieldName)
 							{
 								case 'TYPE_NOMENKLATURA':
@@ -400,9 +396,9 @@ class ConverterDocumentOrder extends Converter
 												break;
 										}
 										$this->externalizeField($valueProp, $infoProp);
-										$propertyValue[$nameProp] = $valueProp;
+										$fieldValue[$nameProp] = $valueProp;
 									}
-									$value[] = $propertyValue;
+									$fieldValues[] = $fieldValue;
 									break;
 								case 'TYPE_OF_NOMENKLATURA':
 									foreach ($rekFieldInfo['FIELDS'] as $nameProp=>$infoProp)
@@ -418,9 +414,9 @@ class ConverterDocumentOrder extends Converter
 												break;
 										}
 										$this->externalizeField($valueProp, $infoProp);
-										$propertyValue[$nameProp] = $valueProp;
+										$fieldValue[$nameProp] = $valueProp;
 									}
-									$value[] = $propertyValue;
+									$fieldValues[] = $fieldValue;
 									break;
 								case 'BASKET_NUMBER':
 									foreach ($rekFieldInfo['FIELDS'] as $nameProp=>$infoProp)
@@ -436,9 +432,9 @@ class ConverterDocumentOrder extends Converter
 												break;
 										}
 										$this->externalizeField($valueProp, $infoProp);
-										$propertyValue[$nameProp] = $valueProp;
+										$fieldValue[$nameProp] = $valueProp;
 									}
-									$value[] = $propertyValue;
+									$fieldValues[] = $fieldValue;
 									break;
 								case 'PROPERTY_VALUE_BASKET':
 									$attributes = isset($item['ATTRIBUTES'])? $item['ATTRIBUTES']:array();
@@ -459,7 +455,7 @@ class ConverterDocumentOrder extends Converter
 														break;
 												}
 												$this->externalizeField($valueProp, $infoProp);
-												$value[$rowIdAttr][$nameProp] = $valueProp;
+												$fieldValues[$rowIdAttr][$nameProp] = $valueProp;
 											}
 										}
 									}
@@ -484,7 +480,7 @@ class ConverterDocumentOrder extends Converter
 										break;
 								}
 								$this->externalizeField($rekValue, $rateFieldInfo);
-								$value[$rateFieldName] = $rateValue;
+								$fieldValues[$rateFieldName] = $rateValue;
 							}
 						}
 						break;
@@ -508,15 +504,21 @@ class ConverterDocumentOrder extends Converter
 										break;
 								}
 								$this->externalizeField($taxValue, $taxFieldInfo);
-								$value[$taxFieldName] = $taxValue;
+								$fieldValues[$taxFieldName] = $taxValue;
 							}
 						}
 						break;
 				}
 
-				if(!is_array($value))
+				if($value<>'')
+				{
 					$this->externalizeField($value, $fieldInfo);
-				$result[$rowId][$name] = $value;
+					$result[$rowId][$name] = $value;
+				}
+				elseif (is_array($fieldValues))
+				{
+					$result[$rowId][$name] = $fieldValues;
+				}
 			}
 		}
 		return $result;
@@ -704,7 +706,7 @@ class ConverterDocumentOrder extends Converter
 	 * @param $id
 	 * @return string
 	 */
-	static private function getStatusNameById($id)
+	static protected function getStatusNameById($id)
 	{
 		static $statuses;
 

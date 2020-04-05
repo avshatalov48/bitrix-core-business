@@ -137,10 +137,12 @@ class Enum extends Base
 			$this->params["OPTIONS"][$key] =
 				$price["TITLE"].
 				" (".
-				SaleFormatCurrency(
-					$this->convertToOperatingCurrency($priceVal),
-					$this->operatingCurrency,
-					false
+				strip_tags(
+					SaleFormatCurrency(
+						$this->convertToOperatingCurrency($priceVal),
+						$this->operatingCurrency,
+						false
+					)
 				).
 				")";
 		}

@@ -1,4 +1,5 @@
 <?
+$MESS["SALE_SHIPMENT_ITEM_ERR_QUANTITY_EMPTY"] = "The quantity of #BASKET_ITEM_NAME# cannot be zero or less than zero";
 $MESS["SALE_SHIPMENT_ITEM_BARCODE_MORE_ITEM_QUANTITY"] = "The number of barcodes is more than product quantity";
 $MESS["SALE_SHIPMENT_ITEM_SHIPMENT_ALREADY_SHIPPED_CANNOT_EDIT"] = "Shipment already done. No change is possible.";
 $MESS["SALE_SHIPMENT_ITEM_SHIPMENT_ALREADY_SHIPPED_CANNOT_DELETE"] = "Shipment already done. Cannot delete \"#PRODUCT_NAME#\".";

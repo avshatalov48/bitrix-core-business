@@ -4,6 +4,8 @@
 	BX.Numerator = function (options)
 	{
 		this.isSlider = options.isSlider;
+		this.isEdit = options.isEdit;
+		this.isMultipleSequences = options.isMultipleSequences;
 		this.defaultDelimiter = options.defaultDelimiter;
 		this.roles = {
 			templateInput: "numerator-template-input",
@@ -12,18 +14,28 @@
 			form: "numerator-edit-form",
 			wordBtn: "numerator-template-word-btn",
 			wordText: "template-word-text",
-			timezoneToggle: "numerator-timezone-toggle",
-			timezones: "numerator-timezones",
+			timezoneToggle: "numerator-timezoneToggle",
+			showSetNextNumberToggle: "numerator-set-next-number-toggle",
+			timezones: "numerator-timezone",
+			sequenceBlock: "nextNumberForSequence-wrapper",
 			nameInput: "numerator-name-input",
 			error: 'numerator-error',
-			periodSelect: "numerator-period-select"
+			startBlockWrapper: 'start-wrapper',
+			periodSelect: "numerator-periodicBy-select",
+			timezoneSelect: "numerator-timezone-select",
+			wordBtnWrapper: "numerator-edit-word-btn-wrapper"
 		};
 		this.templateInput = this.selectByRoles(this.roles.templateInput);
+		this.helpArticleToggles = this.selectByRoles('help-article-toggle', 'all');
+		this.wordBtnWrapper = this.selectByRoles(this.roles.wordBtnWrapper);
+		this.startBlockWrapper = this.selectByRoles(this.roles.startBlockWrapper);
 		this.hiddenTemplateInput = this.selectByRoles('numerator-hidden-template-input');
 		this.periodSelect = this.selectByRoles(this.roles.periodSelect);
+		this.timezoneSelect = this.selectByRoles(this.roles.timezoneSelect);
 		this.timezoneToggle = this.selectByRoles(this.roles.timezoneToggle);
-		this.hideElement(this.timezoneToggle);
+		this.showSetNextNumberToggle = this.selectByRoles(this.roles.showSetNextNumberToggle);
 		this.timezones = this.selectByRoles(this.roles.timezones);
+		this.sequenceBlock = this.selectByRoles(this.roles.sequenceBlock);
 		this.saveButton = this.selectByRoles(this.roles.btnSave);
 		this.cancelButton = this.selectByRoles(this.roles.btnCancel);
 		this.numeratorForm = this.selectByRoles(this.roles.form);
@@ -40,6 +52,8 @@
 				this.settingsBlock[this.wordButtons[k].dataset['type']] = settingsBlock;
 			}
 		}
+		this.hideInitial();
+
 		this.addEventHandlers();
 		this.fillTemplate();
 		this.updateTemplateHiddenInput();
@@ -56,16 +70,58 @@
 			}
 			BX.bind(this.periodSelect, 'change', BX.delegate(this.onPeriodOptionClick, this));
 			BX.bind(this.timezoneToggle, 'click', BX.delegate(this.onTimezoneToggleClick, this));
+			BX.bind(this.showSetNextNumberToggle, 'click', BX.delegate(this.onShowSetNextNumberToggleClick, this));
+			for (var i = 0; i < this.wordButtons.length; i++)
+			{
+				BX.bind(this.helpArticleToggles[i], 'click', BX.delegate(this.onHelpArticleToggleClick, this));
+			}
+		},
+		hideInitial: function ()
+		{
+			this.hideElement(this.timezones);
+			if (this.sequenceBlock)
+			{
+				this.hideElement(this.sequenceBlock);
+			}
+			if (!this.periodSelect.value)
+			{
+				this.hideElement(this.timezoneToggle);
+			}
+			else if (this.timezoneSelect.value)
+			{
+				this.showElement(this.timezones);
+			}
+			if (this.isEdit && !this.periodSelect.value)
+			{
+				this.hideElement(this.startBlockWrapper);
+			}
+			if (!this.showSetNextNumberToggle && !this.sequenceBlock)
+			{
+				this.showElement(this.startBlockWrapper);
+			}
 		},
 		onPeriodOptionClick: function (event)
 		{
 			if (this.periodSelect.value)
 			{
-				this.showElement(this.timezoneToggle)
+				this.showElement(this.timezoneToggle);
+				if (this.isEdit)
+				{
+					this.showElement(this.startBlockWrapper)
+				}
+				if (this.timezoneSelect.value)
+				{
+					this.showElement(this.timezones)
+				}
 			}
 			else
 			{
-				this.hideElement(this.timezoneToggle)
+				this.hideElement(this.timezoneToggle);
+				this.hideElement(this.timezones);
+				if (this.isEdit)
+				{
+					this.hideElement(this.startBlockWrapper)
+				}
 			}
 		},
 		fillTemplate: function ()
@@ -109,11 +165,35 @@
 				this.deleteFirstDelimiter();
 			}
 		},
+		onHelpArticleToggleClick: function (event)
+		{
+			top.BX.Helper.show("redirect=detail&code=7486453");
+		},
+		onShowSetNextNumberToggleClick: function (event)
+		{
+			var numId = this.selectByRoles('numerator-hidden-id-input');
+			if (numId && numId.value && this.isMultipleSequences)
+			{
+				var urlNumEdit = BX.util.add_url_param("/bitrix/components/bitrix/main.numerator.edit.sequence/slider.php", {NUMERATOR_ID: numId.value});
+				BX.SidePanel.Instance.open(urlNumEdit, {width: 650, cacheable: false});
+			}
+			else if (this.sequenceBlock)
+			{
+				if (this.isVisibleElement(this.sequenceBlock))
+				{
+					this.hideElement(this.sequenceBlock)
+				}
+				else
+				{
+					this.showElement(this.sequenceBlock);
+				}
+			}
+		},
 		onTimezoneToggleClick: function (event)
 		{
 			if (this.isVisibleElement(this.timezones))
 			{
-				this.hideElement(this.timezones)
+				this.hideElement(this.timezones);
 			}
 			else
 			{
@@ -211,30 +291,27 @@
 				return;
 			}
 			var formData = new FormData(this.numeratorForm);
-			BX.ajax.runComponentAction('bitrix:main.numerator.edit', 'save', {
-				mode: 'class',
+			BX.ajax.runAction('main.api.numerator.save', {
 				data: formData
-			}).then((function (response)
-			{
-				if (response.status === "success")
+			}).then(
+				function (response)
 				{
 					BX.SidePanel.Instance.postMessageAll(window, "numerator-saved-event", {
 						id: response.data.id,
-						name: this.nameInput ? this.nameInput.value : ''
+						name: this.nameInput ? this.nameInput.value : '',
+						template: this.hiddenTemplateInput ? this.hiddenTemplateInput.value : '',
+						type: response.data.type
 					});
-				}
-				this.closeSlider();
-			}).bind(this), (function (response)
-			{
-				if (response.status === "error")
+					this.closeSlider();
+				}.bind(this),
+				function (response)
 				{
 					for (var j = 0; j < response.errors.length; j++)
 					{
 						this.errors.push({text: response.errors[j].message})
 					}
 					this.showErrors();
-				}
-			}).bind(this));
+				}.bind(this));
 		},
 		updateTemplateHiddenInput: function ()
 		{

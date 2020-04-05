@@ -1,5 +1,7 @@
 <?
-use Bitrix\Main;
+use Bitrix\Main,
+	Bitrix\Catalog;
+
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/general/discount.php');
 
 class CCatalogDiscount extends CAllCatalogDiscount
@@ -85,12 +87,12 @@ class CCatalogDiscount extends CAllCatalogDiscount
 				return false;
 		}
 
-		$DB->Query("delete from b_catalog_discount_module where DISCOUNT_ID = ".$ID);
-		$DB->Query("delete from b_catalog_discount_cond where DISCOUNT_ID = ".$ID);
-		$DB->Query("delete from b_catalog_discount_coupon where DISCOUNT_ID = ".$ID);
 		$DB->Query("delete from b_catalog_discount2iblock where DISCOUNT_ID = ".$ID);
 		$DB->Query("delete from b_catalog_discount2section where DISCOUNT_ID = ".$ID);
 		$DB->Query("delete from b_catalog_discount2product where DISCOUNT_ID = ".$ID);
+		Catalog\DiscountRestrictionTable::deleteByDiscount($ID);
+		Catalog\DiscountModuleTable::deleteByDiscount($ID);
+		Catalog\DiscountCouponTable::deleteByDiscount($ID);
 
 		$DB->Query("delete from b_catalog_discount where ID = ".$ID." and TYPE = ".self::ENTITY_ID);
 
@@ -215,6 +217,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			"CONDITIONS" => array("FIELD" => "CD.CONDITIONS", "TYPE" => "string"),
 			"UNPACK" => array("FIELD" => "CD.UNPACK", "TYPE" => "string"),
 			"SALE_ID" => array("FIELD" => "CD.SALE_ID", "TYPE" => "int"),
+			"USE_COUPONS" => array("FIELD" => "CD.USE_COUPONS", "TYPE" => "char"),
 
 			"PRODUCT_ID" => array("FIELD" => "CDP.PRODUCT_ID", "TYPE" => "int", "FROM" => "LEFT JOIN b_catalog_discount2product CDP ON (CD.ID = CDP.DISCOUNT_ID)"),
 			"SECTION_ID" => array("FIELD" => "CDS.SECTION_ID", "TYPE" => "int", "FROM" => "LEFT JOIN b_catalog_discount2section CDS ON (CD.ID = CDS.DISCOUNT_ID)", "WHERE" => array("CCatalogDiscount", "PrepareSection4Where")),

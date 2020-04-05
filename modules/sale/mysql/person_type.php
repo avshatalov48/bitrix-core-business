@@ -22,7 +22,7 @@ class CSalePersonType extends CAllSalePersonType
 			$arGroupBy = false;
 		}
 		if(empty($arSelectFields))
-			$arSelectFields = Array("ID", "LID", "NAME", "SORT", "ACTIVE");
+			$arSelectFields = Array("ID", "LID", "NAME", "SORT", "ACTIVE", "CODE");
 			
 		if(is_set($arFilter, "LID") && !empty($arFilter["LID"]))
 		{
@@ -30,14 +30,18 @@ class CSalePersonType extends CAllSalePersonType
 			unset($arFilter["LID"]);
 		}
 
+		$arFilter['ENTITY_REGISTRY_TYPE'] = \Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER;
+
 		// FIELDS -->
 		$arFields = array(
 				"ID" => array("FIELD" => "PT.ID", "TYPE" => "int"),
 				"LID" => array("FIELD" => "PT.LID", "TYPE" => "string"),
 				"LIDS" => array("FIELD" => "PTS.SITE_ID", "TYPE" => "string", "FROM" => "LEFT JOIN b_sale_person_type_site PTS ON (PT.ID = PTS.PERSON_TYPE_ID)"),
 				"NAME" => array("FIELD" => "PT.NAME", "TYPE" => "string"),
+				"CODE" => array("FIELD" => "PT.CODE", "TYPE" => "string"),
 				"SORT" => array("FIELD" => "PT.SORT", "TYPE" => "int"),
 				"ACTIVE" => array("FIELD" => "PT.ACTIVE", "TYPE" => "char"),
+				"ENTITY_REGISTRY_TYPE" => array("FIELD" => "ENTITY_REGISTRY_TYPE", "TYPE" => "string"),
 			);
 		// <-- FIELDS
 
@@ -183,6 +187,8 @@ class CSalePersonType extends CAllSalePersonType
 					unset($arLID[$k]);
 			}
 		}
+
+		$arFields['ENTITY_REGISTRY_TYPE'] = \Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER;
 
 		$arInsert = $DB->PrepareInsert("b_sale_person_type", $arFields);
 

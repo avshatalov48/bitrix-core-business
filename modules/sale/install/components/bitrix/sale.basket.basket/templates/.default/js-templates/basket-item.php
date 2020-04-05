@@ -289,6 +289,19 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 													</div>
 												{{/IS_TEXT}}
 
+												{{#IS_HTML}}
+													<div class="basket-item-property-custom basket-item-property-custom-text
+														{{#HIDE_MOBILE}}hidden-xs{{/HIDE_MOBILE}}"
+														data-entity="basket-item-property">
+														<div class="basket-item-property-custom-name">{{NAME}}</div>
+														<div class="basket-item-property-custom-value"
+															data-column-property-code="{{CODE}}"
+															data-entity="basket-item-property-column-value">
+															{{{VALUE}}}
+														</div>
+													</div>
+												{{/IS_HTML}}
+
 												{{#IS_LINK}}
 													<div class="basket-item-property-custom basket-item-property-custom-text
 														{{#HIDE_MOBILE}}hidden-xs{{/HIDE_MOBILE}}"

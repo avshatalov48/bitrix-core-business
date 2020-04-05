@@ -1,4 +1,5 @@
 <?
+$MESS["SALE_ORDER_BASKET_PRODUCT_UNAVAILABLE"] = "Produkt ist zum Kaufen nicht verfügbar";
 $MESS["SALE_ORDER_BASKET_COMPOSITION"] = "Elemente der Bestellung";
 $MESS["SALE_ORDER_BASKET_PRODUCT_ADD"] = "Produkt hinzufügen";
 $MESS["SALE_ORDER_BASKET_PRODUCT_NEW"] = "Neues Produkt";
@@ -27,6 +28,7 @@ $MESS["SALE_ORDER_BASKET_PRICE_DISCOUNT"] = "Gesamtpreis der Produkte inkl. Raba
 $MESS["SALE_ORDER_BASKET_PRICE_DELIVERY"] = "Lieferkosten";
 $MESS["SALE_ORDER_BASKET_PRICE_DELIVERY_DISCOUNT"] = "Lieferkosten inkl. Rabatte und Aufschläge";
 $MESS["SALE_ORDER_BASKET_PAYMENT_DISCOUNT"] = "Rabatt oder Aufschlag bezüglich der Zahlungsart";
+$MESS["SALE_ORDER_DEPRECATED_DISCOUNT_VALUE"] = "Rabatt auf den Gesamtbetrag der Bestellung";
 $MESS["SALE_ORDER_BASKET_TAX"] = "Steuer";
 $MESS["SALE_ORDER_BASKET_WEIGHT"] = "Gewicht";
 $MESS["SALE_ORDER_BASKET_PAID"] = "Bereits bezahlt";
@@ -75,6 +77,5 @@ $MESS["SALE_ORDER_BASKET_POSITION_EXISTS"] = "Das Produkt \"#NAME#\" ist in der 
 $MESS["SALE_ORDER_BASKET_ACTUALIZE_DATA"] = "Neu berechnen";
 $MESS["SALE_ORDER_BASKET_ADD_COUPON_ERROR"] = "Fehler beim Hinzufügen des Gutscheins";
 $MESS["SALE_ORDER_BASKET_COUPONS_NOTE"] = "Damit ein Gutschein für einen bestimmten Preistyp genutzt werden kann, muss der Gutscheincode eingegeben und die Bestellung neu berechnet werden.";
-$MESS["SALE_ORDER_BASKET_NO_NAME"] = "Unbeschriftet";
-$MESS["SALE_ORDER_DEPRECATED_DISCOUNT_VALUE"] = "Rabatt auf den Gesamtbetrag der Bestellung";
+$MESS["SALE_ORDER_BASKET_PRODUCT_UNACTIVE"] = "Das Produkt ist nicht aktiv";
 ?>

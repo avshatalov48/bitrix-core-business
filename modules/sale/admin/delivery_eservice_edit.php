@@ -7,6 +7,10 @@ use Bitrix\Sale\Delivery\ExtraServices;
 Loc::loadMessages(__FILE__);
 Bitrix\Main\Loader::includeModule('sale');
 
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+$backUrl = isset($_GET["back_url"]) ? $_GET["back_url"] : $selfFolderUrl."sale_delivery_service_list.php?lang=".LANGUAGE_ID;
+$backUrl = $adminSidePanelHelper->editUrlToPublicPage($backUrl);
+
 /** @var  CMain $APPLICATION */
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 
@@ -26,6 +30,8 @@ $isFormReloading = $_SERVER['REQUEST_METHOD'] == "POST" && !$isItSavingProcess;
 
 if($saleModulePermissions == "W" && check_bitrix_sessid())
 {
+	$adminSidePanelHelper->decodeUriComponent();
+
 	if ($isItSavingProcess || $isFormReloading)
 	{
 		if(isset($_POST["ID"]))				$fields["ID"] = intval($_POST["ID"]);
@@ -93,10 +99,22 @@ if($saleModulePermissions == "W" && check_bitrix_sessid())
 
 			if(strlen($strError) <= 0)
 			{
+				$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
 				if (strlen($_POST["apply"]) > 0)
-					LocalRedirect($APPLICATION->GetCurPageParam("ID=".$ID, array('ID')));
+				{
+					$applyUrl = $APPLICATION->GetCurPageParam("ID=".$ID, array('ID'));
+					$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
+					LocalRedirect($applyUrl);
+				}
 				elseif(strlen($_POST["save"]) > 0)
-					LocalRedirect((isset($_REQUEST["back_url"]) ? $_REQUEST["back_url"] : "sale_delivery_service_edit.php?lang=".LANG."&ID=".$fields["DELIVERY_ID"]));
+				{
+					$adminSidePanelHelper->localRedirect($backUrl);
+					LocalRedirect($backUrl);
+				}
+			}
+			else
+			{
+				$adminSidePanelHelper->sendJsonErrorResponse($strError);
 			}
 		}
 	}
@@ -184,7 +202,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 $aMenu = array(
 	array(
 		"TEXT" => GetMessage("SALE_ESDE_TO_LIST"),
-		"LINK" => isset($_GET["back_url"]) ? $_GET["back_url"] : "/bitrix/admin/sale_delivery_service_list.php?lang=".LANGUAGE_ID."&ID=".$DELIVERY_ID,
+		"LINK" => $backUrl."&ID=".$DELIVERY_ID,
 		"ICON" => "btn_list"
 	)
 );
@@ -193,19 +211,28 @@ if ($ID > 0 && $saleModulePermissions >= "W")
 {
 	$aMenu[] = array("SEPARATOR" => "Y");
 
+	$addUrl = $selfFolderUrl."sale_delivery_eservice_edit.php?lang=".LANGUAGE_ID."&DELIVERY_ID=".$DELIVERY_ID;
+	$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl).
+		(isset($_REQUEST["back_url"]) ? "&back_url=".urlencode($_REQUEST["back_url"]) : "");
 	$aMenu[] = array(
 		"TEXT" => Loc::getMessage("SALE_ESDE_CREATE_NEW"),
-		"LINK" => "/bitrix/admin/sale_delivery_eservice_edit.php?lang=".LANGUAGE_ID."&DELIVERY_ID=".$DELIVERY_ID.(isset($_REQUEST["back_url"]) ? "&back_url=".urlencode($_REQUEST["back_url"]) : ""),
+		"LINK" => $addUrl,
 		"ICON" => "btn_new"
 	);
 
-	if($fields["RIGHTS"][ExtraServices\Manager::RIGHTS_ADMIN_IDX] == "Y")
+	if ($fields["RIGHTS"][ExtraServices\Manager::RIGHTS_ADMIN_IDX] == "Y")
 	{
+		$deleteUrl = $selfFolderUrl."sale_delivery_service_edit.php?lang=".LANGUAGE_ID."&ID=".$DELIVERY_ID."&action=delete_extra_service".
+			"&ES_ID=".$ID."&".bitrix_sessid_get();
+		$buttonAction = "LINK";
+		if ($adminSidePanelHelper->isPublicFrame())
+		{
+			$deleteUrl = $adminSidePanelHelper->editUrlToPublicPage($deleteUrl);
+			$buttonAction = "ONCLICK";
+		}
 		$aMenu[] = array(
 			"TEXT" => Loc::getMessage("SALE_ESDE_DELETE_ITEM"),
-			"LINK" => "javascript:if(confirm('".Loc::getMessage("SALE_ESDE_CONFIRM_DEL_MESSAGE")."')) window.location='".
-				"sale_delivery_service_edit.php?lang=".LANG."&ID=".$DELIVERY_ID."&action=delete_extra_service".
-				"&ES_ID=".$ID."&".bitrix_sessid_get()."'",
+			$buttonAction => "javascript:if(confirm('".Loc::getMessage("SALE_ESDE_CONFIRM_DEL_MESSAGE")."')) top.window.location.href='".$deleteUrl."'",
 			"ICON" => "btn_delete"
 		);
 	}
@@ -220,8 +247,10 @@ if(strlen($strError) > 0)
 	echo $adminMessage->Show();
 }
 
+$actionUrl = $APPLICATION->GetCurPageParam();
+$actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
 ?>
-<form method="POST" action="<?=$APPLICATION->GetCurPageParam()?>" name="form1" enctype="multipart/form-data">
+<form method="POST" action="<?=$actionUrl?>" name="form1" enctype="multipart/form-data">
 <input type="hidden" name="lang" value="<?=LANGUAGE_ID;?>">
 <input type="hidden" name="ID" value="<?=$ID?>">
 <input type="hidden" name="DELIVERY_ID" value="<?=$DELIVERY_ID?>">

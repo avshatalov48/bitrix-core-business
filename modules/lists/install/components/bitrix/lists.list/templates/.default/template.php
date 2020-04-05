@@ -249,6 +249,7 @@ $APPLICATION->IncludeComponent(
 		"GRID_ID" => $arResult["GRID_ID"],
 		"COLUMNS" => $arResult["ELEMENTS_HEADERS"],
 		"ROWS" => $arResult["ELEMENTS_ROWS"],
+		"MESSAGES" => $arResult["GRID_MESSAGES"],
 		"NAV_STRING" => $arResult["NAV_STRING"],
 		"TOTAL_ROWS_COUNT" => $arResult["NAV_OBJECT"]->NavRecordCount,
 		"PAGE_SIZES" => $arResult["GRID_PAGE_SIZES"],

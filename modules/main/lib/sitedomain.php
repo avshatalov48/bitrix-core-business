@@ -24,7 +24,8 @@ class SiteDomainTable extends Entity\DataManager
 				'primary' => true,
 			),
 			'DOMAIN' => array(
-				'data_type' => 'string'
+				'data_type' => 'string',
+				'primary' => true,
 			),
 			'SITE' => array(
 				'data_type' => 'Bitrix\Main\Site',

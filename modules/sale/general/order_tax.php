@@ -3,7 +3,7 @@ IncludeModuleLangFile(__FILE__);
 
 class CAllSaleOrderTax
 {
-	function CheckFields($ACTION, &$arFields)
+	public static function CheckFields($ACTION, &$arFields)
 	{
 		global $DB;
 
@@ -51,7 +51,7 @@ class CAllSaleOrderTax
 
 		if (is_set($arFields, "ORDER_ID"))
 		{
-			if (!($arOrder = CSaleOrder::GetByID($arFields["ORDER_ID"])))
+			if (!static::isOrderExists($arFields["ORDER_ID"]))
 			{
 				$GLOBALS["APPLICATION"]->ThrowException(str_replace("#ID#", $arFields["ORDER_ID"], GetMessage("SKGOT_NO_ORDER")), "ERROR_NO_ORDER");
 				return false;
@@ -64,15 +64,20 @@ class CAllSaleOrderTax
 		return true;
 	}
 
-	function Update($ID, $arFields)
+	protected static function isOrderExists($id)
+	{
+		return !empty(CSaleOrder::GetByID($id));
+	}
+
+	public static function Update($ID, $arFields)
 	{
 		global $DB;
 		$ID = IntVal($ID);
 
-		if (!CSaleOrderTax::CheckFields("UPDATE", $arFields)) return false;
+		if (!static::CheckFields("UPDATE", $arFields)) return false;
 
-		$strUpdate = $DB->PrepareUpdate("b_sale_order_tax", $arFields);
-		$strSql = "UPDATE b_sale_order_tax SET ".
+		$strUpdate = $DB->PrepareUpdate(static::getTableName(), $arFields);
+		$strSql = "UPDATE ".static::getTableName()." SET ".
 			"	".$strUpdate." ".
 			"WHERE ID = ".$ID." ";
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
@@ -80,28 +85,28 @@ class CAllSaleOrderTax
 		return $ID;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 		$ID = IntVal($ID);
-		return $DB->Query("DELETE FROM b_sale_order_tax WHERE ID = ".$ID."", true);
+		return $DB->Query("DELETE FROM ".static::getTableName()." WHERE ID = ".$ID."", true);
 	}
 
-	function DeleteEx($ORDER_ID)
+	public static function DeleteEx($ORDER_ID)
 	{
 		global $DB;
 		$ORDER_ID = IntVal($ORDER_ID);
-		return $DB->Query("DELETE FROM b_sale_order_tax WHERE ORDER_ID = ".$ORDER_ID."", true);
+		return $DB->Query("DELETE FROM ".static::getTableName()." WHERE ORDER_ID = ".$ORDER_ID."", true);
 	}
 
-	function GetByID($ID)
+	public static function GetByID($ID)
 	{
 		global $DB;
 
 		$ID = IntVal($ID);
 		$strSql =
 			"SELECT ID, ORDER_ID, TAX_NAME, VALUE, VALUE_MONEY, APPLY_ORDER, CODE, IS_PERCENT, IS_IN_PRICE ".
-			"FROM b_sale_order_tax ".
+			"FROM ".static::getTableName()." ".
 			"WHERE ID = ".$ID."";
 		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
@@ -121,7 +126,8 @@ class CAllSaleOrderTax
 		$part_sum = 0.00;
 		$tax_koeff = 1.00;
 		$minus = 0.00;
-		for ($i = 0; $i < count($arTaxList); $i++)
+		$cnt = count($arTaxList);
+		for ($i = 0; $i < $cnt; $i++)
 		{
 			if ($i == 0)
 				$prevOrder = IntVal($arTaxList[$i]["APPLY_ORDER"]);
@@ -147,7 +153,8 @@ class CAllSaleOrderTax
 		$tax_koeff = 1.00;
 		$plus = 0.00;
 		$total_tax = 0.00;
-		for ($i = 0; $i < count($arTaxList); $i++)
+		$cnt = count($arTaxList);
+		for ($i = 0; $i < $cnt; $i++)
 		{
 			if ($i==0)
 				$prevOrder = IntVal($arTaxList[$i]["APPLY_ORDER"]);
@@ -168,5 +175,12 @@ class CAllSaleOrderTax
 		}
 		return $total_tax;
 	}
+
+	/**
+	 * @return string
+	 */
+	protected static function getTableName()
+	{
+		return 'b_sale_order_tax';
+	}
 }
-?>

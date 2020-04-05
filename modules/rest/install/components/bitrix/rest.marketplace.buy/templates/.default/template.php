@@ -115,40 +115,38 @@ if (is_array($arResult["ITEMS_DB"]) && !empty($arResult["ITEMS_DB"])):
 <?php
 		endif;
 
-		if ($arResult["ITEMS"][$app["CODE"]]["PUBLIC"] == "Y"):
 ?>
 				<span <?if ($app["ACTIVE"] == "Y"):?>style="display:none"<?endif?> id="mp_uninstalled_block_<?=$app["CODE"]?>">
 <?php
-			if (is_array($arResult["ITEMS"][$app["CODE"]]["PRICE"]) && !empty($arResult["ITEMS"][$app["CODE"]]["PRICE"])):
+		if (is_array($arResult["ITEMS"][$app["CODE"]]["PRICE"]) && !empty($arResult["ITEMS"][$app["CODE"]]["PRICE"]) && $arResult["ITEMS"][$app["CODE"]]["PUBLIC"] == "Y"):
 ?>
 					<a href="javascript:void(0)" class="bt_green" onclick="BX.rest.Marketplace.buy(this, <?=CUtil::PhpToJSObject($arResult["ITEMS"][$app["CODE"]]['BUY'])?>)">
 						<?=($app["STATUS"] == "P" && $app["DATE_FINISH"]) ? GetMessage("MARKETPLACE_APP_PROLONG") : GetMessage("MARKETPLACE_APP_BUY")?>
 					</a>
 <?php
-				if ($app["STATUS"] == "P"):
+			if ($app["STATUS"] == "P"):
 ?>
 					<a href="javascript:void(0)" class="bt_green" onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);"><?=GetMessage("MARKETPLACE_INSTALL_BUTTON")?></a>
 <?php
-				else:
-					if ($arResult["ITEMS"][$app["CODE"]]["DEMO"] == "D"):
+			else:
+				if ($arResult["ITEMS"][$app["CODE"]]["DEMO"] == "D"):
 ?>
 					<a href="javascript:void(0)" class="bt_green" onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);"><?=GetMessage("MARKETPLACE_APP_DEMO")?></a>
 <?php
-					elseif ($arResult["ITEMS"][$app["CODE"]]["DEMO"] == "T" && ($app["IS_TRIALED"] == "N" || MakeTimeStamp($app["DATE_FINISH"]) > time())):
+				elseif ($arResult["ITEMS"][$app["CODE"]]["DEMO"] == "T" && ($app["IS_TRIALED"] == "N" || MakeTimeStamp($app["DATE_FINISH"]) > time())):
 ?>
 					<a href="javascript:void(0)" class="bt_green" onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);"><?=GetMessage("MARKETPLACE_APP_TRIAL")?></a>
 <?php
-					endif;
 				endif;
-			else:
+			endif;
+		else:
 ?>
 					<a href="javascript:void(0)" onclick="BX.rest.Marketplace.install(<?echo CUtil::PhpToJSObject($arParamsApp)?>);" class="bt_green" ><?=GetMessage("MARKETPLACE_INSTALL_BUTTON")?></a>
 <?php
-			endif;
+		endif;
 ?>
 				</span>
 <?php
-		endif;
 
 		if ($app["ACTIVE"] == "Y"):
 ?>

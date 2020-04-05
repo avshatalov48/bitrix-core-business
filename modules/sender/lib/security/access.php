@@ -199,7 +199,7 @@ class Access
 	 */
 	public function canModifyAbuses()
 	{
-		return !Integration\Bitrix24\Service::isCloud() || $this->canModifySegments();
+		return !Integration\Bitrix24\Service::isCloud() && $this->canModifySegments();
 	}
 
 	/**

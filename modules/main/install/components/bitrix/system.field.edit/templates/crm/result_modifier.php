@@ -48,6 +48,14 @@ if (isset($arSettings['QUOTE']) && $arSettings['QUOTE'] === 'Y')
 		$arParams['ENTITY_TYPE'][] = CCrmOwnerType::DealName;
 	}
 }
+if (isset($arSettings['ORDER']) && $arSettings['ORDER'] === 'Y')
+{
+	$arSupportedTypes[] = CCrmOwnerType::OrderName;
+	if(\Bitrix\Crm\Order\Permissions\Order::checkReadPermission(0, $userPermissions))
+	{
+		$arParams['ENTITY_TYPE'][] = CCrmOwnerType::OrderName;
+	}
+}
 if (isset($arSettings['PRODUCT']) && $arSettings['PRODUCT'] === 'Y')
 {
 	$arSupportedTypes[] = 'PRODUCT';
@@ -56,6 +64,8 @@ if (isset($arSettings['PRODUCT']) && $arSettings['PRODUCT'] === 'Y')
 		$arParams['ENTITY_TYPE'][] = 'PRODUCT';
 	}
 }
+
+$arResult['PERMISSION_DENIED'] = (empty($arParams['ENTITY_TYPE']) ? true : false);
 
 $arResult['PREFIX'] = count($arSupportedTypes) > 1 ? 'Y' : 'N';
 if(!empty($arParams['usePrefix']))
@@ -579,6 +589,50 @@ if (in_array('PRODUCT', $arParams['ENTITY_TYPE'], true))
 	}
 	unset($arProducts);
 }
+if (in_array('ORDER', $arParams['ENTITY_TYPE'], true))
+{
+	$arResult['ENTITY_TYPE'][] = 'order';
+
+	$resultDB = \Bitrix\Crm\Order\Order::getList(array(
+		'select' =>  array('ID', 'ACCOUNT_NUMBER'),
+		'limit' => 50,
+		'order' => array('ID' => 'DESC')
+	));
+	while ($arRes = $resultDB->fetch())
+	{
+		$arRes['SID'] = $arResult['PREFIX'] == 'Y'? 'O_'.$arRes['ID']: $arRes['ID'];
+		if (isset($arResult['SELECTED'][$arRes['SID']]))
+		{
+			unset($arResult['SELECTED'][$arRes['SID']]);
+			$sSelected = 'Y';
+		}
+		else
+		{
+			if(!empty($arParams['usePrefix']) && isset($arResult['SELECTED'][$arRes['ID']]))
+			{
+				unset($arResult['SELECTED'][$arRes['ID']]);
+				$sSelected = 'Y';
+			}
+			else
+			{
+				$sSelected = 'N';
+			}
+		}
+
+		$arResult['ELEMENT'][] = Array(
+			'title' => $arRes['ACCOUNT_NUMBER'],
+			'desc' => $arRes['ACCOUNT_NUMBER'],
+			'id' => $arRes['SID'],
+			'url' => CComponentEngine::MakePathFromTemplate(COption::GetOptionString('crm', 'path_to_order_details'),
+				array(
+					'order_id' => $arRes['ID']
+				)
+			),
+			'type'  => 'order',
+			'selected' => $sSelected
+		);
+	}
+}
 
 if (!empty($arResult['SELECTED']))
 {
@@ -837,6 +891,51 @@ if (!empty($arResult['SELECTED']))
 					)
 				),
 				'type'  => 'deal',
+				'selected' => $sSelected
+			);
+		}
+		$arResult['ELEMENT'] = array_merge($ar, $arResult['ELEMENT']);
+	}
+	if ($arSettings['ORDER'] == 'Y'
+		&& isset($arSelected['ORDER']) && !empty($arSelected['ORDER']))
+	{
+		$ar = Array();
+		$resultDB = \Bitrix\Crm\Order\Order::getList(array(
+			'filter' => array('=ID' => $arSelected['ORDER']),
+			'select' =>  array('ID', 'ACCOUNT_NUMBER'),
+			'order' => array('ID' => 'DESC')
+		));
+		while ($arRes = $resultDB->fetch())
+		{
+			$arRes['SID'] = $arResult['PREFIX'] == 'Y'? 'O_'.$arRes['ID']: $arRes['ID'];
+			if (isset($arResult['SELECTED'][$arRes['SID']]))
+			{
+				unset($arResult['SELECTED'][$arRes['SID']]);
+				$sSelected = 'Y';
+			}
+			else
+			{
+				if(!empty($arParams['usePrefix']) && isset($arResult['SELECTED'][$arRes['ID']]))
+				{
+					unset($arResult['SELECTED'][$arRes['ID']]);
+					$sSelected = 'Y';
+				}
+				else
+				{
+					$sSelected = 'N';
+				}
+			}
+
+			$ar[] = array(
+				'title' => (str_replace(array(';', ','), ' ', $arRes['ACCOUNT_NUMBER'])),
+				'desc' => $arRes['ACCOUNT_NUMBER'],
+				'id' => $arRes['SID'],
+				'url' => CComponentEngine::MakePathFromTemplate(COption::GetOptionString('crm', 'path_to_order_details'),
+					array(
+						'order_id' => $arRes['ID']
+					)
+				),
+				'type'  => 'order',
 				'selected' => $sSelected
 			);
 		}

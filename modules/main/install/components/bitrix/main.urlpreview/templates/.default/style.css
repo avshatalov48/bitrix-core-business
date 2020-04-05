@@ -5,6 +5,7 @@
 .urlpreview__frame{
 	border-left: 2px solid #a6ca61;
 	padding-left: 7px;
+	overflow: hidden;
 }
 
 .urlpreview__frame-inner{

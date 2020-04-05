@@ -11,7 +11,6 @@
 
 
 	BX.addCustomEvent("BX.Landing.Block:Node:update", function(event) {
-		// dbg: test update attributes
 		// var selector = event.makeRelativeSelector(".cbp");
 		//
 		// if($(selector).length > 0)

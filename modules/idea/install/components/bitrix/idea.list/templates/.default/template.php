@@ -178,6 +178,23 @@ if(count($arResult["POST"])>0)
 							?></p><?
 						}
 					?></div><?
+
+					if (!empty($CurPost["POST_PROPERTIES"]["DATA"][CBlogPost::UF_NAME])):
+					$eventHandlerID = false;
+					$eventHandlerID = AddEventHandler("main", "system.field.view.file", Array("CBlogTools", "blogUFfileShow"));
+					$blogPostDoc = $CurPost["POST_PROPERTIES"]["DATA"][CBlogPost::UF_NAME];
+					if (!empty($blogPostDoc["VALUE"])): ?>
+					<div class="blog-post-files">
+						<?$APPLICATION->IncludeComponent(
+							"bitrix:system.field.view",
+							$blogPostDoc["USER_TYPE"]["USER_TYPE_ID"],
+							array("arUserField" => $blogPostDoc), null, array("HIDE_ICONS"=>"N"));?>
+					</div>
+					<? endif;
+					if ($eventHandlerID !== false && (intval($eventHandlerID) > 0))
+						RemoveEventHandler("main", "system.field.view.file", $eventHandlerID);
+					endif;
+
 					if(!empty($CurPost["urlToHide"]) || !empty($CurPost["urlToShow"]) ||
 						!empty($CurPost["urlToEdit"]) || !empty($CurPost["urlToDelete"])):?>
 						<div class="idea-post-meta">

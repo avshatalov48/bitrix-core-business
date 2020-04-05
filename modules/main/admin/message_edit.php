@@ -404,7 +404,12 @@ $tabControl->BeginNextTab();
 		<td><?echo GetMessage("EVENT_NAME")?></td>
 		<td><?
 			$event_type_ref = array();
-			$rsType = CEventType::GetList(array("LID"=>LANGUAGE_ID), array("name"=>"asc"));
+			$rsType = CEventType::GetList(
+				array(
+					"LID"=>LANGUAGE_ID,
+					"EVENT_TYPE" => \Bitrix\Main\Mail\Internal\EventTypeTable::TYPE_EMAIL),
+				array("name"=>"asc")
+			);
 			while ($arType = $rsType->Fetch())
 			{
 				$arType["NAME_WITHOUT_EVENT_NAME"] = $arType["NAME"];
@@ -466,7 +471,7 @@ $tabControl->BeginNextTab();
 				<option value=""><?echo GetMessage("main_mess_edit_lang_not_set")?></option>
 				<?
 				$languages = \Bitrix\Main\Localization\LanguageTable::getList(array(
-					"filter" => array("ACTIVE" => "Y"),
+					"filter" => array("=ACTIVE" => "Y"),
 					"order" => array("SORT" => "ASC", "NAME" => "ASC")
 				));
 				?>
@@ -493,7 +498,7 @@ $tabControl->BeginNextTab();
 
 	<?
 	$str_show_ext = '';
-	$show_ext = ($str_CC!='' || $str_BCC!='' || $str_REPLY_TO!='' || $str_IN_REPLY_TO!='' || $str_PRIORITY!='' || count($str_ADDITIONAL_FIELD)>0);
+	$show_ext = ($str_CC!='' || $str_BCC!='' || $str_REPLY_TO!='' || $str_IN_REPLY_TO!='' || $str_PRIORITY!='' || !empty($str_ADDITIONAL_FIELD));
 	if(!$show_ext):
 		$str_show_ext = 'style="display:none;"';
 		?>

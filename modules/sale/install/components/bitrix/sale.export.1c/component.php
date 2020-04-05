@@ -221,14 +221,33 @@ else
 			if(strlen($arParams["EXPORT_FINAL_ORDERS"])>0)
 			{
 				$bNextExport = false;
-				$arStatusToExport = Array();
-				$dbStatus = CSaleStatus::GetList(Array("SORT" => "ASC"), Array("LID" => LANGUAGE_ID));
-				while ($arStatus = $dbStatus->Fetch())
+				$arStatusToExport = [];
+				if (IsModuleInstalled('crm'))
 				{
-					if($arStatus["ID"] == $arParams["EXPORT_FINAL_ORDERS"])
-						$bNextExport = true;
-					if($bNextExport)
-						$arStatusToExport[] = $arStatus["ID"];
+					$statusList = CCrmStatus::GetStatus('INVOICE_STATUS');
+					foreach ($statusList as $statusId => $status)
+					{
+						if($status['STATUS_ID'] == $arParams["EXPORT_FINAL_ORDERS"])
+						{
+							$bNextExport = true;
+						}
+
+						if($bNextExport)
+						{
+							$arStatusToExport[] = $status['STATUS_ID'];
+						}
+					}
+				}
+				else
+				{
+					$dbStatus = CSaleStatus::GetList(Array("SORT" => "ASC"), Array("LID" => LANGUAGE_ID));
+					while ($arStatus = $dbStatus->Fetch())
+					{
+						if($arStatus["ID"] == $arParams["EXPORT_FINAL_ORDERS"])
+							$bNextExport = true;
+						if($bNextExport)
+							$arStatusToExport[] = $arStatus["ID"];
+					}
 				}
 
 				$arFilter["STATUS_ID"] = $arStatusToExport;
@@ -453,7 +472,7 @@ else
 			$o->registerElementHandler("/".GetMessage("CC_BSC1_COM_INFO"), array($loader, "elementHandler"));
 			$o->registerNodeHandler("/".GetMessage("CC_BSC1_COM_INFO")."/".GetMessage("CC_BSC1_DOCUMENT"), function (CDataXML $xmlObject) use ($o, $loader)
 			{
-				$loader->nodeHandler($xmlObject, $o);
+				$loader->nodeHandlerDefaultModuleOneC($xmlObject);
 			});
 
 			$o->setPosition(false);
@@ -570,7 +589,15 @@ else
 			{
 				$o->registerNodeHandler("/".GetMessage("CC_BSC1_COM_INFO")."/".GetMessage("CC_BSC1_DOCUMENT"), function (CDataXML $xmlObject) use ($o, $loader)
 				{
-					$loader->nodeHandler($xmlObject, $o);
+					if(CModule::IncludeModule('CRM'))
+					{
+						$loader->nodeHandlerDefaultModuleOneCCRM($xmlObject);
+					}
+					else
+                    {
+						$loader->nodeHandlerDefaultModuleOneC($xmlObject);
+                    }
+
 				});
 			}
 			//endregion
@@ -642,15 +669,31 @@ else
 		<<?=GetMessage("CC_BSC1_DI_GENERAL")?>>
 			<<?=GetMessage("CC_BSC1_DI_STATUSES")?>>
 			<?
-			$dbStatus = CSaleStatus::GetList(array("SORT" => "ASC"), array("LID" => LANGUAGE_ID), false, false, array("ID", "NAME"));
-			while ($arStatus = $dbStatus->Fetch())
+			if(CModule::IncludeModule('CRM'))
 			{
-				?>
-				<<?=GetMessage("CC_BSC1_DI_ELEMENT")?>>
+				$dbStatus = \Bitrix\Crm\Invoice\InvoiceStatus::getList(array('order'=>array("SORT" => "ASC")));
+                while ($arStatus = $dbStatus->Fetch())
+				{
+					?>
+					<<?=GetMessage("CC_BSC1_DI_ELEMENT")?>>
+					<<?=GetMessage("CC_BSC1_DI_ID")?>><?=$arStatus["STATUS_ID"]?></<?=GetMessage("CC_BSC1_DI_ID")?>>
+					<<?=GetMessage("CC_BSC1_DI_NAME")?>><?=htmlspecialcharsbx($arStatus["NAME"])?></<?=GetMessage("CC_BSC1_DI_NAME")?>>
+					</<?=GetMessage("CC_BSC1_DI_ELEMENT")?>>
+					<?
+                }
+			}
+			else
+			{
+				$dbStatus = CSaleStatus::GetList(array("SORT" => "ASC"), array("LID" => LANGUAGE_ID), false, false, array("ID", "NAME"));
+				while ($arStatus = $dbStatus->Fetch())
+				{
+					?>
+					<<?=GetMessage("CC_BSC1_DI_ELEMENT")?>>
 					<<?=GetMessage("CC_BSC1_DI_ID")?>><?=$arStatus["ID"]?></<?=GetMessage("CC_BSC1_DI_ID")?>>
 					<<?=GetMessage("CC_BSC1_DI_NAME")?>><?=htmlspecialcharsbx($arStatus["NAME"])?></<?=GetMessage("CC_BSC1_DI_NAME")?>>
-				</<?=GetMessage("CC_BSC1_DI_ELEMENT")?>>
-				<?
+					</<?=GetMessage("CC_BSC1_DI_ELEMENT")?>>
+					<?
+				}
 			}
 			?>
 			</<?=GetMessage("CC_BSC1_DI_STATUSES")?>>
@@ -659,7 +702,11 @@ else
 			$dbPS = CSalePaySystem::GetList(array("SORT" => "ASC"), array("ACTIVE" => "Y"), false, false, array('ID', 'NAME', 'ACTIVE', 'SORT', 'DESCRIPTION', 'IS_CASH'));
 			while ($arPS = $dbPS->Fetch())
 			{
-				$typeId = \Bitrix\Sale\Exchange\Entity\PaymentImport::resolveEntityTypeIdByCodeType($arPS["IS_CASH"]);
+				if(CModule::IncludeModule('CRM'))
+				    $typeId = \Bitrix\Sale\Exchange\Entity\PaymentInvoiceBase::resolveEntityTypeIdByCodeType($arPS["IS_CASH"]);
+				else
+			        $typeId = \Bitrix\Sale\Exchange\Entity\PaymentImport::resolveEntityTypeIdByCodeType($arPS["IS_CASH"]);
+
 				$typeName = \Bitrix\Sale\Exchange\EntityType::getDescription($typeId);
 			    ?>
 				<<?=GetMessage("CC_BSC1_DI_ELEMENT")?>>

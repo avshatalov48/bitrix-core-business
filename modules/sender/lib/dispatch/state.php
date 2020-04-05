@@ -7,16 +7,19 @@
  */
 namespace Bitrix\Sender\Dispatch;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\InvalidOperationException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
 
+use Bitrix\Sender\Posting;
 use Bitrix\Sender\Dispatch;
 use Bitrix\Sender\Entity;
-use Bitrix\Sender\PostingTable;
-use Bitrix\Sender\Internals\Model\LetterTable;
+use Bitrix\Sender\PostingRecipientTable;
+use Bitrix\Sender\Internals\Model;
+use Bitrix\Sender\Integration;
 
 Loc::loadMessages(__FILE__);
 
@@ -288,7 +291,7 @@ class State
 	public function updatePlannedDateSend(Date $date)
 	{
 		\CTimeZone::disable();
-		$result = LetterTable::update($this->letter->getId(), array('AUTO_SEND_TIME' => $date));
+		$result = Model\LetterTable::update($this->letter->getId(), array('AUTO_SEND_TIME' => $date));
 		\CTimeZone::enable();
 		if ($result->isSuccess())
 		{
@@ -342,8 +345,8 @@ class State
 			return false;
 		}
 		\CTimeZone::disable();
-		$result = PostingTable::update(
-			array('ID' => $this->letter->get('POSTING_ID')),
+		$result = Model\PostingTable::update(
+			$this->letter->get('POSTING_ID'),
 			array(
 				$name => ($date ?: new DateTime())
 			)
@@ -450,6 +453,30 @@ class State
 	public function send()
 	{
 		return $this->changeState(self::SENDING);
+	}
+
+	/**
+	 * Send errors.
+	 *
+	 * @return bool
+	 * @throws InvalidOperationException
+	 */
+	public function sendErrors()
+	{
+		if (!$this->canSendErrors())
+		{
+			throw new InvalidOperationException('Can not resend error letters.');
+		}
+
+		$postingId = $this->letter->get('POSTING_ID');
+		$updateSql = 'UPDATE ' . PostingRecipientTable::getTableName() .
+			" SET STATUS='" . PostingRecipientTable::SEND_RESULT_NONE . "'" .
+			" WHERE POSTING_ID=" . intval($postingId) .
+			" AND STATUS='" . PostingRecipientTable::SEND_RESULT_ERROR . "'";
+		Application::getConnection()->query($updateSql);
+		Posting\Sender::updateActualStatus($this->letter->get('POSTING_ID'));
+
+		return $this->updateStatus(Model\LetterTable::STATUS_SEND, self::SENDING);
 	}
 
 	/**
@@ -578,6 +605,37 @@ class State
 		}
 
 		return $this->canChangeState(self::SENDING);
+	}
+
+	/**
+	 * Check send errors possibility.
+	 *
+	 * @return bool
+	 */
+	public function canSendErrors()
+	{
+		if (Integration\Bitrix24\Service::isCloud())
+		{
+			return false;
+		}
+
+		if ($this->letter->isTrigger() || $this->letter->isReiterate())
+		{
+			return false;
+		}
+
+		if (!$this->letter->isSupportHeatMap() || !$this->letter->get('POSTING_ID'))
+		{
+			return false;
+		}
+
+		if (!$this->isSent())
+		{
+			return false;
+		}
+
+		$postingData = $this->letter->getLastPostingData();
+		return !empty($postingData['COUNT_SEND_ERROR']);
 	}
 
 	/**
@@ -829,7 +887,7 @@ class State
 		}
 
 		\CTimeZone::disable();
-		$result = LetterTable::update($this->letter->getId(), $fields);
+		$result = Model\LetterTable::update($this->letter->getId(), $fields);
 		\CTimeZone::enable();
 
 		if ($result->isSuccess())
@@ -856,7 +914,7 @@ class State
 	private static function getStateMap()
 	{
 		$map = array_flip(self::getStatusMap());
-		$map[self::INIT] = LetterTable::STATUS_NEW; // for init-operation
+		$map[self::INIT] = Model\LetterTable::STATUS_NEW; // for init-operation
 
 		return $map;
 	}
@@ -869,15 +927,15 @@ class State
 	private static function getStatusMap()
 	{
 		return array(
-			LetterTable::STATUS_NEW => self::NEWISH,
-			LetterTable::STATUS_PLAN => self::PLANNED,
-			LetterTable::STATUS_READY => self::READY,
-			LetterTable::STATUS_SEND => self::SENDING,
-			LetterTable::STATUS_WAIT => self::WAITING,
-			LetterTable::STATUS_HALT => self::HALTED,
-			LetterTable::STATUS_PAUSE => self::PAUSED,
-			LetterTable::STATUS_END => self::SENT,
-			LetterTable::STATUS_CANCEL => self::STOPPED,
+			Model\LetterTable::STATUS_NEW => self::NEWISH,
+			Model\LetterTable::STATUS_PLAN => self::PLANNED,
+			Model\LetterTable::STATUS_READY => self::READY,
+			Model\LetterTable::STATUS_SEND => self::SENDING,
+			Model\LetterTable::STATUS_WAIT => self::WAITING,
+			Model\LetterTable::STATUS_HALT => self::HALTED,
+			Model\LetterTable::STATUS_PAUSE => self::PAUSED,
+			Model\LetterTable::STATUS_END => self::SENT,
+			Model\LetterTable::STATUS_CANCEL => self::STOPPED,
 		);
 	}
 }

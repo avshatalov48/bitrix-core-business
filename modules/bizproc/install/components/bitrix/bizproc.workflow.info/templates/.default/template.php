@@ -1,5 +1,7 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
+\Bitrix\Main\UI\Extension::load("ui.tooltip");
+
 if ($arResult["NeedAuth"] == "Y")
 {
 	$APPLICATION->AuthForm("");
@@ -21,12 +23,9 @@ else
 	<?endif?>
 	<div class="bp-task-page bp-lent <?if (empty($arResult['startedByPhotoSrc'])):?>no-photo<?endif?>">
 		<?if (!empty($arResult['startedByPhotoSrc'])):?>
-			<span class="bp-avatar" id="bp-task-started-by-<?=$arResult['WorkflowState']['ID']?>">
+			<span class="bp-avatar" bx-tooltip-user-id="<?=(int)$arResult['WorkflowState']['STARTED_BY']?>" bx-tooltip-classname="intrantet-user-selector-tooltip">
 				<img src="<?=$arResult['startedByPhotoSrc']?>" alt="">
 			</span>
-			<script>
-				BX.tooltip(<?php echo (int)$arResult['WorkflowState']['STARTED_BY']?>, "bp-task-started-by-<?=$arResult['WorkflowState']['ID']?>", "", 'intrantet-user-selector-tooltip');
-			</script>
 		<?endif?>
 		<span class="bp-title"><?=htmlspecialcharsbx($arResult['WorkflowState']['TEMPLATE_NAME'])?></span>
 	<span class="bp-title-desc">

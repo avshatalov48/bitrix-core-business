@@ -127,7 +127,7 @@ class StringType extends Base
 	protected static function renderControl(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
 	{
 		$renderResult = parent::renderControl($fieldType, $field, $value, $allowSelection, $renderMode);
-		if ($allowSelection)
+		if ($allowSelection && !($renderMode & FieldType::RENDER_MODE_PUBLIC))
 		{
 			$renderResult .= static::renderControlSelector($field, null, false, '', $fieldType);
 		}
@@ -187,7 +187,15 @@ class StringType extends Base
 				$renderMode
 			);
 		}
-		$renderResult = static::wrapCloneableControls($controls, static::generateControlName($field));
+
+		if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
+		{
+			$renderResult = static::renderPublicMultipleWrapper($fieldType, $field, $controls);
+		}
+		else
+		{
+			$renderResult = static::wrapCloneableControls($controls, static::generateControlName($field));
+		}
 
 		return $renderResult;
 	}

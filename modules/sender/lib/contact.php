@@ -8,6 +8,7 @@
 namespace Bitrix\Sender;
 
 use Bitrix\Main\Entity;
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type as MainType;
 use Bitrix\Main\DB\SqlExpression;
@@ -15,9 +16,16 @@ use Bitrix\Sender\Recipient;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class ContactTable
+ *
+ * @package Bitrix\Sender
+ */
 class ContactTable extends Entity\DataManager
 {
 	/**
+	 * Get table name.
+	 *
 	 * @return string
 	 */
 	public static function getTableName()
@@ -26,6 +34,8 @@ class ContactTable extends Entity\DataManager
 	}
 
 	/**
+	 * Get map.
+	 *
 	 * @return array
 	 */
 	public static function getMap()
@@ -60,14 +70,6 @@ class ContactTable extends Entity\DataManager
 			'USER_ID' => array(
 				'data_type' => 'integer',
 			),
-			/*
-			// TODO: rename to EMAIL !!!!!!!
-			'EMAIL11111111' => array(
-				'column_name' => 'CODE',
-				'data_type' => 'string',
-				'validation' => array(__CLASS__, "validateEmail")
-			),
-			*/
 			'BLACKLISTED' => array(
 				'data_type' => 'boolean',
 				'values' => array('N', 'Y'),
@@ -87,6 +89,12 @@ class ContactTable extends Entity\DataManager
 				'required' => true,
 			),
 			'IS_UNSUB' => array(
+				'data_type' => 'boolean',
+				'values' => array('N', 'Y'),
+				'default_value' => 'N',
+				'required' => true,
+			),
+			'IS_SEND_SUCCESS' => array(
 				'data_type' => 'boolean',
 				'values' => array('N', 'Y'),
 				'default_value' => 'N',
@@ -445,5 +453,132 @@ class ContactTable extends Entity\DataManager
 			'COUNT_NEW' => $countAdded,
 			'COUNT_ERROR' => $countError,
 		);
+	}
+
+	/**
+	 * Upload contacts.
+	 *
+	 * @param array $list List of contacts.
+	 * @param bool $isBlacklist Is blacklist.
+	 * @param int $listId List ID.
+	 * @return bool|int
+	 */
+	public static function upload(array $list, $isBlacklist = false, $listId = null)
+	{
+		$sqlHelper = Application::getConnection()->getSqlHelper();
+		$dateInsert = new MainType\DateTime();
+
+		$updateList = [];
+		foreach ($list as $item)
+		{
+			if (is_string($item))
+			{
+				$item = ['CODE' => $item];
+			}
+
+			if (empty($item['CODE']))
+			{
+				continue;
+			}
+			$code = trim($item['CODE']);
+
+			$typeId = Recipient\Type::detect($code);
+			if (!$typeId)
+			{
+				continue;
+			}
+
+			$code = Recipient\Normalizer::normalize($code, $typeId);
+			if (!$code)
+			{
+				continue;
+			}
+
+			$updateItem = [
+				'TYPE_ID' => $typeId,
+				'CODE' => $code,
+				'DATE_INSERT' => $dateInsert,
+				'DATE_UPDATE' => $dateInsert,
+			];
+			if (!empty($item['NAME']))
+			{
+				$updateItem['NAME'] = $item['NAME'];
+			}
+			if ($isBlacklist)
+			{
+				$updateItem['BLACKLISTED'] = $isBlacklist ? 'Y' : 'N';
+			}
+			$updateList[] = $updateItem;
+		}
+
+
+		// insert contacts
+		if (count($updateList) === 0)
+		{
+			return 0;
+		}
+
+		$onDuplicateUpdateFields = array(
+			'NAME',
+			array(
+				'NAME' => 'BLACKLISTED',
+				'VALUE' => $isBlacklist ? "'Y'" : "'N'"
+			),
+			array(
+				'NAME' => 'DATE_UPDATE',
+				'VALUE' => $sqlHelper->convertToDbDateTime(new MainType\DateTime())
+			)
+		);
+		foreach (Internals\SqlBatch::divide($updateList) as $list)
+		{
+			Internals\SqlBatch::insert(
+				ContactTable::getTableName(),
+				$list,
+				$onDuplicateUpdateFields
+			);
+		}
+
+		if (!$listId)
+		{
+			return count($updateList);
+		}
+
+		$row = ListTable::getRowById($listId);
+		if (!$row)
+		{
+			return false;
+		}
+
+		// insert contacts & lists
+		$codesByType = array();
+		foreach ($updateList as $updateItem)
+		{
+			$typeId = $updateItem['TYPE_ID'];
+			if (!is_array($codesByType[$typeId]))
+			{
+				$codesByType[$typeId] = array();
+			}
+
+			$codesByType[$typeId][] = $updateItem['CODE'];
+		}
+		foreach ($codesByType as $typeId => $allCodes)
+		{
+			$typeId = (int) $typeId;
+			$listId = (int) $listId;
+			$contactTableName = ContactTable::getTableName();
+			$contactListTableName = ContactListTable::getTableName();
+			foreach (Internals\SqlBatch::divide($allCodes) as $codes)
+			{
+				$codes = Internals\SqlBatch::getInString($codes);
+				$sql = "INSERT IGNORE $contactListTableName ";
+				$sql .="(CONTACT_ID, LIST_ID) ";
+				$sql .="SELECT ID AS CONTACT_ID, $listId as LIST_ID ";
+				$sql .="FROM $contactTableName ";
+				$sql .="WHERE TYPE_ID=$typeId AND CODE in ($codes)";
+				Application::getConnection()->query($sql);
+			}
+		}
+
+		return ContactListTable::getCount(array('=LIST_ID' => $listId));
 	}
 }

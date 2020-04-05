@@ -49,7 +49,7 @@ abstract class NameHelper extends Helper
 				{
 					$tmpCol = $column;
 
-					$tmpCol['title'] = $tmpCol['title'].'&nbsp;('.$lang.')';
+					$tmpCol['title'] = $tmpCol['title'].' ('.$lang.')';
 					$flds[$code.'_'.ToUpper($lang)] = $tmpCol;
 				}
 			}

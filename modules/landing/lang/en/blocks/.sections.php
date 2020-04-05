@@ -1,10 +1,11 @@
 <?
+$MESS["LD_BLOCK_SECTION_COUNTDOWNS"] = "Event countdown";
+$MESS["LD_BLOCK_SECTION_TILES_NEW2"] = "Buttons and links";
 $MESS["LD_BLOCK_SECTION_MENU_NEW"] = "Site menu and header";
 $MESS["LD_BLOCK_SECTION_IMAGE_NEW"] = "Images and gallery";
 $MESS["LD_BLOCK_SECTION_TEXT_NEW"] = "Text";
 $MESS["LD_BLOCK_SECTION_TEXT_IMAGE"] = "Text and images";
-$MESS["LD_BLOCK_SECTION_TILES_NEW"] = "Buttons and link";
-$MESS["LD_BLOCK_SECTION_STORE_NEW"] = "Online Store";
+$MESS["LD_BLOCK_SECTION_STORE_NEW"] = "Online store";
 $MESS["LD_BLOCK_SECTION_OTHER"] = "Other";
 $MESS["LD_BLOCK_SECTION_FOOTER"] = "Site footer";
 $MESS["LD_BLOCK_SECTION_POPULAR"] = "Popular";
@@ -33,5 +34,5 @@ $MESS["LD_BLOCK_SECTION_LAST"] = "Recent items";
 $MESS["LD_BLOCK_SECTION_VIDEO"] = "Video";
 $MESS["LD_BLOCK_SECTION_NEW_YEAR"] = "Winter holidays";
 $MESS["LD_BLOCK_SECTION_HOLIDAYS"] = "Holidays";
-$MESS["LD_BLOCK_SECTION_STORE"] = "e-Store";
+$MESS["LD_BLOCK_SECTION_STORE"] = "Online store";
 ?>

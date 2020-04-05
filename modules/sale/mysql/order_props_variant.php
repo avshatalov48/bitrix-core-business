@@ -30,7 +30,8 @@ class CSaleOrderPropsVariant extends CAllSaleOrderPropsVariant
 				"NAME" => array("FIELD" => "PV.NAME", "TYPE" => "string"),
 				"VALUE" => array("FIELD" => "PV.VALUE", "TYPE" => "string"),
 				"SORT" => array("FIELD" => "PV.SORT", "TYPE" => "int"),
-				"DESCRIPTION" => array("FIELD" => "PV.DESCRIPTION", "TYPE" => "string")
+				"DESCRIPTION" => array("FIELD" => "PV.DESCRIPTION", "TYPE" => "string"),
+				"XML_ID" => array("FIELD" => "PV.XML_ID", "TYPE" => "string")
 			);
 		// <-- FIELDS
 

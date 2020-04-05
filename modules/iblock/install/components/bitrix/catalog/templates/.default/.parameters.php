@@ -6,6 +6,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Web\Json;
+use Bitrix\Iblock;
 
 if (!Loader::includeModule('iblock'))
 	return;
@@ -15,9 +16,13 @@ CBitrixComponent::includeComponentClass('bitrix:catalog.section');
 CBitrixComponent::includeComponentClass('bitrix:catalog.top');
 CBitrixComponent::includeComponentClass('bitrix:catalog.element');
 
+$usePropertyFeatures = Iblock\Model\PropertyFeature::isEnabledFeatures();
+
+$iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
+
 $arSKU = false;
 $boolSKU = false;
-if ($boolCatalog && (isset($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID']) > 0)
+if ($boolCatalog && $iblockExists)
 {
 	$arSKU = CCatalogSKU::GetInfoByProductIBlock($arCurrentValues['IBLOCK_ID']);
 	$boolSKU = !empty($arSKU) && is_array($arSKU);
@@ -144,7 +149,7 @@ $arListPropList = array();
 $arHighloadPropList = array();
 $arFilePropList = $defaultValue;
 
-if (isset($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0)
+if ($iblockExists)
 {
 	$rsProps = CIBlockProperty::GetList(
 		array('SORT' => 'ASC', 'ID' => 'ASC'),
@@ -176,11 +181,31 @@ if (isset($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] >
 		}
 	}
 
-	if (!empty($arCurrentValues['LIST_PROPERTY_CODE']))
+	$showedProperties = [];
+	if ($usePropertyFeatures)
+	{
+		if ($iblockExists)
+		{
+			$showedProperties = Iblock\Model\PropertyFeature::getListPageShowPropertyCodes(
+				$arCurrentValues['IBLOCK_ID'],
+				['CODE' => 'Y']
+			);
+			if ($showedProperties === null)
+				$showedProperties = [];
+		}
+	}
+	else
+	{
+		if (!empty($arCurrentValues['LIST_PROPERTY_CODE']) && is_array($arCurrentValues['LIST_PROPERTY_CODE']))
+		{
+			$showedProperties = $arCurrentValues['LIST_PROPERTY_CODE'];
+		}
+	}
+	if (!empty($showedProperties))
 	{
 		$selected = array();
 
-		foreach ($arCurrentValues['LIST_PROPERTY_CODE'] as $code)
+		foreach ($showedProperties as $code)
 		{
 			if (isset($arAllPropList[$code]))
 			{
@@ -196,6 +221,7 @@ if (isset($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] >
 			'VALUES' => $selected
 		);
 	}
+	unset($showedProperties);
 
 	$arTemplateParameters['LIST_PRODUCT_BLOCKS_ORDER'] = array(
 		'PARENT' => 'LIST_SETTINGS',
@@ -414,63 +440,106 @@ if (isset($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] >
 			'DEFAULT' => '-',
 			'VALUES' => $arFileOfferPropList
 		);
-		$arTemplateParameters['OFFER_TREE_PROPS'] = array(
-			'PARENT' => 'VISUAL',
-			'NAME' => GetMessage('CP_BC_TPL_OFFER_TREE_PROPS'),
+		if (!$usePropertyFeatures)
+		{
+			$arTemplateParameters['OFFER_TREE_PROPS'] = array(
+				'PARENT' => 'VISUAL',
+				'NAME' => GetMessage('CP_BC_TPL_OFFER_TREE_PROPS'),
+				'TYPE' => 'LIST',
+				'MULTIPLE' => 'Y',
+				'ADDITIONAL_VALUES' => 'N',
+				'REFRESH' => 'N',
+				'DEFAULT' => '-',
+				'VALUES' => $arTreeOfferPropList
+			);
+		}
+	}
+
+	$showedProperties = [];
+	if ($usePropertyFeatures)
+	{
+		if ($iblockExists)
+		{
+			$showedProperties = Iblock\Model\PropertyFeature::getDetailPageShowProperties(
+				$arCurrentValues['IBLOCK_ID'],
+				['CODE' => 'Y']
+			);
+			if ($showedProperties === null)
+				$showedProperties = [];
+		}
+	}
+	else
+	{
+		if (!empty($arCurrentValues['DETAIL_PROPERTY_CODE']) && is_array($arCurrentValues['DETAIL_PROPERTY_CODE']))
+		{
+			$showedProperties = $arCurrentValues['DETAIL_PROPERTY_CODE'];
+		}
+	}
+	if (!empty($showedProperties))
+	{
+		$selected = array();
+
+		foreach ($showedProperties as $code)
+		{
+			if (isset($arAllPropList[$code]))
+			{
+				$selected[$code] = $arAllPropList[$code];
+			}
+		}
+
+		$arTemplateParameters['DETAIL_MAIN_BLOCK_PROPERTY_CODE'] = array(
+			'PARENT' => 'DETAIL_SETTINGS',
+			'NAME' => GetMessage('CP_BC_TPL_MAIN_BLOCK_PROPERTY_CODE'),
 			'TYPE' => 'LIST',
 			'MULTIPLE' => 'Y',
-			'ADDITIONAL_VALUES' => 'N',
-			'REFRESH' => 'N',
-			'DEFAULT' => '-',
-			'VALUES' => $arTreeOfferPropList
+			'SIZE' => (count($selected) > 5 ? 8 : 3),
+			'VALUES' => $selected
 		);
 	}
+	unset($showedProperties);
 }
 
-$arCurrentValues['DETAIL_PROPERTY_CODE'] = isset($arCurrentValues['DETAIL_PROPERTY_CODE']) ? $arCurrentValues['DETAIL_PROPERTY_CODE'] : array();
-if (!empty($arCurrentValues['DETAIL_PROPERTY_CODE']))
+if ($boolSKU)
 {
-	$selected = array();
-
-	foreach ($arCurrentValues['DETAIL_PROPERTY_CODE'] as $code)
+	$showedProperties = [];
+	if ($usePropertyFeatures)
 	{
-		if (isset($arAllPropList[$code]))
+		$showedProperties = Iblock\Model\PropertyFeature::getDetailPageShowProperties(
+			$arSKU['IBLOCK_ID'],
+			['CODE' => 'Y']
+		);
+		if ($showedProperties === null)
+			$showedProperties = [];
+	}
+	else
+	{
+		if (!empty($arCurrentValues['DETAIL_OFFERS_PROPERTY_CODE']) && is_array($arCurrentValues['DETAIL_OFFERS_PROPERTY_CODE']))
 		{
-			$selected[$code] = $arAllPropList[$code];
+			$showedProperties = $arCurrentValues['DETAIL_OFFERS_PROPERTY_CODE'];
 		}
 	}
-
-	$arTemplateParameters['DETAIL_MAIN_BLOCK_PROPERTY_CODE'] = array(
-		'PARENT' => 'DETAIL_SETTINGS',
-		'NAME' => GetMessage('CP_BC_TPL_MAIN_BLOCK_PROPERTY_CODE'),
-		'TYPE' => 'LIST',
-		'MULTIPLE' => 'Y',
-		'SIZE' => (count($selected) > 5 ? 8 : 3),
-		'VALUES' => $selected
-	);
-}
-
-$arCurrentValues['DETAIL_OFFERS_PROPERTY_CODE'] = isset($arCurrentValues['DETAIL_OFFERS_PROPERTY_CODE']) ? $arCurrentValues['DETAIL_OFFERS_PROPERTY_CODE'] : array();
-if (!empty($arCurrentValues['DETAIL_OFFERS_PROPERTY_CODE']))
-{
-	$selected = array();
-
-	foreach ($arCurrentValues['DETAIL_OFFERS_PROPERTY_CODE'] as $code)
+	if (!empty($showedProperties))
 	{
-		if (isset($arAllOfferPropList[$code]))
-		{
-			$selected[$code] = $arAllOfferPropList[$code];
-		}
-	}
+		$selected = array();
 
-	$arTemplateParameters['DETAIL_MAIN_BLOCK_OFFERS_PROPERTY_CODE'] = array(
-		'PARENT' => 'DETAIL_SETTINGS',
-		'NAME' => GetMessage('CP_BC_TPL_MAIN_BLOCK_OFFERS_PROPERTY_CODE'),
-		'TYPE' => 'LIST',
-		'MULTIPLE' => 'Y',
-		'SIZE' => (count($selected) > 5 ? 8 : 3),
-		'VALUES' => $selected
-	);
+		foreach ($showedProperties as $code)
+		{
+			if (isset($arAllOfferPropList[$code]))
+			{
+				$selected[$code] = $arAllOfferPropList[$code];
+			}
+		}
+
+		$arTemplateParameters['DETAIL_MAIN_BLOCK_OFFERS_PROPERTY_CODE'] = array(
+			'PARENT' => 'DETAIL_SETTINGS',
+			'NAME' => GetMessage('CP_BC_TPL_MAIN_BLOCK_OFFERS_PROPERTY_CODE'),
+			'TYPE' => 'LIST',
+			'MULTIPLE' => 'Y',
+			'SIZE' => (count($selected) > 5 ? 8 : 3),
+			'VALUES' => $selected
+		);
+	}
+	unset($showedProperties);
 }
 
 $arTemplateParameters['DETAIL_USE_VOTE_RATING'] = array(

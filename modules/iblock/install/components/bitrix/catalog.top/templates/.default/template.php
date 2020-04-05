@@ -67,7 +67,7 @@ if (!empty($arResult['ITEMS']))
 		   COMPARE_TITLE: '<?=GetMessageJS('CT_BCT_CATALOG_MESS_COMPARE_TITLE')?>',
 		   PRICE_TOTAL_PREFIX: '<?=GetMessageJS('CT_BCT_CATALOG_PRICE_TOTAL_PREFIX')?>',
 		   BTN_MESSAGE_COMPARE_REDIRECT: '<?=GetMessageJS('CT_BCT_CATALOG_BTN_MESSAGE_COMPARE_REDIRECT')?>',
-		   SITE_ID: '<?=$component->getSiteId()?>'
+		   SITE_ID: '<?=CUtil::JSEscape($component->getSiteId())?>'
 	   });
 	</script>
 	<?

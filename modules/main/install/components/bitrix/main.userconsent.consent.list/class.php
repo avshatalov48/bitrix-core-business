@@ -3,7 +3,7 @@
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\UI\PageNavigation;
-use Bitrix\Main\UserConsent\Internals\ConsentTable;
+use Bitrix\Main\UserConsent\Internals;
 use Bitrix\Main\UserConsent\Consent;
 use Bitrix\Main\UI\Filter\Options as FilterOptions;
 
@@ -56,7 +56,7 @@ class MainUserConsentConsentListComponent extends CBitrixComponent
 		$nav->allowAllRecords(true)->setPageSize(10)->initFromUri();
 
 		// get rows
-		$list = ConsentTable::getList(array(
+		$list = Internals\ConsentTable::getList(array(
 			'select' => array(
 				'ID', 'DATE_INSERT', 'IP', 'URL',
 				'USER_ID', 'ORIGINATOR_ID', 'ORIGIN_ID',
@@ -160,11 +160,21 @@ class MainUserConsentConsentListComponent extends CBitrixComponent
 
 	protected function setUiFilter()
 	{
+		$agreements = Internals\AgreementTable::getList([
+			'select' => ['ID', 'NAME'],
+			'order' => ['ID' => 'DESC']]
+		)->fetchAll();
+		$agreements = array_combine(
+			array_column($agreements, 'ID'),
+			array_column($agreements, 'NAME')
+		);
 		$this->arResult['FILTERS'] = array(
 			array(
 				"id" => "AGREEMENT_ID",
 				"name" => Loc::getMessage('MAIN_USER_CONSENTS_COMP_UI_COLUMN_AGREEMENT_ID'),
-				"default" => true
+				"default" => true,
+				"type" => "list",
+				"items" => $agreements
 			),
 			array(
 				"id" => "DATE_INSERT",

@@ -18,8 +18,6 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 	/** @var BasketItemBase */
 	protected $basketItem;
 
-	static protected $propertyCache = array();
-
 	/**
 	 * @return BasketItemBase
 	 */
@@ -45,41 +43,48 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 	}
 
 	/**
-	 * @throws NotImplementedException
 	 * @return BasketPropertiesCollection
 	 */
-	protected static function createBasketPropertiesCollectionObject()
+	private static function createBasketPropertiesCollectionObject()
 	{
-		throw new NotImplementedException();
+		$registry = Registry::getInstance(static::getRegistryType());
+		$basketPropertiesCollectionClassName = $registry->getBasketPropertiesCollectionClassName();
+
+		return new $basketPropertiesCollectionClassName();
 	}
 
 	/**
 	 * @param BasketItemBase $basketItem
-	 * @return static
+	 * @return BasketPropertiesCollectionBase|null
+	 * @throws NotImplementedException
+	 * @throws ObjectNotFoundException
 	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\ArgumentTypeException
 	 */
 	public static function load(BasketItemBase $basketItem)
 	{
 		$basketPropertyCollection = static::createBasketPropertiesCollectionObject();
 		$basketPropertyCollection->setBasketItem($basketItem);
+		$basketItem->setPropertyCollection($basketPropertyCollection);
 
-		/** @var BasketItemCollection $collection */
-		$collection = $basketItem->getCollection();
-		if ($collection)
+		if ($basketItem->getId() > 0)
 		{
-			static::loadByCollection($collection);
-
-			if ($basketItem->getId() <= 0)
-				return $basketPropertyCollection;
-
-			$item = $collection->getItemByBasketCode($basketItem->getBasketCode());
-			if ($item)
+			$res = static::getList(
+				[
+					'filter' => ["=BASKET_ID" => $basketItem->getId()],
+					'order' => ["SORT" => "ASC", "ID" => "ASC"],
+				]
+			);
+			while ($property = $res->fetch())
 			{
-				$basketPropertyCollection = $item->getPropertyCollection();
+				$basketPropertyItem = $basketPropertyCollection->createItem();
+				$basketPropertyItem->initFields($property);
 			}
 		}
 
-		return $basketPropertyCollection;
+		return $basketItem->getPropertyCollection();
 	}
 
 	/**
@@ -106,77 +111,78 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 
 	/**
 	 * @param BasketItemCollection $collection
+	 * @throws NotImplementedException
+	 * @throws ObjectNotFoundException
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\ArgumentTypeException
 	 */
 	public static function loadByCollection(BasketItemCollection $collection)
 	{
-		$basketGetIdList = array();
+		$propertyList = array();
 
 		$basketIdList = static::getBasketIdList($collection);
 
 		if (!empty($basketIdList))
 		{
-			foreach ($basketIdList as $basketItemId)
-			{
-				if (!array_key_exists($basketItemId, static::$propertyCache))
-				{
-					$basketGetIdList[] = $basketItemId;
-					static::$propertyCache[$basketItemId] = null;
-				}
-			}
-		}
-
-		if (!empty($basketGetIdList))
-		{
 			$res = static::getList(
 				array(
-					'filter' => array("=BASKET_ID" => $basketGetIdList),
+					'filter' => array("=BASKET_ID" => $basketIdList),
 					'order' => array("SORT" => "ASC", "ID" => "ASC"),
 				)
 			);
 
-			while($property = $res->fetch())
+			while ($property = $res->fetch())
 			{
-				static::$propertyCache[$property['BASKET_ID']][] = $property;
+				$propertyList[$property['BASKET_ID']][] = $property;
 			}
 		}
 
 		/** @var BasketItemBase $basketItem */
-		foreach($collection as $basketItem)
+		foreach ($collection as $basketItem)
 		{
-			$basketPropertyCollection = new static();
-			$basketPropertyCollection->basketItem = $basketItem;
-			if (isset(static::$propertyCache[$basketItem->getId()]))
+			if ($basketItem->isExistPropertyCollection())
 			{
-				foreach (static::$propertyCache[$basketItem->getId()] as $propertyData)
+				continue;
+			}
+
+			$basketPropertyCollection = static::createBasketPropertiesCollectionObject();
+			$basketPropertyCollection->setBasketItem($basketItem);
+
+			if (isset($propertyList[$basketItem->getId()]))
+			{
+				foreach ($propertyList[$basketItem->getId()] as $propertyData)
 				{
-					static::applyProperty($basketPropertyCollection, $propertyData);
+					$basketPropertyItem = $basketPropertyCollection->createItem();
+					$basketPropertyItem->initFields($propertyData);
 				}
 			}
 
-			if (!$basketItem->existsPropertyCollection())
-			{
-				$basketItem->setPropertyCollection($basketPropertyCollection);
-			}
+			$basketItem->setPropertyCollection($basketPropertyCollection);
 		}
 	}
 
 	/**
-	 * @param BasketPropertiesCollectionBase $basketPropertyCollection
-	 * @param array $property
+	 * @throws NotImplementedException
 	 */
-	protected static function applyProperty(BasketPropertiesCollectionBase $basketPropertyCollection, array $property)
+	public static function getRegistryType()
 	{
-		$basketPropertyItem = $basketPropertyCollection->createItem();
-		$basketPropertyItem->initFields($property);
+		throw new NotImplementedException();
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getBasketPropertiesCollectionElementClassName()
+	{
+		$registry  = Registry::getInstance(static::getRegistryType());
+
+		return $registry->getBasketPropertyItemClassName();
 	}
 
 	/**
 	 * @return BasketPropertyItemBase
-	 */
-	abstract protected function getBasketPropertiesCollectionElementClassName();
-
-	/**
-	 * @return BasketPropertyItemBase
+	 * @throws \Bitrix\Main\ArgumentTypeException
 	 */
 	public function createItem()
 	{
@@ -199,25 +205,30 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 	}
 
 	/**
-	 * @param array $values
+	 * @param array $properties
+	 * @throws ObjectNotFoundException
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\ArgumentTypeException
+	 * @throws \Bitrix\Main\NotSupportedException
 	 */
-	public function setProperty(array $values)
+	public function redefine(array $properties)
 	{
 		$indexList = array();
-		if (count($this->collection) > 0)
+
+		/** @var BasketPropertyItemBase $propertyItem */
+		foreach($this->collection as $propertyItem)
 		{
-			/** @var BasketPropertyItemBase $propertyItem */
-			foreach($this->collection as $propertyItem)
-			{
-				$code = $this->getPropertyCode($propertyItem);
-				$indexList[$code] = $propertyItem->getId();
-			}
+			$code = $this->getPropertyCode($propertyItem);
+			$indexList[$code] = $propertyItem->getId();
 		}
 
-		foreach ($values as $value)
+		foreach ($properties as $value)
 		{
 			if (!is_array($value) || empty($value))
+			{
 				continue;
+			}
 
 			if (isset($value['ID']) && intval($value['ID']) > 0)
 			{
@@ -254,7 +265,6 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 			$propertyItem->setFields($fields);
 		}
 
-
 		if (!empty($indexList))
 		{
 			foreach($indexList as $code => $id)
@@ -264,13 +274,13 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 					/** @var BasketPropertyItemBase $propertyItem */
 					if ($propertyItem = $this->getItemById($id))
 					{
-						if (!empty($values)
-							|| ($propertyItem->getField('CODE') == "CATALOG.XML_ID"
-								|| $propertyItem->getField('CODE') == "PRODUCT.XML_ID")
+						if ($propertyItem->getField('CODE') == "CATALOG.XML_ID"
+							|| $propertyItem->getField('CODE') == "PRODUCT.XML_ID"
 						)
 						{
 							continue;
 						}
+
 						$propertyItem->delete();
 					}
 				}
@@ -279,9 +289,8 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 					/** @var BasketPropertyItemBase $propertyItem */
 					foreach ($this->collection as $propertyItem)
 					{
-						if (!empty($values)
-							|| ($propertyItem->getField('CODE') == "CATALOG.XML_ID"
-								|| $propertyItem->getField('CODE') == "PRODUCT.XML_ID")
+						if ($propertyItem->getField('CODE') == "CATALOG.XML_ID"
+							|| $propertyItem->getField('CODE') == "PRODUCT.XML_ID"
 						)
 						{
 							continue;
@@ -300,6 +309,8 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 
 	/**
 	 * @return Result
+	 * @throws NotImplementedException
+	 * @throws \Bitrix\Main\ArgumentNullException
 	 */
 	public function save()
 	{
@@ -529,5 +540,20 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 	protected static function delete($primary)
 	{
 		throw new NotImplementedException();
+	}
+
+	/**
+	 * @deprecated Use \Bitrix\Sale\BasketPropertiesCollectionBase::redefine instead
+	 *
+	 * @param array $values
+	 * @throws ObjectNotFoundException
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\ArgumentTypeException
+	 * @throws \Bitrix\Main\NotSupportedException
+	 */
+	public function setProperty(array $values)
+	{
+		$this->redefine($values);
 	}
 }

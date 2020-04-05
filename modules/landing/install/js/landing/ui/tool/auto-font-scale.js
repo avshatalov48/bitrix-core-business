@@ -38,14 +38,26 @@
 	BX.Landing.UI.Tool.autoFontScale = function(elements)
 	{
 		this.entries = elements.map(this.createEntry, this);
-		bind(window, "resize", this.adjust.bind(this, false));
-		bind(window, "orientationchange", this.adjust.bind(this, true));
+		bind(window, "resize", this.onResize.bind(this, false));
+		bind(window, "orientationchange", this.onResize.bind(this, true));
 		onCustomEvent("BX.Landing.Block:init", this.onAddBlock.bind(this));
 		this.adjust(true);
 	};
 
 
 	BX.Landing.UI.Tool.autoFontScale.prototype = {
+		onResize: function(forceAdjust)
+		{
+			this.adjust(forceAdjust);
+
+			// Fallback for sliders
+			clearTimeout(this.falbackTimeoutId);
+			this.falbackTimeoutId = setTimeout(function() {
+				this.adjust(true);
+			}.bind(this), 250);
+		},
+
+
 		/**
 		 * Adjusts text
 		 * @param {boolean} [forceAdjust]
@@ -65,12 +77,6 @@
 						entry.resetSize();
 					}
 				});
-
-				// Fallback for sliders
-				// clearTimeout(this.falbackTimeoutId);
-				// this.falbackTimeoutId = setTimeout(function() {
-				// 	this.adjust(true);
-				// }.bind(this), 250);
 			}
 		},
 
@@ -111,7 +117,7 @@
 		 */
 		onAddBlock: function(event)
 		{
-			var elements = slice(event.block.querySelectorAll("h1, h2, h3, h4, h5"));
+			var elements = slice(event.block.querySelectorAll("h1, h2, h3, h4, h5, [data-auto-font-scale]"));
 			this.addElements(elements);
 		}
 	}

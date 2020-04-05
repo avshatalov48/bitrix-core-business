@@ -49,6 +49,12 @@ class CashboxOrangeData extends Cashbox implements IPrintImmediately, ICheckable
 			AdvancePaymentCheck::getType() => 3,
 			AdvanceReturnCashCheck::getType() => 3,
 			AdvanceReturnCheck::getType() => 3,
+			PrepaymentCheck::getType() => 2,
+			PrepaymentReturnCheck::getType() => 2,
+			PrepaymentReturnCashCheck::getType() => 2,
+			FullPrepaymentCheck::getType() => 1,
+			FullPrepaymentReturnCheck::getType() => 1,
+			FullPrepaymentReturnCashCheck::getType() => 1,
 			CreditCheck::getType() => 6,
 			CreditReturnCheck::getType() => 6,
 			CreditPaymentCheck::getType() => 7,
@@ -77,23 +83,8 @@ class CashboxOrangeData extends Cashbox implements IPrintImmediately, ICheckable
 
 		$calculatedSignMap = $this->getCalculatedSignMap();
 
-		if ($checkInfo['client_phone'])
-		{
-			$phone = \NormalizePhone($checkInfo['client_phone']);
-			if ($phone[0] !== '7')
-			{
-				$phone = '7'.$phone;
-			}
-
-			$customerContact = '+'.$phone;
-		}
-		else
-		{
-			$customerContact = $checkInfo['client_email'];
-		}
-
 		$result = array(
-			'id' => $checkInfo['unique_id'],
+			'id' => static::buildUuid(static::UUID_TYPE_CHECK, $checkInfo['unique_id']),
 			'inn' => $this->getValueFromSettings('SERVICE', 'INN'),
 			'group' => $this->getField('NUMBER_KKM') ?: null,
 			'key' => $this->getValueFromSettings('SECURITY', 'KEY_SIGN') ?: null,
@@ -104,11 +95,12 @@ class CashboxOrangeData extends Cashbox implements IPrintImmediately, ICheckable
 					'payments' => array(),
 					'taxationSystem' => $this->getValueFromSettings('TAX', 'SNO'),
 				),
-				'customerContact' => $customerContact,
+				'customerContact' => $this->getCustomerContact($checkInfo),
 			)
 		);
 
 		$checkType = $this->getCheckTypeMap();
+		$paymentObjectMap = $this->getPaymentObjectMap();
 		foreach ($checkInfo['items'] as $item)
 		{
 			$vat = $this->getValueFromSettings('VAT', $item['vat']);
@@ -123,7 +115,7 @@ class CashboxOrangeData extends Cashbox implements IPrintImmediately, ICheckable
 				'price' => $item['price'],
 				'tax' => $vat,
 				'paymentMethodType' => $checkType[$check::getType()],
-				'paymentSubjectType' => null
+				'paymentSubjectType' => $paymentObjectMap[$item['payment_object']]
 			);
 		}
 
@@ -137,6 +129,57 @@ class CashboxOrangeData extends Cashbox implements IPrintImmediately, ICheckable
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @param array $data
+	 * @return mixed|string
+	 */
+	private function getCustomerContact(array $data)
+	{
+		$customerContact = $this->getValueFromSettings('CLIENT', 'INFO');
+
+		if ($customerContact === 'EMAIL')
+		{
+			return $data['client_email'];
+		}
+		elseif ($customerContact === 'PHONE')
+		{
+			$phone = \NormalizePhone($data['client_phone']);
+			if ($phone[0] !== '7')
+			{
+				$phone = '7'.$phone;
+			}
+
+			return '+'.$phone;
+		}
+
+		if ($data['client_phone'])
+		{
+			$phone = \NormalizePhone($data['client_phone']);
+			if ($phone[0] !== '7')
+			{
+				$phone = '7'.$phone;
+			}
+
+			return '+'.$phone;
+		}
+
+		return $data['client_email'];
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getPaymentObjectMap()
+	{
+		return [
+			Check::PAYMENT_OBJECT_COMMODITY => 1,
+			Check::PAYMENT_OBJECT_EXCISE => 2,
+			Check::PAYMENT_OBJECT_JOB => 3,
+			Check::PAYMENT_OBJECT_SERVICE => 4,
+			Check::PAYMENT_OBJECT_PAYMENT => 10,
+		];
 	}
 
 	/**
@@ -563,6 +606,22 @@ class CashboxOrangeData extends Cashbox implements IPrintImmediately, ICheckable
 			)
 		);
 
+		$settings['CLIENT'] = [
+			'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_ORANGE_DATA_SETTINGS_CLIENT'),
+			'ITEMS' => array(
+				'INFO' => array(
+					'TYPE' => 'ENUM',
+					'VALUE' => 'NONE',
+					'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_ORANGE_DATA_SETTINGS_CLIENT_INFO'),
+					'OPTIONS' => array(
+						'DEFAULT' => Localization\Loc::getMessage('SALE_CASHBOX_ORANGE_DATA_SETTINGS_CLIENT_DEFAULT'),
+						'PHONE' => Localization\Loc::getMessage('SALE_CASHBOX_ORANGE_DATA_SETTINGS_CLIENT_PHONE'),
+						'EMAIL' => Localization\Loc::getMessage('SALE_CASHBOX_ORANGE_DATA_SETTINGS_CLIENT_EMAIL'),
+					)
+				),
+			)
+		];
+
 		$settings['VAT'] = array(
 			'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_ORANGE_DATA_SETTINGS_VAT'),
 			'REQUIRED' => 'Y',
@@ -581,7 +640,7 @@ class CashboxOrangeData extends Cashbox implements IPrintImmediately, ICheckable
 			$vatList = $dbRes->fetchAll();
 			if ($vatList)
 			{
-				$defaultVat = array(0 => 5, 10 => 2, 18 => 1);
+				$defaultVat = array(0 => 5, 10 => 2, 18 => 1, 20 => 1);
 				foreach ($vatList as $vat)
 				{
 					$value = '';
@@ -640,16 +699,18 @@ class CashboxOrangeData extends Cashbox implements IPrintImmediately, ICheckable
 	 */
 	public static function extractSettingsFromRequest(Main\HttpRequest $request)
 	{
+		global $APPLICATION;
+
 		$settings = parent::extractSettingsFromRequest($request);
 		$files = $request->getFile('SETTINGS');
 
 		foreach ($settings['SECURITY'] as $fieldId => $field)
 		{
-			if ($files['error']['SECURITY'][$fieldId] === 0
-				&& $files['tmp_name']['SECURITY'][$fieldId]
+			if ($files['error']['SECURITY'][$fieldId.'_FILE'] === 0
+				&& $files['tmp_name']['SECURITY'][$fieldId.'_FILE']
 			)
 			{
-				$content = file_get_contents($files['tmp_name']['SECURITY'][$fieldId]);
+				$content = $APPLICATION->GetFileContent($files['tmp_name']['SECURITY'][$fieldId.'_FILE']);
 				$settings['SECURITY'][$fieldId] = $content ?: '';
 			}
 		}

@@ -19,6 +19,7 @@
 			autoplay: 1,
 			controls: 1,
 			loop: 0,
+			mute: 0,
 			rel: 0,
 			start: 0,
 			html5: 1
@@ -86,6 +87,18 @@
 						items: [
 							{name: BX.message("LANDING_CONTENT_URL_MEDIA_YES"), value: 1},
 							{name: BX.message("LANDING_CONTENT_URL_MEDIA_NO"), value: 0}
+						]
+					})
+				);
+
+				this.form.addField(
+					new BX.Landing.UI.Field.Dropdown({
+						title: BX.message("LANDING_CONTENT_URL_MEDIA_SOUND"),
+						selector: "mute",
+						content: parseInt(settings.mute),
+						items: [
+							{name: BX.message("LANDING_CONTENT_URL_MEDIA_YES"), value: 0},
+							{name: BX.message("LANDING_CONTENT_URL_MEDIA_NO"), value: 1}
 						]
 					})
 				);

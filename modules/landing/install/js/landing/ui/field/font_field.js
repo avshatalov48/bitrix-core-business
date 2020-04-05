@@ -144,7 +144,9 @@
 					}
 				});
 
-				headString = headString.replace("async@load", "all");
+				headString = headString
+					.replace("async@load", "all")
+					.replace('data-loadcss="true"', "");
 
 				BX.Landing.Backend.getInstance()
 					.action("Landing::updateHead", {content: headString});

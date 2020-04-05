@@ -65,6 +65,18 @@ class SenderContactSetListComponent extends \CBitrixComponent
 					ListTable::update($id, $fields);
 				}
 				break;
+			case 'delete':
+				$ids = $this->request->get('ID');
+				if (!is_array($ids))
+				{
+					$ids = array($ids);
+				}
+
+				foreach ($ids as $id)
+				{
+					ListTable::delete($id);
+				}
+				break;
 		}
 	}
 

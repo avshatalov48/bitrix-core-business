@@ -346,23 +346,35 @@
 			var isPinned = this.isPinned(this.getCurrentPresetId());
 			var promise;
 
-			if (!isPinned)
+			if (this.parent.getParam('VALUE_REQUIRED') &&
+				this.getPinnedPresetId() === 'default_filter')
 			{
-				var pinnedPresetId = this.getPinnedPresetId();
-				var pinnedPresetNode = this.getPinnedPresetNode();
-				var clear = false;
-				var applyPreset = true;
-
+				this.applyPreset('default_filter');
 				this.deactivateAllPresets();
-				this.activatePreset(pinnedPresetNode);
-				this.applyPreset(pinnedPresetId);
-				promise = Filter.applyFilter(clear, applyPreset);
-				Filter.closePopup();
+				promise = this.parent.applyFilter();
 			}
 			else
 			{
-				promise = Filter.resetFilter();
+				if (!isPinned)
+				{
+					var pinnedPresetId = this.getPinnedPresetId();
+					var pinnedPresetNode = this.getPinnedPresetNode();
+					var clear = false;
+					var applyPreset = true;
+
+					this.deactivateAllPresets();
+					this.activatePreset(pinnedPresetNode);
+					this.applyPreset(pinnedPresetId);
+					promise = Filter.applyFilter(clear, applyPreset);
+					Filter.closePopup();
+				}
+				else
+				{
+					promise = Filter.resetFilter();
+				}
 			}
+
+
 
 			return promise;
 		},
@@ -623,7 +635,10 @@
 				}
 			}
 
-			if (field.TYPE === this.parent.types.CUSTOM_ENTITY)
+			if (
+				field.TYPE === this.parent.types.CUSTOM_ENTITY
+				|| field.TYPE === this.parent.types.DEST_SELECTOR
+			)
 			{
 				if (BX.type.isPlainObject(field.VALUES))
 				{
@@ -644,6 +659,20 @@
 						BX.type.isArray(field.VALUES._value) &&
 						field.VALUES._label.length &&
 						field.VALUES._value.length)
+					{
+						result = false;
+					}
+
+					if (
+						(
+							(BX.type.isArray(field.VALUES._label) && field.VALUES._label.length) ||
+							(BX.type.isPlainObject(field.VALUES._label) && Object.keys(field.VALUES._label).length)
+						) &&
+						(
+							(BX.type.isArray(field.VALUES._value) && field.VALUES._value.length) ||
+							(BX.type.isPlainObject(field.VALUES._value) && Object.keys(field.VALUES._value).length)
+						)
+					)
 					{
 						result = false;
 					}
@@ -763,10 +792,12 @@
 		/**
 		 * Removes field element by field object
 		 * @param {object} field
+		 * @param {boolean} disableSaveFieldsSort
 		 */
-		removeField: function(field)
+		removeField: function(field, disableSaveFieldsSort)
 		{
 			var index, fieldName;
+			disableSaveFieldsSort = disableSaveFieldsSort || false;
 
 			if (BX.type.isPlainObject(field))
 			{
@@ -803,9 +834,24 @@
 				}
 			}
 
-			this.parent.saveFieldsSort();
+			if (!disableSaveFieldsSort)
+			{
+				this.parent.saveFieldsSort();
+			}
 		},
 
+		/**
+		 * Removes field elements by field objects.
+		 * @param {object[]} fields
+		 */
+		removeFields: function(fields)
+		{
+			fields.forEach(function (field) {
+				this.removeField(field, true);
+			}, this);
+
+			this.parent.saveFieldsSort();
+		},
 
 		/**
 		 * Adds field into filter field list by field object
@@ -913,6 +959,11 @@
 					break;
 				}
 
+				case this.parent.types.DEST_SELECTOR : {
+					control = this.parent.getFields().createDestSelector(fieldData);
+					break;
+				}
+
 				case this.parent.types.CUSTOM : {
 					control = this.parent.getFields().createCustom(fieldData);
 					break;
@@ -985,11 +1036,13 @@
 							}
 						}
 
-						if (fields[key] === '')
+						var field = this.parent.getFieldByName(key);
+
+						if (fields[key] === '' && (!field || !field["STRICT"]))
 						{
 							delete fields[key];
 						}
-					});
+					}, this);
 				}
 			}
 		},

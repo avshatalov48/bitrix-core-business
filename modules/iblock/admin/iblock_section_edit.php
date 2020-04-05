@@ -13,6 +13,13 @@ global $APPLICATION;
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
 global $USER_FIELD_MANAGER;
 
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+
+if (defined("BX_PUBLIC_MODE") && BX_PUBLIC_MODE == 1)
+{
+	$adminSidePanelHelper->setSkipResponse(true);
+}
+
 $io = CBXVirtualIo::GetInstance();
 $strWarning = "";
 $bVarsFromForm = false;
@@ -135,6 +142,8 @@ if(
 	&& check_bitrix_sessid()
 )
 {
+	$adminSidePanelHelper->decodeUriComponent();
+
 	$DB->StartTransaction();
 	$bs = new CIBlockSection;
 
@@ -355,6 +364,16 @@ if(
 		$DB->Rollback();
 		if($e = $APPLICATION->GetException())
 			$message = new CAdminMessage(GetMessage("admin_lib_error"), $e);
+
+		if (is_object($message))
+		{
+			$errorMessage = implode("; ", $message->GetMessages());
+		}
+		else
+		{
+			$errorMessage = $strWarning;
+		}
+		$adminSidePanelHelper->sendJsonErrorResponse($errorMessage);
 	}
 	else
 	{
@@ -365,6 +384,12 @@ if(
 		}
 
 		$DB->Commit();
+
+		if ($adminSidePanelHelper->isAjaxRequest())
+		{
+			$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
+		}
+
 		if(strlen($apply) <= 0 && strlen($save_and_add) <= 0)
 		{
 			if ($bAutocomplete)
@@ -384,11 +409,14 @@ if(
 					if($arSection)
 						$return_url = CIBlock::ReplaceDetailUrl($return_url, $arSection, true, "S");
 				}
+				$adminSidePanelHelper->localRedirect($return_url);
 				LocalRedirect($return_url);
 			}
 			else
 			{
-				LocalRedirect("/bitrix/admin/".CIBlock::GetAdminSectionListLink($IBLOCK_ID, array('find_section_section'=>intval($find_section_section))));
+				$saveUrl = $selfFolderUrl.CIBlock::GetAdminSectionListLink($IBLOCK_ID, array('find_section_section'=>intval($find_section_section)));
+				$adminSidePanelHelper->localRedirect($saveUrl);
+				LocalRedirect($saveUrl);
 			}
 		}
 		elseif(strlen($save_and_add) > 0)
@@ -399,7 +427,7 @@ if(
 				?>
 					<script type="text/javascript">
 						top.BX.ajax.post(
-							'/bitrix/admin/<?echo $l = CUtil::JSEscape(CIBlock::GetAdminSectionEditLink($IBLOCK_ID, 0, array(
+							'<?echo $selfFolderUrl.$l = CUtil::JSEscape(CIBlock::GetAdminSectionEditLink($IBLOCK_ID, 0, array(
 								"find_section_section" => intval($find_section_section),
 								"return_url" => (strlen($return_url) > 0? $return_url: null),
 								"IBLOCK_SECTION_ID" => $IBLOCK_SECTION_ID,
@@ -420,19 +448,22 @@ if(
 			}
 			else
 			{
-				LocalRedirect("/bitrix/admin/".CIBlock::GetAdminSectionEditLink($IBLOCK_ID, 0, array(
+				$saveAndAddUrl = $selfFolderUrl.CIBlock::GetAdminSectionEditLink($IBLOCK_ID, 0, array(
 					"find_section_section" => intval($find_section_section),
 					"IBLOCK_SECTION_ID" => $IBLOCK_SECTION_ID,
 					"return_url" => (strlen($return_url) > 0? $return_url: null),
-				), "&".$tabControl->ActiveTabParam()));
+				), "&".$tabControl->ActiveTabParam());
+				$adminSidePanelHelper->localRedirect($saveAndAddUrl);
+				LocalRedirect($saveAndAddUrl);
 			}
 		}
 		else
 		{
-			LocalRedirect("/bitrix/admin/".CIBlock::GetAdminSectionEditLink($IBLOCK_ID, $ID, array(
-				'find_section_section' => intval($find_section_section),
-				'return_url' => strlen($return_url) > 0? $return_url: null,
-			), "&".$tabControl->ActiveTabParam()));
+			$applyUrl = $selfFolderUrl.CIBlock::GetAdminSectionEditLink($IBLOCK_ID, $ID, array(
+				"find_section_section" => intval($find_section_section), "return_url" => strlen($return_url) > 0 ?
+				$return_url: null,), "&".$tabControl->ActiveTabParam());
+			$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
+			LocalRedirect($applyUrl);
 		}
 	}
 }
@@ -530,7 +561,8 @@ if (!$bAutocomplete)
 		array(
 			"TEXT" => htmlspecialcharsbx($arIBlock["SECTIONS_NAME"]),
 			"LINK" => CIBlock::GetAdminSectionListLink($IBLOCK_ID, array(
-				'find_section_section' => intval($find_section_section),
+				"find_section_section" => intval($find_section_section),
+				"SECTION_ID" => intval($find_section_section)
 			)),
 			"ICON" => "btn_list",
 		),
@@ -538,23 +570,27 @@ if (!$bAutocomplete)
 
 	if ($ID > 0)
 	{
-		$aMenu[] = array(
-			"SEPARATOR" => "Y",
-		);
+		$aMenu[] = array("SEPARATOR" => "Y");
+		$newUrl = CIBlock::GetAdminSectionEditLink($IBLOCK_ID, null, array(
+			"find_section_section" => intval($find_section_section), "replace_script_name" => true,
+			"IBLOCK_SECTION_ID" => ($IBLOCK_SECTION_ID > 0 ? $IBLOCK_SECTION_ID : $find_section_section)));
+		if (!$adminSidePanelHelper->isPublicFrame())
+			$newUrl = $adminSidePanelHelper->setDefaultQueryParams($newUrl);
 		$aMenu[] = array(
 			"TEXT" => htmlspecialcharsbx($arIBlock["SECTION_ADD"]),
-			"LINK" => CIBlock::GetAdminSectionEditLink($IBLOCK_ID, null, array("find_section_section" => intval($find_section_section), "IBLOCK_SECTION_ID" => ($IBLOCK_SECTION_ID > 0 ? $IBLOCK_SECTION_ID : $find_section_section))),
+			"LINK" => $newUrl,
 			"ICON" => "btn_new",
 		);
-		$urlDelete = CIBlock::GetAdminSectionListLink($IBLOCK_ID, array(
-			'find_section_section' => intval($find_section_section),
-			'action' => 'delete',
-		));
+		$deleteUrlParams = array('find_section_section'=> $find_section_section, 'action'=>'delete');
+		if (!$adminSidePanelHelper->isPublicFrame())
+			$deleteUrlParams['skip_public'] = true;
+		$urlDelete = $selfFolderUrl.CIBlock::GetAdminSectionListLink($IBLOCK_ID, $deleteUrlParams);
 		$urlDelete.= '&'.bitrix_sessid_get();
 		$urlDelete.= '&ID[]='.(preg_match('/^iblock_list_admin\.php/', $urlDelete) ? "S" : "").$ID;
+		$buttonAction = $adminSidePanelHelper->isPublicFrame() ? "ONCLICK" : "LINK";
 		$aMenu[] = array(
 			"TEXT" => htmlspecialcharsbx($arIBlock["SECTION_DELETE"]),
-			"LINK" => "javascript:if(confirm('".GetMessageJS("IBSEC_E_CONFIRM_DEL_MESSAGE")."'))window.location='".CUtil::JSEscape($urlDelete)."'",
+			$buttonAction => "javascript:if(confirm('".GetMessageJS("IBSEC_E_CONFIRM_DEL_MESSAGE")."'))top.window.location.href='".CUtil::JSEscape($urlDelete)."'",
 			"ICON" => "btn_delete",
 		);
 	}
@@ -692,7 +728,7 @@ if($arTranslit["TRANSLITERATION"] == "Y")
 <script type="text/javascript">
 	var InheritedPropertiesTemplates = new JCInheritedPropertiesTemplates(
 		'<?echo $tabControl->GetName()?>_form',
-		'/bitrix/admin/iblock_templates.ajax.php?ENTITY_TYPE=S&IBLOCK_ID=<?echo intval($IBLOCK_ID)?>&ENTITY_ID=<?echo intval($ID)?>'
+		'<?=$selfFolderUrl?>iblock_templates.ajax.php?ENTITY_TYPE=S&IBLOCK_ID=<?echo intval($IBLOCK_ID)?>&ENTITY_ID=<?echo intval($ID)?>&bxpublic=y'
 	);
 	BX.ready(function(){
 		setTimeout(function(){
@@ -725,9 +761,13 @@ if ($bAutocomplete)
 {
 	$arEditLinkParams['lookup'] = $strLookup;
 }
-
+if ($adminSidePanelHelper->isPublicFrame())
+{
+	$arEditLinkParams["IFRAME"] = "Y";
+	$arEditLinkParams["IFRAME_TYPE"] = "PUBLIC_FRAME";
+}
 $tabControl->Begin(array(
-	"FORM_ACTION" => "/bitrix/admin/".CIBlock::GetAdminSectionEditLink($IBLOCK_ID, null, $arEditLinkParams),
+	"FORM_ACTION" => $selfFolderUrl.CIBlock::GetAdminSectionEditLink($IBLOCK_ID, null, $arEditLinkParams),
 ));
 $tabControl->BeginNextFormTab();
 ?>
@@ -1264,10 +1304,14 @@ if(
 	if($USER_FIELD_MANAGER->GetRights($entity_id) >= "W")
 	{
 		$tabControl->BeginCustomField("USER_FIELDS_ADD", GetMessage("IBSEC_E_USER_FIELDS_ADD_HREF"));
+		$userFieldUrl = $selfFolderUrl."userfield_edit.php?lang=".LANGUAGE_ID."&ENTITY_ID=".urlencode($entity_id);
+		$userFieldUrl = $adminSidePanelHelper->editUrlToPublicPage($userFieldUrl);
+		$userFieldUrl .= "&back_url=".urlencode($APPLICATION->GetCurPageParam('', array('bxpublic'))."&tabControl_active_tab=user_fields_tab");
+
 		?>
 			<tr>
 				<td align="left" colspan="2">
-					<a href="/bitrix/admin/userfield_edit.php?lang=<?echo LANGUAGE_ID?>&amp;ENTITY_ID=<?echo urlencode($entity_id)?>&amp;back_url=<?echo urlencode($APPLICATION->GetCurPageParam('', array('bxpublic'))."&tabControl_active_tab=user_fields_tab")?>"><?echo $tabControl->GetCustomLabelHTML()?></a>
+					<a target="_top" href="<?=$userFieldUrl?>"><?= $tabControl->GetCustomLabelHTML()?></a>
 				</td>
 			</tr>
 		<?
@@ -1583,7 +1627,7 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 					target_select_id = select_id;
 					target_shadow_id = shadow_id;
 					(new BX.CAdminDialog({
-						'content_url' : '/bitrix/admin/iblock_edit_property.php?lang=<?echo LANGUAGE_ID?>&IBLOCK_ID='+iblock_id+'&ID=n0&bxpublic=Y&from_module=iblock&return_url=section_edit',
+						'content_url' : '<?=$selfFolderUrl?>iblock_edit_property.php?lang=<?echo LANGUAGE_ID?>&IBLOCK_ID='+iblock_id+'&ID=n0&bxpublic=Y&from_module=iblock&return_url=section_edit',
 						'width' : 700,
 						'height' : 400,
 						'buttons': [BX.CAdminDialog.btnSave, BX.CAdminDialog.btnCancel]
@@ -1977,9 +2021,11 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 if(strlen($return_url)>0)
 	$bu = $return_url;
 else
-	$bu = "/bitrix/admin/".CIBlock::GetAdminSectionListLink($IBLOCK_ID, array('find_section_section'=>intval($find_section_section)));
+	$bu = $selfFolderUrl.CIBlock::GetAdminSectionListLink($IBLOCK_ID, array('find_section_section'=>intval($find_section_section)));
 
-if (!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1):
+if ($adminSidePanelHelper->isSidePanelFrame()):
+	$tabControl->Buttons(array("disabled" => true));
+elseif (!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1):
 	$tabControl->Buttons(array(
 		"disabled" => false,
 		"btnSaveAndAdd" => !$bAutocomplete,
@@ -2029,7 +2075,7 @@ $tabControl->Show();
 
 $tabControl->ShowWarnings($tabControl->GetName(), $message);
 
-if(CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, "iblock_edit") && (!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1))
+if(CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, "iblock_edit") && (!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1) && !$adminSidePanelHelper->isSidePanel())
 {
 	echo
 		BeginNote(),

@@ -1,5 +1,9 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+if ($arParams['DISALLOW_CANCEL'] === 'Y')
+{
+	LocalRedirect($arResult['PATH_TO_LIST']);
+}
 $APPLICATION->IncludeComponent(
 	"bitrix:sale.personal.order.cancel",
 	"",

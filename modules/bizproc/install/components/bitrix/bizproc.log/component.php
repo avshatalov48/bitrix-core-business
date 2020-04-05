@@ -55,7 +55,14 @@ if (array_key_exists("COMPONENT_VERSION", $arParams) && $arParams["COMPONENT_VER
 		$runtime->StartRuntime();
 		$documentService = $runtime->GetService("DocumentService");
 
-		$documentType = $documentService->GetDocumentType($documentId);
+		try
+		{
+			$documentType = $documentService->GetDocumentType($documentId);
+		}
+		catch (Exception $e)
+		{
+			$documentType = $documentId;
+		}
 
 		$arResult["GRID_ID"] = "bizproc_loggrid_".$arWorkflowState["WORKFLOW_TEMPLATE_ID"];
 
@@ -158,6 +165,11 @@ if (array_key_exists("COMPONENT_VERSION", $arParams) && $arParams["COMPONENT_VER
 					continue;
 			}
 
+			if ($arTrack["TYPE"] == CBPTrackingType::AttachedEntity || $arTrack["TYPE"] == CBPTrackingType::Trigger)
+			{
+				continue;
+			}
+
 			$date = $arTrack["MODIFIED"];
 
 			if ($arResult["AdminMode"])
@@ -177,6 +189,7 @@ if (array_key_exists("COMPONENT_VERSION", $arParams) && $arParams["COMPONENT_VER
 					$type = GetMessage("BPABL_TYPE_3");
 					break;
 				case 4:
+				case 9:
 					$type = GetMessage("BPABL_TYPE_4");
 					break;
 				case 5:

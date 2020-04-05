@@ -134,6 +134,11 @@ AAAAElFTkSuQmCC") no-repeat scroll 0 0 transparent;
 	.adm-filter-box-sizing { width: auto; }
 	.reports-title-label { padding-top: 20px; }
 	#bx-admin-prefix .popup-window-close-icon { background-color: inherit; right: 0; top: 0; }
+
+	.report-period-hidden {
+		margin-top: 10px;
+	}
+	.report-period-hidden > input[type=checkbox] { margin: 0; }
 </style>
 
 <script type="text/javascript">
@@ -292,6 +297,14 @@ AAAAElFTkSuQmCC") no-repeat scroll 0 0 transparent;
 			OnReportIntervalChange(BX('report-interval-filter'));
 		});
 	</script>
+	<div class="report-period-hidden">
+		<input type="hidden" name="period_hidden" value="N">
+		<input type="checkbox" <?=($arResult['preSettings']['period']['hidden'] === 'Y')?'checked="checked" ':''?>
+			class="reports-checkbox" id="report-period-hidden-checkbox" name="period_hidden" value="Y" />
+		<span class="reports-limit-res-select-lable">
+			<label for="report-period-hidden-checkbox"><?=GetMessage('REPORT_PERIOD_HIDDEN')?></label>
+		</span>
+	</div>
 </div>
 
 <!-- select -->
@@ -1004,32 +1017,6 @@ AAAAElFTkSuQmCC") no-repeat scroll 0 0 transparent;
 		<? endforeach; ?>
 	</select>
 	<? endforeach; ?>
-</div>
-
-<!-- filter value control examples for UF enumerations -->
-<div id="report-filter-value-control-examples-ufenums" style="display: none">
-	<?
-	if (is_array($arResult['ufEnumerations'])):
-		foreach ($arResult['ufEnumerations'] as $ufId => $enums):
-			foreach ($enums as $fieldKey => $enum):
-	?>
-	<span name="report-filter-value-control-<?=($ufId.'_'.$fieldKey)?>">
-		<select class="reports-filter-select" name="value">
-			<option value=""><?=GetMessage('REPORT_IGNORE_FILTER_VALUE')?></option>
-			<?
-			foreach ($enum as $itemId => $itemInfo):
-			?>
-			<option value="<?=$itemId?>"><?=$itemInfo['VALUE']?></option>
-			<?
-			endforeach;
-			?>
-		</select>
-	</span>
-	<?
-			endforeach;
-		endforeach;
-	endif;
-	?>
 </div>
 
 <!-- filter value control examples -->

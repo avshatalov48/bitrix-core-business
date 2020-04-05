@@ -14,6 +14,7 @@ class CBPDocument
 	const PARAM_USE_FORCED_TRACKING = 'UseForcedTracking';
 	const PARAM_IGNORE_SIMULTANEOUS_PROCESSES_LIMIT = 'IgnoreSimultaneousProcessesLimit';
 	const PARAM_DOCUMENT_EVENT_TYPE = 'DocumentEventType';
+	const PARAM_DOCUMENT_TYPE = '__DocumentType';
 
 	public static function MigrateDocumentType($oldType, $newType)
 	{
@@ -29,6 +30,7 @@ class CBPDocument
 		{
 			CBPHistoryService::MigrateDocumentType($oldType, $newType, $templateIds);
 			CBPStateService::MigrateDocumentType($oldType, $newType, $templateIds);
+			WorkflowInstanceTable::migrateDocumentType($oldType, $newType, $templateIds);
 		}
 	}
 
@@ -129,6 +131,7 @@ class CBPDocument
 	public static function MergeDocuments($firstDocumentId, $secondDocumentId)
 	{
 		CBPStateService::MergeStates($firstDocumentId, $secondDocumentId);
+		WorkflowInstanceTable::mergeByDocument($firstDocumentId, $secondDocumentId);
 		CBPHistoryService::MergeHistory($firstDocumentId, $secondDocumentId);
 	}
 
@@ -302,37 +305,45 @@ class CBPDocument
 	 *
 	 * @param int $workflowTemplateId - Template id.
 	 * @param array $documentId - Document id array(MODULE_ID, ENTITY, DOCUMENT_ID).
-	 * @param array $arParameters - Workflow parameters.
-	 * @param array $arErrors - Errors array(array("code" => error_code, "message" => message, "file" => file_path), ...).
+	 * @param array $parameters - Workflow parameters.
+	 * @param array $errors - Errors array(array("code" => error_code, "message" => message, "file" => file_path), ...).
 	 * @param array|null $parentWorkflow - Parent workflow information.
 	 * @return string - Workflow id.
 	 */
-	public static function StartWorkflow($workflowTemplateId, $documentId, $arParameters, &$arErrors, $parentWorkflow = null)
+	public static function StartWorkflow($workflowTemplateId, $documentId, $parameters, &$errors, $parentWorkflow = null)
 	{
-		$arErrors = array();
-
+		$errors = [];
 		$runtime = CBPRuntime::GetRuntime();
 
-		if (!is_array($arParameters))
-			$arParameters = array($arParameters);
-		if (!isset($arParameters[static::PARAM_TAGRET_USER]))
-			$arParameters[static::PARAM_TAGRET_USER] = is_object($GLOBALS["USER"]) ? "user_".intval($GLOBALS["USER"]->GetID()) : null;
+		if (!is_array($parameters))
+		{
+			$parameters = [$parameters];
+		}
 
-		if (!isset($arParameters[static::PARAM_MODIFIED_DOCUMENT_FIELDS]))
-			$arParameters[static::PARAM_MODIFIED_DOCUMENT_FIELDS] = false;
+		if (!array_key_exists(static::PARAM_TAGRET_USER, $parameters))
+		{
+			$parameters[static::PARAM_TAGRET_USER] = is_object($GLOBALS["USER"]) ? "user_".intval($GLOBALS["USER"]->GetID()) : null;
+		}
 
-		if (!isset($arParameters[static::PARAM_DOCUMENT_EVENT_TYPE]))
-			$arParameters[static::PARAM_DOCUMENT_EVENT_TYPE] = CBPDocumentEventType::None;
+		if (!isset($parameters[static::PARAM_MODIFIED_DOCUMENT_FIELDS]))
+		{
+			$parameters[static::PARAM_MODIFIED_DOCUMENT_FIELDS] = false;
+		}
+
+		if (!isset($parameters[static::PARAM_DOCUMENT_EVENT_TYPE]))
+		{
+			$parameters[static::PARAM_DOCUMENT_EVENT_TYPE] = CBPDocumentEventType::None;
+		}
 
 		try
 		{
-			$wi = $runtime->CreateWorkflow($workflowTemplateId, $documentId, $arParameters, $parentWorkflow);
+			$wi = $runtime->CreateWorkflow($workflowTemplateId, $documentId, $parameters, $parentWorkflow);
 			$wi->Start();
 			return $wi->GetInstanceId();
 		}
 		catch (Exception $e)
 		{
-			$arErrors[] = array(
+			$errors[] = array(
 				"code" => $e->getCode(),
 				"message" => $e->getMessage(),
 				"file" => $e->getFile()." [".$e->getLine()."]"
@@ -1446,7 +1457,7 @@ class CBPDocument
 			array(
 				'select' => array(new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(\'x\')')),
 				'filter' => array(
-					'=STATE.STARTED_BY' => $userId,
+					'=STARTED_BY' => $userId,
 					'<OWNED_UNTIL' => date($DB->DateFormatToPHP(FORMAT_DATETIME),
 						time() - WorkflowInstanceTable::LOCKED_TIME_INTERVAL)
 				),

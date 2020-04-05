@@ -24,10 +24,11 @@ class CBPFieldCondition
 
 		$rootActivity = $ownerActivity->GetRootActivity();
 		$documentId = $rootActivity->GetDocumentId();
+		$documentType = $rootActivity->GetDocumentType();
 
 		$documentService = $ownerActivity->workflow->GetService("DocumentService");
-		$document = $documentService->GetDocument($documentId);
-		$documentFields = $documentService->GetDocumentFields($documentService->GetDocumentType($documentId));
+		$document = $documentService->GetDocument($documentId, $documentType);
+		$documentFields = $documentService->GetDocumentFields($documentType);
 		$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFields);
 
 		$result = array(0 => true);
@@ -46,13 +47,14 @@ class CBPFieldCondition
 			if (array_key_exists($cond[0], $document))
 			{
 				$fld = isset($document[$cond[0]."_XML_ID"]) ? $document[$cond[0]."_XML_ID"] : $document[$cond[0]];
-				$type = $documentFields[$cond[0]]["BaseType"];
-				if ($documentFields[$cond[0]]['Type'] === 'UF:boolean')
+				$baseType = $documentFields[$cond[0]]["BaseType"];
+				$type = $documentFields[$cond[0]]["Type"];
+				if ($type === 'UF:boolean')
 				{
-					$type = 'bool';
+					$baseType = 'bool';
 				}
 
-				if (!$this->CheckCondition($cond[0], $fld, $cond[1], $cond[2], $type, $rootActivity))
+				if (!$this->CheckCondition($cond[0], $fld, $cond[1], $cond[2], $baseType, $type, $rootActivity))
 				{
 					$r = false;
 				}
@@ -72,17 +74,36 @@ class CBPFieldCondition
 		return sizeof($result) > 0 ? true : false;
 	}
 
-	private function CheckCondition($fieldName, $field, $operation, $value, $type = null, $rootActivity = null)
+	/**
+	 * @param $fieldName
+	 * @param $field
+	 * @param $operation
+	 * @param $value
+	 * @param $baseType
+	 * @param $type
+	 * @param CBPActivity $rootActivity
+	 * @return bool
+	 */
+	private function CheckCondition($fieldName, $field, $operation, $value, $baseType, $type, $rootActivity)
 	{
+		if ($operation === 'empty')
+		{
+			return CBPHelper::isEmptyValue($field);
+		}
+		elseif ($operation === '!empty')
+		{
+			return !CBPHelper::isEmptyValue($field);
+		}
+
 		$result = false;
 
-		$value = $rootActivity->ParseValue($value, $type);
-		if ($type == "user")
+		$value = $rootActivity->ParseValue($value, $baseType);
+		if ($baseType == "user")
 		{
 			$field = CBPHelper::ExtractUsersFromUserGroups($field, $rootActivity);
 			$value = CBPHelper::ExtractUsersFromUserGroups($value, $rootActivity);
 		}
-		elseif ($type == "select")
+		elseif ($baseType == "select")
 		{
 			if (is_array($field) && CBPHelper::IsAssociativeArray($field))
 				$field = array_keys($field);
@@ -160,7 +181,7 @@ class CBPFieldCondition
 			$f1 = ($fieldCount > $i) ? $field[$i] : $field[$fieldCount - 1];
 			$v1 = ($valueCount > $i) ? $value[$i] : $value[$valueCount - 1];
 
-			if ($type == "datetime" || $type == "date")
+			if ($baseType == "datetime" || $baseType == "date")
 			{
 				if (($f1Tmp = MakeTimeStamp($f1, FORMAT_DATETIME)) === false)
 				{
@@ -189,7 +210,7 @@ class CBPFieldCondition
 				$v1 = $v1Tmp;
 			}
 
-			if ($type === 'bool')
+			if ($baseType === 'bool')
 			{
 				$f1 = CBPHelper::getBool($f1);
 				$v1 = CBPHelper::getBool($v1);
@@ -201,25 +222,39 @@ class CBPFieldCondition
 				$f1 = $v1 = null;
 			}
 
+			/** @var \Bitrix\Bizproc\BaseType\Base $classType */
+			$classType = \Bitrix\Bizproc\BaseType\Base::class;
+			if ($type)
+			{
+				$fieldType = $rootActivity->workflow
+					->GetService('DocumentService')
+					->getFieldTypeObject($rootActivity->GetDocumentType(), ['Type' => $type]);
+				if ($fieldType)
+				{
+					$classType = $fieldType->getTypeClass();
+				}
+			}
+			$compareResult = $classType::compareValues($f1, $v1);
+
 			switch ($operation)
 			{
 				case ">":
-					$result = ($f1 > $v1);
+					$result = ($compareResult === 1);
 					break;
 				case ">=":
-					$result = ($f1 >= $v1);
+					$result = ($compareResult >= 0);
 					break;
 				case "<":
-					$result = ($f1 < $v1);
+					$result = ($compareResult === -1);
 					break;
 				case "<=":
-					$result = ($f1 <= $v1);
+					$result = ($compareResult <= 0);
 					break;
 				case "!=":
-					$result = ($f1 != $v1);
+					$result = ($compareResult !== 0);
 					break;
 				default:
-					$result = ($f1 == $v1);
+					$result = ($compareResult === 0);
 			}
 
 			if (!$result)
@@ -260,14 +295,6 @@ class CBPFieldCondition
 					$arCurrentValues["field_condition_condition_".$i] = $value[1];
 					$arCurrentValues["field_condition_value_".$i] = $value[2];
 					$arCurrentValues["field_condition_joiner_".$i] = $value[3];
-
-					//if ($arDocumentFieldsTmp[$arCurrentValues["field_condition_field_".$i]]["BaseType"] == "user"
-					//	&& $arDocumentFieldsTmp[$arCurrentValues["field_condition_field_".$i]]["Type"] != 'S:employee')
-					//{
-					//	if (!is_array($arCurrentValues["field_condition_value_".$i]))
-					//		$arCurrentValues["field_condition_value_".$i] = array($arCurrentValues["field_condition_value_".$i]);
-					//	$arCurrentValues["field_condition_value_".$i] = CBPHelper::UsersArrayToString($arCurrentValues["field_condition_value_".$i], $arWorkflowTemplate, $documentType);
-					//}
 
 					$i++;
 				}
@@ -381,4 +408,3 @@ class CBPFieldCondition
 		return $arResult;
 	}
 }
-?>

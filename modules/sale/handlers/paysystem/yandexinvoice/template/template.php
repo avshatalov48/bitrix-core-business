@@ -32,20 +32,21 @@ foreach ($_POST as $key => $value)
 	}
 }
 ?>
-<div>
-	<span><?=Loc::getMessage('SALE_HPS_YANDEX_INVOICE_MESSAGE');?></span>
-	<form action="" method="post">
-		<?bitrix_sessid_post()?>
-		<?foreach ($post as $key => $value):?>
-			<input type="hidden" name="<?= $key ?>" value="<?= $value ?>">
-		<?endforeach;?>
+<p><?=Loc::getMessage('SALE_HPS_YANDEX_INVOICE_MESSAGE');?></>
+<form action="" method="post" class="form-inline">
+	<?bitrix_sessid_post()?>
+	<?foreach ($post as $key => $value):?>
+		<input type="hidden" name="<?= $key ?>" value="<?= $value ?>">
+	<?endforeach;?>
 
-		<input type="hidden" name="payment_id" value="<?=$params['PAYMENT_ID']?>">
-		<input type="hidden" name="accountNumber" value="<?=$params['ACCOUNT_NUMBER']?>">
-		<input type="hidden" name="paySystemId" value="<?=$params['PAYSYSTEM_ID']?>">
-		<input type="hidden" name="initiate_pay" value="Y">
+	<input type="hidden" name="payment_id" value="<?=$params['PAYMENT_ID']?>">
+	<input type="hidden" name="accountNumber" value="<?=$params['ACCOUNT_NUMBER']?>">
+	<input type="hidden" name="paySystemId" value="<?=$params['PAYSYSTEM_ID']?>">
+	<input type="hidden" name="initiate_pay" value="Y">
 
-		<input type="text" name="phone" value="<?=$params['BUYER_PERSON_COMPANY_PHONE']?>" style="margin-top: 5px;">
-		<input type="submit" style="margin-top: 5px;" name="send" value="<?=Loc::getMessage('SALE_HPS_YANDEX_INVOICE_SEND');?>">
-	</form>
-</div>
+	<div class="form-group mr-sm-3">
+		<input type="text" class="form-control " name="phone" value="<?=$params['BUYER_PERSON_COMPANY_PHONE']?>">
+	</div>
+
+	<input type="submit" class="btn btn-primary" name="send" value="<?=Loc::getMessage('SALE_HPS_YANDEX_INVOICE_SEND');?>">
+</form>

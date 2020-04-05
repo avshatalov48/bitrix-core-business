@@ -467,11 +467,11 @@ elseif ($queryType == "coupon")
 elseif ($queryType == "stability")
 {
 	$stability = $APPLICATION->UnJSEscape($_REQUEST["STABILITY"]);
-	if (!in_array($stability, array("Y", "N")))
+	if (!in_array($stability, array("Y", "N")) && !is_numeric($stability))
 		$errorMessage .= GetMessage("SUPA_ASTE_FLAG").". ";
 	
 	if (StrLen($errorMessage) <= 0)
-		COption::SetOptionString("main", "stable_versions_only", (($stability == "Y") ? "N" : "Y"));
+		COption::SetOptionString("main", "stable_versions_only", $stability);
 
 	if (StrLen($errorMessage) <= 0)
 		echo "Y";

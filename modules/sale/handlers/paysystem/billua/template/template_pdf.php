@@ -83,12 +83,14 @@ if ($params['BILLUA_SELLER_SHOW'] == 'Y')
 			$sellerAddr = str_replace(array("\r\n", "\n", "\r"), ', ', strval($sellerAddr));
 	}
 
+	$string = sprintf(Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_ADDRESS').': %s', $sellerAddr);
+	if ($params["SELLER_COMPANY_PHONE"])
+	{
+		$string .= ', '.sprintf(Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_PHONE').': %s', $params["SELLER_COMPANY_PHONE"]);
+	}
+
 	$pdf->Cell($title_width, 15, '');
-	$pdf->MultiCell(0, 15, CSalePdf::prepareToPdf(sprintf(
-		Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_ADDRESS').': %s, '.Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_PHONE').': %s',
-		$sellerAddr,
-		$params["SELLER_COMPANY_PHONE"]
-	)));
+	$pdf->MultiCell(0, 15, CSalePdf::prepareToPdf($string));
 
 	$pdf->Cell($title_width, 15, '');
 

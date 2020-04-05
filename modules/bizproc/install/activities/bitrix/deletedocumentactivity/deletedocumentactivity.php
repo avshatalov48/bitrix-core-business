@@ -12,8 +12,7 @@ class CBPDeleteDocumentActivity
 
 	public function Execute()
 	{
-		$rootActivity = $this->GetRootActivity();
-		$documentId = $rootActivity->GetDocumentId();
+		$documentId = $this->GetDocumentId();
 
 		$documentService = $this->workflow->GetService("DocumentService");
 		$documentService->DeleteDocument($documentId);

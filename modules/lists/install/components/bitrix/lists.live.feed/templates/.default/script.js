@@ -911,7 +911,7 @@ BX.Lists.LiveFeedClass = (function ()
 			BX.bind(BX('blog-submit-button-save'), 'click', submitBlogPostForm());
 		}
 
-		BX.addClass(BX('blog-submit-button-save'), 'feed-add-button-load');
+		BX.addClass(BX('blog-submit-button-save'), 'ui-btn-clock');
 		var lists = BX.findChildrenByClassName(BX('bx-lists-store-lists'), 'bx-lists-input-list');
 		for (var i = 0; i < lists.length; i++)
 		{
@@ -938,7 +938,7 @@ BX.Lists.LiveFeedClass = (function ()
 					}
 					else
 					{
-						BX.removeClass(BX('blog-submit-button-save'), 'feed-add-button-load');
+						BX.removeClass(BX('blog-submit-button-save'), 'ui-btn-clock');
 						BX('bx-lists-block-errors').innerHTML = result.errors.pop().message;
 						BX.show(BX('bx-lists-block-errors'));
 						BX.bind(BX('blog-submit-button-save'), 'click', BX.proxy(function(e) {
@@ -948,7 +948,7 @@ BX.Lists.LiveFeedClass = (function ()
 				}
 				else
 				{
-					BX.removeClass(BX('blog-submit-button-save'), 'feed-add-button-load');
+					BX.removeClass(BX('blog-submit-button-save'), 'ui-btn-clock');
 					BX('bx-lists-block-errors').innerHTML = startResult;
 					BX.show(BX('bx-lists-block-errors'));
 					BX.bind(BX('blog-submit-button-save'), 'click', BX.proxy(function(e) {

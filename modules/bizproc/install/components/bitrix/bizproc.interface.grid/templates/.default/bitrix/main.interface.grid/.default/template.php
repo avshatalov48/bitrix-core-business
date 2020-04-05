@@ -2,9 +2,6 @@
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 
-global $APPLICATION;
-$APPLICATION->SetPageProperty("BodyClass", "flexible-layout");
-
 //color schemes
 $arThemes = CGridOptions::GetThemes($this->GetFolder());
 if(!empty($arParams["FILTER"])):

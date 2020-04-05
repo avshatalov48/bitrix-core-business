@@ -1,4 +1,5 @@
 <?
+$MESS["MAIN_OPTION_CLEAR_CACHE_LANDING"] = "Sites24";
 $MESS["MCACHE_TITLE"] = "Cache Settings";
 $MESS["MAIN_TAB_3"] = "Delete Cache Files";
 $MESS["MAIN_TAB_4"] = "Component caching";

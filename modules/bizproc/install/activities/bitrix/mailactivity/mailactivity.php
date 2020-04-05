@@ -170,15 +170,17 @@ class CBPMailActivity extends CBPActivity
 			'MailUserTo' => array(
 				'Name' => GetMessage('BPMA_MAIL_USER_TO'),
 				'FieldName' => 'mail_user_to',
-				'Type' => 'string',
+				'Type' => 'user',
 				'Required' => true,
+				'Multiple' => true,
 				'Getter' => static::getMailUserPropertyGetter(),
-				'Default' => 'author'
+				'Default' => \Bitrix\Bizproc\Automation\Helper::getResponsibleUserExpression($documentType)
 			),
 			'MailSubject' => array(
 				'Name' => GetMessage('BPMA_MAIL_SUBJECT'),
+				'Description' => GetMessage('BPMA_MAIL_SUBJECT'),
 				'FieldName' => 'mail_subject',
-				'Type' => 'text',
+				'Type' => 'string',
 				'Required' => true
 			),
 			'MailText' => array(

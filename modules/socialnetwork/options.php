@@ -1100,7 +1100,7 @@ $tabControl->BeginNextTab();
 				foreach($arToAllRights as $right)
 				{
 					?><input type="hidden" name="<?echo htmlspecialcharsbx($Option[0])?>[]" id="<?echo htmlspecialcharsbx($Option[0]."_".$right)?>" value="<?=htmlspecialcharsbx($right)?>"><?
-					?><div data-bx-right="<?=$right?>" class="toall-right"><span><?=(!empty($arNames[$right]["provider"]) ? $arNames[$right]["provider"].": " : "").$arNames[$right]["name"]?>&nbsp;</span><a href="javascript:void(0);" onclick="DeleteToAllAccessRow(this);" class="access-delete" title="<?=GetMessage("SONET_LOG_TOALL_DEL")?>"></a></div><?
+					?><div data-bx-right="<?=htmlspecialcharsbx($right)?>" class="toall-right"><span><?=(!empty($arNames[$right]["provider"]) ? $arNames[$right]["provider"].": " : "").$arNames[$right]["name"]?>&nbsp;</span><a href="javascript:void(0);" onclick="DeleteToAllAccessRow(this);" class="access-delete" title="<?=GetMessage("SONET_LOG_TOALL_DEL")?>"></a></div><?
 				}
 				?></div><?
 				?><script>

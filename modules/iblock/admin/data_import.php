@@ -293,6 +293,7 @@ class CAssocData extends CCSVData
 		$result = array();
 		while (true)
 		{
+			$stop_processing = false;
 			// this array is path to element
 			$arGroupsTmp = array();
 			for ($i = 0; $i < $NUM_CATALOG_LEVELS; $i++)
@@ -318,11 +319,14 @@ class CAssocData extends CCSVData
 					if (strlen($arGroupsTmp1["NAME"]) <= 0)
 						$arGroupsTmp1["NAME"] = GetMessage("IBLOCK_ADM_IMP_NOMAME");
 
-					$arGroupsTmp[] = $arGroupsTmp1;
+					if (!$stop_processing)
+					{
+						$arGroupsTmp[] = $arGroupsTmp1;
+					}
 				}
 				else
 				{
-					break;
+					$stop_processing = true;
 				}
 			}
 
@@ -720,6 +724,8 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 				//Preserve existing sections
 				if(empty($arLoadProductArray["IBLOCK_SECTION"]))
 					unset($arLoadProductArray["IBLOCK_SECTION"]);
+				else
+					$arLoadProductArray["IBLOCK_SECTION_ID"] = key($arLoadProductArray["IBLOCK_SECTION"]);
 
 				$bThereIsGroups |= !empty($arLoadProductArray["IBLOCK_SECTION"]);
 				foreach ($arIBlockAvailProdFields as $key => $arField)
@@ -1319,8 +1325,16 @@ if ($STEP == 2)
 		)
 		{
 			$f = $io->GetFile($_SERVER["DOCUMENT_ROOT"].$FILE_NAME);
-			$file_id = $f->open("rb");
-			$sContent = fread($file_id, 10000);
+			$file_id = $f->open("r");
+			$sContent = '';
+			$lContent = 0;
+			while (($line = fgets($file_id)) !== false)
+			{
+				$sContent .= $line;
+				$lContent += strlen($line);
+				if ($lContent > 10000)
+					break;
+			}
 			fclose($file_id);
 		}
 	}
@@ -1483,8 +1497,16 @@ if ($STEP == 3)
 		)
 		{
 			$f = $io->GetFile($_SERVER["DOCUMENT_ROOT"].$FILE_NAME);
-			$file_id = $f->open("rb");
-			$sContent = fread($file_id, 10000);
+			$file_id = $f->open("r");
+			$sContent = '';
+			$lContent = 0;
+			while (($line = fgets($file_id)) !== false)
+			{
+				$sContent .= $line;
+				$lContent += strlen($line);
+				if ($lContent > 10000)
+					break;
+			}
 			fclose($file_id);
 		}
 	}

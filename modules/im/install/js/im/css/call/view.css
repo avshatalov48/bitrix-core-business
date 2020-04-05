@@ -1,0 +1,994 @@
+.bx-messenger-videocall {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+.bx-messenger-content-item-call {
+	text-align: center;
+	padding: 80px 0 27px;
+}
+
+.bx-messenger-content-call-title {
+	color: #3d3d3e;
+	font-size: 13px;
+	line-height: 17px;
+	margin-bottom: 12px;
+}
+
+.bx-messenger-content-item-call .bx-messenger-content-item-content {
+	padding: 11px 32px 16px;
+}
+
+.bx-messenger-content-call {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.bx-messenger-content-call-btn-block {
+	font-size: 0;
+}
+
+/*Call small window*/
+.bx-messenger-call-window {
+	background: #37404b;
+	border-radius: 4px;
+	width: 655px;
+	height: 125px;
+	margin: -11px;
+	box-sizing: border-box;
+	padding: 16px 30px 16px 23px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, .23);
+}
+
+.im-desktop-popup .bx-messenger-call-window {
+	margin: initial;
+}
+
+.bx-messenger-call-window-body, .bx-messenger-call-window-buttons-block {
+	display: flex;
+	align-items: center;
+}
+
+.bx-messenger-call-window-photo-left {
+	margin-right: 28px;
+}
+
+.bx-messenger-call-window-title-block {
+	overflow: hidden;
+	margin-bottom: 20px;
+	max-width: 450px;
+	color: rgba(255, 255, 255, .8);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 15px;
+	line-height: 23px;
+}
+
+.bx-messenger-call-overlay-title-caller {
+	color: #fff;
+	font-size: 22px;
+	line-height: 30px;
+	margin-left: 11px;
+}
+
+.bx-messenger-call-window-photo-block {
+	width: 93px;
+	height: 93px;
+	border-radius: 50%;
+	overflow: hidden;
+}
+
+.bx-messenger-call-window-overlay {
+	height: 100%;
+	left: 0;
+	right: 0;
+	top: 0;
+	position: fixed;
+	z-index: 999;
+	background: rgba(0, 0, 0, 0.4);
+}
+
+.bx-messenger-call-window-overlay-photo-img {
+	max-width: 100%;
+	height: auto;
+}
+
+/*Videocall window */
+
+.bx-messenger-videocall-video-block {
+	position: relative;
+	margin-bottom: 0;
+	height: 100%;
+	overflow: hidden;
+}
+
+.bx-messenger-videocall-video {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.bx-messenger-videocall-video-vertical {
+	object-fit: contain;
+}
+
+.bx-messenger-videocall-wrap {
+	background: #2a3038;
+	position: relative;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.bx-messenger-videocall-inner {
+	padding: 0;
+	height: 100%;
+}
+
+.bx-messenger-videocall-watermark {
+	position: absolute;
+	top: 18px;
+	left: 25px;
+	z-index: 10;
+}
+
+.bx-messenger-videocall-detail {
+	position: absolute;
+	bottom: 9px;
+	left: 50%;
+	-webkit-transform: translate(-50%, -50%);
+	-moz-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	-o-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	display: flex;
+	align-items: center;
+}
+
+.bx-messenger-videocall-detail-add {
+	width: 36px;
+	height: 35px;
+	border: 1px solid rgba(151, 151, 151, .4);
+	border-radius: 50%;
+	background: rgba(255, 255, 255, .6) url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2215%22%20height%3D%2215%22%20viewBox%3D%220%200%2015%2015%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20opacity%3D%220.491295%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M9%200H6V6H0V9H6V15H9V9H15V6H9V0Z%22%20fill%3D%22%23333333%22/%3E%0A%3C/svg%3E%0A)
+				no-repeat center;
+	box-sizing: border-box;
+	cursor: pointer;
+	transition: all .2s linear;
+}
+
+.bx-messenger-videocall-detail-add:hover {
+	background-color: rgba(255, 255, 255, .9);
+}
+
+.bx-messenger-videocall-detail-inner {
+	display: flex;
+	height: 39px;
+	-webkit-border-radius: 30px;
+	-moz-border-radius: 30px;
+	border-radius: 30px;
+	background: rgba(82, 92, 105, .6);
+	align-items: center;
+	padding: 0 23px 0 21px;
+	margin-right: 11px;
+}
+
+.bx-messenger-videocall-detail-text {
+	color: #edeef0;
+	font-size: 13px;
+	line-height: 19px;
+}
+
+.bx-messenger-videocall-detail-user {
+	color: #fff;
+	font-size: 14px;
+	line-height: 20px;
+	text-decoration: none;
+}
+
+.bx-messenger-videocall-detail-user:hover {
+	color: #fff;
+}
+
+.bx-messenger-videocall-detail-img-inner {
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	overflow: hidden;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20viewBox%3D%220%200%2089%2089%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Ccircle%20fill%3D%22%23535C69%22%20cx%3D%2244.5%22%20cy%3D%2244.5%22%20r%3D%2244.5%22/%3E%3Cpath%20d%3D%22M68.18%2071.062c0-3.217-3.61-16.826-3.61-16.826%200-1.99-2.6-4.26-7.72-5.585a17.363%2017.363%200%200%201-4.887-2.223c-.33-.188-.28-1.925-.28-1.925l-1.648-.25c0-.142-.14-2.225-.14-2.225%201.972-.663%201.77-4.574%201.77-4.574%201.252.695%202.068-2.4%202.068-2.4%201.482-4.3-.738-4.04-.738-4.04a27.076%2027.076%200%200%200%200-7.918c-.987-8.708-15.847-6.344-14.085-3.5-4.343-.8-3.352%209.082-3.352%209.082l.942%202.56c-1.85%201.2-.564%202.65-.5%204.32.09%202.466%201.6%201.955%201.6%201.955.093%204.07%202.1%204.6%202.1%204.6.377%202.556.142%202.12.142%202.12l-1.786.217a7.147%207.147%200%200%201-.14%201.732c-2.1.936-2.553%201.485-4.64%202.4-4.032%201.767-8.414%204.065-9.193%207.16-.78%203.093-3.095%2015.32-3.095%2015.32H68.18z%22%20fill%3D%22%23FFF%22/%3E%3C/g%3E%3C/svg%3E');
+	background-repeat: no-repeat;
+	margin: 0 5px 0 10px;
+}
+
+.bx-messenger-videocall-panel {
+	background: rgba(64, 71, 81, .6);
+	height: 60px;
+	padding: 0 6px;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 2;
+}
+
+.bx-messenger-videocall-panel.bx-messenger-videocall-panel-folded {
+	height: 60px;
+}
+
+.bx-messenger-videocall-panel-inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 100%;
+	padding-top: 4px;
+	box-sizing: border-box;
+}
+
+.bx-messenger-videocall-panel-block {
+	display: flex;
+	align-items: center;
+}
+
+.bx-messenger-videocall-panel-text {
+	text-transform: uppercase;
+	font: 8px/16px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: rgba(255, 255, 255, .8);
+	opacity: .7;
+}
+
+.bx-messenger-videocall-panel-title {
+	color: rgba(255, 255, 255, 0.8);
+	font-size: 15px;
+	padding-left: 11px;
+}
+
+.bx-messenger-videocall-panel-title-name {
+	color: #ffffff;
+}
+
+.bx-messenger-videocall-panel-item {
+	width: 50px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	cursor: pointer;
+}
+
+.bx-messenger-videocall-panel-item:hover .bx-messenger-videocall-panel-icon {
+	opacity: 1;
+}
+
+.bx-messenger-videocall-panel-item + .bx-messenger-videocall-panel-item {
+	margin-left: 5px;
+}
+
+.bx-messenger-videocall-panel-item-btn {
+	width: 100%;
+	opacity: .9;
+}
+
+.ui-btn.bx-messenger-videocall-panel-btn {
+	background: transparent;
+	border: 1px solid rgba(255, 255, 255, .5);
+	color: #fff;
+	padding-left: 44px;
+	position: relative;
+	height: 31px;
+	line-height: 31px;
+}
+
+.ui-btn.bx-messenger-videocall-panel-btn:hover {
+	border-color: rgba(255, 255, 255, .5);
+}
+
+.ui-btn.bx-messenger-videocall-panel-btn:after {
+	position: absolute;
+	top: 50%;
+	left: 12px;
+	display: block;
+	width: 26px;
+	height: 26px;
+	background: no-repeat center;
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2226%22%20height%3D%2226%22%20viewBox%3D%220%200%2026%2026%22%3E%3Cpath%20fill%3D%22%23D2000D%22%20d%3D%22M22.8481%2C15.16722%20C22.8481%2C16.02684%2021.6505%2C17.39561%2021.4184%2C17.17779%20C21.1862%2C16.95997%2017.5837%2C15.59658%2017.3515%2C15.37966%20C17.1469%2C14.65842%2017.0678%2C13.90738%2017.1176%2C13.15934%20C17.1176%2C12.71115%2013.49082%2C12.48078%2013.4218%2C12.4763%20C13.35278%2C12.47182%209.72694%2C12.70308%209.72784%2C13.15217%20C9.77926%2C13.89972%209.70133%2C14.65054%209.49747%2C15.37159%20C9.26531%2C15.58851%205.66636%2C16.94563%205.4342%2C17.16434%20C5.20204%2C17.38306%204%2C16.01071%204%2C15.15108%20C4%2C14.41695%204.553064%2C11.18104%2010.11866%2C10.259562%20C11.20309%2C10.0495235%2012.3083%2C9.9664977%2013.41194%2C10.012162%20L13.42449%2C10.012162%20C14.5284%2C9.9684738%2015.6336%2C10.0536063%2016.7178%2C10.265836%20C22.2879%2C11.19627%2022.8481%2C14.43309%2022.8481%2C15.16722%20Z%22/%3E%3C/svg%3E);
+	content: '';
+	transition: 160ms color linear, 160ms transform linear, 160ms opacity linear, 160ms background-color linear;
+	box-sizing: border-box;
+}
+
+.bx-messenger-videocall-panel-icon {
+	display: block;
+	width: 20px;
+	height: 20px;
+	position: relative;
+	background-position: center;
+	background-repeat: no-repeat;
+	transition: all .1s linear;
+	opacity: .7;
+}
+
+.bx-messenger-videocall-panel-arrow {
+	position: absolute;
+	width: 10px;
+	height: 10px;
+	cursor: pointer;
+	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%226%22%20height%3D%223%22%20viewBox%3D%220%200%206%203%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20opacity%3D%221%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M2.5%203L0%200H5L2.5%203Z%22%20transform%3D%22translate%280.289062%29%22%20fill%3D%22%23D8D8D8%22/%3E%0A%3C/svg%3E%0A)
+	no-repeat center;
+	top: 5px;
+	right: -13px;
+	opacity: .5;
+	transition: all .2s linear;
+}
+
+.bx-messenger-videocall-panel-arrow:hover {
+	opacity: 1;
+}
+
+.bx-messenger-videocall-panel-icon-grid {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2215%22%20height%3D%2215%22%20viewBox%3D%220%200%2015%2015%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20opacity%3D%221%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M6%200H0V6H6V0ZM6%209H0V15H6V9ZM9%200H15V6H9V0ZM15%209H9V15H15V9Z%22%20fill%3D%22white%22/%3E%0A%3C/svg%3E%0A);
+}
+
+.bx-messenger-videocall-panel-icon-add {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2215%22%20height%3D%2215%22%20viewBox%3D%220%200%2015%2015%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M9%200H6V6H0V9H6V15H9V9H15V6H9V0Z%22%20fill%3D%22%23fff%22/%3E%0A%3C/svg%3E%0A);
+}
+
+.bx-messenger-videocall-panel-icon-link {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2216%22%20height%3D%2215%22%20viewBox%3D%220%200%2016%2015%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20opacity%3D%221%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M13.8353%206.7963L11.0195%209.61122C9.46533%2011.1663%206.94414%2011.1663%205.38975%209.61122C5.1449%209.36707%204.95336%209.09197%204.78516%208.80827L6.09352%207.5C6.15572%207.43728%206.23252%207.40135%206.3059%207.35901C6.39636%207.66805%206.55426%207.96061%206.7973%208.20368C7.57344%208.98044%208.83638%208.97936%209.61207%208.20368L12.427%205.38882C13.2038%204.61215%2013.2038%203.34951%2012.427%202.57344C11.6513%201.79736%2010.3887%201.79736%209.61207%202.57344L8.61107%203.57552C7.79876%203.25922%206.92359%203.17419%206.07163%203.29903L8.20468%201.16606C9.75973%20-0.388686%2012.2803%20-0.388686%2013.8353%201.16606C15.3896%202.72074%2015.3896%205.24165%2013.8353%206.7963ZM6.39041%2011.4248L5.38869%2012.4269C4.61261%2013.2026%203.3496%2013.2026%202.57339%2012.4269C1.79725%2011.6501%201.79725%2010.3875%202.57339%209.61105L5.38869%206.79613C6.16539%206.01953%207.42754%206.01953%208.20362%206.79613C8.4461%207.03867%208.60417%207.33117%208.69547%207.63981C8.76929%207.59692%208.84514%207.56206%208.9073%207.4998L10.2156%206.19206C10.0484%205.90725%209.85592%205.63313%209.61098%205.38871C8.05698%203.83397%205.53556%203.83397%203.98081%205.38871L1.16594%208.20367C-0.388647%209.75887%20-0.388647%2012.2791%201.16594%2013.8341C2.72069%2015.3884%205.24152%2015.3884%206.79624%2013.8341L8.92985%2011.7007C8.07743%2011.8263%207.20203%2011.7405%206.39041%2011.4248Z%22%20fill%3D%22white%22/%3E%0A%3C/svg%3E%0A);
+}
+
+.bx-messenger-videocall-panel-icon-microphone {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2214%22%20height%3D%2219%22%20viewBox%3D%220%200%2014%2019%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20opacity%3D%221%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M8.16694%2016.3597V18.1197H8.37282C8.58025%2018.1135%208.7754%2018.196%208.88146%2018.3347C8.98753%2018.4734%208.98753%2018.646%208.88146%2018.7847C8.7754%2018.9233%208.58025%2019.0058%208.37282%2018.9997H5.62718C5.41975%2019.0058%205.2246%2018.9233%205.11854%2018.7847C5.01248%2018.646%205.01248%2018.4734%205.11854%2018.3347C5.2246%2018.196%205.41975%2018.1135%205.62718%2018.1197H5.83306V16.3597C2.80412%2016.3597%200.315412%2013.5634%200.0288235%2011.2428L0%2010.8025V9.88278C0.0167987%209.39149%200.534119%209%201.16653%209C1.79894%209%202.31626%209.39149%202.33306%209.88278V10.8025C2.41501%2012.7596%204.48028%2014.3132%207%2014.3132C9.51972%2014.3132%2011.585%2012.7596%2011.6669%2010.8025V9.88278C11.6837%209.39149%2012.2011%209%2012.8335%209C13.4659%209%2013.9832%209.39149%2014%209.88278V11.2428C13.6838%2013.5634%2011.1959%2016.3597%208.16694%2016.3597ZM4%209.03414V2.95514C4.05437%201.30724%205.38146%200%207%200C8.61854%200%209.94563%201.30724%2010%202.95514V9.03414C9.97493%2010.6967%208.63209%2012.0242%207%2011.9997C5.36791%2012.0242%204.02507%2010.6967%204%209.03414Z%22%20fill%3D%22white%22/%3E%0A%3C/svg%3E%0A);
+}
+
+.bx-messenger-videocall-panel-icon-microphone-off {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2217%22%20height%3D%2219%22%20viewBox%3D%220%200%2017%2019%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20opacity%3D%221%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M5.34375%202.96875V4.26172L11.1719%2010.0898C11.2891%209.77344%2011.3555%209.42969%2011.3633%209.07031V2.96875C11.3086%201.3125%209.97656%200%208.35156%200C6.73047%200%205.39844%201.3125%205.34375%202.96875ZM8.23047%2014.1328H8.28516L10.293%2016.1406C9.97656%2016.2188%209.64844%2016.2578%209.3125%2016.2578V18.0859H9.50391C9.69922%2018.0781%209.87891%2018.1641%209.97656%2018.3086C10.0234%2018.3789%2010.0469%2018.4609%2010.0469%2018.5391C10.0508%2018.6211%2010.0273%2018.7031%209.97656%2018.7773C9.87891%2018.9219%209.69922%2019.0078%209.50391%2019H6.95703C6.76172%2019.0078%206.58203%2018.9219%206.48438%2018.7773C6.4375%2018.707%206.41406%2018.625%206.41406%2018.5469C6.41016%2018.4648%206.43359%2018.3828%206.48438%2018.3086C6.51172%2018.2695%206.54297%2018.2344%206.58203%2018.2031L6.68359%2018.1406C6.76562%2018.1016%206.85938%2018.082%206.95703%2018.0859H7.14844V16.2578C5.44922%2016.2578%203.92969%2015.1953%202.9375%2013.8242C2.61719%2013.3789%202.35156%2012.9062%202.15234%2012.4258C1.94531%2011.9297%201.8125%2011.4258%201.75781%2010.9414L1.73047%2010.4844V9.53125C1.74609%209.03125%202.19922%208.63281%202.76562%208.61328H2.8125L3.89844%209.74609V10.4844C3.92188%2011.125%204.12891%2011.7266%204.47656%2012.2461C5.22656%2013.375%206.62891%2014.1328%208.23047%2014.1328ZM12.418%2011.3359L14.0586%2012.9766C14.4141%2012.3086%2014.6484%2011.6055%2014.7305%2010.9414V9.53125C14.7188%209.17578%2014.4844%208.87109%2014.1445%208.71875C13.9961%208.65234%2013.8281%208.61328%2013.6484%208.61328C13.0586%208.61328%2012.5781%209.01953%2012.5625%209.53125V10.4844C12.5508%2010.7773%2012.5%2011.0625%2012.418%2011.3359ZM0.191406%202.45703C-0.0625%202.71094%20-0.0625%203.125%200.191406%203.37891L15.0664%2018.2539C15.3203%2018.5078%2015.7305%2018.5078%2015.9844%2018.2539C16.2383%2018%2016.2383%2017.5898%2015.9844%2017.3359L1.10938%202.45703C0.855469%202.20312%200.445312%202.20312%200.191406%202.45703Z%22%20transform%3D%22translate%280.269531%29%22%20fill%3D%22white%22/%3E%0A%3C/svg%3E%0A);
+}
+
+.bx-messenger-videocall-panel-icon-camera {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2219%22%20height%3D%2212%22%20viewBox%3D%220%200%2019%2012%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20opacity%3D%2201%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M1%200C0.449219%200%200%200.449219%200%201V11C0%2011.5508%200.449219%2012%201%2012H13C13.5508%2012%2014%2011.5508%2014%2011V1C14%200.621094%2013.7891%200.289062%2013.4766%200.121094C13.3359%200.0429688%2013.1719%200%2013%200H1ZM15.1797%203.32031C15.0703%203.36719%2015%203.47656%2015%203.59375V8.40625C15%208.52344%2015.0703%208.63281%2015.1797%208.67969L18.582%2010.1523C18.7773%2010.2383%2019%2010.0938%2019%209.87891V2.12109C19%201.90625%2018.7773%201.76172%2018.582%201.84766L15.1797%203.32031Z%22%20fill%3D%22white%22/%3E%0A%3C/svg%3E%0A);
+}
+
+.bx-messenger-videocall-panel-icon-camera-off {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2221%22%20height%3D%2217%22%20viewBox%3D%220%200%2021%2017%22%3E%0A%20%20%3Cpath%20fill%3D%22%23FFFFFF%22%20fill-rule%3D%22evenodd%22%20d%3D%22M65.4551553%2C2%20L73.8813799%2C2%20C74.4336647%2C2%2074.8813799%2C2.44771525%2074.8813799%2C3%20L74.8813799%2C11.4262247%20L65.4551553%2C2%20Z%20M70.5255088%2C14%20L62%2C14%20C61.4477153%2C14%2061%2C13.5522847%2061%2C13%20L61%2C4.4744912%20L70.5255088%2C14%20Z%20M76.0664841%2C5.13166498%20L80.593577%2C3.41399902%20C80.7484869%2C3.35522324%2080.9217134%2C3.43315532%2080.9804891%2C3.58806519%20C80.9933889%2C3.62206386%2081%2C3.65812453%2081%2C3.69448815%20L81%2C12.5516879%20C81%2C12.7173734%2080.8656854%2C12.8516879%2080.7%2C12.8516879%20C80.6636364%2C12.8516879%2080.6275757%2C12.8450768%2080.593577%2C12.8321771%20L76.0664841%2C11.1145111%20C75.9499607%2C11.0702999%2075.8729071%2C10.9586508%2075.8729071%2C10.834022%20L75.8729071%2C5.41215411%20C75.8729071%2C5.2875253%2075.9499607%2C5.17587621%2076.0664841%2C5.13166498%20Z%20M60.4596194%2C0.459619408%20C60.7134602%2C0.205778618%2061.1250174%2C0.205778618%2061.3788582%2C0.459619408%20L76.2552938%2C15.336055%20C76.5091346%2C15.5898958%2076.5091346%2C16.001453%2076.2552938%2C16.2552938%20C76.001453%2C16.5091346%2075.5898958%2C16.5091346%2075.336055%2C16.2552938%20L60.4596194%2C1.37885822%20C60.2057786%2C1.12501743%2060.2057786%2C0.713460197%2060.4596194%2C0.459619408%20Z%22%20opacity%3D%221%22%20transform%3D%22translate%28-60%29%22/%3E%0A%3C/svg%3E%0A);
+}
+
+.bx-messenger-videocall-panel-icon-screen {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2217%22%20height%3D%2215%22%20viewBox%3D%220%200%2017%2015%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cg%20opacity%3D%221%22%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M1.01953%200C0.457031%200%200%200.457031%200%201.01953V11.9805C0%2012.3516%200.199219%2012.6758%200.496094%2012.8516C0.648438%2012.9453%200.828125%2013%201.01953%2013H15.9805C16.543%2013%2017%2012.543%2017%2011.9805V1.01953C17%200.664062%2016.8164%200.347656%2016.5391%200.167969C16.3789%200.0625%2016.1875%200%2015.9805%200H1.01953ZM15%202H2V11H15V2Z%22%20fill%3D%22white%22/%3E%0A%3Crect%20width%3D%229.04255%22%20height%3D%222.9597%22%20rx%3D%220.5%22%20transform%3D%22translate%284.01562%2014.9219%29%20scale%281%20-1%29%22%20fill%3D%22white%22/%3E%0A%3C/g%3E%0A%3C/svg%3E%0A);
+}
+
+.bx-messenger-videocall-panel-icon-chat {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2219%22%20height%3D%2217%22%20viewBox%3D%220%200%2019%2017%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M1.30078%200C0.582031%200%200%200.582031%200%201.30078V7.69922C0%208.41797%200.582031%209%201.30078%209H3V12L6%209H11.6992C12.418%209%2013%208.41797%2013%207.69922V1.30078C13%200.582031%2012.418%200%2011.6992%200H1.30078Z%22%20fill%3D%22white%22/%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M0%207.875V8.69922C0%209.09766%200.175781%209.45312%200.457031%209.69141C0.6875%209.88281%200.980469%2010%201.30078%2010H7L10%2013V10H10.6992C11.418%2010%2012%209.41797%2012%208.69922V1.30078C12%200.855469%2011.7773%200.464844%2011.4375%200.230469C11.2266%200.0859375%2010.9727%200%2010.6992%200H7.60156V6.57422C7.60156%207.29297%207.01953%207.875%206.30078%207.875H0Z%22%20transform%3D%22translate%287%203%29%22%20fill%3D%22white%22/%3E%0A%3C/svg%3E%0A);
+}
+
+.bx-messenger-videocall-panel-icon-history {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2216%22%20viewBox%3D%220%200%2020%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cg%20opacity%3D%221%22%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M7.99219%2016C12.4141%2016%2016%2012.418%2016%208C16%203.58203%2012.4141%200%207.99219%200C5.27344%200%202.87109%201.35547%201.42188%203.42188C0.605469%204.58984%200.09375%205.98438%200%207.49609H2.01562C2.10547%206.40234%202.49219%205.39453%203.08984%204.54688C4.17578%203.01172%205.96484%202.01172%207.98828%202.01172C11.3008%202.01172%2013.9844%204.69141%2013.9844%208C13.9844%2011.3047%2011.3008%2013.9883%207.98828%2013.9883C7.83984%2013.9883%207.69141%2013.9844%207.54297%2013.9727V15.9883C7.69141%2015.9961%207.83984%2016%207.99219%2016Z%22%20transform%3D%22translate%284%29%22%20fill%3D%22white%22/%3E%0A%3Cpath%20d%3D%22M0%200H2V5H0V0Z%22%20transform%3D%22translate%2811%205%29%22%20fill%3D%22white%22/%3E%0A%3Cpath%20d%3D%22M0%200H2V2H0V0Z%22%20transform%3D%22translate%2813%208%29%22%20fill%3D%22white%22/%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M0%200L6.42337%206.27645H0V0Z%22%20transform%3D%22translate%280.964844%206.59375%29%20rotate%28-43.9632%29%22%20fill%3D%22white%22/%3E%0A%3C/g%3E%0A%3C/svg%3E%0A);
+}
+
+.bx-messenger-videocall-panel-icon-resize {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2014%2014%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20opacity%3D%221%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M-0.0773398%204.07691L3.92223%200.0773398L8.07372%204.22883L5.18177%204.17635L5.179%2013.8687L8.07372%2013.9239L4.07415%2017.9235L-0.0773398%2013.772L2.74004%2013.8273V4.13216L-0.0773398%204.07691Z%22%20transform%3D%22translate%2810.5352%20-2.19141%29%20rotate%2845%29%22%20fill%3D%22%23fff%22/%3E%0A%3C/svg%3E%0A);
+}
+
+.bx-messenger-videocall-panel-icon-sound {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2212%22%20height%3D%2218%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M3.868%204.676v-.072a.3.3%200%200%201%20.137-.251l6.65-4.305a.3.3%200%200%201%20.462.252v16.461a.3.3%200%200%201-.463.252L4.005%2012.71a.3.3%200%200%201-.134-.21H.7a.7.7%200%200%201-.7-.7V5.376a.7.7%200%200%201%20.7-.7h3.168z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%20opacity%3D%221%22/%3E%3C/svg%3E);
+}
+
+.bx-messenger-videocall-panel-icon-sound-off {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2217%22%20height%3D%2218%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M6.84%203.488l5.314-3.44a.3.3%200%200%201%20.463.252v8.965L6.84%203.488zm5.777%2012.707v.566a.3.3%200%200%201-.463.252L5.505%2012.71a.3.3%200%200%201-.134-.21H2.2a.7.7%200%200%201-.7-.7V5.376c0-.089.016-.174.047-.252l11.07%2011.07zM.46.46a.65.65%200%200%201%20.919%200l14.876%2014.876a.65.65%200%201%201-.919.92L.46%201.378a.65.65%200%200%201%200-.92z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%20opacity%3D%221%22/%3E%3C/svg%3E);
+}
+
+.bx-messenger-videocall-user-list {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+}
+
+.bx-messenger-videocall-user-list-wide {
+	justify-content: flex-start;
+}
+
+.bx-messenger-videocall-user {
+	width: 100%;
+	background-color: rgba(64, 71, 81, .6);
+	border-radius: 2px;
+	position: relative;
+	overflow: hidden;
+	margin: 0 3px;
+	height: 100px;
+	cursor: pointer;
+	flex-shrink: 0;
+	order: 3;
+	box-sizing: border-box;
+}
+
+.bx-messenger-videocall-user-self {
+	order: 2;
+}
+
+.bx-messenger-videocall-user-add {
+	width: 100px;
+	height: 100px;
+	background-color: rgba(64, 71, 81, .6);
+	border-radius: 2px;
+	position: relative;
+	overflow: hidden;
+	margin: 0 0 0 3px;
+	cursor: pointer;
+	flex-shrink: 0;
+	order: 1;
+	box-sizing: border-box;
+	transition: all .1s linear;
+}
+
+.bx-messenger-videocall-user-add:hover {
+	background-color: rgba(64, 71, 81, .7);
+}
+
+.bx-messenger-videocall-user-inner {
+	height: 0;
+	padding-top: 63.25%;
+	position: relative;
+	/*background-color: #737882;*/
+	border-radius: 2px;
+}
+
+.bx-messenger-videocall-user-add-inner {
+	height: 100%;
+	position: relative;
+	border-radius: 2px;
+}
+
+.bx-message-videocall-user-avatar {
+	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%220%200%2064%2064%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20opacity%3D%220.385268%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M8.50781%2051.1133C9.51562%2047.957%2013.9766%2045.5898%2018.1016%2043.7578C19.1406%2043.2969%2019.7969%2042.9219%2020.4297%2042.5469C21.1367%2042.1328%2021.8203%2041.7227%2022.9883%2041.1953C23.0664%2040.7969%2023.1133%2040.3945%2023.1328%2039.9883C23.1445%2039.7734%2023.1445%2039.5586%2023.1367%2039.3438L25.0156%2039.1133C25.0156%2039.1133%2025.2656%2039.5781%2024.8672%2036.8477C24.8672%2036.8477%2022.7539%2036.2852%2022.6562%2031.9375C22.6562%2031.9375%2021.0664%2032.4844%2020.9688%2029.8477C20.9023%2028.0664%2019.5469%2026.5156%2021.4961%2025.2344L20.5039%2022.5039C20.5039%2022.5039%2019.4609%2011.9492%2024.0352%2012.8047C22.1797%209.76562%2037.832%207.24219%2038.8711%2016.543C38.9883%2017.3555%2039.0742%2018.1719%2039.125%2018.9922C39.2461%2020.9961%2039.1641%2023.0078%2038.8711%2024.9961C38.8711%2024.9961%2039.5352%2024.918%2039.9219%2025.5391C40.2578%2026.082%2040.3789%2027.1641%2039.6484%2029.3125C39.6484%2029.3125%2039.2773%2030.7344%2038.6484%2031.5039C38.3203%2031.9062%2037.9219%2032.1289%2037.4688%2031.875C37.4688%2031.875%2037.6836%2036.0508%2035.6055%2036.7578C35.6055%2036.7578%2035.7539%2038.9844%2035.7539%2039.1328L37.4883%2039.4023C37.4883%2039.4023%2037.4375%2041.2578%2037.7852%2041.457C39.3672%2042.5156%2041.1055%2043.3164%2042.9336%2043.832C48.3242%2045.2461%2051.0664%2047.6719%2051.0664%2049.7969C51.0664%2049.7969%2051.2266%2050.3984%2051.4766%2051.3906C56.9023%2045.9414%2060.2578%2038.4258%2060.2578%2030.1289C60.2578%2013.4883%2046.7695%200%2030.1289%200C13.4883%200%200%2013.4883%200%2030.1289C0%2038.2852%203.24219%2045.6875%208.50781%2051.1133Z%22%20transform%3D%22translate%281.55859%201.55859%29%22%20fill%3D%22%23D8D8D8%22/%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M30.1285%2060.2571C46.7681%2060.2571%2060.2571%2046.7681%2060.2571%2030.1285C60.2571%2013.489%2046.7681%200%2030.1285%200C13.489%200%200%2013.489%200%2030.1285C0%2046.7681%2013.489%2060.2571%2030.1285%2060.2571Z%22%20transform%3D%22translate%281.55859%201.55859%29%22%20stroke%3D%22%23999CA2%22%20stroke-width%3D%223%22/%3E%0A%3C/svg%3E%0A)
+				no-repeat center;
+	position: absolute;
+	top: 46%;
+	width: 68px;
+	height: 68px;
+	left: 50%;
+	-webkit-transform: translate(-50%, -50%);
+	-moz-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	-o-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	border-radius: 50%;
+	/*background-size: cover;
+	box-shadow: 0 0 0 6px rgba(64, 71, 81, .6), 0 0 0 7px #2fc6f6;*/
+
+	border: rgba(59,200,245,.5) 1px solid;
+	padding: 6px;
+	background-size: 68px;
+	background-clip: content-box;
+}
+
+.bx-messenger-videocall-user-img .bx-messenger-videocall-user-inner {
+	background-size: cover;
+}
+
+.bx-messenger-videocall-user-talking {
+	border: 2px solid #2fc6f6;
+}
+
+.bx-messenger-videocall-user-img .bx-messenger-videocall-user-text {
+	opacity: 1;
+}
+
+.bx-messenger-videocall-user-add:before {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	-webkit-transform: translate(-50%, -50%);
+	-moz-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	-o-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	width: 19px;
+	height: 19px;
+	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2219%22%20height%3D%2219%22%20viewBox%3D%220%200%2019%2019%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20opacity%3D%221%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M11%200H8V8H0V11H8V19H11V11H19V8H11V0Z%22%20fill%3D%22%23D8D8D8%22/%3E%0A%3C/svg%3E%0A)
+				no-repeat center;
+	opacity: .4;
+	transition: opacity .2s linear;
+}
+
+.bx-messenger-videocall-user-add:hover:before {
+	opacity: .9;
+}
+
+.bx-messenger-videocall-user-name {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: rgba(0,0,0,0);
+	color: #fff;
+	text-align: center;
+	font-size: 9px;
+	line-height: 15px;
+	z-index: 1;
+}
+
+.bx-messenger-videocall-user-text {
+	opacity: .7;
+}
+
+.bx-messenger-videocall-user-shadow {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	-webkit-box-shadow: 0 0 20px 5px rgba(0,0,0,1);
+	-moz-box-shadow: 0 0 20px 5px rgba(0,0,0,1);
+	box-shadow: 0 0 20px 5px rgba(0,0,0,1);
+	z-index: -1;
+	display: none;
+}
+
+.bx-messenger-videocall-overlay {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, .5);
+	top: 0;
+	right: 0;
+	left: 0;
+	bottom: 0;
+}
+
+.bx-messenger-videocall-overlay:empty {
+	display: none;
+}
+
+.bx-messenger-videocall-status-text {
+	color: #fff;
+	font-size: 14px;
+	line-height: 14px;
+	display: block;
+}
+
+.bx-messenger-videocall-user-status-text {
+	color: #fff;
+	font-size: 11px;
+	line-height: 11px;
+	display: block;
+}
+
+.bx-messenger-videocall-user-status {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	-webkit-transform: translate(-50%, -50%);
+	-moz-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	-o-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	text-align: center;
+	min-height: 43px;
+}
+
+.bx-messenger-videocall-user-status-wide {
+	width: 100%;
+}
+
+.bx-messenger-videocall-user-status-pic {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 13px;
+}
+
+.bx-messenger-videocall-user-status-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background-color: #fff;
+	display: block;
+	animation: shake 1.2s infinite;
+	animation-fill-mode: both;
+}
+
+.bx-messenger-videocall-user-status-dot:nth-child(2) {
+	animation-delay: .2s;
+}
+
+.bx-messenger-videocall-user-status-dot:last-child {
+	animation-delay: .4s;
+}
+
+.bx-messenger-videocall-user-status-dot  + .bx-messenger-videocall-user-status-dot  {
+	margin-left: 8px;
+}
+
+.bx-messenger-videocall-user-status-cross {
+	width: 10px;
+	height: 10px;
+	position: relative;
+	padding: 0 27px;
+	background: transparent url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2210%22%20height%3D%2210%22%20viewBox%3D%220%200%2010%2010%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20d%3D%22M7.5%200.375L4.75%203.125L2%200.375C1.5%20-0.125%200.875%20-0.125%200.375%200.375C-0.125%200.875%20-0.125%201.5%200.375%202L3.125%204.75L0.375%207.5C-0.125%208%20-0.125%208.625%200.375%209.125C0.875%209.625%201.5%209.625%202%209.125L4.75%206.375L7.5%209.125C8%209.625%208.625%209.625%209.125%209.125C9.625%208.625%209.625%208%209.125%207.5L6.375%204.75L9.125%202C9.625%201.5%209.625%200.875%209.125%200.375C8.625%200%207.875%200%207.5%200.375Z%22%20transform%3D%22translate%280.5%200.5%29%22%20fill%3D%22white%22/%3E%0A%3C/svg%3E%0A)
+	no-repeat top center;
+}
+
+.bx-messenger-videocall-user-status-cross:before,
+.bx-messenger-videocall-user-status-cross:after {
+	content: '';
+	position: absolute;
+	top: 5px;
+	width: 22px;
+	height: 2px;
+	border-radius: 2px;
+	background: #fff;
+	opacity: .5;
+}
+
+.bx-messenger-videocall-user-status-cross:before {
+	left: 0;
+}
+
+.bx-messenger-videocall-user-status-cross:after {
+	right: 0;
+}
+
+.bx-messenger-videocall-user-status-detail {
+	font-size: 9px;
+	line-height: 13px;
+	display: block;
+	color: #fff;
+	opacity: .7;
+}
+
+@keyframes shake {
+	0% {
+		opacity: 0.4;
+	}
+	20% {
+		opacity: 1;
+	}
+	100% {
+		opacity: .4;
+	}
+}
+
+.bx-messenger-videocall-grid .bx-messenger-videocall-inner {
+	padding: 6px 3px 60px;
+	height: 100%;
+	box-sizing: border-box;
+}
+
+.bx-messenger-videocall-grid .bx-messenger-videocall-user-text {
+	font-size: 11px;
+	line-height: 17px;
+}
+
+.bx-messenger-videocall-grid .bx-messenger-videocall-user {
+	height: 100%;
+	flex-shrink: 1;
+	padding: 0 3px 6px;
+	margin: 0;
+}
+
+.bx-messenger-videocall-grid .bx-messenger-videocall-user-inner {
+	height: 100%;
+	padding-top: 0;
+	box-sizing: border-box;
+	background-position: center;
+	background-color: unset;
+}
+
+.bx-messenger-videocall-grid .bx-messenger-videocall-user-video {
+	box-sizing: border-box;
+}
+
+.bx-messenger-videocall-grid .bx-messenger-videocall-user-sm {
+	max-width: 25%;
+}
+
+.bx-messenger-videocall-user-sm .bx-messenger-videocall-user-inner {
+	padding-top: 75.6%;
+}
+
+.bx-messenger-videocall-grid .bx-messenger-videocall-user-status-text {
+	font-size: 13px;
+	line-height: 13px;
+}
+
+.bx-messenger-videocall-grid .bx-messenger-videocall-user-status {
+	min-height: 50px;
+	top: 60%;
+}
+
+.bx-messenger-videocall-grid .bx-messenger-videocall-user-status-cross {
+	padding-top: 2px;
+}
+
+.bx-messenger-videocall-user-close {
+	position: absolute;
+	top: 10px;
+	right: 9px;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	background: rgba(168, 172, 179, 1) url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%228%22%20height%3D%228%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20d%3D%22M6.31579%200.315789L4%202.63158L1.68421%200.315789C1.26316%20-0.105263%200.736842%20-0.105263%200.315789%200.315789C-0.105263%200.736842%20-0.105263%201.26316%200.315789%201.68421L2.63158%204L0.315789%206.31579C-0.105263%206.73684%20-0.105263%207.26316%200.315789%207.68421C0.736842%208.10526%201.26316%208.10526%201.68421%207.68421L4%205.36842L6.31579%207.68421C6.73684%208.10526%207.26316%208.10526%207.68421%207.68421C8.10526%207.26316%208.10526%206.73684%207.68421%206.31579L5.36842%204L7.68421%201.68421C8.10526%201.26316%208.10526%200.736842%207.68421%200.315789C7.26316%200%206.63158%200%206.31579%200.315789Z%22%20fill%3D%22white%22/%3E%0A%3C/svg%3E%0A)
+	no-repeat center;
+	opacity: 0;
+	transition: all .2s linear;
+}
+
+.bx-messenger-videocall-user:hover .bx-messenger-videocall-user-close {
+	opacity: .5;
+}
+
+.bx-messenger-videocall-user:hover .bx-messenger-videocall-user-close:hover {
+	opacity: 1;
+}
+
+.bx-messenger-videocall-user-video {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+}
+
+.bx-messenger-videocall-grid .bx-messenger-videocall-user-shadow {
+	left: 45px;
+	right: 45px;
+	box-shadow: 0 7px 20px 22px rgba(0,0,0,.4);
+}
+
+.bx-messenger-videocall-grid .bx-messenger-videocall-user-status-detail {
+	font-size: 11px;
+	line-height: 17px;
+}
+
+.bx-messenger-videocall-grid .bx-messenger-videocall-user-name {
+	bottom: 13px;
+}
+
+.bx-messenger-videocall-grid .bx-message-videocall-user-avatar {
+	width: 124px;
+	height: 124px;
+	/*box-shadow: 0 0 0 12px #2a3038, 0 0 0 13px #2fc6f6;*/
+	padding: 12px;
+	background-size: 124px;
+}
+
+.bx-messenger-videocall-grid-r-1 .bx-messenger-videocall-user-list {
+	height: 100%;
+}
+
+.bx-messenger-videocall-grid-r-2 .bx-messenger-videocall-user-list {
+	height: 50%;
+}
+
+.bx-messenger-videocall-grid-r-3 .bx-messenger-videocall-user-list {
+	height: 33.333%;
+}
+
+.bx-messenger-videocall-grid-r-4 .bx-messenger-videocall-user-list {
+	height: 25%;
+}
+
+.bx-messenger-videocall-grid-r-5 .bx-messenger-videocall-user-list {
+	height: 20%;
+}
+
+.bx-messenger-videocall-grid-c-1 .bx-messenger-videocall-user {
+	max-width: 100%;
+}
+
+.bx-messenger-videocall-grid-c-2 .bx-messenger-videocall-user {
+	max-width: 50%;
+}
+
+.bx-messenger-videocall-grid-c-3 .bx-messenger-videocall-user {
+	max-width: 33.333%;
+}
+
+.bx-messenger-videocall-grid-c-4 .bx-messenger-videocall-user {
+	max-width: 25%;
+}
+
+.bx-messenger-videocall-grid-c-4 .bx-messenger-videocall-user {
+	max-width: 20%;
+}
+
+.bx-messenger-videocall-user-block {
+	position: relative;
+	height: 100px;
+}
+
+.bx-messenger-videocall-user-block .bx-messenger-videocall-user {
+	max-width: 159px;
+}
+
+.bx-messenger-videocall-centered .bx-messenger-videocall-user-block {
+	bottom: 162px;
+}
+
+.bx-messenger-videocall-centered .bx-messenger-videocall-user-list {
+	justify-content: start;
+	flex-direction: row-reverse;
+}
+
+.bx-messenger-videocall-ear {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	z-index: 1;
+	width: 41px;
+	height: 100%;
+	background-repeat: no-repeat;
+	background-position: center;
+	opacity: 0;
+	cursor: pointer;
+	transition: all .3s linear;
+}
+
+.bx-messenger-videocall-ear-left {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2241%22%20height%3D%2281%22%20viewBox%3D%220%200%2041%2081%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Crect%20width%3D%2241%22%20height%3D%2281%22%20fill%3D%22black%22%20fill-opacity%3D%220%22/%3E%0A%3Cpath%20opacity%3D%221%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M0%2080.9969C0.166443%2080.999%200.333069%2081%200.5%2081C22.8676%2081%2041%2062.8676%2041%2040.5C41%2018.1324%2022.8676%200%200.5%200C0.333069%200%200.166443%200.0010376%200%200.00305176V80.9969Z%22%20fill%3D%22%23525C69%22/%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M10%2039.5928L11.868%2041.4608L18.5928%2048.1855L20.4608%2046.3176L13.736%2039.5928L20.4608%2032.868L18.5928%2031L11.868%2037.7248L10%2039.5928Z%22%20fill%3D%22white%22/%3E%0A%3C/svg%3E%0A);
+	left: 0;
+	margin-left: -50px;
+}
+
+.bx-messenger-videocall-ear-right {
+	right: 0;
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2241%22%20height%3D%2281%22%20viewBox%3D%220%200%2041%2081%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Crect%20width%3D%2241%22%20height%3D%2281%22%20fill%3D%22black%22%20fill-opacity%3D%220%22%20transform%3D%22translate%2841%29%20scale%28-1%201%29%22/%3E%0A%3Cpath%20opacity%3D%221%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M41%200.00305176V80.9969C40.8336%2080.999%2040.6669%2081%2040.5%2081C18.1324%2081%200%2062.8676%200%2040.5C0%2018.1324%2018.1324%200%2040.5%200C40.6669%200%2040.8336%200.0010376%2041%200.00305176Z%22%20fill%3D%22%23525C69%22/%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M31%2039.5928L29.132%2041.4608L22.4072%2048.1855L20.5392%2046.3176L27.2639%2039.5928L20.5392%2032.868L22.4072%2031L29.132%2037.7248L31%2039.5928Z%22%20fill%3D%22white%22/%3E%0A%3C/svg%3E%0A);
+	margin-right: -50px;
+}
+
+.bx-messenger-videocall-ear:hover {
+	opacity: .7;
+}
+
+.bx-messenger-videocall-ear-show {
+	opacity: .4;
+}
+
+.bx-messenger-videocall-ear-right.bx-messenger-videocall-ear-show {
+	margin-right: 0;
+}
+
+.bx-messenger-videocall-ear-left.bx-messenger-videocall-ear-show {
+	margin-left: 0;
+}
+
+.bx-messenger-videocall-audio .bx-messenger-videocall-detail {
+	top: 49%;
+	bottom: auto;
+	width: 100%;
+}
+
+.bx-messenger-videocall-audio.bx-messenger-videocall-video-block {
+}
+
+/*.bx-messenger-videocall-audio .bx-messenger-videocall-inner {
+	padding-top: 65px;
+}*/
+
+.bx-messenger-videocall-audio .bx-messenger-videocall-watermark {
+/*	top: -45px;*/
+	position: initial;
+	display: inline-block;
+	padding: 18px 0 0 25px;
+	height: 47px;
+}
+
+.bx-messenger-audiocall-title {
+	color: #2fc6f6;
+	font-size: 24px;
+	line-height: 32px;
+	margin-bottom: 23px;
+}
+
+.bx-messenger-audiocall-user-block {
+	width: 100%;
+	box-sizing: border-box;
+	overflow: hidden;
+}
+
+.bx-messenger-audiocall-user-block-inner {
+	height: 0;
+	padding-top: 100%;
+	position: relative;
+	margin: 0 auto;
+}
+
+.bx-messenger-audiocall-user {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left:0;
+	border-radius: 100%;
+	border: 1px solid rgba(59,200,245,.5);
+}
+
+.bx-messenger-audiocall-user-item {
+	position: absolute;
+	top: 21.5px;
+	right: 21.5px;
+	bottom: 21.5px;
+	left:21.5px;
+	border-radius: 100%;
+	background: no-repeat center url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22214%22%20height%3D%22214%22%20viewBox%3D%220%200%20214%20214%22%3E%0A%20%20%20%20%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cpath%20fill%3D%22%23525C68%22%20d%3D%22M106.787%20213.574c58.977%200%20106.787-47.81%20106.787-106.787C213.574%2047.81%20165.764%200%20106.787%200%2047.81%200%200%2047.81%200%20106.787c0%2058.977%2047.81%20106.787%20106.787%20106.787z%22/%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M164.802%20172.942c0-8.03-9.01-42-9.01-42%200-4.965-6.49-10.636-19.272-13.94-4.33-1.21-8.446-3.082-12.2-5.553-.822-.47-.697-4.806-.697-4.806l-4.117-.627c0-.352-.352-5.55-.352-5.55%204.925-1.656%204.42-11.42%204.42-11.42%203.126%201.736%205.163-5.99%205.163-5.99%203.7-10.733-1.842-10.084-1.842-10.084.97-6.553.97-13.212%200-19.765-2.464-21.736-39.557-15.835-35.16-8.736-10.84-1.997-8.366%2022.67-8.366%2022.67l2.35%206.388c-4.617%202.995-1.407%206.617-1.247%2010.786.227%206.155%203.993%204.88%203.993%204.88.233%2010.16%205.242%2011.482%205.242%2011.482.942%206.38.355%205.294.355%205.294l-4.458.54c.06%201.45-.058%202.903-.352%204.326-5.242%202.336-6.37%203.706-11.58%205.99-10.065%204.41-21.003%2010.147-22.947%2017.87C52.78%20142.422%2047%20172.942%2047%20172.942H164.802z%22/%3E%3C/g%3E%3C/svg%3E);
+	background-size: cover;
+}
+
+.bx-messenger-audiocall {
+	width: 100%;
+	position: relative;
+	/*height: 100%;*/
+
+	border-top: 1px solid rgba(216, 216, 216, .2);
+	border-bottom: 1px solid rgba(216, 216, 216, .2);
+	height: calc(100% - 232px);
+}
+
+.bx-messenger-videocall-video-block-full .bx-messenger-audiocall {
+	height: calc(100% - 177px);
+}
+
+.bx-messenger-audiocall-user-name {
+	margin: 0 auto;
+	width: 530px;
+	font: 29px/34px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	text-align: center;
+	color: #fff;
+	padding: 15px 0;
+	flex-shrink: 0;
+}
+
+.bx-messenger-audiocall-user-link, .bx-messenger-audiocall-user-info {
+	color: #fff;
+}
+
+.bx-messenger-audiocall-user-position {
+	font-size: 14px;
+	line-height: 22px;
+}
+
+.bx-messenger-audiocall-user-company {
+	font-size: 15px;
+	line-height: 23px;
+}
+
+.bx-messenger-audiocall-user-info {
+	text-align: center;
+}
+
+.bx-messenger-audiocall-wrap {
+	position: absolute;
+	top: 10px;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: 0 auto;
+}
+
+.bx-messenger-audiocall-inner {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	height: 100%;
+	justify-content: center;
+}
+
+/* setting popup */
+.bx-call-settings-container {
+	margin-top: 14px
+}

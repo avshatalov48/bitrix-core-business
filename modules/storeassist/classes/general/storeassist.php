@@ -175,7 +175,7 @@ class CStoreAssist
 		$hash = (isset($_GET["back"])) ? "#".htmlspecialcharsbx($_GET["back"]) : "";
 		echo '<div class="adm-s-toolbar" data-role="adm-task-toolbar" onmouseout="BX.removeClass(this, \'hover\')">
 			<div class="adm-s-toolbar-shadow">
-				<div class="adm-detail-toolbar">
+				<div class="adm-detail-toolbar" style="margin-bottom: 0;">
 					<a href="/bitrix/admin/storeassist.php?lang='.LANGUAGE_ID.$hash.'" class="adm-detail-toolbar-btn"><span class="adm-detail-toolbar-btn-l"></span><span class="adm-detail-toolbar-btn-text">'.Loc::getMessage("STOREAS_BACK_BUTTON").'</span><span class="adm-detail-toolbar-btn-r"></span></a>
 					<span class="adm-s-toolbar-task '.($isItemDone ? 'checked' : '').'">'.Loc::getMessage(($isItemDone ? 'STOREAS_DONE' : 'STOREAS_NOT_DONE')).'</span>
 					<div class="adm-detail-toolbar-right">
@@ -186,7 +186,7 @@ class CStoreAssist
 				</div>
 				<div class="adm-s-toolbar-hidden-block">
 					<strong>'.Loc::getMessage("STOREAS_TASK").':</strong>
-					'.Loc::getMessage("STOREAS_TASK_".$pageId).
+					'.Loc::getMessage("STOREAS_TASK_".(isset($_GET["subId"]) ? htmlspecialcharsbx($_GET["subId"]) : $pageId)).
 					($ST_RIGHT >= "W" ?
 					'<div class="adm-s-toolbar-hidden-block-btn">'.($isItemDone ?
 						'<a href="javascript:void(0)" onclick="BX.Storeassist.Admin.setOption(\''.$pageId.'\', \'N\')" class="adm-btn">'.Loc::getMessage("STOREAS_NOT_DONE_BUTTON").'</a>' :

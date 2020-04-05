@@ -87,7 +87,6 @@ if ($_REQUEST["post_id"] > 0 && !empty($_REQUEST["name"]) && !empty($_REQUEST["v
 					? "done"
 					: "continue"
 			);
-			$arList["RecordCount"] = $db_res->NavRecordCount;
 			if ($_REQUEST["iNumPage"] <= $db_res->NavPageCount)
 			{
 				do {
@@ -130,7 +129,6 @@ if ($_REQUEST["post_id"] > 0 && !empty($_REQUEST["name"]) && !empty($_REQUEST["v
 
 					$arList["items"][$arUser['ID']] = $arUser;
 					$arUserId[] = $arUser["ID"];
-
 				} while ($res = $db_res->Fetch());
 
 				if (
@@ -231,6 +229,8 @@ if ($_REQUEST["post_id"] > 0 && !empty($_REQUEST["name"]) && !empty($_REQUEST["v
 				$arList["items"][$key] = $arHidden;
 			}
 		}
+
+		$arList["RecordCount"] = count($arList["items"]);
 	}
 }
 

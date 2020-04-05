@@ -204,12 +204,18 @@ class RestService extends \IRestService
 		$params['IS_ROBOT'] = $isRobot ? 'Y' : 'N';
 
 		if ($isRobot)
+		{
 			$params['USE_SUBSCRIPTION'] = 'N';
+		}
+
+		$params['USE_PLACEMENT'] = ($params['USE_PLACEMENT'] === 'Y') ? 'Y' : 'N';
 
 		$result = RestActivityTable::add($params);
 
 		if ($result->getErrors())
+		{
 			throw new RestException('Activity save error!', self::ERROR_ACTIVITY_ADD_FAILURE);
+		}
 
 		return true;
 	}
@@ -408,12 +414,12 @@ class RestService extends \IRestService
 			'ID' => 'ID',
 			'MODIFIED' => 'MODIFIED',
 			'OWNED_UNTIL' => 'OWNED_UNTIL',
-			'MODULE_ID' => 'STATE.MODULE_ID',
-			'ENTITY' => 'STATE.ENTITY',
-			'DOCUMENT_ID' => 'STATE.DOCUMENT_ID',
-			'STARTED' => 'STATE.STARTED',
-			'STARTED_BY' => 'STATE.STARTED_BY',
-			'TEMPLATE_ID' => 'STATE.WORKFLOW_TEMPLATE_ID',
+			'MODULE_ID' => 'MODULE_ID',
+			'ENTITY' => 'ENTITY',
+			'DOCUMENT_ID' => 'DOCUMENT_ID',
+			'STARTED' => 'STARTED',
+			'STARTED_BY' => 'STARTED_BY',
+			'TEMPLATE_ID' => 'WORKFLOW_TEMPLATE_ID',
 		);
 
 		$select = static::getSelect($params['SELECT'], $fields, array('ID', 'MODIFIED', 'OWNED_UNTIL'));
@@ -444,6 +450,14 @@ class RestService extends \IRestService
 		return static::setNavData($result, ['count' => $iterator->getCount(), 'offset' => $n]);
 	}
 
+	/**
+	 * @param array $params Input params.
+	 * @param int $n Offset.
+	 * @param \CRestServer $server Rest server instance.
+	 * @return bool True on success.
+	 * @throws AccessException
+	 * @throws RestException
+	 */
 	public static function terminateWorkflow($params, $n, $server)
 	{
 		self::checkAdminPermissions();
@@ -466,6 +480,14 @@ class RestService extends \IRestService
 		return true;
 	}
 
+	/**
+	 * @param array $params Input params.
+	 * @param int $n Offset.
+	 * @param \CRestServer $server Rest server instance.
+	 * @return string Workflow ID.
+	 * @throws AccessException
+	 * @throws RestException
+	 */
 	public static function startWorkflow($params, $n, $server)
 	{
 		self::checkAdminPermissions();
@@ -494,6 +516,16 @@ class RestService extends \IRestService
 		return $workflowId;
 	}
 
+	/**
+	 * @param array $params Input params.
+	 * @param int $n Offset.
+	 * @param \CRestServer $server Rest server instance.
+	 * @return mixed Templates collection.
+	 * @throws AccessException
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	public static function getWorkflowTemplates($params, $n, $server)
 	{
 		self::checkAdminPermissions();
@@ -565,6 +597,7 @@ class RestService extends \IRestService
 		$fields = array(
 			'ID' => 'ID',
 			'ACTIVITY' => 'ACTIVITY',
+			'ACTIVITY_NAME' => 'ACTIVITY_NAME',
 			'WORKFLOW_ID' => 'WORKFLOW_ID',
 			'DOCUMENT_NAME' => 'DOCUMENT_NAME',
 			'DESCRIPTION' => 'DESCRIPTION',
@@ -951,7 +984,7 @@ class RestService extends \IRestService
 	private static function getCurrentUserId()
 	{
 		global $USER;
-		return (isset($USER) && is_object($USER)) ? $USER->getID() : 0;
+		return (isset($USER) && is_object($USER)) ? (int)$USER->getID() : 0;
 	}
 
 	private static function generateInternalCode($data)

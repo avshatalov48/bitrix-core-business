@@ -127,7 +127,7 @@
 					index = BX.type.stringToInt(propertyValue);
 				}
 
-				element = element.offsetParent;
+				element = element.parentNode;
 			}
 			while (
 				element && element.tagName !== "BODY"

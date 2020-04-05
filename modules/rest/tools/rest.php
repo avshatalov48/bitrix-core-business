@@ -19,7 +19,7 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 	{
 		case 'install':
 
-			if($admin)
+			if(\CRestUtil::canInstallApplication())
 			{
 				if(!\Bitrix\Rest\OAuthService::getEngine()->isRegistered())
 				{
@@ -60,130 +60,157 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 
 					if($appDetailInfo)
 					{
-						$queryFields = array(
-							'CLIENT_ID' => $appDetailInfo['APP_CODE'],
-							'VERSION' => $appDetailInfo['VER'],
-						);
-
-						if(isset($request["check_hash"]) && isset($request["install_hash"]))
+						if($admin || \CRestUtil::canInstallApplication($appDetailInfo))
 						{
-							$queryFields["CHECK_HASH"] = $request["check_hash"];
-							$queryFields["INSTALL_HASH"] = $request["install_hash"];
-						}
+							$queryFields = array(
+								'CLIENT_ID' => $appDetailInfo['APP_CODE'],
+								'VERSION' => $appDetailInfo['VER'],
+							);
 
-						$installResult = \Bitrix\Rest\OAuthService::getEngine()
+							if(isset($request["check_hash"]) && isset($request["install_hash"]))
+							{
+								$queryFields["CHECK_HASH"] = $request["check_hash"];
+								$queryFields["INSTALL_HASH"] = $request["install_hash"];
+							}
+
+							$installResult = \Bitrix\Rest\OAuthService::getEngine()
 								->getClient()
 								->installApplication($queryFields);
 
-						if($installResult['error'])
-						{
-							$result['error_description'] = $installResult['error'].': '.$installResult['error_description'];
-						}
-						elseif($installResult['result'])
-						{
-							$appFields = array(
-								'CLIENT_ID' => $installResult['result']['client_id'],
-								'CODE' => $appDetailInfo['CODE'],
-								'ACTIVE' => \Bitrix\Rest\AppTable::ACTIVE,
-								'INSTALLED' => ($appDetailInfo["OPEN_API"] === "Y" || empty($appDetailInfo['INSTALL_URL']))
-									? \Bitrix\Rest\AppTable::INSTALLED
-									: \Bitrix\Rest\AppTable::NOT_INSTALLED,
-								'URL' => $appDetailInfo['URL'],
-								'URL_DEMO' => $appDetailInfo['DEMO_URL'],
-								'URL_INSTALL' => $appDetailInfo['INSTALL_URL'],
-								'VERSION' => $installResult['result']['version'],
-								'SCOPE' => implode(',', $installResult['result']['scope']),
-								'STATUS' => $installResult['result']['status'],
-								'SHARED_KEY' => $appDetailInfo['SHARED_KEY'],
-								'CLIENT_SECRET' => '',
-								'APP_NAME' => $appDetailInfo['NAME'],
-								'MOBILE' => $appDetailInfo['BXMOBILE'] == 'Y' ? \Bitrix\Rest\AppTable::ACTIVE : \Bitrix\Rest\AppTable::INACTIVE,
-							);
-
-							if(
-								$appFields['STATUS'] === \Bitrix\Rest\AppTable::STATUS_TRIAL
-								|| $appFields['STATUS'] === \Bitrix\Rest\AppTable::STATUS_PAID
-							)
+							if($installResult['error'])
 							{
-								$appFields['DATE_FINISH'] = \Bitrix\Main\Type\DateTime::createFromTimestamp($installResult['result']['date_finish']);
+								$result['error_description'] = $installResult['error'].': '.$installResult['error_description'];
 							}
-							else
+							elseif($installResult['result'])
 							{
-								$appFields['DATE_FINISH'] = '';
-							}
+								$appFields = array(
+									'CLIENT_ID' => $installResult['result']['client_id'],
+									'CODE' => $appDetailInfo['CODE'],
+									'ACTIVE' => \Bitrix\Rest\AppTable::ACTIVE,
+									'INSTALLED' => ($appDetailInfo["OPEN_API"] === "Y" || empty($appDetailInfo['INSTALL_URL']))
+										? \Bitrix\Rest\AppTable::INSTALLED
+										: \Bitrix\Rest\AppTable::NOT_INSTALLED,
+									'URL' => $appDetailInfo['URL'],
+									'URL_DEMO' => $appDetailInfo['DEMO_URL'],
+									'URL_INSTALL' => $appDetailInfo['INSTALL_URL'],
+									'VERSION' => $installResult['result']['version'],
+									'SCOPE' => implode(',', $installResult['result']['scope']),
+									'STATUS' => $installResult['result']['status'],
+									'SHARED_KEY' => $appDetailInfo['SHARED_KEY'],
+									'CLIENT_SECRET' => '',
+									'APP_NAME' => $appDetailInfo['NAME'],
+									'MOBILE' => $appDetailInfo['BXMOBILE'] == 'Y' ? \Bitrix\Rest\AppTable::ACTIVE : \Bitrix\Rest\AppTable::INACTIVE,
+									'USER_INSTALL' => \CRestUtil::appCanBeInstalledByUser($appDetailInfo) ? \Bitrix\Rest\AppTable::ACTIVE : \Bitrix\Rest\AppTable::INACTIVE,
+								);
 
-							$existingApp = \Bitrix\Rest\AppTable::getByClientId($appFields['CLIENT_ID']);
-
-							if($existingApp)
-							{
-								$addResult = \Bitrix\Rest\AppTable::update($existingApp['ID'], $appFields);
-							}
-							else
-							{
-								$addResult = \Bitrix\Rest\AppTable::add($appFields);
-							}
-
-							if($addResult->isSuccess())
-							{
-								$appId = $addResult->getId();
-
-								if(is_array($appDetailInfo['MENU_TITLE']))
+								if(
+									$appFields['STATUS'] === \Bitrix\Rest\AppTable::STATUS_TRIAL
+									|| $appFields['STATUS'] === \Bitrix\Rest\AppTable::STATUS_PAID
+								)
 								{
-									foreach($appDetailInfo['MENU_TITLE'] as $lang => $langName)
+									$appFields['DATE_FINISH'] = \Bitrix\Main\Type\DateTime::createFromTimestamp($installResult['result']['date_finish']);
+								}
+								else
+								{
+									$appFields['DATE_FINISH'] = '';
+								}
+
+								$existingApp = \Bitrix\Rest\AppTable::getByClientId($appFields['CLIENT_ID']);
+
+								if($existingApp)
+								{
+									$addResult = \Bitrix\Rest\AppTable::update($existingApp['ID'], $appFields);
+								}
+								else
+								{
+									$addResult = \Bitrix\Rest\AppTable::add($appFields);
+								}
+
+								if($addResult->isSuccess())
+								{
+									$appId = $addResult->getId();
+
+									if($existingApp)
 									{
-										$appLangFields = array(
-											'APP_ID' => $appId,
-											'LANGUAGE_ID' => $lang,
-											'MENU_NAME' => $langName
-										);
+										\Bitrix\Rest\AppLogTable::log($appId, \Bitrix\Rest\AppLogTable::ACTION_TYPE_UPDATE);
+									}
+									else
+									{
+										\Bitrix\Rest\AppLogTable::log($appId, \Bitrix\Rest\AppLogTable::ACTION_TYPE_ADD);
+									}
 
-										$appLangUpdateFields = array(
-											'MENU_NAME' => $langName
-										);
+									if($appFields['INSTALLED'] === \Bitrix\Rest\AppTable::INSTALLED)
+									{
+										\Bitrix\Rest\AppLogTable::log($appId, \Bitrix\Rest\AppLogTable::ACTION_TYPE_INSTALL);
+									}
 
-										$connection = \Bitrix\Main\Application::getConnection();
-										$queries = $connection->getSqlHelper()->prepareMerge(
-											\Bitrix\Rest\AppLangTable::getTableName(),
-											array('APP_ID', 'LANGUAGE_ID'),
-											$appLangFields,
-											$appLangUpdateFields
-										);
+									if(!$admin)
+									{
+										\CRestUtil::notifyInstall($appFields);
+									}
 
-										foreach($queries as $query)
+									if(is_array($appDetailInfo['MENU_TITLE']))
+									{
+										foreach($appDetailInfo['MENU_TITLE'] as $lang => $langName)
 										{
-											$connection->queryExecute($query);
+											$appLangFields = array(
+												'APP_ID' => $appId,
+												'LANGUAGE_ID' => $lang,
+												'MENU_NAME' => $langName
+											);
+
+											$appLangUpdateFields = array(
+												'MENU_NAME' => $langName
+											);
+
+											$connection = \Bitrix\Main\Application::getConnection();
+											$queries = $connection->getSqlHelper()->prepareMerge(
+												\Bitrix\Rest\AppLangTable::getTableName(),
+												array('APP_ID', 'LANGUAGE_ID'),
+												$appLangFields,
+												$appLangUpdateFields
+											);
+
+											foreach($queries as $query)
+											{
+												$connection->queryExecute($query);
+											}
 										}
 									}
-								}
 
-								if($appDetailInfo["OPEN_API"] === "Y" && !empty($appFields["URL_INSTALL"]))
-								{
-									// checkCallback is already called inside checkFields
-									$result = \Bitrix\Rest\EventTable::add(array(
-										"APP_ID" => $appId,
-										"EVENT_NAME" => "ONAPPINSTALL",
-										"EVENT_HANDLER" => $appFields["URL_INSTALL"],
-									));
-									if($result->isSuccess())
+									if($appDetailInfo["OPEN_API"] === "Y" && !empty($appFields["URL_INSTALL"]))
 									{
-										\Bitrix\Rest\Event\Sender::bind('rest', 'OnRestAppInstall');
+										// checkCallback is already called inside checkFields
+										$result = \Bitrix\Rest\EventTable::add(array(
+											"APP_ID" => $appId,
+											"EVENT_NAME" => "ONAPPINSTALL",
+											"EVENT_HANDLER" => $appFields["URL_INSTALL"],
+										));
+										if($result->isSuccess())
+										{
+											\Bitrix\Rest\Event\Sender::bind('rest', 'OnRestAppInstall');
+										}
 									}
+
+									\Bitrix\Rest\AppTable::install($appId);
+
+									$result = array(
+										'success' => 1,
+										'id' => $appId,
+										'open' => $appDetailInfo["OPEN_API"] !== "Y",
+										'installed' => $appFields['INSTALLED'] === 'Y',
+										'redirect' => \CRestUtil::getApplicationPage($appId),
+									);
 								}
-
-								\Bitrix\Rest\AppTable::install($appId);
-
-								$result = array(
-									'success' => 1,
-									'id' => $appId,
-									'open' => $appDetailInfo["OPEN_API"] !== "Y",
-									'installed' => $appFields['INSTALLED'] === 'Y',
-									'redirect' => \CRestUtil::getApplicationPage($appId),
-								);
+								else
+								{
+									$result['error_description'] = implode('<br />', $addResult->getErrorMessages());
+								}
 							}
-							else
-							{
-								$result['error_description'] = implode('<br />', $addResult->getErrorMessages());
-							}
+						}
+						else
+						{
+							$result = array('error' => Loc::getMessage('RMP_ACCESS_DENIED'));
 						}
 					}
 					else
@@ -220,16 +247,32 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 				$appInfo = $dbRes->fetch();
 				if($appInfo)
 				{
-					\Bitrix\Rest\AppTable::uninstall($appInfo['ID'], $clean == "true");
+					$checkResult = \Bitrix\Rest\AppTable::checkUninstallAvailability($appInfo['ID'], $clean == 'true');
+					if($checkResult->isEmpty())
+					{
+						\Bitrix\Rest\AppTable::uninstall($appInfo['ID'], $clean == "true");
 
-					$appFields = array(
-						'ACTIVE' => 'N',
-						'INSTALLED' => 'N',
-					);
+						$appFields = array(
+							'ACTIVE' => 'N',
+							'INSTALLED' => 'N',
+						);
 
-					\Bitrix\Rest\AppTable::update($appInfo['ID'], $appFields);
+						\Bitrix\Rest\AppTable::update($appInfo['ID'], $appFields);
 
-					$result = array('success' => 1);
+						\Bitrix\Rest\AppLogTable::log($appInfo['ID'], \Bitrix\Rest\AppLogTable::ACTION_TYPE_UNINSTALL);
+
+						$result = array('success' => 1);
+					}
+					else
+					{
+						$errorMessage = '';
+						foreach($checkResult as $error)
+						{
+							$errorMessage .= $error->getMessage()."\n";
+						}
+
+						$result = array('error' => $errorMessage);
+					}
 				}
 				else
 				{

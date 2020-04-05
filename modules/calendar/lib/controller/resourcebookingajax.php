@@ -14,6 +14,18 @@ Loc::loadMessages(__FILE__);
 
 class ResourceBookingAjax extends \Bitrix\Main\Engine\Controller
 {
+	public function configureActions()
+	{
+		return [
+			'getFillFormData' => [
+				'-prefilters' => [
+					\Bitrix\Main\Engine\ActionFilter\Authentication::class
+					//\Bitrix\Main\Engine\ActionFilter\Csrf::class
+				]
+			]
+		];
+	}
+
 	public function getPlannerDataAction()
 	{
 		$request = $this->getRequest();
@@ -42,5 +54,37 @@ class ResourceBookingAjax extends \Bitrix\Main\Engine\Controller
 	public function getBitrix24LimitationAction()
 	{
 		return \Bitrix\Calendar\UserField\ResourceBooking::getBitrx24Limitation();
+	}
+
+	public function getUserSelectorDataAction()
+	{
+		$request = $this->getRequest();
+
+		$selectedUserList = [];
+		if (!empty($request['selectedUserList']) && is_array($request['selectedUserList']))
+		{
+			$selectedUserList = $request['selectedUserList'];
+		}
+
+		return \CCalendar::getSocNetDestination(false, array(), $selectedUserList);
+	}
+
+	public function getFieldParamsAction()
+	{
+		$request = $this->getRequest();
+		return \Bitrix\Calendar\UserField\ResourceBooking::getUserFieldByFieldName($request['fieldname'], $request['selectedUsers']);
+	}
+
+	public function getFillFormDataAction()
+	{
+		$request = $this->getRequest();
+		return \Bitrix\Calendar\UserField\ResourceBooking::getFillFormData(
+			$request['settingsData'],
+			[
+				'fieldName' => $request['fieldName'],
+				'from' => $request['from'],
+				'to' => $request['to']
+			]
+		);
 	}
 }

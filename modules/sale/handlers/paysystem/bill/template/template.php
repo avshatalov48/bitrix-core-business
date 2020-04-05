@@ -235,7 +235,7 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 
 if ($params['BILL_PAYER_SHOW'] == 'Y'):
 	if ($params["BUYER_PERSON_COMPANY_NAME"]) {
-		echo Loc::getMessage('SALE_HPS_BILL_BUYER_NAME', array('#BUYER_NAME#' => htmlspecialcharsbx($params["BUYER_PERSON_COMPANY_NAME"])));
+		echo Loc::getMessage('SALE_HPS_BILL_BUYER_NAME', array('#BUYER_NAME#' => $params["BUYER_PERSON_COMPANY_NAME"]));
 		if ($params["BUYER_PERSON_COMPANY_INN"])
 			echo Loc::getMessage('SALE_HPS_BILL_BUYER_INN', array('#INN#' => $params["BUYER_PERSON_COMPANY_INN"]));
 		if ($params["BUYER_PERSON_COMPANY_ADDRESS"])

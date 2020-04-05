@@ -6,4 +6,5 @@ $MESS["IM_DISK_AVATAR_CHANGE_F"] = "#USER_NAME# changed the chat icon";
 $MESS["IM_DISK_ERR_UPLOAD"] = "You cannot upload files to this chat.";
 $MESS["IM_DISK_LOCAL_FOLDER_B24_TITLE"] = "imessenger";
 $MESS["IM_DISK_LOCAL_FOLDER_TITLE"] = "imessenger";
+$MESS["IM_DISK_ACTION_SAVE_TO_OWN_FILES"] = "Save to Bitrix24.Drive";
 ?>

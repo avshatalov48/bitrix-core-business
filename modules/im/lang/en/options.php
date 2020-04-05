@@ -1,4 +1,6 @@
 <?
+$MESS["IM_OPTIONS_CALL_SERVER_ENABLED"] = "Use Voximplant SFU server for video calls (requires valid license)";
+$MESS["IM_OPTIONS_TURN_SERVER_SELF_2"] = "Use own TURN server for video calls";
 $MESS["IM_COLOR_ENABLE"] = "Enable color themes for chats and users";
 $MESS["IM_OPEN_CHAT_ENABLE"] = "Enable public chats";
 $MESS["IM_GENERAL_CHAT_MESSAGE_JOIN"] = "Notify about new hires in general chat";
@@ -40,7 +42,6 @@ $MESS["IM_OPTIONS_CONVERT_TITLE"] = "Click to open history conversion form";
 $MESS["IM_OPTIONS_NAME_TEMPLATE"] = "Name format for use in contact list";
 $MESS["IM_OPTIONS_NAME_IN_SITE_FORMAT"] = "Website format";
 $MESS["IM_OPTIONS_NAME_IN_IM_FORMAT"] = "Default format";
-$MESS["IM_OPTIONS_TURN_SERVER_SELF"] = "Use own video call server";
 $MESS["IM_OPTIONS_TURN_SERVER"] = "Server address";
 $MESS["IM_OPTIONS_TURN_SERVER_FIREFOX"] = "Server address for Firefox";
 $MESS["IM_OPTIONS_TURN_SERVER_LOGIN"] = "Login";

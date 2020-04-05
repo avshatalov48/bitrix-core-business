@@ -434,6 +434,7 @@ class CCloudStorageService_OpenStackStorage extends CCloudStorageService
 				$filePath = "/".$arBucket["PREFIX"]."/".ltrim($filePath, "/");
 		}
 		$filePath = CCloudUtil::URLEncode($filePath, "UTF-8");
+		$filePath = str_replace('+', '%20', $filePath);
 
 		$obRequest = $this->SendRequest(
 			$arBucket["SETTINGS"],
@@ -442,7 +443,28 @@ class CCloudStorageService_OpenStackStorage extends CCloudStorageService
 			$filePath
 		);
 
-		return ($obRequest->status == 204 || $obRequest->status == 404);
+		//Try to fix space in the path
+		if ($this->status == 404 && strpos($filePath, '+') !== false)
+		{
+			$filePath = str_replace('+', '%20', $filePath);
+			$obRequest = $this->SendRequest(
+				$arBucket["SETTINGS"],
+				"DELETE",
+				$arBucket["BUCKET"],
+				$filePath
+			);
+		}
+
+		if($this->status == 204 || $this->status == 404)
+		{
+			$APPLICATION->ResetException();
+			return true;
+		}
+		else
+		{
+			$APPLICATION->ResetException();
+			return false;
+		}
 	}
 
 	function SaveFile($arBucket, $filePath, $arFile)

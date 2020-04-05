@@ -49,4 +49,6 @@ $MESS["DSC_MAX_DISCOUNT_UNLIM"] = "None";
 $MESS["DSC_PRIORITY"] = "Priority of application";
 $MESS["DSC_LAST_DISCOUNT"] = "Discontinue discounts";
 $MESS["DSC_PERIOD_TO2"] = "Active until";
+$MESS["DSC_USE_COUPONS"] = "Coupons";
+$MESS["DSC_FILTER_USE_COUPONS"] = "Use coupons";
 ?>

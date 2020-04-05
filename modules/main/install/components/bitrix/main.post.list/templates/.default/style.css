@@ -59,9 +59,7 @@ a.feed-time.feed-com-time:hover {
 	border-color: #ced2d6;
 }
 
-
 .feed-com-block .feed-post-text-more-but:before {
-	/*background: url("images/sprite.png?v=1") no-repeat 25px -12px #fff;*/
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%228%22%3E%3Cpath%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M6%204.829L10.243.586%2011.657%202%207.414%206.243%206%207.657.343%202%201.757.586%206%204.829z%22%20opacity%3D%22.789%22/%3E%3C/svg%3E');
 	background-repeat: no-repeat;
 	background-position: 25px center;
@@ -89,10 +87,6 @@ a.feed-time.feed-com-time:hover {
 
 .feed-com-main-content .feed-post-text-more-but {
 	border-bottom: 1px solid rgba(82,92,105,.14);
-}
-
-.feed-com-block .feed-post-text-more:hover .feed-post-text-more-but {
-	border-color: #ced2d6;
 }
 
 .feed-com-main-content .feed-post-text-more:hover .feed-post-text-more-but {
@@ -219,6 +213,7 @@ a.feed-time.feed-com-time:hover {
 	border-radius: 23px;
 	background-color: #EDF1F3;
 	box-sizing: border-box;
+	overflow: hidden;
 }
 
 .feed-com-block-new {
@@ -294,9 +289,16 @@ a.feed-time.feed-com-time:hover {
 	padding-right: 16px;
 }
 
+.feed-com-text-inner-expanded {
+	max-height: none;
+}
+.feed-com-text-inner-expanded + .feed-post-text-more {
+	display: none;
+}
 
 .feed-com-text-inner-inner {
-	word-break: break-word;
+	/*word-break: break-word;*/
+	overflow: auto;
 }
 
 .feed-com-text-inner-inner .bx-smile {
@@ -317,7 +319,7 @@ a.feed-time.feed-com-time:hover {
 
 .feed-com-informers-bottom {
 	display: block;
-	margin-left: 56px;
+	margin-left: 57px;
 	padding: 5px 0 0 19px;
 	/*display: inline-block;*/
 	color: rgba(130, 139, 149, .7);
@@ -443,13 +445,10 @@ a.feed-time.feed-com-time:hover {
 .feed-com-add-block.blog-comment-edit div.bx-html-editor,
 .feed-com-add-block.blog-comment-edit.bxhtmled-search-cnt { background-color: transparent !important; }
 
-
-.feed-com-add-block .bxhtmled-textarea-cnt {
-	padding: 8px 0 0 13px !important;
-}
-
 .feed-com-add-block .bxhtmled-textarea-cnt .bxhtmled-textarea {
 	width: calc(100% - 25px) !important;
+	padding: 8px 0 0 13px !important;
+	background-color: #fff !important;
 }
 
 .feed-com-add-block.blog-comment-edit .feed-add-post-form {
@@ -670,12 +669,23 @@ div.feed-com-avatar-Y { background: none; }
 .feed-com-add-box {
 	position: relative;
 	box-sizing: border-box;
-	/*margin: 0 21px 40px 61px;*/
 	margin: 0 0 40px 61px;
 	min-height: 39px;
 	max-width: 820px;
 	border: 1px solid rgba(143, 148, 151, 0.27);
 	border-radius: 22px;
+}
+
+@media (max-width: 1335px) {
+	.feed-com-add-box {
+		margin-right: 20px;
+	}
+}
+
+@media (max-width: 1279px) {
+	.feed-com-add-box {
+		margin-right: 11px;
+	}
 }
 
 .feed-com-add-box {
@@ -754,14 +764,14 @@ div.feed-com-avatar-Y { background: none; }
 	position: static;
 	display: inline-block;
 	margin-right: 4px;
-	width: 24px;
-	height: 24px;
+	width: 20px;
+	height: 20px;
 	vertical-align: top;
 }
 
 .feed-com-writers-wrap .feed-com-avatar img {
-	width: 24px;
-	height: 24px;
+	width: 20px;
+	height: 20px;
 }
 
 .feed-com-writers-wrap {

@@ -9,6 +9,9 @@
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/include.php");
 
+$publicMode = $adminPage->publicMode;
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions < "W")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
@@ -19,11 +22,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 $sTableID = "tbl_sale_tax";
 
 $oSort = new CAdminSorting($sTableID, "ID", "asc");
-$lAdmin = new CAdminList($sTableID, $oSort);
-
-$arFilterFields = array();
-
-$lAdmin->InitFilter($arFilterFields);
+$lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $arFilter = array();
 
@@ -91,17 +90,27 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 				break;
 		}
 	}
+	if ($lAdmin->hasGroupErrors())
+	{
+		$adminSidePanelHelper->sendJsonErrorResponse($lAdmin->getGroupErrors());
+	}
+	else
+	{
+		$adminSidePanelHelper->sendSuccessResponse();
+	}
 }
+
+global $by, $order;
 
 $dbResultList = CSaleTax::GetList(
 	array($by => $order),
 	$arFilter
 );
 
-$dbResultList = new CAdminResult($dbResultList, $sTableID);
+$dbResultList = new CAdminUiResult($dbResultList, $sTableID);
 $dbResultList->NavStart();
 
-$lAdmin->NavText($dbResultList->GetNavPrint(GetMessage("SALE_TAX_LIST")));
+$lAdmin->SetNavigationParams($dbResultList, array("BASE_LINK" => $selfFolderUrl."sale_tax.php"));
 $lAdmin->AddHeaders(array(
 	array("id"=>"ID", "content"=>GetMessage("TAX_ID"), "sort"=>"ID", "default"=>true),
 	array("id"=>"TIMESTAMP_X", "content"=>GetMessage("TAX_TIMESTAMP"), "sort"=>"TIMESTAMP_X", "default"=>true),
@@ -118,30 +127,32 @@ $dbLangsList = CSite::GetList(($b = "sort"), ($o = "asc"));
 while ($arLang = $dbLangsList->Fetch())
 	$arLangs[$arLang["LID"]] = "[".$arLang["LID"]."]&nbsp;".$arLang["NAME"];
 
-while ($arTax = $dbResultList->NavNext(true, "f_"))
+while ($arTax = $dbResultList->NavNext(false))
 {
-	$row =& $lAdmin->AddRow($f_ID, $arTax);
+	$editUrl = $selfFolderUrl."sale_tax_edit.php?ID=".$arTax["ID"]."&lang=".LANGUAGE_ID;
+	$editUrl = $adminSidePanelHelper->editUrlToPublicPage($editUrl);
+	$row =& $lAdmin->AddRow($arTax["ID"], $arTax, $editUrl);
 
-	$row->AddField("ID", $f_ID);
-	$row->AddField("TIMESTAMP_X", $f_TIMESTAMP_X);
+	$row->AddField("ID", $arTax["ID"]);
+	$row->AddField("TIMESTAMP_X", $arTax["TIMESTAMP_X"]);
 	$row->AddSelectField("LID", $arLangs, array());
 
-	$fieldShow = $f_NAME."<br><small>".$f_DESCRIPTION."</small><br>";
+	$fieldShow = $arTax["NAME"]."<br><small>".$arTax["DESCRIPTION"]."</small><br>";
 
 	if ($row->VarsFromForm() && $_REQUEST["FIELDS"])
 	{
-		$valName = $_REQUEST["FIELDS"][$f_ID]["NAME"];
-		$valDescr = $_REQUEST["FIELDS"][$f_ID]["DESCRIPTION"];
+		$valName = $_REQUEST["FIELDS"][$arTax["ID"]]["NAME"];
+		$valDescr = $_REQUEST["FIELDS"][$arTax["ID"]]["DESCRIPTION"];
 	}
 	else
 	{
-		$valName = $f_NAME;
-		$valDescr = $f_DESCRIPTION;
+		$valName = $arTax["NAME"];
+		$valDescr = $arTax["DESCRIPTION"];
 	}
 
-	$fieldEdit  = "<input type=\"text\" name=\"FIELDS[".$f_ID."][NAME]\" value=\"".htmlspecialcharsbx($valName)."\" size=\"30\"><br>";
-	$fieldEdit .= "<input type=\"text\" name=\"FIELDS[".$f_ID."][DESCRIPTION]\" value=\"".htmlspecialcharsbx($valDescr)."\" size=\"30\">";
-	$row->AddField("NAME", $fieldShow, $fieldEdit);
+	$fieldEdit  = "<input type=\"text\" name=\"FIELDS[".$arTax["ID"]."][NAME]\" value=\"".htmlspecialcharsbx($valName)."\" size=\"30\"><br>";
+	$fieldEdit .= "<input type=\"text\" name=\"FIELDS[".$arTax["ID"]."][DESCRIPTION]\" value=\"".htmlspecialcharsbx($valDescr)."\" size=\"30\">";
+	$row->AddField("NAME", $fieldShow, $fieldEdit, false);
 
 	$row->AddInputField("CODE");
 
@@ -149,58 +160,57 @@ while ($arTax = $dbResultList->NavNext(true, "f_"))
 	if (in_array("STAV", $arVisibleColumns))
 	{
 		$num = 0;
-		$dbRes = CSaleTaxRate::GetList(array(), array("TAX_ID" => $f_ID));
+		$dbRes = CSaleTaxRate::GetList(array(), array("TAX_ID" => $arTax["ID"]));
 		while ($dbRes->Fetch())
 			$num++;
 
 		if ($num > 0)
-			$fieldShow = "<a href=\"sale_tax_rate.php?lang=".LANG."&filter_tax_id=".$f_ID."&set_filter=Y\" title=\"".GetMessage("TAX_RATE_DESCR")."\">".$num."</a>";
+		{
+			$taxRateUrl = $selfFolderUrl."sale_tax_rate.php?lang=".LANGUAGE_ID."&TAX_ID=".$arTax["ID"]."&apply_filter=Y";
+			$taxRateUrl = $adminSidePanelHelper->editUrlToPublicPage($taxRateUrl);
+			$fieldShow = "<a href=\"".$taxRateUrl."\" title=\"".GetMessage("TAX_RATE_DESCR")."\">".$num."</a>";
+		}
 		else
+		{
 			$fieldShow = "0";
+		}
 	}
 	$row->AddField("STAV", $fieldShow);
 
-	$arActions = Array();
-	$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("TAX_EDIT_DESCR"), "ACTION"=>$lAdmin->ActionRedirect("sale_tax_edit.php?ID=".$f_ID."&lang=".LANG.GetFilterParams("filter_").""), "DEFAULT"=>true);
+	$arActions = array();
+	$arActions[] = array(
+		"ICON" => "edit",
+		"TEXT" => GetMessage("TAX_EDIT_DESCR"),
+		"LINK" => $editUrl,
+		"DEFAULT" => true
+	);
 	if ($saleModulePermissions >= "W")
 	{
-		$arActions[] = array("SEPARATOR" => true);
-		$arActions[] = array("ICON"=>"delete", "TEXT"=>GetMessage("SALE_DELETE_DESCR"), "ACTION"=>"if(confirm('".GetMessage('TAX_DEL_CONF')."')) ".$lAdmin->ActionDoGroup($f_ID, "delete"));
+		$arActions[] = array(
+			"ICON" => "delete",
+			"TEXT" => GetMessage("SALE_DELETE_DESCR"),
+			"ACTION" => "if(confirm('".GetMessage('TAX_DEL_CONF')."')) ".$lAdmin->ActionDoGroup($arTax["ID"], "delete")
+		);
 	}
 
 	$row->AddActions($arActions);
 }
 
-$lAdmin->AddFooter(
-	array(
-		array(
-			"title" => GetMessage("MAIN_ADMIN_LIST_SELECTED"),
-			"value" => $dbResultList->SelectedRowsCount()
-		),
-		array(
-			"counter" => true,
-			"title" => GetMessage("MAIN_ADMIN_LIST_CHECKED"),
-			"value" => "0"
-		),
-	)
-);
-
-$lAdmin->AddGroupActionTable(
-	array(
-		"delete" => GetMessage("MAIN_ADMIN_LIST_DELETE"),
-	)
-);
+$lAdmin->AddGroupActionTable(array("delete" => GetMessage("MAIN_ADMIN_LIST_DELETE")));
 
 if ($saleModulePermissions == "W")
 {
+	$addUrl = $selfFolderUrl."sale_tax_edit.php?lang=".LANGUAGE_ID;
+	$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
 	$aContext = array(
 		array(
 			"TEXT" => GetMessage("STAN_ADD_NEW"),
 			"ICON" => "btn_new",
-			"LINK" => "sale_tax_edit.php?lang=".LANG,
+			"LINK" => $addUrl,
 			"TITLE" => GetMessage("STAN_ADD_NEW_ALT")
 		),
 	);
+	$lAdmin->setContextSettings(array("pagePath" => $selfFolderUrl."sale_tax.php"));
 	$lAdmin->AddAdminContextMenu($aContext);
 }
 

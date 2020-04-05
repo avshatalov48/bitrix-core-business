@@ -17,10 +17,13 @@ Loc::loadMessages(__FILE__);
 
 class MethodSchedule implements iMethod
 {
-	/** @var integer[] $dateTime Date. */
+	/** @var integer[] $monthsOfYear Months. */
+	protected $monthsOfYear = array();
+
+	/** @var integer[] $daysOfMonth Days. */
 	protected $daysOfMonth = array();
 
-	/** @var integer[] $dateTime Date. */
+	/** @var integer[] $daysOfWeek Week days. */
 	protected $daysOfWeek = array();
 
 	/** @var integer $hours Hour. */
@@ -55,7 +58,7 @@ class MethodSchedule implements iMethod
 	}
 
 	/**
-	 * Set days of month.
+	 * Set days of week.
 	 *
 	 * @param integer[] $days Days.
 	 * @return $this
@@ -63,6 +66,18 @@ class MethodSchedule implements iMethod
 	public function setDaysOfWeek(array $days)
 	{
 		$this->daysOfWeek = $days;
+		return $this;
+	}
+
+	/**
+	 * Set month of year.
+	 *
+	 * @param integer[] $months Months.
+	 * @return $this
+	 */
+	public function setMonthsOfYear(array $months)
+	{
+		$this->monthsOfYear = $months;
 		return $this;
 	}
 
@@ -80,6 +95,72 @@ class MethodSchedule implements iMethod
 		return $this;
 	}
 
+	private function getDateTimeByData(array $months = [], array $days = [])
+	{
+		if (empty($months))
+		{
+			for ($i = 1; $i <= 12; $i++)
+			{
+				$months[] = $i;
+			}
+		}
+		if (empty($days))
+		{
+			for ($i = 1; $i <= 31; $i++)
+			{
+				$days[] = $i;
+			}
+		}
+		foreach ([false, true] as $nextYear)
+		{
+			foreach ($months as $month)
+			{
+				foreach ($days as $day)
+				{
+					$date = $this->getDateTime($month, $day, $nextYear);
+					if ($this->checkDateTime($date))
+					{
+						return $date;
+					}
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private function checkDateTime(DateTime $date = null)
+	{
+		static $current = null;
+		if ($current === null)
+		{
+			$current = time();
+		}
+
+		if (!$date)
+		{
+			return false;
+		}
+
+		return $current < $date->getTimestamp();
+	}
+
+	private function getDateTime($month = null, $day = null, $nextYear = false)
+	{
+		if ($month === null && $day === null)
+		{
+			$date = new DateTime();
+		}
+		else
+		{
+			$date = DateTime::createFromTimestamp(
+				mktime(0, 0, 0, $month, $day, date('Y') + ($nextYear ? 1 : 0))
+			);
+		}
+
+		return $date->setTime((int) $this->hours, (int) $this->minutes);
+	}
+
 	/**
 	 * Get next date.
 	 *
@@ -88,30 +169,36 @@ class MethodSchedule implements iMethod
 	 */
 	public function getNextDate()
 	{
-		$currentDate = new DateTime();
-		$date = new DateTime();
-		$date->setTime((int) $this->hours, (int) $this->minutes);
-		if (empty($this->daysOfWeek))
+		if (empty($this->daysOfWeek) && empty($this->monthsOfYear) && empty($this->daysOfMonth))
 		{
 			return null;
 		}
-		for($i = 0; $i < 7; $i++)
+
+		if (!empty($this->monthsOfYear) || !empty($this->daysOfMonth))
 		{
-			if ($i > 0)
+			$date = $this->getDateTimeByData($this->monthsOfYear, $this->daysOfMonth);
+		}
+		else
+		{
+			$date = $this->getDateTime();
+			for($i = 0; $i < 7; $i++)
 			{
-				$date->add("+1 days");
-			}
+				if ($i > 0)
+				{
+					$date->add("+1 days");
+				}
 
-			if ($currentDate->getTimestamp() > $date->getTimestamp())
-			{
-				continue;
-			}
+				if (!$this->checkDateTime($date))
+				{
+					continue;
+				}
 
-			$day = (int) date('w', $date->getTimestamp());
-			$day = $day === 0 ? 7 : $day;
-			if (in_array($day, $this->daysOfWeek))
-			{
-				break;
+				$day = (int) date('w', $date->getTimestamp());
+				$day = $day === 0 ? 7 : $day;
+				if (in_array($day, $this->daysOfWeek))
+				{
+					break;
+				}
 			}
 		}
 
@@ -125,6 +212,7 @@ class MethodSchedule implements iMethod
 	 */
 	public function apply()
 	{
+		$this->letter->set('MONTHS_OF_YEAR', implode(',', $this->monthsOfYear));
 		$this->letter->set('DAYS_OF_MONTH', implode(',', $this->daysOfMonth));
 		$this->letter->set('DAYS_OF_WEEK', implode(',', $this->daysOfWeek));
 		$this->letter->set('TIMES_OF_DAY', $this->hours ? ($this->hours . ':' . $this->minutes) : null);
@@ -142,6 +230,8 @@ class MethodSchedule implements iMethod
 	 */
 	public function revoke()
 	{
+		$this->letter->set('MONTHS_OF_YEAR', null);
+		$this->letter->set('DAYS_OF_MONTH', null);
 		$this->letter->set('DAYS_OF_WEEK', null);
 		$this->letter->set('TIMES_OF_DAY', null);
 		$this->letter->set('REITERATE', 'N');
@@ -235,6 +325,42 @@ class MethodSchedule implements iMethod
 				preg_match("/^(\d)$/", $day, $found)
 				&& $found[1] >= 1
 				&& $found[1] <= 7
+			)
+			{
+				$result[]=intval($found[1]);
+			}
+			else
+			{
+				return [];
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Parse months of year.
+	 *
+	 * @param string $monthsOfYear Months of year.
+	 * @return array|null
+	 */
+	public static function parseMonthsOfYear($monthsOfYear)
+	{
+		if(strlen($monthsOfYear) <= 0)
+		{
+			return [];
+		}
+
+		$result = [];
+		$days = explode(",", $monthsOfYear);
+		foreach($days as $day)
+		{
+			$day = trim($day);
+			$found = [];
+			if(
+				preg_match("/^(\d)$/", $day, $found)
+				&& $found[1] >= 1
+				&& $found[1] <= 12
 			)
 			{
 				$result[]=intval($found[1]);

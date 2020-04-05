@@ -72,16 +72,16 @@ class View extends \Bitrix\Landing\Hook\Page
 
 		if ($type == 'ltr')
 		{
-			Manager::setPageClass(
+			Manager::setPageView(
 				'MainClass',
-				'g-pt-30 g-px-50'
+				'g-pt-6 g-px-10 g-pt-30--md g-px-50--md'
 			);
 		}
 		elseif ($type == 'all')
 		{
-			Manager::setPageClass(
+			Manager::setPageView(
 				'MainClass',
-				'g-py-30 g-px-50'
+				'g-py-6 g-px-10 g-py-30--md g-px-50--md'
 			);
 		}
 	}

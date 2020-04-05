@@ -18,9 +18,18 @@ if (IsModuleInstalled('bitrix24'))
 $request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
 $host = $request->isHttps() ? 'https' : 'http';
 
+$isAvailable = \Bitrix\Sale\PaySystem\Manager::HANDLER_AVAILABLE_TRUE;
+
+$licensePrefix = \Bitrix\Main\Loader::includeModule("bitrix24") ? \CBitrix24::getLicensePrefix() : "";
+if (IsModuleInstalled("bitrix24") && !in_array($licensePrefix, ["ru"]))
+{
+	$isAvailable = \Bitrix\Sale\PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
+}
+
 $data = array(
 	'NAME' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT'),
 	'SORT' => 500,
+	'IS_AVAILABLE' => $isAvailable,
 	'CODES' => array(
 		"YANDEX_CHECKOUT_SHOP_ID" => array(
 			"NAME" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_SHOP_ID"),
@@ -34,10 +43,26 @@ $data = array(
 			'SORT' => 200,
 			'GROUP' => 'CONNECT_SETTINGS_YANDEX'
 		),
+		"YANDEX_CHECKOUT_SHOP_ARTICLE_ID" => array(
+			"NAME" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_SHOP_ARTICLE_ID"),
+			"DESCRIPTION" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_SHOP_ARTICLE_ID_DESC"),
+			'SORT' => 250,
+			'GROUP' => 'CONNECT_SETTINGS_YANDEX'
+		),
+		"YANDEX_CHECKOUT_DESCRIPTION" => array(
+			"NAME" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_PAYMENT_DESCRIPTION"),
+			"DESCRIPTION" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_PAYMENT_DESCRIPTION_DESC"),
+			'SORT' => 250,
+			'GROUP' => 'CONNECT_SETTINGS_YANDEX',
+			'DEFAULT' => array(
+				'PROVIDER_KEY' => 'VALUE',
+				'PROVIDER_VALUE' => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_PAYMENT_DESCRIPTION_TEMPLATE"),
+			)
+		),
 		"YANDEX_CHECKOUT_RETURN_URL" => array(
 			"NAME" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_RETURN_URL"),
 			"DESCRIPTION" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_RETURN_URL_DESC"),
-			'SORT' => 200,
+			'SORT' => 300,
 			'GROUP' => 'CONNECT_SETTINGS_YANDEX',
 			'DEFAULT' => array(
 				'PROVIDER_KEY' => 'VALUE',

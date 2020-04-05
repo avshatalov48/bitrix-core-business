@@ -15,7 +15,9 @@ class CBPGetUserActivity
 			"MaxLevel" => null,
 			"GetUser" => null,
 			"SkipAbsent" => "",
+			"SkipAbsentReserve" => "Y",
 			"SkipTimeman" => "",
+			"SkipTimemanReserve" => "N",
 		);
 
 		$this->SetPropertiesTypes(array(
@@ -180,6 +182,17 @@ class CBPGetUserActivity
 			}
 		}
 
+		//check reserve skipping rule
+		if ($this->SkipAbsentReserve === 'N')
+		{
+			$skipAbsent = false;
+		}
+
+		if ($this->SkipTimemanReserve === 'N')
+		{
+			$skipTimeman = false;
+		}
+
 		$arReserveUsers = $this->GetUsersList($this->ReserveUserParameter, $skipAbsent, $skipTimeman);
 		if (count($arReserveUsers) > 0)
 		{
@@ -208,7 +221,16 @@ class CBPGetUserActivity
 
 		if (!is_array($arCurrentValues))
 		{
-			$arCurrentValues = array("user_type" => "", "user_parameter" => "", "reserve_user_parameter" => "", "max_level" => 1, "skip_absent" => "Y", "skip_timeman" => "N");
+			$arCurrentValues = array(
+				"user_type"      => "",
+				"user_parameter" => "",
+				"reserve_user_parameter" => "",
+				"max_level" => 1,
+				"skip_absent" => "Y",
+				'skip_absent_reserve' => 'Y',
+				"skip_timeman" => "N",
+				"skip_timeman_reserve" => "N"
+			);
 
 			$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
 			if (is_array($arCurrentActivity["Properties"]))
@@ -218,7 +240,9 @@ class CBPGetUserActivity
 				$arCurrentValues["user_parameter"] = CBPHelper::UsersArrayToString($arCurrentActivity["Properties"]["UserParameter"], $arWorkflowTemplate, $documentType);
 				$arCurrentValues["reserve_user_parameter"] = CBPHelper::UsersArrayToString($arCurrentActivity["Properties"]["ReserveUserParameter"], $arWorkflowTemplate, $documentType);
 				$arCurrentValues["skip_absent"] = (array_key_exists("SkipAbsent", $arCurrentActivity["Properties"]) ? $arCurrentActivity["Properties"]["SkipAbsent"] : (($arCurrentActivity["Properties"]["UserType"] == "boss") ? "N" : "Y"));
+				$arCurrentValues["skip_absent_reserve"] = (array_key_exists("SkipAbsentReserve", $arCurrentActivity["Properties"]) ? $arCurrentActivity["Properties"]["SkipAbsentReserve"] : $arCurrentValues["skip_absent"]);
 				$arCurrentValues["skip_timeman"] = (array_key_exists("SkipTimeman", $arCurrentActivity["Properties"])) ? $arCurrentActivity["Properties"]["SkipTimeman"] : 'N';
+				$arCurrentValues["skip_timeman_reserve"] = (array_key_exists("SkipTimemanReserve", $arCurrentActivity["Properties"])) ? $arCurrentActivity["Properties"]["SkipTimemanReserve"] : $arCurrentValues["skip_timeman"];
 			}
 		}
 
@@ -256,10 +280,12 @@ class CBPGetUserActivity
 		if (!isset($arCurrentValues["skip_absent"]) || !in_array($arCurrentValues["skip_absent"], array("Y", "N")))
 			$arCurrentValues["skip_absent"] = "Y";
 		$arProperties["SkipAbsent"] = $arCurrentValues["skip_absent"];
-		
+		$arProperties["SkipAbsentReserve"] = ($arCurrentValues["skip_absent_reserve"] !== 'N') ? 'Y' : 'N';
+
 		if (!isset($arCurrentValues["skip_timeman"]) || !in_array($arCurrentValues["skip_timeman"], array("Y", "N")))
 			$arCurrentValues["skip_timeman"] = "N";
 		$arProperties["SkipTimeman"] = $arCurrentValues["skip_timeman"];
+		$arProperties["SkipTimemanReserve"] = ($arCurrentValues["skip_timeman_reserve"] !== 'N') ? 'Y' : 'N';
 
 		$arErrors = self::ValidateProperties($arProperties, new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser));
 		if (count($arErrors) > 0)
@@ -325,4 +351,3 @@ class CBPGetUserActivity
 		return array_merge($arErrors, parent::ValidateProperties($arTestProperties, $user));
 	}
 }
-?>

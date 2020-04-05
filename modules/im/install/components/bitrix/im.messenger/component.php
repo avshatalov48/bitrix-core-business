@@ -25,10 +25,13 @@ if ($arParams['CONTEXT'] == 'DESKTOP' || $arParams['DESKTOP'] == 'Y')
 {
 	$GLOBALS["APPLICATION"]->SetPageProperty("BodyClass", "im-desktop");
 
-	CIMMessenger::SetDesktopStatusOnline();
+	CIMMessenger::SetDesktopStatusOnline(null, false);
 	CIMMessenger::SetDesktopVersion(empty($_GET['BXD_API_VERSION'])? 0 : $_GET['BXD_API_VERSION']);
 	$arParams["DESIGN"] = "DESKTOP";
 	$arResult["CONTEXT"] = "DESKTOP";
+
+	$event = new \Bitrix\Main\Event("im", "onDesktopStart", array('USER_ID' => $USER->GetID()));
+	$event->send();
 }
 else if ($arParams["CONTEXT"] == "FULLSCREEN" || $arParams['FULLSCREEN'] == 'Y')
 {
@@ -335,6 +338,7 @@ else if ($arResult["DESIGN"] == 'DESKTOP')
 	$initJs = 'im_page';
 
 CJSCore::Init($initJs);
+\Bitrix\Main\UI\Extension::load(['ui.buttons', 'ui.buttons.icons']);
 
 if (!(isset($arParams['TEMPLATE_HIDE']) && $arParams['TEMPLATE_HIDE'] == 'Y'))
 	$this->IncludeComponentTemplate();

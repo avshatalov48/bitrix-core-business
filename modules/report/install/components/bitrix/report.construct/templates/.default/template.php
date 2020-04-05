@@ -142,6 +142,14 @@ initReportControls();
 		?>
 		<span class="filter-date-interval"><span class="filter-date-interval-from-wrap"><input type="text" class="filter-date-interval-from" name="F_DATE_FROM" id="REPORT_INTERVAL_F_DATE_FROM" value="<?=$_date_from?>" /><a class="filter-date-interval-calendar" href="" title="<?php echo GetMessage("REPORT_CALEND_PICK_DATE")?>" id="filter-date-interval-calendar-from"><img border="0" src="/bitrix/js/main/core/images/calendar-icon.gif" alt="<?php echo GetMessage("REPORT_CALEND_PICK_DATE")?>"/></a></span><span class="filter-date-interval-hellip">&hellip;</span><span class="filter-date-interval-to-wrap"><input type="text" class="filter-date-interval-to" name="F_DATE_TO" id="REPORT_INTERVAL_F_DATE_TO" value="<?=$_date_to?>" /><a href="" class="filter-date-interval-calendar" title="<?php echo GetMessage("REPORT_CALEND_PICK_DATE")?>" id="filter-date-interval-calendar-to"><img border="0" src="/bitrix/js/main/core/images/calendar-icon.gif" alt="<?php echo GetMessage("REPORT_CALEND_PICK_DATE")?>"/></a></span></span>
 		<span class="filter-day-interval<?php if ($arResult["preSettings"]["period"]['type'] == "days"):?> filter-day-interval-selected<?php endif?>"><input type="text" size="5" class="filter-date-days" value="<?php echo $arResult["preSettings"]["period"]['type'] == "days" ? $arResult["preSettings"]["period"]['value'] : ""?>" name="F_DATE_DAYS" /> <?php echo GetMessage("REPORT_CALEND_REPORT_DAYS")?></span>
+		<div class="report-period-hidden">
+			<input type="hidden" name="period_hidden" value="N">
+			<input type="checkbox" <?=($arResult['preSettings']['period']['hidden'] === 'Y')?'checked="checked" ':''?>
+				class="reports-checkbox" id="report-period-hidden-checkbox" name="period_hidden" value="Y" />
+			<span class="reports-limit-res-select-lable">
+				<label for="report-period-hidden-checkbox"><?=GetMessage('REPORT_PERIOD_HIDDEN')?></label>
+			</span>
+		</div>
 
 	</div>
 </div>
@@ -391,6 +399,16 @@ initReportControls();
 		}
 		#report-chart-config .reports-content-block-title { padding: 0 0 5px 1px; }
 		.popup-window-close-icon {  margin-top: 0;}
+		.reports-filter-item .money-editor input[type=text] { height: 16px; }
+		.reports-filter-item .money-editor select {
+			padding: 1px;
+			border-width: 1px;
+			height: 22px;
+			margin-left: 2px;
+		}
+		.report-period-hidden {
+			padding: 5px 5px 5px 0;
+		}
 	</style>
 <?php $fDisplayChart = $arResult['preSettings']['chart']['display']; ?>
 	<div id="report-chart-config" class="webform-additional-fields">
@@ -988,32 +1006,6 @@ initReportControls();
 		}
 	</script>
 
-</div>
-
-<!-- filter value control examples for UF enumerations -->
-<div id="report-filter-value-control-examples-ufenums" style="display: none">
-	<?
-	if (is_array($arResult['ufEnumerations'])):
-		foreach ($arResult['ufEnumerations'] as $ufId => $enums):
-			foreach ($enums as $fieldKey => $enum):
-	?>
-	<span name="report-filter-value-control-<?=($ufId.'_'.$fieldKey)?>" class="report-filter-vcc">
-		<select class="reports-filter-select-small" name="value">
-			<option value=""><?=GetMessage('REPORT_IGNORE_FILTER_VALUE')?></option>
-	<?
-				foreach ($enum as $itemId => $itemInfo):
-	?>
-			<option value="<?=$itemId?>"><?=$itemInfo['VALUE']?></option>
-	<?
-				endforeach;
-	?>
-		</select>
-	</span>
-	<?
-			endforeach;
-		endforeach;
-	endif;
-	?>
 </div>
 
 <!-- user selector -->

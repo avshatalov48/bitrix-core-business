@@ -919,8 +919,12 @@ class Letter extends Base
 		try
 		{
 			$scheduleTime = Dispatch\MethodSchedule::parseTimesOfDay($this->get('TIMES_OF_DAY'));
+			$scheduleMonths = Dispatch\MethodSchedule::parseMonthsOfYear($this->get('MONTHS_OF_YEAR'));
 			$scheduleWeekDays = Dispatch\MethodSchedule::parseDaysOfWeek($this->get('DAYS_OF_WEEK'));
+			$scheduleMonthDays = Dispatch\MethodSchedule::parseDaysOfMonth($this->get('DAYS_OF_MONTH'));
 			$method = (new Dispatch\MethodSchedule($this))
+				->setMonthsOfYear($scheduleMonths)
+				->setDaysOfMonth($scheduleMonthDays)
 				->setDaysOfWeek($scheduleWeekDays)
 				->setTime($scheduleTime[0], $scheduleTime[1]);
 			$this->getState()->wait($method);
@@ -943,6 +947,24 @@ class Letter extends Base
 		try
 		{
 			return $this->getState()->send();
+		}
+		catch (InvalidOperationException $exception)
+		{
+			$this->errors->setError(new Error($exception->getMessage()));
+			return false;
+		}
+	}
+
+	/**
+	 * Send errors.
+	 *
+	 * @return bool
+	 */
+	public function sendErrors()
+	{
+		try
+		{
+			return $this->getState()->sendErrors();
 		}
 		catch (InvalidOperationException $exception)
 		{
@@ -1056,6 +1078,7 @@ class Letter extends Base
 				'TITLE' => 'TITLE',
 				'MAILING_NAME' => 'CAMPAIGN.NAME',
 				'DATE_SENT' => 'POSTING.DATE_SENT',
+				'COUNT_SEND_ERROR' => 'POSTING.COUNT_SEND_ERROR',
 				'CREATED_BY' => 'CREATED_BY',
 				'CREATED_BY_NAME' => 'CREATED_BY_USER.NAME',
 				'CREATED_BY_LAST_NAME' => 'CREATED_BY_USER.LAST_NAME',

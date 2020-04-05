@@ -1,0 +1,10 @@
+<?
+$MESS["SALE_ORDER_DISCOUNT_MIGRATOR_ERR_EMPTY_ORDER_ID"] = "Order ID is missing.";
+$MESS["SALE_ORDER_DISCOUNT_MIGRATOR_ERR_SAVE_MIGRATE_DISCOUNT"] = "Conversion error";
+$MESS["SALE_ORDER_DISCOUNT_MIGRATOR_MESS_CATALOG_DISCOUNT_NAME"] = "Product discount";
+$MESS["SALE_ORDER_DISCOUNT_MIGRATOR_MESS_CATALOG_DISCOUNT_SIMPLE_MESS"] = "discount";
+$MESS["SALE_ORDER_DISCOUNT_MIGRATOR_MESS_TYPE_ACCUMULATE_EMPTY"] = "accumulation discount";
+$MESS["SALE_ORDER_DISCOUNT_MIGRATOR_ERR_BAD_PREPARE_DISCOUNT"] = "Product discount was not found or cannot be converted to the current format.";
+$MESS["SALE_ORDER_DISCOUNT_MIGRATOR_ERR_BAD_DISCOUNT_HASH"] = "Cannot generate discount or cart rule hash.";
+$MESS["SALE_ORDER_DISCOUNT_MIGRATOR_ERR_SAVE_DISCOUNT_MODULES"] = "Error saving the list of modules for discounts or cart rules.";
+?>

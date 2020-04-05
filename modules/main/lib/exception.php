@@ -217,3 +217,7 @@ class AccessDeniedException extends SystemException
 		parent::__construct(($message ?: "Access denied."), 510, '', 0, $previous);
 	}
 }
+
+class DecodingException	extends SystemException
+{
+}

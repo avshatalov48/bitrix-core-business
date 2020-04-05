@@ -73,7 +73,7 @@ class OrderShipment
 		{
 			$deliveryId = $data['DELIVERY_ID'];
 			$service = Services\Manager::getObjectById($deliveryId);
-			if ($service && $service->getParentService())
+			if ($service && $service::isProfile())
 			{
 				$profileId = $deliveryId;
 				$deliveryId = $service->getParentService()->getId();
@@ -146,7 +146,7 @@ class OrderShipment
 		$curFormat = \CCurrencyLang::GetFormatDescription($data['CURRENCY']);
 		$currencyLang = preg_replace("/(^|[^&])#/", '$1', $curFormat["FORMAT_STRING"]);
 
-		$customPriceDelivery = isset($post['CUSTOM_PRICE_DELIVERY']) ? $post['CUSTOM_PRICE_DELIVERY'] : $data['CUSTOM_PRICE_DELIVERY'];
+		$customPriceDelivery = isset($post['CUSTOM_PRICE_DELIVERY']) ? htmlspecialcharsbx($post['CUSTOM_PRICE_DELIVERY']) : $data['CUSTOM_PRICE_DELIVERY'];
 
 		$basePriceDelivery = round((isset($post['BASE_PRICE_DELIVERY']) ? $post['BASE_PRICE_DELIVERY'] : $data['BASE_PRICE_DELIVERY']), 2);
 		$priceDelivery = round((isset($post['PRICE_DELIVERY']) ? $post['PRICE_DELIVERY'] : $data['PRICE_DELIVERY']), 2);
@@ -261,9 +261,9 @@ class OrderShipment
 			<input type="hidden" name="SHIPMENT['.$index.'][SHIPMENT_ID]" id="SHIPMENT_ID_'.$index.'" value="'.$id.'">
 			<input type="hidden" name="SHIPMENT['.$index.'][CUSTOM_PRICE_DELIVERY]" id="CUSTOM_PRICE_DELIVERY_'.$index.'" value="'.$customPriceDelivery.'">
 			<input type="hidden" name="SHIPMENT['.$index.'][BASE_PRICE_DELIVERY]" id="BASE_PRICE_DELIVERY_'.$index.'" value="'.$data['BASE_PRICE_DELIVERY'].'">
-			<input type="hidden" name="SHIPMENT['.$index.'][CALCULATED_PRICE]" id="CALCULATED_PRICE_'.$index.'" value="'.(isset($post['CALCULATED_PRICE']) ? $post['CALCULATED_PRICE'] : $data['CALCULATED_PRICE']).'">
+			<input type="hidden" name="SHIPMENT['.$index.'][CALCULATED_PRICE]" id="CALCULATED_PRICE_'.$index.'" value="'.(isset($post['CALCULATED_PRICE']) ? htmlspecialcharsbx($post['CALCULATED_PRICE']) : $data['CALCULATED_PRICE']).'">
 			<input type="hidden" name="SHIPMENT['.$index.'][DEDUCTED]" id="STATUS_DEDUCTED_'.$index.'" value="'.($data['DEDUCTED'] == "" ? "N" : $data['DEDUCTED']).'">
-			<input type="hidden" name="SHIPMENT['.$index.'][ALLOW_DELIVERY]" id="STATUS_ALLOW_DELIVERY_'.$index.'" value="'.($data['ALLOW_DELIVERY'] == "" ? "N" : $data['ALLOW_DELIVERY']).'">
+			<input type="hidden" name="SHIPMENT['.$index.'][ALLOW_DELIVERY]" id="STATUS_ALLOW_DELIVERY_'.$index.'" value="'.($data['ALLOW_DELIVERY'] == "" ? "N" : htmlspecialcharsbx($data['ALLOW_DELIVERY'])).'">
 			<div class="adm-bus-component-content-container">
 				<div class="adm-bus-pay-section">
 					<div class="adm-bus-pay-section-title-container">
@@ -587,10 +587,12 @@ class OrderShipment
 						continue;
 				}
 
-				if (!empty($delivery['LOGOTIP']))
+				$logo = $service->getLogotip();
+
+				if (!empty($logo))
 				{
-					$mainLogo = self::getMainImgPath($delivery['LOGOTIP']);
-					$shortLogo = self::getShortImgPath($delivery['LOGOTIP']);
+					$mainLogo = self::getMainImgPath($logo);
+					$shortLogo = self::getShortImgPath($logo);
 					$delivery['LOGOTIP'] = array(
 						'MAIN' => $mainLogo['src'],
 						'SHORT' =>  $shortLogo['src']
@@ -726,7 +728,7 @@ class OrderShipment
 		return array('SHIPMENT' => $data);
 	}
 
-	protected static function getStoresList($deliveryId, $storeId)
+	public static function getStoresList($deliveryId, $storeId)
 	{
 		$result = array();
 
@@ -1936,8 +1938,8 @@ class OrderShipment
 			}
 
 			$fields = array(
-				'CUSTOM_PRICE_DELIVERY' => $item['CUSTOM_PRICE_DELIVERY'],
-				'ALLOW_DELIVERY' => $item['ALLOW_DELIVERY']
+				'CUSTOM_PRICE_DELIVERY' => $item['CUSTOM_PRICE_DELIVERY'] === 'Y' ? 'Y' : 'N',
+				'ALLOW_DELIVERY' => $item['ALLOW_DELIVERY'] === 'Y' ? 'Y' : 'N'
 			);
 
 			$deliveryPrice = (float)str_replace(',', '.', $item['PRICE_DELIVERY']);
@@ -1949,7 +1951,11 @@ class OrderShipment
 
 			$fields['PRICE_DELIVERY'] = $deliveryPrice;
 
-			self::$shipment->setFields($fields);
+			$setFieldsResult = self::$shipment->setFields($fields);
+			if (!$setFieldsResult->isSuccess())
+			{
+				$result->addErrors($setFieldsResult->getErrors());
+			}
 
 			if($deliveryService && !empty($item['ADDITIONAL']))
 			{

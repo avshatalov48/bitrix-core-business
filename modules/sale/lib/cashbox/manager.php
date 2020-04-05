@@ -7,7 +7,6 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Sale\Cashbox\Internals\CashboxConnectTable;
 use Bitrix\Sale\Cashbox\Internals\CashboxTable;
-use Bitrix\Sale\Cashbox\Internals\CashboxZReportTable;
 use Bitrix\Sale\Internals\CollectableEntity;
 use Bitrix\Sale\Result;
 
@@ -79,53 +78,6 @@ final class Manager
 		}
 
 		return $cashboxObjects[$id];
-	}
-
-	/**
-	 * @param array $cashbox
-	 * @return void
-	 */
-	public static function saveCashbox(array $cashbox)
-	{
-		if (isset($cashbox['ID']) && (int)$cashbox['ID'] > 0)
-		{
-			if ($cashbox['ENABLED'] !== $cashbox['PRESENTLY_ENABLED'])
-				static::update($cashbox['ID'], array('ENABLED' => $cashbox['PRESENTLY_ENABLED']));
-
-			CashboxTable::update($cashbox['ID'], array('DATE_LAST_CHECK' => new DateTime()));
-		}
-		else
-		{
-			$result = static::add(
-				array(
-					'ACTIVE' => 'N',
-					'DATE_CREATE' => new DateTime(),
-					'NAME' => CashboxBitrix::getName(),
-					'NUMBER_KKM' => $cashbox['NUMBER_KKM'],
-					'HANDLER' => $cashbox['HANDLER'],
-					'ENABLED' => $cashbox['PRESENTLY_ENABLED'],
-					'DATE_LAST_CHECK' => new DateTime(),
-					'EMAIL' => Main\Config\Option::get('main', 'email_from'),
-				)
-			);
-
-			if ($result->isSuccess())
-			{
-				CashboxZReportTable::add(array(
-					'STATUS' => 'Y',
-					'CASHBOX_ID' => $result->getId(),
-					'DATE_CREATE' => new DateTime(),
-					'DATE_PRINT_START' => new DateTime(),
-					'LINK_PARAMS' => '',
-					'CASH_SUM' => $cashbox['CACHE'],
-					'CASHLESS_SUM' => $cashbox['INCOME']-$cashbox['CACHE'],
-					'CUMULATIVE_SUM' => $cashbox['NZ_SUM'],
-					'RETURNED_SUM' => 0,
-					'CURRENCY' => 'RUB',
-					'DATE_PRINT_END' => new DateTime()
-				));
-			}
-		}
 	}
 
 	/**

@@ -4,6 +4,8 @@ namespace Bitrix\Mail;
 
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization;
+use Bitrix\Main\ORM\Fields\DatetimeField;
+use Bitrix\Main\ORM\Fields\TextField;
 
 Localization\Loc::loadMessages(__FILE__);
 
@@ -73,6 +75,9 @@ class MailMessageTable extends Entity\DataManager
 			'BODY' => array(
 				'data_type' => 'text',
 			),
+			'BODY_HTML' => array(
+				'data_type' => 'text',
+			),
 			'ATTACHMENTS' => array(
 				'data_type' => 'integer',
 			),
@@ -94,9 +99,6 @@ class MailMessageTable extends Entity\DataManager
 				'data_type' => 'boolean',
 				'values'    => array('N', 'Y'),
 			),
-			'FOR_SPAM_TEST' => array(
-				'data_type' => 'text',
-			),
 			'EXTERNAL_ID' => array(
 				'data_type' => 'string',
 			),
@@ -106,6 +108,22 @@ class MailMessageTable extends Entity\DataManager
 			'IN_REPLY_TO' => array(
 				'data_type' => 'string',
 			),
+			'LEFT_MARGIN' => array(
+				'data_type' => 'integer',
+			),
+			'RIGHT_MARGIN' => array(
+				'data_type' => 'integer',
+			),
+			'SEARCH_CONTENT' => array(
+				'data_type' => 'string',
+			),
+			'INDEX_VERSION' => array(
+				'data_type' => 'integer',
+			),
+			new DatetimeField('READ_CONFIRMED'),
+			new TextField('OPTIONS',[
+				'serialized' => true,
+			]),
 			'MAILBOX' => array(
 				'data_type' => 'Bitrix\Mail\Mailbox',
 				'reference' => array('=this.MAILBOX_ID' => 'ref.ID'),

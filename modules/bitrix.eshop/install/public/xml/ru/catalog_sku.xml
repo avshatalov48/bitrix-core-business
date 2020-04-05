@@ -86,6 +86,7 @@
 				<Ѕитриксќб€зательное>false</Ѕитриксќб€зательное>
 				<Ѕитрикс«начениеѕо”молчанию>N;</Ѕитрикс«начениеѕо”молчанию>
 				<—ериализовано>1</—ериализовано>
+				<Ѕитрикс–асширенныеѕараметры>a:3:{i:0;a:3:{s:9:&quot;MODULE_ID&quot;;s:6:&quot;iblock&quot;;s:10:&quot;FEATURE_ID&quot;;s:16:&quot;DETAIL_PAGE_SHOW&quot;;s:10:&quot;IS_ENABLED&quot;;s:1:&quot;Y&quot;;}i:1;a:3:{s:9:&quot;MODULE_ID&quot;;s:7:&quot;catalog&quot;;s:10:&quot;FEATURE_ID&quot;;s:9:&quot;IN_BASKET&quot;;s:10:&quot;IS_ENABLED&quot;;s:1:&quot;Y&quot;;}i:2;a:3:{s:9:&quot;MODULE_ID&quot;;s:6:&quot;iblock&quot;;s:10:&quot;FEATURE_ID&quot;;s:14:&quot;LIST_PAGE_SHOW&quot;;s:10:&quot;IS_ENABLED&quot;;s:1:&quot;Y&quot;;}}</Ѕитрикс–асширенныеѕараметры>
 			</—войство>
 			<—войство>
 				<»д>COLOR_REF</»д>
@@ -108,6 +109,7 @@
 				<Ѕитрикс«начениеѕо”молчанию>N;</Ѕитрикс«начениеѕо”молчанию>
 				<—ериализовано>1</—ериализовано>
 				<ЅитриксЌастройки–асширени€“ипа>a:5:{s:4:&quot;size&quot;;i:1;s:5:&quot;width&quot;;i:0;s:5:&quot;group&quot;;s:1:&quot;N&quot;;s:8:&quot;multiple&quot;;s:1:&quot;N&quot;;s:10:&quot;TABLE_NAME&quot;;s:21:&quot;eshop_color_reference&quot;;}</ЅитриксЌастройки–асширени€“ипа>
+				<Ѕитрикс–асширенныеѕараметры>a:2:{i:0;a:3:{s:9:&quot;MODULE_ID&quot;;s:7:&quot;catalog&quot;;s:10:&quot;FEATURE_ID&quot;;s:10:&quot;OFFER_TREE&quot;;s:10:&quot;IS_ENABLED&quot;;s:1:&quot;Y&quot;;}i:1;a:3:{s:9:&quot;MODULE_ID&quot;;s:7:&quot;catalog&quot;;s:10:&quot;FEATURE_ID&quot;;s:9:&quot;IN_BASKET&quot;;s:10:&quot;IS_ENABLED&quot;;s:1:&quot;Y&quot;;}}</Ѕитрикс–асширенныеѕараметры>
 			</—войство>
 			<—войство>
 				<»д>4510</»д>
@@ -173,6 +175,7 @@
 				<Ѕитриксќб€зательное>false</Ѕитриксќб€зательное>
 				<Ѕитрикс«начениеѕо”молчанию>s:0:&quot;&quot;;</Ѕитрикс«начениеѕо”молчанию>
 				<—ериализовано>1</—ериализовано>
+				<Ѕитрикс–асширенныеѕараметры>a:2:{i:0;a:3:{s:9:&quot;MODULE_ID&quot;;s:7:&quot;catalog&quot;;s:10:&quot;FEATURE_ID&quot;;s:10:&quot;OFFER_TREE&quot;;s:10:&quot;IS_ENABLED&quot;;s:1:&quot;Y&quot;;}i:1;a:3:{s:9:&quot;MODULE_ID&quot;;s:7:&quot;catalog&quot;;s:10:&quot;FEATURE_ID&quot;;s:9:&quot;IN_BASKET&quot;;s:10:&quot;IS_ENABLED&quot;;s:1:&quot;Y&quot;;}}</Ѕитрикс–асширенныеѕараметры>
 			</—войство>
 			<—войство>
 				<»д>40</»д>
@@ -245,6 +248,7 @@
 				<Ѕитриксќб€зательное>false</Ѕитриксќб€зательное>
 				<Ѕитрикс«начениеѕо”молчанию>s:0:&quot;&quot;;</Ѕитрикс«начениеѕо”молчанию>
 				<—ериализовано>1</—ериализовано>
+				<Ѕитрикс–асширенныеѕараметры>a:2:{i:0;a:3:{s:9:&quot;MODULE_ID&quot;;s:7:&quot;catalog&quot;;s:10:&quot;FEATURE_ID&quot;;s:10:&quot;OFFER_TREE&quot;;s:10:&quot;IS_ENABLED&quot;;s:1:&quot;Y&quot;;}i:1;a:3:{s:9:&quot;MODULE_ID&quot;;s:7:&quot;catalog&quot;;s:10:&quot;FEATURE_ID&quot;;s:9:&quot;IN_BASKET&quot;;s:10:&quot;IS_ENABLED&quot;;s:1:&quot;Y&quot;;}}</Ѕитрикс–асширенныеѕараметры>
 			</—войство>
 			<—войство>
 				<»д>39</»д>

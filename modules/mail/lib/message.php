@@ -168,7 +168,7 @@ class Message
 				//'big'   => array(),
 				//'small' => array(),
 			));
-			$sanitizer->applyHtmlSpecChars(false);
+			$sanitizer->applyDoubleEncode(false);
 			$html = $sanitizer->sanitizeHtml($html);
 
 			$parser = new \CTextParser();

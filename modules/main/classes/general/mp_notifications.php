@@ -177,10 +177,10 @@ class CMpNotifications
 
 	//get installed mp modules
 	public static function getClientInstalledModules(){
-		$strError_tmp = array();
+		$strError_tmp = "";
 		$arRequestedModules = array();
 		$arClientModules = CUpdateClientPartner::GetCurrentModules($strError_tmp);
-		if (count($strError_tmp) <= 0)
+		if (strlen($strError_tmp) <= 0)
 		{
 			if (count($arClientModules) > 0)
 			{

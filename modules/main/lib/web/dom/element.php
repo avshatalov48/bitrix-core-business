@@ -107,7 +107,7 @@ class Element extends Node
 
 	public function setClassList(array $classList)
 	{
-		return implode(' ', $classList);
+		$this->setAttribute('class', implode(' ', $classList));
 	}
 
 	public function getParentElement()

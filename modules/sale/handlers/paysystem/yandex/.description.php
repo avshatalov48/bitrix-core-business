@@ -15,9 +15,18 @@ if (IsModuleInstalled('bitrix24'))
 	$description['REFERRER'] = Loc::getMessage('SALE_HPS_YANDEX_REFERRER');
 }
 
+$isAvailable = \Bitrix\Sale\PaySystem\Manager::HANDLER_AVAILABLE_TRUE;
+
+$licensePrefix = \Bitrix\Main\Loader::includeModule("bitrix24") ? \CBitrix24::getLicensePrefix() : "";
+if (IsModuleInstalled("bitrix24") && !in_array($licensePrefix, ["ru"]))
+{
+	$isAvailable = \Bitrix\Sale\PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
+}
+
 $data = array(
 	'NAME' => Loc::getMessage('SALE_HPS_YANDEX'),
 	'SORT' => 500,
+	'IS_AVAILABLE' => $isAvailable,
 	'CODES' => array(
 		"YANDEX_SHOP_ID" => array(
 			"NAME" => Loc::getMessage("SALE_HPS_YANDEX_SHOP_ID"),

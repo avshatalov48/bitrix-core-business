@@ -19,7 +19,7 @@ Loc::loadMessages(__FILE__);
 class Installer
 {
 	protected $errors = array();
-	protected static $version = 1;
+	protected static $version = 2;
 	protected static $versionOptionName = 'sender_preset_version';
 
 	/**

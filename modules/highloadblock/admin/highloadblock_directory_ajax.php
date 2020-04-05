@@ -7,8 +7,7 @@ define('BX_SECURITY_SHOW_MESSAGE', true);
 define("PUBLIC_AJAX_MODE", true);
 define("NOT_CHECK_PERMISSIONS", true);
 
-use Bitrix\Main,
-	Bitrix\Main\Loader,
+use Bitrix\Main\Loader,
 	Bitrix\Main\Localization\Loc;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
@@ -82,9 +81,14 @@ if ($USER->IsAuthorized() && check_bitrix_sessid() && isset($_REQUEST['IBLOCK_ID
 
 	CUtil::JSPostUnescape();
 
+	$multiple = 'N';
+	if (isset($_REQUEST['multiple']) && $_REQUEST['multiple'] === 'Y')
+		$multiple = 'Y';
+	$defaultValues['MULTIPLE'] = $multiple;
+
 	function addTableXmlIDCell($intPropID, $arPropInfo)
 	{
-		return '<input type="text" onblur="getDirectoryTableHead(this);" name="PROPERTY_DIRECTORY_VALUES['.$intPropID.'][UF_XML_ID]" id="PROPERTY_VALUES_XML_'.$intPropID.'" value="'.htmlspecialcharsbx($arPropInfo['UF_XML_ID']).'" size="20" style="width:90%">';
+		return '<input type="text" onchange="getDirectoryTableHead(this);" name="PROPERTY_DIRECTORY_VALUES['.$intPropID.'][UF_XML_ID]" id="PROPERTY_VALUES_XML_'.$intPropID.'" value="'.htmlspecialcharsbx($arPropInfo['UF_XML_ID']).'" size="20" style="width:90%">';
 	}
 
 	function addTableIdCell($intPropID, $arPropInfo)
@@ -153,7 +157,7 @@ if ($USER->IsAuthorized() && check_bitrix_sessid() && isset($_REQUEST['IBLOCK_ID
 
 	function addTableDefCell($intPropID, $arPropInfo)
 	{
-		return '<input type="'.('Y' == $arPropInfo['MULTIPLE'] ? 'checkbox' : 'radio').'" name="PROPERTY_VALUES_DEF'.('Y' == $arPropInfo['MULTIPLE'] ? '[]' : '').'" id="PROPERTY_VALUES_DEF_'.$intPropID.'" value="'.$arPropInfo['ID'].'" '.('1' == $arPropInfo['UF_DEF'] ? 'checked="checked"' : '').'>';
+		return '<input type="'.('Y' == $arPropInfo['MULTIPLE'] ? 'checkbox' : 'radio').'" name="PROPERTY_VALUES_DEF'.('Y' == $arPropInfo['MULTIPLE'] ? '[]' : '').'" id="PROPERTY_VALUES_DEF_'.$intPropID.'" value="'.$intPropID.'" '.('1' == $arPropInfo['UF_DEF'] ? 'checked="checked"' : '').'>';
 	}
 
 	function addTableDescriptionCell($intPropID, $arPropInfo)
@@ -348,6 +352,45 @@ if ($USER->IsAuthorized() && check_bitrix_sessid() && isset($_REQUEST['IBLOCK_ID
 		return $result;
 	}
 
+	function addEmptyDefaultRow($property, $fields)
+	{
+		if (empty($fields) || !isset($fields['UF_DEF']))
+			return '';
+
+		if ($property['MULTIPLE'] != 'N')
+			return '';
+
+		$result = '<tr id="hlbl_property_tr_empty">';
+
+		$leftSide = [
+			'UF_NAME' => true,
+			'UF_SORT' => true,
+			'UF_XML_ID' => true,
+			'UF_FILE' => true,
+			'UF_LINK' => true
+		];
+
+		$rightSide = [
+			'UF_DESCRIPTION' => true,
+			'UF_FULL_DESCRIPTION' => true
+		];
+
+		$countLeft = count(array_intersect_key($fields, $leftSide)) + 1;
+		$result .= '<td colspan="'.$countLeft.'" style="text-align: center;">'.Loc::getMessage('HIBLOCK_PROP_DIRECTORY_EMPTY_DEFAULT_VALUE').'</td>';
+
+		$result .= '<td style="text-align:center;">'.
+		'<input type="radio" name="PROPERTY_VALUES_DEF" id="PROPERTY_VALUES_DEF_EMPTY" value="-1" '.($property['UF_DEF'] == '1' ? 'checked="checked"' : '').'>'.
+		'</td>';
+
+		$countRight = count(array_intersect_key($fields, $rightSide));
+		if ($countRight > 0)
+			$result .= '<td colspan="'.$countRight.'">&nbsp;</td>';
+
+		$result .= '</tr>';
+
+		return $result;
+	}
+
 	$rowNumber = (int)(isset($_REQUEST['rowNumber']) ? $_REQUEST['rowNumber'] : 0);
 	$currentRowNumber = 0;
 	$colCount = 1;
@@ -372,7 +415,7 @@ if ($USER->IsAuthorized() && check_bitrix_sessid() && isset($_REQUEST['IBLOCK_ID
 	if (isset($_REQUEST['addEmptyRow']) && $_REQUEST['addEmptyRow'] === 'Y')
 	{
 		$APPLICATION->RestartBuffer();
-		echo Bitrix\Main\Web\Json::encode(addTableRow($rowNumber, $defaultValues, $hlblockFields, true));
+		echo Bitrix\Main\Web\Json::encode(addTableRow('n'.$rowNumber, $defaultValues, $hlblockFields, true));
 	}
 	else
 	{
@@ -382,22 +425,36 @@ if ($USER->IsAuthorized() && check_bitrix_sessid() && isset($_REQUEST['IBLOCK_ID
 			{
 				$result .= addHeadRow($hlblockFields, $colCount);
 			}
-			$exist = false;
+
+			$existDefault = false;
+			$rowsList = '';
 			$rsData = $entityDataClass::getList(array(
 				'order' => $orderFields
 			));
 			while ($arData = $rsData->fetch())
 			{
-				$result .= addTableRow($rowNumber, $arData, $hlblockFields, false);
-				$currentRowNumber = $rowNumber;
-				$rowNumber++;
-				$exist = true;
+				if (isset($hlblockFields['UF_DEF']) && $arData['UF_DEF'] == '1')
+					$existDefault = true;
+
+				$arData['MULTIPLE'] = $multiple;
+				$rowsList .= addTableRow($arData['ID'], $arData, $hlblockFields, false);
 			}
-			if (!$exist)
-				$result .= addTableRow($rowNumber, $defaultValues, $hlblockFields, false);
+			unset($arData, $rsData);
+
+			$result .= addEmptyDefaultRow(
+				['MULTIPLE' => $multiple, 'UF_DEF' => ($existDefault ? '0' : '1')],
+				$hlblockFields
+			);
+
+			$result .= $rowsList;
+
+			if ($rowsList == '')
+				$result .= addTableRow('n'.$rowNumber, $defaultValues, $hlblockFields, false);
+
+			unset($rowsList);
 		}
 
-		$result .= '<tr style="display: none;"><td colspan="'.$colCount.'"><input type="hidden" id="IB_MAX_ROWS_COUNT" value="'.$currentRowNumber.'"></td></tr>';
+		$result .= '<tr style="display: none;"><td colspan="'.$colCount.'"><input type="hidden" id="IB_MAX_ROWS_COUNT" value="'.$rowNumber.'"></td></tr>';
 		echo $result;
 	}
 }

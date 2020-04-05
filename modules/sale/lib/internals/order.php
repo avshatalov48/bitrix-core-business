@@ -122,7 +122,7 @@ class OrderTable extends Main\Entity\DataManager
 				'USER',
 				'\Bitrix\Main\User',
 				array('=this.USER_ID' => 'ref.ID'),
-				array('join_type' => 'INNER')
+				array('join_type' => 'left')
 			),
 
 			new Main\Entity\BooleanField(

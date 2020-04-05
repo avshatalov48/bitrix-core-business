@@ -12,6 +12,7 @@ $controlNameFull = $controlName . (($arParams['MULTIPLE'] == 'Y') ? '[]' : '');
 $arValue = $arResult['FILES'];
 $addClass = ((strpos($_SERVER['HTTP_USER_AGENT'], 'Mac OS') !== false) ? 'file-filemacos' : '');
 $controlNameFull1 = htmlspecialcharsbx($controlNameFull);
+$delOnclick = "window['BfileFD{$uid}'].agent.StopUpload(BX('wd-doc#element_id#'));";
 $thumb = <<<HTML
 <tr class="file-inline-file" id="wd-doc#element_id#">
 	<td class="files-name">
@@ -22,7 +23,7 @@ $thumb = <<<HTML
 	<td class="files-size">#size#</td>
 	<td class="files-storage">
 		<div class="files-storage-block">&nbsp;
-			<span class='del-but' onclick="BfileFD{$uid}.agent.StopUpload(BX('wd-doc#element_id#'));"></span>
+			<span class="del-but" onclick="{$delOnclick}"></span>
 			<span class="files-placement">&nbsp;</span>
 			<input id="file-doc#element_id#" type="hidden" name="{$controlNameFull1}" value="#element_id#" />
 		</div>
@@ -82,7 +83,7 @@ if ($arParams["ALLOW_UPLOAD"] != "N")
 		</div>
 		<div class="file-selector">
 			<?=GetMessage('BFDND_DROPHERE');?><br />
-			<span class="file-uploader"><span class="file-but-text"><?=GetMessage('BFDND_SELECT_EXIST');?></span><input class="file-fileUploader <?=$addClass?>" id="file-fileUploader-<?=$uid?>" type="file" multiple='multiple' size='1' /></span>
+			<span class="file-uploader"><span class="file-but-text"><?=GetMessage('BFDND_SELECT_EXIST');?></span><input class="file-fileUploader <?=$addClass?>" id="file-fileUploader-<?=$uid?>" type="file" <?=$arParams["MULTIPLE"] === 'Y' ? ' multiple="multiple"' : ''?> size='1' /></span>
 			<div class="file-load-img"></div>
 		</div>
 	</div>
@@ -106,7 +107,7 @@ if ($arParams["ALLOW_UPLOAD"] != "N")
 				</tbody>
 			</table>
 		</div>
-		<div class="file-selector"><span class="file-uploader"><span class="file-uploader-left"></span><span class="file-but-text"><?=GetMessage('BFDND_SELECT_LOCAL');?></span><span class="file-uploader-right"></span><input class="file-fileUploader <?=$addClass?>" id="file-fileUploader-<?=$uid?>" type="file" <?/*multiple='multiple'*/?> size='1' /></span></div></div>
+		<div class="file-selector"><span class="file-uploader"><span class="file-uploader-left"></span><span class="file-but-text"><?=GetMessage('BFDND_SELECT_LOCAL');?></span><span class="file-uploader-right"></span><input class="file-fileUploader <?=$addClass?>" id="file-fileUploader-<?=$uid?>" type="file" <?=$arParams["MULTIPLE"] === 'Y' ? ' multiple="multiple"' : ''?> size='1' /></span></div></div>
 	<script>
 	BX.ready(function(){
 		BX.message({

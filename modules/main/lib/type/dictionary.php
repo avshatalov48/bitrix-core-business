@@ -26,7 +26,7 @@ class Dictionary
 	 * Returns any variable by its name. Null if variable is not set.
 	 *
 	 * @param string $name
-	 * @return string | null
+	 * @return string | array | null
 	 */
 	public function get($name)
 	{

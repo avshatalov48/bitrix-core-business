@@ -133,12 +133,18 @@ JCSmartFilter.prototype.updateItem = function (PID, arItem)
 					if (value.DISABLED)
 					{
 							BX.adjust(control, {props: {disabled: true}});
-							BX.addClass(control.parentNode, 'disabled');
+							if (label)
+								BX.addClass(label, 'disabled');
+							else
+								BX.addClass(control.parentNode, 'disabled');
 					}
 					else
 					{
 							BX.adjust(control, {props: {disabled: false}});
-							BX.removeClass(control.parentNode, 'disabled');
+							if (label)
+								BX.removeClass(label, 'disabled');
+							else
+								BX.removeClass(control.parentNode, 'disabled');
 					}
 
 					if (value.hasOwnProperty('ELEMENT_COUNT'))
@@ -213,7 +219,7 @@ JCSmartFilter.prototype.postHandler = function (result, fromCache)
 
 				if (this.viewMode == "VERTICAL")
 				{
-					curProp = BX.findChild(BX.findParent(this.curFilterinput, {'class':'bx-filter-parameters-box'}), {'class':'bx-filter-container-modef'}, true, false);
+					curProp = BX.findChild(BX.findParent(this.curFilterinput, {'class':'smart-filter-parameters-box'}), {'class':'smart-filter-container-modef'}, true, false);
 					curProp.appendChild(modef);
 				}
 
@@ -355,29 +361,31 @@ JCSmartFilter.prototype.hideFilterProps = function(element)
 
 	if(BX.hasClass(obj, "bx-active"))
 	{
+		filterBlock.style.overflow = "hidden";
 		new BX.easing({
 			duration : 300,
-			start : { opacity: 1,  height: filterBlock.offsetHeight },
+			start : { opacity: 100,  height: filterBlock.offsetHeight },
 			finish : { opacity: 0, height:0 },
 			transition : BX.easing.transitions.quart,
 			step : function(state){
-				filterBlock.style.opacity = state.opacity;
+				filterBlock.style.opacity = state.opacity / 100;
 				filterBlock.style.height = state.height + "px";
 			},
 			complete : function() {
 				filterBlock.setAttribute("style", "");
 				BX.removeClass(obj, "bx-active");
+				BX.addClass(propAngle, "smart-filter-angle-down");
+				BX.removeClass(propAngle, "smart-filter-angle-up");
 			}
 		}).animate();
 
-		BX.addClass(propAngle, "fa-angle-down");
-		BX.removeClass(propAngle, "fa-angle-up");
 	}
 	else
 	{
 		filterBlock.style.display = "block";
 		filterBlock.style.opacity = 0;
 		filterBlock.style.height = "auto";
+		filterBlock.style.overflow = "hidden";
 
 		var obj_children_height = filterBlock.offsetHeight;
 		filterBlock.style.height = 0;
@@ -385,19 +393,20 @@ JCSmartFilter.prototype.hideFilterProps = function(element)
 		new BX.easing({
 			duration : 300,
 			start : { opacity: 0,  height: 0 },
-			finish : { opacity: 1, height: obj_children_height },
+			finish : { opacity: 100, height: obj_children_height },
 			transition : BX.easing.transitions.quart,
 			step : function(state){
-				filterBlock.style.opacity = state.opacity;
+				filterBlock.style.opacity = state.opacity / 100;
 				filterBlock.style.height = state.height + "px";
 			},
 			complete : function() {
+				filterBlock.style.overflow = "";
+				BX.addClass(obj, "bx-active");
+				BX.removeClass(propAngle, "smart-filter-angle-down");
+				BX.addClass(propAngle, "smart-filter-angle-up");
 			}
 		}).animate();
 
-		BX.addClass(obj, "bx-active");
-		BX.removeClass(propAngle, "fa-angle-down");
-		BX.addClass(propAngle, "fa-angle-up");
 	}
 };
 
@@ -420,7 +429,7 @@ JCSmartFilter.prototype.selectDropDownItem = function(element, controlId)
 {
 	this.keyup(BX(controlId));
 
-	var wrapContainer = BX.findParent(BX(controlId), {className:"bx-filter-select-container"}, false);
+	var wrapContainer = BX.findParent(BX(controlId), {className:"smart-filter-input-group-dropdown"}, false);
 
 	var currentOption = wrapContainer.querySelector('[data-role="currentOption"]');
 	currentOption.innerHTML = element.innerHTML;

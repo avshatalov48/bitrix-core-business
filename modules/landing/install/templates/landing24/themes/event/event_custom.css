@@ -1,47 +1,3 @@
-/*
-For colors, than white in dark themes and vice versa
-Use color from standart H
-*/
-h2.g-theme-light-color-dark, h4.g-theme-light-color-dark {
-	color: #000;
-}
-
-/* Fix for complex button with icon. Need no bg color */
-.u-btn-inset > .u-btn-darkgray {
-	background-color: transparent;
-}
-
-/* for overwrite P color */
-.g-color-primary,
-.g-color-primary *,
-.g-color-primary p {
-	color: #f73859;
-}
-
-/* ***********
-THEMES CUSTOM COLORS
-*********** */
-
-.g-bg-secondary .media h4 {
-	color: #979aa7;
-}
-
-.landing-block-node-menu-list.navbar-nav .nav-item .nav-link:hover, .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link {
-	color: #f73859 !important;
-}
-
-.g-bg-white .landing-block-node-menu-list.navbar-nav .nav-item .nav-link-color-hover:hover {
-	background-color: #f73859 !important;
-}
-
-.g-bg-white .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link-color-hover {
-	background-color: #f73859 !important;
-}
-
-.g-color-primary--hover:hover * {
-	color: #f73859 !important;
-}
-
 .u-btn-inset::before {
 	border-color: #f73859 !important;
 }
@@ -61,12 +17,6 @@ THEMES CUSTOM COLORS
 	background-color: #f73859 !important;
 }
 
-
-
-/* RESTAURANT */
-.u-theme-restaurant-shadow-v1 {
-	box-shadow: inset 2px 2px 2px #f61f45;
-}
 
 /* BUTTON HOVERS */
 

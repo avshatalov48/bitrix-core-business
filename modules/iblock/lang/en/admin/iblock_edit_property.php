@@ -1,4 +1,5 @@
 <?
+$MESS["BT_ADM_IEP_SECTION_TITLE_PROPERTY_FEATURES"] = "Property parameters";
 $MESS["BT_ADM_IEP_PROPERTY_NEW"] = "New property";
 $MESS["BT_ADM_IEP_PROPERTY_EDIT"] = "Edit property: \"#NAME#\"";
 $MESS["BT_ADM_IEP_PROPERTY_ID_IS_ABSENT"] = "The property ID is not specified.";

@@ -16,7 +16,7 @@
 	function Tester()
 	{
 	}
-	Tester.prototype.classNameBtnWait = 'webform-small-button-wait';
+	Tester.prototype.classNameBtnWait = 'ui-btn-wait';
 	Tester.prototype.eventNameSend = 'sender-message-test-send';
 	Tester.prototype.init = function (params)
 	{

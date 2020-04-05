@@ -290,6 +290,7 @@ Class forum extends CModule
 		}
 		COption::SetOptionString("forum", "FILTER", "N");
 		$this->InstallUserFields();
+
 		return true;
 	}
 	

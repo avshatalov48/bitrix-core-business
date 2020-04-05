@@ -25,6 +25,4 @@ $MESS["IBLOCK_PROPERTY_ENTITY_VERSION_FIELD"] = "Версия";
 $MESS["IBLOCK_PROPERTY_ENTITY_USER_TYPE_FIELD"] = "Пользовательский тип";
 $MESS["IBLOCK_PROPERTY_ENTITY_USER_TYPE_SETTINGS_FIELD"] = "Настройки пользовательского типа";
 $MESS["IBLOCK_PROPERTY_ENTITY_HINT_FIELD"] = "Подсказка";
-$MESS["IBLOCK_PROPERTY_ENTITY_SKU_TREE_FIELD"] = "Использование для выбора торговых предложений";
-$MESS["IBLOCK_PROPERTY_ENTITY_IN_BASKET_FIELD"] = "Добавлять в корзину";
 ?>
